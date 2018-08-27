@@ -154,9 +154,9 @@ function export_date_options( $post_type = 'post' ) {
 <div class="wrap">
 <h1><?php echo esc_html( $title ); ?></h1>
 
-<p><?php _e('When you click the button below WordPress will create an XML file for you to save to your computer.'); ?></p>
+<p><?php _e('When you click the button below calmPress will create an XML file for you to save to your computer.'); ?></p>
 <p><?php _e('This format, which we call WordPress eXtended RSS or WXR, will contain your posts, pages, comments, custom fields, categories, and tags.'); ?></p>
-<p><?php _e('Once you&#8217;ve saved the download file, you can use the Import function in another WordPress installation to import the content from this site.'); ?></p>
+<p><?php _e('Once you&#8217;ve saved the download file, you can use the Import function in another calmPress installation to import the content from this site.'); ?></p>
 
 <h2><?php _e( 'Choose what to export' ); ?></h2>
 <form method="get" id="export-filters">

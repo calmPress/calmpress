@@ -106,7 +106,7 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 	 * @since 4.9.0
 	 *
 	 * @param array $query {
-	 *     Version check query arguments. 
+	 *     Version check query arguments.
 	 *
 	 *     @type string $version            WordPress version number.
 	 *     @type string $php                PHP version number.
@@ -136,7 +136,7 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 
 	$options = array(
 		'timeout' => $doing_cron ? 30 : 3,
-		'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url( '/' ),
+		'user-agent' => 'calmPress/' . $wp_version . '; ' . home_url( '/' ),
 		'headers' => array(
 			'wp_install' => $wp_install,
 			'wp_blog' => home_url( '/' )
@@ -325,7 +325,7 @@ function wp_update_plugins( $extra_stats = array() ) {
 			'locale'       => wp_json_encode( $locales ),
 			'all'          => wp_json_encode( true ),
 		),
-		'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url( '/' )
+		'user-agent' => 'calmPress/' . $wp_version . '; ' . home_url( '/' )
 	);
 
 	if ( $extra_stats ) {
@@ -507,7 +507,7 @@ function wp_update_themes( $extra_stats = array() ) {
 			'translations' => wp_json_encode( $translations ),
 			'locale'       => wp_json_encode( $locales ),
 		),
-		'user-agent'	=> 'WordPress/' . $wp_version . '; ' . home_url( '/' )
+		'user-agent'	=> 'calmPress/' . $wp_version . '; ' . home_url( '/' )
 	);
 
 	if ( $extra_stats ) {
@@ -525,7 +525,7 @@ function wp_update_themes( $extra_stats = array() ) {
 				/* translators: %s: support forums URL */
 				__( 'An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="%s">support forums</a>.' ),
 				__( 'https://wordpress.org/support/' )
-			) . ' ' . __( '(WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ),
+			) . ' ' . __( '(calmPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ),
 			headers_sent() || WP_DEBUG ? E_USER_WARNING : E_USER_NOTICE
 		);
 		$raw_response = wp_remote_post( $http_url, $options );
@@ -618,8 +618,8 @@ function wp_get_update_data() {
 	$counts['total'] = $counts['plugins'] + $counts['themes'] + $counts['wordpress'] + $counts['translations'];
 	$titles = array();
 	if ( $counts['wordpress'] ) {
-		/* translators: 1: Number of updates available to WordPress */
-		$titles['wordpress'] = sprintf( __( '%d WordPress Update'), $counts['wordpress'] );
+		/* translators: 1: Number of updates available to calmPress */
+		$titles['wordpress'] = sprintf( __( '%d calmPress Update'), $counts['wordpress'] );
 	}
 	if ( $counts['plugins'] ) {
 		/* translators: 1: Number of updates available to plugins */

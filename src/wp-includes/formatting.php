@@ -4183,7 +4183,7 @@ function sanitize_option( $option, $value ) {
 				if ( preg_match( '#http(s?)://(.+)#i', $value ) ) {
 					$value = esc_url_raw( $value );
 				} else {
-					$error = __( 'The WordPress address you entered did not appear to be a valid URL. Please enter a valid URL.' );
+					$error = __( 'The calmPress address you entered did not appear to be a valid URL. Please enter a valid URL.' );
 				}
 			}
 			break;

@@ -1688,7 +1688,7 @@ echo "<$heading_tag id='request-filesystem-credentials-title'>" . __( 'Connectio
 <p id="request-filesystem-credentials-desc"><?php
 	$label_user = __('Username');
 	$label_pass = __('Password');
-	_e('To perform the requested action, WordPress needs to access your web server.');
+	_e('To perform the requested action, calmPress needs to access your web server.');
 	echo ' ';
 	if ( ( isset( $types['ftp'] ) || isset( $types['ftps'] ) ) ) {
 		if ( isset( $types['ssh'] ) ) {

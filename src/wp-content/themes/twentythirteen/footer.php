@@ -22,7 +22,7 @@
 				}
 				?>
 				<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'twentythirteen' ) ); ?>" class="imprint">
-					<?php printf( __( 'Proudly powered by %s', 'twentythirteen' ), 'WordPress' ); ?>
+					<?php printf( __( 'Proudly powered by %s', 'twentythirteen' ), 'calmPress' ); ?>
 				</a>
 			</div><!-- .site-info -->
 		</footer><!-- #colophon -->

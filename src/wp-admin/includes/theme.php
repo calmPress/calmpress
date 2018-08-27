@@ -64,7 +64,7 @@ function delete_theme($stylesheet, $redirect = '') {
 	// Get the base plugin folder.
 	$themes_dir = $wp_filesystem->wp_themes_dir();
 	if ( empty( $themes_dir ) ) {
-		return new WP_Error( 'fs_no_themes_dir', __( 'Unable to locate WordPress theme directory.' ) );
+		return new WP_Error( 'fs_no_themes_dir', __( 'Unable to locate calmPress theme directory.' ) );
 	}
 
 	$themes_dir = trailingslashit( $themes_dir );
@@ -449,7 +449,7 @@ function themes_api( $action, $args = array() ) {
 			$url = set_url_scheme( $url, 'https' );
 
 		$http_args = array(
-			'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url( '/' ),
+			'user-agent' => 'calmPress/' . $wp_version . '; ' . home_url( '/' ),
 			'body' => array(
 				'action' => $action,
 				'request' => serialize( $args )
@@ -462,7 +462,7 @@ function themes_api( $action, $args = array() ) {
 				trigger_error(
 					sprintf(
 						/* translators: %s: support forums URL */
-						__( 'An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="%s">support forums</a>.' ),
+						__( 'An unexpected error occurred. Something may be wrong with calmPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="%s">support forums</a>.' ),
 						__( 'https://wordpress.org/support/' )
 					) . ' ' . __( '(WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ),
 					headers_sent() || WP_DEBUG ? E_USER_WARNING : E_USER_NOTICE

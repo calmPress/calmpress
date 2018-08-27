@@ -1452,12 +1452,12 @@ function wp_dashboard_browser_nag() {
 	if ( $response ) {
 		if ( $response['insecure'] ) {
 			/* translators: %s: browser name and link */
-			$msg = sprintf( __( "It looks like you're using an insecure version of %s. Using an outdated browser makes your computer unsafe. For the best WordPress experience, please update your browser." ),
+			$msg = sprintf( __( "It looks like you're using an insecure version of %s. Using an outdated browser makes your computer unsafe. For the best calmPress experience, please update your browser." ),
 				sprintf( '<a href="%s">%s</a>', esc_url( $response['update_url'] ), esc_html( $response['name'] ) )
 			);
 		} else {
 			/* translators: %s: browser name and link */
-			$msg = sprintf( __( "It looks like you're using an old version of %s. For the best WordPress experience, please update your browser." ),
+			$msg = sprintf( __( "It looks like you're using an old version of %s. For the best calmPress experience, please update your browser." ),
 				sprintf( '<a href="%s">%s</a>', esc_url( $response['update_url'] ), esc_html( $response['name'] ) )
 			);
 		}
@@ -1527,7 +1527,7 @@ function wp_check_browser_version() {
 		$url = 'http://api.wordpress.org/core/browse-happy/1.1/';
 		$options = array(
 			'body'       => array( 'useragent' => $_SERVER['HTTP_USER_AGENT'] ),
-			'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url( '/' )
+			'user-agent' => 'calmPress/' . $wp_version . '; ' . home_url( '/' )
 		);
 
 		if ( wp_http_supports( array( 'ssl' ) ) ) {
@@ -1575,7 +1575,7 @@ function wp_dashboard_empty() {}
 function wp_welcome_panel() {
 	?>
 	<div class="welcome-panel-content">
-	<h2><?php _e( 'Welcome to WordPress!' ); ?></h2>
+	<h2><?php _e( 'Welcome to calmPress!' ); ?></h2>
 	<p class="about-description"><?php _e( 'We&#8217;ve assembled some links to get you started:' ); ?></p>
 	<div class="welcome-panel-column-container">
 	<div class="welcome-panel-column">

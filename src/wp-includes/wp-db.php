@@ -1360,10 +1360,10 @@ class wpdb {
 
 		if ( $caller = $this->get_caller() ) {
 			/* translators: 1: Database error message, 2: SQL query, 3: Name of the calling function */
-			$error_str = sprintf( __( 'WordPress database error %1$s for query %2$s made by %3$s' ), $str, $this->last_query, $caller );
+			$error_str = sprintf( __( 'calmPress database error %1$s for query %2$s made by %3$s' ), $str, $this->last_query, $caller );
 		} else {
 			/* translators: 1: Database error message, 2: SQL query */
-			$error_str = sprintf( __( 'WordPress database error %1$s for query %2$s' ), $str, $this->last_query );
+			$error_str = sprintf( __( 'calmPress database error %1$s for query %2$s' ), $str, $this->last_query );
 		}
 
 		error_log( $error_str );
@@ -1376,7 +1376,7 @@ class wpdb {
 		if ( is_multisite() ) {
 			$msg = sprintf(
 				"%s [%s]\n%s\n",
-				__( 'WordPress database error:' ),
+				__( 'calmPress database error:' ),
 				$str,
 				$this->last_query
 			);
@@ -1393,7 +1393,7 @@ class wpdb {
 
 			printf(
 				'<div id="error"><p class="wpdberror"><strong>%s</strong> [%s]<br /><code>%s</code></p></div>',
-				__( 'WordPress database error:' ),
+				__( 'calmPress database error:' ),
 				$str,
 				$query
 			);
@@ -3307,8 +3307,8 @@ class wpdb {
 		global $wp_version, $required_mysql_version;
 		// Make sure the server has the required MySQL version
 		if ( version_compare($this->db_version(), $required_mysql_version, '<') ) {
-			/* translators: 1: WordPress version number, 2: Minimum required MySQL version number */
-			return new WP_Error('database_version', sprintf( __( '<strong>ERROR</strong>: WordPress %1$s requires MySQL %2$s or higher' ), $wp_version, $required_mysql_version ));
+			/* translators: 1: calmPress version number, 2: Minimum required MySQL version number */
+			return new WP_Error('database_version', sprintf( __( '<strong>ERROR</strong>: calmPress %1$s requires MySQL %2$s or higher' ), $wp_version, $required_mysql_version ));
 		}
 	}
 

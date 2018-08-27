@@ -11,7 +11,7 @@ require_once( dirname( __FILE__ ) . '/admin.php' );
 
 wp_enqueue_script( 'underscore' );
 
-/* translators: Page title of the About WordPress page in the admin. */
+/* translators: Page title of the About calmPress page in the admin. */
 $title = _x( 'About', 'page title' );
 
 list( $display_version ) = explode( '-', get_bloginfo( 'version' ) );
@@ -21,7 +21,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 	<div class="wrap about-wrap full-width-layout">
 		<h1><?php printf( __( 'Welcome to WordPress&nbsp;%s' ), $display_version ); ?></h1>
 
-		<p class="about-text"><?php printf( __( 'Thank you for updating to the latest version! WordPress %s will smooth your design workflow and keep you safe from coding errors.' ), $display_version ); ?></p>
+		<p class="about-text"><?php printf( __( 'Thank you for updating to the latest version! calmPress %s will smooth your design workflow and keep you safe from coding errors.' ), $display_version ); ?></p>
 		<div class="wp-badge"><?php printf( __( 'Version %s' ), $display_version ); ?></div>
 
 		<h2 class="nav-tab-wrapper wp-clearfix">
@@ -56,7 +56,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 			<p>
 				<?php
 				printf(
-					/* translators: 1: WordPress version number, 2: plural number of bugs. */
+					/* translators: 1: calmPress version number, 2: plural number of bugs. */
 					_n(
 						'<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bug.',
 						'<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bugs.',
@@ -92,7 +92,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 			<p>
 				<?php
 				printf(
-					/* translators: 1: WordPress version number, 2: plural number of bugs. */
+					/* translators: 1: calmPress version number, 2: plural number of bugs. */
 					_n(
 						'<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bug.',
 						'<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bugs.',
@@ -128,7 +128,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 			<p>
 				<?php
 				printf(
-					/* translators: 1: WordPress version number, 2: plural number of bugs. */
+					/* translators: 1: calmPress version number, 2: plural number of bugs. */
 					_n(
 						'<strong>Version %1$s</strong> addressed %2$s bug.',
 						'<strong>Version %1$s</strong> addressed %2$s bugs.',
@@ -164,7 +164,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 			<p>
 				<?php
 				printf(
-					/* translators: 1: WordPress version number, 2: plural number of bugs. */
+					/* translators: 1: calmPress version number, 2: plural number of bugs. */
 					_n(
 						'<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bug.',
 						'<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bugs.',
@@ -221,7 +221,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 						<img src="https://s.w.org/images/core/4.9/design-preview-links.svg" alt="">
 					</div>
 					<h3><?php _e( 'Collaborate with Design Preview Links' ); ?></h3>
-					<p><?php _e( 'Need to get some feedback on proposed site design changes? WordPress 4.9 gives you a preview link you can send to your team and customers so that you can collect and integrate feedback before you schedule the changes to go live. Can we say collaboration&#43;&#43;?' ); ?></p>
+					<p><?php _e( 'Need to get some feedback on proposed site design changes? calmPress 4.9 gives you a preview link you can send to your team and customers so that you can collect and integrate feedback before you schedule the changes to go live. Can we say collaboration&#43;&#43;?' ); ?></p>
 				</div>
 				<div class="section-item">
 					<div class="inline-svg">
@@ -235,7 +235,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 						<img src="https://s.w.org/images/core/4.9/prompt.svg" alt="">
 					</div>
 					<h3><?php _e( 'A Prompt to Protect Your Work' ); ?></h3>
-					<p><?php _e( 'Were you lured away from your desk before you saved your new draft design? Fear not, when you return, WordPress 4.9 will politely ask whether or not you&#8217;d like to save your unsaved changes.' ); ?></p>
+					<p><?php _e( 'Were you lured away from your desk before you saved your new draft design? Fear not, when you return, calmPress 4.9 will politely ask whether or not you&#8217;d like to save your unsaved changes.' ); ?></p>
 				</div>
 			</div>
 		</div>
@@ -258,7 +258,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 						<img src="https://s.w.org/images/core/4.9/sandbox.svg" alt="">
 					</div>
 					<h3><?php _e( 'Sandbox for Safety' ); ?></h3>
-					<p><?php _e( 'The dreaded white screen. You&#8217;ll avoid it when working on themes and plugin code because WordPress 4.9 will warn you about saving an error. You&#8217;ll sleep better at night.' ); ?></p>
+					<p><?php _e( 'The dreaded white screen. You&#8217;ll avoid it when working on themes and plugin code because calmPress 4.9 will warn you about saving an error. You&#8217;ll sleep better at night.' ); ?></p>
 				</div>
 				<div class="section-item">
 					<div class="inline-svg">
@@ -281,7 +281,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 						<img src="https://s.w.org/images/core/4.9/gallery-widget.svg" alt="">
 					</div>
 					<h3><?php _e( 'The New Gallery Widget' ); ?></h3>
-					<p><?php _e( 'An incremental improvement to the media changes hatched in WordPress 4.8, you can now add a gallery via widget. Yes!' ); ?></p>
+					<p><?php _e( 'An incremental improvement to the media changes hatched in calmPress 4.8, you can now add a gallery via widget. Yes!' ); ?></p>
 				</div>
 				<div class="section-item">
 					<div class="inline-svg">
@@ -334,7 +334,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 				?>
 			</h2>
 			<p><?php printf(
-				__( 'WordPress is working on a new way to create and control your content and we&#8217;d love to have your help. Interested in being an <a href="%s">early tester</a> or getting involved with the Gutenberg project? <a href="%s">Contribute on GitHub</a>.' ),
+				__( 'calmPress is working on a new way to create and control your content and we&#8217;d love to have your help. Interested in being an <a href="%s">early tester</a> or getting involved with the Gutenberg project? <a href="%s">Contribute on GitHub</a>.' ),
 				__( 'https://wordpress.org/plugins/gutenberg/' ),
 				'https://github.com/WordPress/gutenberg' ); ?></p>
 		</div>
@@ -356,7 +356,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 					<p><?php
 						printf(
 							/* translators: %s: https://make.wordpress.org/core/2017/11/01/improvements-to-the-customize-js-api-in-4-9/  */
-							__( 'We&#8217;ve made numerous improvements to the Customizer JS API in WordPress 4.9, eliminating many pain points and making it just as easy to work with as the PHP API. There are also new base control templates, a date/time control, and section/panel/global notifications to name a few. <a href="%s">Check out the full list.</a>' ),
+							__( 'We&#8217;ve made numerous improvements to the Customizer JS API in calmPress 4.9, eliminating many pain points and making it just as easy to work with as the PHP API. There are also new base control templates, a date/time control, and section/panel/global notifications to name a few. <a href="%s">Check out the full list.</a>' ),
 							'https://make.wordpress.org/core/2017/11/01/improvements-to-the-customize-js-api-in-4-9/'
 						);
 					?></p>
@@ -367,7 +367,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 				</div>
 				<div class="col">
 					<h3><a href="https://make.wordpress.org/core/2017/10/30/mediaelement-upgrades-in-wordpress-4-9/"><?php _e( 'MediaElement.js upgraded to 4.2.6' ); ?></a></h3>
-					<p><?php _e( 'WordPress 4.9 includes an upgraded version of MediaElement.js, which removes dependencies on jQuery, improves accessibility, modernizes the UI, and fixes many bugs.' ); ?></p>
+					<p><?php _e( 'calmPress 4.9 includes an upgraded version of MediaElement.js, which removes dependencies on jQuery, improves accessibility, modernizes the UI, and fixes many bugs.' ); ?></p>
 				</div>
 				<div class="col">
 					<h3><a href="https://make.wordpress.org/core/2017/10/15/improvements-for-roles-and-capabilities-in-4-9/"><?php _e( 'Improvements to Roles and Capabilities' ); ?></a></h3>
@@ -497,20 +497,20 @@ __( 'Security Releases' );
 __( 'Maintenance and Security Release' );
 __( 'Maintenance and Security Releases' );
 
-/* translators: %s: WordPress version number */
+/* translators: %s: calmPress version number */
 __( '<strong>Version %s</strong> addressed one security issue.' );
-/* translators: %s: WordPress version number */
+/* translators: %s: calmPress version number */
 __( '<strong>Version %s</strong> addressed some security issues.' );
 
-/* translators: 1: WordPress version number, 2: plural number of bugs. */
+/* translators: 1: calmPress version number, 2: plural number of bugs. */
 _n_noop( '<strong>Version %1$s</strong> addressed %2$s bug.',
          '<strong>Version %1$s</strong> addressed %2$s bugs.' );
 
-/* translators: 1: WordPress version number, 2: plural number of bugs. Singular security issue. */
+/* translators: 1: calmPress version number, 2: plural number of bugs. Singular security issue. */
 _n_noop( '<strong>Version %1$s</strong> addressed a security issue and fixed %2$s bug.',
          '<strong>Version %1$s</strong> addressed a security issue and fixed %2$s bugs.' );
 
-/* translators: 1: WordPress version number, 2: plural number of bugs. More than one security issue. */
+/* translators: 1: calmPress version number, 2: plural number of bugs. More than one security issue. */
 _n_noop( '<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bug.',
          '<strong>Version %1$s</strong> addressed some security issues and fixed %2$s bugs.' );
 

@@ -26,7 +26,7 @@ $options_help = '<p>' . __('The fields on this screen determine some of the basi
 	'<p>' . __('Most themes display the site title at the top of every page, in the title bar of the browser, and as the identifying name for syndicated feeds. The tagline is also displayed by many themes.') . '</p>';
 
 if ( ! is_multisite() ) {
-	$options_help .= '<p>' . __('The WordPress URL and the Site URL can be the same (example.com) or different; for example, having the WordPress core files (example.com/wordpress) in a subdirectory instead of the root directory.') . '</p>' .
+	$options_help .= '<p>' . __('The calmPress URL and the Site URL can be the same (example.com) or different; for example, having the calmPress core files (example.com/wordpress) in a subdirectory instead of the root directory.') . '</p>' .
 		'<p>' . __('If you want site visitors to be able to register themselves, as opposed to by the site administrator, check the membership box. A default user role can be set for all new users, whether self-registered or registered by the site admin.') . '</p>';
 }
 
@@ -71,7 +71,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 <?php if ( !is_multisite() ) { ?>
 
 <tr>
-<th scope="row"><label for="siteurl"><?php _e('WordPress Address (URL)') ?></label></th>
+<th scope="row"><label for="siteurl"><?php _e('calmPress Address (URL)') ?></label></th>
 <td><input name="siteurl" type="url" id="siteurl" value="<?php form_option( 'siteurl' ); ?>"<?php disabled( defined( 'WP_SITEURL' ) ); ?> class="regular-text code<?php if ( defined( 'WP_SITEURL' ) ) echo ' disabled' ?>" /></td>
 </tr>
 
@@ -82,7 +82,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 <p class="description" id="home-description"><?php
 	printf(
 		/* translators: %s: Codex URL */
-		__( 'Enter the address here if you <a href="%s">want your site home page to be different from your WordPress installation directory</a>.' ),
+		__( 'Enter the address here if you <a href="%s">want your site home page to be different from your calmPress installation directory</a>.' ),
 		__( 'https://codex.wordpress.org/Giving_WordPress_Its_Own_Directory' )
 	);
 ?></p>

@@ -17,13 +17,13 @@ header( 'Content-Type: text/html; charset=utf-8' );
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="robots" content="noindex,nofollow" />
-	<title><?php _e( 'WordPress &rsaquo; Database Repair' ); ?></title>
+	<title><?php _e( 'calmPress &rsaquo; Database Repair' ); ?></title>
 	<?php
 	wp_admin_css( 'install', true );
 	?>
 </head>
 <body class="wp-core-ui">
-<p id="logo"><a href="<?php echo esc_url( __( 'https://wordpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'WordPress' ); ?></a></p>
+<p id="logo"><a href="<?php echo esc_url( __( 'https://wordpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'calmPress' ); ?></a></p>
 
 <?php
 
@@ -104,7 +104,7 @@ if ( ! defined( 'WP_ALLOW_REPAIR' ) ) {
 			printf( __( 'The %s table is okay.' ), "<code>$table</code>" );
 		} else {
 			/* translators: 1: table name, 2: error message, */
-			printf( __( 'The %1$s table is not okay. It is reporting the following error: %2$s. WordPress will attempt to repair this table&hellip;' ) , "<code>$table</code>", "<code>$check->Msg_text</code>" );
+			printf( __( 'The %1$s table is not okay. It is reporting the following error: %2$s. calmPress will attempt to repair this table&hellip;' ) , "<code>$table</code>", "<code>$check->Msg_text</code>" );
 
 			$repair = $wpdb->get_row( "REPAIR TABLE $table" );
 
@@ -154,15 +154,15 @@ if ( ! defined( 'WP_ALLOW_REPAIR' ) ) {
 	}
 } else {
 
-	echo '<h1 class="screen-reader-text">' . __( 'WordPress database repair' ) . '</h1>';
+	echo '<h1 class="screen-reader-text">' . __( 'calmPress database repair' ) . '</h1>';
 
 	if ( isset( $_GET['referrer'] ) && 'is_blog_installed' == $_GET['referrer'] )
-		echo '<p>' . __( 'One or more database tables are unavailable. To allow WordPress to attempt to repair these tables, press the &#8220;Repair Database&#8221; button. Repairing can take a while, so please be patient.' ) . '</p>';
+		echo '<p>' . __( 'One or more database tables are unavailable. To allow calmPress to attempt to repair these tables, press the &#8220;Repair Database&#8221; button. Repairing can take a while, so please be patient.' ) . '</p>';
 	else
-		echo '<p>' . __( 'WordPress can automatically look for some common database problems and repair them. Repairing can take a while, so please be patient.' ) . '</p>';
+		echo '<p>' . __( 'calmPress can automatically look for some common database problems and repair them. Repairing can take a while, so please be patient.' ) . '</p>';
 ?>
 	<p class="step"><a class="button button-large" href="repair.php?repair=1"><?php _e( 'Repair Database' ); ?></a></p>
-	<p><?php _e( 'WordPress can also attempt to optimize the database. This improves performance in some situations. Repairing and optimizing the database can take a long time and the database will be locked while optimizing.' ); ?></p>
+	<p><?php _e( 'calmPress can also attempt to optimize the database. This improves performance in some situations. Repairing and optimizing the database can take a long time and the database will be locked while optimizing.' ); ?></p>
 	<p class="step"><a class="button button-large" href="repair.php?repair=2"><?php _e( 'Repair and Optimize Database' ); ?></a></p>
 <?php
 }

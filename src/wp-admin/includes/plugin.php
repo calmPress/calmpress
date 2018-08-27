@@ -816,7 +816,7 @@ function delete_plugins( $plugins, $deprecated = '' ) {
 	// Get the base plugin folder.
 	$plugins_dir = $wp_filesystem->wp_plugins_dir();
 	if ( empty( $plugins_dir ) ) {
-		return new WP_Error( 'fs_no_plugins_dir', __( 'Unable to locate WordPress plugin directory.' ) );
+		return new WP_Error( 'fs_no_plugins_dir', __( 'Unable to locate calmPress plugin directory.' ) );
 	}
 
 	$plugins_dir = trailingslashit( $plugins_dir );

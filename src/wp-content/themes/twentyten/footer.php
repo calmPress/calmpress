@@ -43,7 +43,7 @@
 				 */
 				do_action( 'twentyten_credits' ); ?>
 				<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'twentyten' ) ); ?>" class="imprint" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'twentyten' ); ?>">
-					<?php printf( __( 'Proudly powered by %s.', 'twentyten' ), 'WordPress' ); ?>
+					<?php printf( __( 'Proudly powered by %s.', 'twentyten' ), 'calmPress' ); ?>
 				</a>
 			</div><!-- #site-generator -->
 

@@ -293,8 +293,8 @@ class WP_Automatic_Updater {
 		$upgrader_item = $item;
 		switch ( $type ) {
 			case 'core':
-				$skin->feedback( __( 'Updating to WordPress %s' ), $item->version );
-				$item_name = sprintf( __( 'WordPress %s' ), $item->version );
+				$skin->feedback( __( 'Updating to calmPress %s' ), $item->version );
+				$item_name = sprintf( __( 'calmPress %s' ), $item->version );
 				break;
 			case 'theme':
 				$upgrader_item = $item->theme;
@@ -346,7 +346,7 @@ class WP_Automatic_Updater {
 			if ( is_wp_error( $upgrade_result ) ) {
 				$skin->error( __( 'Installation Failed' ), $upgrade_result );
 			} else {
-				$skin->feedback( __( 'WordPress updated successfully' ) );
+				$skin->feedback( __( 'calmPress updated successfully' ) );
 			}
 		}
 
@@ -602,14 +602,14 @@ class WP_Automatic_Updater {
 
 		switch ( $type ) {
 			case 'success' : // We updated.
-				/* translators: 1: Site name, 2: WordPress version number. */
-				$subject = __( '[%1$s] Your site has updated to WordPress %2$s' );
+				/* translators: 1: Site name, 2: calmPress version number. */
+				$subject = __( '[%1$s] Your site has updated to calmPress %2$s' );
 				break;
 
 			case 'fail' :   // We tried to update but couldn't.
 			case 'manual' : // We can't update (and made no attempt).
-				/* translators: 1: Site name, 2: WordPress version number. */
-				$subject = __( '[%1$s] WordPress %2$s is available. Please update!' );
+				/* translators: 1: Site name, 2: calmPress version number. */
+				$subject = __( '[%1$s] calmPress %2$s is available. Please update!' );
 				break;
 
 			case 'critical' : // We tried to update, started to copy files, then things went wrong.
@@ -629,18 +629,18 @@ class WP_Automatic_Updater {
 
 		switch ( $type ) {
 			case 'success' :
-				$body .= sprintf( __( 'Howdy! Your site at %1$s has been updated automatically to WordPress %2$s.' ), home_url(), $core_update->current );
+				$body .= sprintf( __( 'Howdy! Your site at %1$s has been updated automatically to calmPress %2$s.' ), home_url(), $core_update->current );
 				$body .= "\n\n";
 				if ( ! $newer_version_available )
 					$body .= __( 'No further action is needed on your part.' ) . ' ';
 
 				// Can only reference the About screen if their update was successful.
 				list( $about_version ) = explode( '-', $core_update->current, 2 );
-				$body .= sprintf( __( "For more on version %s, see the About WordPress screen:" ), $about_version );
+				$body .= sprintf( __( "For more on version %s, see the About calmPress screen:" ), $about_version );
 				$body .= "\n" . admin_url( 'about.php' );
 
 				if ( $newer_version_available ) {
-					$body .= "\n\n" . sprintf( __( 'WordPress %s is also now available.' ), $next_user_core_update->current ) . ' ';
+					$body .= "\n\n" . sprintf( __( 'calmPress %s is also now available.' ), $next_user_core_update->current ) . ' ';
 					$body .= __( 'Updating is easy and only takes a few moments:' );
 					$body .= "\n" . network_admin_url( 'update-core.php' );
 				}
@@ -649,7 +649,7 @@ class WP_Automatic_Updater {
 
 			case 'fail' :
 			case 'manual' :
-				$body .= sprintf( __( 'Please update your site at %1$s to WordPress %2$s.' ), home_url(), $next_user_core_update->current );
+				$body .= sprintf( __( 'Please update your site at %1$s to calmPress %2$s.' ), home_url(), $next_user_core_update->current );
 
 				$body .= "\n\n";
 
@@ -664,9 +664,9 @@ class WP_Automatic_Updater {
 
 			case 'critical' :
 				if ( $newer_version_available )
-					$body .= sprintf( __( 'Your site at %1$s experienced a critical failure while trying to update WordPress to version %2$s.' ), home_url(), $core_update->current );
+					$body .= sprintf( __( 'Your site at %1$s experienced a critical failure while trying to update calmPress to version %2$s.' ), home_url(), $core_update->current );
 				else
-					$body .= sprintf( __( 'Your site at %1$s experienced a critical failure while trying to update to the latest version of WordPress, %2$s.' ), home_url(), $core_update->current );
+					$body .= sprintf( __( 'Your site at %1$s experienced a critical failure while trying to update to the latest version of calmPress, %2$s.' ), home_url(), $core_update->current );
 
 				$body .= "\n\n" . __( "This means your site may be offline or broken. Don't panic; this can be fixed." );
 
@@ -678,7 +678,7 @@ class WP_Automatic_Updater {
 		$critical_support = 'critical' === $type && ! empty( $core_update->support_email );
 		if ( $critical_support ) {
 			// Support offer if available.
-			$body .= "\n\n" . sprintf( __( "The WordPress team is willing to help you. Forward this email to %s and the team will work with you to make sure your site is working." ), $core_update->support_email );
+			$body .= "\n\n" . sprintf( __( "The calmPress team is willing to help you. Forward this email to %s and the team will work with you to make sure your site is working." ), $core_update->support_email );
 		} else {
 			// Add a note about the support forums.
 			$body .= "\n\n" . __( 'If you experience any issues or need support, the volunteers in the WordPress.org support forums may be able to help.' );
@@ -700,7 +700,7 @@ class WP_Automatic_Updater {
 			$body .= "\n" . network_admin_url();
 		}
 
-		$body .= "\n\n" . __( 'The WordPress Team' ) . "\n";
+		$body .= "\n\n" . __( 'The calmPress Team' ) . "\n";
 
 		if ( 'critical' == $type && is_wp_error( $result ) ) {
 			$body .= "\n***\n\n";
@@ -773,15 +773,15 @@ class WP_Automatic_Updater {
 		$body = array();
 		$failures = 0;
 
-		$body[] = sprintf( __( 'WordPress site: %s' ), network_home_url( '/' ) );
+		$body[] = sprintf( __( 'calmPress site: %s' ), network_home_url( '/' ) );
 
 		// Core
 		if ( isset( $this->update_results['core'] ) ) {
 			$result = $this->update_results['core'][0];
 			if ( $result->result && ! is_wp_error( $result->result ) ) {
-				$body[] = sprintf( __( 'SUCCESS: WordPress was successfully updated to %s' ), $result->name );
+				$body[] = sprintf( __( 'SUCCESS: calmPress was successfully updated to %s' ), $result->name );
 			} else {
-				$body[] = sprintf( __( 'FAILED: WordPress failed to update to %s' ), $result->name );
+				$body[] = sprintf( __( 'FAILED: calmPress failed to update to %s' ), $result->name );
 				$failures++;
 			}
 			$body[] = '';

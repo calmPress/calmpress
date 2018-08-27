@@ -18,9 +18,9 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 ?>
 <div class="wrap about-wrap full-width-layout">
 
-<h1><?php printf( __( 'Welcome to WordPress %s' ), $display_version ); ?></h1>
+<h1><?php printf( __( 'Welcome to calmPress %s' ), $display_version ); ?></h1>
 
-<p class="about-text"><?php printf( __( 'Thank you for updating to the latest version! WordPress %s will smooth your design workflow and keep you safe from coding errors.' ), $display_version ); ?></p>
+<p class="about-text"><?php printf( __( 'Thank you for updating to the latest version! calmPress %s will smooth your design workflow and keep you safe from coding errors.' ), $display_version ); ?></p>
 
 <div class="wp-badge"><?php printf( __( 'Version %s' ), $display_version ); ?></div>
 
@@ -39,7 +39,7 @@ $credits = wp_credits();
 if ( ! $credits ) {
 	echo '<p class="about-description">';
 	/* translators: 1: https://wordpress.org/about/, 2: https://make.wordpress.org/ */
-	printf( __( 'WordPress is created by a <a href="%1$s">worldwide team</a> of passionate individuals. <a href="%2$s">Get involved in WordPress</a>.' ),
+	printf( __( 'calmPress is created by a <a href="%1$s">worldwide team</a> of passionate individuals. <a href="%2$s">Get involved in calmPress</a>.' ),
 		'https://wordpress.org/about/',
 		__( 'https://make.wordpress.org/' )
 	);
@@ -54,7 +54,7 @@ echo '<p class="about-description">' . __( 'WordPress is created by a worldwide 
 
 echo '<p>' . sprintf(
 	/* translators: %s: https://make.wordpress.org/ */
-	__( 'Want to see your name in lights on this page? <a href="%s">Get involved in WordPress</a>.' ),
+	__( 'Want to see your name in lights on this page? <a href="%s">Get involved in calmPress</a>.' ),
 	__( 'https://make.wordpress.org/' )
 ) . '</p>';
 

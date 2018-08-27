@@ -30,8 +30,8 @@
 					the_privacy_policy_link( '', '<span role="separator" aria-hidden="true"></span>' );
 				}
 				?>
-				<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'twentyeleven' ) ); ?>" class="imprint" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'twentyeleven' ); ?>">
-					<?php printf( __( 'Proudly powered by %s', 'twentyeleven' ), 'WordPress' ); ?>
+				<a href="<?php echo esc_url( __( 'https://calmpress.org/', 'twentyeleven' ) ); ?>" class="imprint" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'twentyeleven' ); ?>">
+					<?php printf( __( 'Proudly powered by %s', 'twentyeleven' ), 'calmPress' ); ?>
 				</a>
 			</div>
 	</footer><!-- #colophon -->

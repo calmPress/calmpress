@@ -117,7 +117,7 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 
 	$wp_logo_menu_args = array(
 		'id'    => 'wp-logo',
-		'title' => '<span class="ab-icon"></span><span class="screen-reader-text">' . __( 'About WordPress' ) . '</span>',
+		'title' => '<span class="ab-icon"></span><span class="screen-reader-text">' . __( 'About calmPress' ) . '</span>',
 		'href'  => $about_url,
 	);
 
@@ -131,11 +131,11 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu( $wp_logo_menu_args );
 
 	if ( $about_url ) {
-		// Add "About WordPress" link
+		// Add "About calmPress" link
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'wp-logo',
 			'id'     => 'about',
-			'title'  => __('About WordPress'),
+			'title'  => __('About calmPress'),
 			'href'   => $about_url,
 		) );
 	}
@@ -144,8 +144,8 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu( array(
 		'parent'    => 'wp-logo-external',
 		'id'        => 'wporg',
-		'title'     => __('WordPress.org'),
-		'href'      => __('https://wordpress.org/'),
+		'title'     => __('calmPress.org'),
+		'href'      => __('https://calpress.org/'),
 	) );
 
 	// Add codex link

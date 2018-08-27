@@ -28,7 +28,7 @@
 			}
 			?>
 			<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'twentyfifteen' ) ); ?>" class="imprint">
-				<?php printf( __( 'Proudly powered by %s', 'twentyfifteen' ), 'WordPress' ); ?>
+				<?php printf( __( 'Proudly powered by %s', 'twentyfifteen' ), 'calmPress' ); ?>
 			</a>
 		</div><!-- .site-info -->
 	</footer><!-- .site-footer -->

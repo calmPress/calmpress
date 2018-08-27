@@ -89,5 +89,5 @@ if ( file_exists( ABSPATH . 'wp-config.php') ) {
 	) . '</p>';
 	$die .= '<p><a href="' . $path . '" class="button button-large">' . __( "Create a Configuration File" ) . '</a>';
 
-	wp_die( $die, __( 'WordPress &rsaquo; Error' ) );
+	wp_die( $die, __( 'calmPress &rsaquo; Error' ) );
 }
