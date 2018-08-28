@@ -148,9 +148,7 @@ if ( ! empty( $languages ) || ! empty( $translations ) ) {
 		<td>
 			<?php
 			$locale = get_locale();
-			if ( ! in_array( $locale, $languages ) ) {
-				$locale = '';
-			}
+			$languages[] = $locale;
 
 			wp_dropdown_languages( array(
 				'name'         => 'WPLANG',
