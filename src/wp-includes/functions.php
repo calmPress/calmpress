@@ -2760,7 +2760,7 @@ function _default_wp_die_handler( $message, $title = '', $args = array() ) {
 		}
 
 		if ( empty($title) )
-			$title = $have_gettext ? __('WordPress &rsaquo; Error') : 'WordPress &rsaquo; Error';
+			$title = $have_gettext ? __('calmPress &rsaquo; Error') : 'calmPress &rsaquo; Error';
 
 		$text_direction = 'ltr';
 		if ( isset($r['text_direction']) && 'rtl' == $r['text_direction'] )
