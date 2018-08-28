@@ -75,7 +75,7 @@ if ( @file_exists( ABSPATH . '../wp-config.php' ) && ! @file_exists( ABSPATH . '
 	);
 }
 
-$step = isset( $_GET['step'] ) ? (int) $_GET['step'] : -1;
+$step = isset( $_GET['step'] ) ? (int) $_GET['step'] : 0;
 
 /**
  * Display setup wp-config.php file header.
@@ -119,27 +119,7 @@ if ( ! empty( $_REQUEST['language'] ) ) {
 }
 
 switch($step) {
-	case -1:
-		if ( wp_can_install_language_pack() && empty( $language ) && ( $languages = wp_get_available_translations() ) ) {
-			setup_config_display_header( 'language-chooser' );
-			echo '<h1 class="screen-reader-text">Select a default language</h1>';
-			echo '<form id="setup" method="post" action="?step=0">';
-			wp_install_language_form( $languages );
-			echo '</form>';
-			break;
-		}
-
-		// Deliberately fall through if we can't reach the translations API.
-
 	case 0:
-		if ( ! empty( $language ) ) {
-			$loaded_language = wp_download_language_pack( $language );
-			if ( $loaded_language ) {
-				load_default_textdomain( $loaded_language );
-				$GLOBALS['wp_locale'] = new WP_Locale();
-			}
-		}
-
 		setup_config_display_header();
 		$step_1 = 'setup-config.php?step=1';
 		if ( isset( $_REQUEST['noapi'] ) ) {
