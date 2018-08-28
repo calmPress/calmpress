@@ -16,7 +16,7 @@ if ( false ) {
 	<title>Error: PHP is not running</title>
 </head>
 <body class="wp-core-ui">
-	<p id="logo"><a href="https://wordpress.org/">calmPress</a></p>
+	<p id="logo"><a href="https://calmpress.org/">calmPress</a></p>
 	<h1>Error: PHP is not running</h1>
 	<p>calmPress requires that your web server is running PHP. Your server does not have PHP installed, or PHP is turned off.</p>
 </body>
@@ -46,7 +46,7 @@ require_once( ABSPATH . WPINC . '/wp-db.php' );
 
 nocache_headers();
 
-$step = isset( $_GET['step'] ) ? (int) $_GET['step'] : 0;
+$step = isset( $_GET['step'] ) ? (int) $_GET['step'] : 1;
 
 /**
  * Display installation header.
@@ -77,7 +77,7 @@ function display_header( $body_classes = '' ) {
 	?>
 </head>
 <body class="wp-core-ui<?php echo $body_classes ?>">
-<p id="logo"><a href="<?php echo esc_url( __( 'https://wordpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'WordPress' ); ?></a></p>
+<p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'calmPress' ); ?></a></p>
 
 <?php
 } // end display_header()
@@ -289,17 +289,6 @@ if ( ! empty( $_REQUEST['language'] ) ) {
 $scripts_to_print = array( 'jquery' );
 
 switch($step) {
-	case 0: // Step 0
-		if ( wp_can_install_language_pack() && empty( $language ) && ( $languages = wp_get_available_translations() ) ) {
-			$scripts_to_print[] = 'language-chooser';
-			display_header( 'language-chooser' );
-			echo '<form id="setup" method="post" action="?step=1">';
-			wp_install_language_form( $languages );
-			echo '</form>';
-			break;
-		}
-
-		// Deliberately fall through if we can't reach the translations API.
 
 	case 1: // Step 1, direct link or from language chooser.
 		if ( ! empty( $language ) ) {
