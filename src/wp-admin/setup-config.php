@@ -107,7 +107,7 @@ function setup_config_display_header( $body_classes = array() ) {
 	<?php wp_admin_css( 'install', true ); ?>
 </head>
 <body class="<?php echo implode( ' ', $body_classes ); ?>">
-<p id="logo"><a href="<?php echo esc_url( __( 'https://wordpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'calmPress' ); ?></a></p>
+<p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'calmPress' ); ?></a></p>
 <?php
 } // end function setup_config_display_header();
 
@@ -195,7 +195,7 @@ switch($step) {
 	<table class="form-table">
 		<tr>
 			<th scope="row"><label for="dbname"><?php _e( 'Database Name' ); ?></label></th>
-			<td><input name="dbname" id="dbname" type="text" size="25" value="wordpress" /></td>
+			<td><input name="dbname" id="dbname" type="text" size="25" value="calmpress" /></td>
 			<td><?php _e( 'The name of the database you want to use with calmPress.' ); ?></td>
 		</tr>
 		<tr>
@@ -218,7 +218,7 @@ switch($step) {
 		</tr>
 		<tr>
 			<th scope="row"><label for="prefix"><?php _e( 'Table Prefix' ); ?></label></th>
-			<td><input name="prefix" id="prefix" type="text" value="wp_" size="25" /></td>
+			<td><input name="prefix" id="prefix" type="text" value="cp_" size="25" /></td>
 			<td><?php _e( 'If you want to run multiple calmPress installations in a single database, change this.' ); ?></td>
 		</tr>
 	</table>
