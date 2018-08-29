@@ -107,13 +107,6 @@ function wp_admin_bar_render() {
  * @param WP_Admin_Bar $wp_admin_bar
  */
 function wp_admin_bar_wp_menu( $wp_admin_bar ) {
-	if ( current_user_can( 'read' ) ) {
-		$about_url = self_admin_url( 'about.php' );
-	} elseif ( is_multisite() ) {
-		$about_url = get_dashboard_url( get_current_user_id(), 'about.php' );
-	} else {
-		$about_url = false;
-	}
 
 	$wp_logo_menu_args = array(
 		'id'    => 'wp-logo',
@@ -122,25 +115,13 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 	);
 
 	// Set tabindex="0" to make sub menus accessible when no URL is available.
-	if ( ! $about_url ) {
-		$wp_logo_menu_args['meta'] = array(
-			'tabindex' => 0,
-		);
-	}
+	$wp_logo_menu_args['meta'] = array(
+		'tabindex' => 0,
+	);
 
 	$wp_admin_bar->add_menu( $wp_logo_menu_args );
 
-	if ( $about_url ) {
-		// Add "About calmPress" link
-		$wp_admin_bar->add_menu( array(
-			'parent' => 'wp-logo',
-			'id'     => 'about',
-			'title'  => __('About calmPress'),
-			'href'   => $about_url,
-		) );
-	}
-
-	// Add WordPress.org link
+	// Add calmpress.org link
 	$wp_admin_bar->add_menu( array(
 		'parent'    => 'wp-logo-external',
 		'id'        => 'wporg',
@@ -152,24 +133,24 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu( array(
 		'parent'    => 'wp-logo-external',
 		'id'        => 'documentation',
-		'title'     => __('Documentation'),
+		'title'     => __('Documentation (wordpress codex)'),
 		'href'      => __('https://codex.wordpress.org/'),
 	) );
 
-	// Add forums link
+	// Add github wiki link
+	$wp_admin_bar->add_menu( array(
+		'parent'    => 'wp-logo-external',
+		'id'        => 'calmpress-documentation',
+		'title'     => __('Documentation (calmPress Wiki)'),
+		'href'      => __('https://github.com/calmPress/calmpress/wiki'),
+	) );
+
+	// Add github link
 	$wp_admin_bar->add_menu( array(
 		'parent'    => 'wp-logo-external',
 		'id'        => 'support-forums',
-		'title'     => __('Support Forums'),
-		'href'      => __('https://wordpress.org/support/'),
-	) );
-
-	// Add feedback link
-	$wp_admin_bar->add_menu( array(
-		'parent'    => 'wp-logo-external',
-		'id'        => 'feedback',
-		'title'     => __('Feedback'),
-		'href'      => __('https://wordpress.org/support/forum/requests-and-feedback'),
+		'title'     => __('Bug reports and suggestions'),
+		'href'      => __('https://github.com/calmPress/calmpress/issues'),
 	) );
 }
 
