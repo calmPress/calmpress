@@ -491,12 +491,11 @@ function wp_upgrade() {
 	/**
 	 * Fires after a site is fully upgraded.
 	 *
-	 * @since 3.9.0
+	 * @since 0.9.9
 	 *
-	 * @param int $wp_db_version         The new $wp_db_version.
-	 * @param int $wp_current_db_version The old (current) $wp_db_version.
+	 * @param string $current_db_version The old (current) DB version.
 	 */
-	do_action( 'wp_upgrade', $wp_db_version, $wp_current_db_version );
+	do_action( 'calmpress_upgrade', $wp_current_db_version );
 }
 endif;
 
@@ -510,24 +509,14 @@ endif;
  * @since 1.0.1
  *
  * @global int $wp_current_db_version
- * @global int $wp_db_version
  */
 function upgrade_all() {
-	global $wp_current_db_version, $wp_db_version;
+	global $wp_current_db_version;
 	$wp_current_db_version = __get_option('db_version');
 
-	// We are up-to-date. Nothing to do.
-	if ( $wp_db_version == $wp_current_db_version )
+	// We are up-to-date as far as WordPress core DB. Nothing to do.
+	if ( empty( $wp_current_db_version ) ) {
 		return;
-
-	// If the version is not set in the DB, try to guess the version.
-	if ( empty($wp_current_db_version) ) {
-		$wp_current_db_version = 0;
-
-		// If the template option exists, we have 1.5.
-		$template = __get_option('template');
-		if ( !empty($template) )
-			$wp_current_db_version = 2541;
 	}
 
 	if ( $wp_current_db_version < 6039 )
@@ -618,7 +607,7 @@ function upgrade_all() {
 
 	maybe_disable_automattic_widgets();
 
-	update_option( 'db_version', $wp_db_version );
+	delete_option( 'db_version', $wp_db_version );
 	update_option( 'db_upgraded', true );
 }
 

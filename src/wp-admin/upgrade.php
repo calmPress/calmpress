@@ -70,7 +70,7 @@ else
 <body class="wp-core-ui">
 <p id="logo"><a href="<?php echo esc_url( __( 'https://wordpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'WordPress' ); ?></a></p>
 
-<?php if ( get_option( 'db_version' ) == $wp_db_version || !is_blog_installed() ) : ?>
+<?php if ( get_option( 'calmpress_db_version' ) == calmpress_version() || !is_blog_installed() ) : ?>
 
 <h1><?php _e( 'No Update Required' ); ?></h1>
 <p><?php _e( 'Your calmPress database is already up-to-date!' ); ?></p>

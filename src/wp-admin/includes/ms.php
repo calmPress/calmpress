@@ -604,13 +604,12 @@ function mu_dropdown_languages( $lang_files = array(), $current = '' ) {
  *
  * @since 3.0.0
  *
- * @global int    $wp_db_version The version number of the database.
  * @global string $pagenow
  *
  * @return false False if the current user is not a super admin.
  */
 function site_admin_notice() {
-	global $wp_db_version, $pagenow;
+	global $pagenow;
 
 	if ( ! current_user_can( 'upgrade_network' ) ) {
 		return false;
@@ -620,7 +619,7 @@ function site_admin_notice() {
 		return;
 	}
 
-	if ( get_site_option( 'wpmu_upgrade_site' ) != $wp_db_version ) {
+	if ( get_site_option( 'calmpress_wpmu_upgrade_site' ) != calmpress_version() ) {
 		echo "<div class='update-nag'>" . sprintf( __( 'Thank you for Updating! Please visit the <a href="%s">Upgrade Network</a> page to update all your sites.' ), esc_url( network_admin_url( 'upgrade.php' ) ) ) . "</div>";
 	}
 }

@@ -344,11 +344,10 @@ $wp_queries = wp_get_db_schema( 'all' );
  * @since 1.5.0
  *
  * @global wpdb $wpdb WordPress database abstraction object.
- * @global int  $wp_db_version
  * @global int  $wp_current_db_version
  */
 function populate_options() {
-	global $wpdb, $wp_db_version, $wp_current_db_version;
+	global $wpdb, $wp_current_db_version;
 
 	$guessurl = wp_guess_url();
 	/**
@@ -869,7 +868,6 @@ endif;
  *
  * @global wpdb       $wpdb
  * @global object     $current_site
- * @global int        $wp_db_version
  * @global WP_Rewrite $wp_rewrite
  *
  * @param int    $network_id        ID of network to populate.
@@ -883,7 +881,7 @@ endif;
  *                       so the error code must be checked) or failure.
  */
 function populate_network( $network_id = 1, $domain = '', $email = '', $site_name = '', $path = '/', $subdomain_install = false ) {
-	global $wpdb, $current_site, $wp_db_version, $wp_rewrite;
+	global $wpdb, $current_site, $wp_rewrite;
 
 	$errors = new WP_Error();
 	if ( '' == $domain )
@@ -1002,7 +1000,7 @@ We hope you enjoy your new site. Thanks!
 		'site_admins' => $site_admins,
 		'allowedthemes' => $allowed_themes,
 		'illegal_names' => array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
-		'wpmu_upgrade_site' => $wp_db_version,
+		'wpmu_upgrade_site' => calmpress_version(),
 		'welcome_email' => $welcome_email,
 		/* translators: %s: site link */
 		'first_post' => __( 'Welcome to %s. This is your first post. Edit or delete it, then start blogging!' ),

@@ -25,7 +25,7 @@ require_once( ABSPATH . WPINC . '/plugin.php' );
  * we're including version.php from another installation and don't want
  * these values to be overridden if already set.
  */
-global $wp_version, $wp_db_version, $tinymce_version, $required_php_version, $required_mysql_version, $wp_local_package;
+global $wp_version, $tinymce_version, $required_php_version, $required_mysql_version, $wp_local_package;
 require( ABSPATH . WPINC . '/version.php' );
 
 /**
