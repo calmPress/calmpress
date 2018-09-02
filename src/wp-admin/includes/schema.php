@@ -448,7 +448,6 @@ function populate_options() {
 
 	// 2.0
 	'default_role' => 'subscriber',
-	'db_version' => $wp_db_version,
 
 	// 2.0.1
 	'uploads_use_yearmonth_folders' => $uploads_use_yearmonth_folders,
@@ -521,6 +520,9 @@ function populate_options() {
 
 		// 4.9.8
 		'show_comments_cookies_opt_in'    => 0,
+
+		// calmPress 0.9.9.
+		'calmpress_db_version' => calmpress_version(),
 	);
 
 	// 3.3

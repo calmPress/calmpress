@@ -454,16 +454,16 @@ if ( !function_exists('wp_upgrade') ) :
  * @since 2.1.0
  *
  * @global int  $wp_current_db_version
- * @global int  $wp_db_version
  * @global wpdb $wpdb WordPress database abstraction object.
  */
 function wp_upgrade() {
-	global $wp_current_db_version, $wp_db_version, $wpdb;
+	global $wp_current_db_version, $wpdb;
 
 	$wp_current_db_version = __get_option('db_version');
+	$clampress_db_version = __get_option('calmpress_db_version');
 
 	// We are up-to-date. Nothing to do.
-	if ( $wp_db_version == $wp_current_db_version )
+	if ( empty ( $wp_current_db_version ) && calmpress_version() === $clampress_db_version )
 		return;
 
 	if ( ! is_blog_installed() )
@@ -491,7 +491,7 @@ function wp_upgrade() {
 	/**
 	 * Fires after a site is fully upgraded.
 	 *
-	 * @since 0.9.9
+	 * @since calmPress 0.9.9
 	 *
 	 * @param string $current_db_version The old (current) DB version.
 	 */
@@ -513,101 +513,106 @@ endif;
 function upgrade_all() {
 	global $wp_current_db_version;
 	$wp_current_db_version = __get_option('db_version');
+	$calmpress_db_version = __get_option('calmpress_db_version');
 
 	// We are up-to-date as far as WordPress core DB. Nothing to do.
-	if ( empty( $wp_current_db_version ) ) {
+	if ( empty( $wp_current_db_version ) && calmpress_version() === $calmpress_db_version ) {
 		return;
 	}
 
-	if ( $wp_current_db_version < 6039 )
-		upgrade_230_options_table();
+	if ( ! empty( $wp_current_db_version ) ) {
 
-	populate_options();
+		if ( $wp_current_db_version < 6039 )
+			upgrade_230_options_table();
 
-	if ( $wp_current_db_version < 2541 ) {
-		upgrade_100();
-		upgrade_101();
-		upgrade_110();
-		upgrade_130();
+		populate_options();
+
+		if ( $wp_current_db_version < 2541 ) {
+			upgrade_100();
+			upgrade_101();
+			upgrade_110();
+			upgrade_130();
+		}
+
+		if ( $wp_current_db_version < 3308 )
+			upgrade_160();
+
+		if ( $wp_current_db_version < 4772 )
+			upgrade_210();
+
+		if ( $wp_current_db_version < 4351 )
+			upgrade_old_slugs();
+
+		if ( $wp_current_db_version < 5539 )
+			upgrade_230();
+
+		if ( $wp_current_db_version < 6124 )
+			upgrade_230_old_tables();
+
+		if ( $wp_current_db_version < 7499 )
+			upgrade_250();
+
+		if ( $wp_current_db_version < 7935 )
+			upgrade_252();
+
+		if ( $wp_current_db_version < 8201 )
+			upgrade_260();
+
+		if ( $wp_current_db_version < 8989 )
+			upgrade_270();
+
+		if ( $wp_current_db_version < 10360 )
+			upgrade_280();
+
+		if ( $wp_current_db_version < 11958 )
+			upgrade_290();
+
+		if ( $wp_current_db_version < 15260 )
+			upgrade_300();
+
+		if ( $wp_current_db_version < 19389 )
+			upgrade_330();
+
+		if ( $wp_current_db_version < 20080 )
+			upgrade_340();
+
+		if ( $wp_current_db_version < 22422 )
+			upgrade_350();
+
+		if ( $wp_current_db_version < 25824 )
+			upgrade_370();
+
+		if ( $wp_current_db_version < 26148 )
+			upgrade_372();
+
+		if ( $wp_current_db_version < 26691 )
+			upgrade_380();
+
+		if ( $wp_current_db_version < 29630 )
+			upgrade_400();
+
+		if ( $wp_current_db_version < 33055 )
+			upgrade_430();
+
+		if ( $wp_current_db_version < 33056 )
+			upgrade_431();
+
+		if ( $wp_current_db_version < 35700 )
+			upgrade_440();
+
+		if ( $wp_current_db_version < 36686 )
+			upgrade_450();
+
+		if ( $wp_current_db_version < 37965 )
+			upgrade_460();
+
+		maybe_disable_link_manager();
+
+		maybe_disable_automattic_widgets();
 	}
 
-	if ( $wp_current_db_version < 3308 )
-		upgrade_160();
-
-	if ( $wp_current_db_version < 4772 )
-		upgrade_210();
-
-	if ( $wp_current_db_version < 4351 )
-		upgrade_old_slugs();
-
-	if ( $wp_current_db_version < 5539 )
-		upgrade_230();
-
-	if ( $wp_current_db_version < 6124 )
-		upgrade_230_old_tables();
-
-	if ( $wp_current_db_version < 7499 )
-		upgrade_250();
-
-	if ( $wp_current_db_version < 7935 )
-		upgrade_252();
-
-	if ( $wp_current_db_version < 8201 )
-		upgrade_260();
-
-	if ( $wp_current_db_version < 8989 )
-		upgrade_270();
-
-	if ( $wp_current_db_version < 10360 )
-		upgrade_280();
-
-	if ( $wp_current_db_version < 11958 )
-		upgrade_290();
-
-	if ( $wp_current_db_version < 15260 )
-		upgrade_300();
-
-	if ( $wp_current_db_version < 19389 )
-		upgrade_330();
-
-	if ( $wp_current_db_version < 20080 )
-		upgrade_340();
-
-	if ( $wp_current_db_version < 22422 )
-		upgrade_350();
-
-	if ( $wp_current_db_version < 25824 )
-		upgrade_370();
-
-	if ( $wp_current_db_version < 26148 )
-		upgrade_372();
-
-	if ( $wp_current_db_version < 26691 )
-		upgrade_380();
-
-	if ( $wp_current_db_version < 29630 )
-		upgrade_400();
-
-	if ( $wp_current_db_version < 33055 )
-		upgrade_430();
-
-	if ( $wp_current_db_version < 33056 )
-		upgrade_431();
-
-	if ( $wp_current_db_version < 35700 )
-		upgrade_440();
-
-	if ( $wp_current_db_version < 36686 )
-		upgrade_450();
-
-	if ( $wp_current_db_version < 37965 )
-		upgrade_460();
-
-	maybe_disable_link_manager();
-
-	maybe_disable_automattic_widgets();
-
 	delete_option( 'db_version', $wp_db_version );
+	update_option( 'calmpress_db_version', calmpress_version() );
 	update_option( 'db_upgraded', true );
 }
 
