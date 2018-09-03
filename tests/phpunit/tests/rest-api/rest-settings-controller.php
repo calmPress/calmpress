@@ -10,7 +10,7 @@
  * @group restapi
  */
 class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase {
-	
+
 	protected static $administrator;
 	protected static $author;
 
@@ -80,7 +80,6 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 			'time_format',
 			'start_of_week',
 			'language',
-			'use_smilies',
 			'default_category',
 			'default_post_format',
 			'posts_per_page',

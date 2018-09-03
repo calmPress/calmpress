@@ -3345,11 +3345,6 @@ mockedApiResponse.Schema = {
                             "description": "WordPress locale code.",
                             "type": "string"
                         },
-                        "use_smilies": {
-                            "required": false,
-                            "description": "Convert emoticons like :-) and :-P to graphics on display.",
-                            "type": "boolean"
-                        },
                         "default_category": {
                             "required": false,
                             "description": "Default post category.",
@@ -4557,7 +4552,6 @@ mockedApiResponse.settings = {
     "time_format": "g:i a",
     "start_of_week": 1,
     "language": "en_US",
-    "use_smilies": true,
     "default_category": 1,
     "default_post_format": "0",
     "posts_per_page": 10,

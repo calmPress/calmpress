@@ -2823,8 +2823,7 @@ function translate_smiley( $matches ) {
 /**
  * Convert text equivalent of smilies to images.
  *
- * Will only convert smilies if the option 'use_smilies' is true and the global
- * used in the function isn't empty.
+ * Will only convert smilies if the global used in the function isn't empty.
  *
  * @since 0.71
  *
@@ -2836,7 +2835,7 @@ function translate_smiley( $matches ) {
 function convert_smilies( $text ) {
 	global $wp_smiliessearch;
 	$output = '';
-	if ( get_option( 'use_smilies' ) && ! empty( $wp_smiliessearch ) ) {
+	if ( ! empty( $wp_smiliessearch ) ) {
 		// HTML loop taken from texturize function, could possible be consolidated
 		$textarr = preg_split( '/(<.*>)/U', $text, -1, PREG_SPLIT_DELIM_CAPTURE ); // capture the tags as well as in between
 		$stop = count( $textarr );// loop stuff

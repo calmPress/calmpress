@@ -3358,9 +3358,6 @@ function _mce_set_direction( $mce_init ) {
 /**
  * Convert smiley code to the icon graphic file equivalent.
  *
- * You can turn off smilies, by going to the write setting screen and unchecking
- * the box, or by setting 'use_smilies' option to false or removing the option.
- *
  * Plugins may override the default smiley list by setting the $wpsmiliestrans
  * to an array, with the key the code the blogger types in and the value the
  * image file.
@@ -3379,10 +3376,6 @@ function _mce_set_direction( $mce_init ) {
  */
 function smilies_init() {
 	global $wpsmiliestrans, $wp_smiliessearch;
-
-	// don't bother setting up smilies if they are disabled
-	if ( !get_option( 'use_smilies' ) )
-		return;
 
 	if ( !isset( $wpsmiliestrans ) ) {
 		$wpsmiliestrans = array(

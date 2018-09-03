@@ -59,7 +59,6 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		$this->post_count = (int) get_option( 'posts_per_rss' );
 		$this->excerpt_only = get_option( 'rss_use_excerpt' );
 		// this seems to break something
-		update_option( 'use_smilies', false );
 
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		create_initial_taxonomies();

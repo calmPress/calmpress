@@ -45,21 +45,13 @@ class Tests_Formatting_Smilies extends WP_UnitTestCase {
 	/**
 	 * @dataProvider get_smilies_input_output
 	 *
-	 * Basic Validation Test to confirm that smilies are converted to image
-	 * when use_smilies = 1 and not when use_smilies = 0
+	 * Basic Validation Test to confirm that smilies are converted to images.
 	 */
 	function test_convert_standard_smilies( $in_txt, $converted_txt ) {
-		// standard smilies, use_smilies: ON
-		update_option( 'use_smilies', 1 );
 
 		smilies_init();
 
 		$this->assertEquals( $converted_txt, convert_smilies($in_txt) );
-
-		// standard smilies, use_smilies: OFF
-		update_option( 'use_smilies', 0 );
-
-		$this->assertEquals( $in_txt, convert_smilies($in_txt) );
 	}
 
 	/**
@@ -89,13 +81,10 @@ class Tests_Formatting_Smilies extends WP_UnitTestCase {
 	/**
 	 * @dataProvider get_custom_smilies_input_output
 	 *
-	 * Validate Custom Smilies are converted to images when use_smilies = 1
+	 * Validate Custom Smilies are converted to images.
 	 */
 	function test_convert_custom_smilies ( $in_txt, $converted_txt ) {
 		global $wpsmiliestrans;
-
-		// custom smilies, use_smilies: ON
-		update_option( 'use_smilies', 1 );
 
 		if ( !isset( $wpsmiliestrans ) ) {
 			smilies_init();
@@ -113,11 +102,6 @@ class Tests_Formatting_Smilies extends WP_UnitTestCase {
 		smilies_init();
 
 		$this->assertEquals( $converted_txt, convert_smilies($in_txt) );
-
-		// standard smilies, use_smilies: OFF
-		update_option( 'use_smilies', 0 );
-
-		$this->assertEquals( $in_txt, convert_smilies($in_txt) );
 
 		$wpsmiliestrans = $trans_orig; // reset original translations array
 	}
@@ -150,14 +134,9 @@ class Tests_Formatting_Smilies extends WP_UnitTestCase {
 		$in_str = 'Do we ingore smilies ;-) in ' . $element . ' tags <' . $element . '>My Content Here :?: </' . $element . '>';
 		$exp_str = "Do we ingore smilies \xf0\x9f\x98\x89 in $element tags <$element>My Content Here :?: </$element>";
 
-		// standard smilies, use_smilies: ON
-		update_option( 'use_smilies', 1 );
 		smilies_init();
 
 		$this->assertEquals( $exp_str, convert_smilies($in_str) );
-
-		// standard smilies, use_smilies: OFF
-		update_option( 'use_smilies', 0 );
 	}
 
 	/**
@@ -203,16 +182,9 @@ class Tests_Formatting_Smilies extends WP_UnitTestCase {
 	 * @dataProvider get_smilies_combinations
 	 */
 	public function test_smilies_combinations( $in_txt, $converted_txt ) {
-		// custom smilies, use_smilies: ON
-		update_option( 'use_smilies', 1 );
 		smilies_init();
 
 		$this->assertEquals( $converted_txt, convert_smilies($in_txt) );
-
-		// custom smilies, use_smilies: OFF
-		update_option( 'use_smilies', 0 );
-
-		$this->assertEquals( $in_txt, convert_smilies($in_txt) );
 	}
 
 	/**
@@ -248,9 +220,6 @@ class Tests_Formatting_Smilies extends WP_UnitTestCase {
 	public function test_single_smilies_in_wpsmiliestrans( $in_txt, $converted_txt ) {
 		global $wpsmiliestrans;
 
-		// standard smilies, use_smilies: ON
-		update_option( 'use_smilies', 1 );
-
 		if ( !isset( $wpsmiliestrans ) ) {
 			smilies_init();
 		}
@@ -264,11 +233,6 @@ class Tests_Formatting_Smilies extends WP_UnitTestCase {
 		smilies_init();
 
 		$this->assertEquals( $converted_txt, convert_smilies($in_txt) );
-
-		// standard smilies, use_smilies: OFF
-		update_option( 'use_smilies', 0 );
-
-		$this->assertEquals( $in_txt, convert_smilies($in_txt) );
 
 		$wpsmiliestrans = $orig_trans; // reset original translations array
 	}
@@ -303,15 +267,10 @@ class Tests_Formatting_Smilies extends WP_UnitTestCase {
 	 * @dataProvider get_spaces_around_smilies
 	 */
 	function test_spaces_around_smilies( $in_txt, $converted_txt ) {
-		// standard smilies, use_smilies: ON
-		update_option( 'use_smilies', 1 );
 
 		smilies_init();
 
 		$this->assertEquals( $converted_txt, convert_smilies( $in_txt ) );
-
-		// standard smilies, use_smilies: OFF
-		update_option( 'use_smilies', 0 );
 	}
 
 	/**

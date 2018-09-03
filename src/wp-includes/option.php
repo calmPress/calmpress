@@ -1895,13 +1895,6 @@ function register_initial_settings() {
 		'default'      => 'en_US',
 	) );
 
-	register_setting( 'writing', 'use_smilies', array(
-		'show_in_rest' => true,
-		'type'         => 'boolean',
-		'description'  => __( 'Convert emoticons like :-) and :-P to graphics on display.' ),
-		'default'      => true,
-	) );
-
 	register_setting( 'writing', 'default_category', array(
 		'show_in_rest' => true,
 		'type'         => 'integer',
