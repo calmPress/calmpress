@@ -1388,8 +1388,6 @@ function validate_username( $username ) {
  * can be hooked into.
  *
  * @since 2.0.0
- * @since 3.6.0 The `aim`, `jabber`, and `yim` fields were removed as default user contact
- *              methods for new installations. See wp_get_user_contact_methods().
  * @since 4.7.0 The user's locale can be passed to `$userdata`.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
@@ -2063,13 +2061,6 @@ function _get_additional_user_keys( $user ) {
  */
 function wp_get_user_contact_methods( $user = null ) {
 	$methods = array();
-	if ( get_site_option( 'initial_db_version' ) < 23588 ) {
-		$methods = array(
-			'aim'    => __( 'AIM' ),
-			'yim'    => __( 'Yahoo IM' ),
-			'jabber' => __( 'Jabber / Google Talk' )
-		);
-	}
 
 	/**
 	 * Filters the user contact methods.
