@@ -1135,10 +1135,6 @@ function get_terms( $args = array(), $deprecated = '' ) {
  *                           False on failure.
  */
 function add_term_meta( $term_id, $meta_key, $meta_value, $unique = false ) {
-	// Bail if term meta table is not installed.
-	if ( get_option( 'db_version' ) < 34370 ) {
-		return false;
-	}
 
 	if ( wp_term_is_shared( $term_id ) ) {
 		return new WP_Error( 'ambiguous_term_id', __( 'Term meta cannot be added to terms that are shared between taxonomies.'), $term_id );
@@ -1165,10 +1161,6 @@ function add_term_meta( $term_id, $meta_key, $meta_value, $unique = false ) {
  * @return bool True on success, false on failure.
  */
 function delete_term_meta( $term_id, $meta_key, $meta_value = '' ) {
-	// Bail if term meta table is not installed.
-	if ( get_option( 'db_version' ) < 34370 ) {
-		return false;
-	}
 
 	$deleted = delete_metadata( 'term', $term_id, $meta_key, $meta_value );
 
@@ -1192,10 +1184,6 @@ function delete_term_meta( $term_id, $meta_key, $meta_value = '' ) {
  * @return mixed If `$single` is false, an array of metadata values. If `$single` is true, a single metadata value.
  */
 function get_term_meta( $term_id, $key = '', $single = false ) {
-	// Bail if term meta table is not installed.
-	if ( get_option( 'db_version' ) < 34370 ) {
-		return false;
-	}
 
 	return get_metadata( 'term', $term_id, $key, $single );
 }
@@ -1217,10 +1205,6 @@ function get_term_meta( $term_id, $key = '', $single = false ) {
  *                           WP_Error when term_id is ambiguous between taxonomies. False on failure.
  */
 function update_term_meta( $term_id, $meta_key, $meta_value, $prev_value = '' ) {
-	// Bail if term meta table is not installed.
-	if ( get_option( 'db_version' ) < 34370 ) {
-		return false;
-	}
 
 	if ( wp_term_is_shared( $term_id ) ) {
 		return new WP_Error( 'ambiguous_term_id', __( 'Term meta cannot be added to terms that are shared between taxonomies.'), $term_id );
@@ -1248,10 +1232,6 @@ function update_term_meta( $term_id, $meta_key, $meta_value, $prev_value = '' ) 
  * @return array|false Returns false if there is nothing to update. Returns an array of metadata on success.
  */
 function update_termmeta_cache( $term_ids ) {
-	// Bail if term meta table is not installed.
-	if ( get_option( 'db_version' ) < 34370 ) {
-		return;
-	}
 
 	return update_meta_cache( 'term', $term_ids );
 }
@@ -1267,10 +1247,6 @@ function update_termmeta_cache( $term_ids ) {
  * @return array|false Array with meta data, or false when the meta table is not installed.
  */
 function has_term_meta( $term_id ) {
-	// Bail if term meta table is not installed.
-	if ( get_option( 'db_version' ) < 34370 ) {
-		return false;
-	}
 
 	global $wpdb;
 
@@ -2536,8 +2512,8 @@ function wp_unique_term_slug( $slug, $term ) {
 	$needs_suffix = true;
 	$original_slug = $slug;
 
-	// As of 4.1, duplicate slugs are allowed as long as they're in different taxonomies.
-	if ( ! term_exists( $slug ) || get_option( 'db_version' ) >= 30133 && ! get_term_by( 'slug', $slug, $term->taxonomy ) ) {
+	// Duplicate slugs are allowed as long as they're in different taxonomies.
+	if ( ! term_exists( $slug ) || ! get_term_by( 'slug', $slug, $term->taxonomy ) ) {
 		$needs_suffix = false;
 	}
 

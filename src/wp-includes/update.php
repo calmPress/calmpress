@@ -94,7 +94,6 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 		'blogs'              => $num_blogs,
 		'users'              => $user_count,
 		'multisite_enabled'  => $multisite_enabled,
-		'initial_db_version' => get_site_option( 'initial_db_version' ),
 	);
 
 	/**
@@ -116,7 +115,6 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 	 *     @type int    $blogs              Number of sites on this WordPress installation.
 	 *     @type int    $users              Number of users on this WordPress installation.
 	 *     @type int    $multisite_enabled  Whether this WordPress installation uses Multisite.
-	 *     @type int    $initial_db_version Database version of WordPress at time of installation.
 	 * }
 	 */
 	$query = apply_filters( 'core_version_check_query_args', $query );

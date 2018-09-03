@@ -520,8 +520,6 @@ class Tests_Term_WpInsertTerm extends WP_UnitTestCase {
 	 * @ticket 5809
 	 */
 	public function test_wp_insert_term_duplicate_slug_different_taxonomy_before_410_schema_change() {
-		$old_db_version = 30055;
-		update_option( 'db_version', $old_db_version );
 
 		register_taxonomy( 'wptests_tax', 'post' );
 		register_taxonomy( 'wptests_tax_2', 'post' );
@@ -541,10 +539,6 @@ class Tests_Term_WpInsertTerm extends WP_UnitTestCase {
 
 		$new_term = get_term( $created['term_id'], 'wptests_tax_2' );
 
-		/*
-		 * As of 4.1, we no longer create a shared term, but we also do not
-		 * allow for duplicate slugs.
-		 */
 		$this->assertSame( 'foo-2', $new_term->slug );
 		$this->assertNotEquals( $new_term->term_id, $term->term_id );
 

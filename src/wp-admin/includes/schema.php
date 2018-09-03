@@ -523,12 +523,6 @@ function populate_options() {
 		'calmpress_db_version' => calmpress_version(),
 	);
 
-	// 3.3
-	if ( ! is_multisite() ) {
-		$options['initial_db_version'] = ! empty( $wp_current_db_version ) && $wp_current_db_version < $wp_db_version
-			? $wp_current_db_version : $wp_db_version;
-	}
-
 	// 3.0 multisite
 	if ( is_multisite() ) {
 		/* translators: site tagline */
@@ -1011,7 +1005,6 @@ We hope you enjoy your new site. Thanks!
 		'subdomain_install' => intval( $subdomain_install ),
 		'global_terms_enabled' => global_terms_enabled() ? '1' : '0',
 		'ms_files_rewriting' => is_multisite() ? get_site_option( 'ms_files_rewriting' ) : '0',
-		'initial_db_version' => get_option( 'initial_db_version' ),
 		'active_sitewide_plugins' => array(),
 		'WPLANG' => get_locale(),
 	);
