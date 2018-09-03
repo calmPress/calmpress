@@ -2165,16 +2165,16 @@ function convert_invalid_entities( $content ) {
 }
 
 /**
- * Balances tags if forced to, or if the 'use_balanceTags' option is set to true.
+ * Balances tags if forced to.
  *
  * @since 0.71
  *
  * @param string $text  Text to be balanced
- * @param bool   $force If true, forces balancing, ignoring the value of the option. Default false.
+ * @param bool   $force If true, forces balancing. Default false.
  * @return string Balanced text
  */
 function balanceTags( $text, $force = false ) {
-	if ( $force || get_option('use_balanceTags') == 1 ) {
+	if ( $force ) {
 		return force_balance_tags( $text );
 	} else {
 		return $text;

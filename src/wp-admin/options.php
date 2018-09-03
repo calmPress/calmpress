@@ -155,7 +155,6 @@ if ( ! in_array( get_option( 'blog_charset' ), array( 'utf8', 'utf-8', 'UTF8', '
 
 if ( get_site_option( 'initial_db_version' ) < 32453 ) {
 	$whitelist_options['writing'][] = 'use_smilies';
-	$whitelist_options['writing'][] = 'use_balanceTags';
 }
 
 if ( !is_multisite() ) {

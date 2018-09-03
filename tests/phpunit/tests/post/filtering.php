@@ -10,7 +10,6 @@
 class Tests_Post_Filtering extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
-		update_option('use_balanceTags', 1);
 		kses_init_filters();
 
 	}
@@ -92,8 +91,6 @@ EOF;
 
 	// make sure unbalanced tags are untouched when the balance option is off
 	function test_post_content_nobalance_nextpage_more() {
-
-		update_option('use_balanceTags', 0);
 
 		$content = <<<EOF
 <em>some text<!--nextpage-->

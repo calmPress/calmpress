@@ -399,7 +399,6 @@ function populate_options() {
 	'admin_email' => 'you@example.com',
 	/* translators: default start of the week. 0 = Sunday, 1 = Monday */
 	'start_of_week' => _x( '1', 'start of week' ),
-	'use_balanceTags' => 0,
 	'use_smilies' => 1,
 	'require_name_email' => 1,
 	'comments_notify' => 1,

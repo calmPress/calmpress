@@ -98,7 +98,6 @@ class Test_WP_Widget_Custom_HTML extends WP_UnitTestCase {
 		) );
 		unset( $text_widget_instance['content'] );
 
-		update_option( 'use_balanceTags', 0 );
 		add_filter( 'widget_custom_html_content', array( $this, 'filter_widget_custom_html_content' ), 5, 3 );
 		add_filter( 'widget_text', array( $this, 'filter_widget_text' ), 10, 3 );
 		ob_start();
@@ -120,12 +119,6 @@ class Test_WP_Widget_Custom_HTML extends WP_UnitTestCase {
 		$this->assertSame( $widget, $this->widget_custom_html_content_args[2] );
 		remove_filter( 'widget_custom_html_content', array( $this, 'filter_widget_custom_html_content' ), 5 );
 		remove_filter( 'widget_text', array( $this, 'filter_widget_text' ), 10 );
-
-		update_option( 'use_balanceTags', 1 );
-		ob_start();
-		$widget->widget( $args, $instance );
-		$output = ob_get_clean();
-		$this->assertContains( '</u>', $output );
 	}
 
 	/**
