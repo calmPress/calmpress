@@ -732,12 +732,6 @@ form.initial-form.quickpress-open input#title {
 	top: 0;
 }
 
-/* Browse happy box */
-
-#dashboard-widgets #dashboard_browser_nag.postbox .inside {
-	margin: 10px;
-}
-
 .postbox .button-link .edit-box {
 	display: none;
 }
@@ -899,70 +893,6 @@ a.rsswidget {
 
 .dashboard-comment-wrap {
 	word-wrap: break-word;
-}
-
-/* Browser Nag */
-#dashboard_browser_nag a.update-browser-link {
-	font-size: 1.2em;
-	font-weight: 600;
-}
-
-#dashboard_browser_nag a {
-	text-decoration: underline;
-}
-
-#dashboard_browser_nag p.browser-update-nag.has-browser-icon {
-	padding-right: 125px;
-}
-
-#dashboard_browser_nag .browser-icon {
-	margin-top: -35px;
-}
-
-#dashboard_browser_nag.postbox.browser-insecure {
-	background-color: #ac1b1b;
-	border-color: #ac1b1b;
-}
-
-#dashboard_browser_nag.postbox {
-	background-color: #e29808;
-	background-image: none;
-	border-color: #edc048;
-	color: #fff;
-	box-shadow: none;
-}
-
-#dashboard_browser_nag.postbox.browser-insecure h2 {
-	border-bottom-color: #cd5a5a;
-	color: #fff;
-}
-
-#dashboard_browser_nag.postbox h2 {
-	border-bottom-color: #f6e2ac;
-	background: transparent none;
-	color: #fff;
-	box-shadow: none;
-}
-
-#dashboard_browser_nag a {
-	color: #fff;
-}
-
-#dashboard_browser_nag h2.hndle {
-	border: none;
-	font-weight: 600;
-	font-size: 20px;
-	padding-top: 10px;
-}
-
-.postbox#dashboard_browser_nag p a.dismiss {
-	font-size: 14px;
-}
-
-.postbox#dashboard_browser_nag p,
-.postbox#dashboard_browser_nag a,
-.postbox#dashboard_browser_nag p.browser-update-nag {
-	font-size: 16px;
 }
 
 /* =Media Queries

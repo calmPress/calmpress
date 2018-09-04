@@ -1034,7 +1034,7 @@ function do_meta_boxes( $screen, $context, $object ) {
 	if ( ! $already_sorted && $sorted = get_user_option( "meta-box-order_$page" ) ) {
 		foreach ( $sorted as $box_context => $ids ) {
 			foreach ( explode( ',', $ids ) as $id ) {
-				if ( $id && 'dashboard_browser_nag' !== $id ) {
+				if ( $id ) {
 					add_meta_box( $id, null, null, $screen, $box_context, 'sorted' );
 				}
 			}
@@ -1054,20 +1054,19 @@ function do_meta_boxes( $screen, $context, $object ) {
 					$i++;
 					$hidden_class = in_array($box['id'], $hidden) ? ' hide-if-js' : '';
 					echo '<div id="' . $box['id'] . '" class="postbox ' . postbox_classes($box['id'], $page) . $hidden_class . '" ' . '>' . "\n";
-					if ( 'dashboard_browser_nag' != $box['id'] ) {
-						$widget_title = $box[ 'title' ];
+					$widget_title = $box[ 'title' ];
 
-						if ( is_array( $box[ 'args' ] ) && isset( $box[ 'args' ][ '__widget_basename' ] ) ) {
-							$widget_title = $box[ 'args' ][ '__widget_basename' ];
-							// Do not pass this parameter to the user callback function.
-							unset( $box[ 'args' ][ '__widget_basename' ] );
-						}
-
-						echo '<button type="button" class="handlediv" aria-expanded="true">';
-						echo '<span class="screen-reader-text">' . sprintf( __( 'Toggle panel: %s' ), $widget_title ) . '</span>';
-						echo '<span class="toggle-indicator" aria-hidden="true"></span>';
-						echo '</button>';
+					if ( is_array( $box[ 'args' ] ) && isset( $box[ 'args' ][ '__widget_basename' ] ) ) {
+						$widget_title = $box[ 'args' ][ '__widget_basename' ];
+						// Do not pass this parameter to the user callback function.
+						unset( $box[ 'args' ][ '__widget_basename' ] );
 					}
+
+					echo '<button type="button" class="handlediv" aria-expanded="true">';
+					echo '<span class="screen-reader-text">' . sprintf( __( 'Toggle panel: %s' ), $widget_title ) . '</span>';
+					echo '<span class="toggle-indicator" aria-hidden="true"></span>';
+					echo '</button>';
+
 					echo "<h2 class='hndle'><span>{$box['title']}</span></h2>\n";
 					echo '<div class="inside">' . "\n";
 					call_user_func($box['callback'], $object, $box);

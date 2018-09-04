@@ -46,10 +46,6 @@ var postboxes;
 				id = p.attr( 'id' ),
 				ariaExpandedValue;
 
-			if ( 'dashboard_browser_nag' === id ) {
-				return;
-			}
-
 			p.toggleClass( 'closed' );
 
 			ariaExpandedValue = ! p.hasClass( 'closed' );
@@ -234,16 +230,9 @@ var postboxes;
 				stop: function() {
 					var $el = $( this );
 
-					if ( $el.find( '#dashboard_browser_nag' ).is( ':visible' ) && 'dashboard_browser_nag' != this.firstChild.id ) {
-						$el.sortable('cancel');
-						return;
-					}
-
 					postboxes.save_order(page);
 				},
 				receive: function(e,ui) {
-					if ( 'dashboard_browser_nag' == ui.item[0].id )
-						$(ui.sender).sortable('cancel');
 
 					postboxes._mark_area();
 					$document.trigger( 'postbox-moved', ui.item );
