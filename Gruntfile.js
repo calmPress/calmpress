@@ -99,7 +99,6 @@ module.exports = function(grunt) {
 							'!wp-includes/js/jquery/jquery.masonry.js',
 							'!wp-includes/js/jquery/ui/*.js',
 							'!wp-includes/js/tinymce/tinymce.js',
-							'!wp-includes/version.php' // Exclude version.php
 						],
 						dest: BUILD_DIR
 					},
@@ -134,23 +133,6 @@ module.exports = function(grunt) {
 						dest: BUILD_DIR + 'wp-admin/css/wp-admin-rtl.min.css'
 					}
 				]
-			},
-			version: {
-				options: {
-					processContent: function( src ) {
-						return src.replace( /^\$wp_version = '(.+?)';/m, function( str, version ) {
-							version = version.replace( /-src$/, '' );
-
-							// If the version includes an SVN commit (-12345), it's not a released alpha/beta. Append a timestamp.
-							version = version.replace( /-[\d]{5}$/, '-' + grunt.template.today( 'yyyymmdd.HHMMss' ) );
-
-							/* jshint quotmark: true */
-							return "$wp_version = '" + version + "';";
-						});
-					}
-				},
-				src: SOURCE_DIR + 'wp-includes/version.php',
-				dest: BUILD_DIR + 'wp-includes/version.php'
 			},
 			dynamic: {
 				dot: true,
@@ -915,7 +897,6 @@ module.exports = function(grunt) {
 		'copy:files',
 		'copy:wp-admin-css-compat-rtl',
 		'copy:wp-admin-css-compat-min',
-		'copy:version'
 	] );
 
 	grunt.registerTask( 'build', [
