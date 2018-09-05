@@ -208,9 +208,6 @@ function core_upgrade_preamble() {
 	// Don't show the maintenance mode notice when we are only showing a single re-install option.
 	if ( $updates && ( count( $updates ) > 1 || $updates[0]->response != 'latest' ) ) {
 		echo '<p>' . __( 'While your site is being updated, it will be in maintenance mode. As soon as your updates are complete, your site will return to normal.' ) . '</p>';
-	} elseif ( ! $updates ) {
-		list( $normalized_version ) = explode( '-', $wp_version );
-		echo '<p>' . sprintf( __( '<a href="%s">Learn more about calmPress %s</a>.' ), esc_url( self_admin_url( 'about.php' ) ), $normalized_version ) . '</p>';
 	}
 	dismissed_updates();
 }
@@ -508,13 +505,8 @@ function do_core_upgrade( $reinstall = false ) {
 	}
 
 	show_message( __('calmPress updated successfully') );
-	show_message( '<span class="hide-if-no-js">' . sprintf( __( 'Welcome to calmPress %1$s. You will be redirected to the About calmPress screen. If not, click <a href="%2$s">here</a>.' ), $result, esc_url( self_admin_url( 'about.php?updated' ) ) ) . '</span>' );
-	show_message( '<span class="hide-if-js">' . sprintf( __( 'Welcome to calmPress %1$s. <a href="%2$s">Learn more</a>.' ), $result, esc_url( self_admin_url( 'about.php?updated' ) ) ) . '</span>' );
 	?>
 	</div>
-	<script type="text/javascript">
-	window.location = '<?php echo self_admin_url( 'about.php?updated' ); ?>';
-	</script>
 	<?php
 }
 
