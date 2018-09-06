@@ -557,8 +557,6 @@ class wpdb {
 	 * @link https://core.trac.wordpress.org/ticket/3354
 	 * @since 2.0.8
 	 *
-	 * @global string $wp_version
-	 *
 	 * @param string $dbuser     MySQL database user
 	 * @param string $dbpassword MySQL database password
 	 * @param string $dbname     MySQL database name
@@ -3298,17 +3296,16 @@ class wpdb {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @global string $wp_version
 	 * @global string $required_mysql_version
 	 *
 	 * @return WP_Error|void
 	 */
 	public function check_database_version() {
-		global $wp_version, $required_mysql_version;
+		global $required_mysql_version;
 		// Make sure the server has the required MySQL version
 		if ( version_compare($this->db_version(), $required_mysql_version, '<') ) {
 			/* translators: 1: calmPress version number, 2: Minimum required MySQL version number */
-			return new WP_Error('database_version', sprintf( __( '<strong>ERROR</strong>: calmPress %1$s requires MySQL %2$s or higher' ), $wp_version, $required_mysql_version ));
+			return new WP_Error('database_version', sprintf( __( '<strong>ERROR</strong>: calmPress %1$s requires MySQL %2$s or higher' ), calmpress_version(), $required_mysql_version ));
 		}
 	}
 

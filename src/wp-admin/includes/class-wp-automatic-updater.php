@@ -481,7 +481,7 @@ class WP_Automatic_Updater {
 	 * @param object $update_result The result of the core update. Includes the update offer and result.
 	 */
 	protected function after_core_update( $update_result ) {
-		$wp_version = get_bloginfo( 'version' );
+		$version = get_bloginfo( 'version' );
 
 		$core_update = $update_result->item;
 		$result      = $update_result->result;
@@ -509,7 +509,7 @@ class WP_Automatic_Updater {
 		if ( $critical ) {
 			$critical_data = array(
 				'attempted'  => $core_update->current,
-				'current'    => $wp_version,
+				'current'    => $version,
 				'error_code' => $error_code,
 				'error_data' => $result->get_error_data(),
 				'timestamp'  => time(),
@@ -549,7 +549,7 @@ class WP_Automatic_Updater {
 
 		update_site_option( 'auto_core_update_failed', array(
 			'attempted'  => $core_update->current,
-			'current'    => $wp_version,
+			'current'    => $version,
 			'error_code' => $error_code,
 			'error_data' => $result->get_error_data(),
 			'timestamp'  => time(),

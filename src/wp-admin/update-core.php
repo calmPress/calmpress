@@ -35,12 +35,12 @@ function list_core_update( $update ) {
  	global $wp_local_package, $wpdb;
   	static $first_pass = true;
 
-	$wp_version = get_bloginfo( 'version' );
+	$version = get_bloginfo( 'version' );
 
  	if ( 'en_US' == $update->locale && 'en_US' == get_locale() )
  		$version_string = $update->current;
  	// If the only available update is a partial builds, it doesn't need a language-specific version string.
- 	elseif ( 'en_US' == $update->locale && $update->packages->partial && $wp_version == $update->partial_version && ( $updates = get_core_updates() ) && 1 == count( $updates ) )
+ 	elseif ( 'en_US' == $update->locale && $update->packages->partial && $version == $update->partial_version && ( $updates = get_core_updates() ) && 1 == count( $updates ) )
  		$version_string = $update->current;
  	else
  		$version_string = sprintf( "%s&ndash;<strong>%s</strong>", $update->current, $update->locale );
@@ -109,7 +109,7 @@ function list_core_update( $update ) {
 	if ( 'en_US' != $update->locale && ( !isset($wp_local_package) || $wp_local_package != $update->locale ) )
 	    echo '<p class="hint">'.__('This localized version contains both the translation and various other localization fixes. You can skip upgrading if you want to keep your current translation.').'</p>';
 	// Partial builds don't need language-specific warnings.
-	elseif ( 'en_US' == $update->locale && get_locale() != 'en_US' && ( ! $update->packages->partial && $wp_version == $update->partial_version ) ) {
+	elseif ( 'en_US' == $update->locale && get_locale() != 'en_US' && ( ! $update->packages->partial && $version == $update->partial_version ) ) {
 	    echo '<p class="hint">'.sprintf( __('You are about to install calmPress %s <strong>in English (US).</strong> There is a chance this update will break your translation. You may prefer to wait for the localized version to be released.'), $update->response != 'development' ? $update->current : '' ).'</p>';
 	}
 	echo '</form>';
@@ -157,7 +157,7 @@ function dismissed_updates() {
 function core_upgrade_preamble() {
 	global $required_php_version, $required_mysql_version;
 
-	$wp_version = get_bloginfo( 'version' );
+	$version = get_bloginfo( 'version' );
 	$updates = get_core_updates();
 
 	if ( !isset($updates[0]->response) || 'latest' == $updates[0]->response ) {
@@ -213,8 +213,8 @@ function core_upgrade_preamble() {
 }
 
 function list_plugin_updates() {
-	$wp_version = get_bloginfo( 'version' );
-	$cur_wp_version = preg_replace( '/-.*$/', '', $wp_version );
+	$version = get_bloginfo( 'version' );
+	$cur_version = preg_replace( '/-.*$/', '', $version );
 
 	require_once(ABSPATH . 'wp-admin/includes/plugin-install.php');
 	$plugins = get_plugin_updates();
@@ -226,7 +226,7 @@ function list_plugin_updates() {
 	$form_action = 'update-core.php?action=do-plugin-upgrade';
 
 	$core_updates = get_core_updates();
-	if ( !isset($core_updates[0]->response) || 'latest' == $core_updates[0]->response || 'development' == $core_updates[0]->response || version_compare( $core_updates[0]->current, $cur_wp_version, '=') )
+	if ( !isset($core_updates[0]->response) || 'latest' == $core_updates[0]->response || 'development' == $core_updates[0]->response || version_compare( $core_updates[0]->current, $cur_version, '=') )
 		$core_update_version = false;
 	else
 		$core_update_version = $core_updates[0]->current;
@@ -259,13 +259,13 @@ function list_plugin_updates() {
 		}
 
 		// Get plugin compat for running version of calmPress.
-		if ( isset($plugin_data->update->tested) && version_compare($plugin_data->update->tested, $cur_wp_version, '>=') ) {
-			$compat = '<br />' . sprintf(__('Compatibility with calmPress %1$s: 100%% (according to its author)'), $cur_wp_version);
-		} elseif ( isset($plugin_data->update->compatibility->{$cur_wp_version}) ) {
-			$compat = $plugin_data->update->compatibility->{$cur_wp_version};
-			$compat = '<br />' . sprintf(__('Compatibility with calmPress %1$s: %2$d%% (%3$d "works" votes out of %4$d total)'), $cur_wp_version, $compat->percent, $compat->votes, $compat->total_votes);
+		if ( isset($plugin_data->update->tested) && version_compare($plugin_data->update->tested, $cur_version, '>=') ) {
+			$compat = '<br />' . sprintf(__('Compatibility with calmPress %1$s: 100%% (according to its author)'), $cur_version);
+		} elseif ( isset($plugin_data->update->compatibility->{$cur_version}) ) {
+			$compat = $plugin_data->update->compatibility->{$cur_version};
+			$compat = '<br />' . sprintf(__('Compatibility with calmPress %1$s: %2$d%% (%3$d "works" votes out of %4$d total)'), $cur_version, $compat->percent, $compat->votes, $compat->total_votes);
 		} else {
-			$compat = '<br />' . sprintf(__('Compatibility with calmPress %1$s: Unknown'), $cur_wp_version);
+			$compat = '<br />' . sprintf(__('Compatibility with calmPress %1$s: Unknown'), $cur_version);
 		}
 		// Get plugin compat for updated version of calmPress.
 		if ( $core_update_version ) {

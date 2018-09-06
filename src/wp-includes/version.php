@@ -1,10 +1,4 @@
 <?php
-/**
- * The WordPress version string
- *
- * @global string $wp_version
- */
-$wp_version = '4.9.9-alpha-43554-src';
 
 /**
  * Holds the TinyMCE version

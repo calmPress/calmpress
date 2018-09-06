@@ -62,7 +62,7 @@ class Core_Upgrader extends WP_Upgrader {
 	public function upgrade( $current, $args = array() ) {
 		global $wp_filesystem;
 
-		include( ABSPATH . WPINC . '/version.php' ); // $wp_version;
+		include( ABSPATH . WPINC . '/version.php' ); // version related data.
 
 		$start_time = time();
 
@@ -336,15 +336,14 @@ class Core_Upgrader extends WP_Upgrader {
 	 *
 	 * @since 3.7.0
 	 *
-	 * @global string $wp_version
 	 * @global string $wp_local_package
 	 *
 	 * @return bool True if the checksums match, otherwise false.
 	 */
 	public function check_files() {
-		global $wp_version, $wp_local_package;
+		global $wp_local_package;
 
-		$checksums = get_core_checksums( $wp_version, isset( $wp_local_package ) ? $wp_local_package : 'en_US' );
+		$checksums = get_core_checksums( calmpress_version(), isset( $wp_local_package ) ? $wp_local_package : 'en_US' );
 
 		if ( ! is_array( $checksums ) )
 			return false;

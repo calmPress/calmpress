@@ -14,7 +14,6 @@
  * isn't installing.
  *
  * @since 2.3.0
- * @global string $wp_version Used to check against the newest WordPress version.
  * @global wpdb   $wpdb
  * @global string $wp_local_package
  *
@@ -27,21 +26,19 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 	}
 
 	global $wpdb, $wp_local_package;
-	// include an unmodified $wp_version
-	include( ABSPATH . WPINC . '/version.php' );
 	$php_version = phpversion();
 
 	$current = get_site_transient( 'update_core' );
 	$translations = wp_get_installed_translations( 'core' );
 
-	// Invalidate the transient when $wp_version changes
-	if ( is_object( $current ) && $wp_version != $current->version_checked )
+	// Invalidate the transient when core version changes
+	if ( is_object( $current ) && calmpress_version() != $current->version_checked )
 		$current = false;
 
 	if ( ! is_object($current) ) {
 		$current = new stdClass;
 		$current->updates = array();
-		$current->version_checked = $wp_version;
+		$current->version_checked = calmpress_version();
 	}
 
 	if ( ! empty( $extra_stats ) )
@@ -86,7 +83,7 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 	}
 
 	$query = array(
-		'version'            => $wp_version,
+		'version'            => calmpress_version(),
 		'php'                => $php_version,
 		'locale'             => $locale,
 		'mysql'              => $mysql_version,
@@ -134,7 +131,7 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 
 	$options = array(
 		'timeout' => $doing_cron ? 30 : 3,
-		'user-agent' => 'calmPress/' . $wp_version . '; ' . home_url( '/' ),
+		'user-agent' => 'calmPress/' . calmpress_version() . '; ' . home_url( '/' ),
 		'headers' => array(
 			'wp_install' => $wp_install,
 			'wp_blog' => home_url( '/' )
@@ -185,7 +182,7 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 	$updates = new stdClass();
 	$updates->updates = $offers;
 	$updates->last_checked = time();
-	$updates->version_checked = $wp_version;
+	$updates->version_checked = calmpress_version();
 
 	if ( isset( $body['translations'] ) )
 		$updates->translations = $body['translations'];
@@ -214,7 +211,6 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
  * api.wordpress.org. Will only check if WordPress isn't installing.
  *
  * @since 2.3.0
- * @global string $wp_version Used to notify the WordPress version.
  *
  * @param array $extra_stats Extra statistics to report to the WordPress.org API.
  */
@@ -222,9 +218,6 @@ function wp_update_plugins( $extra_stats = array() ) {
 	if ( wp_installing() ) {
 		return;
 	}
-
-	// include an unmodified $wp_version
-	include( ABSPATH . WPINC . '/version.php' );
 
 	// If running blog-side, bail unless we've not checked in the last 12 hours
 	if ( !function_exists( 'get_plugins' ) )
@@ -323,7 +316,7 @@ function wp_update_plugins( $extra_stats = array() ) {
 			'locale'       => wp_json_encode( $locales ),
 			'all'          => wp_json_encode( true ),
 		),
-		'user-agent' => 'calmPress/' . $wp_version . '; ' . home_url( '/' )
+		'user-agent' => 'calmPress/' . calmpress_version() . '; ' . home_url( '/' )
 	);
 
 	if ( $extra_stats ) {
@@ -341,7 +334,7 @@ function wp_update_plugins( $extra_stats = array() ) {
 				/* translators: %s: support forums URL */
 				__( 'An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="%s">support forums</a>.' ),
 				__( 'https://wordpress.org/support/' )
-			) . ' ' . __( '(WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ),
+			) . ' ' . __( '(calmPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ),
 			headers_sent() || WP_DEBUG ? E_USER_WARNING : E_USER_NOTICE
 		);
 		$raw_response = wp_remote_post( $http_url, $options );
@@ -396,9 +389,6 @@ function wp_update_themes( $extra_stats = array() ) {
 	if ( wp_installing() ) {
 		return;
 	}
-
-	// include an unmodified $wp_version
-	include( ABSPATH . WPINC . '/version.php' );
 
 	$installed_themes = wp_get_themes();
 	$translations = wp_get_installed_translations( 'themes' );
@@ -505,7 +495,7 @@ function wp_update_themes( $extra_stats = array() ) {
 			'translations' => wp_json_encode( $translations ),
 			'locale'       => wp_json_encode( $locales ),
 		),
-		'user-agent'	=> 'calmPress/' . $wp_version . '; ' . home_url( '/' )
+		'user-agent'	=> 'calmPress/' . calmpress_version() . '; ' . home_url( '/' )
 	);
 
 	if ( $extra_stats ) {
@@ -655,17 +645,14 @@ function wp_get_update_data() {
  *
  * @since 2.8.0
  *
- * @global string $wp_version
  */
 function _maybe_update_core() {
-	// include an unmodified $wp_version
-	include( ABSPATH . WPINC . '/version.php' );
 
 	$current = get_site_transient( 'update_core' );
 
 	if ( isset( $current->last_checked, $current->version_checked ) &&
 		12 * HOUR_IN_SECONDS > ( time() - $current->last_checked ) &&
-		$current->version_checked == $wp_version ) {
+		$current->version_checked == calmpress_version() ) {
 		return;
 	}
 	wp_version_check();

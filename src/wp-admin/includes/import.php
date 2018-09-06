@@ -134,7 +134,7 @@ function wp_get_popular_importers() {
 			'locale'  => $locale,
 			'version' => $wp_version,
 		), 'http://api.wordpress.org/core/importers/1.1/' );
-		$options = array( 'user-agent' => 'calmPress/' . $wp_version . '; ' . home_url( '/' ) );
+		$options = array( 'user-agent' => 'calmPress/' . calmpress_version() . '; ' . home_url( '/' ) );
 
 		if ( wp_http_supports( array( 'ssl' ) ) ) {
 			$url = set_url_scheme( $url, 'https' );
