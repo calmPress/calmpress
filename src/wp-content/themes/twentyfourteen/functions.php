@@ -36,13 +36,6 @@ if ( ! isset( $content_width ) ) {
 	$content_width = 474;
 }
 
-/**
- * Twenty Fourteen only works in WordPress 3.6 or later.
- */
-if ( version_compare( $GLOBALS['wp_version'], '3.6', '<' ) ) {
-	require get_template_directory() . '/inc/back-compat.php';
-}
-
 if ( ! function_exists( 'twentyfourteen_setup' ) ) :
 /**
  * Twenty Fourteen setup.
@@ -288,14 +281,10 @@ add_action( 'admin_print_scripts-appearance_page_custom-header', 'twentyfourteen
  */
 function twentyfourteen_resource_hints( $urls, $relation_type ) {
 	if ( wp_style_is( 'twentyfourteen-lato', 'queue' ) && 'preconnect' === $relation_type ) {
-		if ( version_compare( $GLOBALS['wp_version'], '4.7-alpha', '>=' ) ) {
-			$urls[] = array(
-				'href' => 'https://fonts.gstatic.com',
-				'crossorigin',
-			);
-		} else {
-			$urls[] = 'https://fonts.gstatic.com';
-		}
+		$urls[] = array(
+			'href' => 'https://fonts.gstatic.com',
+			'crossorigin',
+		);
 	}
 
 	return $urls;
