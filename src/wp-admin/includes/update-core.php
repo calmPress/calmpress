@@ -1266,45 +1266,6 @@ function _copy_dir($from, $to, $skip_list = array() ) {
 }
 
 /**
- * Redirect to the About WordPress page after a successful upgrade.
- *
- * This function is only needed when the existing installation is older than 3.4.0.
- *
- * @since 3.3.0
- *
- * @global string $wp_version
- * @global string $pagenow
- * @global string $action
- *
- * @param string $new_version
- */
-function _redirect_to_about_wordpress( $new_version ) {
-	global $wp_version, $pagenow, $action;
-
-	if ( version_compare( $wp_version, '3.4-RC1', '>=' ) )
-		return;
-
-	// Ensure we only run this on the update-core.php page. The Core_Upgrader may be used in other contexts.
-	if ( 'update-core.php' != $pagenow )
-		return;
-
- 	if ( 'do-core-upgrade' != $action && 'do-core-reinstall' != $action )
- 		return;
-
-	// Load the updated default text localization domain for new strings.
-	load_default_textdomain();
-
-	// See do_core_upgrade()
-	show_message( __('calmPress updated successfully') );
-
-	echo '</div>';
-
-	// Include admin-footer.php and exit.
-	include(ABSPATH . 'wp-admin/admin-footer.php');
-	exit();
-}
-
-/**
  * Cleans up Genericons example files.
  *
  * @since 4.2.2
