@@ -921,10 +921,9 @@ function wp_default_scripts( &$scripts ) {
  * @param WP_Styles $styles
  */
 function wp_default_styles( &$styles ) {
-	include( ABSPATH . WPINC . '/version.php' ); // include an unmodified $wp_version
 
 	if ( ! defined( 'SCRIPT_DEBUG' ) )
-		define( 'SCRIPT_DEBUG', false !== strpos( $wp_version, '-src' ) );
+		define( 'SCRIPT_DEBUG', false );
 
 	if ( ! $guessurl = site_url() )
 		$guessurl = wp_guess_url();
