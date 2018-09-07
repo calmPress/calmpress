@@ -36,7 +36,7 @@ $out = '';
 $wp_scripts = new WP_Scripts();
 wp_default_scripts($wp_scripts);
 
-if ( isset( $_SERVER['HTTP_IF_NONE_MATCH'] ) && stripslashes( $_SERVER['HTTP_IF_NONE_MATCH'] ) === $wp_version ) {
+if ( isset( $_SERVER['HTTP_IF_NONE_MATCH'] ) && stripslashes( $_SERVER['HTTP_IF_NONE_MATCH'] ) === calmpress_version() ) {
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if ( ! in_array( $protocol, array( 'HTTP/1.1', 'HTTP/2', 'HTTP/2.0' ) ) ) {
 		$protocol = 'HTTP/1.0';
@@ -53,7 +53,7 @@ foreach ( $load as $handle ) {
 	$out .= get_file($path) . "\n";
 }
 
-header("Etag: $wp_version");
+header("Etag: " . calmpress_version() );
 header('Content-Type: application/javascript; charset=UTF-8');
 header('Expires: ' . gmdate( "D, d M Y H:i:s", time() + $expires_offset ) . ' GMT');
 header("Cache-Control: public, max-age=$expires_offset");
