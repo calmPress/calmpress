@@ -141,8 +141,6 @@ function plugins_api( $action, $args = array() ) {
 	$res = apply_filters( 'plugins_api', false, $action, $args );
 
 	if ( false === $res ) {
-		// include an unmodified $wp_version
-		include( ABSPATH . WPINC . '/version.php' );
 
 		$url = $http_url = 'http://api.wordpress.org/plugins/info/1.0/';
 		if ( $ssl = wp_http_supports( array( 'ssl' ) ) )
@@ -150,7 +148,7 @@ function plugins_api( $action, $args = array() ) {
 
 		$http_args = array(
 			'timeout' => 15,
-			'user-agent' => 'calmPress/' . $wp_version . '; ' . home_url( '/' ),
+			'user-agent' => 'calmPress/' . calmpress_version() . '; ' . home_url( '/' ),
 			'body' => array(
 				'action' => $action,
 				'request' => serialize( $args )
@@ -673,11 +671,11 @@ function install_plugin_information() {
 	</div>
 	<div id="section-holder" class="wrap">
 	<?php
-	$wp_version = get_bloginfo( 'version' );
+	$version = get_bloginfo( 'version' );
 
-	if ( ! empty( $api->tested ) && version_compare( substr( $wp_version, 0, strlen( $api->tested ) ), $api->tested, '>' ) ) {
+	if ( ! empty( $api->tested ) && version_compare( substr( $version, 0, strlen( $api->tested ) ), $api->tested, '>' ) ) {
 		echo '<div class="notice notice-warning notice-alt"><p>' . __( '<strong>Warning:</strong> This plugin has <strong>not been tested</strong> with your current version of calmPress.' ) . '</p></div>';
-	} elseif ( ! empty( $api->requires ) && version_compare( substr( $wp_version, 0, strlen( $api->requires ) ), $api->requires, '<' ) ) {
+	} elseif ( ! empty( $api->requires ) && version_compare( substr( $version, 0, strlen( $api->requires ) ), $api->requires, '<' ) ) {
 		echo '<div class="notice notice-warning notice-alt"><p>' . __( '<strong>Warning:</strong> This plugin has <strong>not been marked as compatible</strong> with your version of calmPress.' ) . '</p></div>';
 	}
 

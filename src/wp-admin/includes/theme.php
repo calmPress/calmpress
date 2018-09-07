@@ -441,15 +441,13 @@ function themes_api( $action, $args = array() ) {
 	$res = apply_filters( 'themes_api', false, $action, $args );
 
 	if ( ! $res ) {
-		// include an unmodified $wp_version
-		include( ABSPATH . WPINC . '/version.php' );
 
 		$url = $http_url = 'http://api.wordpress.org/themes/info/1.0/';
 		if ( $ssl = wp_http_supports( array( 'ssl' ) ) )
 			$url = set_url_scheme( $url, 'https' );
 
 		$http_args = array(
-			'user-agent' => 'calmPress/' . $wp_version . '; ' . home_url( '/' ),
+			'user-agent' => 'calmPress/' . calmpress_version() . '; ' . home_url( '/' ),
 			'body' => array(
 				'action' => $action,
 				'request' => serialize( $args )
