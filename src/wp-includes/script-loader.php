@@ -46,12 +46,9 @@ require( ABSPATH . WPINC . '/functions.wp-styles.php' );
  * @param WP_Scripts $scripts WP_Scripts object.
  */
 function wp_default_scripts( &$scripts ) {
-	include( ABSPATH . WPINC . '/version.php' ); // include an unmodified $wp_version
-
-	$develop_src = false !== strpos( $wp_version, '-src' );
 
 	if ( ! defined( 'SCRIPT_DEBUG' ) ) {
-		define( 'SCRIPT_DEBUG', $develop_src );
+		define( 'SCRIPT_DEBUG', false );
 	}
 
 	if ( ! $guessurl = site_url() ) {
@@ -65,7 +62,7 @@ function wp_default_scripts( &$scripts ) {
 	$scripts->default_dirs = array('/wp-admin/js/', '/wp-includes/js/');
 
 	$suffix = SCRIPT_DEBUG ? '' : '.min';
-	$dev_suffix = $develop_src ? '' : '.min';
+	$dev_suffix = SCRIPT_DEBUG ? '' : '.min';
 
 	$scripts->add( 'utils', "/wp-includes/js/utils$suffix.js" );
 	did_action( 'init' ) && $scripts->localize( 'utils', 'userSettings', array(
