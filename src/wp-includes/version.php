@@ -27,13 +27,30 @@ $required_mysql_version = '5.0';
  */
 if ( ! function_exists( 'calmpress_version' ) ) {
 	/**
-	 * The verion of the current calmPress code.
+	 * The version of the current calmPress code.
 	 *
-	 * @since 0.9.9
+	 * @since calmPress 0.9.9
 	 *
 	 * @return string The version string.
 	 */
 	function calmpress_version() {
 		return '0.9.9-dev';
+	}
+}
+
+/*
+ * WordPress has a bad habit of including this file multiple times therefor some
+ * protection is needed around function definitions.
+ */
+if ( ! function_exists( 'wordpress_core_version' ) ) {
+	/**
+	 * The version of the current WordPress code.
+	 *
+	 * @since calmPress 0.9.9
+	 *
+	 * @return string The version string.
+	 */
+	function wordpress_core_version() {
+		return '4.9.8';
 	}
 }
