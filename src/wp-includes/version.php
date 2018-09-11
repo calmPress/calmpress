@@ -51,6 +51,9 @@ if ( ! function_exists( 'wordpress_core_version' ) ) {
 	 * @return string The version string.
 	 */
 	function wordpress_core_version() {
-		return '4.9.8';
+		return '4.9.9';
 	}
 }
+
+// WordPress version as global for backward compatitiblity.
+$wp_version = wordpress_core_version();

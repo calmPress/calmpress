@@ -580,7 +580,7 @@ function install_plugin_information() {
 				</li>
 			<?php } if ( ! empty( $api->requires ) ) { ?>
 				<li>
-					<strong><?php _e( 'Requires WordPress Version:' ); ?></strong>
+					<strong><?php _e( 'Requires WordPress Core Version:' ); ?></strong>
 					<?php
 					/* translators: %s: version number */
 					printf( __( '%s or higher' ), $api->requires );
@@ -673,9 +673,9 @@ function install_plugin_information() {
 	<?php
 	$version = get_bloginfo( 'version' );
 
-	if ( ! empty( $api->tested ) && version_compare( substr( $version, 0, strlen( $api->tested ) ), $api->tested, '>' ) ) {
+	if ( ! empty( $api->tested ) && version_compare( wordpress_core_version(), $api->tested, '>' ) ) {
 		echo '<div class="notice notice-warning notice-alt"><p>' . __( '<strong>Warning:</strong> This plugin has <strong>not been tested</strong> with your current version of calmPress.' ) . '</p></div>';
-	} elseif ( ! empty( $api->requires ) && version_compare( substr( $version, 0, strlen( $api->requires ) ), $api->requires, '<' ) ) {
+	} elseif ( ! empty( $api->requires ) && version_compare( wordpress_core_version(), $api->requires, '<' ) ) {
 		echo '<div class="notice notice-warning notice-alt"><p>' . __( '<strong>Warning:</strong> This plugin has <strong>not been marked as compatible</strong> with your version of calmPress.' ) . '</p></div>';
 	}
 
