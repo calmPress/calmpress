@@ -92,50 +92,6 @@ function find_core_auto_update() {
 }
 
 /**
- * Gets and caches the checksums for the given version of WordPress.
- *
- * @since 3.7.0
- *
- * @param string $version Version string to query.
- * @param string $locale  Locale to query.
- * @return bool|array False on failure. An array of checksums on success.
- */
-function get_core_checksums( $version, $locale ) {
-	$url = $http_url = 'http://api.wordpress.org/core/checksums/1.0/?' . http_build_query( compact( 'version', 'locale' ), null, '&' );
-
-	if ( $ssl = wp_http_supports( array( 'ssl' ) ) )
-		$url = set_url_scheme( $url, 'https' );
-
-	$options = array(
-		'timeout' => wp_doing_cron() ? 30 : 3,
-	);
-
-	$response = wp_remote_get( $url, $options );
-	if ( $ssl && is_wp_error( $response ) ) {
-		trigger_error(
-			sprintf(
-				/* translators: %s: support forums URL */
-				__( 'An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="%s">support forums</a>.' ),
-				__( 'https://wordpress.org/support/' )
-			) . ' ' . __( '(WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ),
-			headers_sent() || WP_DEBUG ? E_USER_WARNING : E_USER_NOTICE
-		);
-		$response = wp_remote_get( $http_url, $options );
-	}
-
-	if ( is_wp_error( $response ) || 200 != wp_remote_retrieve_response_code( $response ) )
-		return false;
-
-	$body = trim( wp_remote_retrieve_body( $response ) );
-	$body = json_decode( $body, true );
-
-	if ( ! is_array( $body ) || ! isset( $body['checksums'] ) || ! is_array( $body['checksums'] ) )
-		return false;
-
-	return $body['checksums'];
-}
-
-/**
  *
  * @param object $update
  * @return bool

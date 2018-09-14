@@ -91,8 +91,6 @@ class Core_Upgrader extends WP_Upgrader {
 		$partial = true;
 		if ( $parsed_args['do_rollback'] )
 			$partial = false;
-		elseif ( $parsed_args['pre_check_md5'] && ! $this->check_files() )
-			$partial = false;
 
 		/*
 		 * If partial update is returned from the API, use that, unless we're doing
@@ -331,28 +329,4 @@ class Core_Upgrader extends WP_Upgrader {
 		return false;
 	}
 
-	/**
-	 * Compare the disk file checksums against the expected checksums.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @return bool True if the checksums match, otherwise false.
-	 */
-	public function check_files() {
-
-		$checksums = get_core_checksums( calmpress_version(), isset( $wp_local_package ) ? $wp_local_package : 'en_US' );
-
-		if ( ! is_array( $checksums ) )
-			return false;
-
-		foreach ( $checksums as $file => $checksum ) {
-			// Skip files which get updated
-			if ( 'wp-content' == substr( $file, 0, 10 ) )
-				continue;
-			if ( ! file_exists( ABSPATH . $file ) || md5_file( ABSPATH . $file ) !== $checksum )
-				return false;
-		}
-
-		return true;
-	}
 }
