@@ -145,12 +145,9 @@ function wp_get_available_translations() {
  *
  * @since 4.0.0
  *
- * @global string $wp_local_package
- *
  * @param array $languages Array of available languages (populated via the Translation API).
  */
 function wp_install_language_form( $languages ) {
-	global $wp_local_package;
 
 	$installed_languages = get_available_languages();
 
@@ -158,20 +155,6 @@ function wp_install_language_form( $languages ) {
 	echo "<select size='14' name='language' id='language'>\n";
 	echo '<option value="" lang="en" selected="selected" data-continue="Continue" data-installed="1">English (United States)</option>';
 	echo "\n";
-
-	if ( ! empty( $wp_local_package ) && isset( $languages[ $wp_local_package ] ) ) {
-		if ( isset( $languages[ $wp_local_package ] ) ) {
-			$language = $languages[ $wp_local_package ];
-			printf( '<option value="%s" lang="%s" data-continue="%s"%s>%s</option>' . "\n",
-				esc_attr( $language['language'] ),
-				esc_attr( current( $language['iso'] ) ),
-				esc_attr( $language['strings']['continue'] ),
-				in_array( $language['language'], $installed_languages ) ? ' data-installed="1"' : '',
-				esc_html( $language['native_name'] ) );
-
-			unset( $languages[ $wp_local_package ] );
-		}
-	}
 
 	foreach ( $languages as $language ) {
 		printf( '<option value="%s" lang="%s" data-continue="%s"%s>%s</option>' . "\n",

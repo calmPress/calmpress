@@ -336,12 +336,9 @@ class Core_Upgrader extends WP_Upgrader {
 	 *
 	 * @since 3.7.0
 	 *
-	 * @global string $wp_local_package
-	 *
 	 * @return bool True if the checksums match, otherwise false.
 	 */
 	public function check_files() {
-		global $wp_local_package;
 
 		$checksums = get_core_checksums( calmpress_version(), isset( $wp_local_package ) ? $wp_local_package : 'en_US' );
 

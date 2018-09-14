@@ -865,9 +865,6 @@ function wp_load_translations_early() {
 	if ( function_exists( 'did_action' ) && did_action( 'init' ) )
 		return;
 
-	// We need $wp_local_package
-	require ABSPATH . WPINC . '/version.php';
-
 	// Translation and localization
 	require_once ABSPATH . WPINC . '/pomo/mo.php';
 	require_once ABSPATH . WPINC . '/l10n.php';
@@ -885,9 +882,6 @@ function wp_load_translations_early() {
 				break;
 			$locales[] = WPLANG;
 		}
-
-		if ( isset( $wp_local_package ) )
-			$locales[] = $wp_local_package;
 
 		if ( ! $locales )
 			break;

@@ -24,7 +24,6 @@ if ( ! current_user_can( 'update_core' ) && ! current_user_can( 'update_themes' 
 
 /**
  *
- * @global string $wp_local_package
  * @global wpdb   $wpdb
  *
  * @staticvar bool $first_pass
@@ -32,7 +31,7 @@ if ( ! current_user_can( 'update_core' ) && ! current_user_can( 'update_themes' 
  * @param object $update
  */
 function list_core_update( $update ) {
- 	global $wp_local_package, $wpdb;
+ 	global $wpdb;
   	static $first_pass = true;
 
 	$version = get_bloginfo( 'version' );
@@ -106,10 +105,8 @@ function list_core_update( $update ) {
 		else
 			submit_button( __( 'Bring back this update' ), '', 'undismiss', false );
 	echo '</p>';
-	if ( 'en_US' != $update->locale && ( !isset($wp_local_package) || $wp_local_package != $update->locale ) )
-	    echo '<p class="hint">'.__('This localized version contains both the translation and various other localization fixes. You can skip upgrading if you want to keep your current translation.').'</p>';
 	// Partial builds don't need language-specific warnings.
-	elseif ( 'en_US' == $update->locale && get_locale() != 'en_US' && ( ! $update->packages->partial && $version == $update->partial_version ) ) {
+	if ( 'en_US' == $update->locale && get_locale() != 'en_US' && ( ! $update->packages->partial && $version == $update->partial_version ) ) {
 	    echo '<p class="hint">'.sprintf( __('You are about to install calmPress %s <strong>in English (US).</strong> There is a chance this update will break your translation. You may prefer to wait for the localized version to be released.'), $update->response != 'development' ? $update->current : '' ).'</p>';
 	}
 	echo '</form>';

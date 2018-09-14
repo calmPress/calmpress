@@ -23,12 +23,11 @@
  * @since 1.5.0
  *
  * @global string $locale
- * @global string $wp_local_package
  *
  * @return string The locale of the blog or from the {@see 'locale'} hook.
  */
 function get_locale() {
-	global $locale, $wp_local_package;
+	global $locale;
 
 	if ( isset( $locale ) ) {
 		/**
@@ -39,10 +38,6 @@ function get_locale() {
 		 * @param string $locale The locale ID.
 		 */
 		return apply_filters( 'locale', $locale );
-	}
-
-	if ( isset( $wp_local_package ) ) {
-		$locale = $wp_local_package;
 	}
 
 	// WPLANG was defined in wp-config.
@@ -1210,7 +1205,7 @@ function wp_dropdown_languages( $args = array() ) {
 		selected( '', $parsed_args['selected'], false )
 	);
 
-	// List installed languages. 
+	// List installed languages.
 	foreach ( $languages as $language ) {
 		$structure[] = sprintf(
 			'<option value="%s" lang="%s"%s data-installed="1">%s</option>',
