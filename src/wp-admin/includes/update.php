@@ -283,7 +283,7 @@ function update_right_now_message() {
 	}
 
 	/* translators: 1: version number, 2: theme name */
-	$content = __( 'WordPress %1$s running %2$s theme.' );
+	$content = __( 'calmPress %1$s (based on WordPress %2$s) running %3$s theme.' );
 
 	/**
 	 * Filters the text displayed in the 'At a Glance' dashboard widget.
@@ -296,7 +296,7 @@ function update_right_now_message() {
 	 */
 	$content = apply_filters( 'update_right_now_text', $content );
 
-	$msg .= sprintf( '<span id="wp-version">' . $content . '</span>', get_bloginfo( 'version', 'display' ), $theme_name );
+	$msg .= sprintf( '<span id="wp-version">' . $content . '</span>', get_bloginfo( 'version', 'display' ), wordpress_core_version(), $theme_name );
 
 	echo "<p id='wp-version-message'>$msg</p>";
 }
