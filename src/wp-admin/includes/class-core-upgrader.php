@@ -77,10 +77,6 @@ class Core_Upgrader extends WP_Upgrader {
 		$this->init();
 		$this->upgrade_strings();
 
-		// Is an update available?
-		if ( !isset( $current->response ) || $current->response == 'latest' )
-			return new WP_Error('up_to_date', $this->strings['up_to_date']);
-
 		$res = $this->fs_connect( array( ABSPATH, WP_CONTENT_DIR ), $parsed_args['allow_relaxed_file_ownership'] );
 		if ( ! $res || is_wp_error( $res ) ) {
 			return $res;
@@ -88,27 +84,9 @@ class Core_Upgrader extends WP_Upgrader {
 
 		$wp_dir = trailingslashit($wp_filesystem->abspath());
 
-		$partial = true;
-		if ( $parsed_args['do_rollback'] )
-			$partial = false;
-
-		/*
-		 * If partial update is returned from the API, use that, unless we're doing
-		 * a reinstallation. If we cross the new_bundled version number, then use
-		 * the new_bundled zip. Don't though if the constant is set to skip bundled items.
-		 * If the API returns a no_content zip, go with it. Finally, default to the full zip.
-		 */
-		if ( $parsed_args['do_rollback'] && $current->packages->rollback )
-			$to_download = 'rollback';
-		elseif ( $current->packages->partial && 'reinstall' != $current->response && $wp_version == $current->partial_version && $partial )
-			$to_download = 'partial';
-		elseif ( $current->packages->new_bundled && version_compare( $wp_version, $current->new_bundled, '<' )
-			&& ( ! defined( 'CORE_UPGRADE_SKIP_NEW_BUNDLED' ) || ! CORE_UPGRADE_SKIP_NEW_BUNDLED ) )
-			$to_download = 'new_bundled';
-		elseif ( $current->packages->no_content )
-			$to_download = 'no_content';
-		else
-			$to_download = 'full';
+		// Might need to revisit this in the future, especially to support CLI,
+		// but at first we are going to support only core upgrades.
+		$to_download = 'core';
 
 		// Lock to prevent multiple Core Updates occurring
 		$lock = WP_Upgrader::create_lock( 'core_updater', 15 * MINUTE_IN_SECONDS );
@@ -116,7 +94,7 @@ class Core_Upgrader extends WP_Upgrader {
 			return new WP_Error( 'locked', $this->strings['locked'] );
 		}
 
-		$download = $this->download_package( $current->packages->$to_download );
+		$download = $this->download_package( $current->$to_download );
 		if ( is_wp_error( $download ) ) {
 			WP_Upgrader::release_lock( 'core_updater' );
 			return $download;

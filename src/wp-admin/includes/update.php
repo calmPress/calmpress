@@ -42,10 +42,7 @@ function get_core_updates( $options = array() ) {
 	$updates = $from_api->updates;
 	$result = array();
 	foreach ( $updates as $update ) {
-		if ( $update->response == 'autoupdate' )
-			continue;
-
-		if ( array_key_exists( $update->current . '|' . $update->locale, $dismissed ) ) {
+		if ( array_key_exists( $update->version, $dismissed ) ) {
 			if ( $options['dismissed'] ) {
 				$update->dismissed = true;
 				$result[] = $update;
@@ -133,7 +130,7 @@ function find_core_update( $version, $locale ) {
 
 	$updates = $from_api->updates;
 	foreach ( $updates as $update ) {
-		if ( $update->current == $version && $update->locale == $locale )
+		if ( $update->version == $version )
 			return $update;
 	}
 	return false;

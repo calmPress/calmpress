@@ -7,15 +7,19 @@
  */
 
 /**
- * Check WordPress version against the newest version.
+ * Check calmPress version against the available versions on calmpress.org.
  *
- * The WordPress version, PHP version, and Locale is sent. Checks against the
- * WordPress server at api.wordpress.org server. Will only check if WordPress
- * isn't installing.
+ * Will only check if calmPress isn't installing.
  *
- * @since 2.3.0
+ * As a result of executing this function the transient 'update_core' will contain
+ * an array of descriptions of calmpress versions which are newer than the running
+ * one.
+ *
+ * The name is an inheritance form the original WordPress function doing similar
+ * things, to keep some backward compatibility.
+ *
+ * @since calmPress 0.9.9
  * @global wpdb   $wpdb
- * @global string $wp_local_package
  *
  * @param array $extra_stats Extra statistics to report to the WordPress.org API.
  * @param bool  $force_check Whether to bypass the transient cache and force a fresh update check. Defaults to false, true if $extra_stats is set.
@@ -25,20 +29,13 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 		return;
 	}
 
-	global $wpdb, $wp_local_package;
-	$php_version = phpversion();
+	global $wpdb;
 
 	$current = get_site_transient( 'update_core' );
-	$translations = wp_get_installed_translations( 'core' );
-
-	// Invalidate the transient when core version changes
-	if ( is_object( $current ) && calmpress_version() != $current->version_checked )
-		$current = false;
 
 	if ( ! is_object($current) ) {
 		$current = new stdClass;
 		$current->updates = array();
-		$current->version_checked = calmpress_version();
 	}
 
 	if ( ! empty( $extra_stats ) )
@@ -51,141 +48,61 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 		return;
 	}
 
-	/**
-	 * Filters the locale requested for WordPress core translations.
-	 *
-	 * @since 2.8.0
-	 *
-	 * @param string $locale Current locale.
-	 */
-	$locale = apply_filters( 'core_version_check_locale', get_locale() );
-
 	// Update last_checked for current to prevent multiple blocking requests if request hangs
 	$current->last_checked = time();
 	set_site_transient( 'update_core', $current );
 
-	if ( method_exists( $wpdb, 'db_version' ) )
-		$mysql_version = preg_replace('/[^0-9.].*/', '', $wpdb->db_version());
-	else
-		$mysql_version = 'N/A';
-
-	if ( is_multisite() ) {
-		$user_count = get_user_count();
-		$num_blogs = get_blog_count();
-		$wp_install = network_site_url();
-		$multisite_enabled = 1;
-	} else {
-		$user_count = count_users();
-		$user_count = $user_count['total_users'];
-		$multisite_enabled = 0;
-		$num_blogs = 1;
-		$wp_install = home_url( '/' );
-	}
-
-	$query = array(
-		'version'            => calmpress_version(),
-		'php'                => $php_version,
-		'locale'             => $locale,
-		'mysql'              => $mysql_version,
-		'local_package'      => isset( $wp_local_package ) ? $wp_local_package : '',
-		'blogs'              => $num_blogs,
-		'users'              => $user_count,
-		'multisite_enabled'  => $multisite_enabled,
-	);
-
-	/**
-	 * Filter the query arguments sent as part of the core version check.
-	 *
-	 * WARNING: Changing this data may result in your site not receiving security updates.
-	 * Please exercise extreme caution.
-	 *
-	 * @since 4.9.0
-	 *
-	 * @param array $query {
-	 *     Version check query arguments.
-	 *
-	 *     @type string $version            WordPress version number.
-	 *     @type string $php                PHP version number.
-	 *     @type string $locale             The locale to retrieve updates for.
-	 *     @type string $mysql              MySQL version number.
-	 *     @type string $local_package      The value of the $wp_local_package global, when set.
-	 *     @type int    $blogs              Number of sites on this WordPress installation.
-	 *     @type int    $users              Number of users on this WordPress installation.
-	 *     @type int    $multisite_enabled  Whether this WordPress installation uses Multisite.
-	 * }
-	 */
-	$query = apply_filters( 'core_version_check_query_args', $query );
-
 	$post_body = array(
-		'translations' => wp_json_encode( $translations ),
 	);
 
-	if ( is_array( $extra_stats ) )
-		$post_body = array_merge( $post_body, $extra_stats );
-
-	$url = $http_url = 'http://api.wordpress.org/core/version-check/1.7/?' . http_build_query( $query, null, '&' );
-	if ( $ssl = wp_http_supports( array( 'ssl' ) ) )
-		$url = set_url_scheme( $url, 'https' );
+	$url = 'https://api.calmpress.org/core/version-check/1.0/';
 
 	$doing_cron = wp_doing_cron();
 
 	$options = array(
 		'timeout' => $doing_cron ? 30 : 3,
-		'user-agent' => 'calmPress/' . calmpress_version() . '; ' . home_url( '/' ),
-		'headers' => array(
-			'wp_install' => $wp_install,
-			'wp_blog' => home_url( '/' )
-		),
+		'user-agent' => 'calmPress/' . calmpress_version() . '; ' . md5( home_url( '/' ) ),
 		'body' => $post_body,
 	);
 
 	$response = wp_remote_post( $url, $options );
-	if ( $ssl && is_wp_error( $response ) ) {
-		trigger_error(
-			sprintf(
-				/* translators: %s: support forums URL */
-				__( 'An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="%s">support forums</a>.' ),
-				__( 'https://wordpress.org/support/' )
-			) . ' ' . __( '(WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ),
-			headers_sent() || WP_DEBUG ? E_USER_WARNING : E_USER_NOTICE
-		);
-		$response = wp_remote_post( $http_url, $options );
+	if ( is_wp_error( $response ) ) {
+		return; // communication failed. WordPress used to generate a PHP error
+				// here, but not sure right now how effective it is for the user.
 	}
 
-	if ( is_wp_error( $response ) || 200 != wp_remote_retrieve_response_code( $response ) ) {
-		return;
+	if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+		return; // Version 1.0 is based on simple json file, no reason to get any other code.
 	}
 
 	$body = trim( wp_remote_retrieve_body( $response ) );
-	$body = json_decode( $body, true );
+	$versions = json_decode( $body );
 
-	if ( ! is_array( $body ) || ! isset( $body['offers'] ) ) {
-		return;
+	if ( ! is_array( $versions ) ) {
+		return; // Server returned broken JSON. Not much can be done with it.
 	}
 
-	$offers = $body['offers'];
-
-	foreach ( $offers as &$offer ) {
-		foreach ( $offer as $offer_key => $value ) {
-			if ( 'packages' == $offer_key )
-				$offer['packages'] = (object) array_intersect_key( array_map( 'esc_url', $offer['packages'] ),
-					array_fill_keys( array( 'full', 'no_content', 'new_bundled', 'partial', 'rollback' ), '' ) );
-			elseif ( 'download' == $offer_key )
-				$offer['download'] = esc_url( $value );
-			else
-				$offer[ $offer_key ] = esc_html( $value );
+	/*
+		$versions should contain the actively maintained versions, and some of
+		them are probably earlier than the currently used version.
+		Both for compatibility with how WordPress handled the upgrade, and to have less
+		bloat in the DB, strip versions which are not an actual upgrade.
+	 */
+	$offers = array();
+	foreach ( $versions as $version ) {
+		if ( version_compare( calmpress_version(), $version->version, '<' ) ) {
+			// For now show possible development upgrades only if WP_DEBUG is set.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				$offers[] = $version;
+			} elseif ( false === strpos( $version->version, '-' ) ) {
+				$offers[] = $version;
+			}
 		}
-		$offer = (object) array_intersect_key( $offer, array_fill_keys( array( 'response', 'download', 'locale',
-			'packages', 'current', 'version', 'php_version', 'mysql_version', 'new_bundled', 'partial_version', 'notify_email', 'support_email', 'new_files' ), '' ) );
 	}
 
 	$updates = new stdClass();
 	$updates->updates = $offers;
 	$updates->last_checked = time();
-	$updates->version_checked = calmpress_version();
-
-	if ( isset( $body['translations'] ) )
-		$updates->translations = $body['translations'];
 
 	set_site_transient( 'update_core', $updates );
 
@@ -195,11 +112,6 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 			// Queue an event to re-run the update check in $ttl seconds.
 			wp_schedule_single_event( time() + $ttl, 'wp_version_check' );
 		}
-	}
-
-	// Trigger background updates if running non-interactively, and we weren't called from the update handler.
-	if ( $doing_cron && ! doing_action( 'wp_maybe_auto_update' ) ) {
-		do_action( 'wp_maybe_auto_update' );
 	}
 }
 
@@ -596,7 +508,7 @@ function wp_get_update_data() {
 
 	if ( ( $core = current_user_can( 'update_core' ) ) && function_exists( 'get_core_updates' ) ) {
 		$update_wordpress = get_core_updates( array('dismissed' => false) );
-		if ( ! empty( $update_wordpress ) && ! in_array( $update_wordpress[0]->response, array('development', 'latest') ) && current_user_can('update_core') )
+		if ( ! empty( $update_wordpress ) && current_user_can('update_core') )
 			$counts['wordpress'] = 1;
 	}
 
@@ -650,9 +562,8 @@ function _maybe_update_core() {
 
 	$current = get_site_transient( 'update_core' );
 
-	if ( isset( $current->last_checked, $current->version_checked ) &&
-		12 * HOUR_IN_SECONDS > ( time() - $current->last_checked ) &&
-		$current->version_checked == calmpress_version() ) {
+	if ( isset( $current->last_checked) &&
+		12 * HOUR_IN_SECONDS > ( time() - $current->last_checked ) ) {
 		return;
 	}
 	wp_version_check();

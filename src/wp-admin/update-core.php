@@ -36,52 +36,31 @@ function list_core_update( $update ) {
 
 	$version = get_bloginfo( 'version' );
 
- 	if ( 'en_US' == $update->locale && 'en_US' == get_locale() )
- 		$version_string = $update->current;
- 	// If the only available update is a partial builds, it doesn't need a language-specific version string.
- 	elseif ( 'en_US' == $update->locale && $update->packages->partial && $version == $update->partial_version && ( $updates = get_core_updates() ) && 1 == count( $updates ) )
- 		$version_string = $update->current;
- 	else
- 		$version_string = sprintf( "%s&ndash;<strong>%s</strong>", $update->current, $update->locale );
-
-	$current = false;
-	if ( !isset($update->response) || 'latest' == $update->response )
-		$current = true;
 	$submit = __('Update Now');
 	$form_action = 'update-core.php?action=do-core-upgrade';
 	$php_version    = phpversion();
 	$mysql_version  = $wpdb->db_version();
 	$show_buttons = true;
-	if ( 'development' == $update->response ) {
-		$message = __('You are using a development version of calmPress. You can update to the latest nightly build automatically:');
-	} else {
-		if ( $current ) {
-			$message = sprintf( __( 'If you need to re-install version %s, you can do so here:' ), $version_string );
-			$submit = __('Re-install Now');
-			$form_action = 'update-core.php?action=do-core-reinstall';
-		} else {
-			$php_compat     = version_compare( $php_version, $update->php_version, '>=' );
-			if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) )
-				$mysql_compat = true;
-			else
-				$mysql_compat = version_compare( $mysql_version, $update->mysql_version, '>=' );
+	$php_compat     = version_compare( $php_version, $update->min_php, '>=' );
+	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) )
+		$mysql_compat = true;
+	else
+		$mysql_compat = version_compare( $mysql_version, $update->min_mysql, '>=' );
 
-			if ( !$mysql_compat && !$php_compat )
-				/* translators: 1: calmPress version number, 2: Minimum required PHP version number, 3: Minimum required MySQL version number, 4: Current PHP version number, 5: Current MySQL version number */
-				$message = sprintf( __('You cannot update because <a href="https://codex.wordpress.org/Version_%1$s">calmPress %1$s</a> requires PHP version %2$s or higher and MySQL version %3$s or higher. You are running PHP version %4$s and MySQL version %5$s.'), $update->current, $update->php_version, $update->mysql_version, $php_version, $mysql_version );
-			elseif ( !$php_compat )
-				/* translators: 1: calmPress version number, 2: Minimum required PHP version number, 3: Current PHP version number */
-				$message = sprintf( __('You cannot update because <a href="https://codex.wordpress.org/Version_%1$s">calmPress %1$s</a> requires PHP version %2$s or higher. You are running version %3$s.'), $update->current, $update->php_version, $php_version );
-			elseif ( !$mysql_compat )
-				/* translators: 1: calmPress version number, 2: Minimum required MySQL version number, 3: Current MySQL version number */
-				$message = sprintf( __('You cannot update because <a href="https://codex.wordpress.org/Version_%1$s">calmPress %1$s</a> requires MySQL version %2$s or higher. You are running version %3$s.'), $update->current, $update->mysql_version, $mysql_version );
-			else
-				/* translators: 1: calmPress version number, 2: calmPress version number including locale if necessary */
-				$message = 	sprintf(__('You can update to <a href="https://codex.wordpress.org/Version_%1$s">calmPress %2$s</a> automatically:'), $update->current, $version_string);
-			if ( !$mysql_compat || !$php_compat )
-				$show_buttons = false;
-		}
-	}
+	if ( !$mysql_compat && !$php_compat )
+		/* translators: 1: calmPress version number, 2: Minimum required PHP version number, 3: Minimum required MySQL version number, 4: Current PHP version number, 5: Current MySQL version number */
+		$message = sprintf( __('You cannot update because <a href="https://codex.wordpress.org/Version_%1$s">calmPress %1$s</a> requires PHP version %2$s or higher and MySQL version %3$s or higher. You are running PHP version %4$s and MySQL version %5$s.'), $update->version, $update->min_php, $update->min_mysql, $php_version, $mysql_version );
+	elseif ( !$php_compat )
+		/* translators: 1: calmPress version number, 2: Minimum required PHP version number, 3: Current PHP version number */
+		$message = sprintf( __('You cannot update because <a href="https://codex.wordpress.org/Version_%1$s">calmPress %1$s</a> requires PHP version %2$s or higher. You are running version %3$s.'), $update->version, $update->min_php, $php_version );
+	elseif ( !$mysql_compat )
+		/* translators: 1: calmPress version number, 2: Minimum required MySQL version number, 3: Current MySQL version number */
+		$message = sprintf( __('You cannot update because <a href="https://codex.wordpress.org/Version_%1$s">calmPress %1$s</a> requires MySQL version %2$s or higher. You are running version %3$s.'), $update->version, $update->min_mysql, $mysql_version );
+	else
+		/* translators: 1: calmPress version number, 2: calmPress version number */
+		$message = 	sprintf(__('You can update to <a href="https://codex.wordpress.org/Version_%1$s">calmPress %2$s</a> automatically:'), $update->version, $update->version);
+	if ( !$mysql_compat || !$php_compat )
+		$show_buttons = false;
 
 	echo '<p>';
 	echo $message;
@@ -89,26 +68,16 @@ function list_core_update( $update ) {
 	echo '<form method="post" action="' . $form_action . '" name="upgrade" class="upgrade">';
 	wp_nonce_field('upgrade-core');
 	echo '<p>';
-	echo '<input name="version" value="'. esc_attr($update->current) .'" type="hidden"/>';
-	echo '<input name="locale" value="'. esc_attr($update->locale) .'" type="hidden"/>';
+	echo '<input name="version" value="'. esc_attr($update->version) .'" type="hidden"/>';
 	if ( $show_buttons ) {
 		if ( $first_pass ) {
-			submit_button( $submit, $current ? '' : 'primary regular', 'upgrade', false );
+			submit_button( $submit, 'primary regular', 'upgrade', false );
 			$first_pass = false;
 		} else {
 			submit_button( $submit, '', 'upgrade', false );
 		}
 	}
-	if ( 'en_US' != $update->locale )
-		if ( !isset( $update->dismissed ) || !$update->dismissed )
-			submit_button( __( 'Hide this update' ), '', 'dismiss', false );
-		else
-			submit_button( __( 'Bring back this update' ), '', 'undismiss', false );
 	echo '</p>';
-	// Partial builds don't need language-specific warnings.
-	if ( 'en_US' == $update->locale && get_locale() != 'en_US' && ( ! $update->packages->partial && $version == $update->partial_version ) ) {
-	    echo '<p class="hint">'.sprintf( __('You are about to install calmPress %s <strong>in English (US).</strong> There is a chance this update will break your translation. You may prefer to wait for the localized version to be released.'), $update->response != 'development' ? $update->current : '' ).'</p>';
-	}
 	echo '</form>';
 
 }
@@ -157,23 +126,9 @@ function core_upgrade_preamble() {
 	$version = get_bloginfo( 'version' );
 	$updates = get_core_updates();
 
-	if ( !isset($updates[0]->response) || 'latest' == $updates[0]->response ) {
+	if ( empty( $updates ) ) {
 		echo '<h2>';
 		_e('You have the latest version of calmPress.');
-
-		if ( wp_http_supports( array( 'ssl' ) ) ) {
-			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-			$upgrader = new WP_Automatic_Updater;
-			$future_minor_update = (object) array(
-				'current'       => $wp_version . '.1.next.minor',
-				'version'       => $wp_version . '.1.next.minor',
-				'php_version'   => $required_php_version,
-				'mysql_version' => $required_mysql_version,
-			);
-			$should_auto_update = $upgrader->should_update( 'core', $future_minor_update, ABSPATH );
-			if ( $should_auto_update )
-				echo ' ' . __( 'Future security updates will be applied automatically.' );
-		}
 		echo '</h2>';
 	} else {
 		echo '<div class="notice notice-warning"><p>';
@@ -185,16 +140,6 @@ function core_upgrade_preamble() {
 		echo '</h2>';
 	}
 
-	if ( isset( $updates[0] ) && $updates[0]->response == 'development' ) {
-		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		$upgrader = new WP_Automatic_Updater;
-		if ( wp_http_supports( 'ssl' ) && $upgrader->should_update( 'core', $updates[0], ABSPATH ) ) {
-			echo '<div class="updated inline"><p>';
-			echo '<strong>' . __( 'BETA TESTERS:' ) . '</strong> ' . __( 'This site is set up to install updates of future beta versions automatically.' );
-			echo '</p></div>';
-		}
-	}
-
 	echo '<ul class="core-updates">';
 	foreach ( (array) $updates as $update ) {
 		echo '<li>';
@@ -203,7 +148,7 @@ function core_upgrade_preamble() {
 	}
 	echo '</ul>';
 	// Don't show the maintenance mode notice when we are only showing a single re-install option.
-	if ( $updates && ( count( $updates ) > 1 || $updates[0]->response != 'latest' ) ) {
+	if ( $updates && ( count( $updates ) > 1 ) ) {
 		echo '<p>' . __( 'While your site is being updated, it will be in maintenance mode. As soon as your updates are complete, your site will return to normal.' ) . '</p>';
 	}
 	dismissed_updates();
