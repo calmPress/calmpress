@@ -7,18 +7,49 @@
  */
 
 /**
- * Check calmPress version against the available versions on calmpress.org.
- *
- * Will only check if calmPress isn't installing.
- *
- * As a result of executing this function the transient 'update_core' will contain
- * an array of descriptions of calmpress versions which are newer than the running
- * one.
- *
- * The name is an inheritance form the original WordPress function doing similar
- * things, to keep some backward compatibility.
+ * Compare versions based on how likely they will be the best upgrade suggestion
+ * to display to the user.
  *
  * @since calmPress 0.9.9
+ *
+ * @param object $a A version object.
+ * @param object $b A version object.
+ *
+ * @return int 1 if $a is better suggestion, -1 if it is worse.
+ */
+function best_match_version( $a, $b ) {
+
+	$a_version_split = explode( '.', $a->version );
+	$a_major_version = $a_version_split[0] . '.' . $a_version_split[1];
+	$a_minor_version = (int) $a_version_split[2];
+
+	$b_version_split = explode( '.', $b->version );
+	$b_major_version = $b_version_split[0] . '.' . $b_version_split[1];
+	$b_minor_version = $b_version_split[2];
+
+	if ( version_compare( $a_major_version, $b_major_version, '<' ) ) {
+		return -1;
+	}
+
+	if ( version_compare( $a_major_version, $b_major_version, '>' ) ) {
+		return 1;
+	}
+
+	if ( version_compare( $a_minor_version, $b_minor_version, '>' ) ) {
+		return 1;
+	}
+
+	return -1;
+}
+
+/**
+ * Check WordPress version against the newest version.
+ *
+ * The WordPress version, PHP version, and Locale is sent. Checks against the
+ * WordPress server at api.wordpress.org server. Will only check if WordPress
+ * isn't installing.
+ *
+ * @since 2.3.0
  * @global wpdb   $wpdb
  *
  * @param array $extra_stats Extra statistics to report to the WordPress.org API.
@@ -87,6 +118,12 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 		them are probably earlier than the currently used version.
 		Both for compatibility with how WordPress handled the upgrade, and to have less
 		bloat in the DB, strip versions which are not an actual upgrade.
+
+		The first version in the array (index 0) is going to be the recommended
+		upgrade. The logic is that it is the next patch version for non development
+		sites, or the next development version, or actual release version for development
+		sites. PHP and MySQL requirements are explicitly not checked when figuring
+		"best" next upgrade.
 	 */
 	$offers = array();
 	foreach ( $versions as $version ) {
@@ -99,6 +136,8 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 			}
 		}
 	}
+
+	usort( $offers, 'best_match_version' );
 
 	$updates = new stdClass();
 	$updates->updates = $offers;
