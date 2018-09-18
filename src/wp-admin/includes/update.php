@@ -16,7 +16,7 @@ function get_preferred_from_update_core() {
 	if ( ! is_array( $updates ) )
 		return false;
 	if ( empty( $updates ) )
-		return (object) array( 'response' => 'latest' );
+		return false;
 	return $updates[0];
 }
 
@@ -26,6 +26,8 @@ function get_preferred_from_update_core() {
  * @param array $options Set $options['dismissed'] to true to show dismissed upgrades too,
  * 	                     set $options['available'] to false to skip not-dismissed updates.
  * @return array|false Array of the update objects on success, false on failure.
+ *                     If there are relevant upgrades the first one (index 0) is
+ *                     the most recommended one.
  */
 function get_core_updates( $options = array() ) {
 	$options = array_merge( array( 'available' => true, 'dismissed' => false ), $options );
@@ -39,6 +41,7 @@ function get_core_updates( $options = array() ) {
 	if ( ! isset( $from_api->updates ) || ! is_array( $from_api->updates ) )
 		return false;
 
+	// Going to assume that the the first is the recommended.
 	$updates = $from_api->updates;
 	$result = array();
 	foreach ( $updates as $update ) {
@@ -142,44 +145,25 @@ function find_core_update( $version, $locale ) {
  * @return string
  */
 function core_update_footer( $msg = '' ) {
-	if ( !current_user_can('update_core') )
-		return sprintf( __( 'Version %s' ), get_bloginfo( 'version', 'display' ) );
-
 	$cur = get_preferred_from_update_core();
-	if ( ! is_object( $cur ) )
-		$cur = new stdClass;
 
-	if ( ! isset( $cur->current ) )
-		$cur->current = '';
-
-	if ( ! isset( $cur->url ) )
-		$cur->url = '';
-
-	if ( ! isset( $cur->response ) )
-		$cur->response = '';
-
-	switch ( $cur->response ) {
-	case 'development' :
-		/* translators: 1: WordPress version number, 2: WordPress updates admin screen URL */
-		return sprintf( __( 'You are using a development version (%1$s). Cool! Please <a href="%2$s">stay updated</a>.' ), get_bloginfo( 'version', 'display' ), network_admin_url( 'update-core.php' ) );
-
-	case 'upgrade' :
-		return '<strong><a href="' . network_admin_url( 'update-core.php' ) . '">' . sprintf( __( 'Get Version %s' ), $cur->current ) . '</a></strong>';
-
-	case 'latest' :
-	default :
+	// If no available upgrade, or user can not upgrade, just show the current version.
+	if ( empty( $cur ) || ! current_user_can( 'update_core' ) ) {
 		return sprintf( __( 'Version %s' ), get_bloginfo( 'version', 'display' ) );
 	}
+
+	// If there is possible upgrade show the link to the page which will do the upgrade.
+	return '<strong><a href="' . network_admin_url( 'update-core.php' ) . '">' . sprintf( __( 'Get Version %s' ), $cur->version ) . '</a></strong>';
 }
 
 /**
+ * Display a core upgrade nag if a new version is available.
  *
  * @global string $pagenow
- * @return false|void
  */
 function update_nag() {
 	if ( is_multisite() && !current_user_can('update_core') )
-		return false;
+		return;
 
 	global $pagenow;
 
@@ -188,32 +172,33 @@ function update_nag() {
 
 	$cur = get_preferred_from_update_core();
 
-	if ( ! isset( $cur->response ) || $cur->response != 'upgrade' )
-		return false;
+	if ( empty( $cur ) ) {
+		return;
+	}
 
 	if ( current_user_can( 'update_core' ) ) {
 		$msg = sprintf(
-			/* translators: 1: Codex URL to release notes, 2: new WordPress version, 3: URL to network admin, 4: accessibility text */
-			__( '<a href="%1$s">WordPress %2$s</a> is available! <a href="%3$s" aria-label="%4$s">Please update now</a>.' ),
+			/* translators: 1: Codex URL to release notes, 2: new caalmPress version, 3: URL to network admin, 4: accessibility text */
+			__( '<a href="%1$s">calmPress %2$s</a> is available! <a href="%3$s" aria-label="%4$s">Please update now</a>.' ),
 			sprintf(
 				/* translators: %s: WordPress version */
 				esc_url( __( 'https://codex.wordpress.org/Version_%s' ) ),
-				$cur->current
+				$cur->version
 			),
-			$cur->current,
+			$cur->version,
 			network_admin_url( 'update-core.php' ),
-			esc_attr__( 'Please update WordPress now' )
+			esc_attr__( 'Please update calmPress now' )
 		);
 	} else {
 		$msg = sprintf(
-			/* translators: 1: Codex URL to release notes, 2: new WordPress version */
-			__( '<a href="%1$s">WordPress %2$s</a> is available! Please notify the site administrator.' ),
+			/* translators: 1: Codex URL to release notes, 2: new calmPress version */
+			__( '<a href="%1$s">calmPress %2$s</a> is available! Please notify the site administrator.' ),
 			sprintf(
-				/* translators: %s: WordPress version */
+				/* translators: %s: calmPress version */
 				esc_url( __( 'https://codex.wordpress.org/Version_%s' ) ),
-				$cur->current
+				$cur->version
 			),
-			$cur->current
+			$cur->version
 		);
 	}
 	echo "<div class='update-nag'>$msg</div>";
@@ -231,8 +216,9 @@ function update_right_now_message() {
 	if ( current_user_can('update_core') ) {
 		$cur = get_preferred_from_update_core();
 
-		if ( isset( $cur->response ) && $cur->response == 'upgrade' )
-			$msg .= '<a href="' . network_admin_url( 'update-core.php' ) . '" class="button" aria-describedby="wp-version">' . sprintf( __( 'Update to %s' ), $cur->current ? $cur->current : __( 'Latest' ) ) . '</a> ';
+		if ( ! empty( $cur ) ) {
+			$msg .= '<a href="' . network_admin_url( 'update-core.php' ) . '" class="button" aria-describedby="wp-version">' . sprintf( __( 'Update to %s' ), $cur->version ) . '</a> ';
+		}
 	}
 
 	/* translators: 1: version number, 2: theme name */
