@@ -24,12 +24,6 @@ wp-tests-config.php
 /src/wp-content/mu-plugins
 /src/wp-content/plugins
 /src/wp-content/themes/*
-!/src/wp-content/themes/twentyten
-!/src/wp-content/themes/twentyeleven
-!/src/wp-content/themes/twentytwelve
-!/src/wp-content/themes/twentythirteen
-!/src/wp-content/themes/twentyfourteen
-!/src/wp-content/themes/twentyfifteen
 !/src/wp-content/themes/calmseventeen
 /src/wp-content/upgrade
 /src/wp-content/uploads
