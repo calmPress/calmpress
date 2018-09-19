@@ -30,7 +30,7 @@ wp-tests-config.php
 !/src/wp-content/themes/twentythirteen
 !/src/wp-content/themes/twentyfourteen
 !/src/wp-content/themes/twentyfifteen
-!/src/wp-content/themes/twentyseventeen
+!/src/wp-content/themes/calmseventeen
 /src/wp-content/upgrade
 /src/wp-content/uploads
 /src/wp-content/advanced-cache.php
