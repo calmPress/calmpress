@@ -2284,7 +2284,7 @@ final class WP_Customize_Manager {
 			if ( ! is_wp_error( $validity ) ) {
 				/** This filter is documented in wp-includes/class-wp-customize-setting.php */
 				$late_validity = apply_filters( "customize_validate_{$setting->id}", new WP_Error(), $unsanitized_value, $setting );
-				if ( ! empty( $late_validity->errors ) ) {
+				if ( is_wp_error( $late_validity ) && ! empty( $late_validity->errors ) ) {
 					$validity = $late_validity;
 				}
 			}
@@ -2963,6 +2963,9 @@ final class WP_Customize_Manager {
 
 		$post->post_status = $new_status;
 		wp_transition_post_status( $new_status, $old_status, $post );
+
+		/** This action is documented in wp-includes/post.php */
+		do_action( "edit_post_{$post->post_type}", $post->ID, $post );
 
 		/** This action is documented in wp-includes/post.php */
 		do_action( 'edit_post', $post->ID, $post );
