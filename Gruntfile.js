@@ -305,12 +305,10 @@ module.exports = function(grunt) {
 				expand: true,
 				cwd: SOURCE_DIR + 'wp-content/themes',
 				src: [
-					'twenty*/**/*.js',
-					'!twenty{eleven,twelve,thirteen}/**',
+					'calm*/**/*.js',
 					// Third party scripts
-					'!twenty{fourteen,fifteen,sixteen}/js/html5.js',
-					'!twentyseventeen/assets/js/html5.js',
-					'!twentyseventeen/assets/js/jquery.scrollTo.js'
+					'!calmseventeen/assets/js/html5.js',
+					'!calmseventeen/assets/js/jquery.scrollTo.js'
 				]
 			},
 			media: {
@@ -585,7 +583,7 @@ module.exports = function(grunt) {
 				files: {
 					src: [
 						BUILD_DIR + 'wp-{admin,includes}/**/*.js',
-						BUILD_DIR + 'wp-content/themes/twenty*/**/*.js'
+						BUILD_DIR + 'wp-content/themes/calm*/**/*.js'
 					]
 				}
 			}
@@ -736,7 +734,7 @@ module.exports = function(grunt) {
 	if( grunt.option( 'minimal-copy' ) ) {
 		var copyFilesOptions = grunt.config.get( 'copy.files.files' );
 		copyFilesOptions[0].src.push( '!wp-content/plugins/**' );
-		copyFilesOptions[0].src.push( '!wp-content/themes/!(twenty*)/**' );
+		copyFilesOptions[0].src.push( '!wp-content/themes/!(calm*)/**' );
 		grunt.config.set( 'copy.files.files', copyFilesOptions );
 	}
 
