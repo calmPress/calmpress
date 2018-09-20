@@ -42,7 +42,7 @@ if ( get_option('db_upgraded') ) {
 	 * @since 2.8.0
 	 */
 	do_action( 'after_db_upgrade' );
-} elseif ( get_option('calmpress_db_version') != calmpress_version() && empty($_POST) ) {
+} elseif ( version_compare( get_option('calmpress_db_version'), calmpress_db_version_compatibility(), '<' ) && empty($_POST) ) {
 	if ( !is_multisite() ) {
 		wp_redirect( admin_url( 'upgrade.php?_wp_http_referer=' . urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) );
 		exit;

@@ -42,6 +42,23 @@ if ( ! function_exists( 'calmpress_version' ) ) {
  * WordPress has a bad habit of including this file multiple times therefor some
  * protection is needed around function definitions.
  */
+if ( ! function_exists( 'calmpress_db_version_compatibility' ) ) {
+	/**
+	 * The version of the earliest calmPress version with compatible DB schema.
+	 *
+	 * @since calmPress 0.9.9
+	 *
+	 * @return string
+	 */
+	function calmpress_db_version_compatibility() {
+		return '0.9';
+	}
+}
+
+/*
+ * WordPress has a bad habit of including this file multiple times therefor some
+ * protection is needed around function definitions.
+ */
 if ( ! function_exists( 'wordpress_core_version' ) ) {
 	/**
 	 * The version of the current WordPress code.
@@ -55,5 +72,5 @@ if ( ! function_exists( 'wordpress_core_version' ) ) {
 	}
 }
 
-// WordPress version as global for backward compatitiblity.
+// WordPress version as global for backward compatibility.
 $wp_version = wordpress_core_version();
