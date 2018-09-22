@@ -894,21 +894,6 @@ function update_core($from, $to) {
 	 */
 	apply_filters( 'update_feedback', __( 'Verifying the unpacked files&#8230;' ) );
 
-	// Sanity check the unzipped distribution.
-	$distro = '';
-	$roots = array( '/wordpress/', '/wordpress-mu/' );
-	foreach ( $roots as $root ) {
-		if ( $wp_filesystem->exists( $from . $root . 'readme.html' ) && $wp_filesystem->exists( $from . $root . 'wp-includes/version.php' ) ) {
-			$distro = $root;
-			break;
-		}
-	}
-	if ( ! $distro ) {
-		$wp_filesystem->delete( $from, true );
-		return new WP_Error( 'insane_distro', __('The update could not be unpacked') );
-	}
-
-
 	/*
 	 * Import $wp_version, $required_php_version, and $required_mysql_version from the new version.
 	 * DO NOT globalise any variables imported from `version-current.php` in this function.

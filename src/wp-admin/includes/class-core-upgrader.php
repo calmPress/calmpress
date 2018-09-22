@@ -107,7 +107,7 @@ class Core_Upgrader extends WP_Upgrader {
 		}
 
 		// Copy update-core.php from the new version into place.
-		if ( !$wp_filesystem->copy($working_dir . '/wordpress/wp-admin/includes/update-core.php', $wp_dir . 'wp-admin/includes/update-core.php', true) ) {
+		if ( !$wp_filesystem->copy($working_dir . '/wp-admin/includes/update-core.php', $wp_dir . 'wp-admin/includes/update-core.php', true) ) {
 			$wp_filesystem->delete($working_dir, true);
 			WP_Upgrader::release_lock( 'core_updater' );
 			return new WP_Error( 'copy_failed_for_update_core_file', __( 'The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions.' ), 'wp-admin/includes/update-core.php' );
@@ -160,39 +160,6 @@ class Core_Upgrader extends WP_Upgrader {
 
 		// Clear the current updates
 		delete_site_transient( 'update_core' );
-
-		if ( ! $parsed_args['do_rollback'] ) {
-			$stats = array(
-				'update_type'      => $current->response,
-				'success'          => true,
-				'fs_method'        => $wp_filesystem->method,
-				'fs_method_forced' => defined( 'FS_METHOD' ) || has_filter( 'filesystem_method' ),
-				'fs_method_direct' => !empty( $GLOBALS['_wp_filesystem_direct_method'] ) ? $GLOBALS['_wp_filesystem_direct_method'] : '',
-				'time_taken'       => time() - $start_time,
-				'reported'         => $wp_version,
-				'attempted'        => $current->version,
-			);
-
-			if ( is_wp_error( $result ) ) {
-				$stats['success'] = false;
-				// Did a rollback occur?
-				if ( ! empty( $try_rollback ) ) {
-					$stats['error_code'] = $original_result->get_error_code();
-					$stats['error_data'] = $original_result->get_error_data();
-					// Was the rollback successful? If not, collect its error too.
-					$stats['rollback'] = ! is_wp_error( $rollback_result );
-					if ( is_wp_error( $rollback_result ) ) {
-						$stats['rollback_code'] = $rollback_result->get_error_code();
-						$stats['rollback_data'] = $rollback_result->get_error_data();
-					}
-				} else {
-					$stats['error_code'] = $result->get_error_code();
-					$stats['error_data'] = $result->get_error_data();
-				}
-			}
-
-			wp_version_check( $stats );
-		}
 
 		WP_Upgrader::release_lock( 'core_updater' );
 
