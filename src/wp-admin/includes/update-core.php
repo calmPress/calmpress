@@ -1006,29 +1006,6 @@ function update_core($from, $to) {
 		}
 	}
 
-	// Custom Content Directory needs updating now.
-	// Copy Languages
-	if ( !is_wp_error($result) && $wp_filesystem->is_dir($from . $distro . 'wp-content/languages') ) {
-		if ( WP_LANG_DIR != ABSPATH . WPINC . '/languages' || @is_dir(WP_LANG_DIR) )
-			$lang_dir = WP_LANG_DIR;
-		else
-			$lang_dir = WP_CONTENT_DIR . '/languages';
-
-		if ( !@is_dir($lang_dir) && 0 === strpos($lang_dir, ABSPATH) ) { // Check the language directory exists first
-			$wp_filesystem->mkdir($to . str_replace(ABSPATH, '', $lang_dir), FS_CHMOD_DIR); // If it's within the ABSPATH we can handle it here, otherwise they're out of luck.
-			clearstatcache(); // for FTP, Need to clear the stat cache
-		}
-
-		if ( @is_dir($lang_dir) ) {
-			$wp_lang_dir = $wp_filesystem->find_folder($lang_dir);
-			if ( $wp_lang_dir ) {
-				$result = copy_dir($from . $distro . 'wp-content/languages/', $wp_lang_dir);
-				if ( is_wp_error( $result ) )
-					$result = new WP_Error( $result->get_error_code() . '_languages', $result->get_error_message(), substr( $result->get_error_data(), strlen( $wp_lang_dir ) ) );
-			}
-		}
-	}
-
 	/** This filter is documented in wp-admin/includes/update-core.php */
 	apply_filters( 'update_feedback', __( 'Disabling Maintenance mode&#8230;' ) );
 	// Remove maintenance file, we're done with potential site-breaking changes
