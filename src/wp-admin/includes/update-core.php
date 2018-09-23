@@ -72,7 +72,7 @@ $_old_files = array(
 function update_core($from, $to) {
 	global $wp_filesystem, $_old_files, $wpdb;
 
-	$calmpress_version = '0.9.9-dev6';
+	$calmpress_version = '0.9.9-dev7';
     $required_php_version = '5.2.4';
     $required_mysql_version = '5.0';
 
@@ -159,7 +159,7 @@ function update_core($from, $to) {
 
 	// Since we know the core files have copied over, we can now copy the version file
 	if ( ! is_wp_error( $result ) ) {
-		if ( ! $wp_filesystem->copy( $from . 'wp-includes/version.php', $to . 'wp-includes/version.php', true /* overwrite */ ) ) {
+		if ( ! $wp_filesystem->copy( $from . '/wp-includes/version.php', $to . 'wp-includes/version.php', true /* overwrite */ ) ) {
 			$wp_filesystem->delete( $from, true );
 			$result = new WP_Error( 'copy_failed_for_version_file', __( 'The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions.' ), 'wp-includes/version.php' );
 		}
