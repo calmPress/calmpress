@@ -782,41 +782,6 @@ $_old_files = array(
 );
 
 /**
- * Stores new files in wp-content to copy
- *
- * The contents of this array indicate any new bundled plugins/themes which
- * should be installed with the calmPress Upgrade. These items will not be
- * re-installed in future upgrades, this behaviour is controlled by the
- * introduced version present here being older than the current installed version.
- *
- * The content of this array should follow the following format:
- * Filename (relative to wp-content) => Introduced version
- * Directories should be noted by suffixing it with a trailing slash (/)
- *
- * @since 3.2.0
- * @since 4.7.0 New themes were not automatically installed for 4.4-4.6 on
- *              upgrade. New themes are now installed again. To disable new
- *              themes from being installed on upgrade, explicitly define
- *              CORE_UPGRADE_SKIP_NEW_BUNDLED as false.
- * @global array $_new_bundled_files
- * @var array
- * @name $_new_bundled_files
- */
-global $_new_bundled_files;
-
-$_new_bundled_files = array(
-	'plugins/akismet/'        => '2.0',
-	'themes/twentyten/'       => '3.0',
-	'themes/twentyeleven/'    => '3.2',
-	'themes/twentytwelve/'    => '3.5',
-	'themes/twentythirteen/'  => '3.6',
-	'themes/twentyfourteen/'  => '3.8',
-	'themes/twentyfifteen/'   => '4.1',
-	'themes/twentysixteen/'   => '4.4',
-	'themes/twentyseventeen/' => '4.7',
-);
-
-/**
  * Upgrades the core of calmPress.
  *
  * This will create a .maintenance file at the base of the calmPress directory
@@ -825,9 +790,6 @@ $_new_bundled_files = array(
  *
  * The files in the `$_old_files` list will be removed and the new files
  * copied from the zip file after the database is upgraded.
- *
- * The files in the `$_new_bundled_files` list will be added to the installation
- * if the version is greater than or equal to the old version being upgraded.
  *
  * The steps for the upgrader for after the new release is downloaded and
  * unzipped is:
@@ -858,7 +820,6 @@ $_new_bundled_files = array(
  *
  * @global WP_Filesystem_Base $wp_filesystem
  * @global array              $_old_files
- * @global array              $_new_bundled_files
  * @global wpdb               $wpdb
  * @global string             $wp_version
  * @global string             $required_php_version
@@ -869,7 +830,7 @@ $_new_bundled_files = array(
  * @return WP_Error|null WP_Error on failure, null on success.
  */
 function update_core($from, $to) {
-	global $wp_filesystem, $_old_files, $_new_bundled_files, $wpdb;
+	global $wp_filesystem, $_old_files, $wpdb;
 
 	@set_time_limit( 300 );
 
