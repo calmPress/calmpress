@@ -110,8 +110,6 @@ function update_core($from, $to) {
 
 	$php_version    = phpversion();
 	$mysql_version  = $wpdb->db_version();
-	$old_wp_version = $GLOBALS['wp_version']; // The version of calmPress we're updating from
-	$development_build = ( false !== strpos( $old_wp_version . $wp_version, '-' )  ); // a dash in the version indicates a Development release
 	$php_compat     = version_compare( $php_version, $required_php_version, '>=' );
 	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) )
 		$mysql_compat = true;
@@ -148,7 +146,7 @@ function update_core($from, $to) {
 			}
 
 			// Store package-relative paths (the key) of non-writable files in the WP_Error object.
-			$error_data = version_compare( $old_wp_version, '3.7-beta2', '>' ) ? array_keys( $files_not_writable ) : '';
+			$error_data = array_keys( $files_not_writable );
 
 			if ( $files_not_writable )
 				return new WP_Error( 'files_not_writable', __( 'The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions.' ), implode( ', ', $error_data ) );
