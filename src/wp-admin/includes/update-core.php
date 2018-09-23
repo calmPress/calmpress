@@ -836,8 +836,6 @@ $_new_bundled_files = array(
  *   3. Copy new calmPress directory over old calmPress files.
  *   4. Upgrade calmPress to new version.
  *     4.1. Copy all files/folders other than wp-content
- *     4.2. Copy any language files to WP_LANG_DIR (which may differ from WP_CONTENT_DIR
- *     4.3. Copy any new bundled themes/plugins to their respective locations
  *   5. Delete new calmPress directory path.
  *   6. Delete .maintenance file.
  *   7. Remove old files.
@@ -933,9 +931,8 @@ function update_core($from, $to) {
 	/** This filter is documented in wp-admin/includes/update-core.php */
 	apply_filters( 'update_feedback', __( 'Preparing to install the latest version&#8230;' ) );
 
-	// Don't copy wp-content, we'll deal with that below
 	// We also copy version.php last so failed updates report their old version
-	$skip = array( 'wp-content', 'wp-includes/version.php' );
+	$skip = array( 'wp-includes/version.php' );
 	$check_is_writable = array();
 
 	// If we're using the direct method, we can predict write failures that are due to permissions.
@@ -982,8 +979,8 @@ function update_core($from, $to) {
 		$wp_filesystem->chmod( $to . 'wp-includes/version.php', FS_CHMOD_FILE );
 	}
 
-	// Check to make sure everything copied correctly, ignoring the contents of wp-content
-	$skip = array( 'wp-content' );
+	// Check to make sure everything copied correctly.
+	$skip = array( );
 	$failed = array();
 
 	// Some files didn't copy properly
@@ -1004,56 +1001,6 @@ function update_core($from, $to) {
 			if ( is_wp_error( $result ) )
 				$result = new WP_Error( $result->get_error_code() . '_retry', $result->get_error_message(), substr( $result->get_error_data(), strlen( $to ) ) );
 		}
-	}
-
-	/** This filter is documented in wp-admin/includes/update-core.php */
-	apply_filters( 'update_feedback', __( 'Disabling Maintenance mode&#8230;' ) );
-	// Remove maintenance file, we're done with potential site-breaking changes
-	$wp_filesystem->delete( $maintenance_file );
-
-	// Copy New bundled plugins & themes
-	// This gives us the ability to install new plugins & themes bundled with future versions of calmPress whilst avoiding the re-install upon upgrade issue.
-	// $development_build controls us overwriting bundled themes and plugins when a non-stable release is being updated
-	if ( !is_wp_error($result) && ( ! defined('CORE_UPGRADE_SKIP_NEW_BUNDLED') || ! CORE_UPGRADE_SKIP_NEW_BUNDLED ) ) {
-		foreach ( (array) $_new_bundled_files as $file => $introduced_version ) {
-			// If a $development_build or if $introduced version is greater than what the site was previously running
-			if ( $development_build || version_compare( $introduced_version, $old_wp_version, '>' ) ) {
-				$directory = ('/' == $file[ strlen($file)-1 ]);
-				list($type, $filename) = explode('/', $file, 2);
-
-				// Check to see if the bundled items exist before attempting to copy them
-				if ( ! $wp_filesystem->exists( $from . $distro . 'wp-content/' . $file ) )
-					continue;
-
-				if ( 'plugins' == $type )
-					$dest = $wp_filesystem->wp_plugins_dir();
-				elseif ( 'themes' == $type )
-					$dest = trailingslashit($wp_filesystem->wp_themes_dir()); // Back-compat, ::wp_themes_dir() did not return trailingslash'd pre-3.2
-				else
-					continue;
-
-				if ( ! $directory ) {
-					if ( ! $development_build && $wp_filesystem->exists( $dest . $filename ) )
-						continue;
-
-					if ( ! $wp_filesystem->copy($from . $distro . 'wp-content/' . $file, $dest . $filename, FS_CHMOD_FILE) )
-						$result = new WP_Error( "copy_failed_for_new_bundled_$type", __( 'Could not copy file.' ), $dest . $filename );
-				} else {
-					if ( ! $development_build && $wp_filesystem->is_dir( $dest . $filename ) )
-						continue;
-
-					$wp_filesystem->mkdir($dest . $filename, FS_CHMOD_DIR);
-					$_result = copy_dir( $from . $distro . 'wp-content/' . $file, $dest . $filename);
-
-					// If a error occurs partway through this final step, keep the error flowing through, but keep process going.
-					if ( is_wp_error( $_result ) ) {
-						if ( ! is_wp_error( $result ) )
-							$result = new WP_Error;
-						$result->add( $_result->get_error_code() . "_$type", $_result->get_error_message(), substr( $_result->get_error_data(), strlen( $dest ) ) );
-					}
-				}
-			}
-		} //end foreach
 	}
 
 	// Handle $result error from the above blocks
