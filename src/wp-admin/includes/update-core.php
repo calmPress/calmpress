@@ -72,7 +72,7 @@ $_old_files = array(
 function update_core($from, $to) {
 	global $wp_filesystem, $_old_files, $wpdb;
 
-	$calmpress_version = '0.9.9-dev7';
+	$calmpress_version = '0.9.9-dev8';
     $required_php_version = '5.2.4';
     $required_mysql_version = '5.0';
 
@@ -189,6 +189,11 @@ function update_core($from, $to) {
 				$result = new WP_Error( $result->get_error_code() . '_retry', $result->get_error_message(), substr( $result->get_error_data(), strlen( $to ) ) );
 		}
 	}
+
+	/** This filter is documented in wp-admin/includes/update-core.php */
+	apply_filters( 'update_feedback', __( 'Disabling Maintenance mode&#8230;' ) );
+	// Remove maintenance file, we're done with potential site-breaking changes
+	$wp_filesystem->delete( $maintenance_file );
 
 	// Handle $result error from the above blocks
 	if ( is_wp_error($result) ) {
