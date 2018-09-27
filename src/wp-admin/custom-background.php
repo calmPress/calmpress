@@ -92,12 +92,6 @@ class Custom_Background {
 				'<p>' . __( 'Don&#8217;t forget to click on the Save Changes button when you are finished.' ) . '</p>'
 		) );
 
-		get_current_screen()->set_help_sidebar(
-			'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
-			'<p>' . __( '<a href="https://codex.wordpress.org/Appearance_Background_Screen">Documentation on Custom Background</a>' ) . '</p>' .
-			'<p>' . __( '<a href="https://wordpress.org/support/">Support Forums</a>' ) . '</p>'
-		);
-
 		wp_enqueue_media();
 		wp_enqueue_script('custom-background');
 		wp_enqueue_style('wp-color-picker');

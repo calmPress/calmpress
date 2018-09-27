@@ -130,13 +130,6 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 		( is_network_admin() ? '<p>' . __('Any edits to files from this screen will be reflected on all sites in the network.') . '</p>' : '' )
 	) );
 
-	get_current_screen()->set_help_sidebar(
-		'<p><strong>' . __('For more information:') . '</strong></p>' .
-		'<p>' . __('<a href="https://codex.wordpress.org/Plugins_Editor_Screen">Documentation on Editing Plugins</a>') . '</p>' .
-		'<p>' . __('<a href="https://codex.wordpress.org/Writing_a_Plugin">Documentation on Writing Plugins</a>') . '</p>' .
-		'<p>' . __('<a href="https://wordpress.org/support/">Support Forums</a>') . '</p>'
-	);
-
 	$settings = array(
 		'codeEditor' => wp_enqueue_code_editor( array( 'file' => $real_file ) ),
 	);

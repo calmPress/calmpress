@@ -46,12 +46,6 @@ case 'editcomment' :
 			'<p>' . __( 'You can also moderate the comment from this screen using the Status box, where you can also change the timestamp of the comment.' ) . '</p>'
 	) );
 
-	get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://codex.wordpress.org/Administration_Screens#Comments">Documentation on Comments</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/">Support Forums</a>' ) . '</p>'
-	);
-
 	wp_enqueue_script('comment');
 	require_once( ABSPATH . 'wp-admin/admin-header.php' );
 

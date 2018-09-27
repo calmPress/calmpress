@@ -385,13 +385,6 @@ if ( 'post' == $post_type ) {
 		'title'   => __('Title and Post Editor'),
 		'content' => $title_and_editor,
 	) );
-
-	get_current_screen()->set_help_sidebar(
-			'<p>' . sprintf(__('You can also create posts with the <a href="%s">Press This bookmarklet</a>.'), 'tools.php') . '</p>' .
-			'<p><strong>' . __('For more information:') . '</strong></p>' .
-			'<p>' . __('<a href="https://codex.wordpress.org/Posts_Add_New_Screen">Documentation on Writing and Editing Posts</a>') . '</p>' .
-			'<p>' . __('<a href="https://wordpress.org/support/">Support Forums</a>') . '</p>'
-	);
 } elseif ( 'page' == $post_type ) {
 	$about_pages = '<p>' . __('Pages are similar to posts in that they have a title, body text, and associated metadata, but they are different in that they are not part of the chronological blog stream, kind of like permanent posts. Pages are not categorized or tagged, but can have a hierarchy. You can nest pages under other pages by making one the &#8220;Parent&#8221; of the other, creating a group of pages.') . '</p>' .
 		'<p>' . __('Creating a Page is very similar to creating a Post, and the screens can be customized in the same way using drag and drop, the Screen Options tab, and expanding/collapsing boxes as you choose. This screen also has the distraction-free writing space, available in both the Visual and Text modes via the Fullscreen buttons. The Page editor mostly works the same as the Post editor, but there are some Page-specific features in the Page Attributes box.') . '</p>';
@@ -401,13 +394,6 @@ if ( 'post' == $post_type ) {
 		'title'   => __('About Pages'),
 		'content' => $about_pages,
 	) );
-
-	get_current_screen()->set_help_sidebar(
-			'<p><strong>' . __('For more information:') . '</strong></p>' .
-			'<p>' . __('<a href="https://codex.wordpress.org/Pages_Add_New_Screen">Documentation on Adding New Pages</a>') . '</p>' .
-			'<p>' . __('<a href="https://codex.wordpress.org/Pages_Screen#Editing_Individual_Pages">Documentation on Editing Pages</a>') . '</p>' .
-			'<p>' . __('<a href="https://wordpress.org/support/">Support Forums</a>') . '</p>'
-	);
 } elseif ( 'attachment' == $post_type ) {
 	get_current_screen()->add_help_tab( array(
 		'id'      => 'overview',
@@ -418,12 +404,6 @@ if ( 'post' == $post_type ) {
 			'<p>' . __('Note that you crop the image by clicking on it (the Crop icon is already selected) and dragging the cropping frame to select the desired part. Then click Save to retain the cropping.') . '</p>' .
 			'<p>' . __('Remember to click Update Media to save metadata entered or changed.') . '</p>'
 	) );
-
-	get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __('For more information:') . '</strong></p>' .
-	'<p>' . __('<a href="https://codex.wordpress.org/Media_Add_New_Screen#Edit_Media">Documentation on Edit Media</a>') . '</p>' .
-	'<p>' . __('<a href="https://wordpress.org/support/">Support Forums</a>') . '</p>'
-	);
 }
 
 if ( 'post' == $post_type || 'page' == $post_type ) {

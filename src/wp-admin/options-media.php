@@ -29,12 +29,6 @@ get_current_screen()->add_help_tab( array(
 	'content' => $media_options_help,
 ) );
 
-get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __('For more information:') . '</strong></p>' .
-	'<p>' . __('<a href="https://codex.wordpress.org/Settings_Media_Screen">Documentation on Media Settings</a>') . '</p>' .
-	'<p>' . __('<a href="https://wordpress.org/support/">Support Forums</a>') . '</p>'
-);
-
 include( ABSPATH . 'wp-admin/admin-header.php' );
 
 ?>

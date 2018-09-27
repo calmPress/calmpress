@@ -31,7 +31,7 @@ global $hook_suffix;
 	?>
 	<p id="footer-left" class="alignleft">
 		<?php
-		$text = sprintf( __( 'Thank you for creating with <a href="%s">calmPress</a>.' ), __( 'https://wordpress.org/' ) );
+		$text = sprintf( __( 'Thank you for creating with <a href="%s">calmPress</a>.' ), __( 'https://calmpress.org/' ) );
 		/**
 		 * Filters the "Thank you" text displayed in the admin footer.
 		 *

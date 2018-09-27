@@ -174,12 +174,6 @@ get_current_screen()->add_help_tab( array(
 		'<p>' . __('You can make an existing user an additional super admin by going to the Edit User profile page and checking the box to grant that privilege.') . '</p>'
 ) );
 
-get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __('For more information:') . '</strong></p>' .
-	'<p>' . __('<a href="https://codex.wordpress.org/Network_Admin_Users_Screen">Documentation on Network Users</a>') . '</p>' .
-	'<p>' . __('<a href="https://wordpress.org/support/forum/multisite/">Support Forums</a>') . '</p>'
-);
-
 get_current_screen()->set_screen_reader_content( array(
 	'heading_views'      => __( 'Filter users list' ),
 	'heading_pagination' => __( 'Users list navigation' ),

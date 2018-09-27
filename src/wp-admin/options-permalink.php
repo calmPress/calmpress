@@ -39,13 +39,6 @@ get_current_screen()->add_help_tab( array(
 		'<p>' . __('You must click the Save Changes button at the bottom of the screen for new settings to take effect.') . '</p>',
 ) );
 
-get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __('For more information:') . '</strong></p>' .
-	'<p>' . __('<a href="https://codex.wordpress.org/Settings_Permalinks_Screen">Documentation on Permalinks Settings</a>') . '</p>' .
-	'<p>' . __('<a href="https://codex.wordpress.org/Using_Permalinks">Documentation on Using Permalinks</a>') . '</p>' .
-	'<p>' . __('<a href="https://wordpress.org/support/">Support Forums</a>') . '</p>'
-);
-
 $home_path = get_home_path();
 $iis7_permalinks = iis7_supports_permalinks();
 $permalink_structure = get_option( 'permalink_structure' );

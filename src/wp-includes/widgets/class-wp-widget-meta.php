@@ -69,8 +69,8 @@ class WP_Widget_Meta extends WP_Widget {
 			 * @param array  $instance   Array of settings for the current widget.
 			 */
 			echo apply_filters( 'widget_meta_poweredby', sprintf( '<li><a href="%s" title="%s">%s</a></li>',
-				esc_url( __( 'https://wordpress.org/' ) ),
-				esc_attr__( 'Powered by calmPress, state-of-the-art semantic personal publishing platform.' ),
+				esc_url( __( 'https://calmPress.org/' ) ),
+				esc_attr__( 'Powered by calmPress, modern web publishing platform.' ),
 				_x( 'calmpress.org', 'meta widget link text' )
 			), $instance );
 

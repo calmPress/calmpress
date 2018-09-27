@@ -23,7 +23,7 @@ header( 'Content-Type: text/html; charset=utf-8' );
 	?>
 </head>
 <body class="wp-core-ui">
-<p id="logo"><a href="<?php echo esc_url( __( 'https://wordpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'calmPress' ); ?></a></p>
+<p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'calmPress' ); ?></a></p>
 
 <?php
 

@@ -91,12 +91,6 @@ $screen->add_help_tab( array(
 
 unset( $help );
 
-$screen->set_help_sidebar(
-	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://codex.wordpress.org/Dashboard_Screen">Documentation on Dashboard</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/">Support Forums</a>' ) . '</p>'
-);
-
 include( ABSPATH . 'wp-admin/admin-header.php' );
 ?>
 

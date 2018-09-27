@@ -673,8 +673,8 @@ class WP_Automatic_Updater {
 			$body .= "\n\n" . sprintf( __( "The calmPress team is willing to help you. Forward this email to %s and the team will work with you to make sure your site is working." ), $core_update->support_email );
 		} else {
 			// Add a note about the support forums.
-			$body .= "\n\n" . __( 'If you experience any issues or need support, the volunteers in the WordPress.org support forums may be able to help.' );
-			$body .= "\n" . __( 'https://wordpress.org/support/' );
+			$body .= "\n\n" . __( 'If you experience any issues or need support, we might be able to help.' );
+			$body .= "\n" . __( 'https://github.com/calmPress/calmpress/issues' );
 		}
 
 		// Updates are important!
