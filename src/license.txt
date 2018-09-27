@@ -16,24 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-This program incorporates work covered by the following copyright and
-permission notices:
-
-  b2 is (c) 2001, 2002 Michel Valdrighi - m@tidakada.com -
-  http://tidakada.com
-
-  Wherever third party code has been used, credit has been given in the code's
-  comments.
-
-  b2 is released under the GPL
-
-and
-
-  calmPress - Web publishing software
-
-  Copyright 2003-2010 by the contributors
-
-  WordPress is released under the GPL
+This program incorporates work which might be released under different copyright
+terms which are compatible with this license. Those kind of works, outside of
+the context of calmPress might be used under different conditions.
 
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -382,4 +367,4 @@ WRITTEN OFFER
 The source code for any program binaries or compressed scripts that are
 included with calmPress can be freely obtained at the following URL:
 
-	https://wordpress.org/download/source/
+	https://github.com/calmPress/calmpress
