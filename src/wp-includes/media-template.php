@@ -191,7 +191,7 @@ function wp_print_media_templates() {
 			<h2 class="upload-message">{{ data.message }}</h2>
 		<# } #>
 		<?php if ( ! _device_can_upload() ) : ?>
-			<h2 class="upload-instructions"><?php _e( 'The web browser on your device cannot be used to upload files.' ) ); ?></h2>
+			<h2 class="upload-instructions"><?php _e( 'The web browser on your device cannot be used to upload files.' ); ?></h2>
 		<?php elseif ( is_multisite() && ! is_upload_space_available() ) : ?>
 			<h2 class="upload-instructions"><?php _e( 'Upload Limit Exceeded' ); ?></h2>
 			<?php
