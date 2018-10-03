@@ -176,14 +176,16 @@ function update_nag() {
 		return;
 	}
 
+	$version_slug_parts = explode( '.', $cur->version );
+	$version_slug = $version_slug_parts[0] . '-' . $version_slug_parts[1];
 	if ( current_user_can( 'update_core' ) ) {
 		$msg = sprintf(
-			/* translators: 1: Codex URL to release notes, 2: new caalmPress version, 3: URL to network admin, 4: accessibility text */
+			/* translators: 1: calmpress.org URL to release notes, 2: new calmPress version, 3: URL to network admin, 4: accessibility text */
 			__( '<a href="%1$s">calmPress %2$s</a> is available! <a href="%3$s" aria-label="%4$s">Please update now</a>.' ),
 			sprintf(
-				/* translators: %s: WordPress version */
-				esc_url( __( 'https://codex.wordpress.org/Version_%s' ) ),
-				$cur->version
+				/* translators: %s: calmPress version slug on calmpress.org */
+				esc_url( __( 'https://calmpress.org/version/%s' ) ),
+				$version_slug
 			),
 			$cur->version,
 			network_admin_url( 'update-core.php' ),
@@ -191,12 +193,12 @@ function update_nag() {
 		);
 	} else {
 		$msg = sprintf(
-			/* translators: 1: Codex URL to release notes, 2: new calmPress version */
+			/* translators: 1: calmpress.org URL to release notes, 2: new calmPress version */
 			__( '<a href="%1$s">calmPress %2$s</a> is available! Please notify the site administrator.' ),
 			sprintf(
-				/* translators: %s: calmPress version */
-				esc_url( __( 'https://codex.wordpress.org/Version_%s' ) ),
-				$cur->version
+				/* translators: %s: calmPress version slug on calmpress.org */
+				esc_url( __( 'https://calmpress.org/version/%s' ) ),
+				$version_slug
 			),
 			$cur->version
 		);
