@@ -59,6 +59,11 @@ function list_core_update( $update ) {
 	} elseif ( !$mysql_compat ) {
 		/* translators: 1: calmpress.org version slug, 2: calmPress version number, 3: Minimum required MySQL version number, 4: Current MySQL version number */
 		$message = sprintf( __( 'You cannot update because <a href="https://calmpress.org/Version/%1$s">calmPress %2$s</a> requires MySQL version %3$s or higher. You are running version %4$s.' ), $version_slug, calmpress_version(), $required_mysql_version, $mysql_version );
+	} else {
+		$update_version_slug_parts = explode( '.', $update->version );
+		$update_version_slug = $update_version_slug_parts[0] . '-' . $update_version_slug_parts[1];
+		/* translators: 1: calmpress.org version slug, 2: calmPress version number */
+		$message = 	sprintf(__('You can update to <a href="https://calmpress.org/Version/%1$s">calmPress %2$s</a> automatically:'), $update_version_slug, $update->version);
 	}
 
 	if ( !$mysql_compat || !$php_compat )
