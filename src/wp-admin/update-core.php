@@ -508,7 +508,7 @@ get_current_screen()->add_help_tab( array(
 	'content' => $updates_overview
 ) );
 
-$updates_howto  = '<p>' . __( '<strong>calmPress</strong> &mdash; Updating your calmPress installation is a simple one-click procedure: just <strong>click on the &#8220;Update Now&#8221; button</strong> when you are notified that a new version is available.' ) . ' ' . __( 'In most cases, calmPress will automatically apply maintenance and security updates in the background for you.' ) . '</p>';
+$updates_howto  = '<p>' . __( '<strong>calmPress</strong> &mdash; Updating your calmPress installation is a simple one-click procedure: just <strong>click on the &#8220;Update Now&#8221; button</strong> when you are notified that a new version is available.' ) . '</p>';
 $updates_howto .= '<p>' . __( '<strong>Themes and Plugins</strong> &mdash; To update individual themes or plugins from this screen, use the checkboxes to make your selection, then <strong>click on the appropriate &#8220;Update&#8221; button</strong>. To update all of your themes or plugins at once, you can check the box at the top of the section to select all before clicking the update button.' ) . '</p>';
 
 if ( 'en_US' != get_locale() ) {
