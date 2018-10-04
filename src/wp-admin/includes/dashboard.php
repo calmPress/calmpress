@@ -155,7 +155,7 @@ function wp_add_dashboard_widget( $widget_id, $widget_name, $callback, $control_
 		}
 	}
 
-	$side_widgets = array( 'dashboard_quick_press', 'dashboard_primary' );
+	$side_widgets = array( 'dashboard_quick_press' );
 
 	$location = 'normal';
 	if ( in_array($widget_id, $side_widgets) )
@@ -1053,111 +1053,6 @@ function wp_dashboard_rss_control( $widget_id, $form_inputs = array() ) {
 	}
 
 	wp_widget_rss_form( $widget_options[$widget_id], $form_inputs );
-}
-
-/**
- * WordPress News dashboard widget.
- *
- * @since 2.7.0
- * @since 4.8.0 Removed popular plugins feed.
- */
-function wp_dashboard_primary() {
-	$feeds = array(
-		'news' => array(
-
-			/**
-			 * Filters the primary link URL for the 'WordPress News' dashboard widget.
-			 *
-			 * @since 2.5.0
-			 *
-			 * @param string $link The widget's primary link URL.
-			 */
-			'link' => apply_filters( 'dashboard_primary_link', __( 'https://wordpress.org/news/' ) ),
-
-			/**
-			 * Filters the primary feed URL for the 'WordPress News' dashboard widget.
-			 *
-			 * @since 2.3.0
-			 *
-			 * @param string $url The widget's primary feed URL.
-			 */
-			'url' => apply_filters( 'dashboard_primary_feed', __( 'http://wordpress.org/news/feed/' ) ),
-
-			/**
-			 * Filters the primary link title for the 'WordPress News' dashboard widget.
-			 *
-			 * @since 2.3.0
-			 *
-			 * @param string $title Title attribute for the widget's primary link.
-			 */
-			'title'        => apply_filters( 'dashboard_primary_title', __( 'WordPress Blog' ) ),
-			'items'        => 1,
-			'show_summary' => 0,
-			'show_author'  => 0,
-			'show_date'    => 0,
-		),
-		'planet' => array(
-
-			/**
-			 * Filters the secondary link URL for the 'WordPress News' dashboard widget.
-			 *
-			 * @since 2.3.0
-			 *
-			 * @param string $link The widget's secondary link URL.
-			 */
-			'link' => apply_filters( 'dashboard_secondary_link', __( 'https://planet.wordpress.org/' ) ),
-
-			/**
-			 * Filters the secondary feed URL for the 'WordPress News' dashboard widget.
-			 *
-			 * @since 2.3.0
-			 *
-			 * @param string $url The widget's secondary feed URL.
-			 */
-			'url' => apply_filters( 'dashboard_secondary_feed', __( 'https://planet.wordpress.org/feed/' ) ),
-
-			/**
-			 * Filters the secondary link title for the 'WordPress News' dashboard widget.
-			 *
-			 * @since 2.3.0
-			 *
-			 * @param string $title Title attribute for the widget's secondary link.
-			 */
-			'title'        => apply_filters( 'dashboard_secondary_title', __( 'Other WordPress News' ) ),
-
-			/**
-			 * Filters the number of secondary link items for the 'WordPress News' dashboard widget.
-			 *
-			 * @since 4.4.0
-			 *
-			 * @param string $items How many items to show in the secondary feed.
-			 */
-			'items'        => apply_filters( 'dashboard_secondary_items', 3 ),
-			'show_summary' => 0,
-			'show_author'  => 0,
-			'show_date'    => 0,
-		)
-	);
-
-	wp_dashboard_cached_rss_widget( 'dashboard_primary', 'wp_dashboard_primary_output', $feeds );
-}
-
-/**
- * Display the WordPress news feeds.
- *
- * @since 3.8.0
- * @since 4.8.0 Removed popular plugins feed.
- *
- * @param string $widget_id Widget ID.
- * @param array  $feeds     Array of RSS feeds.
- */
-function wp_dashboard_primary_output( $widget_id, $feeds ) {
-	foreach ( $feeds as $type => $args ) {
-		$args['type'] = $type;
-		echo '<div class="rss-widget">';
-			wp_widget_rss_output( $args['url'], $args );
-		echo "</div>";
-	}
 }
 
 /**

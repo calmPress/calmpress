@@ -309,11 +309,6 @@ function wp_ajax_dashboard_widgets() {
 		set_current_screen( $pagenow );
 	}
 
-	switch ( $_GET['widget'] ) {
-		case 'dashboard_primary' :
-			wp_dashboard_primary();
-			break;
-	}
 	wp_die();
 }
 

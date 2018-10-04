@@ -300,23 +300,6 @@
 	content: "\f153";
 }
 
-/* Dashboard WordPress news */
-
-#dashboard_primary .inside {
-	margin: 0;
-	padding: 0;
-}
-
-#dashboard_primary .widget-loading {
-	padding: 12px 12px 0;
-	margin-bottom: 1em !important; /* Needs to override `.postbox .inside > p:last-child` in common.css */
-}
-
-/* Notice when JS is off. */
-#dashboard_primary .inside .notice {
-	margin: 0;
-}
-
 body #dashboard-widgets .postbox form .submit {
 	margin: 0;
 }
@@ -329,34 +312,6 @@ body #dashboard-widgets .postbox form .submit {
 .rssSummary {
 	color: #72777c;
 	margin-top: 4px;
-}
-
-#dashboard_primary .rss-widget {
-	font-size: 13px;
-	padding: 0 12px 0;
-}
-
-#dashboard_primary .rss-widget:last-child {
-	border-bottom: none;
-	padding-bottom: 8px;
-}
-
-#dashboard_primary .rss-widget a {
-	font-weight: 400;
-}
-
-#dashboard_primary .rss-widget span,
-#dashboard_primary .rss-widget span.rss-date {
-	color: #72777c;
-}
-
-#dashboard_primary .rss-widget span.rss-date {
-	margin-left: 12px;
-}
-
-#dashboard_primary .rss-widget ul li {
-	padding: 4px 0;
-	margin: 0;
 }
 
 /* Dashboard right now */
@@ -530,10 +485,6 @@ form.initial-form.quickpress-open input#title {
 #dashboard_quick_press .drafts .view-all {
 	float: right;
 	margin: 0 12px 0 0;
-}
-
-#dashboard_primary a.rsswidget {
-	font-weight: 400;
 }
 
 #dashboard_quick_press .drafts ul {

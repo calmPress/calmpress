@@ -31,35 +31,6 @@ jQuery(document).ready( function($) {
 		updateWelcomePanel( this.checked ? 1 : 0 );
 	});
 
-	// These widgets are sometimes populated via ajax
-	ajaxWidgets = ['dashboard_primary'];
-
-	ajaxPopulateWidgets = function(el) {
-		function show(i, id) {
-			var p, e = $('#' + id + ' div.inside:visible').find('.widget-loading');
-			if ( e.length ) {
-				p = e.parent();
-				setTimeout( function(){
-					p.load( ajaxurl + '?action=dashboard-widgets&widget=' + id + '&pagenow=' + pagenow, '', function() {
-						p.hide().slideDown('normal', function(){
-							$(this).css('display', '');
-						});
-					});
-				}, i * 500 );
-			}
-		}
-
-		if ( el ) {
-			el = el.toString();
-			if ( $.inArray(el, ajaxWidgets) !== -1 ) {
-				show(0, el);
-			}
-		} else {
-			$.each( ajaxWidgets, show );
-		}
-	};
-	ajaxPopulateWidgets();
-
 	postboxes.add_postbox_toggles(pagenow, { pbshow: ajaxPopulateWidgets } );
 
 	/* QuickPress */
