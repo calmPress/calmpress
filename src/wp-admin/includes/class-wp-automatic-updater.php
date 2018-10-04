@@ -28,29 +28,7 @@ class WP_Automatic_Updater {
 	 * @since 3.7.0
 	 */
 	public function is_disabled() {
-		// Background updates are disabled if you don't want file changes.
-		if ( ! wp_is_file_mod_allowed( 'automatic_updater' ) )
-			return true;
-
-		if ( wp_installing() )
-			return true;
-
-		// More fine grained control can be done through the WP_AUTO_UPDATE_CORE constant and filters.
-		$disabled = defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED;
-
-		/**
-		 * Filters whether to entirely disable background updates.
-		 *
-		 * There are more fine-grained filters and controls for selective disabling.
-		 * This filter parallels the AUTOMATIC_UPDATER_DISABLED constant in name.
-		 *
-		 * This also disables update notification emails. That may change in the future.
-		 *
-		 * @since 3.7.0
-		 *
-		 * @param bool $disabled Whether the updater should be disabled.
-		 */
-		return apply_filters( 'automatic_updater_disabled', $disabled );
+		return true;
 	}
 
 	/**
