@@ -35,8 +35,6 @@ get_current_screen()->add_help_tab( array(
 	'</ul>' .
 	'<p>' . __( 'After typing in your edits, click Update File.' ) . '</p>' .
 	'<p>' . __( '<strong>Advice:</strong> think very carefully about your site crashing if you are live-editing the theme currently in use.' ) . '</p>' .
-	/* translators: %s: link to codex article about child themes */
-	'<p>' . sprintf( __( 'Upgrading to a newer version of the same theme will override changes made here. To avoid this, consider creating a <a href="%s">child theme</a> instead.' ), __( 'https://codex.wordpress.org/Child_Themes' ) ) . '</p>' .
 	( is_network_admin() ? '<p>' . __( 'Any edits to files from this screen will be reflected on all sites in the network.' ) . '</p>' : '' ),
 ) );
 
@@ -279,7 +277,7 @@ else : ?>
 			<span class="spinner"></span>
 		</p>
 	<?php else : ?>
-		<p><em><?php _e('You need to make this file writable before you can save your changes. See <a href="https://codex.wordpress.org/Changing_File_Permissions">the Codex</a> for more information.'); ?></em></p>
+		<p><em><?php _e('You need to make this file writable before you can save your changes.'); ?></em></p>
 	<?php endif; ?>
 	</div>
 	<?php wp_print_file_editor_templates(); ?>

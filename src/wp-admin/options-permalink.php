@@ -150,11 +150,7 @@ require( ABSPATH . 'wp-admin/admin-header.php' );
 <?php wp_nonce_field('update-permalink') ?>
 
 	<p><?php
-		printf(
-			/* translators: %s: Codex URL */
-			__( 'calmPress offers you the ability to create a custom URL structure for your permalinks and archives. Custom URL structures can improve the aesthetics, usability, and forward-compatibility of your links. A <a href="%s">number of tags are available</a>, and here are some examples to get you started.' ),
-			__( 'https://codex.wordpress.org/Using_Permalinks' )
-		);
+		_e( 'calmPress offers you the ability to create a custom URL structure for your permalinks and archives. Custom URL structures can improve the aesthetics, usability, and forward-compatibility of your links. A number of tags are available, and here are some examples to get you started.' );
 	?></p>
 
 <?php
@@ -297,10 +293,9 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 		if ( file_exists($home_path . 'web.config') ) : ?>
 <p><?php
 	printf(
-		/* translators: 1: web.config, 2: Codex URL, 3: CTRL + a, 4: element code */
-		__( 'If your %1$s file was <a href="%2$s">writable</a>, we could do this automatically, but it isn&#8217;t so this is the url rewrite rule you should have in your %1$s file. Click in the field and press %3$s to select all. Then insert this rule inside of the %4$s element in %1$s file.' ),
+		/* translators: 1: web.config, 2: CTRL + a, 3: element code */
+		__( 'If your %1$s file was writable, we could do this automatically, but it isn&#8217;t so this is the url rewrite rule you should have in your %1$s file. Click in the field and press %2$s to select all. Then insert this rule inside of the %3$s element in %1$s file.' ),
 		'<code>web.config</code>',
-		__( 'https://codex.wordpress.org/Changing_File_Permissions' ),
 		'<kbd>CTRL + a</kbd>',
 		'<code>/&lt;configuration&gt;/&lt;system.webServer&gt;/&lt;rewrite&gt;/&lt;rules&gt;</code>'
 	);
@@ -319,9 +314,8 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 		<?php else : ?>
 <p><?php
 	printf(
-		/* translators: 1: Codex URL, 2: web.config, 3: CTRL + a */
-		__( 'If the root directory of your site was <a href="%1$s">writable</a>, we could do this automatically, but it isn&#8217;t so this is the url rewrite rule you should have in your %2$s file. Create a new file, called %2$s in the root directory of your site. Click in the field and press %3$s to select all. Then insert this code into the %2$s file.' ),
-		__( 'https://codex.wordpress.org/Changing_File_Permissions' ),
+		/* translators: 1: web.config, 2: CTRL + a */
+		__( 'If the root directory of your site was writable, we could do this automatically, but it isn&#8217;t so this is the url rewrite rule you should have in your %1$s file. Create a new file, called %2$s in the root directory of your site. Click in the field and press %2$s to select all. Then insert this code into the %1$s file.' ),
 		'<code>web.config</code>',
 		'<kbd>CTRL + a</kbd>'
 	);
@@ -339,16 +333,13 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 ?></p>
 		<?php endif; ?>
 	<?php endif; ?>
-<?php elseif ( $is_nginx ) : ?>
-	<p><?php _e( '<a href="https://codex.wordpress.org/Nginx">Documentation on Nginx configuration</a>.' ); ?></p>
 <?php else:
 	if ( $permalink_structure && ! $using_index_permalinks && ! $writable && $update_required ) : ?>
 <p><?php
 	printf(
-		/* translators: 1: .htaccess, 2: Codex URL, 3: CTRL + a */
-		__( 'If your %1$s file was <a href="%2$s">writable</a>, we could do this automatically, but it isn&#8217;t so these are the mod_rewrite rules you should have in your %1$s file. Click in the field and press %3$s to select all.' ),
+		/* translators: 1: .htaccess, 3: CTRL + a */
+		__( 'If your %1$s file was writable, we could do this automatically, but it isn&#8217;t so these are the mod_rewrite rules you should have in your %1$s file. Click in the field and press %2$s to select all.' ),
 		'<code>.htaccess</code>',
-		__( 'https://codex.wordpress.org/Changing_File_Permissions' ),
 		'<kbd>CTRL + a</kbd>'
 	);
 ?></p>

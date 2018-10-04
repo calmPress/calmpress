@@ -356,7 +356,7 @@ function attachment_submit_meta_box( $post ) {
 	 * @since 3.5.0
 	 * @since 4.9.0 Added the `$post` parameter.
 	 *
-	 * @param WP_Post $post WP_Post object for the current attachment. 
+	 * @param WP_Post $post WP_Post object for the current attachment.
 	 */
 	do_action( 'attachment_submitbox_misc_actions', $post );
 	?>
@@ -618,11 +618,7 @@ function post_excerpt_meta_box($post) {
 ?>
 <label class="screen-reader-text" for="excerpt"><?php _e('Excerpt') ?></label><textarea rows="1" cols="40" name="excerpt" id="excerpt"><?php echo $post->post_excerpt; // textarea_escaped ?></textarea>
 <p><?php
-	printf(
-		/* translators: %s: Codex URL */
-		__( 'Excerpts are optional hand-crafted summaries of your content that can be used in your theme. <a href="%s">Learn more about manual excerpts</a>.' ),
-		__( 'https://codex.wordpress.org/Excerpt' )
-	);
+	_e( 'Excerpts are optional hand-crafted summaries of your content that can be used in your theme.' );
 ?></p>
 <?php
 }
@@ -653,11 +649,7 @@ function post_trackback_meta_box($post) {
 </p>
 <p id="trackback-url-desc" class="howto"><?php _e( 'Separate multiple URLs with spaces' ); ?></p>
 <p><?php
-	printf(
-		/* translators: %s: Codex URL */
-		__( 'Trackbacks are a way to notify legacy blog systems that you&#8217;ve linked to them. If you link other WordPress sites, they&#8217;ll be notified automatically using <a href="%s">pingbacks</a>, no other action necessary.' ),
-		__( 'https://codex.wordpress.org/Introduction_to_Blogging#Managing_Comments' )
-	);
+	_e( 'Trackbacks are a way to notify legacy blog systems that you&#8217;ve linked to them. If you link other WordPress sites, they&#8217;ll be notified automatically using pingbacks, no other action necessary.' );
 ?></p>
 <?php
 if ( ! empty($pings) )
@@ -685,11 +677,7 @@ list_meta( $metadata );
 meta_form( $post ); ?>
 </div>
 <p><?php
-	printf(
-		/* translators: %s: Codex URL */
-		__( 'Custom fields can be used to add extra metadata to a post that you can <a href="%s">use in your theme</a>.' ),
-		__( 'https://codex.wordpress.org/Using_Custom_Fields' )
-	);
+	_e( 'Custom fields can be used to add extra metadata to a post that you can use in your theme.' );
 ?></p>
 <?php
 }
@@ -707,10 +695,7 @@ function post_comment_status_meta_box($post) {
 <p class="meta-options">
 	<label for="comment_status" class="selectit"><input name="comment_status" type="checkbox" id="comment_status" value="open" <?php checked($post->comment_status, 'open'); ?> /> <?php _e( 'Allow comments' ) ?></label><br />
 	<label for="ping_status" class="selectit"><input name="ping_status" type="checkbox" id="ping_status" value="open" <?php checked($post->ping_status, 'open'); ?> /> <?php
-		printf(
-			/* translators: %s: Codex URL */
-			__( 'Allow <a href="%s">trackbacks and pingbacks</a> on this page' ),
-			__( 'https://codex.wordpress.org/Introduction_to_Blogging#Managing_Comments' ) );
+		_e( 'Allow trackbacks and pingbacks on this page' );
 		?></label>
 	<?php
 	/**

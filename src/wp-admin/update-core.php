@@ -139,7 +139,7 @@ function core_upgrade_preamble() {
 		echo '</h2>';
 	} else {
 		echo '<div class="notice notice-warning"><p>';
-		_e('<strong>Important:</strong> before updating, please <a href="https://codex.wordpress.org/WordPress_Backups">back up your database and files</a>. For help with updates, visit the <a href="https://codex.wordpress.org/Updating_WordPress">Updating WordPress</a> Codex page.');
+		_e('<strong>Important:</strong> before updating, please back up your database and files.');
 		echo '</p></div>';
 
 		echo '<h2 class="response">';
@@ -520,12 +520,6 @@ get_current_screen()->add_help_tab( array(
 	'title'   => __( 'How to Update' ),
 	'content' => $updates_howto
 ) );
-
-get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __('For more information:') . '</strong></p>' .
-	'<p>' . __( '<a href="https://codex.wordpress.org/Dashboard_Updates_Screen">Documentation on Updating WordPress</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://github.com/calmPress/calmpress/issues">Bug tracker</a>' ) . '</p>'
-);
 
 if ( 'upgrade-core' == $action ) {
 	// Force a update check when requested

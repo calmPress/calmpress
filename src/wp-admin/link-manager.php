@@ -61,12 +61,6 @@ get_current_screen()->add_help_tab( array(
     '<p>' . __('If you delete a link, it will be removed permanently, as Links do not have a Trash function yet.') . '</p>'
 ) );
 
-get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __('For more information:') . '</strong></p>' .
-	'<p>' . __('<a href="https://codex.wordpress.org/Links_Screen">Documentation on Managing Links</a>') . '</p>' .
-	'<p>' . __('<a href="https://github.com/calmPress/calmpress/issues">Bug tracker</a>') . '</p>'
-);
-
 get_current_screen()->set_screen_reader_content( array(
 	'heading_list' => __( 'Links list' ),
 ) );

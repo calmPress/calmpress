@@ -266,7 +266,7 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 		<span class="spinner"></span>
 	</p>
 <?php else : ?>
-	<p><em><?php _e('You need to make this file writable before you can save your changes. See <a href="https://codex.wordpress.org/Changing_File_Permissions">the Codex</a> for more information.'); ?></em></p>
+	<p><em><?php _e('You need to make this file writable before you can save your changes.'); ?></em></p>
 <?php endif; ?>
 <?php wp_print_file_editor_templates(); ?>
 </form>

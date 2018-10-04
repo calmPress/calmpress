@@ -152,11 +152,7 @@ if ( apply_filters( 'enable_update_services_configuration', true ) ) {
 <?php if ( 1 == get_option('blog_public') ) : ?>
 
 	<p><label for="ping_sites"><?php
-		printf(
-			/* translators: %s: Codex URL */
-			__( 'When you publish a new post, calmPress automatically notifies the following site update services. For more about this, see <a href="%s">Update Services</a> on the Codex. Separate multiple service URLs with line breaks.' ),
-			__( 'https://codex.wordpress.org/Update_Services' )
-		);
+		_e( 'When you publish a new post, calmPress automatically notifies the following site update services. Separate multiple service URLs with line breaks.' );
 	?></label></p>
 
 	<textarea name="ping_sites" id="ping_sites" class="large-text code" rows="3"><?php echo esc_textarea( get_option('ping_sites') ); ?></textarea>
@@ -165,9 +161,8 @@ if ( apply_filters( 'enable_update_services_configuration', true ) ) {
 
 	<p><?php
 		printf(
-			/* translators: 1: Codex URL, 2: Reading Settings URL */
-			__( 'calmPress is not notifying any <a href="%1$s">Update Services</a> because of your site&#8217;s <a href="%2$s">visibility settings</a>.' ),
-			__( 'https://codex.wordpress.org/Update_Services' ),
+			/* translators: 1: Reading Settings URL */
+			__( 'calmPress is not notifying any Update Services because of your site&#8217;s <a href="%2$s">visibility settings</a>.' ),
 			'options-reading.php'
 		);
 	?></p>

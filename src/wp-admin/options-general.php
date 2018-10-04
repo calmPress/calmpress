@@ -74,11 +74,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 <td><input name="home" type="url" id="home" aria-describedby="home-description" value="<?php form_option( 'home' ); ?>"<?php disabled( defined( 'WP_HOME' ) ); ?> class="regular-text code<?php if ( defined( 'WP_HOME' ) ) echo ' disabled' ?>" />
 <?php if ( ! defined( 'WP_HOME' ) ) : ?>
 <p class="description" id="home-description"><?php
-	printf(
-		/* translators: %s: Codex URL */
-		__( 'Enter the address here if you <a href="%s">want your site home page to be different from your calmPress installation directory</a>.' ),
-		__( 'https://codex.wordpress.org/Giving_WordPress_Its_Own_Directory' )
-	);
+	_e( 'Enter the address here if you want your site home page to be different from your calmPress installation directory.' );
 ?></p>
 <?php endif; ?>
 </td>
@@ -346,8 +342,6 @@ if ( empty($tzstring) ) { // Create a UTC+- zone if no timezone string exists
 		'<br />' .
 		'<p><strong>' . __( 'Preview:' ) . '</strong> <span class="example">' . date_i18n( get_option( 'time_format' ) ) . '</span>' .
 		"<span class='spinner'></span>\n" . '</p>';
-
-	echo "\t<p class='date-time-doc'>" . __('<a href="https://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date and time formatting</a>.') . "</p>\n";
 ?>
 	</fieldset>
 </td>

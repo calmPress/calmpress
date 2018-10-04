@@ -5269,13 +5269,6 @@ final class WP_Customize_Manager {
 		/* Custom CSS */
 		$section_description = '<p>';
 		$section_description .= __( 'Add your own CSS code here to customize the appearance and layout of your site.' );
-		$section_description .= sprintf(
-			' <a href="%1$s" class="external-link" target="_blank">%2$s<span class="screen-reader-text"> %3$s</span></a>',
-			esc_url( __( 'https://codex.wordpress.org/CSS' ) ),
-			__( 'Learn more about CSS' ),
-			/* translators: accessibility text */
-			__( '(opens in a new window)' )
-		);
 		$section_description .= '</p>';
 
 		$section_description .= '<p id="editor-keyboard-trap-help-1">' . __( 'When using a keyboard to navigate:' ) . '</p>';
