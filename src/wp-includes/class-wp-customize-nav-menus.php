@@ -16,7 +16,7 @@
  *
  * @see WP_Customize_Manager
  */
-final class WP_Customize_Nav_Menus {
+class WP_Customize_Nav_Menus {
 
 	/**
 	 * WP_Customize_Manager instance.

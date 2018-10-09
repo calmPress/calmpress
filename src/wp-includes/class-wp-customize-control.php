@@ -251,7 +251,7 @@ class WP_Customize_Control {
 	 *
 	 * @return bool Whether the control is active to the current preview.
 	 */
-	final public function active() {
+	public function active() {
 		$control = $this;
 		$active = call_user_func( $this->active_callback, $this );
 
@@ -291,7 +291,7 @@ class WP_Customize_Control {
 	 * @param string $setting_key
 	 * @return mixed The requested setting's value, if the setting exists.
 	 */
-	final public function value( $setting_key = 'default' ) {
+	public function value( $setting_key = 'default' ) {
 		if ( isset( $this->settings[ $setting_key ] ) ) {
 			return $this->settings[ $setting_key ]->value();
 		}
@@ -346,7 +346,7 @@ class WP_Customize_Control {
 	 *
 	 * @return bool False if theme doesn't support the control or user doesn't have the required permissions, otherwise true.
 	 */
-	final public function check_capabilities() {
+	public function check_capabilities() {
 		if ( ! empty( $this->capability ) && ! current_user_can( $this->capability ) ) {
 			return false;
 		}
@@ -372,7 +372,7 @@ class WP_Customize_Control {
 	 *
 	 * @return string Contents of the control.
 	 */
-	final public function get_content() {
+	public function get_content() {
 		ob_start();
 		$this->maybe_render();
 		return trim( ob_get_clean() );
@@ -384,7 +384,7 @@ class WP_Customize_Control {
 	 * @since 3.4.0
 	 * @uses WP_Customize_Control::render()
 	 */
-	final public function maybe_render() {
+	public function maybe_render() {
 		if ( ! $this->check_capabilities() )
 			return;
 
@@ -670,7 +670,7 @@ class WP_Customize_Control {
 	 *
 	 * @since 4.1.0
 	 */
-	final public function print_template() {
+	public function print_template() {
 		?>
 		<script type="text/html" id="tmpl-customize-control-<?php echo $this->type; ?>-content">
 			<?php $this->content_template(); ?>

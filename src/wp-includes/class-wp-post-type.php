@@ -14,7 +14,7 @@
  *
  * @see register_post_type()
  */
-final class WP_Post_Type {
+class WP_Post_Type {
 	/**
 	 * Post type key.
 	 *

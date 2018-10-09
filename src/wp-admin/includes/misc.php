@@ -1251,7 +1251,7 @@ function _wp_privacy_settings_filter_draft_page_titles( $title, $page ) {
  *
  * @since 4.9.6
  */
-final class WP_Privacy_Policy_Content {
+class WP_Privacy_Policy_Content {
 
 	private static $policy_content = array();
 

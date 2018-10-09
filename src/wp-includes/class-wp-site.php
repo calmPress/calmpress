@@ -22,7 +22,7 @@
  * @property int    $post_count
  * @property string $home
  */
-final class WP_Site {
+class WP_Site {
 
 	/**
 	 * Site ID.

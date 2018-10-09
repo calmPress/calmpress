@@ -1002,7 +1002,7 @@ wp_nonce_field( 'custom-header-options', '_wpnonce-custom-header-options' ); ?>
 	 * 	the key of an image uploaded for that theme (the attachment ID of the image).
 	 *  Or an array of arguments: attachment_id, url, width, height. All are required.
 	 */
-	final public function set_header_image( $choice ) {
+	public function set_header_image( $choice ) {
 		if ( is_array( $choice ) || is_object( $choice ) ) {
 			$choice = (array) $choice;
 			if ( ! isset( $choice['attachment_id'] ) || ! isset( $choice['url'] ) )
@@ -1051,7 +1051,7 @@ wp_nonce_field( 'custom-header-options', '_wpnonce-custom-header-options' ); ?>
 	 *
 	 * @since 3.4.0
 	 */
-	final public function remove_header_image() {
+	public function remove_header_image() {
 		$this->set_header_image( 'remove-header' );
 	}
 
@@ -1062,7 +1062,7 @@ wp_nonce_field( 'custom-header-options', '_wpnonce-custom-header-options' ); ?>
 	 *
 	 * @since 3.4.0
 	 */
-	final public function reset_header_image() {
+	public function reset_header_image() {
 		$this->process_default_headers();
 		$default = get_theme_support( 'custom-header', 'default-image' );
 
@@ -1092,7 +1092,7 @@ wp_nonce_field( 'custom-header-options', '_wpnonce-custom-header-options' ); ?>
 	 * @param array $dimensions
 	 * @return array dst_height and dst_width of header image.
 	 */
-	final public function get_header_dimensions( $dimensions ) {
+	public function get_header_dimensions( $dimensions ) {
 		$max_width = 0;
 		$width = absint( $dimensions['width'] );
 		$height = absint( $dimensions['height'] );
@@ -1145,7 +1145,7 @@ wp_nonce_field( 'custom-header-options', '_wpnonce-custom-header-options' ); ?>
 	 * @param int    $parent_attachment_id Attachment ID of parent image.
 	 * @return array Attachment object.
 	 */
-	final public function create_attachment_object( $cropped, $parent_attachment_id ) {
+	public function create_attachment_object( $cropped, $parent_attachment_id ) {
 		$parent = get_post( $parent_attachment_id );
 		$parent_url = wp_get_attachment_url( $parent->ID );
 		$url = str_replace( basename( $parent_url ), basename( $cropped ), $parent_url );
@@ -1174,7 +1174,7 @@ wp_nonce_field( 'custom-header-options', '_wpnonce-custom-header-options' ); ?>
 	 * @param string $cropped Cropped image URL.
 	 * @return int Attachment ID.
 	 */
-	final public function insert_attachment( $object, $cropped ) {
+	public function insert_attachment( $object, $cropped ) {
 		$parent_id = isset( $object['post_parent'] ) ? $object['post_parent'] : null;
 		unset( $object['post_parent'] );
 

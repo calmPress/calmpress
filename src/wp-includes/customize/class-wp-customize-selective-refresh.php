@@ -12,7 +12,7 @@
  *
  * @since 4.5.0
  */
-final class WP_Customize_Selective_Refresh {
+class WP_Customize_Selective_Refresh {
 
 	/**
 	 * Query var used in requests to render partials.

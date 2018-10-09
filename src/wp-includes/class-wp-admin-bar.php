@@ -166,7 +166,7 @@ class WP_Admin_Bar {
 	/**
 	 * @param array $args
 	 */
-	final protected function _set_node( $args ) {
+	protected function _set_node( $args ) {
 		$this->nodes[ $args['id'] ] = (object) $args;
 	}
 
@@ -176,7 +176,7 @@ class WP_Admin_Bar {
 	 * @param string $id
 	 * @return object Node.
 	 */
-	final public function get_node( $id ) {
+	public function get_node( $id ) {
 		if ( $node = $this->_get_node( $id ) )
 			return clone $node;
 	}
@@ -185,7 +185,7 @@ class WP_Admin_Bar {
 	 * @param string $id
 	 * @return object|void
 	 */
-	final protected function _get_node( $id ) {
+	protected function _get_node( $id ) {
 		if ( $this->bound )
 			return;
 
@@ -199,7 +199,7 @@ class WP_Admin_Bar {
 	/**
 	 * @return array|void
 	 */
-	final public function get_nodes() {
+	public function get_nodes() {
 		if ( ! $nodes = $this->_get_nodes() )
 			return;
 
@@ -212,7 +212,7 @@ class WP_Admin_Bar {
 	/**
 	 * @return array|void
 	 */
-	final protected function _get_nodes() {
+	protected function _get_nodes() {
 		if ( $this->bound )
 			return;
 
@@ -233,7 +233,7 @@ class WP_Admin_Bar {
 	 *                         'class', 'onclick', 'target', and 'title'.
 	 * }
 	 */
-	final public function add_group( $args ) {
+	public function add_group( $args ) {
 		$args['group'] = true;
 
 		$this->add_node( $args );
@@ -251,7 +251,7 @@ class WP_Admin_Bar {
 	/**
 	 * @param string $id
 	 */
-	final protected function _unset_node( $id ) {
+	protected function _unset_node( $id ) {
 		unset( $this->nodes[ $id ] );
 	}
 
@@ -266,7 +266,7 @@ class WP_Admin_Bar {
 	/**
 	 * @return object|void
 	 */
-	final protected function _bind() {
+	protected function _bind() {
 		if ( $this->bound )
 			return;
 
@@ -392,7 +392,7 @@ class WP_Admin_Bar {
 	 * @global bool $is_IE
 	 * @param object $root
 	 */
-	final protected function _render( $root ) {
+	protected function _render( $root ) {
 		global $is_IE;
 
 		// Add browser classes.
@@ -430,7 +430,7 @@ class WP_Admin_Bar {
 	/**
 	 * @param object $node
 	 */
-	final protected function _render_container( $node ) {
+	protected function _render_container( $node ) {
 		if ( $node->type != 'container' || empty( $node->children ) )
 			return;
 
@@ -444,7 +444,7 @@ class WP_Admin_Bar {
 	/**
 	 * @param object $node
 	 */
-	final protected function _render_group( $node ) {
+	protected function _render_group( $node ) {
 		if ( $node->type == 'container' ) {
 			$this->_render_container( $node );
 			return;
@@ -467,7 +467,7 @@ class WP_Admin_Bar {
 	/**
 	 * @param object $node
 	 */
-	final protected function _render_item( $node ) {
+	protected function _render_item( $node ) {
 		if ( $node->type != 'item' )
 			return;
 

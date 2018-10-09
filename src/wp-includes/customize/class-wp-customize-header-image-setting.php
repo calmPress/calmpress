@@ -16,7 +16,7 @@
  *
  * @see WP_Customize_Setting
  */
-final class WP_Customize_Header_Image_Setting extends WP_Customize_Setting {
+class WP_Customize_Header_Image_Setting extends WP_Customize_Setting {
 	public $id = 'header_image_data';
 
 	/**

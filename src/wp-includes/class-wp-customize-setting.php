@@ -214,7 +214,7 @@ class WP_Customize_Setting {
 	 *     @type array  $keys Keys for multidimensional array.
 	 * }
 	 */
-	final public function id_data() {
+	public function id_data() {
 		return $this->id_data;
 	}
 
@@ -415,7 +415,7 @@ class WP_Customize_Setting {
 	 * @see WP_Customize_Manager::set_post_value()
 	 * @see WP_Customize_Setting::_multidimensional_preview_filter()
 	 */
-	final public function _clear_aggregated_multidimensional_preview_applied_flag() {
+	public function _clear_aggregated_multidimensional_preview_applied_flag() {
 		unset( self::$aggregated_multidimensionals[ $this->type ][ $this->id_data['base'] ]['preview_applied_instances'][ $this->id ] );
 	}
 
@@ -463,7 +463,7 @@ class WP_Customize_Setting {
 	 * @param mixed $original Original root value.
 	 * @return mixed New or old value.
 	 */
-	final public function _multidimensional_preview_filter( $original ) {
+	public function _multidimensional_preview_filter( $original ) {
 		if ( ! $this->is_current_blog_previewed() ) {
 			return $original;
 		}
@@ -502,7 +502,7 @@ class WP_Customize_Setting {
 	 *
 	 * @return false|void False if cap check fails or value isn't set or is invalid.
 	 */
-	final public function save() {
+	public function save() {
 		$value = $this->post_value();
 
 		if ( ! $this->check_capabilities() || ! isset( $value ) ) {
@@ -536,7 +536,7 @@ class WP_Customize_Setting {
 	 * @param mixed $default A default value which is used as a fallback. Default is null.
 	 * @return mixed The default value on failure, otherwise the sanitized and validated value.
 	 */
-	final public function post_value( $default = null ) {
+	public function post_value( $default = null ) {
 		return $this->manager->post_value( $this, $default );
 	}
 
@@ -815,7 +815,7 @@ class WP_Customize_Setting {
 	 *
 	 * @return bool False if theme doesn't support the setting or user can't change setting, otherwise true.
 	 */
-	final public function check_capabilities() {
+	public function check_capabilities() {
 		if ( $this->capability && ! call_user_func_array( 'current_user_can', (array) $this->capability ) )
 			return false;
 
@@ -835,7 +835,7 @@ class WP_Customize_Setting {
 	 * @param bool $create Default is false.
 	 * @return array|void Keys are 'root', 'node', and 'key'.
 	 */
-	final protected function multidimensional( &$root, $keys, $create = false ) {
+	protected function multidimensional( &$root, $keys, $create = false ) {
 		if ( $create && empty( $root ) )
 			$root = array();
 
@@ -885,7 +885,7 @@ class WP_Customize_Setting {
 	 * @param mixed $value The value to update.
 	 * @return mixed
 	 */
-	final protected function multidimensional_replace( $root, $keys, $value ) {
+	protected function multidimensional_replace( $root, $keys, $value ) {
 		if ( ! isset( $value ) )
 			return $root;
 		elseif ( empty( $keys ) ) // If there are no keys, we're replacing the root.
@@ -909,7 +909,7 @@ class WP_Customize_Setting {
 	 * @param mixed $default A default value which is used as a fallback. Default is null.
 	 * @return mixed The requested value or the default value.
 	 */
-	final protected function multidimensional_get( $root, $keys, $default = null ) {
+	protected function multidimensional_get( $root, $keys, $default = null ) {
 		if ( empty( $keys ) ) // If there are no keys, test the root.
 			return isset( $root ) ? $root : $default;
 
@@ -926,7 +926,7 @@ class WP_Customize_Setting {
 	 * @param $keys
 	 * @return bool True if value is set, false if not.
 	 */
-	final protected function multidimensional_isset( $root, $keys ) {
+	protected function multidimensional_isset( $root, $keys ) {
 		$result = $this->multidimensional_get( $root, $keys );
 		return isset( $result );
 	}

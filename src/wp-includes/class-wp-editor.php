@@ -8,7 +8,7 @@
  * Private, not included by default. See wp_editor() in wp-includes/general-template.php.
  */
 
-final class _WP_Editors {
+class _WP_Editors {
 	public static $mce_locale;
 
 	private static $mce_settings = array();
@@ -743,7 +743,7 @@ final class _WP_Editors {
 	/**
 	 *
 	 * @static
-	 * 
+	 *
 	 * @param bool $default_scripts Optional. Whether default scripts should be enqueued. Default false.
 	 */
 	public static function enqueue_scripts( $default_scripts = false ) {

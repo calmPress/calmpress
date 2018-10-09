@@ -320,7 +320,7 @@ abstract class WP_Widget_Media extends WP_Widget {
 	 * @param array $instance Current settings.
 	 * @return void
 	 */
-	final public function form( $instance ) {
+	public function form( $instance ) {
 		$instance_schema = $this->get_instance_schema();
 		$instance = wp_array_slice_assoc(
 			wp_parse_args( (array) $instance, wp_list_pluck( $instance_schema, 'default' ) ),

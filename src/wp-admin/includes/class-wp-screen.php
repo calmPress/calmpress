@@ -12,7 +12,7 @@
  *
  * @since 3.3.0
  */
-final class WP_Screen {
+class WP_Screen {
 	/**
 	 * Any action associated with the screen. 'add' for *-add.php and *-new.php screens. Empty otherwise.
 	 *

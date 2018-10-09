@@ -12,7 +12,7 @@
  *
  * @since 4.7.0
  */
-final class WP_Taxonomy {
+class WP_Taxonomy {
 	/**
 	 * Taxonomy key.
 	 *

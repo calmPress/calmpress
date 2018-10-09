@@ -20,7 +20,7 @@
  *
  * @since 3.4.0
  */
-final class WP_Customize_Manager {
+class WP_Customize_Manager {
 	/**
 	 * An instance of the theme being previewed.
 	 *

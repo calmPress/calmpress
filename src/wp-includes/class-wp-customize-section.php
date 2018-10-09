@@ -180,7 +180,7 @@ class WP_Customize_Section {
 	 *
 	 * @return bool Whether the section is active to the current preview.
 	 */
-	final public function active() {
+	public function active() {
 		$section = $this;
 		$active = call_user_func( $this->active_callback, $this );
 
@@ -243,7 +243,7 @@ class WP_Customize_Section {
 	 *
 	 * @return bool False if theme doesn't support the section or user doesn't have the capability.
 	 */
-	final public function check_capabilities() {
+	public function check_capabilities() {
 		if ( $this->capability && ! call_user_func_array( 'current_user_can', (array) $this->capability ) ) {
 			return false;
 		}
@@ -262,7 +262,7 @@ class WP_Customize_Section {
 	 *
 	 * @return string Contents of the section.
 	 */
-	final public function get_content() {
+	public function get_content() {
 		ob_start();
 		$this->maybe_render();
 		return trim( ob_get_clean() );
@@ -273,7 +273,7 @@ class WP_Customize_Section {
 	 *
 	 * @since 3.4.0
 	 */
-	final public function maybe_render() {
+	public function maybe_render() {
 		if ( ! $this->check_capabilities() ) {
 			return;
 		}

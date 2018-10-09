@@ -14,7 +14,7 @@
  *
  * @property-read object $data Sanitized term data.
  */
-final class WP_Term {
+class WP_Term {
 
 	/**
 	 * Term ID.

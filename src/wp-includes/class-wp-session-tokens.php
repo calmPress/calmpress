@@ -45,7 +45,7 @@ abstract class WP_Session_Tokens {
 	 * @param int $user_id User whose session to manage.
 	 * @return WP_User_Meta_Session_Tokens WP_User_Meta_Session_Tokens class instance by default.
 	 */
-	final public static function get_instance( $user_id ) {
+	public static function get_instance( $user_id ) {
 		/**
 		 * Filters the session token manager used.
 		 *
@@ -66,7 +66,7 @@ abstract class WP_Session_Tokens {
 	 * @param string $token Session token to hash.
 	 * @return string A hash of the session token (a verifier).
 	 */
-	final private function hash_token( $token ) {
+	private function hash_token( $token ) {
 		// If ext/hash is not present, use sha1() instead.
 		if ( function_exists( 'hash' ) ) {
 			return hash( 'sha256', $token );
@@ -83,7 +83,7 @@ abstract class WP_Session_Tokens {
 	 * @param string $token Session token
 	 * @return array User session
 	 */
-	final public function get( $token ) {
+	public function get( $token ) {
 		$verifier = $this->hash_token( $token );
 		return $this->get_session( $verifier );
 	}
@@ -98,7 +98,7 @@ abstract class WP_Session_Tokens {
 	 * @param string $token Token to verify.
 	 * @return bool Whether the token is valid for the user.
 	 */
-	final public function verify( $token ) {
+	public function verify( $token ) {
 		$verifier = $this->hash_token( $token );
 		return (bool) $this->get_session( $verifier );
 	}
@@ -119,7 +119,7 @@ abstract class WP_Session_Tokens {
 	 * @param int $expiration Session expiration timestamp.
 	 * @return string Session token.
 	 */
-	final public function create( $expiration ) {
+	public function create( $expiration ) {
 		/**
 		 * Filters the information attached to the newly created session.
 		 *
@@ -162,7 +162,7 @@ abstract class WP_Session_Tokens {
 	 * @param string $token Session token to update.
 	 * @param array  $session Session information.
 	 */
-	final public function update( $token, $session ) {
+	public function update( $token, $session ) {
 		$verifier = $this->hash_token( $token );
 		$this->update_session( $verifier, $session );
 	}
@@ -174,7 +174,7 @@ abstract class WP_Session_Tokens {
 	 *
 	 * @param string $token Session token to destroy.
 	 */
-	final public function destroy( $token ) {
+	public function destroy( $token ) {
 		$verifier = $this->hash_token( $token );
 		$this->update_session( $verifier, null );
 	}
@@ -187,7 +187,7 @@ abstract class WP_Session_Tokens {
 	 *
 	 * @param string $token_to_keep Session token to keep.
 	 */
-	final public function destroy_others( $token_to_keep ) {
+	public function destroy_others( $token_to_keep ) {
 		$verifier = $this->hash_token( $token_to_keep );
 		$session = $this->get_session( $verifier );
 		if ( $session ) {
@@ -206,7 +206,7 @@ abstract class WP_Session_Tokens {
 	 * @param array $session Session to check.
 	 * @return bool Whether session is valid.
 	 */
-	final protected function is_still_valid( $session ) {
+	protected function is_still_valid( $session ) {
 		return $session['expiration'] >= time();
 	}
 
@@ -215,7 +215,7 @@ abstract class WP_Session_Tokens {
 	 *
 	 * @since 4.0.0
 	 */
-	final public function destroy_all() {
+	public function destroy_all() {
 		$this->destroy_all_sessions();
 	}
 
@@ -225,7 +225,7 @@ abstract class WP_Session_Tokens {
 	 * @since 4.0.0
 	 * @static
 	 */
-	final public static function destroy_all_for_all_users() {
+	public static function destroy_all_for_all_users() {
 		/** This filter is documented in wp-includes/class-wp-session-tokens.php */
 		$manager = apply_filters( 'session_token_manager', 'WP_User_Meta_Session_Tokens' );
 		call_user_func( array( $manager, 'drop_sessions' ) );
@@ -238,7 +238,7 @@ abstract class WP_Session_Tokens {
 	 *
 	 * @return array Sessions of a user.
 	 */
-	final public function get_all() {
+	public function get_all() {
 		return array_values( $this->get_sessions() );
 	}
 

@@ -6,7 +6,7 @@
  * @subpackage Theme
  * @since 3.4.0
  */
-final class WP_Theme implements ArrayAccess {
+class WP_Theme implements ArrayAccess {
 
 	/**
 	 * Whether the theme has been marked as updateable.

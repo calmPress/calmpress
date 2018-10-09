@@ -12,7 +12,7 @@
  *
  * @since 4.4.0
  */
-final class WP_Comment {
+class WP_Comment {
 
 	/**
 	 * Comment ID.

@@ -15,7 +15,7 @@
  * @see Iterator
  * @see ArrayAccess
  */
-final class WP_Hook implements Iterator, ArrayAccess {
+class WP_Hook implements Iterator, ArrayAccess {
 
 	/**
 	 * Hook callbacks.

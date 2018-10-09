@@ -15,7 +15,7 @@
  *
  * @since 4.4.0
  */
-final class WP_oEmbed_Controller {
+class WP_oEmbed_Controller {
 	/**
 	 * Register the oEmbed REST API route.
 	 *

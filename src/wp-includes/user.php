@@ -3510,7 +3510,7 @@ function wp_get_user_request_data( $request_id ) {
  *
  * @since 4.9.6
  */
-final class WP_User_Request {
+class WP_User_Request {
 	/**
 	 * Request ID.
 	 *

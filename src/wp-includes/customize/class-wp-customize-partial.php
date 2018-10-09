@@ -180,7 +180,7 @@ class WP_Customize_Partial {
 	 *     @type array  $keys Keys for multidimensional array.
 	 * }
 	 */
-	final public function id_data() {
+	public function id_data() {
 		return $this->id_data;
 	}
 
@@ -194,7 +194,7 @@ class WP_Customize_Partial {
 	 * @return string|array|false The rendered partial as a string, raw data array (for client-side JS template),
 	 *                            or false if no render applied.
 	 */
-	final public function render( $container_context = array() ) {
+	public function render( $container_context = array() ) {
 		$partial  = $this;
 		$rendered = false;
 
@@ -296,7 +296,7 @@ class WP_Customize_Partial {
 	 * @return bool False if user can't edit one of the related settings,
 	 *                    or if one of the associated settings does not exist.
 	 */
-	final public function check_capabilities() {
+	public function check_capabilities() {
 		if ( ! empty( $this->capability ) && ! current_user_can( $this->capability ) ) {
 			return false;
 		}

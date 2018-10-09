@@ -12,7 +12,7 @@
  *
  * @since 3.3.0
  */
-final class WP_Internal_Pointers {
+class WP_Internal_Pointers {
 	/**
 	 * Initializes the new feature pointers.
 	 *

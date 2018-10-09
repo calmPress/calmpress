@@ -14,7 +14,7 @@
  *
  * @see WP_Customize_Setting
  */
-final class WP_Customize_Background_Image_Setting extends WP_Customize_Setting {
+class WP_Customize_Background_Image_Setting extends WP_Customize_Setting {
 	public $id = 'background_image_thumb';
 
 	/**

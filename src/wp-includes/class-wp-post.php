@@ -19,7 +19,7 @@
  * @property-read string $tag_input
  *
  */
-final class WP_Post {
+class WP_Post {
 
 	/**
 	 * Post ID.

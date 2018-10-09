@@ -16,7 +16,7 @@
  *
  * @see WP_Customize_Setting
  */
-final class WP_Customize_Custom_CSS_Setting extends WP_Customize_Setting {
+class WP_Customize_Custom_CSS_Setting extends WP_Customize_Setting {
 
 	/**
 	 * The setting type.

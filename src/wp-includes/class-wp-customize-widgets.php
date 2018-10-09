@@ -16,7 +16,7 @@
  *
  * @see WP_Customize_Manager
  */
-final class WP_Customize_Widgets {
+class WP_Customize_Widgets {
 
 	/**
 	 * WP_Customize_Manager instance.
