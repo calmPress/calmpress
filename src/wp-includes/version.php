@@ -39,7 +39,7 @@ if ( ! function_exists( 'calmpress_version' ) ) {
 	 * @return string The version string.
 	 */
 	function calmpress_version() {
-		return '0.9.9-beta3';
+		return '1.0.0-dev1';
 	}
 }
 

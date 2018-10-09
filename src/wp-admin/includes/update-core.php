@@ -72,7 +72,7 @@ $_old_files = array(
 function update_core($from, $to) {
 	global $wp_filesystem, $_old_files, $wpdb;
 
-	$calmpress_version = '0.9.9-beta3';
+	$calmpress_version = '1.0.0-dev1';
     $required_php_version = '5.2.4';
     $required_mysql_version = '5.0';
 
