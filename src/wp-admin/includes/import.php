@@ -150,6 +150,10 @@ function wp_get_popular_importers() {
 	}
 
 	if ( is_array( $popular_importers ) ) {
+
+		// Tag and category converter is just not useful.
+		unset( $popular_importers['importers']['wpcat2tag'] );
+
 		// If the data was received as translated, return it as-is.
 		if ( $popular_importers['translated'] )
 			return $popular_importers['importers'];
