@@ -656,29 +656,6 @@ jQuery(document).ready( function($) {
 
 	}); // end cats
 
-	// Custom Fields postbox.
-	if ( $('#postcustom').length ) {
-		$( '#the-list' ).wpList( {
-			/**
-			 * Add current post_ID to request to fetch custom fields
-			 *
-			 * @param {Object} s Request object.
-			 *
-			 * @returns {Object} Data modified with post_ID attached.
-			 */
-			addBefore: function( s ) {
-				s.data += '&post_id=' + $('#post_ID').val();
-				return s;
-			},
-			/**
-			 * Show the listing of custom fields after fetching.
-			 */
-			addAfter: function() {
-				$('table#list-table').show();
-			}
-		});
-	}
-
 	/*
 	 * Publish Post box (#submitdiv)
 	 */

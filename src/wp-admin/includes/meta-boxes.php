@@ -657,32 +657,6 @@ if ( ! empty($pings) )
 }
 
 /**
- * Display custom fields form fields.
- *
- * @since 2.6.0
- *
- * @param object $post
- */
-function post_custom_meta_box($post) {
-?>
-<div id="postcustomstuff">
-<div id="ajax-response"></div>
-<?php
-$metadata = has_meta($post->ID);
-foreach ( $metadata as $key => $value ) {
-	if ( is_protected_meta( $metadata[ $key ][ 'meta_key' ], 'post' ) || ! current_user_can( 'edit_post_meta', $post->ID, $metadata[ $key ][ 'meta_key' ] ) )
-		unset( $metadata[ $key ] );
-}
-list_meta( $metadata );
-meta_form( $post ); ?>
-</div>
-<p><?php
-	_e( 'Custom fields can be used to add extra metadata to a post that you can use in your theme.' );
-?></p>
-<?php
-}
-
-/**
  * Display comments status form fields.
  *
  * @since 2.6.0

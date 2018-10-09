@@ -1851,14 +1851,6 @@ function redirect_post($post_id = '') {
 		}
 
 		$location = add_query_arg( 'message', $message, get_edit_post_link( $post_id, 'url' ) );
-	} elseif ( isset($_POST['addmeta']) && $_POST['addmeta'] ) {
-		$location = add_query_arg( 'message', 2, wp_get_referer() );
-		$location = explode('#', $location);
-		$location = $location[0] . '#postcustom';
-	} elseif ( isset($_POST['deletemeta']) && $_POST['deletemeta'] ) {
-		$location = add_query_arg( 'message', 3, wp_get_referer() );
-		$location = explode('#', $location);
-		$location = $location[0] . '#postcustom';
 	} else {
 		$location = add_query_arg( 'message', 4, get_edit_post_link( $post_id, 'url' ) );
 	}

@@ -737,77 +737,6 @@ span.wp-media-buttons-icon:before {
   11.1 - Custom Fields
 ------------------------------------------------------------------------------*/
 
-#postcustomstuff thead th {
-	padding: 5px 8px 8px;
-	background-color: #f1f1f1;
-}
-
-#postcustom #postcustomstuff .submit {
-	border: 0 none;
-	float: none;
-	padding: 0 8px 8px;
-}
-
-#side-sortables #postcustom #postcustomstuff .submit {
-	margin: 0;
-	padding: 0;
-}
-
-#side-sortables #postcustom #postcustomstuff #the-list textarea {
-	height: 85px;
-}
-
-#side-sortables #postcustom #postcustomstuff td.left input,
-#side-sortables #postcustom #postcustomstuff td.left select,
-#side-sortables #postcustomstuff #newmetaleft a {
-	margin: 3px 3px 0;
-}
-
-#postcustomstuff table {
-	margin: 0;
-	width: 100%;
-	border: 1px solid #ddd;
-	border-spacing: 0;
-	background-color: #f9f9f9;
-}
-
-#postcustomstuff tr {
-	vertical-align: top;
-}
-
-#postcustomstuff table input,
-#postcustomstuff table select,
-#postcustomstuff table textarea {
-	width: 96%;
-	margin: 8px;
-}
-
-#side-sortables #postcustomstuff table input,
-#side-sortables #postcustomstuff table select,
-#side-sortables #postcustomstuff table textarea {
-	margin: 3px;
-}
-
-#postcustomstuff th.left,
-#postcustomstuff td.left {
-	width: 38%;
-}
-
-#postcustomstuff .submit input {
-	margin: 0;
-	width: auto;
-}
-
-#postcustomstuff #newmetaleft a {
-	display: inline-block;
-	margin: 0 8px 8px;
-	text-decoration: none;
-}
-
-.no-js #postcustomstuff #enternew {
-	display: none;
-}
-
 #post-body-content .compat-attachment-fields {
 	margin-bottom: 20px;
 }
@@ -1657,11 +1586,11 @@ table.links-table {
 	.links-table td {
 		padding: 10px 0;
 	}
-	
+
 	.privacy-text-box {
 		width: auto;
 	}
-	
+
 	.privacy-text-box-toc {
 		float: none;
 		width: auto;

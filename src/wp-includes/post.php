@@ -32,7 +32,7 @@ function create_initial_post_types() {
 		'rewrite' => false,
 		'query_var' => false,
 		'delete_with_user' => true,
-		'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions', 'post-formats' ),
+		'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'trackbacks', 'comments', 'revisions', 'post-formats' ),
 		'show_in_rest' => true,
 		'rest_base' => 'posts',
 		'rest_controller_class' => 'WP_REST_Posts_Controller',
@@ -53,7 +53,7 @@ function create_initial_post_types() {
 		'rewrite' => false,
 		'query_var' => false,
 		'delete_with_user' => true,
-		'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'page-attributes', 'custom-fields', 'comments', 'revisions' ),
+		'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'page-attributes', 'comments', 'revisions' ),
 		'show_in_rest' => true,
 		'rest_base' => 'pages',
 		'rest_controller_class' => 'WP_REST_Posts_Controller',
@@ -1128,7 +1128,7 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
  *     @type array       $supports              Core feature(s) the post type supports. Serves as an alias for calling
  *                                              add_post_type_support() directly. Core features include 'title',
  *                                              'editor', 'comments', 'revisions', 'trackbacks', 'author', 'excerpt',
- *                                              'page-attributes', 'thumbnail', 'custom-fields', and 'post-formats'.
+ *                                              'page-attributes', 'thumbnail', and 'post-formats'.
  *                                              Additionally, the 'revisions' feature dictates whether the post type
  *                                              will store revisions, and the 'comments' feature dictates whether the
  *                                              comments count will show on the edit screen. Defaults is an array
