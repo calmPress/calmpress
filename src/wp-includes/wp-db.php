@@ -241,7 +241,7 @@ class wpdb {
 	 * @see wpdb::tables()
 	 * @var array
 	 */
-	var $tables = array( 'posts', 'comments', 'links', 'options', 'postmeta',
+	var $tables = array( 'posts', 'comments', 'options', 'postmeta',
 		'terms', 'term_taxonomy', 'term_relationships', 'termmeta', 'commentmeta' );
 
 	/**

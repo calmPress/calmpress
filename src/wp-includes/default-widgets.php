@@ -10,9 +10,6 @@
 /** WP_Widget_Pages class */
 require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-pages.php' );
 
-/** WP_Widget_Links class */
-require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-links.php' );
-
 /** WP_Widget_Search class */
 require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-search.php' );
 

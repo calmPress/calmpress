@@ -86,21 +86,6 @@ function dropdown_categories( $default = 0, $parent = 0, $popular_ids = array() 
 }
 
 /**
- * Legacy function used to generate a link categories checklist control.
- *
- * @since 2.1.0
- * @deprecated 2.6.0 Use wp_link_category_checklist()
- * @see wp_link_category_checklist()
- *
- * @param int $default Unused.
- */
-function dropdown_link_categories( $default = 0 ) {
-	_deprecated_function( __FUNCTION__, '2.6.0', 'wp_link_category_checklist()' );
-	global $link_id;
-	wp_link_category_checklist( $link_id );
-}
-
-/**
  * Get the real filesystem path to a file to edit within the admin.
  *
  * @since 1.5.0

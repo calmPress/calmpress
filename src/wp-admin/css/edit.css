@@ -635,7 +635,6 @@ span.wp-media-buttons-icon:before {
 	margin-top: 3px;
 }
 
-#linksubmitdiv .inside, /* Old Link Manager back-compat. */
 #poststuff #submitdiv .inside {
 	margin: 0;
 	padding: 0;

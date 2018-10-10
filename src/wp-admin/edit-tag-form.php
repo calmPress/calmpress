@@ -22,16 +22,6 @@ if ( 'category' == $taxonomy ) {
 	 * @param object $tag Current category term object.
 	 */
 	do_action( 'edit_category_form_pre', $tag );
-} elseif ( 'link_category' == $taxonomy ) {
-	/**
-	 * Fires before the Edit Link Category form.
-	 *
-	 * @since 2.3.0
-	 * @deprecated 3.0.0 Use {$taxonomy}_pre_edit_form instead.
-	 *
-	 * @param object $tag Current link category term object.
-	 */
-	do_action( 'edit_link_category_form_pre', $tag );
 } else {
 	/**
 	 * Fires before the Edit Tag form.
@@ -188,16 +178,6 @@ do_action( "{$taxonomy}_term_edit_form_top", $tag, $taxonomy );
 			 * @param object $tag Current category term object.
 			 */
 			do_action( 'edit_category_form_fields', $tag );
-		} elseif ( 'link_category' == $taxonomy ) {
-			/**
-			 * Fires after the Edit Link Category form fields are displayed.
-			 *
-			 * @since 2.9.0
-			 * @deprecated 3.0.0 Use {$taxonomy}_edit_form_fields instead.
-			 *
-			 * @param object $tag Current link category term object.
-			 */
-			do_action( 'edit_link_category_form_fields', $tag );
 		} else {
 			/**
 			 * Fires after the Edit Tag form fields are displayed.
@@ -228,9 +208,6 @@ do_action( "{$taxonomy}_term_edit_form_top", $tag, $taxonomy );
 if ( 'category' == $taxonomy ) {
 	/** This action is documented in wp-admin/edit-tags.php */
 	do_action( 'edit_category_form', $tag );
-} elseif ( 'link_category' == $taxonomy ) {
-	/** This action is documented in wp-admin/edit-tags.php */
-	do_action( 'edit_link_category_form', $tag );
 } else {
 	/**
 	 * Fires at the end of the Edit Term form.

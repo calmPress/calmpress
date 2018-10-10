@@ -179,11 +179,7 @@ class WP_Terms_List_Table extends WP_List_Table {
 			'slug'        => __( 'Slug' ),
 		);
 
-		if ( 'link_category' === $this->screen->taxonomy ) {
-			$columns['links'] = __( 'Links' );
-		} else {
-			$columns['posts'] = _x( 'Count', 'Number/count of items' );
-		}
+		$columns['posts'] = _x( 'Count', 'Number/count of items' );
 
 		return $columns;
 	}

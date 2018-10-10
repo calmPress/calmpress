@@ -72,7 +72,6 @@ $GLOBALS['_wp_deprecated_widgets_callbacks'] = array(
 	'wp_widget_calendar_control',
 	'wp_widget_archives',
 	'wp_widget_archives_control',
-	'wp_widget_links',
 	'wp_widget_meta',
 	'wp_widget_meta_control',
 	'wp_widget_search',
@@ -1608,10 +1607,6 @@ function wp_widgets_init() {
 	register_widget( 'WP_Widget_Calendar' );
 
 	register_widget( 'WP_Widget_Archives' );
-
-	if ( get_option( 'link_manager_enabled' ) ) {
-		register_widget( 'WP_Widget_Links' );
-	}
 
 	register_widget( 'WP_Widget_Media_Audio' );
 

@@ -49,9 +49,9 @@ $core_actions_get = array(
 );
 
 $core_actions_post = array(
-	'oembed-cache', 'image-editor', 'delete-comment', 'delete-tag', 'delete-link',
+	'oembed-cache', 'image-editor', 'delete-comment', 'delete-tag',
 	'delete-meta', 'delete-post', 'trash-post', 'untrash-post', 'delete-page', 'dim-comment',
-	'add-link-category', 'add-tag', 'get-tagcloud', 'get-comments', 'replyto-comment',
+	'add-tag', 'get-tagcloud', 'get-comments', 'replyto-comment',
 	'edit-comment', 'add-menu-item', 'add-meta', 'add-user', 'closed-postboxes',
 	'hidden-columns', 'update-welcome-panel', 'menu-get-metabox', 'wp-link-ajax',
 	'menu-locations-save', 'menu-quick-search', 'meta-box-order', 'get-permalink',

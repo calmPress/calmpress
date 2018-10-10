@@ -105,36 +105,6 @@ function create_initial_taxonomies() {
 		'show_in_nav_menus' => false,
 	) );
 
-	register_taxonomy( 'link_category', 'link', array(
-		'hierarchical' => false,
-		'labels' => array(
-			'name' => __( 'Link Categories' ),
-			'singular_name' => __( 'Link Category' ),
-			'search_items' => __( 'Search Link Categories' ),
-			'popular_items' => null,
-			'all_items' => __( 'All Link Categories' ),
-			'edit_item' => __( 'Edit Link Category' ),
-			'update_item' => __( 'Update Link Category' ),
-			'add_new_item' => __( 'Add New Link Category' ),
-			'new_item_name' => __( 'New Link Category Name' ),
-			'separate_items_with_commas' => null,
-			'add_or_remove_items' => null,
-			'choose_from_most_used' => null,
-			'back_to_items' => __( '&larr; Back to Link Categories' ),
-		),
-		'capabilities' => array(
-			'manage_terms' => 'manage_links',
-			'edit_terms'   => 'manage_links',
-			'delete_terms' => 'manage_links',
-			'assign_terms' => 'manage_links',
-		),
-		'query_var' => false,
-		'rewrite' => false,
-		'public' => false,
-		'show_ui' => true,
-		'_builtin' => true,
-	) );
-
 	register_taxonomy( 'post_format', 'post', array(
 		'public' => true,
 		'hierarchical' => false,
@@ -3501,8 +3471,6 @@ function _update_post_term_count( $terms, $taxonomy ) {
 /**
  * Will update term count based on number of objects.
  *
- * Default callback for the 'link_category' taxonomy.
- *
  * @since 3.3.0
  *
  * @global wpdb $wpdb WordPress database abstraction object.
@@ -3797,7 +3765,7 @@ function _wp_check_split_default_terms( $term_id, $new_term_id, $term_taxonomy_i
 		return;
 	}
 
-	foreach ( array( 'default_category', 'default_link_category', 'default_email_category' ) as $option ) {
+	foreach ( array( 'default_category', 'default_email_category' ) as $option ) {
 		if ( $term_id == get_option( $option, -1 ) ) {
 			update_option( $option, $new_term_id );
 		}

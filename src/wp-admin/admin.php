@@ -343,8 +343,6 @@ if ( isset($plugin_page) ) {
 	}  elseif ( $pagenow == 'edit-tags.php' ) {
 		if ( $taxnow == 'category' )
 			do_action( 'load-categories.php' );
-		elseif ( $taxnow == 'link_category' )
-			do_action( 'load-edit-link-categories.php' );
 	} elseif( 'term.php' === $pagenow ) {
 		do_action( 'load-edit-tags.php' );
 	}

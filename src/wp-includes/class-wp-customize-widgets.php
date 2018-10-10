@@ -37,7 +37,6 @@ class WP_Customize_Widgets {
 		'calendar',
 		'categories',
 		'custom_html',
-		'links',
 		'media_audio',
 		'media_image',
 		'media_video',

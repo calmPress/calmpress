@@ -605,28 +605,6 @@ function wp_ajax_delete_tag() {
 }
 
 /**
- * Ajax handler for deleting a link.
- *
- * @since 3.1.0
- */
-function wp_ajax_delete_link() {
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
-
-	check_ajax_referer( "delete-bookmark_$id" );
-	if ( !current_user_can( 'manage_links' ) )
-		wp_die( -1 );
-
-	$link = get_bookmark( $id );
-	if ( !$link || is_wp_error( $link ) )
-		wp_die( 1 );
-
-	if ( wp_delete_link( $id ) )
-		wp_die( 1 );
-	else
-		wp_die( 0 );
-}
-
-/**
  * Ajax handler for deleting meta.
  *
  * @since 3.1.0
@@ -777,46 +755,6 @@ function wp_ajax_dim_comment() {
 	// Decide if we need to send back '1' or a more complicated response including page links and comment counts
 	_wp_ajax_delete_comment_response( $comment->comment_ID );
 	wp_die( 0 );
-}
-
-/**
- * Ajax handler for adding a link category.
- *
- * @since 3.1.0
- *
- * @param string $action Action to perform.
- */
-function wp_ajax_add_link_category( $action ) {
-	if ( empty( $action ) )
-		$action = 'add-link-category';
-	check_ajax_referer( $action );
-	$tax = get_taxonomy( 'link_category' );
-	if ( ! current_user_can( $tax->cap->manage_terms ) ) {
-		wp_die( -1 );
-	}
-	$names = explode(',', wp_unslash( $_POST['newcat'] ) );
-	$x = new WP_Ajax_Response();
-	foreach ( $names as $cat_name ) {
-		$cat_name = trim($cat_name);
-		$slug = sanitize_title($cat_name);
-		if ( '' === $slug )
-			continue;
-
-		$cat_id = wp_insert_term( $cat_name, 'link_category' );
-		if ( ! $cat_id || is_wp_error( $cat_id ) ) {
-			continue;
-		} else {
-			$cat_id = $cat_id['term_id'];
-		}
-		$cat_name = esc_html( $cat_name );
-		$x->add( array(
-			'what' => 'link-category',
-			'id' => $cat_id,
-			'data' => "<li id='link-category-$cat_id'><label for='in-link-category-$cat_id' class='selectit'><input value='" . esc_attr($cat_id) . "' type='checkbox' checked='checked' name='link_category[]' id='in-link-category-$cat_id'/> $cat_name</label></li>",
-			'position' => -1
-		) );
-	}
-	$x->send();
 }
 
 /**
@@ -1385,7 +1323,7 @@ function wp_ajax_closed_postboxes() {
 		update_user_option($user->ID, "closedpostboxes_$page", $closed, true);
 
 	if ( is_array($hidden) ) {
-		$hidden = array_diff( $hidden, array('submitdiv', 'linksubmitdiv', 'manage-menu', 'create-menu') ); // postboxes that are always shown
+		$hidden = array_diff( $hidden, array('submitdiv', 'manage-menu', 'create-menu') ); // postboxes that are always shown
 		update_user_option($user->ID, "metaboxhidden_$page", $hidden, true);
 	}
 

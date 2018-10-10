@@ -115,7 +115,7 @@ function meta_box_prefs( $screen ) {
 				if ( false == $box || ! $box['title'] )
 					continue;
 				// Submit box cannot be hidden
-				if ( 'submitdiv' == $box['id'] || 'linksubmitdiv' == $box['id'] )
+				if ( 'submitdiv' == $box['id'] )
 					continue;
 
 				$widget_title = $box['title'];

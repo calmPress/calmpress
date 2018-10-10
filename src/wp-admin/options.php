@@ -142,7 +142,6 @@ $whitelist_options = array(
 	'writing' => array(
 		'default_category',
 		'default_email_category',
-		'default_link_category',
 		'default_post_format',
 	),
 );
