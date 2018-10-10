@@ -6,13 +6,6 @@
  * @access private
  */
 
-// If gettext isn't available
-if ( !function_exists('_') ) {
-	function _($string) {
-		return $string;
-	}
-}
-
 /**
  * Returns whether PCRE/u (PCRE_UTF8 modifier) is available for use.
  *
