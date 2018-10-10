@@ -4083,7 +4083,6 @@ function get_the_generator( $type = '' ) {
 				$type = 'rss2';
 				break;
 			case 'rss_head' :
-			case 'opml_head' :
 				$type = 'comment';
 				break;
 			case 'rdf_header' :

@@ -151,8 +151,9 @@ function wp_get_popular_importers() {
 
 	if ( is_array( $popular_importers ) ) {
 
-		// Tag and category converter is just not useful.
+		// Remove not useful importers.
 		unset( $popular_importers['importers']['wpcat2tag'] );
+		unset( $popular_importers['importers']['opml'] );
 
 		// If the data was received as translated, return it as-is.
 		if ( $popular_importers['translated'] )
@@ -191,12 +192,6 @@ function wp_get_popular_importers() {
 			'description' => __( 'Import posts and comments from a Movable Type or TypePad blog.' ),
 			'plugin-slug' => 'movabletype-importer',
 			'importer-id' => 'mt',
-		),
-		'opml' => array(
-			'name' => __( 'Blogroll' ),
-			'description' => __( 'Import links in OPML format.' ),
-			'plugin-slug' => 'opml-importer',
-			'importer-id' => 'opml',
 		),
 		'rss' => array(
 			'name' => __( 'RSS' ),
