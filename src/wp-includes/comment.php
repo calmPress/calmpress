@@ -2507,65 +2507,6 @@ function do_all_pings() {
 		delete_metadata_by_mid( 'post', $enclosure->meta_id );
 		do_enclose( $enclosure->post_content, $enclosure->ID );
 	}
-
-	// Do Trackbacks
-	$trackbacks = $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE to_ping <> '' AND post_status = 'publish'");
-	if ( is_array($trackbacks) )
-		foreach ( $trackbacks as $trackback )
-			do_trackbacks($trackback);
-}
-
-/**
- * Perform trackbacks.
- *
- * @since 1.5.0
- * @since 4.7.0 $post_id can be a WP_Post object.
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- * @param int|WP_Post $post_id Post object or ID to do trackbacks on.
- */
-function do_trackbacks( $post_id ) {
-	global $wpdb;
-	$post = get_post( $post_id );
-	if ( ! $post ) {
-		return false;
-	}
-
-	$to_ping = get_to_ping( $post );
-	$pinged  = get_pung( $post );
-	if ( empty( $to_ping ) ) {
-		$wpdb->update($wpdb->posts, array( 'to_ping' => '' ), array( 'ID' => $post->ID ) );
-		return;
-	}
-
-	if ( empty($post->post_excerpt) ) {
-		/** This filter is documented in wp-includes/post-template.php */
-		$excerpt = apply_filters( 'the_content', $post->post_content, $post->ID );
-	} else {
-		/** This filter is documented in wp-includes/post-template.php */
-		$excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
-	}
-
-	$excerpt = str_replace(']]>', ']]&gt;', $excerpt);
-	$excerpt = wp_html_excerpt($excerpt, 252, '&#8230;');
-
-	/** This filter is documented in wp-includes/post-template.php */
-	$post_title = apply_filters( 'the_title', $post->post_title, $post->ID );
-	$post_title = strip_tags($post_title);
-
-	if ( $to_ping ) {
-		foreach ( (array) $to_ping as $tb_ping ) {
-			$tb_ping = trim($tb_ping);
-			if ( !in_array($tb_ping, $pinged) ) {
-				trackback( $tb_ping, $post_title, $excerpt, $post->ID );
-				$pinged[] = $tb_ping;
-			} else {
-				$wpdb->query( $wpdb->prepare( "UPDATE $wpdb->posts SET to_ping = TRIM(REPLACE(to_ping, %s,
-					'')) WHERE ID = %d", $tb_ping, $post->ID ) );
-			}
-		}
-	}
 }
 
 /**
@@ -2663,45 +2604,6 @@ function pingback( $content, $post_id ) {
 				add_ping( $post, $pagelinkedto );
 		}
 	}
-}
-
-/**
- * Send a Trackback.
- *
- * Updates database when sending trackback to prevent duplicates.
- *
- * @since 0.71
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- * @param string $trackback_url URL to send trackbacks.
- * @param string $title Title of post.
- * @param string $excerpt Excerpt of post.
- * @param int $ID Post ID.
- * @return int|false|void Database query from update.
- */
-function trackback($trackback_url, $title, $excerpt, $ID) {
-	global $wpdb;
-
-	if ( empty($trackback_url) )
-		return;
-
-	$options = array();
-	$options['timeout'] = 10;
-	$options['body'] = array(
-		'title' => $title,
-		'url' => get_permalink($ID),
-		'blog_name' => get_option('blogname'),
-		'excerpt' => $excerpt
-	);
-
-	$response = wp_safe_remote_post( $trackback_url, $options );
-
-	if ( is_wp_error( $response ) )
-		return;
-
-	$wpdb->query( $wpdb->prepare("UPDATE $wpdb->posts SET pinged = CONCAT(pinged, '\n', %s) WHERE ID = %d", $trackback_url, $ID) );
-	return $wpdb->query( $wpdb->prepare("UPDATE $wpdb->posts SET to_ping = TRIM(REPLACE(to_ping, %s, '')) WHERE ID = %d", $trackback_url, $ID) );
 }
 
 /**
