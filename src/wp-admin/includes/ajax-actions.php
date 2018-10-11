@@ -605,25 +605,6 @@ function wp_ajax_delete_tag() {
 }
 
 /**
- * Ajax handler for deleting meta.
- *
- * @since 3.1.0
- */
-function wp_ajax_delete_meta() {
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
-
-	check_ajax_referer( "delete-meta_$id" );
-	if ( !$meta = get_metadata_by_mid( 'post', $id ) )
-		wp_die( 1 );
-
-	if ( is_protected_meta( $meta->meta_key, 'post' ) || ! current_user_can( 'delete_post_meta',  $meta->post_id, $meta->meta_key ) )
-		wp_die( -1 );
-	if ( delete_meta( $meta->meta_id ) )
-		wp_die( 1 );
-	wp_die( 0 );
-}
-
-/**
  * Ajax handler for deleting a post.
  *
  * @since 3.1.0
