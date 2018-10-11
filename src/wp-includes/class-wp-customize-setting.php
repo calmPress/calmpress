@@ -693,26 +693,6 @@ class WP_Customize_Setting {
 	}
 
 	/**
-	 * Deprecated method.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.4.0 Deprecated in favor of update() method.
-	 */
-	protected function _update_theme_mod() {
-		_deprecated_function( __METHOD__, '4.4.0', __CLASS__ . '::update()' );
-	}
-
-	/**
-	 * Deprecated method.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.4.0 Deprecated in favor of update() method.
-	 */
-	protected function _update_option() {
-		_deprecated_function( __METHOD__, '4.4.0', __CLASS__ . '::update()' );
-	}
-
-	/**
 	 * Fetch the value of the setting.
 	 *
 	 * @since 3.4.0

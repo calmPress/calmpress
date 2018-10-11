@@ -553,22 +553,6 @@ class WP_Admin_Bar {
 	}
 
 	/**
-	 * Renders toolbar items recursively.
-	 *
-	 * @since 3.1.0
-	 * @deprecated 3.3.0 Use WP_Admin_Bar::_render_item() or WP_Admin_bar::render() instead.
-	 * @see WP_Admin_Bar::_render_item()
-	 * @see WP_Admin_Bar::render()
-	 *
-	 * @param string $id    Unused.
-	 * @param object $node
-	 */
-	public function recursive_render( $id, $node ) {
-		_deprecated_function( __METHOD__, '3.3.0', 'WP_Admin_bar::render(), WP_Admin_Bar::_render_item()' );
-		$this->_render_item( $node );
-	}
-
-	/**
 	 */
 	public function add_menus() {
 		// User related, aligned right.

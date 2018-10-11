@@ -20,33 +20,6 @@ $theme_field_defaults = array( 'description' => true, 'sections' => false, 'test
 );
 
 /**
- * Retrieve list of WordPress theme features (aka theme tags)
- *
- * @since 2.8.0
- *
- * @deprecated since 3.1.0 Use get_theme_feature_list() instead.
- *
- * @return array
- */
-function install_themes_feature_list() {
-	_deprecated_function( __FUNCTION__, '3.1.0', 'get_theme_feature_list()' );
-
-	if ( !$cache = get_transient( 'wporg_theme_feature_list' ) )
-		set_transient( 'wporg_theme_feature_list', array(), 3 * HOUR_IN_SECONDS );
-
-	if ( $cache )
-		return $cache;
-
-	$feature_list = themes_api( 'feature_list', array() );
-	if ( is_wp_error( $feature_list ) )
-		return array();
-
-	set_transient( 'wporg_theme_feature_list', $feature_list, 3 * HOUR_IN_SECONDS );
-
-	return $feature_list;
-}
-
-/**
  * Display search form for searching themes.
  *
  * @since 2.8.0
@@ -148,25 +121,6 @@ function install_themes_upload() {
 	<?php submit_button( __( 'Install Now' ), '', 'install-theme-submit', false ); ?>
 </form>
 	<?php
-}
-
-/**
- * Prints a theme on the Install Themes pages.
- *
- * @deprecated 3.4.0
- *
- * @global WP_Theme_Install_List_Table $wp_list_table
- *
- * @param object $theme
- */
-function display_theme( $theme ) {
-	_deprecated_function( __FUNCTION__, '3.4.0' );
-	global $wp_list_table;
-	if ( ! isset( $wp_list_table ) ) {
-		$wp_list_table = _get_list_table('WP_Theme_Install_List_Table');
-	}
-	$wp_list_table->prepare_items();
-	$wp_list_table->single_row( $theme );
 }
 
 /**

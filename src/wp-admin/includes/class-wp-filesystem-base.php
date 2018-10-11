@@ -114,49 +114,6 @@ class WP_Filesystem_Base {
 	/**
 	 * Locate a folder on the remote filesystem.
 	 *
-	 * @since 2.5.0
-	 * @deprecated 2.7.0 use WP_Filesystem::abspath() or WP_Filesystem::wp_*_dir() instead.
-	 * @see WP_Filesystem::abspath()
-	 * @see WP_Filesystem::wp_content_dir()
-	 * @see WP_Filesystem::wp_plugins_dir()
-	 * @see WP_Filesystem::wp_themes_dir()
-	 * @see WP_Filesystem::wp_lang_dir()
-	 *
-	 * @param string $base The folder to start searching from.
-	 * @param bool   $echo True to display debug information.
-	 *                     Default false.
-	 * @return string The location of the remote path.
-	 */
-	public function find_base_dir( $base = '.', $echo = false ) {
-		_deprecated_function(__FUNCTION__, '2.7.0', 'WP_Filesystem::abspath() or WP_Filesystem::wp_*_dir()' );
-		$this->verbose = $echo;
-		return $this->abspath();
-	}
-
-	/**
-	 * Locate a folder on the remote filesystem.
-	 *
-	 * @since 2.5.0
-	 * @deprecated 2.7.0 use WP_Filesystem::abspath() or WP_Filesystem::wp_*_dir() methods instead.
-	 * @see WP_Filesystem::abspath()
-	 * @see WP_Filesystem::wp_content_dir()
-	 * @see WP_Filesystem::wp_plugins_dir()
-	 * @see WP_Filesystem::wp_themes_dir()
-	 * @see WP_Filesystem::wp_lang_dir()
-	 *
-	 * @param string $base The folder to start searching from.
-	 * @param bool   $echo True to display debug information.
-	 * @return string The location of the remote path.
-	 */
-	public function get_base_dir( $base = '.', $echo = false ) {
-		_deprecated_function(__FUNCTION__, '2.7.0', 'WP_Filesystem::abspath() or WP_Filesystem::wp_*_dir()' );
-		$this->verbose = $echo;
-		return $this->abspath();
-	}
-
-	/**
-	 * Locate a folder on the remote filesystem.
-	 *
 	 * Assumes that on Windows systems, Stripping off the Drive
 	 * letter is OK Sanitizes \\ to / in windows filepaths.
 	 *
@@ -539,7 +496,7 @@ class WP_Filesystem_Base {
 	 *
 	 * @since 2.5.0
 	 * @abstract
-	 * 
+	 *
 	 * @param string $file Path to the file.
 	 * @return string|bool Username of the user or false on error.
 	 */

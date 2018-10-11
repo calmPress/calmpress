@@ -376,62 +376,6 @@ function _image_get_preview_ratio($w, $h) {
 }
 
 /**
- * Returns an image resource. Internal use only.
- *
- * @since 2.9.0
- * @deprecated 3.5.0 Use WP_Image_Editor::rotate()
- * @see WP_Image_Editor::rotate()
- *
- * @ignore
- * @param resource  $img   Image resource.
- * @param float|int $angle Image rotation angle, in degrees.
- * @return resource|false GD image resource, false otherwise.
- */
-function _rotate_image_resource($img, $angle) {
-	_deprecated_function( __FUNCTION__, '3.5.0', 'WP_Image_Editor::rotate()' );
-	if ( function_exists('imagerotate') ) {
-		$rotated = imagerotate($img, $angle, 0);
-		if ( is_resource($rotated) ) {
-			imagedestroy($img);
-			$img = $rotated;
-		}
-	}
-	return $img;
-}
-
-/**
- * Flips an image resource. Internal use only.
- *
- * @since 2.9.0
- * @deprecated 3.5.0 Use WP_Image_Editor::flip()
- * @see WP_Image_Editor::flip()
- *
- * @ignore
- * @param resource $img  Image resource.
- * @param bool     $horz Whether to flip horizontally.
- * @param bool     $vert Whether to flip vertically.
- * @return resource (maybe) flipped image resource.
- */
-function _flip_image_resource($img, $horz, $vert) {
-	_deprecated_function( __FUNCTION__, '3.5.0', 'WP_Image_Editor::flip()' );
-	$w = imagesx($img);
-	$h = imagesy($img);
-	$dst = wp_imagecreatetruecolor($w, $h);
-	if ( is_resource($dst) ) {
-		$sx = $vert ? ($w - 1) : 0;
-		$sy = $horz ? ($h - 1) : 0;
-		$sw = $vert ? -$w : $w;
-		$sh = $horz ? -$h : $h;
-
-		if ( imagecopyresampled($dst, $img, 0, 0, $sx, $sy, $w, $h, $sw, $sh) ) {
-			imagedestroy($img);
-			$img = $dst;
-		}
-	}
-	return $img;
-}
-
-/**
  * Crops an image resource. Internal use only.
  *
  * @since 2.9.0

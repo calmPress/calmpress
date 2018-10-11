@@ -169,25 +169,6 @@ class WP_Scripts extends WP_Dependencies {
 	/**
 	 * Prints extra scripts of a registered script.
 	 *
-	 * @since 2.1.0
-	 * @since 2.8.0 Added the `$echo` parameter.
-	 * @deprecated 3.3.0
-	 *
-	 * @see print_extra_script()
-	 *
-	 * @param string $handle The script's registered handle.
-	 * @param bool   $echo   Optional. Whether to echo the extra script instead of just returning it.
-	 *                       Default true.
-	 * @return bool|string|void Void if no data exists, extra scripts if `$echo` is true, true otherwise.
-	 */
-	public function print_scripts_l10n( $handle, $echo = true ) {
-		_deprecated_function( __FUNCTION__, '3.3.0', 'WP_Scripts::print_extra_script()' );
-		return $this->print_extra_script( $handle, $echo );
-	}
-
-	/**
-	 * Prints extra scripts of a registered script.
-	 *
 	 * @since 3.3.0
 	 *
 	 * @param string $handle The script's registered handle.

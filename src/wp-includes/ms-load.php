@@ -485,44 +485,6 @@ function ms_not_installed( $domain, $path ) {
 }
 
 /**
- * This deprecated function formerly set the site_name property of the $current_site object.
- *
- * This function simply returns the object, as before.
- * The bootstrap takes care of setting site_name.
- *
- * @access private
- * @since 3.0.0
- * @deprecated 3.9.0 Use get_current_site() instead.
- *
- * @param object $current_site
- * @return object
- */
-function get_current_site_name( $current_site ) {
-	_deprecated_function( __FUNCTION__, '3.9.0', 'get_current_site()' );
-	return $current_site;
-}
-
-/**
- * This deprecated function managed much of the site and network loading in multisite.
- *
- * The current bootstrap code is now responsible for parsing the site and network load as
- * well as setting the global $current_site object.
- *
- * @access private
- * @since 3.0.0
- * @deprecated 3.9.0
- *
- * @global object $current_site
- *
- * @return object
- */
-function wpmu_current_site() {
-	global $current_site;
-	_deprecated_function( __FUNCTION__, '3.9.0' );
-	return $current_site;
-}
-
-/**
  * Retrieve an object containing information about the requested network.
  *
  * @since 3.9.0
