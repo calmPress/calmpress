@@ -60,7 +60,6 @@ $wp_registered_widget_updates = array();
  */
 $_wp_sidebars_widgets = array();
 
-	'wp_widget_recent_entries',
 //
 // Template tags & API functions
 //
