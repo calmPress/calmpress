@@ -60,35 +60,7 @@ $wp_registered_widget_updates = array();
  */
 $_wp_sidebars_widgets = array();
 
-/**
- * Private
- *
- * @global array $_wp_deprecated_widgets_callbacks
- */
-$GLOBALS['_wp_deprecated_widgets_callbacks'] = array(
-	'wp_widget_pages',
-	'wp_widget_pages_control',
-	'wp_widget_calendar',
-	'wp_widget_calendar_control',
-	'wp_widget_archives',
-	'wp_widget_archives_control',
-	'wp_widget_meta',
-	'wp_widget_meta_control',
-	'wp_widget_search',
 	'wp_widget_recent_entries',
-	'wp_widget_recent_entries_control',
-	'wp_widget_tag_cloud',
-	'wp_widget_tag_cloud_control',
-	'wp_widget_categories',
-	'wp_widget_categories_control',
-	'wp_widget_text',
-	'wp_widget_text_control',
-	'wp_widget_rss',
-	'wp_widget_rss_control',
-	'wp_widget_recent_comments',
-	'wp_widget_recent_comments_control'
-);
-
 //
 // Template tags & API functions
 //
@@ -321,7 +293,6 @@ function is_registered_sidebar( $sidebar_id ) {
  * @global array $wp_registered_widgets            Uses stored registered widgets.
  * @global array $wp_registered_widget_controls    Stores the registered widget controls (options).
  * @global array $wp_registered_widget_updates
- * @global array $_wp_deprecated_widgets_callbacks
  *
  * @param int|string $id              Widget ID.
  * @param string     $name            Widget display title.
@@ -336,19 +307,12 @@ function is_registered_sidebar( $sidebar_id ) {
  * }
  */
 function wp_register_sidebar_widget( $id, $name, $output_callback, $options = array() ) {
-	global $wp_registered_widgets, $wp_registered_widget_controls, $wp_registered_widget_updates, $_wp_deprecated_widgets_callbacks;
+	global $wp_registered_widgets, $wp_registered_widget_controls, $wp_registered_widget_updates;
 
 	$id = strtolower($id);
 
 	if ( empty($output_callback) ) {
 		unset($wp_registered_widgets[$id]);
-		return;
-	}
-
-	$id_base = _get_widget_id_base($id);
-	if ( in_array($output_callback, $_wp_deprecated_widgets_callbacks, true) && !is_callable($output_callback) ) {
-		unset( $wp_registered_widget_controls[ $id ] );
-		unset( $wp_registered_widget_updates[ $id_base ] );
 		return;
 	}
 
@@ -456,7 +420,6 @@ function wp_unregister_sidebar_widget($id) {
  * @global array $wp_registered_widget_controls
  * @global array $wp_registered_widget_updates
  * @global array $wp_registered_widgets
- * @global array $_wp_deprecated_widgets_callbacks
  *
  * @param int|string   $id               Sidebar ID.
  * @param string       $name             Sidebar display name.
@@ -472,7 +435,7 @@ function wp_unregister_sidebar_widget($id) {
  * }
  */
 function wp_register_widget_control( $id, $name, $control_callback, $options = array() ) {
-	global $wp_registered_widget_controls, $wp_registered_widget_updates, $wp_registered_widgets, $_wp_deprecated_widgets_callbacks;
+	global $wp_registered_widget_controls, $wp_registered_widget_updates, $wp_registered_widgets;
 
 	$id = strtolower($id);
 	$id_base = _get_widget_id_base($id);
@@ -480,11 +443,6 @@ function wp_register_widget_control( $id, $name, $control_callback, $options = a
 	if ( empty($control_callback) ) {
 		unset($wp_registered_widget_controls[$id]);
 		unset($wp_registered_widget_updates[$id_base]);
-		return;
-	}
-
-	if ( in_array($control_callback, $_wp_deprecated_widgets_callbacks, true) && !is_callable($control_callback) ) {
-		unset( $wp_registered_widgets[ $id ] );
 		return;
 	}
 
