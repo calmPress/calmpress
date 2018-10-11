@@ -2513,9 +2513,6 @@ function do_all_pings() {
 	if ( is_array($trackbacks) )
 		foreach ( $trackbacks as $trackback )
 			do_trackbacks($trackback);
-
-	//Do Update Services/Generic Pings
-	generic_ping();
 }
 
 /**
@@ -2569,27 +2566,6 @@ function do_trackbacks( $post_id ) {
 			}
 		}
 	}
-}
-
-/**
- * Sends pings to all of the ping site services.
- *
- * @since 1.2.0
- *
- * @param int $post_id Post ID.
- * @return int Same as Post ID from parameter
- */
-function generic_ping( $post_id = 0 ) {
-	$services = get_option('ping_sites');
-
-	$services = explode("\n", $services);
-	foreach ( (array) $services as $service ) {
-		$service = trim($service);
-		if ( '' != $service )
-			weblog_ping($service);
-	}
-
-	return $post_id;
 }
 
 /**
@@ -2690,21 +2666,6 @@ function pingback( $content, $post_id ) {
 }
 
 /**
- * Check whether blog is public before returning sites.
- *
- * @since 2.1.0
- *
- * @param mixed $sites Will return if blog is public, will not return if not public.
- * @return mixed Empty string if blog is not public, returns $sites, if site is public.
- */
-function privacy_ping_filter($sites) {
-	if ( '0' != get_option('blog_public') )
-		return $sites;
-	else
-		return '';
-}
-
-/**
  * Send a Trackback.
  *
  * Updates database when sending trackback to prevent duplicates.
@@ -2741,30 +2702,6 @@ function trackback($trackback_url, $title, $excerpt, $ID) {
 
 	$wpdb->query( $wpdb->prepare("UPDATE $wpdb->posts SET pinged = CONCAT(pinged, '\n', %s) WHERE ID = %d", $trackback_url, $ID) );
 	return $wpdb->query( $wpdb->prepare("UPDATE $wpdb->posts SET to_ping = TRIM(REPLACE(to_ping, %s, '')) WHERE ID = %d", $trackback_url, $ID) );
-}
-
-/**
- * Send a pingback.
- *
- * @since 1.2.0
- *
- * @param string $server Host of blog to connect to.
- * @param string $path Path to send the ping.
- */
-function weblog_ping($server = '', $path = '') {
-	include_once( ABSPATH . WPINC . '/class-IXR.php' );
-	include_once( ABSPATH . WPINC . '/class-wp-http-ixr-client.php' );
-
-	// using a timeout of 3 seconds should be enough to cover slow servers
-	$client = new WP_HTTP_IXR_Client($server, ((!strlen(trim($path)) || ('/' == $path)) ? false : $path));
-	$client->timeout = 3;
-	$client->useragent .= ' -- WordPress/' . get_bloginfo( 'version' );
-
-	// when set to true, this outputs debug messages by itself
-	$client->debug = false;
-	$home = trailingslashit( home_url() );
-	if ( !$client->query('weblogUpdates.extendedPing', get_option('blogname'), $home, get_bloginfo('rss2_url') ) ) // then try a normal ping
-		$client->query('weblogUpdates.ping', get_option('blogname'), $home);
 }
 
 /**

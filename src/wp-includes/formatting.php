@@ -4157,13 +4157,6 @@ function sanitize_option( $option, $value ) {
 			}
 			break;
 
-		case 'ping_sites':
-			$value = explode( "\n", $value );
-			$value = array_filter( array_map( 'trim', $value ) );
-			$value = array_filter( array_map( 'esc_url_raw', $value ) );
-			$value = implode( "\n", $value );
-			break;
-
 		case 'gmt_offset':
 			$value = preg_replace('/[^0-9:.-]/', '', $value); // strips slashes
 			break;

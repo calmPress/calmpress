@@ -125,39 +125,6 @@ wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'default_email_categor
 </table>
 <?php } ?>
 
-<?php
-/**
- * Filters whether to enable the Update Services section in the Writing settings screen.
- *
- * @since 3.0.0
- *
- * @param bool $enable Whether to enable the Update Services settings area. Default true.
- */
-if ( apply_filters( 'enable_update_services_configuration', true ) ) {
-?>
-<h2 class="title"><?php _e( 'Update Services' ) ?></h2>
-
-<?php if ( 1 == get_option('blog_public') ) : ?>
-
-	<p><label for="ping_sites"><?php
-		_e( 'When you publish a new post, calmPress automatically notifies the following site update services. Separate multiple service URLs with line breaks.' );
-	?></label></p>
-
-	<textarea name="ping_sites" id="ping_sites" class="large-text code" rows="3"><?php echo esc_textarea( get_option('ping_sites') ); ?></textarea>
-
-<?php else : ?>
-
-	<p><?php
-		printf(
-			/* translators: 1: Reading Settings URL */
-			__( 'calmPress is not notifying any Update Services because of your site&#8217;s <a href="%2$s">visibility settings</a>.' ),
-			'options-reading.php'
-		);
-	?></p>
-
-<?php endif; ?>
-<?php } // enable_update_services_configuration ?>
-
 <?php do_settings_sections('writing'); ?>
 
 <?php submit_button(); ?>

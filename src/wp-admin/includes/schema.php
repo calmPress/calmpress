@@ -409,7 +409,6 @@ function populate_options() {
 	'moderation_keys' => '',
 	'active_plugins' => array(),
 	'category_base' => '',
-	'ping_sites' => 'http://rpc.pingomatic.com/',
 	'comment_max_links' => 2,
 	'gmt_offset' => $gmt_offset,
 

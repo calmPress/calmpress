@@ -162,7 +162,6 @@ if ( !is_multisite() ) {
 	$whitelist_options['general'][] = 'default_role';
 
 	$whitelist_options['writing'] = array_merge($whitelist_options['writing'], $mail_options);
-	$whitelist_options['writing'][] = 'ping_sites';
 
 	$whitelist_options['media'][] = 'uploads_use_yearmonth_folders';
 
