@@ -367,14 +367,10 @@ function upload_space_setting( $id ) {
  * @param string $pref       The column in the wp_users table to update the user's status
  *                           in (presumably user_status, spam, or deleted).
  * @param int    $value      The new status for the user.
- * @param null   $deprecated Deprecated as of 3.0.2 and should not be used.
  * @return int   The initially passed $value.
  */
-function update_user_status( $id, $pref, $value, $deprecated = null ) {
+function update_user_status( $id, $pref, $value ) {
 	global $wpdb;
-
-	if ( null !== $deprecated )
-		_deprecated_argument( __FUNCTION__, '3.0.2' );
 
 	$wpdb->update( $wpdb->users, array( sanitize_key( $pref ) => $value ), array( 'ID' => $id ) );
 

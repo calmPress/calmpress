@@ -1380,13 +1380,10 @@ if ( ! function_exists('wp_notify_postauthor') ) :
  * @since 1.0.0
  *
  * @param int|WP_Comment  $comment_id Comment ID or WP_Comment object.
- * @param string          $deprecated Not used
+ *
  * @return bool True on completion. False if no email addresses were specified.
  */
-function wp_notify_postauthor( $comment_id, $deprecated = null ) {
-	if ( null !== $deprecated ) {
-		_deprecated_argument( __FUNCTION__, '3.8.0' );
-	}
+function wp_notify_postauthor( $comment_id ) {
 
 	$comment = get_comment( $comment_id );
 	if ( empty( $comment ) || empty( $comment->comment_post_ID ) )
@@ -1813,9 +1810,6 @@ if ( !function_exists('wp_new_user_notification') ) :
  *                           string (admin only), 'user', or 'both' (admin and user). Default empty.
  */
 function wp_new_user_notification( $user_id, $deprecated = null, $notify = '' ) {
-	if ( $deprecated !== null ) {
-		_deprecated_argument( __FUNCTION__, '4.3.1' );
-	}
 
 	global $wpdb, $wp_hasher;
 	$user = get_userdata( $user_id );

@@ -148,19 +148,6 @@ if ( ! empty( $languages ) || ! empty( $translations ) ) {
 				'translations' => $translations,
 				'show_available_translations' => current_user_can( 'install_languages' ) && wp_can_install_language_pack(),
 			) );
-
-			// Add note about deprecated WPLANG constant.
-			if ( defined( 'WPLANG' ) && ( '' !== WPLANG ) && $locale !== WPLANG ) {
-				if ( is_multisite() && current_user_can( 'manage_network_options' )
-					|| ! is_multisite() && current_user_can( 'manage_options' ) ) {
-					?>
-					<p class="description">
-						<strong><?php _e( 'Note:' ); ?></strong> <?php printf( __( 'The %s constant in your %s file is no longer needed.' ), '<code>WPLANG</code>', '<code>wp-config.php</code>' ); ?>
-					</p>
-					<?php
-				}
-				_deprecated_argument( 'define()', '4.0.0', sprintf( __( 'The %s constant in your %s file is no longer needed.' ), 'WPLANG', 'wp-config.php' ) );
-			}
 			?>
 		</td>
 	</tr>

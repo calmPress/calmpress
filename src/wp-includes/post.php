@@ -3042,11 +3042,6 @@ function wp_get_post_terms( $post_id = 0, $taxonomy = 'post_tag', $args = array(
  */
 function wp_get_recent_posts( $args = array(), $output = ARRAY_A ) {
 
-	if ( is_numeric( $args ) ) {
-		_deprecated_argument( __FUNCTION__, '3.1.0', __( 'Passing an integer number of posts is deprecated. Pass an array of arguments instead.' ) );
-		$args = array( 'numberposts' => absint( $args ) );
-	}
-
 	// Set default arguments.
 	$defaults = array(
 		'numberposts' => 10, 'offset' => 0,

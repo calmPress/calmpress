@@ -549,7 +549,7 @@ function wp_kses_one_attr( $string, $element ) {
 	$allowed_html = wp_kses_allowed_html( 'post' );
 	$allowed_protocols = wp_allowed_protocols();
 	$string = wp_kses_no_null( $string, array( 'slash_zero' => 'keep' ) );
-	
+
 	// Preserve leading and trailing whitespace.
 	$matches = array();
 	preg_match('/^\s*/', $string, $matches);
@@ -561,7 +561,7 @@ function wp_kses_one_attr( $string, $element ) {
 	} else {
 		$string = substr( $string, strlen( $lead ), -strlen( $trail ) );
 	}
-	
+
 	// Parse attribute name and value from input.
 	$split = preg_split( '/\s*=\s*/', $string, 2 );
 	$name = $split[0];
@@ -598,7 +598,7 @@ function wp_kses_one_attr( $string, $element ) {
 		$value = '';
 		$vless = 'y';
 	}
-	
+
 	// Sanitize attribute by name.
 	wp_kses_attr_check( $name, $value, $string, $vless, $element, $allowed_html );
 
@@ -1062,7 +1062,7 @@ function wp_kses_attr_parse( $element ) {
 	} else {
 		$xhtml_slash = '';
 	}
-	
+
 	// Split it
 	$attrarr = wp_kses_hair_parse( $attr );
 	if ( false === $attrarr ) {
@@ -1072,7 +1072,7 @@ function wp_kses_attr_parse( $element ) {
 	// Make sure all input is returned by adding front and back matter.
 	array_unshift( $attrarr, $begin . $slash . $elname );
 	array_push( $attrarr, $xhtml_slash . $end );
-	
+
 	return $attrarr;
 }
 
@@ -1683,12 +1683,10 @@ function kses_init() {
  * @since 2.8.1
  *
  * @param string $css        A string of CSS rules.
- * @param string $deprecated Not used.
+ *
  * @return string            Filtered string of CSS rules.
  */
-function safecss_filter_attr( $css, $deprecated = '' ) {
-	if ( !empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, '2.8.1' ); // Never implemented
+function safecss_filter_attr( $css ) {
 
 	$css = wp_kses_no_null($css);
 	$css = str_replace(array("\n","\r","\t"), '', $css);

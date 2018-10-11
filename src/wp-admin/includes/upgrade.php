@@ -31,14 +31,12 @@ if ( !function_exists('wp_install') ) :
  * @param string $user_name     User's username.
  * @param string $user_email    User's email.
  * @param bool   $public        Whether site is public.
- * @param string $deprecated    Optional. Not used.
+ * @param string $deprecated    Not used.
  * @param string $user_password Optional. User's chosen password. Default empty (random password).
  * @param string $language      Optional. Language chosen. Default empty.
  * @return array Array keys 'url', 'user_id', 'password', and 'password_message'.
  */
 function wp_install( $blog_title, $user_name, $user_email, $public, $deprecated = '', $user_password = '', $language = '' ) {
-	if ( !empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, '2.6.0' );
 
 	wp_check_mysql_version();
 	wp_cache_flush();

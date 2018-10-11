@@ -94,14 +94,9 @@ function get_default_feed() {
  * @since 2.2.0
  * @since 4.4.0 The optional `$sep` parameter was deprecated and renamed to `$deprecated`.
  *
- * @param string $deprecated Unused..
  * @return string The document title.
  */
-function get_wp_title_rss( $deprecated = '&#8211;' ) {
-	if ( '&#8211;' !== $deprecated ) {
-		/* translators: %s: 'document_title_separator' filter name */
-		_deprecated_argument( __FUNCTION__, '4.4.0', sprintf( __( 'Use the %s filter instead.' ), '<code>document_title_separator</code>' ) );
-	}
+function get_wp_title_rss() {
 
 	/**
 	 * Filters the blog title for use as the feed title.
@@ -112,7 +107,7 @@ function get_wp_title_rss( $deprecated = '&#8211;' ) {
 	 * @param string $title      The current blog title.
 	 * @param string $deprecated Unused.
 	 */
-	return apply_filters( 'get_wp_title_rss', wp_get_document_title(), $deprecated );
+	return apply_filters( 'get_wp_title_rss', wp_get_document_title(), '&#8211;' );
 }
 
 /**
@@ -120,14 +115,8 @@ function get_wp_title_rss( $deprecated = '&#8211;' ) {
  *
  * @since 2.2.0
  * @since 4.4.0 The optional `$sep` parameter was deprecated and renamed to `$deprecated`.
- *
- * @param string $deprecated Unused.
  */
-function wp_title_rss( $deprecated = '&#8211;' ) {
-	if ( '&#8211;' !== $deprecated ) {
-		/* translators: %s: 'document_title_separator' filter name */
-		_deprecated_argument( __FUNCTION__, '4.4.0', sprintf( __( 'Use the %s filter instead.' ), '<code>document_title_separator</code>' ) );
-	}
+function wp_title_rss() {
 
 	/**
 	 * Filters the blog title for display of the feed title.
@@ -140,7 +129,7 @@ function wp_title_rss( $deprecated = '&#8211;' ) {
 	 * @param string $wp_title_rss The current blog title.
 	 * @param string $deprecated   Unused.
 	 */
-	echo apply_filters( 'wp_title_rss', get_wp_title_rss(), $deprecated );
+	echo apply_filters( 'wp_title_rss', get_wp_title_rss(), '&#8211;' );
 }
 
 /**

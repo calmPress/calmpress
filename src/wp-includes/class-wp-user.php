@@ -257,16 +257,6 @@ class WP_User {
 	 * @return bool Whether the given user meta key is set.
 	 */
 	public function __isset( $key ) {
-		if ( 'id' == $key ) {
-			_deprecated_argument( 'WP_User->id', '2.1.0',
-				sprintf(
-					/* translators: %s: WP_User->ID */
-					__( 'Use %s instead.' ),
-					'<code>WP_User->ID</code>'
-				)
-			);
-			$key = 'ID';
-		}
 
 		if ( isset( $this->data->$key ) )
 			return true;
@@ -286,16 +276,6 @@ class WP_User {
 	 * @return mixed Value of the given user meta key (if set). If `$key` is 'id', the user ID.
 	 */
 	public function __get( $key ) {
-		if ( 'id' == $key ) {
-			_deprecated_argument( 'WP_User->id', '2.1.0',
-				sprintf(
-					/* translators: %s: WP_User->ID */
-					__( 'Use %s instead.' ),
-					'<code>WP_User->ID</code>'
-				)
-			);
-			return $this->ID;
-		}
 
 		if ( isset( $this->data->$key ) ) {
 			$value = $this->data->$key;
@@ -324,18 +304,6 @@ class WP_User {
 	 * @param mixed  $value User meta value.
 	 */
 	public function __set( $key, $value ) {
-		if ( 'id' == $key ) {
-			_deprecated_argument( 'WP_User->id', '2.1.0',
-				sprintf(
-					/* translators: %s: WP_User->ID */
-					__( 'Use %s instead.' ),
-					'<code>WP_User->ID</code>'
-				)
-			);
-			$this->ID = $value;
-			return;
-		}
-
 		$this->data->$key = $value;
 	}
 
@@ -347,16 +315,6 @@ class WP_User {
 	 * @param string $key User meta key to unset.
 	 */
 	public function __unset( $key ) {
-		if ( 'id' == $key ) {
-			_deprecated_argument( 'WP_User->id', '2.1.0',
-				sprintf(
-					/* translators: %s: WP_User->ID */
-					__( 'Use %s instead.' ),
-					'<code>WP_User->ID</code>'
-				)
-			);
-		}
-
 		if ( isset( $this->data->$key ) ) {
 			unset( $this->data->$key );
 		}
@@ -712,10 +670,6 @@ class WP_User {
 	 *              the given capability for that object.
 	 */
 	public function has_cap( $cap ) {
-		if ( is_numeric( $cap ) ) {
-			_deprecated_argument( __FUNCTION__, '2.0.0', __( 'Usage of user levels is deprecated. Use capabilities instead.' ) );
-			$cap = $this->translate_level_to_cap( $cap );
-		}
 
 		$args = array_slice( func_get_args(), 1 );
 		$args = array_merge( array( $cap, $this->ID ), $args );

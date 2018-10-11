@@ -756,14 +756,11 @@ function delete_blog_option( $id, $option ) {
  * @param int    $id         The blog id.
  * @param string $option     The option key.
  * @param mixed  $value      The option value.
- * @param mixed  $deprecated Not used.
+ *
  * @return bool True on success, false on failure.
  */
-function update_blog_option( $id, $option, $value, $deprecated = null ) {
+function update_blog_option( $id, $option, $value ) {
 	$id = (int) $id;
-
-	if ( null !== $deprecated  )
-		_deprecated_argument( __FUNCTION__, '3.1.0' );
 
 	if ( get_current_blog_id() == $id )
 		return update_option( $option, $value );
@@ -1001,14 +998,11 @@ function update_archived( $id, $archived ) {
  * @param int    $blog_id BLog ID
  * @param string $pref    A field name
  * @param string $value   Value for $pref
- * @param null   $deprecated
+ *
  * @return string|false $value
  */
-function update_blog_status( $blog_id, $pref, $value, $deprecated = null ) {
+function update_blog_status( $blog_id, $pref, $value ) {
 	global $wpdb;
-
-	if ( null !== $deprecated  )
-		_deprecated_argument( __FUNCTION__, '3.1.0' );
 
 	if ( ! in_array( $pref, array( 'site_id', 'domain', 'path', 'registered', 'last_updated', 'public', 'archived', 'mature', 'spam', 'deleted', 'lang_id') ) )
 		return $value;
@@ -1102,9 +1096,6 @@ function get_blog_status( $id, $pref ) {
  */
 function get_last_updated( $deprecated = '', $start = 0, $quantity = 40 ) {
 	global $wpdb;
-
-	if ( ! empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, 'MU' ); // never used
 
 	return $wpdb->get_results( $wpdb->prepare( "SELECT blog_id, domain, path FROM $wpdb->blogs WHERE site_id = %d AND public = '1' AND archived = '0' AND mature = '0' AND spam = '0' AND deleted = '0' AND last_updated != '0000-00-00 00:00:00' ORDER BY last_updated DESC limit %d, %d", get_current_network_id(), $start, $quantity ), ARRAY_A );
 }

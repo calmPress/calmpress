@@ -1663,20 +1663,6 @@ class WP_Query {
 		$post_status_join = false;
 		$page = 1;
 
-		if ( isset( $q['caller_get_posts'] ) ) {
-			_deprecated_argument( 'WP_Query', '3.1.0',
-				/* translators: 1: caller_get_posts, 2: ignore_sticky_posts */
-				sprintf( __( '%1$s is deprecated. Use %2$s instead.' ),
-					'<code>caller_get_posts</code>',
-					'<code>ignore_sticky_posts</code>'
-				)
-			);
-
-			if ( ! isset( $q['ignore_sticky_posts'] ) ) {
-				$q['ignore_sticky_posts'] = $q['caller_get_posts'];
-			}
-		}
-
 		if ( !isset( $q['ignore_sticky_posts'] ) )
 			$q['ignore_sticky_posts'] = false;
 
@@ -3035,7 +3021,7 @@ class WP_Query {
 			if ( is_array( $this->posts ) ) {
 				$this->found_posts = count( $this->posts );
 			} else {
-				if ( null === $this->posts ) {  
+				if ( null === $this->posts ) {
 					$this->found_posts = 0;
 				} else {
 					$this->found_posts = 1;

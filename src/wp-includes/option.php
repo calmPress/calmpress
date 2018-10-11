@@ -439,9 +439,6 @@ function update_option( $option, $value, $autoload = null ) {
 function add_option( $option, $value = '', $deprecated = '', $autoload = 'yes' ) {
 	global $wpdb;
 
-	if ( !empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, '2.3.0' );
-
 	$option = trim($option);
 	if ( empty($option) )
 		return false;
@@ -1994,26 +1991,6 @@ function register_setting( $option_group, $option_name, $args = array() ) {
 		$wp_registered_settings = array();
 	}
 
-	if ( 'misc' == $option_group ) {
-		_deprecated_argument( __FUNCTION__, '3.0.0',
-			/* translators: %s: misc */
-			sprintf( __( 'The "%s" options group has been removed. Use another settings group.' ),
-				'misc'
-			)
-		);
-		$option_group = 'general';
-	}
-
-	if ( 'privacy' == $option_group ) {
-		_deprecated_argument( __FUNCTION__, '3.5.0',
-			/* translators: %s: privacy */
-			sprintf( __( 'The "%s" options group has been removed. Use another settings group.' ),
-				'privacy'
-			)
-		);
-		$option_group = 'reading';
-	}
-
 	$new_whitelist_options[ $option_group ][] = $option_name;
 	if ( ! empty( $args['sanitize_callback'] ) ) {
 		add_filter( "sanitize_option_{$option_name}", $args['sanitize_callback'] );
@@ -2039,26 +2016,6 @@ function register_setting( $option_group, $option_name, $args = array() ) {
  */
 function unregister_setting( $option_group, $option_name, $deprecated = '' ) {
 	global $new_whitelist_options, $wp_registered_settings;
-
-	if ( 'misc' == $option_group ) {
-		_deprecated_argument( __FUNCTION__, '3.0.0',
-			/* translators: %s: misc */
-			sprintf( __( 'The "%s" options group has been removed. Use another settings group.' ),
-				'misc'
-			)
-		);
-		$option_group = 'general';
-	}
-
-	if ( 'privacy' == $option_group ) {
-		_deprecated_argument( __FUNCTION__, '3.5.0',
-			/* translators: %s: privacy */
-			sprintf( __( 'The "%s" options group has been removed. Use another settings group.' ),
-				'privacy'
-			)
-		);
-		$option_group = 'reading';
-	}
 
 	$pos = array_search( $option_name, (array) $new_whitelist_options[ $option_group ] );
 	if ( $pos !== false ) {

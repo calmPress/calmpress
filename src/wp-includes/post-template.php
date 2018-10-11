@@ -372,9 +372,6 @@ function the_excerpt() {
  * @return string Post excerpt.
  */
 function get_the_excerpt( $post = null ) {
-	if ( is_bool( $post ) ) {
-		_deprecated_argument( __FUNCTION__, '2.3.0' );
-	}
 
 	$post = get_post( $post );
 	if ( empty( $post ) ) {
@@ -1475,8 +1472,6 @@ function walk_page_dropdown_tree() {
  * @param bool        $permalink    Optional, default is false. Whether to include permalink.
  */
 function the_attachment_link( $id = 0, $fullsize = false, $deprecated = false, $permalink = false ) {
-	if ( !empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, '2.5.0' );
 
 	if ( $fullsize )
 		echo wp_get_attachment_link($id, 'full', $permalink);
@@ -1796,12 +1791,6 @@ function wp_post_revision_title_expanded( $revision, $link = true ) {
 function wp_list_post_revisions( $post_id = 0, $type = 'all' ) {
 	if ( ! $post = get_post( $post_id ) )
 		return;
-
-	// $args array with (parent, format, right, left, type) deprecated since 3.6
-	if ( is_array( $type ) ) {
-		$type = ! empty( $type['type'] ) ? $type['type']  : $type;
-		_deprecated_argument( __FUNCTION__, '3.6.0' );
-	}
 
 	if ( ! $revisions = wp_get_post_revisions( $post->ID ) )
 		return;

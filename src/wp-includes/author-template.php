@@ -17,14 +17,10 @@
  *
  * @global object $authordata The current author's DB object.
  *
- * @param string $deprecated Deprecated.
  * @return string|null The author's display name.
  */
-function get_the_author($deprecated = '') {
+function get_the_author() {
 	global $authordata;
-
-	if ( !empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, '2.1.0' );
 
 	/**
 	 * Filters the display name of the current post's author.
@@ -51,27 +47,11 @@ function get_the_author($deprecated = '') {
  * @see get_the_author()
  * @link https://codex.wordpress.org/Template_Tags/the_author
  *
- * @param string $deprecated Deprecated.
- * @param string $deprecated_echo Deprecated. Use get_the_author(). Echo the string or return it.
  * @return string|null The author's display name, from get_the_author().
  */
-function the_author( $deprecated = '', $deprecated_echo = true ) {
-	if ( ! empty( $deprecated ) ) {
-		_deprecated_argument( __FUNCTION__, '2.1.0' );
-	}
+function the_author() {
 
-	if ( true !== $deprecated_echo ) {
-		_deprecated_argument( __FUNCTION__, '1.5.0',
-			/* translators: %s: get_the_author() */
-			sprintf( __( 'Use %s instead if you do not want the value echoed.' ),
-				'<code>get_the_author()</code>'
-			)
-		);
-	}
-
-	if ( $deprecated_echo ) {
-		echo get_the_author();
-	}
+	echo get_the_author();
 
 	return get_the_author();
 }
@@ -307,13 +287,8 @@ function get_the_author_posts_link() {
  *
  * @since 1.2.0
  * @since 4.4.0 Converted into a wrapper for get_the_author_posts_link()
- *
- * @param string $deprecated Unused.
  */
-function the_author_posts_link( $deprecated = '' ) {
-	if ( ! empty( $deprecated ) ) {
-		_deprecated_argument( __FUNCTION__, '2.1.0' );
-	}
+function the_author_posts_link() {
 	echo get_the_author_posts_link();
 }
 

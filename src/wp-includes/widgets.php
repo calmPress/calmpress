@@ -884,13 +884,9 @@ function is_active_sidebar( $index ) {
  * @global array $_wp_sidebars_widgets
  * @global array $sidebars_widgets
  *
- * @param bool $deprecated Not used (argument deprecated).
  * @return array Upgraded list of widgets to version 3 array format when called from the admin.
  */
-function wp_get_sidebars_widgets( $deprecated = true ) {
-	if ( $deprecated !== true )
-		_deprecated_argument( __FUNCTION__, '2.8.1' );
-
+function wp_get_sidebars_widgets() {
 	global $_wp_sidebars_widgets, $sidebars_widgets;
 
 	// If loading from front page, consult $_wp_sidebars_widgets rather than options

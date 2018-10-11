@@ -817,15 +817,8 @@ function get_comments_link( $post_id = 0 ) {
  * Display the link to the current post comments.
  *
  * @since 0.71
- *
- * @param string $deprecated   Not Used.
- * @param string $deprecated_2 Not Used.
  */
-function comments_link( $deprecated = '', $deprecated_2 = '' ) {
-	if ( !empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, '0.72' );
-	if ( !empty( $deprecated_2 ) )
-		_deprecated_argument( __FUNCTION__, '1.3.0' );
+function comments_link() {
 	echo esc_url( get_comments_link() );
 }
 
@@ -867,12 +860,8 @@ function get_comments_number( $post_id = 0 ) {
  * @param string $zero       Optional. Text for no comments. Default false.
  * @param string $one        Optional. Text for one comment. Default false.
  * @param string $more       Optional. Text for more than one comment. Default false.
- * @param string $deprecated Not used.
  */
-function comments_number( $zero = false, $one = false, $more = false, $deprecated = '' ) {
-	if ( ! empty( $deprecated ) ) {
-		_deprecated_argument( __FUNCTION__, '1.3.0' );
-	}
+function comments_number( $zero = false, $one = false, $more = false ) {
 	echo get_comments_number_text( $zero, $one, $more );
 }
 
@@ -1127,25 +1116,9 @@ function get_trackback_url() {
  *
  * @since 0.71
  *
- * @param bool $deprecated_echo Not used.
- * @return void|string Should only be used to echo the trackback URL, use get_trackback_url()
- *                     for the result instead.
  */
-function trackback_url( $deprecated_echo = true ) {
-	if ( true !== $deprecated_echo ) {
-		_deprecated_argument( __FUNCTION__, '2.5.0',
-			/* translators: %s: get_trackback_url() */
-			sprintf( __( 'Use %s instead if you do not want the value echoed.' ),
-				'<code>get_trackback_url()</code>'
-			)
-		);
-	}
-
-	if ( $deprecated_echo ) {
-		echo get_trackback_url();
-	} else {
-		return get_trackback_url();
-	}
+function trackback_url() {
+	echo get_trackback_url();
 }
 
 /**
@@ -1154,14 +1127,8 @@ function trackback_url( $deprecated_echo = true ) {
  * Deprecated in 3.0.0, and restored in 3.0.1.
  *
  * @since 0.71
- *
- * @param int $deprecated Not used (Was $timezone = 0).
  */
-function trackback_rdf( $deprecated = '' ) {
-	if ( ! empty( $deprecated ) ) {
-		_deprecated_argument( __FUNCTION__, '2.5.0' );
-	}
-
+function trackback_rdf() {
 	if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && false !== stripos( $_SERVER['HTTP_USER_AGENT'], 'W3C_Validator' ) ) {
 		return;
 	}

@@ -1356,8 +1356,6 @@ function edit_post_link( $text = null, $before = '', $after = '', $id = 0, $clas
  * @return string|void The delete post link URL for the given post.
  */
 function get_delete_post_link( $id = 0, $deprecated = '', $force_delete = false ) {
-	if ( ! empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, '3.0.0' );
 
 	if ( !$post = get_post( $id ) )
 		return;
@@ -1543,14 +1541,7 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
 
 	if ( $in_same_term || ! empty( $excluded_terms ) ) {
 		if ( ! empty( $excluded_terms ) && ! is_array( $excluded_terms ) ) {
-			// back-compat, $excluded_terms used to be $excluded_terms with IDs separated by " and "
-			if ( false !== strpos( $excluded_terms, ' and ' ) ) {
-				_deprecated_argument( __FUNCTION__, '3.3.0', sprintf( __( 'Use commas instead of %s to separate excluded terms.' ), "'and'" ) );
-				$excluded_terms = explode( ' and ', $excluded_terms );
-			} else {
-				$excluded_terms = explode( ',', $excluded_terms );
-			}
-
+			$excluded_terms = explode( ',', $excluded_terms );
 			$excluded_terms = array_map( 'intval', $excluded_terms );
 		}
 

@@ -25,10 +25,6 @@ class WP_Admin_Bar {
 		switch ( $name ) {
 			case 'proto' :
 				return is_ssl() ? 'https://' : 'http://';
-
-			case 'menu' :
-				_deprecated_argument( 'WP_Admin_Bar', '3.3.0', 'Modify admin bar nodes with WP_Admin_Bar::get_node(), WP_Admin_Bar::add_node(), and WP_Admin_Bar::remove_node(), not the <code>menu</code> property.' );
-				return array(); // Sorry, folks.
 		}
 	}
 
@@ -148,17 +144,6 @@ class WP_Admin_Bar {
 			$args['meta'] = wp_parse_args( $args['meta'], $defaults['meta'] );
 
 		$args = wp_parse_args( $args, $defaults );
-
-		$back_compat_parents = array(
-			'my-account-with-avatar' => array( 'my-account', '3.3' ),
-			'my-blogs'               => array( 'my-sites',   '3.3' ),
-		);
-
-		if ( isset( $back_compat_parents[ $args['parent'] ] ) ) {
-			list( $new_parent, $version ) = $back_compat_parents[ $args['parent'] ];
-			_deprecated_argument( __METHOD__, $version, sprintf( 'Use <code>%s</code> as the parent for the <code>%s</code> admin bar node instead of <code>%s</code>.', $new_parent, $args['id'], $args['parent'] ) );
-			$args['parent'] = $new_parent;
-		}
 
 		$this->_set_node( $args );
 	}

@@ -2427,12 +2427,10 @@ function wp_update_comment_count_now($post_id) {
  * @since 1.5.0
  *
  * @param string $url URL to ping.
- * @param int $deprecated Not Used.
+ *
  * @return false|string False on failure, string containing URI on success.
  */
-function discover_pingback_server_uri( $url, $deprecated = '' ) {
-	if ( !empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, '2.7.0' );
+function discover_pingback_server_uri( $url ) {
 
 	$pingback_str_dquote = 'rel="pingback"';
 	$pingback_str_squote = 'rel=\'pingback\'';
@@ -3065,7 +3063,7 @@ function wp_handle_comment_submission( $comment_data ) {
 		 * @param int $comment_post_ID Post ID.
 		 */
 		do_action( 'comment_on_draft', $comment_post_ID );
-		
+
 		if ( current_user_can( 'read_post', $comment_post_ID ) ) {
 			return new WP_Error( 'comment_on_draft', __( 'Sorry, comments are not allowed for this item.' ), 403 );
 		} else {

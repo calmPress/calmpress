@@ -996,26 +996,6 @@ function do_accordion_sections( $screen, $context, $object ) {
 function add_settings_section($id, $title, $callback, $page) {
 	global $wp_settings_sections;
 
-	if ( 'misc' == $page ) {
-		_deprecated_argument( __FUNCTION__, '3.0.0',
-			/* translators: %s: misc */
-			sprintf( __( 'The "%s" options group has been removed. Use another settings group.' ),
-				'misc'
-			)
-		);
-		$page = 'general';
-	}
-
-	if ( 'privacy' == $page ) {
-		_deprecated_argument( __FUNCTION__, '3.5.0',
-			/* translators: %s: privacy */
-			sprintf( __( 'The "%s" options group has been removed. Use another settings group.' ),
-				'privacy'
-			)
-		);
-		$page = 'reading';
-	}
-
 	$wp_settings_sections[$page][$id] = array('id' => $id, 'title' => $title, 'callback' => $callback);
 }
 
@@ -1056,26 +1036,6 @@ function add_settings_section($id, $title, $callback, $page) {
  */
 function add_settings_field($id, $title, $callback, $page, $section = 'default', $args = array()) {
 	global $wp_settings_fields;
-
-	if ( 'misc' == $page ) {
-		_deprecated_argument( __FUNCTION__, '3.0.0',
-			/* translators: %s: misc */
-			sprintf( __( 'The "%s" options group has been removed. Use another settings group.' ),
-				'misc'
-			)
-		);
-		$page = 'general';
-	}
-
-	if ( 'privacy' == $page ) {
-		_deprecated_argument( __FUNCTION__, '3.5.0',
-			/* translators: %s: privacy */
-			sprintf( __( 'The "%s" options group has been removed. Use another settings group.' ),
-				'privacy'
-			)
-		);
-		$page = 'reading';
-	}
 
 	$wp_settings_fields[$page][$section][$id] = array('id' => $id, 'title' => $title, 'callback' => $callback, 'args' => $args);
 }

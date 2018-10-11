@@ -615,14 +615,6 @@ function bloginfo( $show = '' ) {
  * - 'comments_atom_url' - The comments Atom feed URL (/comments/feed)
  * - 'comments_rss2_url' - The comments RSS 2.0 feed URL (/comments/feed)
  *
- * Some `$show` values are deprecated and will be removed in future versions.
- * These options will trigger the _deprecated_argument() function.
- *
- * Deprecated arguments include:
- *
- * - 'siteurl' - Use 'url' instead
- * - 'home' - Use 'url' instead
- *
  * @since 0.71
  *
  * @param string $show   Optional. Site info to retrieve. Default empty (site name).
@@ -631,15 +623,6 @@ function bloginfo( $show = '' ) {
  */
 function get_bloginfo( $show = '', $filter = 'raw' ) {
 	switch( $show ) {
-		case 'home' : // DEPRECATED
-		case 'siteurl' : // DEPRECATED
-			_deprecated_argument( __FUNCTION__, '2.2.0', sprintf(
-				/* translators: 1: 'siteurl'/'home' argument, 2: bloginfo() function name, 3: 'url' argument */
-				__( 'The %1$s option is deprecated for the family of %2$s functions. Use the %3$s option instead.' ),
-				'<code>' . $show . '</code>',
-				'<code>bloginfo()</code>',
-				'<code>url</code>'
-			) );
 		case 'url' :
 			$output = home_url();
 			break;
@@ -702,20 +685,6 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			if ( 'html_lang_attribute' === $output || preg_match( '/[^a-zA-Z0-9-]/', $output ) ) {
 				$output = is_admin() ? get_user_locale() : get_locale();
 				$output = str_replace( '_', '-', $output );
-			}
-			break;
-		case 'text_direction':
-			_deprecated_argument( __FUNCTION__, '2.2.0', sprintf(
-				/* translators: 1: 'text_direction' argument, 2: bloginfo() function name, 3: is_rtl() function name */
-				__( 'The %1$s option is deprecated for the family of %2$s functions. Use the %3$s function instead.' ),
-				'<code>' . $show . '</code>',
-				'<code>bloginfo()</code>',
-				'<code>is_rtl()</code>'
-			) );
-			if ( function_exists( 'is_rtl' ) ) {
-				$output = is_rtl() ? 'rtl' : 'ltr';
-			} else {
-				$output = 'ltr';
 			}
 			break;
 		case 'name':

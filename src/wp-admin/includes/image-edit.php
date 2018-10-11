@@ -237,51 +237,22 @@ function wp_image_editor($post_id, $msg = false) {
  * @param int             $attachment_id The image's attachment post ID.
  * @return bool True on success, false on failure.
  */
-function wp_stream_image( $image, $mime_type, $attachment_id ) {
-	if ( $image instanceof WP_Image_Editor ) {
+function wp_stream_image( WP_Image_Editor $image, $mime_type, $attachment_id ) {
 
-		/**
-		 * Filters the WP_Image_Editor instance for the image to be streamed to the browser.
-		 *
-		 * @since 3.5.0
-		 *
-		 * @param WP_Image_Editor $image         The image editor instance.
-		 * @param int             $attachment_id The attachment post ID.
-		 */
-		$image = apply_filters( 'image_editor_save_pre', $image, $attachment_id );
+	/**
+	 * Filters the WP_Image_Editor instance for the image to be streamed to the browser.
+	 *
+	 * @since 3.5.0
+	 *
+	 * @param WP_Image_Editor $image         The image editor instance.
+	 * @param int             $attachment_id The attachment post ID.
+	 */
+	$image = apply_filters( 'image_editor_save_pre', $image, $attachment_id );
 
-		if ( is_wp_error( $image->stream( $mime_type ) ) )
-			return false;
+	if ( is_wp_error( $image->stream( $mime_type ) ) )
+		return false;
 
-		return true;
-	} else {
-		_deprecated_argument( __FUNCTION__, '3.5.0', __( '$image needs to be an WP_Image_Editor object' ) );
-
-		/**
-		 * Filters the GD image resource to be streamed to the browser.
-		 *
-		 * @since 2.9.0
-		 * @deprecated 3.5.0 Use image_editor_save_pre instead.
-		 *
-		 * @param resource $image         Image resource to be streamed.
-		 * @param int      $attachment_id The attachment post ID.
-		 */
-		$image = apply_filters( 'image_save_pre', $image, $attachment_id );
-
-		switch ( $mime_type ) {
-			case 'image/jpeg':
-				header( 'Content-Type: image/jpeg' );
-				return imagejpeg( $image, null, 90 );
-			case 'image/png':
-				header( 'Content-Type: image/png' );
-				return imagepng( $image );
-			case 'image/gif':
-				header( 'Content-Type: image/gif' );
-				return imagegif( $image );
-			default:
-				return false;
-		}
-	}
+	return true;
 }
 
 /**
@@ -293,71 +264,31 @@ function wp_stream_image( $image, $mime_type, $attachment_id ) {
  * @param int $post_id
  * @return bool
  */
-function wp_save_image_file( $filename, $image, $mime_type, $post_id ) {
-	if ( $image instanceof WP_Image_Editor ) {
+function wp_save_image_file( $filename, WP_Image_Editor $image, $mime_type, $post_id ) {
 
-		/** This filter is documented in wp-admin/includes/image-edit.php */
-		$image = apply_filters( 'image_editor_save_pre', $image, $post_id );
+	/** This filter is documented in wp-admin/includes/image-edit.php */
+	$image = apply_filters( 'image_editor_save_pre', $image, $post_id );
 
-		/**
-		 * Filters whether to skip saving the image file.
-		 *
-		 * Returning a non-null value will short-circuit the save method,
-		 * returning that value instead.
-		 *
-		 * @since 3.5.0
-		 *
-		 * @param mixed           $override  Value to return instead of saving. Default null.
-		 * @param string          $filename  Name of the file to be saved.
-		 * @param WP_Image_Editor $image     WP_Image_Editor instance.
-		 * @param string          $mime_type Image mime type.
-		 * @param int             $post_id   Post ID.
-		 */
-		$saved = apply_filters( 'wp_save_image_editor_file', null, $filename, $image, $mime_type, $post_id );
+	/**
+	 * Filters whether to skip saving the image file.
+	 *
+	 * Returning a non-null value will short-circuit the save method,
+	 * returning that value instead.
+	 *
+	 * @since 3.5.0
+	 *
+	 * @param mixed           $override  Value to return instead of saving. Default null.
+	 * @param string          $filename  Name of the file to be saved.
+	 * @param WP_Image_Editor $image     WP_Image_Editor instance.
+	 * @param string          $mime_type Image mime type.
+	 * @param int             $post_id   Post ID.
+	 */
+	$saved = apply_filters( 'wp_save_image_editor_file', null, $filename, $image, $mime_type, $post_id );
 
-		if ( null !== $saved )
-			return $saved;
+	if ( null !== $saved )
+		return $saved;
 
-		return $image->save( $filename, $mime_type );
-	} else {
-		_deprecated_argument( __FUNCTION__, '3.5.0', __( '$image needs to be an WP_Image_Editor object' ) );
-
-		/** This filter is documented in wp-admin/includes/image-edit.php */
-		$image = apply_filters( 'image_save_pre', $image, $post_id );
-
-		/**
-		 * Filters whether to skip saving the image file.
-		 *
-		 * Returning a non-null value will short-circuit the save method,
-		 * returning that value instead.
-		 *
-		 * @since 2.9.0
-		 * @deprecated 3.5.0 Use wp_save_image_editor_file instead.
-		 *
-		 * @param mixed           $override  Value to return instead of saving. Default null.
-		 * @param string          $filename  Name of the file to be saved.
-		 * @param WP_Image_Editor $image     WP_Image_Editor instance.
-		 * @param string          $mime_type Image mime type.
-		 * @param int             $post_id   Post ID.
-		 */
-		$saved = apply_filters( 'wp_save_image_file', null, $filename, $image, $mime_type, $post_id );
-
-		if ( null !== $saved )
-			return $saved;
-
-		switch ( $mime_type ) {
-			case 'image/jpeg':
-
-				/** This filter is documented in wp-includes/class-wp-image-editor.php */
-				return imagejpeg( $image, $filename, apply_filters( 'jpeg_quality', 90, 'edit_image' ) );
-			case 'image/png':
-				return imagepng( $image, $filename );
-			case 'image/gif':
-				return imagegif( $image, $filename );
-			default:
-				return false;
-		}
-	}
+	return $image->save( $filename, $mime_type );
 }
 
 /**
@@ -408,9 +339,7 @@ function _crop_image_resource($img, $x, $y, $w, $h) {
  * @param array           $changes Array of change operations.
  * @return WP_Image_Editor WP_Image_Editor instance with changes applied.
  */
-function image_edit_apply_changes( $image, $changes ) {
-	if ( is_resource( $image ) )
-		_deprecated_argument( __FUNCTION__, '3.5.0', __( '$image needs to be an WP_Image_Editor object' ) );
+function image_edit_apply_changes( WP_Image_Editor $image, $changes ) {
 
 	if ( !is_array($changes) )
 		return $image;

@@ -2098,13 +2098,10 @@ function sanitize_html_class( $class, $fallback = '' ) {
  * @since 0.71
  *
  * @param string $content    String of characters to be converted.
- * @param string $deprecated Not used.
+ *
  * @return string Converted string.
  */
-function convert_chars( $content, $deprecated = '' ) {
-	if ( ! empty( $deprecated ) ) {
-		_deprecated_argument( __FUNCTION__, '0.71' );
-	}
+function convert_chars( $content ) {
 
 	if ( strpos( $content, '&' ) !== false ) {
 		$content = preg_replace( '/&([^#])(?![a-z1-4]{1,8};)/i', '&#038;$1', $content );
@@ -2879,12 +2876,10 @@ function convert_smilies( $text ) {
  * @since 0.71
  *
  * @param string $email      Email address to verify.
- * @param bool   $deprecated Deprecated.
+ *
  * @return string|bool Either false or the valid email address.
  */
-function is_email( $email, $deprecated = false ) {
-	if ( ! empty( $deprecated ) )
-		_deprecated_argument( __FUNCTION__, '3.0.0' );
+function is_email( $email ) {
 
 	// Test for the minimum length the email can be
 	if ( strlen( $email ) < 6 ) {

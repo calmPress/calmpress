@@ -38,14 +38,9 @@ function get_category_link( $category ) {
  * @param bool $link Optional, default is false. Whether to format with link.
  * @param string $separator Optional, default is '/'. How to separate categories.
  * @param bool $nicename Optional, default is false. Whether to use nice name for display.
- * @param array $deprecated Not used.
  * @return string|WP_Error A list of category parents on success, WP_Error on failure.
  */
-function get_category_parents( $id, $link = false, $separator = '/', $nicename = false, $deprecated = array() ) {
-
-	if ( ! empty( $deprecated ) ) {
-		_deprecated_argument( __FUNCTION__, '4.8.0' );
-	}
+function get_category_parents( $id, $link = false, $separator = '/', $nicename = false ) {
 
 	$format = $nicename ? 'slug' : 'name';
 
