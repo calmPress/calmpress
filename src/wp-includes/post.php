@@ -4258,35 +4258,6 @@ function get_enclosed( $post_id ) {
 }
 
 /**
- * Retrieve URLs already pinged for a post.
- *
- * @since 1.5.0
- *
- * @since 4.7.0 $post_id can be a WP_Post object.
- *
- * @param int|WP_Post $post_id Post ID or object.
- * @return array
- */
-function get_pung( $post_id ) {
-	$post = get_post( $post_id );
-	if ( ! $post ) {
-		return false;
-	}
-
-	$pung = trim( $post->pinged );
-	$pung = preg_split( '/\s/', $pung );
-
-	/**
-	 * Filters the list of already-pinged URLs for the given post.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param array $pung Array of URLs already pinged for the given post.
-	 */
-	return apply_filters( 'get_pung', $pung );
-}
-
-/**
  * Retrieve URLs that need to be pinged.
  *
  * @since 1.5.0

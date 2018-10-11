@@ -120,22 +120,6 @@ class WP_Post {
 	public $post_name = '';
 
 	/**
-	 * URLs queued to be pinged.
-	 *
-	 * @since 3.5.0
-	 * @var string
-	 */
-	public $to_ping = '';
-
-	/**
-	 * URLs that have been pinged.
-	 *
-	 * @since 3.5.0
-	 * @var string
-	 */
-	public $pinged = '';
-
-	/**
 	 * The post's local modified time.
 	 *
 	 * @since 3.5.0
