@@ -228,7 +228,7 @@ class WP_Rewrite {
 	var $extra_permastructs = array();
 
 	/**
-	 * Endpoints (like /trackback/) added by add_rewrite_endpoint().
+	 * Endpoints added by add_rewrite_endpoint().
 	 *
 	 * @since 2.1.0
 	 * @var array

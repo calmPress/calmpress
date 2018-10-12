@@ -546,8 +546,7 @@ function wp_extract_urls( $content ) {
  * Check content for video and audio links to add as enclosures.
  *
  * Will not add enclosures that have already been added and will
- * remove enclosures that are no longer in the post. This is called as
- * pingbacks and trackbacks.
+ * remove enclosures that are no longer in the post.
  *
  * @since 1.5.0
  *

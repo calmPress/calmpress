@@ -32,7 +32,7 @@ function create_initial_post_types() {
 		'rewrite' => false,
 		'query_var' => false,
 		'delete_with_user' => true,
-		'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'trackbacks', 'comments', 'revisions', 'post-formats' ),
+		'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'revisions', 'post-formats' ),
 		'show_in_rest' => true,
 		'rest_base' => 'posts',
 		'rest_controller_class' => 'WP_REST_Posts_Controller',
@@ -1127,7 +1127,7 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
  *                                              Default false.
  *     @type array       $supports              Core feature(s) the post type supports. Serves as an alias for calling
  *                                              add_post_type_support() directly. Core features include 'title',
- *                                              'editor', 'comments', 'revisions', 'trackbacks', 'author', 'excerpt',
+ *                                              'editor', 'comments', 'revisions', 'author', 'excerpt',
  *                                              'page-attributes', 'thumbnail', and 'post-formats'.
  *                                              Additionally, the 'revisions' feature dictates whether the post type
  *                                              will store revisions, and the 'comments' feature dictates whether the
@@ -1558,7 +1558,7 @@ function _add_post_type_submenus() {
  *
  * All core features are directly associated with a functional area of the edit
  * screen, such as the editor or a meta box. Features include: 'title', 'editor',
- * 'comments', 'revisions', 'trackbacks', 'author', 'excerpt', 'page-attributes',
+ * 'comments', 'revisions', 'author', 'excerpt', 'page-attributes',
  * 'thumbnail', 'custom-fields', and 'post-formats'.
  *
  * Additionally, the 'revisions' feature dictates whether the post type will
@@ -3343,9 +3343,9 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 	// These variables are needed by compact() later.
 	$post_content_filtered = $postarr['post_content_filtered'];
 	$post_author = isset( $postarr['post_author'] ) ? $postarr['post_author'] : $user_id;
-	$ping_status = empty( $postarr['ping_status'] ) ? get_default_comment_status( $post_type, 'pingback' ) : $postarr['ping_status'];
-	$to_ping = isset( $postarr['to_ping'] ) ? sanitize_trackback_urls( $postarr['to_ping'] ) : '';
-	$pinged = isset( $postarr['pinged'] ) ? $postarr['pinged'] : '';
+	$ping_status = 'closed';
+	$to_ping = '';
+	$pinged = '';
 	$import_id = isset( $postarr['import_id'] ) ? $postarr['import_id'] : 0;
 
 	/*
@@ -4174,7 +4174,7 @@ function wp_transition_post_status( $new_status, $old_status, $post ) {
 }
 
 //
-// Comment, trackback, and pingback functions.
+// Comment functions.
 //
 
 /**
@@ -4255,63 +4255,6 @@ function get_enclosed( $post_id ) {
 	 * @param int   $post_id Post ID.
 	 */
 	return apply_filters( 'get_enclosed', $pung, $post_id );
-}
-
-/**
- * Retrieve URLs that need to be pinged.
- *
- * @since 1.5.0
- * @since 4.7.0 $post_id can be a WP_Post object.
- *
- * @param int|WP_Post $post_id Post Object or ID
- * @return array
- */
-function get_to_ping( $post_id ) {
-	$post = get_post( $post_id );
-
-	if ( ! $post ) {
-		return false;
-	}
-
-	$to_ping = sanitize_trackback_urls( $post->to_ping );
-	$to_ping = preg_split('/\s/', $to_ping, -1, PREG_SPLIT_NO_EMPTY);
-
-	/**
-	 * Filters the list of URLs yet to ping for the given post.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param array $to_ping List of URLs yet to ping.
-	 */
-	return apply_filters( 'get_to_ping', $to_ping );
-}
-
-/**
- * Do trackbacks for a list of URLs.
- *
- * @since 1.0.0
- *
- * @param string $tb_list Comma separated list of URLs.
- * @param int    $post_id Post ID.
- */
-function trackback_url_list( $tb_list, $post_id ) {
-	if ( ! empty( $tb_list ) ) {
-		// Get post data.
-		$postdata = get_post( $post_id, ARRAY_A );
-
-		// Form an excerpt.
-		$excerpt = strip_tags( $postdata['post_excerpt'] ? $postdata['post_excerpt'] : $postdata['post_content'] );
-
-		if ( strlen( $excerpt ) > 255 ) {
-			$excerpt = substr( $excerpt, 0, 252 ) . '&hellip;';
-		}
-
-		$trackback_urls = explode( ',', $tb_list );
-		foreach ( (array) $trackback_urls as $tb_url ) {
-			$tb_url = trim( $tb_url );
-			trackback( $tb_url, wp_unslash( $postdata['post_title'] ), $excerpt, $post_id );
-		}
-	}
 }
 
 //
@@ -6167,13 +6110,7 @@ function _publish_post_hook( $post_id ) {
 	if ( defined('WP_IMPORTING') )
 		return;
 
-	if ( get_option('default_pingback_flag') )
-		add_post_meta( $post_id, '_pingme', '1' );
 	add_post_meta( $post_id, '_encloseme', '1' );
-
-	if ( ! wp_next_scheduled( 'do_pings' ) ) {
-		wp_schedule_single_event( time(), 'do_pings' );
-	}
 }
 
 /**

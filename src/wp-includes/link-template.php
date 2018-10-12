@@ -57,7 +57,7 @@ function user_trailingslashit($string, $type_of_url = '') {
 	 * @since 2.2.0
 	 *
 	 * @param string $string      URL with or without a trailing slash.
-	 * @param string $type_of_url The type of URL being considered. Accepts 'single', 'single_trackback',
+	 * @param string $type_of_url The type of URL being considered. Accepts 'single',
 	 *                            'single_feed', 'single_paged', 'commentpaged', 'paged', 'home', 'feed',
 	 *                            'category', 'page', 'year', 'month', 'day', 'post_type_archive'.
 	 */

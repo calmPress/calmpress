@@ -101,7 +101,7 @@ class WP_Post {
 	 * @since 3.5.0
 	 * @var string
 	 */
-	public $ping_status = 'open';
+	public $ping_status = 'closed';
 
 	/**
 	 * The post's password in plain text.

@@ -885,9 +885,6 @@ class WP_Query {
 			$this->is_embed = true;
 		}
 
-		if ( '' != $qv['tb'] )
-			$this->is_trackback = true;
-
 		if ( '' != $qv['paged'] && ( intval($qv['paged']) > 1 ) )
 			$this->is_paged = true;
 
@@ -3871,12 +3868,15 @@ class WP_Query {
 	/**
 	 * Is the query for a trackback endpoint call?
 	 *
+	 * Exists in calmPress for backward compatibility, but cP do not
+	 * support trackbacks therefor it always returns false.
+	 *
 	 * @since 3.1.0
 	 *
 	 * @return bool
 	 */
 	public function is_trackback() {
-		return (bool) $this->is_trackback;
+		return false;
 	}
 
 	/**

@@ -4188,7 +4188,6 @@ p > object:only-child {
 	.comment-edit-link,
 	.comment-reply-link,
 	.comment-metadata .edit-link,
-	.pingback .edit-link,
 	.site-footer aside.widget-area,
 	.site-info {
 		display: none !important;

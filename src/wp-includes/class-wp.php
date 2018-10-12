@@ -380,7 +380,6 @@ class WP {
 	 * If showing a feed, it will also send Last-Modified, ETag, and 304 status if needed.
 	 *
 	 * @since 2.0.0
-	 * @since 4.4.0 `X-Pingback` header is added conditionally after posts have been queried in handle_404().
 	 */
 	public function send_headers() {
 		$headers = array();
@@ -647,11 +646,6 @@ class WP {
 
 				if ( $wp_query->post instanceof WP_Post ) {
 					$p = clone $wp_query->post;
-				}
-
-				// Only set X-Pingback for single posts that allow pings.
-				if ( $p && pings_open( $p ) ) {
-					@header( 'X-Pingback: ' . get_bloginfo( 'pingback_url', 'display' ) );
 				}
 
 				// check for paged content that exceeds the max number of pages

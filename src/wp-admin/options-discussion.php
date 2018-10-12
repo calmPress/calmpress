@@ -36,14 +36,6 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 <tr>
 <th scope="row"><?php _e('Default article settings'); ?></th>
 <td><fieldset><legend class="screen-reader-text"><span><?php _e('Default article settings'); ?></span></legend>
-<label for="default_pingback_flag">
-<input name="default_pingback_flag" type="checkbox" id="default_pingback_flag" value="1" <?php checked('1', get_option('default_pingback_flag')); ?> />
-<?php _e('Attempt to notify any blogs linked to from the article'); ?></label>
-<br />
-<label for="default_ping_status">
-<input name="default_ping_status" type="checkbox" id="default_ping_status" value="open" <?php checked('open', get_option('default_ping_status')); ?> />
-<?php _e('Allow link notifications from other blogs (pingbacks and trackbacks) on new articles'); ?></label>
-<br />
 <label for="default_comment_status">
 <input name="default_comment_status" type="checkbox" id="default_comment_status" value="open" <?php checked('open', get_option('default_comment_status')); ?> />
 <?php _e('Allow people to post comments on new articles'); ?></label>

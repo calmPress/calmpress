@@ -611,11 +611,6 @@ class wp_xmlrpc_server extends IXR_Server {
 				'readonly'      => false,
 				'option'        => 'default_comment_status'
 			),
-			'default_ping_status' => array(
-				'desc'          => __( 'Allow link notifications from other blogs (pingbacks and trackbacks) on new articles' ),
-				'readonly'      => false,
-				'option'        => 'default_ping_status'
-			)
 		);
 
 		/**
@@ -870,7 +865,7 @@ class wp_xmlrpc_server extends IXR_Server {
 			'guid'              => $post['guid'],
 			'menu_order'        => intval( $post['menu_order'] ),
 			'comment_status'    => $post['comment_status'],
-			'ping_status'       => $post['ping_status'],
+			'ping_status'       => 'closed',
 			'sticky'            => ( $post['post_type'] === 'post' && is_sticky( $post['ID'] ) ),
 		);
 
@@ -1048,7 +1043,7 @@ class wp_xmlrpc_server extends IXR_Server {
 
 		// Determine comment and ping settings.
 		$allow_comments = comments_open( $page->ID ) ? 1 : 0;
-		$allow_pings = pings_open( $page->ID ) ? 1 : 0;
+		$allow_pings = 0;
 
 		// Format page date.
 		$page_date = $this->_convert_date( $page->post_date );
@@ -5077,35 +5072,7 @@ class wp_xmlrpc_server extends IXR_Server {
 			$comment_status = get_default_comment_status( $post_type );
 		}
 
-		if ( isset($content_struct['mt_allow_pings']) ) {
-			if ( !is_numeric($content_struct['mt_allow_pings']) ) {
-				switch ( $content_struct['mt_allow_pings'] ) {
-					case 'closed':
-						$ping_status = 'closed';
-						break;
-					case 'open':
-						$ping_status = 'open';
-						break;
-					default:
-						$ping_status = get_default_comment_status( $post_type, 'pingback' );
-						break;
-				}
-			} else {
-				switch ( (int) $content_struct['mt_allow_pings'] ) {
-					case 0:
-						$ping_status = 'closed';
-						break;
-					case 1:
-						$ping_status = 'open';
-						break;
-					default:
-						$ping_status = get_default_comment_status( $post_type, 'pingback' );
-						break;
-				}
-			}
-		} else {
-			$ping_status = get_default_comment_status( $post_type, 'pingback' );
-		}
+		$ping_status = 'closed';
 
 		if ( $post_more )
 			$post_content = $post_content . '<!--more-->' . $post_more;
@@ -5391,33 +5358,7 @@ class wp_xmlrpc_server extends IXR_Server {
 			}
 		}
 
-		if ( isset($content_struct['mt_allow_pings']) ) {
-			if ( !is_numeric($content_struct['mt_allow_pings']) ) {
-				switch ( $content_struct['mt_allow_pings'] ) {
-					case 'closed':
-						$ping_status = 'closed';
-						break;
-					case 'open':
-						$ping_status = 'open';
-						break;
-					default:
-						$ping_status = get_default_comment_status( $post_type, 'pingback' );
-						break;
-				}
-			} else {
-				switch ( (int) $content_struct["mt_allow_pings"] ) {
-					case 0:
-						$ping_status = 'closed';
-						break;
-					case 1:
-						$ping_status = 'open';
-						break;
-					default:
-						$ping_status = get_default_comment_status( $post_type, 'pingback' );
-						break;
-				}
-			}
-		}
+		$ping_status = 'closed';
 
 		if ( isset( $content_struct['title'] ) )
 			$post_title =  $content_struct['title'];
@@ -5618,7 +5559,7 @@ class wp_xmlrpc_server extends IXR_Server {
 			$author = get_userdata($postdata['post_author']);
 
 			$allow_comments = ('open' == $postdata['comment_status']) ? 1 : 0;
-			$allow_pings = ('open' == $postdata['ping_status']) ? 1 : 0;
+			$allow_pings = 0;
 
 			// Consider future posts as published
 			if ( $postdata['post_status'] === 'future' )
@@ -5758,7 +5699,7 @@ class wp_xmlrpc_server extends IXR_Server {
 			$author = get_userdata($entry['post_author']);
 
 			$allow_comments = ('open' == $entry['comment_status']) ? 1 : 0;
-			$allow_pings = ('open' == $entry['ping_status']) ? 1 : 0;
+			$allow_pings = 0;
 
 			// Consider future posts as published
 			if ( $entry['post_status'] === 'future' )
@@ -6375,9 +6316,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		if ( $post_ID == url_to_postid($pagelinkedfrom) )
 			return $this->pingback_error( 0, __( 'The source URL and the target URL cannot both point to the same resource.' ) );
 
-		// Check if pings are on
-		if ( !pings_open($post) )
-	  		return $this->pingback_error( 33, __( 'The specified target URL cannot be used as a target. It either doesn&#8217;t exist, or it is not a pingback-enabled resource.' ) );
+  		return $this->pingback_error( 33, __( 'The specified target URL cannot be used as a target. It either doesn&#8217;t exist, or it is not a pingback-enabled resource.' ) );
 
 		// Let's check that the remote site didn't already pingback this entry
 		if ( $wpdb->get_results( $wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_author_url = %s", $post_ID, $pagelinkedfrom) ) )

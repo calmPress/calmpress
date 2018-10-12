@@ -49,7 +49,7 @@ function _wp_translate_postdata( $update = false, $post_data = null ) {
 		$post_data['post_parent'] = (int) $post_data['parent_id'];
 
 	if ( isset($post_data['trackback_url']) )
-		$post_data['to_ping'] = $post_data['trackback_url'];
+		$post_data['to_ping'] = '';
 
 	$post_data['user_ID'] = get_current_user_id();
 
@@ -622,8 +622,8 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 		$post->to_ping = '';
 		$post->pinged = '';
 		$post->comment_status = get_default_comment_status( $post_type );
-		$post->ping_status = get_default_comment_status( $post_type, 'pingback' );
-		$post->post_pingback = get_option( 'default_pingback_flag' );
+		$post->ping_status = 'closed';
+		$post->post_pingback = 0;
 		$post->post_category = get_option( 'default_category' );
 		$post->page_template = 'default';
 		$post->post_parent = 0;

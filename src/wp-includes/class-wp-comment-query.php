@@ -226,8 +226,7 @@ class WP_Comment_Query {
 	 *                                                   (`comment_status=0`), 'approve' (`comment_status=1`),
 	 *                                                   'all', or a custom comment status. Default 'all'.
 	 *     @type string|array $type                      Include comments of a given type, or array of types.
-	 *                                                   Accepts 'comment', 'pings' (includes 'pingback' and
-	 *                                                   'trackback'), or anycustom type string. Default empty.
+	 *                                                   Accepts 'comment' or any custom type string. Default empty.
 	 *     @type array        $type__in                  Include comments from a given array of comment types.
 	 *                                                   Default empty.
 	 *     @type array        $type__not_in              Exclude comments from a given array of comment types.
@@ -715,11 +714,6 @@ class WP_Comment_Query {
 					case 'comment':
 					case 'comments':
 						$comment_types[ $operator ][] = "''";
-						break;
-
-					case 'pings':
-						$comment_types[ $operator ][] = "'pingback'";
-						$comment_types[ $operator ][] = "'trackback'";
 						break;
 
 					default:

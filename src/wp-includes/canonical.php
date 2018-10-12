@@ -17,9 +17,9 @@
  * prevents penalty for duplicate content by redirecting all incoming links to
  * one or the other.
  *
- * Prevents redirection for feeds, trackbacks, searches, and
+ * Prevents redirection for feeds, searches, and
  * admin URLs. Does not redirect on non-pretty-permalink-supporting IIS 7+,
- * page/post previews, WP admin, Trackbacks, robots.txt, searches, or on POST
+ * page/post previews, WP admin, robots.txt, searches, or on POST
  * requests.
  *
  * Will also attempt to find the correct link when a user enters a URL that does
@@ -32,7 +32,7 @@
  * @global bool $is_IIS
  * @global WP_Query $wp_query
  * @global wpdb $wpdb WordPress database abstraction object.
- * @global WP $wp Current WordPress environment instance. 
+ * @global WP $wp Current WordPress environment instance.
  *
  * @param string $requested_url Optional. The URL that was requested, used to
  *		figure if redirect is needed.

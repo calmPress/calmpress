@@ -691,12 +691,6 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 			<?php
 			else :
 				switch ( $comment->comment_type ) {
-					case 'pingback' :
-						$type = __( 'Pingback' );
-						break;
-					case 'trackback' :
-						$type = __( 'Trackback' );
-						break;
 					default :
 						$type = ucwords( $comment->comment_type );
 				}
@@ -705,7 +699,7 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 			<div class="dashboard-comment-wrap has-row-actions">
 			<p class="comment-meta">
 			<?php
-				// Pingbacks, Trackbacks or custom comment types might not have a post they relate to, e.g. programmatically created ones.
+				// Custom comment types might not have a post they relate to, e.g. programmatically created ones.
 				if ( $comment_post_link ) {
 					printf(
 						/* translators: 1: type of comment, 2: post link, 3: notification if the comment is pending */

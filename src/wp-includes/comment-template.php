@@ -459,7 +459,7 @@ function get_comment_class( $class = '', $comment_id = null, $post_id = null ) {
 		return $classes;
 	}
 
-	// Get the comment type (comment, trackback),
+	// Get the comment type (comment),
 	$classes[] = ( empty( $comment->comment_type ) ) ? 'comment' : $comment->comment_type;
 
 	// Add classes for comment authors that are registered users.
@@ -1051,7 +1051,7 @@ function get_comment_type( $comment_ID = 0 ) {
 	 * @since 1.5.0
 	 * @since 4.1.0 The `$comment_ID` and `$comment` parameters were added.
 	 *
-	 * @param string     $comment_type The type of comment, such as 'comment', 'pingback', or 'trackback'.
+	 * @param string     $comment_type The type of comment, such as 'comment'.
 	 * @param int 	     $comment_ID   The comment ID.
 	 * @param WP_Comment $comment      The comment object.
 	 */
@@ -1069,82 +1069,11 @@ function get_comment_type( $comment_ID = 0 ) {
  */
 function comment_type( $commenttxt = false, $trackbacktxt = false, $pingbacktxt = false ) {
 	if ( false === $commenttxt ) $commenttxt = _x( 'Comment', 'noun' );
-	if ( false === $trackbacktxt ) $trackbacktxt = __( 'Trackback' );
-	if ( false === $pingbacktxt ) $pingbacktxt = __( 'Pingback' );
 	$type = get_comment_type();
 	switch( $type ) {
-		case 'trackback' :
-			echo $trackbacktxt;
-			break;
-		case 'pingback' :
-			echo $pingbacktxt;
-			break;
 		default :
 			echo $commenttxt;
 	}
-}
-
-/**
- * Retrieve The current post's trackback URL.
- *
- * There is a check to see if permalink's have been enabled and if so, will
- * retrieve the pretty path. If permalinks weren't enabled, the ID of the
- * current post is used and appended to the correct page to go to.
- *
- * @since 1.5.0
- *
- * @return string The trackback URL after being filtered.
- */
-function get_trackback_url() {
-	if ( '' != get_option('permalink_structure') )
-		$tb_url = trailingslashit(get_permalink()) . user_trailingslashit('trackback', 'single_trackback');
-	else
-		$tb_url = get_option('siteurl') . '/wp-trackback.php?p=' . get_the_ID();
-
-	/**
-	 * Filters the returned trackback URL.
-	 *
-	 * @since 2.2.0
-	 *
-	 * @param string $tb_url The trackback URL.
-	 */
-	return apply_filters( 'trackback_url', $tb_url );
-}
-
-/**
- * Display the current post's trackback URL.
- *
- * @since 0.71
- *
- */
-function trackback_url() {
-	echo get_trackback_url();
-}
-
-/**
- * Generate and display the RDF for the trackback information of current post.
- *
- * Deprecated in 3.0.0, and restored in 3.0.1.
- *
- * @since 0.71
- */
-function trackback_rdf() {
-	if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && false !== stripos( $_SERVER['HTTP_USER_AGENT'], 'W3C_Validator' ) ) {
-		return;
-	}
-
-	echo '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-			xmlns:dc="http://purl.org/dc/elements/1.1/"
-			xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
-		<rdf:Description rdf:about="';
-	the_permalink();
-	echo '"'."\n";
-	echo '    dc:identifier="';
-	the_permalink();
-	echo '"'."\n";
-	echo '    dc:title="'.str_replace('--', '&#x2d;&#x2d;', wptexturize(strip_tags(get_the_title()))).'"'."\n";
-	echo '    trackback:ping="'.get_trackback_url().'"'." />\n";
-	echo '</rdf:RDF>';
 }
 
 /**
@@ -1171,32 +1100,6 @@ function comments_open( $post_id = null ) {
 	 * @param int  $post_id The post ID.
 	 */
 	return apply_filters( 'comments_open', $open, $post_id );
-}
-
-/**
- * Whether the current post is open for pings.
- *
- * @since 1.5.0
- *
- * @param int|WP_Post $post_id Post ID or WP_Post object. Default current post.
- * @return bool True if pings are accepted
- */
-function pings_open( $post_id = null ) {
-
-	$_post = get_post($post_id);
-
-	$post_id = $_post ? $_post->ID : 0;
-	$open = ( 'open' == $_post->ping_status );
-
-	/**
-	 * Filters whether the current post is open for pings.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @param bool $open    Whether the current post is open for pings.
-	 * @param int  $post_id The post ID.
-	 */
-	return apply_filters( 'pings_open', $open, $post_id );
 }
 
 /**
@@ -1483,7 +1386,7 @@ function comments_popup_link( $zero = false, $one = false, $more = false, $css_c
 		$none = sprintf( __( 'Comments Off<span class="screen-reader-text"> on %s</span>' ), $title );
 	}
 
-	if ( 0 == $number && !comments_open() && !pings_open() ) {
+	if ( 0 == $number && !comments_open() ) {
 		echo '<span' . ((!empty($css_class)) ? ' class="' . esc_attr( $css_class ) . '"' : '') . '>' . $none . '</span>';
 		return;
 	}
@@ -1877,7 +1780,7 @@ function comment_form_title( $noreplytext = false, $replytext = false, $linktopa
  *     @type string $callback          Callback function to use. Default null.
  *     @type string $end-callback      Callback function to use at the end. Default null.
  *     @type string $type              Type of comments to list.
- *                                     Default 'all'. Accepts 'all', 'comment', 'pingback', 'trackback', 'pings'.
+ *                                     Default 'all'. Accepts 'all', 'comment'.
  *     @type int    $page              Page ID to list comments for. Default empty.
  *     @type int    $per_page          Number of comments to list per page. Default empty.
  *     @type int    $avatar_size       Height and width dimensions of the avatar size. Default 32.

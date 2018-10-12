@@ -82,7 +82,7 @@ case 'post-quickdraft-save':
 	check_admin_referer( 'add-' . $post->post_type );
 
 	$_POST['comment_status'] = get_default_comment_status( $post->post_type );
-	$_POST['ping_status']    = get_default_comment_status( $post->post_type, 'pingback' );
+	$_POST['ping_status']    = 'closed';
 
 	edit_post();
 	wp_dashboard_quick_press();

@@ -296,9 +296,6 @@ var inlineEditPost;
 		if ( $( '.comment_status', rowData ).text() === 'open' ) {
 			$( 'input[name="comment_status"]', editRow ).prop( 'checked', true );
 		}
-		if ( $( '.ping_status', rowData ).text() === 'open' ) {
-			$( 'input[name="ping_status"]', editRow ).prop( 'checked', true );
-		}
 		if ( $( '.sticky', rowData ).text() === 'sticky' ) {
 			$( 'input[name="sticky"]', editRow ).prop( 'checked', true );
 		}

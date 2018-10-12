@@ -624,39 +624,6 @@ function post_excerpt_meta_box($post) {
 }
 
 /**
- * Display trackback links form fields.
- *
- * @since 2.6.0
- *
- * @param object $post
- */
-function post_trackback_meta_box($post) {
-	$form_trackback = '<input type="text" name="trackback_url" id="trackback_url" class="code" value="' .
-		esc_attr( str_replace( "\n", ' ', $post->to_ping ) ) . '" aria-describedby="trackback-url-desc" />';
-	if ('' != $post->pinged) {
-		$pings = '<p>'. __('Already pinged:') . '</p><ul>';
-		$already_pinged = explode("\n", trim($post->pinged));
-		foreach ($already_pinged as $pinged_url) {
-			$pings .= "\n\t<li>" . esc_html($pinged_url) . "</li>";
-		}
-		$pings .= '</ul>';
-	}
-
-?>
-<p>
-	<label for="trackback_url"><?php _e( 'Send trackbacks to:' ); ?></label>
-	<?php echo $form_trackback; ?>
-</p>
-<p id="trackback-url-desc" class="howto"><?php _e( 'Separate multiple URLs with spaces' ); ?></p>
-<p><?php
-	_e( 'Trackbacks are a way to notify legacy blog systems that you&#8217;ve linked to them. If you link other WordPress sites, they&#8217;ll be notified automatically using pingbacks, no other action necessary.' );
-?></p>
-<?php
-if ( ! empty($pings) )
-	echo $pings;
-}
-
-/**
  * Display comments status form fields.
  *
  * @since 2.6.0
@@ -668,9 +635,6 @@ function post_comment_status_meta_box($post) {
 <input name="advanced_view" type="hidden" value="1" />
 <p class="meta-options">
 	<label for="comment_status" class="selectit"><input name="comment_status" type="checkbox" id="comment_status" value="open" <?php checked($post->comment_status, 'open'); ?> /> <?php _e( 'Allow comments' ) ?></label><br />
-	<label for="ping_status" class="selectit"><input name="ping_status" type="checkbox" id="ping_status" value="open" <?php checked($post->ping_status, 'open'); ?> /> <?php
-		_e( 'Allow trackbacks and pingbacks on this page' );
-		?></label>
 	<?php
 	/**
 	 * Fires at the end of the Discussion meta box on the post editing screen.

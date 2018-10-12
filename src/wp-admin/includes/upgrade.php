@@ -59,10 +59,6 @@ function wp_install( $blog_title, $user_name, $user_email, $public, $deprecated 
 
 	update_option('siteurl', $guessurl);
 
-	// If not a public blog, don't ping.
-	if ( ! $public )
-		update_option('default_pingback_flag', 0);
-
 	/*
 	 * Create default user. If the user already exists, the user tables are
 	 * being shared among sites. Just set the role in that case.
@@ -808,10 +804,6 @@ function upgrade_130() {
 	$wpdb->query('DROP TABLE IF EXISTS ' . $wpdb->prefix . 'optiontypes');
 	$wpdb->query('DROP TABLE IF EXISTS ' . $wpdb->prefix . 'optiongroups');
 	$wpdb->query('DROP TABLE IF EXISTS ' . $wpdb->prefix . 'optiongroup_options');
-
-	// Update comments table to use comment_type
-	$wpdb->query("UPDATE $wpdb->comments SET comment_type='trackback', comment_content = REPLACE(comment_content, '<trackback />', '') WHERE comment_content LIKE '<trackback />%'");
-	$wpdb->query("UPDATE $wpdb->comments SET comment_type='pingback', comment_content = REPLACE(comment_content, '<pingback />', '') WHERE comment_content LIKE '<pingback />%'");
 
 	// Some versions have multiple duplicate option_name rows with the same values
 	$options = $wpdb->get_results("SELECT option_name, COUNT(option_name) AS dupes FROM `$wpdb->options` GROUP BY option_name");

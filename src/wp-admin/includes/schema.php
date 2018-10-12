@@ -392,8 +392,6 @@ function populate_options() {
 	'mailserver_port' => 110,
 	'default_category' => 1,
 	'default_comment_status' => 'open',
-	'default_ping_status' => 'open',
-	'default_pingback_flag' => 1,
 	'posts_per_page' => 10,
 	/* translators: default date format, see https://secure.php.net/date */
 	'date_format' => __('F j, Y'),
@@ -421,9 +419,6 @@ function populate_options() {
 	'blacklist_keys' => '',
 	'comment_registration' => 0,
 	'html_type' => 'text/html',
-
-	// 1.5.1
-	'use_trackback' => 0,
 
 	// 2.0
 	'default_role' => 'subscriber',

@@ -176,11 +176,7 @@ class Walker_Comment extends Walker {
 			return;
 		}
 
-		if ( ( 'pingback' == $comment->comment_type || 'trackback' == $comment->comment_type ) && $args['short_ping'] ) {
-			ob_start();
-			$this->ping( $comment, $depth, $args );
-			$output .= ob_get_clean();
-		} elseif ( 'html5' === $args['format'] ) {
+		if ( 'html5' === $args['format'] ) {
 			ob_start();
 			$this->html5_comment( $comment, $depth, $args );
 			$output .= ob_get_clean();
@@ -215,27 +211,6 @@ class Walker_Comment extends Walker {
 			$output .= "</div><!-- #comment-## -->\n";
 		else
 			$output .= "</li><!-- #comment-## -->\n";
-	}
-
-	/**
-	 * Outputs a pingback comment.
-	 *
-	 * @since 3.6.0
-	 *
-	 * @see wp_list_comments()
-	 *
-	 * @param WP_Comment $comment The comment object.
-	 * @param int        $depth   Depth of the current comment.
-	 * @param array      $args    An array of arguments.
-	 */
-	protected function ping( $comment, $depth, $args ) {
-		$tag = ( 'div' == $args['style'] ) ? 'div' : 'li';
-?>
-		<<?php echo $tag; ?> id="comment-<?php comment_ID(); ?>" <?php comment_class( '', $comment ); ?>>
-			<div class="comment-body">
-				<?php _e( 'Pingback:' ); ?> <?php comment_author_link( $comment ); ?> <?php edit_comment_link( __( 'Edit' ), '<span class="edit-link">', '</span>' ); ?>
-			</div>
-<?php
 	}
 
 	/**

@@ -646,6 +646,9 @@ function is_time() {
 /**
  * Is the query for a trackback endpoint call?
  *
+ * On calmPress the answer is always false as trackbacks are not supported.
+ * The function is left just for backward compatibility.
+ *
  * @since 1.5.0
  *
  * @global WP_Query $wp_query Global WP_Query instance.
@@ -653,14 +656,7 @@ function is_time() {
  * @return bool
  */
 function is_trackback() {
-	global $wp_query;
-
-	if ( ! isset( $wp_query ) ) {
-		_doing_it_wrong( __FUNCTION__, __( 'Conditional query tags do not work before the query is run. Before then, they always return false.' ), '3.1.0' );
-		return false;
-	}
-
-	return $wp_query->is_trackback();
+	return false;
 }
 
 /**

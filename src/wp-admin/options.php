@@ -93,8 +93,6 @@ $whitelist_options = array(
 		'new_admin_email',
 	),
 	'discussion' => array(
-		'default_pingback_flag',
-		'default_ping_status',
 		'default_comment_status',
 		'comments_notify',
 		'moderation_notify',

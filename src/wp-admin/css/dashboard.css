@@ -740,8 +740,7 @@ form.initial-form.quickpress-open input#title {
 	margin: 0 -12px;
 }
 
-#activity-widget #the-comment-list .comment,
-#activity-widget #the-comment-list .pingback {
+#activity-widget #the-comment-list .comment {
 	box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.06);
 }
 
@@ -755,10 +754,6 @@ form.initial-form.quickpress-open input#title {
 	min-height: 50px;
 	margin: 0;
 	padding: 12px;
-}
-
-#latest-comments #the-comment-list .pingback {
-	padding-left: 12px !important;
 }
 
 #latest-comments #the-comment-list .comment-item:first-child {

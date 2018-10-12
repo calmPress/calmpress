@@ -345,7 +345,6 @@ class WP_Comments_List_Table extends WP_List_Table {
 				 */
 				$comment_types = apply_filters( 'admin_comment_types_dropdown', array(
 					'comment' => __( 'Comments' ),
-					'pings' => __( 'Pings' ),
 				) );
 
 				foreach ( $comment_types as $type => $label )

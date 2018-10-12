@@ -280,9 +280,6 @@ if ( $thumbnail_support && current_user_can( 'upload_files' ) )
 if ( post_type_supports($post_type, 'excerpt') )
 	add_meta_box('postexcerpt', __('Excerpt'), 'post_excerpt_meta_box', null, 'normal', 'core');
 
-if ( post_type_supports($post_type, 'trackbacks') )
-	add_meta_box('trackbacksdiv', __('Send Trackbacks'), 'post_trackback_meta_box', null, 'normal', 'core');
-
 /**
  * Fires in the middle of built-in meta box registration.
  *
@@ -295,7 +292,7 @@ do_action( 'dbx_post_advanced', $post );
 
 // Allow the Discussion meta box to show up if the post type supports comments,
 // or if comments or pings are open.
-if ( comments_open( $post ) || pings_open( $post ) || post_type_supports( $post_type, 'comments' ) ) {
+if ( comments_open( $post ) || post_type_supports( $post_type, 'comments' ) ) {
 	add_meta_box( 'commentstatusdiv', __( 'Discussion' ), 'post_comment_status_meta_box', null, 'normal', 'core' );
 }
 
@@ -308,7 +305,7 @@ $stati[] = 'private';
 if ( in_array( get_post_status( $post ), $stati ) ) {
 	// If the post type support comments, or the post has comments, allow the
 	// Comments meta box.
-	if ( comments_open( $post ) || pings_open( $post ) || $post->comment_count > 0 || post_type_supports( $post_type, 'comments' ) ) {
+	if ( comments_open( $post ) || $post->comment_count > 0 || post_type_supports( $post_type, 'comments' ) ) {
 		add_meta_box( 'commentsdiv', __( 'Comments' ), 'post_comment_meta_box', null, 'normal', 'core' );
 	}
 }
@@ -361,7 +358,7 @@ do_action( 'do_meta_boxes', $post_type, 'side', $post );
 add_screen_option('layout_columns', array('max' => 2, 'default' => 2) );
 
 if ( 'post' == $post_type ) {
-	$customize_display = '<p>' . __('The title field and the big Post Editing Area are fixed in place, but you can reposition all the other boxes using drag and drop. You can also minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.') . '</p>';
+	$customize_display = '<p>' . __('The title field and the big Post Editing Area are fixed in place, but you can reposition all the other boxes using drag and drop. You can also minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.') . '</p>';
 
 	get_current_screen()->add_help_tab( array(
 		'id'      => 'customize-display',
@@ -437,8 +434,7 @@ if ( 'post' == $post_type ) {
 		'content' => $publish_box,
 	) );
 
-	$discussion_settings  = '<p>' . __('<strong>Send Trackbacks</strong> &mdash; Trackbacks are a way to notify legacy blog systems that you&#8217;ve linked to them. Enter the URL(s) you want to send trackbacks. If you link to other WordPress sites they&#8217;ll be notified automatically using pingbacks, and this field is unnecessary.') . '</p>';
-	$discussion_settings .= '<p>' . __('<strong>Discussion</strong> &mdash; You can turn comments and pings on or off, and if there are comments on the post, you can see them here and moderate them.') . '</p>';
+	$discussion_settings = '<p>' . __('<strong>Discussion</strong> &mdash; You can turn comments on or off, and if there are comments on the post, you can see them here and moderate them.') . '</p>';
 
 	get_current_screen()->add_help_tab( array(
 		'id'      => 'discussion-settings',

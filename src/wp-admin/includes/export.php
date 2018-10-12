@@ -534,7 +534,7 @@ function export_wp( $args = array() ) {
 		<wp:post_date><?php echo wxr_cdata( $post->post_date ); ?></wp:post_date>
 		<wp:post_date_gmt><?php echo wxr_cdata( $post->post_date_gmt ); ?></wp:post_date_gmt>
 		<wp:comment_status><?php echo wxr_cdata( $post->comment_status ); ?></wp:comment_status>
-		<wp:ping_status><?php echo wxr_cdata( $post->ping_status ); ?></wp:ping_status>
+		<wp:ping_status><?php echo wxr_cdata( 'closed' ); ?></wp:ping_status>
 		<wp:post_name><?php echo wxr_cdata( $post->post_name ); ?></wp:post_name>
 		<wp:status><?php echo wxr_cdata( $post->post_status ); ?></wp:status>
 		<wp:post_parent><?php echo intval( $post->post_parent ); ?></wp:post_parent>

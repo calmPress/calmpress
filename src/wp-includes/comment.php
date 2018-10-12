@@ -32,8 +32,7 @@
  * @param string $comment      Content of the comment.
  * @param string $user_ip      Comment author IP address.
  * @param string $user_agent   Comment author User-Agent.
- * @param string $comment_type Comment type, either user-submitted comment,
- *		                       trackback, or pingback.
+ * @param string $comment_type Comment type.
  * @return bool If all checks pass, true, otherwise false.
  */
 function check_comment($author, $email, $url, $comment, $user_ip, $user_agent, $comment_type) {
@@ -111,7 +110,7 @@ function check_comment($author, $email, $url, $comment, $user_ip, $user_agent, $
 	 * email address. If both checks pass, return true. Otherwise, return false.
 	 */
 	if ( 1 == get_option('comment_whitelist')) {
-		if ( 'trackback' != $comment_type && 'pingback' != $comment_type && $author != '' && $email != '' ) {
+		if ( $author != '' && $email != '' ) {
 			$comment_user = get_user_by( 'email', wp_unslash( $email ) );
 			if ( ! empty( $comment_user->ID ) ) {
 				$ok_to_comment = $wpdb->get_var( $wpdb->prepare( "SELECT comment_approved FROM $wpdb->comments WHERE user_id = %d AND comment_approved = '1' LIMIT 1", $comment_user->ID ) );
@@ -260,8 +259,7 @@ function get_default_comment_status( $post_type = 'post', $comment_type = 'comme
 	switch ( $comment_type ) {
 		case 'pingback' :
 		case 'trackback' :
-			$supports = 'trackbacks';
-			$option = 'ping';
+			return 'closed';
 			break;
 		default :
 			$supports = 'comments';
@@ -904,15 +902,12 @@ function wp_check_comment_flood( $is_flood, $ip, $email, $date, $avoid_die = fal
  */
 function separate_comments(&$comments) {
 	$comments_by_type = array('comment' => array(), 'trackback' => array(), 'pingback' => array(), 'pings' => array());
-	$count = count($comments);
-	for ( $i = 0; $i < $count; $i++ ) {
-		$type = $comments[$i]->comment_type;
-		if ( empty($type) )
-			$type = 'comment';
-		$comments_by_type[$type][] = &$comments[$i];
-		if ( 'trackback' == $type || 'pingback' == $type )
-			$comments_by_type['pings'][] = &$comments[$i];
-	}
+
+	/*
+	 * Short circuit as in calmPress there are no pings or trackbacks, but we
+	 * want to maintain some backward compatibility.
+	 */
+	$comments_by_type['comment'] = $comments;
 
 	return $comments_by_type;
 }
@@ -978,7 +973,7 @@ function get_comment_pages_count( $comments = null, $per_page = null, $threaded 
  * @param array $args {
  *      Array of optional arguments.
  *      @type string     $type      Limit paginated comments to those matching a given type. Accepts 'comment',
- *                                  'trackback', 'pingback', 'pings' (trackbacks and pingbacks), or 'all'.
+ *                                  or 'all'.
  *                                  Default is 'all'.
  *      @type int        $per_page  Per-page count to use when calculating pagination. Defaults to the value of the
  *                                  'comments_per_page' option.
@@ -1643,8 +1638,7 @@ function wp_transition_comment_status($new_status, $old_status, $comment) {
 	 * The dynamic portions of the hook name, `$new_status`, and `$comment->comment_type`,
 	 * refer to the new comment status, and the type of comment, respectively.
 	 *
-	 * Typical comment types include an empty string (standard comment), 'pingback',
-	 * or 'trackback'.
+	 * Typical comment types include an empty string (standard comment).
 	 *
 	 * @since 2.7.0
 	 *
@@ -2427,12 +2421,6 @@ function wp_update_comment_count_now($post_id) {
 function do_all_pings() {
 	global $wpdb;
 
-	// Do pingbacks
-	while ($ping = $wpdb->get_row("SELECT ID, post_content, meta_id FROM {$wpdb->posts}, {$wpdb->postmeta} WHERE {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id AND {$wpdb->postmeta}.meta_key = '_pingme' LIMIT 1")) {
-		delete_metadata_by_mid( 'post', $ping->meta_id );
-		pingback( $ping->post_content, $ping->ID );
-	}
-
 	// Do Enclosures
 	while ($enclosure = $wpdb->get_row("SELECT ID, post_content, meta_id FROM {$wpdb->posts}, {$wpdb->postmeta} WHERE {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id AND {$wpdb->postmeta}.meta_key = '_encloseme' LIMIT 1")) {
 		delete_metadata_by_mid( 'post', $enclosure->meta_id );
@@ -2591,7 +2579,7 @@ function _close_comments_for_old_posts( $posts, $query ) {
 }
 
 /**
- * Close comments on an old post. Hooked to comments_open and pings_open.
+ * Close comments on an old post. Hooked to comments_open.
  *
  * @access private
  * @since 2.7.0
