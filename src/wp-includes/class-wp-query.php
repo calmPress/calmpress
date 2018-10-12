@@ -311,6 +311,7 @@ class WP_Query {
 
 	/**
 	 * Signifies whether the current query is for trackback endpoint call.
+	 * Left in calmPress for backward compatibility should never be true.
 	 *
 	 * @since 1.5.0
 	 * @var bool

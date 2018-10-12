@@ -607,7 +607,6 @@ function bloginfo( $show = '' ) {
  *   will take precedence over this value
  * - 'template_url' / 'template_directory' - URL of the active theme's directory. An active
  *   child theme will NOT take precedence over this value
- * - 'pingback_url' - The pingback XML-RPC file URL (xmlrpc.php)
  * - 'atom_url' - The Atom feed URL (/feed/atom)
  * - 'rdf_url' - The RDF/RSS 1.0 feed URL (/feed/rfd)
  * - 'rss_url' - The RSS 0.92 feed URL (/feed/rss)
@@ -649,9 +648,6 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			break;
 		case 'comments_rss2_url':
 			$output = get_feed_link('comments_rss2');
-			break;
-		case 'pingback_url':
-			$output = site_url( 'xmlrpc.php' );
 			break;
 		case 'stylesheet_url':
 			$output = get_stylesheet_uri();

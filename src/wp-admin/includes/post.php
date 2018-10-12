@@ -48,8 +48,7 @@ function _wp_translate_postdata( $update = false, $post_data = null ) {
 	if ( isset( $post_data['parent_id'] ) )
 		$post_data['post_parent'] = (int) $post_data['parent_id'];
 
-	if ( isset($post_data['trackback_url']) )
-		$post_data['to_ping'] = '';
+	$post_data['to_ping'] = '';
 
 	$post_data['user_ID'] = get_current_user_id();
 

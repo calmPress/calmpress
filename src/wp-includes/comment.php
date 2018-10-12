@@ -2407,12 +2407,8 @@ function wp_update_comment_count_now($post_id) {
 	return true;
 }
 
-//
-// Ping and trackback functions.
-//
-
 /**
- * Perform all pingbacks, enclosures, trackbacks, and send to pingback services.
+ * Perform all enclosures.
  *
  * @since 2.1.0
  *
@@ -2426,37 +2422,6 @@ function do_all_pings() {
 		delete_metadata_by_mid( 'post', $enclosure->meta_id );
 		do_enclose( $enclosure->post_content, $enclosure->ID );
 	}
-}
-
-/**
- * Default filter attached to pingback_ping_source_uri to validate the pingback's Source URI
- *
- * @since 3.5.1
- * @see wp_http_validate_url()
- *
- * @param string $source_uri
- * @return string
- */
-function pingback_ping_source_uri( $source_uri ) {
-	return (string) wp_http_validate_url( $source_uri );
-}
-
-/**
- * Default filter attached to xmlrpc_pingback_error.
- *
- * Returns a generic pingback error code unless the error code is 48,
- * which reports that the pingback is already registered.
- *
- * @since 3.5.1
- * @link https://www.hixie.ch/specs/pingback/pingback#TOC3
- *
- * @param IXR_Error $ixr_error
- * @return IXR_Error
- */
-function xmlrpc_pingback_error( $ixr_error ) {
-	if ( $ixr_error->code === 48 )
-		return $ixr_error;
-	return new IXR_Error( 0, '' );
 }
 
 //
