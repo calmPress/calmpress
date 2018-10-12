@@ -56,7 +56,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		}
 	}
 
-	if ( is_trackback() || is_search() || is_admin() || is_preview() || is_robots() || ( $is_IIS && !iis7_supports_permalinks() ) ) {
+	if ( is_search() || is_admin() || is_preview() || is_robots() || ( $is_IIS && !iis7_supports_permalinks() ) ) {
 		return;
 	}
 

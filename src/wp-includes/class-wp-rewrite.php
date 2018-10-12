@@ -857,8 +857,7 @@ class WP_Rewrite {
 		 */
 		$feedregex = $this->feed_base . '/' . $feedregex2;
 
-		// Build a regex to match the trackback and page/xx parts of URLs.
-		$trackbackregex = 'trackback/?$';
+		// Build a regex to match the page/xx part of URLs.
 		$pageregex = $this->pagination_base . '/?([0-9]{1,})/?$';
 		$commentregex = $this->comments_pagination_base . '-([0-9]{1,})/?$';
 		$embedregex = 'embed/?$';
@@ -886,7 +885,6 @@ class WP_Rewrite {
 
 		$index = $this->index; //probably 'index.php'
 		$feedindex = $index;
-		$trackbackindex = $index;
 		$embedindex = $index;
 
 		/*
@@ -1050,9 +1048,6 @@ class WP_Rewrite {
 
 				// If creating rules for a permalink, do all the endpoints like attachments etc.
 				if ( $post ) {
-					// Create query and regex for trackback.
-					$trackbackmatch = $match . $trackbackregex;
-					$trackbackquery = $trackbackindex . '?' . $query . '&tb=1';
 
 					// Create query and regex for embeds.
 					$embedmatch = $match . $embedregex;
@@ -1066,9 +1061,6 @@ class WP_Rewrite {
 
 					// Add a rule for at attachments, which take the form of <permalink>/some-text.
 					$sub1 = $submatchbase . '/([^/]+)/';
-
-					// Add trackback regex <permalink>/trackback/...
-					$sub1tb = $sub1 . $trackbackregex;
 
 					// And <permalink>/feed/(atom|...)
 					$sub1feed = $sub1 . $feedregex;
@@ -1087,9 +1079,6 @@ class WP_Rewrite {
 					 * <permalink>/attachment/some-text
 					 */
 					$sub2 = $submatchbase . '/attachment/([^/]+)/';
-
-					// And add trackbacks <permalink>/attachment/trackback.
-					$sub2tb = $sub2 . $trackbackregex;
 
 					// Feeds, <permalink>/attachment/feed/(atom|...)
 					$sub2feed = $sub2 . $feedregex;
@@ -1145,25 +1134,22 @@ class WP_Rewrite {
 
 				/*
 				 * Create the final array for this dir by joining the $rewrite array (which currently
-				 * only contains rules/queries for trackback, pages etc) to the main regex/query for
+				 * only contains rules/queries pages etc) to the main regex/query for
 				 * this dir
 				 */
 				$rewrite = array_merge($rewrite, array($match => $query));
 
 				// If we're matching a permalink, add those extras (attachments etc) on.
 				if ( $post ) {
-					// Add trackback.
-					$rewrite = array_merge(array($trackbackmatch => $trackbackquery), $rewrite);
 
 					// Add embed.
 					$rewrite = array_merge( array( $embedmatch => $embedquery ), $rewrite );
 
-					// Add regexes/queries for attachments, attachment trackbacks and so on.
+					// Add regexes/queries for attachments and so on.
 					if ( ! $page ) {
 						// Require <permalink>/attachment/stuff form for pages because of confusion with subpages.
 						$rewrite = array_merge( $rewrite, array(
 							$sub1        => $subquery,
-							$sub1tb      => $subtbquery,
 							$sub1feed    => $subfeedquery,
 							$sub1feed2   => $subfeedquery,
 							$sub1comment => $subcommentquery,
@@ -1171,7 +1157,7 @@ class WP_Rewrite {
 						) );
 					}
 
-					$rewrite = array_merge( array( $sub2 => $subquery, $sub2tb => $subtbquery, $sub2feed => $subfeedquery, $sub2feed2 => $subfeedquery, $sub2comment => $subcommentquery, $sub2embed => $subembedquery ), $rewrite );
+					$rewrite = array_merge( array( $sub2 => $subquery, $sub2feed => $subfeedquery, $sub2feed2 => $subfeedquery, $sub2comment => $subcommentquery, $sub2embed => $subembedquery ), $rewrite );
 				}
 			}
 			// Add the rules for this dir to the accumulating $post_rewrite.
@@ -1623,7 +1609,7 @@ class WP_Rewrite {
 	}
 
 	/**
-	 * Adds an endpoint, like /trackback/.
+	 * Adds an endpoint.
 	 *
 	 * @since 2.1.0
 	 * @since 3.9.0 $query_var parameter added.
