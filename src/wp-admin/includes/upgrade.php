@@ -85,7 +85,7 @@ function wp_install( $blog_title, $user_name, $user_email, $public, $deprecated 
 
 	wp_install_defaults($user_id);
 
-	wp_install_maybe_enable_pretty_permalinks();
+	wp_install_enable_pretty_permalinks();
 
 	flush_rewrite_rules();
 
@@ -325,17 +325,13 @@ As a new WordPress user, you should go to <a href=\"%s\">your dashboard</a> to d
 endif;
 
 /**
- * Maybe enable pretty permalinks on installation.
+ * Enable pretty permalinks on installation.
  *
- * If after enabling pretty permalinks don't work, fallback to query-string permalinks.
- *
- * @since 4.2.0
+ * @since calmPress 1.0.0
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
- *
- * @return bool Whether pretty permalinks are enabled. False otherwise.
  */
-function wp_install_maybe_enable_pretty_permalinks() {
+function wp_install_enable_pretty_permalinks() {
 	global $wp_rewrite;
 
 	// Bail if a permalink structure is already enabled.
@@ -343,60 +339,7 @@ function wp_install_maybe_enable_pretty_permalinks() {
 		return true;
 	}
 
-	/*
-	 * The Permalink structures to attempt.
-	 *
-	 * The first is designed for mod_rewrite or nginx rewriting.
-	 *
-	 * The second is PATHINFO-based permalinks for web server configurations
-	 * without a true rewrite module enabled.
-	 */
-	$permalink_structures = array(
-		'/%year%/%monthnum%/%day%/%postname%/',
-		'/index.php/%year%/%monthnum%/%day%/%postname%/'
-	);
-
-	foreach ( (array) $permalink_structures as $permalink_structure ) {
-		$wp_rewrite->set_permalink_structure( $permalink_structure );
-
-		/*
-	 	 * Flush rules with the hard option to force refresh of the web-server's
-	 	 * rewrite config file (e.g. .htaccess or web.config).
-	 	 */
-		$wp_rewrite->flush_rules( true );
-
-		$test_url = '';
-
-		// Test against a real WordPress Post
-		$first_post = get_page_by_path( sanitize_title( _x( 'hello-world', 'Default post slug' ) ), OBJECT, 'post' );
-		if ( $first_post ) {
-			$test_url = get_permalink( $first_post->ID );
-		}
-
-		/*
-	 	 * Send a request to the site, and check whether
-	 	 * the 'x-pingback' header is returned as expected.
-	 	 *
-	 	 * Uses wp_remote_get() instead of wp_remote_head() because web servers
-	 	 * can block head requests.
-	 	 */
-		$response          = wp_remote_get( $test_url, array( 'timeout' => 5 ) );
-		$x_pingback_header = wp_remote_retrieve_header( $response, 'x-pingback' );
-		$pretty_permalinks = $x_pingback_header && $x_pingback_header === get_bloginfo( 'pingback_url' );
-
-		if ( $pretty_permalinks ) {
-			return true;
-		}
-	}
-
-	/*
-	 * If it makes it this far, pretty permalinks failed.
-	 * Fallback to query-string permalinks.
-	 */
-	$wp_rewrite->set_permalink_structure( '' );
-	$wp_rewrite->flush_rules( true );
-
-	return false;
+	$wp_rewrite->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 }
 
 if ( !function_exists('wp_new_blog_notification') ) :
