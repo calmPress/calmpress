@@ -124,7 +124,6 @@ function get_permalink( $post = 0, $leavename = false ) {
 		'%minute%',
 		'%second%',
 		$leavename? '' : '%postname%',
-		'%post_id%',
 		'%category%',
 		'%author%',
 		$leavename? '' : '%pagename%',

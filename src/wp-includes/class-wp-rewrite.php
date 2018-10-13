@@ -138,8 +138,7 @@ class WP_Rewrite {
 	/**
 	 * The static portion of the post permalink structure.
 	 *
-	 * If the permalink structure is "/archive/%post_id%" then the front
-	 * is "/archive/". If the permalink structure is "/%year%/%postname%/"
+	 * If the permalink structure is "/%year%/%postname%/"
 	 * then the front is "/".
 	 *
 	 * @since 1.5.0
@@ -285,7 +284,6 @@ class WP_Rewrite {
 		'%minute%',
 		'%second%',
 		'%postname%',
-		'%post_id%',
 		'%author%',
 		'%pagename%',
 		'%search%'
@@ -516,17 +514,13 @@ class WP_Rewrite {
 			$date_endian = '%year%/%monthnum%/%day%';
 
 		/*
-		 * Do not allow the date tags and %post_id% to overlap in the permalink
+		 * Do not allow the date tags to overlap in the permalink
 		 * structure. If they do, move the date tags to $front/date/.
 		 */
 		$front = $this->front;
 		preg_match_all('/%.+?%/', $this->permalink_structure, $tokens);
 		$tok_index = 1;
 		foreach ( (array) $tokens[0] as $token) {
-			if ( '%post_id%' == $token && ($tok_index <= 3) ) {
-				$front = $front . 'date/';
-				break;
-			}
 			$tok_index++;
 		}
 
@@ -1024,7 +1018,6 @@ class WP_Rewrite {
 				 * minute all present). Set these flags now as we need them for the endpoints.
 				 */
 				if ( strpos($struct, '%postname%') !== false
-						|| strpos($struct, '%post_id%') !== false
 						|| strpos($struct, '%pagename%') !== false
 						|| (strpos($struct, '%year%') !== false && strpos($struct, '%monthnum%') !== false && strpos($struct, '%day%') !== false && strpos($struct, '%hour%') !== false && strpos($struct, '%minute%') !== false && strpos($struct, '%second%') !== false)
 						) {
