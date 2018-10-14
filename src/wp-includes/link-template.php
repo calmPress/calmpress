@@ -220,6 +220,8 @@ function get_permalink( $post = 0, $leavename = false ) {
 		);
 		$permalink = home_url( str_replace($rewritecode, $rewritereplace, $permalink) );
 		$permalink = user_trailingslashit($permalink, 'single');
+	} else { // Preview URLs for posts that might not have a slug yet.
+		$permalink = home_url('?p=' . $post->ID);
 	}
 
 	/**

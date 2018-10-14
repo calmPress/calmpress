@@ -14,7 +14,7 @@ class WP {
 	 * @since 2.0.0
 	 * @var array
 	 */
-	public $public_query_vars = array('m', 'p', 'posts', 'w', 'cat', 'withcomments', 'withoutcomments', 's', 'search', 'exact', 'sentence', 'page', 'paged', 'more', 'author', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'feed', 'author_name', 'static', 'pagename', 'page_id', 'error', 'attachment', 'attachment_id', 'preview', 'robots', 'taxonomy', 'term', 'cpage', 'post_type', 'embed' );
+	public $public_query_vars = array('m', 'p', 'w', 'withcomments', 'withoutcomments', 's', 'search', 'exact', 'sentence', 'page', 'paged', 'more', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'feed', 'author_name', 'static', 'pagename', 'error', 'attachment', 'preview', 'robots', 'cpage', 'embed' );
 
 	/**
 	 * Private query variables.
@@ -411,12 +411,9 @@ class WP {
 			if ( ! empty( $this->query_vars['withcomments'] )
 			     || false !== strpos( $this->query_vars['feed'], 'comments-' )
 			     || ( empty( $this->query_vars['withoutcomments'] )
-			          && ( ! empty( $this->query_vars['p'] )
-			               || ! empty( $this->query_vars['name'] )
-			               || ! empty( $this->query_vars['page_id'] )
+			          && ( ! empty( $this->query_vars['name'] )
 			               || ! empty( $this->query_vars['pagename'] )
 			               || ! empty( $this->query_vars['attachment'] )
-			               || ! empty( $this->query_vars['attachment_id'] )
 			          )
 			     )
 			) {
