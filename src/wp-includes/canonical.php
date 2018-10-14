@@ -156,28 +156,15 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		if ( is_attachment() &&
 			! array_diff( array_keys( $wp->query_vars ), array( 'attachment', 'attachment_id' ) ) &&
 			! $redirect_url ) {
-			if ( ! empty( $_GET['attachment_id'] ) ) {
-				$redirect_url = get_attachment_link( get_query_var( 'attachment_id' ) );
-				if ( $redirect_url ) {
-					$redirect['query'] = remove_query_arg( 'attachment_id', $redirect['query'] );
-				}
-			} else {
-				$redirect_url = get_attachment_link();
-			}
+			$redirect_url = get_attachment_link();
 		} elseif ( is_single() && !empty($_GET['p']) && ! $redirect_url ) {
 			if ( $redirect_url = get_permalink(get_query_var('p')) )
 				$redirect['query'] = remove_query_arg(array('p', 'post_type'), $redirect['query']);
 		} elseif ( is_single() && !empty($_GET['name'])  && ! $redirect_url ) {
 			if ( $redirect_url = get_permalink( $wp_query->get_queried_object_id() ) )
 				$redirect['query'] = remove_query_arg('name', $redirect['query']);
-		} elseif ( is_page() && !empty($_GET['page_id']) && ! $redirect_url ) {
-			if ( $redirect_url = get_permalink(get_query_var('page_id')) )
-				$redirect['query'] = remove_query_arg('page_id', $redirect['query']);
 		} elseif ( is_page() && !is_feed() && 'page' == get_option('show_on_front') && get_queried_object_id() == get_option('page_on_front')  && ! $redirect_url ) {
 			$redirect_url = home_url('/');
-		} elseif ( is_home() && !empty($_GET['page_id']) && 'page' == get_option('show_on_front') && get_query_var('page_id') == get_option('page_for_posts')  && ! $redirect_url ) {
-			if ( $redirect_url = get_permalink(get_option('page_for_posts')) )
-				$redirect['query'] = remove_query_arg('page_id', $redirect['query']);
 		} elseif ( !empty($_GET['m']) && ( is_year() || is_month() || is_day() ) ) {
 			$m = get_query_var('m');
 			switch ( strlen($m) ) {
@@ -203,12 +190,6 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		} elseif ( is_year() && !empty($_GET['year']) ) {
 			if ( $redirect_url = get_year_link(get_query_var('year')) )
 				$redirect['query'] = remove_query_arg('year', $redirect['query']);
-		} elseif ( is_author() && !empty($_GET['author']) && preg_match( '|^[0-9]+$|', $_GET['author'] ) ) {
-			$author = get_userdata(get_query_var('author'));
-			if ( ( false !== $author ) && $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE $wpdb->posts.post_author = %d AND $wpdb->posts.post_status = 'publish' LIMIT 1", $author->ID ) ) ) {
-				if ( $redirect_url = get_author_posts_url($author->ID, $author->user_nicename) )
-					$redirect['query'] = remove_query_arg('author', $redirect['query']);
-			}
 		} elseif ( is_category() || is_tag() || is_tax() ) { // Terms (Tags/categories)
 
 			$term_count = 0;
