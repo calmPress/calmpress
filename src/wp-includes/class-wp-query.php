@@ -525,8 +525,6 @@ class WP_Query {
 			, 'm'
 			, 'p'
 			, 'post_parent'
-			, 'subpost'
-			, 'subpost_id'
 			, 'attachment'
 			, 'attachment_id'
 			, 'name'
@@ -745,12 +743,6 @@ class WP_Query {
 		if ( ! is_scalar( $qv['s'] ) || ( ! empty( $qv['s'] ) && strlen( $qv['s'] ) > 1600 ) ) {
 			$qv['s'] = '';
 		}
-
-		// Compat. Map subpost to attachment.
-		if ( '' != $qv['subpost'] )
-			$qv['attachment'] = $qv['subpost'];
-		if ( '' != $qv['subpost_id'] )
-			$qv['attachment_id'] = $qv['subpost_id'];
 
 		$qv['attachment_id'] = absint($qv['attachment_id']);
 
