@@ -643,18 +643,10 @@ function get_post_comments_feed_link( $post_id = 0, $feed = '' ) {
 	else
 		$url = get_permalink($post_id);
 
-	if ( $unattached ) {
-		$url =  home_url( '/feed/' );
-		if ( $feed !== get_default_feed() ) {
-			$url .= "$feed/";
-		}
-		$url = add_query_arg( 'attachment_id', $post_id, $url );
-	} else {
-		$url = trailingslashit($url) . 'feed';
-		if ( $feed != get_default_feed() )
-			$url .= "/$feed";
-		$url = user_trailingslashit($url, 'single_feed');
-	}
+	$url = trailingslashit($url) . 'feed';
+	if ( $feed != get_default_feed() )
+		$url .= "/$feed";
+	$url = user_trailingslashit($url, 'single_feed');
 
 	/**
 	 * Filters the post comments feed permalink.
