@@ -161,7 +161,7 @@ function get_permalink( $post = 0, $leavename = false ) {
 	 */
 	$permalink = apply_filters( 'pre_post_link', $permalink, $post, $leavename );
 
-	if ( '' != $permalink && !in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft', 'future' ) ) ) {
+	if ( !in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft', 'future' ) ) ) {
 		$unixtime = strtotime($post->post_date);
 
 		$category = '';
@@ -214,15 +214,12 @@ function get_permalink( $post = 0, $leavename = false ) {
 			$date[4],
 			$date[5],
 			$post->post_name,
-			$post->ID,
 			$category,
 			$author,
 			$post->post_name,
 		);
 		$permalink = home_url( str_replace($rewritecode, $rewritereplace, $permalink) );
 		$permalink = user_trailingslashit($permalink, 'single');
-	} else { // if they're not using the fancy permalink option
-		$permalink = home_url('?p=' . $post->ID);
 	}
 
 	/**
@@ -641,32 +638,22 @@ function get_post_comments_feed_link( $post_id = 0, $feed = '' ) {
 	$post = get_post( $post_id );
 	$unattached = 'attachment' === $post->post_type && 0 === (int) $post->post_parent;
 
-	if ( '' != get_option('permalink_structure') ) {
-		if ( 'page' == get_option('show_on_front') && $post_id == get_option('page_on_front') )
-			$url = _get_page_link( $post_id );
-		else
-			$url = get_permalink($post_id);
+	if ( 'page' == get_option('show_on_front') && $post_id == get_option('page_on_front') )
+		$url = _get_page_link( $post_id );
+	else
+		$url = get_permalink($post_id);
 
-		if ( $unattached ) {
-			$url =  home_url( '/feed/' );
-			if ( $feed !== get_default_feed() ) {
-				$url .= "$feed/";
-			}
-			$url = add_query_arg( 'attachment_id', $post_id, $url );
-		} else {
-			$url = trailingslashit($url) . 'feed';
-			if ( $feed != get_default_feed() )
-				$url .= "/$feed";
-			$url = user_trailingslashit($url, 'single_feed');
+	if ( $unattached ) {
+		$url =  home_url( '/feed/' );
+		if ( $feed !== get_default_feed() ) {
+			$url .= "$feed/";
 		}
+		$url = add_query_arg( 'attachment_id', $post_id, $url );
 	} else {
-		if ( $unattached ) {
-			$url = add_query_arg( array( 'feed' => $feed, 'attachment_id' => $post_id ), home_url( '/' ) );
-		} elseif ( 'page' == $post->post_type ) {
-			$url = add_query_arg( array( 'feed' => $feed, 'page_id' => $post_id ), home_url( '/' ) );
-		} else {
-			$url = add_query_arg( array( 'feed' => $feed, 'p' => $post_id ), home_url( '/' ) );
-		}
+		$url = trailingslashit($url) . 'feed';
+		if ( $feed != get_default_feed() )
+			$url .= "/$feed";
+		$url = user_trailingslashit($url, 'single_feed');
 	}
 
 	/**
@@ -725,22 +712,17 @@ function post_comments_feed_link( $link_text = '', $post_id = '', $feed = '' ) {
  */
 function get_author_feed_link( $author_id, $feed = '' ) {
 	$author_id = (int) $author_id;
-	$permalink_structure = get_option('permalink_structure');
 
 	if ( empty($feed) )
 		$feed = get_default_feed();
 
-	if ( '' == $permalink_structure ) {
-		$link = home_url("?feed=$feed&amp;author=" . $author_id);
-	} else {
-		$link = get_author_posts_url($author_id);
-		if ( $feed == get_default_feed() )
-			$feed_link = 'feed';
-		else
-			$feed_link = "feed/$feed";
+	$link = get_author_posts_url($author_id);
+	if ( $feed == get_default_feed() )
+		$feed_link = 'feed';
+	else
+		$feed_link = "feed/$feed";
 
-		$link = trailingslashit($link) . user_trailingslashit($feed_link, 'feed');
-	}
+	$link = trailingslashit($link) . user_trailingslashit($feed_link, 'feed');
 
 	/**
 	 * Filters the feed link for a given author.
@@ -795,27 +777,13 @@ function get_term_feed_link( $term_id, $taxonomy = 'category', $feed = '' ) {
 	if ( empty( $feed ) )
 		$feed = get_default_feed();
 
-	$permalink_structure = get_option( 'permalink_structure' );
+	$link = get_term_link( $term_id, $term->taxonomy );
+	if ( $feed == get_default_feed() )
+		$feed_link = 'feed';
+	else
+		$feed_link = "feed/$feed";
 
-	if ( '' == $permalink_structure ) {
-		if ( 'category' == $taxonomy ) {
-			$link = home_url("?feed=$feed&amp;cat=$term_id");
-		}
-		elseif ( 'post_tag' == $taxonomy ) {
-			$link = home_url("?feed=$feed&amp;tag=$term->slug");
-		} else {
-			$t = get_taxonomy( $taxonomy );
-			$link = home_url("?feed=$feed&amp;$t->query_var=$term->slug");
-		}
-	} else {
-		$link = get_term_link( $term_id, $term->taxonomy );
-		if ( $feed == get_default_feed() )
-			$feed_link = 'feed';
-		else
-			$feed_link = "feed/$feed";
-
-		$link = trailingslashit( $link ) . user_trailingslashit( $feed_link, 'feed' );
-	}
+	$link = trailingslashit( $link ) . user_trailingslashit( $feed_link, 'feed' );
 
 	if ( 'category' == $taxonomy ) {
 		/**
@@ -1151,7 +1119,7 @@ function get_post_type_archive_link( $post_type ) {
 	if ( ! $post_type_obj->has_archive )
 		return false;
 
-	if ( get_option( 'permalink_structure' ) && is_array( $post_type_obj->rewrite ) ) {
+	if ( is_array( $post_type_obj->rewrite ) ) {
 		$struct = ( true === $post_type_obj->has_archive ) ? $post_type_obj->rewrite['slug'] : $post_type_obj->has_archive;
 		if ( $post_type_obj->rewrite['with_front'] )
 			$struct = $wp_rewrite->front . $struct;
@@ -1191,7 +1159,7 @@ function get_post_type_archive_feed_link( $post_type, $feed = '' ) {
 		return false;
 
 	$post_type_obj = get_post_type_object( $post_type );
-	if ( get_option( 'permalink_structure' ) && is_array( $post_type_obj->rewrite ) && $post_type_obj->rewrite['feeds'] ) {
+	if ( is_array( $post_type_obj->rewrite ) && $post_type_obj->rewrite['feeds'] ) {
 		$link = trailingslashit( $link );
 		$link .= 'feed/';
 		if ( $feed != $default_feed )
@@ -3456,11 +3424,7 @@ function wp_get_canonical_url( $post = null ) {
 	if ( $post->ID === get_queried_object_id() ) {
 		$page = get_query_var( 'page', 0 );
 		if ( $page >= 2 ) {
-			if ( '' == get_option( 'permalink_structure' ) ) {
-				$canonical_url = add_query_arg( 'page', $page, $canonical_url );
-			} else {
-				$canonical_url = trailingslashit( $canonical_url ) . user_trailingslashit( $page, 'single_paged' );
-			}
+			$canonical_url = trailingslashit( $canonical_url ) . user_trailingslashit( $page, 'single_paged' );
 		}
 
 		$cpage = get_query_var( 'cpage', 0 );

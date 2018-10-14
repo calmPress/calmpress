@@ -959,7 +959,7 @@ function _wp_link_page( $i ) {
 	if ( 1 == $i ) {
 		$url = get_permalink();
 	} else {
-		if ( '' == get_option('permalink_structure') || in_array($post->post_status, array('draft', 'pending')) )
+		if ( in_array($post->post_status, array('draft', 'pending')) )
 			$url = add_query_arg( 'page', $i, get_permalink() );
 		elseif ( 'page' == get_option('show_on_front') && get_option('page_on_front') == $post->ID )
 			$url = trailingslashit(get_permalink()) . user_trailingslashit("$wp_rewrite->pagination_base/" . $i, 'single_paged');

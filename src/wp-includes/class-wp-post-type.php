@@ -473,7 +473,7 @@ class WP_Post_Type {
 			}
 		}
 
-		if ( false !== $args['rewrite'] && ( is_admin() || '' != get_option( 'permalink_structure' ) ) ) {
+		if ( false !== $args['rewrite'] ) {
 			if ( ! is_array( $args['rewrite'] ) ) {
 				$args['rewrite'] = array();
 			}
@@ -536,7 +536,7 @@ class WP_Post_Type {
 			$wp->add_query_var( $this->query_var );
 		}
 
-		if ( false !== $this->rewrite && ( is_admin() || '' != get_option( 'permalink_structure' ) ) ) {
+		if ( false !== $this->rewrite ) {
 			if ( $this->hierarchical ) {
 				add_rewrite_tag( "%$this->name%", '(.+?)', $this->query_var ? "{$this->query_var}=" : "post_type=$this->name&pagename=" );
 			} else {

@@ -210,8 +210,6 @@ $structures = array(
 					/* translators: %s: permalink structure tag */
 					'second'   => __( '%s (Second of the minute, for example 33.)' ),
 					/* translators: %s: permalink structure tag */
-					'post_id'  => __( '%s (The unique ID of the post, for example 423.)' ),
-					/* translators: %s: permalink structure tag */
 					'postname' => __( '%s (The sanitized post title (slug).)' ),
 					/* translators: %s: permalink structure tag */
 					'category' => __( '%s (Category slug. Nested sub-categories appear as nested directories in the URL.)' ),

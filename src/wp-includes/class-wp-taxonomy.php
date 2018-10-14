@@ -285,7 +285,7 @@ class WP_Taxonomy {
 			$args['query_var'] = false;
 		}
 
-		if ( false !== $args['rewrite'] && ( is_admin() || '' != get_option( 'permalink_structure' ) ) ) {
+		if ( false !== $args['rewrite'] ) {
 			$args['rewrite'] = wp_parse_args( $args['rewrite'], array(
 				'with_front'   => true,
 				'hierarchical' => false,
@@ -369,7 +369,7 @@ class WP_Taxonomy {
 			$wp->add_query_var( $this->query_var );
 		}
 
-		if ( false !== $this->rewrite && ( is_admin() || '' != get_option( 'permalink_structure' ) ) ) {
+		if ( false !== $this->rewrite ) {
 			if ( $this->hierarchical && $this->rewrite['hierarchical'] ) {
 				$tag = '(.+?)';
 			} else {

@@ -401,7 +401,7 @@ function populate_options() {
 	'links_updated_date_format' => __('F j, Y g:i a'),
 	'comment_moderation' => 0,
 	'moderation_notify' => 1,
-	'permalink_structure' => '',
+	'permalink_structure' => '/%year%/%monthnum%/%day%/%postname%/',
 	'rewrite_rules' => '',
 	'blog_charset' => 'UTF-8',
 	'moderation_keys' => '',

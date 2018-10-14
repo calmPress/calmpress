@@ -304,7 +304,6 @@ class WP_Rewrite {
 		'([0-9]{1,2})',
 		'([0-9]{1,2})',
 		'([^/]+)',
-		'([0-9]+)',
 		'([^/]+)',
 		'([^/]+?)',
 		'(.+)'
@@ -324,7 +323,6 @@ class WP_Rewrite {
 		'minute=',
 		'second=',
 		'name=',
-		'p=',
 		'author_name=',
 		'pagename=',
 		's='
