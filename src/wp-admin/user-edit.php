@@ -245,12 +245,6 @@ if ( ! IS_PROFILE_PAGE ) {
 $show_syntax_highlighting_preference = (
 	// For Custom HTML widget and Additional CSS in Customizer.
 	user_can( $profileuser, 'edit_theme_options' )
-	||
-	// Edit plugins.
-	user_can( $profileuser, 'edit_plugins' )
-	||
-	// Edit themes.
-	user_can( $profileuser, 'edit_themes' )
 );
 ?>
 <?php if ( $show_syntax_highlighting_preference ) : ?>

@@ -113,20 +113,6 @@ function get_page_templates( $post = null, $post_type = 'page' ) {
 }
 
 /**
- * Tidies a filename for url display by the theme editor.
- *
- * @since 2.9.0
- * @access private
- *
- * @param string $fullpath Full path to the theme file
- * @param string $containingfolder Path of the theme parent folder
- * @return string
- */
-function _get_template_edit_filename($fullpath, $containingfolder) {
-	return str_replace(dirname(dirname( $containingfolder )) , '', $fullpath);
-}
-
-/**
  * Check if there is an update for a theme available.
  *
  * Will display link, if there is an update available.

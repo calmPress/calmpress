@@ -525,8 +525,7 @@ span.wp-media-buttons-icon:before {
 	margin: 25px;
 }
 
-#post-lock-dialog .post-locked-message a.button,
-#file-editor-warning .button {
+#post-lock-dialog .post-locked-message a.button {
 	margin-right: 10px;
 }
 

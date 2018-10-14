@@ -175,21 +175,6 @@ $menu[60] = array( __( 'Appearance' ), $appearance_cap, 'themes.php', '', 'menu-
 
 unset( $appearance_cap );
 
-// Add 'Editor' to the bottom of the Appearance menu.
-if ( ! is_multisite() ) {
-	add_action('admin_menu', '_add_themes_utility_last', 101);
-}
-/**
- * Adds the (theme) 'Editor' link to the bottom of the Appearance menu.
- *
- * @access private
- * @since 3.0.0
- */
-function _add_themes_utility_last() {
-	// Must use API on the admin_menu hook, direct modification is only possible on/before the _admin_menu hook
-	add_submenu_page('themes.php', _x('Editor', 'theme editor'), _x('Editor', 'theme editor'), 'edit_themes', 'theme-editor.php');
-}
-
 $count = '';
 if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
 	if ( ! isset( $update_data ) )
@@ -204,7 +189,6 @@ $submenu['plugins.php'][5]  = array( __('Installed Plugins'), 'activate_plugins'
 	if ( ! is_multisite() ) {
 		/* translators: add new plugin */
 		$submenu['plugins.php'][10] = array( _x('Add New', 'plugin'), 'install_plugins', 'plugin-install.php' );
-		$submenu['plugins.php'][15] = array( _x('Editor', 'plugin editor'), 'edit_plugins', 'plugin-editor.php' );
 	}
 
 unset( $update_data );
