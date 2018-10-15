@@ -329,6 +329,24 @@ class wp_xmlrpc_server extends IXR_Server {
 	}
 
 	/**
+	 * Get meta data for the given post ID.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @global wpdb $wpdb WordPress database abstraction object.
+	 *
+	 * @param int $postid
+	 * @return mixed
+	 */
+	function has_meta( $postid ) {
+		global $wpdb;
+
+		return $wpdb->get_results( $wpdb->prepare("SELECT meta_key, meta_value, meta_id, post_id
+				FROM $wpdb->postmeta WHERE post_id = %d
+				ORDER BY meta_key,meta_id", $postid), ARRAY_A );
+	}
+
+	/**
 	 * Retrieve custom fields for post.
 	 *
 	 * @since 2.5.0
