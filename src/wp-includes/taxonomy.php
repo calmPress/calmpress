@@ -3765,7 +3765,7 @@ function _wp_check_split_default_terms( $term_id, $new_term_id, $term_taxonomy_i
 		return;
 	}
 
-	foreach ( array( 'default_category', 'default_email_category' ) as $option ) {
+	foreach ( array( 'default_category' ) as $option ) {
 		if ( $term_id == get_option( $option, -1 ) ) {
 			update_option( $option, $new_term_id );
 		}

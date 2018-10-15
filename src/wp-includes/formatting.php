@@ -4090,7 +4090,6 @@ function sanitize_option( $option, $value ) {
 		case 'page_for_posts':
 		case 'rss_excerpt_length':
 		case 'default_category':
-		case 'default_email_category':
 		case 'close_comments_days_old':
 		case 'comments_per_page':
 		case 'thread_comments_depth':
@@ -4144,9 +4143,6 @@ function sanitize_option( $option, $value ) {
 
 		case 'date_format':
 		case 'time_format':
-		case 'mailserver_url':
-		case 'mailserver_login':
-		case 'mailserver_pass':
 		case 'upload_path':
 			$value = $wpdb->strip_invalid_text_for_column( $wpdb->options, 'option_value', $value );
 			if ( is_wp_error( $value ) ) {

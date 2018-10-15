@@ -139,13 +139,10 @@ $whitelist_options = array(
 	),
 	'writing' => array(
 		'default_category',
-		'default_email_category',
 		'default_post_format',
 	),
 );
 $whitelist_options['misc'] = $whitelist_options['options'] = $whitelist_options['privacy'] = array();
-
-$mail_options = array('mailserver_url', 'mailserver_port', 'mailserver_login', 'mailserver_pass');
 
 if ( ! in_array( get_option( 'blog_charset' ), array( 'utf8', 'utf-8', 'UTF8', 'UTF-8' ) ) )
 	$whitelist_options['reading'][] = 'blog_charset';
@@ -159,8 +156,6 @@ if ( !is_multisite() ) {
 	$whitelist_options['general'][] = 'users_can_register';
 	$whitelist_options['general'][] = 'default_role';
 
-	$whitelist_options['writing'] = array_merge($whitelist_options['writing'], $mail_options);
-
 	$whitelist_options['media'][] = 'uploads_use_yearmonth_folders';
 
 	// If upload_url_path and upload_path are both default values, they're locked.
@@ -168,16 +163,6 @@ if ( !is_multisite() ) {
 		$whitelist_options['media'][] = 'upload_path';
 		$whitelist_options['media'][] = 'upload_url_path';
 	}
-} else {
-	/**
-	 * Filters whether the post-by-email functionality is enabled.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param bool $enabled Whether post-by-email configuration is enabled. Default true.
-	 */
-	if ( apply_filters( 'enable_post_by_email_configuration', true ) )
-		$whitelist_options['writing'] = array_merge($whitelist_options['writing'], $mail_options);
 }
 
 /**
