@@ -677,24 +677,6 @@ function rest_filter_response_fields( $response, $server, $request ) {
 }
 
 /**
- * Adds the REST API URL to the WP RSD endpoint.
- *
- * @since 4.4.0
- *
- * @see get_rest_url()
- */
-function rest_output_rsd() {
-	$api_root = get_rest_url();
-
-	if ( empty( $api_root ) ) {
-		return;
-	}
-	?>
-	<api name="WP-API" blogID="1" preferred="false" apiLink="<?php echo esc_url( $api_root ); ?>" />
-	<?php
-}
-
-/**
  * Outputs the REST API link tag into page header.
  *
  * @since 4.4.0

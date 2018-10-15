@@ -220,7 +220,6 @@ add_action( 'transition_comment_status', '_clear_modified_cache_on_transition_co
 add_filter( 'http_request_host_is_external',    'allowed_http_request_hosts', 10, 2 );
 
 // REST API filters.
-add_action( 'xmlrpc_rsd_apis',            'rest_output_rsd' );
 add_action( 'wp_head',                    'rest_output_link_wp_head', 10, 0 );
 add_action( 'template_redirect',          'rest_output_link_header', 11, 0 );
 add_action( 'auth_cookie_malformed',      'rest_cookie_collect_status' );
@@ -236,7 +235,6 @@ add_action( 'wp_head',             'wp_enqueue_scripts',              1     );
 add_action( 'wp_head',             'wp_resource_hints',               2     );
 add_action( 'wp_head',             'feed_links',                      2     );
 add_action( 'wp_head',             'feed_links_extra',                3     );
-add_action( 'wp_head',             'rsd_link'                               );
 add_action( 'wp_head',             'adjacent_posts_rel_link_wp_head', 10, 0 );
 add_action( 'wp_head',             'locale_stylesheet'                      );
 add_action( 'publish_future_post', 'check_and_publish_future_post',   10, 1 );
