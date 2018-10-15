@@ -98,7 +98,7 @@ class _WP_Editors {
 			'quicktags'           => true
 		) );
 
-		self::$this_tinymce = ( $set['tinymce'] && user_can_richedit() );
+		self::$this_tinymce = $set['tinymce'];
 
 		self::$this_quicktags = (bool) $set['quicktags'];
 
@@ -812,45 +812,40 @@ class _WP_Editors {
 	 *
 	 */
 	public static function print_default_editor_scripts() {
-		$user_can_richedit = user_can_richedit();
 
-		if ( $user_can_richedit ) {
-			$settings = self::default_settings();
+		$settings = self::default_settings();
 
-			$settings['toolbar1'] = 'bold,italic,bullist,numlist,link';
-			$settings['wpautop'] = false;
-			$settings['indent'] = true;
-			$settings['elementpath'] = false;
+		$settings['toolbar1'] = 'bold,italic,bullist,numlist,link';
+		$settings['wpautop'] = false;
+		$settings['indent'] = true;
+		$settings['elementpath'] = false;
 
-			if ( is_rtl() ) {
-				$settings['directionality'] = 'rtl';
-			}
-
-			// In production all plugins are loaded (they are in wp-editor.js.gz).
-			// The 'wpview', 'wpdialogs', and 'media' TinyMCE plugins are not initialized by default.
-			// Can be added from js by using the 'wp-before-tinymce-init' event.
-			$settings['plugins'] = implode( ',', array(
-				'charmap',
-				'colorpicker',
-				'hr',
-				'lists',
-				'paste',
-				'tabfocus',
-				'textcolor',
-				'fullscreen',
-				'wordpress',
-				'wpautoresize',
-				'wpeditimage',
-				'wpemoji',
-				'wpgallery',
-				'wplink',
-				'wptextpattern',
-			) );
-
-			$settings = self::_parse_init( $settings );
-		} else {
-			$settings = '{}';
+		if ( is_rtl() ) {
+			$settings['directionality'] = 'rtl';
 		}
+
+		// In production all plugins are loaded (they are in wp-editor.js.gz).
+		// The 'wpview', 'wpdialogs', and 'media' TinyMCE plugins are not initialized by default.
+		// Can be added from js by using the 'wp-before-tinymce-init' event.
+		$settings['plugins'] = implode( ',', array(
+			'charmap',
+			'colorpicker',
+			'hr',
+			'lists',
+			'paste',
+			'tabfocus',
+			'textcolor',
+			'fullscreen',
+			'wordpress',
+			'wpautoresize',
+			'wpeditimage',
+			'wpemoji',
+			'wpgallery',
+			'wplink',
+			'wptextpattern',
+		) );
+
+		$settings = self::_parse_init( $settings );
 
 		?>
 		<script type="text/javascript">
@@ -867,27 +862,21 @@ class _WP_Editors {
 
 		<?php
 
-		if ( $user_can_richedit ) {
-			$suffix = SCRIPT_DEBUG ? '' : '.min';
-			$baseurl = self::get_baseurl();
+		$suffix = SCRIPT_DEBUG ? '' : '.min';
+		$baseurl = self::get_baseurl();
 
-			?>
-			var tinyMCEPreInit = {
-				baseURL: "<?php echo $baseurl; ?>",
-				suffix: "<?php echo $suffix; ?>",
-				mceInit: {},
-				qtInit: {},
-				load_ext: function(url,lang){var sl=tinymce.ScriptLoader;sl.markDone(url+'/langs/'+lang+'.js');sl.markDone(url+'/langs/'+lang+'_dlg.js');}
-			};
-			<?php
-		}
 		?>
+		var tinyMCEPreInit = {
+			baseURL: "<?php echo $baseurl; ?>",
+			suffix: "<?php echo $suffix; ?>",
+			mceInit: {},
+			qtInit: {},
+			load_ext: function(url,lang){var sl=tinymce.ScriptLoader;sl.markDone(url+'/langs/'+lang+'.js');sl.markDone(url+'/langs/'+lang+'_dlg.js');}
+		};
 		</script>
 		<?php
 
-		if ( $user_can_richedit ) {
-			self::print_tinymce_scripts();
-		}
+		self::print_tinymce_scripts();
 
 		/**
 		 * Fires when the editor scripts are loaded for later initialization,

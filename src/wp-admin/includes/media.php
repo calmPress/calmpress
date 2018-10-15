@@ -1567,8 +1567,8 @@ function get_media_item( $attachment_id, $args = null ) {
 		if ( !empty( $field[ $field['input'] ] ) )
 			$item .= $field[ $field['input'] ];
 		elseif ( $field['input'] == 'textarea' ) {
-			if ( 'post_content' == $id && user_can_richedit() ) {
-				// Sanitize_post() skips the post_content when user_can_richedit.
+			if ( 'post_content' == $id ) {
+				// Sanitize_post() skips the post_content.
 				$field['value'] = htmlspecialchars( $field['value'], ENT_QUOTES );
 			}
 			// Post_excerpt is already escaped by sanitize_post() in get_attachment_fields_to_edit().
@@ -1724,8 +1724,8 @@ function get_compat_media_markup( $attachment_id, $args = null ) {
 		if ( !empty( $field[ $field['input'] ] ) )
 			$item .= $field[ $field['input'] ];
 		elseif ( $field['input'] == 'textarea' ) {
-			if ( 'post_content' == $id && user_can_richedit() ) {
-				// sanitize_post() skips the post_content when user_can_richedit.
+			if ( 'post_content' == $id ) {
+				// sanitize_post() skips the post_content.
 				$field['value'] = htmlspecialchars( $field['value'], ENT_QUOTES );
 			}
 			$item .= "<textarea id='$id_attr' name='$name'{$required_attr}{$aria_required}>" . $field['value'] . '</textarea>';

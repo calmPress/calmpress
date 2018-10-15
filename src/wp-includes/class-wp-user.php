@@ -32,7 +32,6 @@
  * @property string $spam
  * @property string $deleted
  * @property string $locale
- * @property string $rich_editing
  * @property string $syntax_highlighting
  */
 class WP_User {

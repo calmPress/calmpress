@@ -2945,45 +2945,13 @@ function wp_dependencies_unique_hosts() {
 /**
  * Whether the user can access the visual editor.
  *
- * Checks if the user can access the visual editor and that it's supported by the user's browser.
+ * Exists in calmPress for backward compatibility.
  *
- * @since 2.0.0
- *
- * @global bool $wp_rich_edit Whether the user can access the visual editor.
- * @global bool $is_gecko     Whether the browser is Gecko-based.
- * @global bool $is_opera     Whether the browser is Opera.
- * @global bool $is_safari    Whether the browser is Safari.
- * @global bool $is_chrome    Whether the browser is Chrome.
- * @global bool $is_IE        Whether the browser is Internet Explorer.
- * @global bool $is_edge      Whether the browser is Microsoft Edge.
- *
- * @return bool True if the user can access the visual editor, false otherwise.
+ * @return bool always true.
  */
 function user_can_richedit() {
-	global $wp_rich_edit, $is_gecko, $is_opera, $is_safari, $is_chrome, $is_IE, $is_edge;
 
-	if ( !isset($wp_rich_edit) ) {
-		$wp_rich_edit = false;
-
-		if ( get_user_option( 'rich_editing' ) == 'true' || ! is_user_logged_in() ) { // default to 'true' for logged out users
-			if ( $is_safari ) {
-				$wp_rich_edit = ! wp_is_mobile() || ( preg_match( '!AppleWebKit/(\d+)!', $_SERVER['HTTP_USER_AGENT'], $match ) && intval( $match[1] ) >= 534 );
-			} elseif ( $is_IE ) {
-				$wp_rich_edit = ( strpos( $_SERVER['HTTP_USER_AGENT'], 'Trident/7.0;' ) !== false );
-			} elseif ( $is_gecko || $is_chrome || $is_edge || ( $is_opera && !wp_is_mobile() ) ) {
-				$wp_rich_edit = true;
-			}
-		}
-	}
-
-	/**
-	 * Filters whether the user can access the visual editor.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param bool $wp_rich_edit Whether the user can access the visual editor.
-	 */
-	return apply_filters( 'user_can_richedit', $wp_rich_edit );
+	return true;
 }
 
 /**
@@ -2997,7 +2965,7 @@ function user_can_richedit() {
  * @return string Either 'tinymce', or 'html', or 'test'
  */
 function wp_default_editor() {
-	$r = user_can_richedit() ? 'tinymce' : 'html'; // defaults
+	$r = 'tinymce';
 	if ( wp_get_current_user() ) { // look for cookie
 		$ed = get_user_setting('editor', 'tinymce');
 		$r = ( in_array($ed, array('tinymce', 'html', 'test') ) ) ? $ed : $r;

@@ -445,20 +445,14 @@ class WP_Widget_Text extends WP_Widget {
 		<?php if ( ! $this->is_legacy_instance( $instance ) ) : ?>
 			<?php
 
-			if ( user_can_richedit() ) {
-				add_filter( 'the_editor_content', 'format_for_editor', 10, 2 );
-				$default_editor = 'tinymce';
-			} else {
-				$default_editor = 'html';
-			}
+			add_filter( 'the_editor_content', 'format_for_editor', 10, 2 );
+			$default_editor = 'tinymce';
 
 			/** This filter is documented in wp-includes/class-wp-editor.php */
 			$text = apply_filters( 'the_editor_content', $instance['text'], $default_editor );
 
 			// Reset filter addition.
-			if ( user_can_richedit() ) {
-				remove_filter( 'the_editor_content', 'format_for_editor' );
-			}
+			remove_filter( 'the_editor_content', 'format_for_editor' );
 
 			// Prevent premature closing of textarea in case format_for_editor() didn't apply or the_editor_content filter did a wrong thing.
 			$escaped_text = preg_replace( '#</textarea#i', '&lt;/textarea', $text );

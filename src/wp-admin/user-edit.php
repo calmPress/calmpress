@@ -235,12 +235,6 @@ if ( ! IS_PROFILE_PAGE ) {
 <h2><?php _e( 'Personal Options' ); ?></h2>
 
 <table class="form-table">
-<?php if ( ! ( IS_PROFILE_PAGE && ! $user_can_edit ) ) : ?>
-	<tr class="user-rich-editing-wrap">
-		<th scope="row"><?php _e( 'Visual Editor' ); ?></th>
-		<td><label for="rich_editing"><input name="rich_editing" type="checkbox" id="rich_editing" value="false" <?php if ( ! empty( $profileuser->rich_editing ) ) checked( 'false', $profileuser->rich_editing ); ?> /> <?php _e( 'Disable the visual editor when writing' ); ?></label></td>
-	</tr>
-<?php endif; ?>
 <?php
 $show_syntax_highlighting_preference = (
 	// For Custom HTML widget and Additional CSS in Customizer.
