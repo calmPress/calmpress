@@ -3983,24 +3983,6 @@ function add_thickbox() {
 }
 
 /**
- * Displays the XHTML generator that is generated on the wp_head hook.
- *
- * See {@see 'wp_head'}.
- *
- * @since 2.5.0
- */
-function wp_generator() {
-	/**
-	 * Filters the output of the XHTML generator tag.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @param string $generator_type The XHTML generator.
-	 */
-	the_generator( apply_filters( 'wp_generator_type', 'xhtml' ) );
-}
-
-/**
  * Display the generator XML or Comment for RSS, ATOM, etc.
  *
  * Returns the correct generator type for the requested output format. Allows
@@ -4017,14 +3999,14 @@ function the_generator( $type ) {
 	 * @since 2.5.0
 	 *
 	 * @param string $generator_type The generator output.
-	 * @param string $type           The type of generator to output. Accepts 'html',
-	 *                               'xhtml', 'atom', 'rss2', 'rdf', 'comment', 'export'.
+	 * @param string $type           The type of generator to output. Accepts
+	 *                               only 'export'.
 	 */
 	echo apply_filters( 'the_generator', get_the_generator($type), $type ) . "\n";
 }
 
 /**
- * Creates the generator XML or Comment for RSS, ATOM, etc.
+ * Creates the generator XML or Comment export etc.
  *
  * Returns the correct generator type for the requested output format. Allows
  * for a plugin to filter generators on an individual basis using the
@@ -4032,54 +4014,12 @@ function the_generator( $type ) {
  *
  * @since 2.5.0
  *
- * @param string $type The type of generator to return - (html|xhtml|atom|rss2|rdf|comment|export).
+ * @param string $type The type of generator to return - (export).
  * @return string|void The HTML content for the generator.
  */
 function get_the_generator( $type = '' ) {
-	if ( empty( $type ) ) {
-
-		$current_filter = current_filter();
-		if ( empty( $current_filter ) )
-			return;
-
-		switch ( $current_filter ) {
-			case 'rss2_head' :
-			case 'commentsrss2_head' :
-				$type = 'rss2';
-				break;
-			case 'rss_head' :
-				$type = 'comment';
-				break;
-			case 'rdf_header' :
-				$type = 'rdf';
-				break;
-			case 'atom_head' :
-			case 'comments_atom_head' :
-			case 'app_head' :
-				$type = 'atom';
-				break;
-		}
-	}
 
 	switch ( $type ) {
-		case 'html':
-			$gen = '<meta name="generator" content="calmPress ' . esc_attr( get_bloginfo( 'version' ) ) . '">';
-			break;
-		case 'xhtml':
-			$gen = '<meta name="generator" content="calmPress ' . esc_attr( get_bloginfo( 'version' ) ) . '" />';
-			break;
-		case 'atom':
-			$gen = '<generator uri="https://calmpress.org/" version="' . esc_attr( get_bloginfo_rss( 'version' ) ) . '">calmPress</generator>';
-			break;
-		case 'rss2':
-			$gen = '<generator>' . esc_url_raw( 'https://calmpress.org/?v=' . get_bloginfo_rss( 'version' ) ) . '</generator>';
-			break;
-		case 'rdf':
-			$gen = '<admin:generatorAgent rdf:resource="' . esc_url_raw( 'https://calmpress.org/?v=' . get_bloginfo_rss( 'version' ) ) . '" />';
-			break;
-		case 'comment':
-			$gen = '<!-- generator="calmPress/' . esc_attr( get_bloginfo( 'version' ) ) . '" -->';
-			break;
 		case 'export':
 			$gen = '<!-- generator="calmPress/' . esc_attr( get_bloginfo_rss( 'version' ) ) . '" created="' . date( 'Y-m-d H:i' ) . '" -->';
 			break;
@@ -4093,8 +4033,7 @@ function get_the_generator( $type = '' ) {
 	 * @since 2.5.0
 	 *
 	 * @param string $gen  The HTML markup output to wp_head().
-	 * @param string $type The type of generator. Accepts 'html', 'xhtml', 'atom',
-	 *                     'rss2', 'rdf', 'comment', 'export'.
+	 * @param string $type The type of generator. Accepts 'export'.
 	 */
 	return apply_filters( "get_the_generator_{$type}", $gen, $type );
 }
