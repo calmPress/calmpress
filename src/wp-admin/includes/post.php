@@ -279,33 +279,6 @@ function edit_post( $post_data = null ) {
 		wp_update_attachment_metadata( $post_ID, $id3data );
 	}
 
-	// Meta Stuff
-	if ( isset($post_data['meta']) && $post_data['meta'] ) {
-		foreach ( $post_data['meta'] as $key => $value ) {
-			if ( !$meta = get_post_meta_by_id( $key ) )
-				continue;
-			if ( $meta->post_id != $post_ID )
-				continue;
-			if ( is_protected_meta( $meta->meta_key, 'post' ) || ! current_user_can( 'edit_post_meta', $post_ID, $meta->meta_key ) )
-				continue;
-			if ( is_protected_meta( $value['key'], 'post' ) || ! current_user_can( 'edit_post_meta', $post_ID, $value['key'] ) )
-				continue;
-			update_meta( $key, $value['key'], $value['value'] );
-		}
-	}
-
-	if ( isset($post_data['deletemeta']) && $post_data['deletemeta'] ) {
-		foreach ( $post_data['deletemeta'] as $key => $value ) {
-			if ( !$meta = get_post_meta_by_id( $key ) )
-				continue;
-			if ( $meta->post_id != $post_ID )
-				continue;
-			if ( is_protected_meta( $meta->meta_key, 'post' ) || ! current_user_can( 'delete_post_meta', $post_ID, $meta->meta_key ) )
-				continue;
-			delete_meta( $key );
-		}
-	}
-
 	// Attachment stuff
 	if ( 'attachment' == $post_data['post_type'] ) {
 		if ( isset( $post_data[ '_wp_attachment_image_alt' ] ) ) {
@@ -368,8 +341,6 @@ function edit_post( $post_data = null ) {
 			$post_data['tax_input'][ $taxonomy ] = $clean_terms;
 		}
 	}
-
-	add_meta( $post_ID );
 
 	update_post_meta( $post_ID, '_edit_last', get_current_user_id() );
 
@@ -765,8 +736,6 @@ function wp_write_post() {
 	if ( empty($post_ID) )
 		return 0;
 
-	add_meta( $post_ID );
-
 	add_post_meta( $post_ID, '_edit_last', $GLOBALS['current_user']->ID );
 
 	// Now that we have an ID we can fix any attachment anchor hrefs
@@ -797,90 +766,6 @@ function write_post() {
 //
 
 /**
- * Add post meta data defined in $_POST superglobal for post with given ID.
- *
- * @since 1.2.0
- *
- * @param int $post_ID
- * @return int|bool
- */
-function add_meta( $post_ID ) {
-	$post_ID = (int) $post_ID;
-
-	$metakeyselect = isset($_POST['metakeyselect']) ? wp_unslash( trim( $_POST['metakeyselect'] ) ) : '';
-	$metakeyinput = isset($_POST['metakeyinput']) ? wp_unslash( trim( $_POST['metakeyinput'] ) ) : '';
-	$metavalue = isset($_POST['metavalue']) ? $_POST['metavalue'] : '';
-	if ( is_string( $metavalue ) )
-		$metavalue = trim( $metavalue );
-
-	if ( ('0' === $metavalue || ! empty ( $metavalue ) ) && ( ( ( '#NONE#' != $metakeyselect ) && !empty ( $metakeyselect) ) || !empty ( $metakeyinput ) ) ) {
-		/*
-		 * We have a key/value pair. If both the select and the input
-		 * for the key have data, the input takes precedence.
-		 */
- 		if ( '#NONE#' != $metakeyselect )
-			$metakey = $metakeyselect;
-
-		if ( $metakeyinput )
-			$metakey = $metakeyinput; // default
-
-		if ( is_protected_meta( $metakey, 'post' ) || ! current_user_can( 'add_post_meta', $post_ID, $metakey ) )
-			return false;
-
-		$metakey = wp_slash( $metakey );
-
-		return add_post_meta( $post_ID, $metakey, $metavalue );
-	}
-
-	return false;
-} // add_meta
-
-/**
- * Delete post meta data by meta ID.
- *
- * @since 1.2.0
- *
- * @param int $mid
- * @return bool
- */
-function delete_meta( $mid ) {
-	return delete_metadata_by_mid( 'post' , $mid );
-}
-
-/**
- * Get a list of previously defined keys.
- *
- * @since 1.2.0
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- * @return mixed
- */
-function get_meta_keys() {
-	global $wpdb;
-
-	$keys = $wpdb->get_col( "
-			SELECT meta_key
-			FROM $wpdb->postmeta
-			GROUP BY meta_key
-			ORDER BY meta_key" );
-
-	return $keys;
-}
-
-/**
- * Get post meta data by meta ID.
- *
- * @since 2.1.0
- *
- * @param int $mid
- * @return object|bool
- */
-function get_post_meta_by_id( $mid ) {
-	return get_metadata_by_mid( 'post', $mid );
-}
-
-/**
  * Get meta data for the given post ID.
  *
  * @since 1.2.0
@@ -896,23 +781,6 @@ function has_meta( $postid ) {
 	return $wpdb->get_results( $wpdb->prepare("SELECT meta_key, meta_value, meta_id, post_id
 			FROM $wpdb->postmeta WHERE post_id = %d
 			ORDER BY meta_key,meta_id", $postid), ARRAY_A );
-}
-
-/**
- * Update post meta data by meta ID.
- *
- * @since 1.2.0
- *
- * @param int    $meta_id
- * @param string $meta_key Expect Slashed
- * @param string $meta_value Expect Slashed
- * @return bool
- */
-function update_meta( $meta_id, $meta_key, $meta_value ) {
-	$meta_key = wp_unslash( $meta_key );
-	$meta_value = wp_unslash( $meta_value );
-
-	return update_metadata_by_mid( 'post', $meta_id, $meta_value, $meta_key );
 }
 
 //
