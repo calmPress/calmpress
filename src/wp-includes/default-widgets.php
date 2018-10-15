@@ -31,9 +31,6 @@ require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-media-video.php' );
 /** WP_Widget_Media_Gallery class */
 require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-media-gallery.php' );
 
-/** WP_Widget_Meta class */
-require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-meta.php' );
-
 /** WP_Widget_Calendar class */
 require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-calendar.php' );
 

@@ -2581,8 +2581,7 @@ h2.widget-title {
 .widget_top-posts ul li ul,
 .widget_rss_links ul li ul,
 .widget-grofile ul.grofile-links li ul,
-.widget_pages ul li ul,
-.widget_meta ul li ul {
+.widget_pages ul li ul {
 	bottom: 0;
 }
 

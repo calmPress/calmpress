@@ -1569,8 +1569,6 @@ function wp_widgets_init() {
 
 	register_widget( 'WP_Widget_Media_Video' );
 
-	register_widget( 'WP_Widget_Meta' );
-
 	register_widget( 'WP_Widget_Search' );
 
 	register_widget( 'WP_Widget_Text' );
