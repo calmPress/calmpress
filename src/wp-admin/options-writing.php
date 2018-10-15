@@ -22,15 +22,6 @@ get_current_screen()->add_help_tab( array(
 		'<p>' . __('You must click the Save Changes button at the bottom of the screen for new settings to take effect.') . '</p>',
 ) );
 
-/** This filter is documented in wp-admin/options-writing.php */
-if ( apply_filters( 'enable_update_services_configuration', true ) ) {
-	get_current_screen()->add_help_tab( array(
-		'id'      => 'options-services',
-		'title'   => __( 'Update Services' ),
-		'content' => '<p>' . __( 'If desired, calmPress will automatically alert various services of your new posts.' ) . '</p>',
-	) );
-}
-
 include( ABSPATH . 'wp-admin/admin-header.php' );
 ?>
 

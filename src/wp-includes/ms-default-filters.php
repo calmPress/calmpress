@@ -76,7 +76,6 @@ add_action( 'upload_ui_over_quota', 'multisite_over_quota_message' );
 add_action( 'phpmailer_init', 'fix_phpmailer_messageid' );
 
 // Disable somethings by default for multisite
-add_filter( 'enable_update_services_configuration', '__return_false' );
 if ( ! defined('EDIT_ANY_USER') || ! EDIT_ANY_USER ) // back compat constant.
 	add_filter( 'enable_edit_any_user_configuration', '__return_false' );
 add_filter( 'force_filtered_html_on_import', '__return_true' );
