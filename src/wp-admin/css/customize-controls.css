@@ -1599,86 +1599,15 @@ p.customize-section-description {
 	display: block;
 }
 
-/**
- * Code Editor Control and Custom CSS Section
- *
- * Modifications to the Section Container to make the textarea full-width and
- * full-height, if the control is the only control in the section.
- */
-
-.customize-control-code_editor textarea {
-	width: 100%;
-	font-family: Consolas, Monaco, monospace;
-	font-size: 12px;
-	padding: 6px 8px;
-	-moz-tab-size: 2;
-	-o-tab-size: 2;
-	tab-size: 2;
-}
-.customize-control-code_editor textarea,
-.customize-control-code_editor .CodeMirror {
-	height: 14em;
-}
-
-#customize-controls .customize-section-description-container.section-meta.customize-info {
-	border-bottom: none;
-}
-
-#sub-accordion-section-custom_css .customize-control-notifications-container {
-	margin-bottom: 15px;
-}
-
-#customize-control-custom_css textarea {
-	display: block;
-	height: 500px;
-}
-
-.customize-section-description-container + #customize-control-custom_css .customize-control-title {
-	margin-left: 12px;
-}
-
-.customize-section-description-container + #customize-control-custom_css:last-child textarea {
-	border-right: 0;
-	border-left: 0;
-	height: calc( 100vh - 185px );
-	resize: none;
-}
-
-.customize-section-description-container + #customize-control-custom_css:last-child {
-	margin-left: -12px;
-	width: 299px;
-	width: calc( 100% + 24px );
-	margin-bottom: -12px;
-}
-
-.customize-section-description-container + #customize-control-custom_css:last-child .CodeMirror {
-	height: calc( 100vh - 185px );
-}
-
 .CodeMirror-lint-tooltip,
 .CodeMirror-hints {
 	z-index: 500000 !important;
-}
-
-.customize-section-description-container + #customize-control-custom_css:last-child .customize-control-notifications-container {
-	margin-left: 12px;
-	margin-right: 12px;
 }
 
 .theme-browser .theme.active .theme-actions,
 .wp-customizer .theme-browser .theme .theme-actions {
 	padding: 10px 15px;
 	box-shadow: inset 0 1px 0 rgba(0,0,0,0.1);
-}
-
-@media screen and ( max-width: 640px ) {
-	.customize-section-description-container + #customize-control-custom_css:last-child {
-		margin-right: 0;
-	}
-
-	.customize-section-description-container + #customize-control-custom_css:last-child textarea {
-		height: calc( 100vh - 140px );
-	}
 }
 
 /**

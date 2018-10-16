@@ -631,16 +631,6 @@
 		},
 
 		/**
-		 * Preview changes to custom css.
-		 *
-		 * @param {string} value Custom CSS..
-		 * @returns {void}
-		 */
-		custom_css: function( value ) {
-			$( '#wp-custom-css' ).text( value );
-		},
-
-		/**
 		 * Preview changes to any of the background settings.
 		 *
 		 * @returns {void}
@@ -885,10 +875,6 @@
 		api( 'custom_logo', function ( setting ) {
 			api.settingPreviewHandlers.custom_logo.call( setting, setting.get() );
 			setting.bind( api.settingPreviewHandlers.custom_logo );
-		} );
-
-		api( 'custom_css[' + api.settings.theme.stylesheet + ']', function( setting ) {
-			setting.bind( api.settingPreviewHandlers.custom_css );
 		} );
 
 		api.trigger( 'preview-ready' );

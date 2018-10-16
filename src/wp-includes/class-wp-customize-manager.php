@@ -327,7 +327,6 @@ class WP_Customize_Manager {
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-nav-menu-section.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-new-menu-section.php' ); // @todo Remove in 5.0. See #42364.
 
-		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-custom-css-setting.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-filter-setting.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-header-image-setting.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-background-image-setting.php' );
@@ -913,7 +912,6 @@ class WP_Customize_Manager {
 		$this->register_control_type( 'WP_Customize_Cropped_Image_Control' );
 		$this->register_control_type( 'WP_Customize_Site_Icon_Control' );
 		$this->register_control_type( 'WP_Customize_Theme_Control' );
-		$this->register_control_type( 'WP_Customize_Code_Editor_Control' );
 		$this->register_control_type( 'WP_Customize_Date_Time_Control' );
 
 		/**
@@ -5266,59 +5264,6 @@ class WP_Customize_Manager {
 			'allow_addition' => true,
 		) );
 
-		/* Custom CSS */
-		$section_description = '<p>';
-		$section_description .= __( 'Add your own CSS code here to customize the appearance and layout of your site.' );
-		$section_description .= '</p>';
-
-		$section_description .= '<p id="editor-keyboard-trap-help-1">' . __( 'When using a keyboard to navigate:' ) . '</p>';
-		$section_description .= '<ul>';
-		$section_description .= '<li id="editor-keyboard-trap-help-2">' . __( 'In the editing area, the Tab key enters a tab character.' ) . '</li>';
-		$section_description .= '<li id="editor-keyboard-trap-help-3">' . __( 'To move away from this area, press the Esc key followed by the Tab key.' ) . '</li>';
-		$section_description .= '<li id="editor-keyboard-trap-help-4">' . __( 'Screen reader users: when in forms mode, you may need to press the escape key twice.' ) . '</li>';
-		$section_description .= '</ul>';
-
-		if ( 'false' !== wp_get_current_user()->syntax_highlighting ) {
-			$section_description .= '<p>';
-			$section_description .= sprintf(
-				/* translators: 1: link to user profile, 2: additional link attributes, 3: accessibility text */
-				__( 'The edit field automatically highlights code syntax. You can disable this in your <a href="%1$s" %2$s>user profile%3$s</a> to work in plain text mode.' ),
-				esc_url( get_edit_profile_url() ),
-				'class="external-link" target="_blank"',
-				sprintf( '<span class="screen-reader-text"> %s</span>',
-					/* translators: accessibility text */
-					__( '(opens in a new window)' )
-				)
-			);
-			$section_description .= '</p>';
-		}
-
-		$section_description .= '<p class="section-description-buttons">';
-		$section_description .= '<button type="button" class="button-link section-description-close">' . __( 'Close' ) . '</button>';
-		$section_description .= '</p>';
-
-		$this->add_section( 'custom_css', array(
-			'title'              => __( 'Additional CSS' ),
-			'priority'           => 200,
-			'description_hidden' => true,
-			'description'        => $section_description,
-		) );
-
-		$custom_css_setting = new WP_Customize_Custom_CSS_Setting( $this, sprintf( 'custom_css[%s]', get_stylesheet() ), array(
-			'capability' => 'edit_css',
-			'default' => '',
-		) );
-		$this->add_setting( $custom_css_setting );
-
-		$this->add_control( new WP_Customize_Code_Editor_Control( $this, 'custom_css', array(
-			'label'       => __( 'CSS code' ),
-			'section'     => 'custom_css',
-			'settings'    => array( 'default' => $custom_css_setting->id ),
-			'code_type'   => 'text/css',
-			'input_attrs' => array(
-				'aria-describedby' => 'editor-keyboard-trap-help-1 editor-keyboard-trap-help-2 editor-keyboard-trap-help-3 editor-keyboard-trap-help-4',
-			),
-		) ) );
 	}
 
 	/**

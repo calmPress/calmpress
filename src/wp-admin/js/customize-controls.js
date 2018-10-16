@@ -9097,54 +9097,6 @@
 			});
 		});
 
-		// Add code editor for Custom CSS.
-		(function() {
-			var sectionReady = $.Deferred();
-
-			api.section( 'custom_css', function( section ) {
-				section.deferred.embedded.done( function() {
-					if ( section.expanded() ) {
-						sectionReady.resolve( section );
-					} else {
-						section.expanded.bind( function( isExpanded ) {
-							if ( isExpanded ) {
-								sectionReady.resolve( section );
-							}
-						} );
-					}
-				});
-			});
-
-			// Set up the section description behaviors.
-			sectionReady.done( function setupSectionDescription( section ) {
-				var control = api.control( 'custom_css' );
-
-				// Hide redundant label for visual users.
-				control.container.find( '.customize-control-title:first' ).addClass( 'screen-reader-text' );
-
-				// Close the section description when clicking the close button.
-				section.container.find( '.section-description-buttons .section-description-close' ).on( 'click', function() {
-					section.container.find( '.section-meta .customize-section-description:first' )
-						.removeClass( 'open' )
-						.slideUp();
-
-					section.container.find( '.customize-help-toggle' )
-						.attr( 'aria-expanded', 'false' )
-						.focus(); // Avoid focus loss.
-				});
-
-				// Reveal help text if setting is empty.
-				if ( control && ! control.setting.get() ) {
-					section.container.find( '.section-meta .customize-section-description:first' )
-						.addClass( 'open' )
-						.show()
-						.trigger( 'toggled' );
-
-					section.container.find( '.customize-help-toggle' ).attr( 'aria-expanded', 'true' );
-				}
-			});
-		})();
-
 		// Toggle visibility of Header Video notice when active state change.
 		api.control( 'header_video', function( headerVideoControl ) {
 			headerVideoControl.deferred.embedded.done( function() {

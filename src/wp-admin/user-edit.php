@@ -237,7 +237,7 @@ if ( ! IS_PROFILE_PAGE ) {
 <table class="form-table">
 <?php
 $show_syntax_highlighting_preference = (
-	// For Custom HTML widget and Additional CSS in Customizer.
+	// For Custom HTML widget.
 	user_can( $profileuser, 'edit_theme_options' )
 );
 ?>
