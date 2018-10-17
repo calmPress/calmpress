@@ -443,50 +443,6 @@ define('PATH_CURRENT_SITE', '<?php echo $base; ?>');
 define('SITE_ID_CURRENT_SITE', 1);
 define('BLOG_ID_CURRENT_SITE', 1);
 </textarea>
-<?php
-	$keys_salts = array( 'AUTH_KEY' => '', 'SECURE_AUTH_KEY' => '', 'LOGGED_IN_KEY' => '', 'NONCE_KEY' => '', 'AUTH_SALT' => '', 'SECURE_AUTH_SALT' => '', 'LOGGED_IN_SALT' => '', 'NONCE_SALT' => '' );
-	foreach ( $keys_salts as $c => $v ) {
-		if ( defined( $c ) )
-			unset( $keys_salts[ $c ] );
-	}
-
-	if ( ! empty( $keys_salts ) ) {
-		$keys_salts_str = '';
-		$from_api = wp_remote_get( 'https://api.wordpress.org/secret-key/1.1/salt/' );
-		if ( is_wp_error( $from_api ) ) {
-			foreach ( $keys_salts as $c => $v ) {
-				$keys_salts_str .= "\ndefine( '$c', '" . wp_generate_password( 64, true, true ) . "' );";
-			}
-		} else {
-			$from_api = explode( "\n", wp_remote_retrieve_body( $from_api ) );
-			foreach ( $keys_salts as $c => $v ) {
-				$keys_salts_str .= "\ndefine( '$c', '" . substr( array_shift( $from_api ), 28, 64 ) . "' );";
-			}
-		}
-		$num_keys_salts = count( $keys_salts );
-?>
-	<p>
-		<?php
-			if ( 1 == $num_keys_salts ) {
-				printf(
-					/* translators: 1: wp-config.php */
-					__( 'This unique authentication key is also missing from your %s file.' ),
-					'<code>wp-config.php</code>'
-				);
-			} else {
-				printf(
-					/* translators: 1: wp-config.php */
-					__( 'These unique authentication keys are also missing from your %s file.' ),
-					'<code>wp-config.php</code>'
-				);
-			}
-		?>
-		<?php _e( 'To make your installation more secure, you should also add:' ); ?>
-	</p>
-	<textarea class="code" readonly="readonly" cols="100" rows="<?php echo $num_keys_salts; ?>"><?php echo esc_textarea( $keys_salts_str ); ?></textarea>
-<?php
-	}
-?>
 </li>
 <?php
 	if ( iis7_supports_permalinks() ) :
