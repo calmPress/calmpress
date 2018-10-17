@@ -300,11 +300,6 @@ function hash_equals( $a, $b ) {
 }
 endif;
 
-// random_int was introduced in PHP 7.0
-if ( ! function_exists( 'random_int' ) ) {
-	require ABSPATH . WPINC . '/random_compat/random.php';
-}
-
 if ( ! function_exists( 'is_countable' ) ) {
 	/**
 	 * Polyfill for is_countable() function added in PHP 7.3.
