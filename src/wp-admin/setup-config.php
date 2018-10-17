@@ -266,35 +266,15 @@ switch($step) {
 		wp_die( __( '<strong>ERROR</strong>: "Table Prefix" is invalid.' ) );
 	}
 
-	// Generate keys and salts using secure CSPRNG; fallback to API if enabled; further fallback to original wp_generate_password().
-	try {
-		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_ []{}<>~`+=,.;:/?|';
-		$max = strlen($chars) - 1;
-		for ( $i = 0; $i < 8; $i++ ) {
-			$key = '';
-			for ( $j = 0; $j < 64; $j++ ) {
-				$key .= substr( $chars, random_int( 0, $max ), 1 );
-			}
-			$secret_keys[] = $key;
+	// Generate keys and salts using secure CSPRNG.
+	$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_ []{}<>~`+=,.;:/?|';
+	$max = strlen($chars) - 1;
+	for ( $i = 0; $i < 8; $i++ ) {
+		$key = '';
+		for ( $j = 0; $j < 64; $j++ ) {
+			$key .= substr( $chars, random_int( 0, $max ), 1 );
 		}
-	} catch ( Exception $ex ) {
-		$no_api = isset( $_POST['noapi'] );
-
-		if ( ! $no_api ) {
-			$secret_keys = wp_remote_get( 'https://api.wordpress.org/secret-key/1.1/salt/' );
-		}
-
-		if ( $no_api || is_wp_error( $secret_keys ) ) {
-			$secret_keys = array();
-			for ( $i = 0; $i < 8; $i++ ) {
-				$secret_keys[] = wp_generate_password( 64, true, true );
-			}
-		} else {
-			$secret_keys = explode( "\n", wp_remote_retrieve_body( $secret_keys ) );
-			foreach ( $secret_keys as $k => $v ) {
-				$secret_keys[$k] = substr( $v, 28, 64 );
-			}
-		}
+		$secret_keys[] = $key;
 	}
 
 	$key = 0;
