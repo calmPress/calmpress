@@ -2038,48 +2038,15 @@ if ( !function_exists('wp_salt') ) :
  *
  * @link https://api.wordpress.org/secret-key/1.1/salt/ Create secrets for wp-config.php
  *
- * @staticvar array $cached_salts
- * @staticvar array $duplicated_keys
- *
  * @param string $scheme Authentication scheme (auth, secure_auth, logged_in, nonce)
  * @return string Salt value
  */
 function wp_salt( $scheme = 'auth' ) {
-	static $cached_salts = array();
-	if ( isset( $cached_salts[ $scheme ] ) ) {
-		/**
-		 * Filters the WordPress salt.
-		 *
-		 * @since 2.5.0
-		 *
-		 * @param string $cached_salt Cached salt for the given scheme.
-		 * @param string $scheme      Authentication scheme. Values include 'auth',
-		 *                            'secure_auth', 'logged_in', and 'nonce'.
-		 */
-		return apply_filters( 'salt', $cached_salts[ $scheme ], $scheme );
-	}
-
-	static $duplicated_keys;
-	if ( null === $duplicated_keys ) {
-		$duplicated_keys = array( 'put your unique phrase here' => true );
-		foreach ( array( 'AUTH', 'SECURE_AUTH', 'LOGGED_IN', 'NONCE', 'SECRET' ) as $first ) {
-			foreach ( array( 'KEY', 'SALT' ) as $second ) {
-				if ( ! defined( "{$first}_{$second}" ) ) {
-					continue;
-				}
-				$value = constant( "{$first}_{$second}" );
-				$duplicated_keys[ $value ] = isset( $duplicated_keys[ $value ] );
-			}
-		}
-	}
 
 	$values = array(
 		'key' => '',
 		'salt' => ''
 	);
-	if ( defined( 'SECRET_KEY' ) && SECRET_KEY && empty( $duplicated_keys[ SECRET_KEY ] ) ) {
-		$values['key'] = SECRET_KEY;
-	}
 	if ( 'auth' == $scheme && defined( 'SECRET_SALT' ) && SECRET_SALT && empty( $duplicated_keys[ SECRET_SALT ] ) ) {
 		$values['salt'] = SECRET_SALT;
 	}
@@ -2087,31 +2054,16 @@ function wp_salt( $scheme = 'auth' ) {
 	if ( in_array( $scheme, array( 'auth', 'secure_auth', 'logged_in', 'nonce' ) ) ) {
 		foreach ( array( 'key', 'salt' ) as $type ) {
 			$const = strtoupper( "{$scheme}_{$type}" );
-			if ( defined( $const ) && constant( $const ) && empty( $duplicated_keys[ constant( $const ) ] ) ) {
+			if ( defined( $const ) && constant( $const ) ) {
 				$values[ $type ] = constant( $const );
 			} elseif ( ! $values[ $type ] ) {
 				$values[ $type ] = get_site_option( "{$scheme}_{$type}" );
-				if ( ! $values[ $type ] ) {
-					$values[ $type ] = wp_generate_password( 64, true, true );
-					update_site_option( "{$scheme}_{$type}", $values[ $type ] );
-				}
 			}
 		}
-	} else {
-		if ( ! $values['key'] ) {
-			$values['key'] = get_site_option( 'secret_key' );
-			if ( ! $values['key'] ) {
-				$values['key'] = wp_generate_password( 64, true, true );
-				update_site_option( 'secret_key', $values['key'] );
-			}
-		}
-		$values['salt'] = hash_hmac( 'md5', $scheme, $values['key'] );
 	}
 
-	$cached_salts[ $scheme ] = $values['key'] . $values['salt'];
-
 	/** This filter is documented in wp-includes/pluggable.php */
-	return apply_filters( 'salt', $cached_salts[ $scheme ], $scheme );
+	return apply_filters( 'salt', $values['key'] . $values['salt'], $scheme );
 }
 endif;
 
