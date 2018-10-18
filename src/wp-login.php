@@ -478,9 +478,6 @@ case 'postpass' :
 		exit();
 	}
 
-	require_once ABSPATH . WPINC . '/class-phpass.php';
-	$hasher = new PasswordHash( 8, true );
-
 	/**
 	 * Filters the life span of the post password cookie.
 	 *
@@ -498,7 +495,7 @@ case 'postpass' :
 	} else {
 		$secure = false;
 	}
-	setcookie( 'wp-postpass_' . COOKIEHASH, $hasher->HashPassword( wp_unslash( $_POST['post_password'] ) ), $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
+	setcookie( 'wp-postpass_' . COOKIEHASH, password_verify( wp_unslash( $_POST['post_password'] ) ), $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
 
 	if ( $switched_locale ) {
 	    restore_previous_locale();

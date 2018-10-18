@@ -2106,7 +2106,6 @@ function wp_get_password_hint() {
  * @since 4.4.0
  *
  * @global wpdb         $wpdb      WordPress database abstraction object.
- * @global PasswordHash $wp_hasher Portable PHP password hashing framework.
  *
  * @param WP_User $user User to retrieve password reset key for.
  *
@@ -2171,11 +2170,7 @@ function get_password_reset_key( $user ) {
 	do_action( 'retrieve_password_key', $user->user_login, $key );
 
 	// Now insert the key, hashed, into the DB.
-	if ( empty( $wp_hasher ) ) {
-		require_once ABSPATH . WPINC . '/class-phpass.php';
-		$wp_hasher = new PasswordHash( 8, true );
-	}
-	$hashed = time() . ':' . $wp_hasher->HashPassword( $key );
+	$hashed = time() . ':' . password_hash( $key, PASSWORD_DEFAULT );
 	$key_saved = $wpdb->update( $wpdb->users, array( 'user_activation_key' => $hashed ), array( 'user_login' => $user->user_login ) );
 	if ( false === $key_saved ) {
 		return new WP_Error( 'no_password_key_update', __( 'Could not save password reset key to database.' ) );
@@ -2195,14 +2190,13 @@ function get_password_reset_key( $user ) {
  * @since 3.1.0
  *
  * @global wpdb         $wpdb      WordPress database object for queries.
- * @global PasswordHash $wp_hasher Portable PHP password hashing framework instance.
  *
  * @param string $key       Hash to validate sending user's password.
  * @param string $login     The user login.
  * @return WP_User|WP_Error WP_User object on success, WP_Error object for invalid or expired keys.
  */
 function check_password_reset_key($key, $login) {
-	global $wpdb, $wp_hasher;
+	global $wpdb;
 
 	$key = preg_replace('/[^a-z0-9]/i', '', $key);
 
@@ -2215,11 +2209,6 @@ function check_password_reset_key($key, $login) {
 	$row = $wpdb->get_row( $wpdb->prepare( "SELECT ID, user_activation_key FROM $wpdb->users WHERE user_login = %s", $login ) );
 	if ( ! $row )
 		return new WP_Error('invalid_key', __('Invalid key'));
-
-	if ( empty( $wp_hasher ) ) {
-		require_once ABSPATH . WPINC . '/class-phpass.php';
-		$wp_hasher = new PasswordHash( 8, true );
-	}
 
 	/**
 	 * Filters the expiration time of password reset keys.
@@ -2242,7 +2231,7 @@ function check_password_reset_key($key, $login) {
 		return new WP_Error( 'invalid_key', __( 'Invalid key' ) );
 	}
 
-	$hash_is_correct = $wp_hasher->CheckPassword( $key, $pass_key );
+	$hash_is_correct = password_verify( $key, $pass_key );
 
 	if ( $hash_is_correct && $expiration_time && time() < $expiration_time ) {
 		return get_userdata( $row->ID );
@@ -3390,21 +3379,14 @@ All at ###SITENAME###
  * @return string Confirmation key.
  */
 function wp_generate_user_request_key( $request_id ) {
-	global $wp_hasher;
 
 	// Generate something random for a confirmation key.
 	$key = wp_generate_password( 20, false );
 
-	// Return the key, hashed.
-	if ( empty( $wp_hasher ) ) {
-		require_once ABSPATH . WPINC . '/class-phpass.php';
-		$wp_hasher = new PasswordHash( 8, true );
-	}
-
 	wp_update_post( array(
 		'ID'                => $request_id,
 		'post_status'       => 'request-pending',
-		'post_password'     => $wp_hasher->HashPassword( $key ),
+		'post_password'     => password_hash( $key, PASSWORD_DEFAULT ),
 		'post_modified'     => current_time( 'mysql', false ),
 		'post_modified_gmt' => current_time( 'mysql', true ),
 	) );
@@ -3422,7 +3404,6 @@ function wp_generate_user_request_key( $request_id ) {
  * @return bool|WP_Error WP_Error on failure, true on success.
  */
 function wp_validate_user_request_key( $request_id, $key ) {
-	global $wp_hasher;
 
 	$request_id = absint( $request_id );
 	$request    = wp_get_user_request_data( $request_id );
@@ -3437,11 +3418,6 @@ function wp_validate_user_request_key( $request_id, $key ) {
 
 	if ( empty( $key ) ) {
 		return new WP_Error( 'invalid_key', __( 'Invalid key' ) );
-	}
-
-	if ( empty( $wp_hasher ) ) {
-		require_once ABSPATH . WPINC . '/class-phpass.php';
-		$wp_hasher = new PasswordHash( 8, true );
 	}
 
 	$key_request_time = $request->modified_timestamp;
@@ -3465,7 +3441,7 @@ function wp_validate_user_request_key( $request_id, $key ) {
 	$expiration_duration = (int) apply_filters( 'user_request_key_expiration', DAY_IN_SECONDS );
 	$expiration_time     = $key_request_time + $expiration_duration;
 
-	if ( ! $wp_hasher->CheckPassword( $key, $saved_key ) ) {
+	if ( ! password_verify( $key, $saved_key ) ) {
 		return new WP_Error( 'invalid_key', __( 'Invalid key' ) );
 	}
 

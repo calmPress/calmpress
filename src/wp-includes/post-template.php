@@ -790,15 +790,8 @@ function post_password_required( $post = null ) {
 		return apply_filters( 'post_password_required', true, $post );
 	}
 
-	require_once ABSPATH . WPINC . '/class-phpass.php';
-	$hasher = new PasswordHash( 8, true );
-
 	$hash = wp_unslash( $_COOKIE[ 'wp-postpass_' . COOKIEHASH ] );
-	if ( 0 !== strpos( $hash, '$P$B' ) ) {
-		$required = true;
-	} else {
-		$required = ! $hasher->CheckPassword( $post->post_password, $hash );
-	}
+	$required = ! password_verify( $post->post_password, $hash );
 
 	/**
 	 * Filters whether a post requires the user to supply a password.

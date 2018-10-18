@@ -1760,7 +1760,6 @@ if ( !function_exists('wp_new_user_notification') ) :
  * @since 4.6.0 The `$notify` parameter accepts 'user' for sending notification only to the user created.
  *
  * @global wpdb         $wpdb      WordPress database object for queries.
- * @global PasswordHash $wp_hasher Portable PHP password hashing framework instance.
  *
  * @param int    $user_id    User ID.
  * @param null   $deprecated Not used (argument deprecated).
@@ -1769,7 +1768,7 @@ if ( !function_exists('wp_new_user_notification') ) :
  */
 function wp_new_user_notification( $user_id, $deprecated = null, $notify = '' ) {
 
-	global $wpdb, $wp_hasher;
+	global $wpdb;
 	$user = get_userdata( $user_id );
 
 	// The blogname option is escaped with esc_html on the way into the database in sanitize_option
@@ -1836,11 +1835,7 @@ function wp_new_user_notification( $user_id, $deprecated = null, $notify = '' ) 
 	do_action( 'retrieve_password_key', $user->user_login, $key );
 
 	// Now insert the key, hashed, into the DB.
-	if ( empty( $wp_hasher ) ) {
-		require_once ABSPATH . WPINC . '/class-phpass.php';
-		$wp_hasher = new PasswordHash( 8, true );
-	}
-	$hashed = time() . ':' . $wp_hasher->HashPassword( $key );
+	$hashed = time() . ':' . password_hash($key, PASSWORD_DEFAULT );
 	$wpdb->update( $wpdb->users, array( 'user_activation_key' => $hashed ), array( 'user_login' => $user->user_login ) );
 
 	$switched_locale = switch_to_locale( get_user_locale( $user ) );
