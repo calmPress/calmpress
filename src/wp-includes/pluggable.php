@@ -2086,28 +2086,25 @@ endif;
 
 if ( !function_exists('wp_hash_password') ) :
 /**
- * Create a hash (encrypt) of a plain text password.
+ * Create a hash of a plain text password.
+ *
+ * Will use whatever is the PHP recommended default password hashing algorithm.
+ * The implication is that for PHP verions 7.0 and 7.1 bcrypt will be used
+ * while for 7.2+ (until a new default will be selected) argon2i will be used.
+ * Any code that checks the password against the hash in the DB has to be ready
+ * for this, and possibly "upgrade" the hash to the newer standard.
  *
  * For integration with other applications, this function can be overwritten to
  * instead use the other package password checking algorithm.
  *
  * @since 2.5.0
  *
- * @global PasswordHash $wp_hasher PHPass object
- *
  * @param string $password Plain text user password to hash
  * @return string The hash string of the password
  */
 function wp_hash_password($password) {
-	global $wp_hasher;
 
-	if ( empty($wp_hasher) ) {
-		require_once( ABSPATH . WPINC . '/class-phpass.php');
-		// By default, use the portable hash from phpass
-		$wp_hasher = new PasswordHash(8, true);
-	}
-
-	return $wp_hasher->HashPassword( trim( $password ) );
+	return password_hash($password, PASSWORD_DEFAULT );
 }
 endif;
 
@@ -2125,49 +2122,35 @@ if ( !function_exists('wp_check_password') ) :
  *
  * @since 2.5.0
  *
- * @global PasswordHash $wp_hasher PHPass object used for checking the password
- *	against the $hash + $password
- * @uses PasswordHash::CheckPassword
- *
  * @param string     $password Plaintext user's password
  * @param string     $hash     Hash of the user's password to check against.
- * @param string|int $user_id  Optional. User ID.
+ * @param int        $user_id  The ID of the user for which the password is checked.
  * @return bool False, if the $password does not match the hashed password
  */
-function wp_check_password($password, $hash, $user_id = '') {
-	global $wp_hasher;
+function wp_check_password($password, $hash, int $user_id) {
 
-	// If the hash is still md5...
-	if ( strlen($hash) <= 32 ) {
-		$check = hash_equals( $hash, md5( $password ) );
-		if ( $check && $user_id ) {
-			// Rehash using new hash.
-			wp_set_password($password, $user_id);
-			$hash = wp_hash_password($password);
+	if ( 0 === strpos( $hash, '$P$' ) ) {
+		// If the hash is WordPress style password hash (indicated by having the $P$ string),
+		// generate a new hash for the user, and update it in the DB.
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$wp_hasher = new PasswordHash( 8, true );
+
+		$check = $wp_hasher->CheckPassword( $password, $hash );
+		if ( $check ) {
+			$hash = wp_set_password( $password, $user_id );
 		}
-
-		/**
-		 * Filters whether the plaintext password matches the encrypted password.
-		 *
-		 * @since 2.5.0
-		 *
-		 * @param bool       $check    Whether the passwords match.
-		 * @param string     $password The plaintext password.
-		 * @param string     $hash     The hashed password.
-		 * @param string|int $user_id  User ID. Can be empty.
-		 */
-		return apply_filters( 'check_password', $check, $password, $hash, $user_id );
+	} else {
+		// Hash generated with moder PHP APIs
+		$check = password_verify( $password, $hash );
 	}
 
-	// If the stored hash is longer than an MD5, presume the
-	// new style phpass portable hash.
-	if ( empty($wp_hasher) ) {
-		require_once( ABSPATH . WPINC . '/class-phpass.php');
-		// By default, use the portable hash from phpass
-		$wp_hasher = new PasswordHash(8, true);
+	// If the current PHP version has a different password hashing algorithm
+	// "upgrade" the hash and store the result in the DB.
+	if ( $check && password_needs_rehash( $hash, PASSWORD_DEFAULT ) ) {
+		// the password needs to be rehashed as it was not generated with
+		// the current default algorithm.
+		$hash = wp_set_password( $password, $user_id );
 	}
-
-	$check = $wp_hasher->CheckPassword($password, $hash);
 
 	/** This filter is documented in wp-includes/pluggable.php */
 	return apply_filters( 'check_password', $check, $password, $hash, $user_id );
@@ -2244,7 +2227,7 @@ endif;
 
 if ( !function_exists('wp_set_password') ) :
 /**
- * Updates the user's password with a new encrypted one.
+ * Updates the user's password with a new hashed one.
  *
  * For integration with other applications, this function can be overwritten to
  * instead use the other package password checking algorithm.
