@@ -6,24 +6,6 @@
  * @subpackage Administration
  */
 
-// Sanity check.
-if ( false ) {
-?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Error: PHP is not running</title>
-</head>
-<body class="wp-core-ui">
-	<p id="logo"><a href="https://calmpress.org/">calmPress</a></p>
-	<h1>Error: PHP is not running</h1>
-	<p>calmPress requires that your web server is running PHP. Your server does not have PHP installed, or PHP is turned off.</p>
-</body>
-</html>
-<?php
-}
-
 /**
  * We are installing WordPress.
  *
