@@ -17,7 +17,7 @@ $tinymce_version = '4800-20180716';
  *
  * @global string $required_php_version
  */
-$required_php_version = '5.2.4';
+$required_php_version = '7.0';
 
 /**
  * Holds the required MySQL version
@@ -39,7 +39,7 @@ if ( ! function_exists( 'calmpress_version' ) ) {
 	 * @return string The version string.
 	 */
 	function calmpress_version() {
-		return '1.0.0-dev1';
+		return '1.0.0-alpha1';
 	}
 }
 
