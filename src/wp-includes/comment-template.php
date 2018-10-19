@@ -1103,6 +1103,21 @@ function comments_open( $post_id = null ) {
 }
 
 /**
+ * Whether the current post is open for pings.
+ *
+ * For calmPress it exists just for backward compatibility. Always returns false.
+ *
+ * @since 1.5.0
+ *
+ * @param int|WP_Post $post_id Post ID or WP_Post object. Default current post.
+ * @return bool True if pings are accepted
+ */
+function pings_open( $post_id = null ) {
+
+	return false;
+}
+
+/**
  * Display form token for unfiltered comments.
  *
  * Will only display nonce token if the current user has permissions for
