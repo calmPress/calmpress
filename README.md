@@ -40,3 +40,7 @@ problems that can not be fixed, or that the feature is not used.
 You will need to install NPM's grunt to run a build.
 
 All sorce code is located under the /src directory, and the grunt/build process builds a "distribution" into the /build directory.
+
+### braches and tags
+
+Since we inherit WordPress's GIT structure with all it branches and tags, we use a `cp/` pefix to identify tags and branches which are unique to the calmPress code.
