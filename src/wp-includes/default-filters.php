@@ -129,28 +129,24 @@ add_filter( 'the_title', 'convert_chars' );
 add_filter( 'the_title', 'trim'          );
 
 add_filter( 'the_content', 'wptexturize'                       );
-add_filter( 'the_content', 'convert_smilies',               20 );
 add_filter( 'the_content', 'wpautop'                           );
 add_filter( 'the_content', 'shortcode_unautop'                 );
 add_filter( 'the_content', 'prepend_attachment'                );
 add_filter( 'the_content', 'wp_make_content_images_responsive' );
 
 add_filter( 'the_excerpt',     'wptexturize'      );
-add_filter( 'the_excerpt',     'convert_smilies'  );
 add_filter( 'the_excerpt',     'convert_chars'    );
 add_filter( 'the_excerpt',     'wpautop'          );
 add_filter( 'the_excerpt',     'shortcode_unautop');
 add_filter( 'get_the_excerpt', 'wp_trim_excerpt'  );
 
 add_filter( 'the_post_thumbnail_caption', 'wptexturize'     );
-add_filter( 'the_post_thumbnail_caption', 'convert_smilies' );
 add_filter( 'the_post_thumbnail_caption', 'convert_chars'   );
 
 add_filter( 'comment_text', 'wptexturize'            );
 add_filter( 'comment_text', 'convert_chars'          );
 add_filter( 'comment_text', 'make_clickable',      9 );
 add_filter( 'comment_text', 'force_balance_tags', 25 );
-add_filter( 'comment_text', 'convert_smilies',    20 );
 add_filter( 'comment_text', 'wpautop',            30 );
 
 add_filter( 'comment_excerpt', 'convert_chars' );
@@ -161,7 +157,6 @@ add_filter( 'wp_sprintf', 'wp_sprintf_l', 10, 2 );
 
 add_filter( 'widget_text',         'balanceTags'          );
 add_filter( 'widget_text_content', 'wptexturize'          );
-add_filter( 'widget_text_content', 'convert_smilies',  20 );
 add_filter( 'widget_text_content', 'wpautop'              );
 add_filter( 'widget_text_content', 'shortcode_unautop'    );
 add_filter( 'widget_text_content', 'do_shortcode',     11 ); // Runs after wpautop(); note that $post global will be null when shortcodes run.
@@ -277,7 +272,6 @@ add_action( 'sanitize_comment_cookies',   'sanitize_comment_cookies'            
 add_action( 'admin_print_scripts',        'print_head_scripts',                      20    );
 add_action( 'admin_print_footer_scripts', '_wp_footer_scripts'                             );
 add_action( 'admin_print_styles',         'print_admin_styles',                      20    );
-add_action( 'init',                       'smilies_init',                             5    );
 add_action( 'plugins_loaded',             'wp_maybe_load_widgets',                    0    );
 add_action( 'plugins_loaded',             'wp_maybe_load_embeds',                     0    );
 add_action( 'shutdown',                   'wp_ob_end_flush_all',                      1    );
