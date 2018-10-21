@@ -343,7 +343,6 @@ module.exports = function(grunt) {
 					'!wp-includes/js/hoverIntent.js',
 					'!wp-includes/js/json2.js',
 					'!wp-includes/js/tw-sack.js',
-					'!wp-includes/js/twemoji.js',
 					'!**/*.min.js'
 				],
 				// Remove once other JSHint errors are resolved
@@ -549,19 +548,6 @@ module.exports = function(grunt) {
 				],
 				dest: BUILD_DIR + 'wp-includes/js/tinymce/wp-tinymce.js'
 			},
-			emoji: {
-				options: {
-					separator: '\n',
-					process: function( src, filepath ) {
-						return '// Source: ' + filepath.replace( BUILD_DIR, '' ) + '\n' + src;
-					}
-				},
-				src: [
-					BUILD_DIR + 'wp-includes/js/twemoji.min.js',
-					BUILD_DIR + 'wp-includes/js/wp-emoji.min.js'
-				],
-				dest: BUILD_DIR + 'wp-includes/js/wp-emoji-release.min.js'
-			}
 		},
 		compress: {
 			tinymce: {
@@ -911,7 +897,6 @@ module.exports = function(grunt) {
 		'concat:tinymce',
 		'compress:tinymce',
 		'clean:tinymce',
-		'concat:emoji',
 		'includes:emoji',
 		'includes:embed',
 		'usebanner',

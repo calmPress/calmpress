@@ -56,20 +56,6 @@ th {
 	font-size: inherit;
 }
 
-/* For emoji replacement images */
-img.emoji {
-	display: inline !important;
-	border: none !important;
-	height: 1em !important;
-	width: 1em !important;
-	margin: 0 .07em !important;
-	vertical-align: -0.1em !important;
-	background: none !important;
-	padding: 0 !important;
-	-webkit-box-shadow: none !important;
-	box-shadow: none !important;
-}
-
 .mceIEcenter {
 	text-align: center;
 }

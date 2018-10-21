@@ -173,20 +173,15 @@ add_filter( 'the_title_rss',      'strip_tags'                    );
 add_filter( 'the_title_rss',      'ent2ncr',                    8 );
 add_filter( 'the_title_rss',      'esc_html'                      );
 add_filter( 'the_content_rss',    'ent2ncr',                    8 );
-add_filter( 'the_content_feed',   'wp_staticize_emoji'            );
 add_filter( 'the_content_feed',   '_oembed_filter_feed_content'   );
 add_filter( 'the_excerpt_rss',    'convert_chars'                 );
 add_filter( 'the_excerpt_rss',    'ent2ncr',                    8 );
 add_filter( 'comment_author_rss', 'ent2ncr',                    8 );
 add_filter( 'comment_text_rss',   'ent2ncr',                    8 );
 add_filter( 'comment_text_rss',   'esc_html'                      );
-add_filter( 'comment_text_rss',   'wp_staticize_emoji'            );
 add_filter( 'bloginfo_rss',       'ent2ncr',                    8 );
 add_filter( 'the_author',         'ent2ncr',                    8 );
 add_filter( 'the_guid',           'esc_url'                       );
-
-// Email filters
-add_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 
 // Mark site as no longer fresh
 foreach ( array( 'publish_post', 'publish_page', 'wp_ajax_save-widget', 'wp_ajax_widgets-order', 'customize_save_after' ) as $action ) {
@@ -239,7 +234,6 @@ add_action( 'wp_head',             'adjacent_posts_rel_link_wp_head', 10, 0 );
 add_action( 'wp_head',             'locale_stylesheet'                      );
 add_action( 'publish_future_post', 'check_and_publish_future_post',   10, 1 );
 add_action( 'wp_head',             'noindex',                          1    );
-add_action( 'wp_head',             'print_emoji_detection_script',     7    );
 add_action( 'wp_head',             'wp_print_styles',                  8    );
 add_action( 'wp_head',             'wp_print_head_scripts',            9    );
 add_action( 'wp_head',             'rel_canonical'                          );
@@ -251,7 +245,6 @@ add_action( 'wp_print_footer_scripts', '_wp_footer_scripts'                 );
 add_action( 'init',                'check_theme_switched',            99    );
 add_action( 'after_switch_theme',  '_wp_menus_changed'                      );
 add_action( 'after_switch_theme',  '_wp_sidebars_changed'                   );
-add_action( 'wp_print_styles',     'print_emoji_styles'                     );
 
 if ( isset( $_GET['replytocom'] ) )
     add_action( 'wp_head', 'wp_no_robots' );
@@ -281,10 +274,8 @@ add_action( 'do_feed_atom',               'do_feed_atom',                       
 add_action( 'do_robots',                  'do_robots'                                      );
 add_action( 'set_comment_cookies',        'wp_set_comment_cookies',                  10, 3 );
 add_action( 'sanitize_comment_cookies',   'sanitize_comment_cookies'                       );
-add_action( 'admin_print_scripts',        'print_emoji_detection_script'                   );
 add_action( 'admin_print_scripts',        'print_head_scripts',                      20    );
 add_action( 'admin_print_footer_scripts', '_wp_footer_scripts'                             );
-add_action( 'admin_print_styles',         'print_emoji_styles'                             );
 add_action( 'admin_print_styles',         'print_admin_styles',                      20    );
 add_action( 'init',                       'smilies_init',                             5    );
 add_action( 'plugins_loaded',             'wp_maybe_load_widgets',                    0    );
@@ -480,7 +471,6 @@ add_action( 'wp_head',                'wp_oembed_add_discovery_links'         );
 add_action( 'wp_head',                'wp_oembed_add_host_js'                 );
 
 add_action( 'embed_head',             'enqueue_embed_scripts',           1    );
-add_action( 'embed_head',             'print_emoji_detection_script'          );
 add_action( 'embed_head',             'print_embed_styles'                    );
 add_action( 'embed_head',             'wp_print_head_scripts',          20    );
 add_action( 'embed_head',             'wp_print_styles',                20    );
