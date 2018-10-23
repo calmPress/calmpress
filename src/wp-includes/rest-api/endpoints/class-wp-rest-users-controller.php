@@ -71,7 +71,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_item' ),
-				'permission_callback' => array( $this, 'get_item_permissions_check' ),
+				'permission_callback' => array( $this, 'update_item_permissions_check' ),
 				'args'                => array(
 					'context' => $this->get_context_param( array( 'default' => 'view' ) ),
 				),
@@ -575,7 +575,14 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 	public function update_item_permissions_check( $request ) {
 		$user = $this->get_user( $request['id'] );
 		if ( is_wp_error( $user ) ) {
-			return $user;
+			if ( current_user_can( 'create_users' ) ) {
+				// give admins a more detailed error.
+				return $user;
+			} else {
+				// ... But non admins should not be ble to discover valid and invalid
+				// user IDs.
+				return new WP_Error( 'rest_cannot_edit', __( 'Sorry, you are not allowed to edit this user.' ), array( 'status' => rest_authorization_required_code() ) );
+			}
 		}
 
 		if ( ! empty( $request['roles'] ) ) {
