@@ -3299,7 +3299,7 @@ class wpdb {
 			case 'collation' :    // @since 2.5.0
 			case 'group_concat' : // @since 2.7.0
 			case 'subqueries' :   // @since 2.7.0
-				return version_compare( $version, '4.1', '>=' );
+				return true;
 			case 'set_charset' :
 				return version_compare( $version, '5.0.7', '>=' );
 			case 'utf8mb4' :      // @since 4.1.0
