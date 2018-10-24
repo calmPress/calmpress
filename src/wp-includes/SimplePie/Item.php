@@ -118,17 +118,6 @@ class SimplePie_Item
 	}
 
 	/**
-	 * Remove items that link back to this before destroying this object
-	 */
-	public function __destruct()
-	{
-		if ((version_compare(PHP_VERSION, '5.3', '<') || !gc_enabled()) && !ini_get('zend.ze1_compatibility_mode'))
-		{
-			unset($this->feed);
-		}
-	}
-
-	/**
 	 * Get data for an item-level element
 	 *
 	 * This method allows you to get access to ANY element/attribute that is a
@@ -2961,4 +2950,3 @@ class SimplePie_Item
 		}
 	}
 }
-
