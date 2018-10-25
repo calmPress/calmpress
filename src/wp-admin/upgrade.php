@@ -63,7 +63,6 @@ else
 	<title><?php _e( 'calmPress &rsaquo; Update' ); ?></title>
 	<?php
 	wp_admin_css( 'install', true );
-	wp_admin_css( 'ie', true );
 	?>
 </head>
 <body class="wp-core-ui">
