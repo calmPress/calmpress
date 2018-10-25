@@ -256,8 +256,6 @@ function wp_default_scripts( &$scripts ) {
 		'loadingAnimation' => includes_url('js/thickbox/loadingAnimation.gif'),
 	) );
 
-	$scripts->add( 'jcrop', "/wp-includes/js/jcrop/jquery.Jcrop.min.js", array('jquery'), '0.9.12');
-
 	// Error messages for Plupload.
 	$uploader_l10n = array(
 		'queue_limit_exceeded' => __('You have attempted to queue too many files.'),
