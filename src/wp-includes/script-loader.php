@@ -942,7 +942,6 @@ function wp_default_styles( &$styles ) {
 	$styles->add( 'wp-codemirror',       '/wp-includes/js/codemirror/codemirror.min.css', array(), '5.29.1-alpha-ee20357' );
 
 	// Deprecated CSS
-	$styles->add( 'deprecated-media', "/wp-admin/css/deprecated-media$suffix.css" );
 	$styles->add( 'jcrop',            "/wp-includes/js/jcrop/jquery.Jcrop.min.css", array(), '0.9.12' );
 	$styles->add( 'colors-fresh', false, array( 'wp-admin', 'buttons' ) ); // Old handle.
 
@@ -955,8 +954,6 @@ function wp_default_styles( &$styles ) {
 		// wp-includes
 		'buttons', 'admin-bar', 'wp-auth-check', 'editor-buttons', 'media-views', 'wp-pointer',
 		'wp-jquery-ui-dialog',
-		// deprecated
-		'deprecated-media',
 	);
 
 	foreach ( $rtl_styles as $rtl_style ) {
