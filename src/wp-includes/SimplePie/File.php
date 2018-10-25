@@ -95,10 +95,7 @@ class SimplePie_File
 				{
 					$headers2[] = "$key: $value";
 				}
-				if (version_compare(SimplePie_Misc::get_curl_version(), '7.10.5', '>='))
-				{
-					curl_setopt($fp, CURLOPT_ENCODING, '');
-				}
+				curl_setopt($fp, CURLOPT_ENCODING, '');
 				curl_setopt($fp, CURLOPT_URL, $url);
 				curl_setopt($fp, CURLOPT_HEADER, 1);
 				curl_setopt($fp, CURLOPT_RETURNTRANSFER, 1);
