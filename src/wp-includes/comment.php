@@ -69,39 +69,6 @@ function check_comment($author, $email, $url, $comment, $user_ip, $user_agent, $
 			return false;
 	}
 
-	$mod_keys = trim(get_option('moderation_keys'));
-
-	// If moderation 'keys' (keywords) are set, process them.
-	if ( !empty($mod_keys) ) {
-		$words = explode("\n", $mod_keys );
-
-		foreach ( (array) $words as $word) {
-			$word = trim($word);
-
-			// Skip empty lines.
-			if ( empty($word) )
-				continue;
-
-			/*
-			 * Do some escaping magic so that '#' (number of) characters in the spam
-			 * words don't break things:
-			 */
-			$word = preg_quote($word, '#');
-
-			/*
-			 * Check the comment fields for moderation keywords. If any are found,
-			 * fail the check for the given field by returning false.
-			 */
-			$pattern = "#$word#i";
-			if ( preg_match($pattern, $author) ) return false;
-			if ( preg_match($pattern, $email) ) return false;
-			if ( preg_match($pattern, $url) ) return false;
-			if ( preg_match($pattern, $comment) ) return false;
-			if ( preg_match($pattern, $user_ip) ) return false;
-			if ( preg_match($pattern, $user_agent) ) return false;
-		}
-	}
-
 	/*
 	 * Check if the option to approve comments by previously-approved authors is enabled.
 	 *

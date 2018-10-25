@@ -4149,18 +4149,6 @@ function sanitize_option( $option, $value ) {
 			if ( ! get_role( $value ) && get_role( 'subscriber' ) )
 				$value = 'subscriber';
 			break;
-
-		case 'moderation_keys':
-			$value = $wpdb->strip_invalid_text_for_column( $wpdb->options, 'option_value', $value );
-			if ( is_wp_error( $value ) ) {
-				$error = $value->get_error_message();
-			} else {
-				$value = explode( "\n", $value );
-				$value = array_filter( array_map( 'trim', $value ) );
-				$value = array_unique( $value );
-				$value = implode( "\n", $value );
-			}
-			break;
 	}
 
 	if ( ! empty( $error ) ) {

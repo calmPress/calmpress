@@ -400,7 +400,6 @@ function populate_options() {
 	'permalink_structure' => '/%year%/%monthnum%/%day%/%postname%/',
 	'rewrite_rules' => '',
 	'blog_charset' => 'UTF-8',
-	'moderation_keys' => '',
 	'active_plugins' => array(),
 	'category_base' => '',
 	'comment_max_links' => 2,
@@ -497,7 +496,7 @@ function populate_options() {
 	}
 
 	// Set autoload to no for these options
-	$fat_options = array( 'moderation_keys', 'recently_edited', 'uninstall_plugins' );
+	$fat_options = array( 'recently_edited', 'uninstall_plugins' );
 
 	$keys = "'" . implode( "', '", array_keys( $options ) ) . "'";
 	$existing_options = $wpdb->get_col( "SELECT option_name FROM $wpdb->options WHERE option_name in ( $keys )" );

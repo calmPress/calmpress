@@ -100,7 +100,6 @@ $whitelist_options = array(
 		'require_name_email',
 		'comment_whitelist',
 		'comment_max_links',
-		'moderation_keys',
 		'show_avatars',
 		'avatar_rating',
 		'avatar_default',
