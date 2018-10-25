@@ -890,32 +890,6 @@ function wp_default_styles( &$styles ) {
 	$styles->text_direction = function_exists( 'is_rtl' ) && is_rtl() ? 'rtl' : 'ltr';
 	$styles->default_dirs = array('/wp-admin/', '/wp-includes/css/');
 
-	// Open Sans is no longer used by core, but may be relied upon by themes and plugins.
-	$open_sans_font_url = '';
-
-	/* translators: If there are characters in your language that are not supported
-	 * by Open Sans, translate this to 'off'. Do not translate into your own language.
-	 */
-	if ( 'off' !== _x( 'on', 'Open Sans font: on or off' ) ) {
-		$subsets = 'latin,latin-ext';
-
-		/* translators: To add an additional Open Sans character subset specific to your language,
-		 * translate this to 'greek', 'cyrillic' or 'vietnamese'. Do not translate into your own language.
-		 */
-		$subset = _x( 'no-subset', 'Open Sans font: add new subset (greek, cyrillic, vietnamese)' );
-
-		if ( 'cyrillic' == $subset ) {
-			$subsets .= ',cyrillic,cyrillic-ext';
-		} elseif ( 'greek' == $subset ) {
-			$subsets .= ',greek,greek-ext';
-		} elseif ( 'vietnamese' == $subset ) {
-			$subsets .= ',vietnamese';
-		}
-
-		// Hotlink Open Sans, for now
-		$open_sans_font_url = "https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,300,400,600&subset=$subsets";
-	}
-
 	// Register a stylesheet for the selected admin color scheme.
 	$styles->add( 'colors', true, array( 'wp-admin', 'buttons' ) );
 
@@ -976,7 +950,6 @@ function wp_default_styles( &$styles ) {
 	$styles->add( 'deprecated-media', "/wp-admin/css/deprecated-media$suffix.css" );
 	$styles->add( 'jcrop',            "/wp-includes/js/jcrop/jquery.Jcrop.min.css", array(), '0.9.12' );
 	$styles->add( 'colors-fresh', false, array( 'wp-admin', 'buttons' ) ); // Old handle.
-	$styles->add( 'open-sans', $open_sans_font_url ); // No longer used in core as of 4.6
 
 	// RTL CSS
 	$rtl_styles = array(
