@@ -411,7 +411,6 @@ function populate_options() {
 	'template' => $template,
 	'stylesheet' => $stylesheet,
 	'comment_whitelist' => 1,
-	'blacklist_keys' => '',
 	'comment_registration' => 0,
 	'html_type' => 'text/html',
 
@@ -498,7 +497,7 @@ function populate_options() {
 	}
 
 	// Set autoload to no for these options
-	$fat_options = array( 'moderation_keys', 'recently_edited', 'blacklist_keys', 'uninstall_plugins' );
+	$fat_options = array( 'moderation_keys', 'recently_edited', 'uninstall_plugins' );
 
 	$keys = "'" . implode( "', '", array_keys( $options ) ) . "'";
 	$existing_options = $wpdb->get_col( "SELECT option_name FROM $wpdb->options WHERE option_name in ( $keys )" );

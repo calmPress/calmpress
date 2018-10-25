@@ -764,17 +764,6 @@ function wp_allow_comment( $commentdata, $avoid_die = false ) {
 		} else {
 			$approved = 0;
 		}
-
-		if ( wp_blacklist_check(
-			$commentdata['comment_author'],
-			$commentdata['comment_author_email'],
-			$commentdata['comment_author_url'],
-			$commentdata['comment_content'],
-			$commentdata['comment_author_IP'],
-			$commentdata['comment_agent']
-		) ) {
-			$approved = EMPTY_TRASH_DAYS ? 'trash' : 'spam';
-		}
 	}
 
 	/**
@@ -1168,68 +1157,6 @@ function wp_check_comment_data_max_lengths( $comment_data ) {
 	}
 
 	return true;
-}
-
-/**
- * Does comment contain blacklisted characters or words.
- *
- * @since 1.5.0
- *
- * @param string $author The author of the comment
- * @param string $email The email of the comment
- * @param string $url The url used in the comment
- * @param string $comment The comment content
- * @param string $user_ip The comment author's IP address
- * @param string $user_agent The author's browser user agent
- * @return bool True if comment contains blacklisted content, false if comment does not
- */
-function wp_blacklist_check($author, $email, $url, $comment, $user_ip, $user_agent) {
-	/**
-	 * Fires before the comment is tested for blacklisted characters or words.
-	 *
-	 * @since 1.5.0
-	 *
-	 * @param string $author     Comment author.
-	 * @param string $email      Comment author's email.
-	 * @param string $url        Comment author's URL.
-	 * @param string $comment    Comment content.
-	 * @param string $user_ip    Comment author's IP address.
-	 * @param string $user_agent Comment author's browser user agent.
-	 */
-	do_action( 'wp_blacklist_check', $author, $email, $url, $comment, $user_ip, $user_agent );
-
-	$mod_keys = trim( get_option('blacklist_keys') );
-	if ( '' == $mod_keys )
-		return false; // If moderation keys are empty
-
-	// Ensure HTML tags are not being used to bypass the blacklist.
-	$comment_without_html = wp_strip_all_tags( $comment );
-
-	$words = explode("\n", $mod_keys );
-
-	foreach ( (array) $words as $word ) {
-		$word = trim($word);
-
-		// Skip empty lines
-		if ( empty($word) ) { continue; }
-
-		// Do some escaping magic so that '#' chars in the
-		// spam words don't break things:
-		$word = preg_quote($word, '#');
-
-		$pattern = "#$word#i";
-		if (
-			   preg_match($pattern, $author)
-			|| preg_match($pattern, $email)
-			|| preg_match($pattern, $url)
-			|| preg_match($pattern, $comment)
-			|| preg_match($pattern, $comment_without_html)
-			|| preg_match($pattern, $user_ip)
-			|| preg_match($pattern, $user_agent)
-		 )
-			return true;
-	}
-	return false;
 }
 
 /**
