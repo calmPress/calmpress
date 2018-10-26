@@ -493,7 +493,6 @@ class WP_Widget_Text extends WP_Widget {
 	 * @since 4.9.0 The method is now static.
 	 */
 	public static function render_control_template_scripts() {
-		$dismissed_pointers = explode( ',', (string) get_user_meta( get_current_user_id(), 'dismissed_wp_pointers', true ) );
 		?>
 		<script type="text/html" id="tmpl-widget-text-control-fields">
 			<# var elementIdPrefix = 'el' + String( Math.random() ).replace( /\D/g, '' ) + '_' #>
@@ -501,40 +500,6 @@ class WP_Widget_Text extends WP_Widget {
 				<label for="{{ elementIdPrefix }}title"><?php esc_html_e( 'Title:' ); ?></label>
 				<input id="{{ elementIdPrefix }}title" type="text" class="widefat title">
 			</p>
-
-			<?php if ( ! in_array( 'text_widget_custom_html', $dismissed_pointers, true ) ) : ?>
-				<div hidden class="wp-pointer custom-html-widget-pointer wp-pointer-top">
-					<div class="wp-pointer-content">
-						<h3><?php _e( 'New Custom HTML Widget' ); ?></h3>
-						<?php if ( is_customize_preview() ) : ?>
-							<p><?php _e( 'Did you know there is a &#8220;Custom HTML&#8221; widget now? You can find it by pressing the &#8220;<a class="add-widget" href="#">Add a Widget</a>&#8221; button and searching for &#8220;HTML&#8221;. Check it out to add some custom code to your site!' ); ?></p>
-						<?php else : ?>
-							<p><?php _e( 'Did you know there is a &#8220;Custom HTML&#8221; widget now? You can find it by scanning the list of available widgets on this screen. Check it out to add some custom code to your site!' ); ?></p>
-						<?php endif; ?>
-						<div class="wp-pointer-buttons">
-							<a class="close" href="#"><?php _e( 'Dismiss' ); ?></a>
-						</div>
-					</div>
-					<div class="wp-pointer-arrow">
-						<div class="wp-pointer-arrow-inner"></div>
-					</div>
-				</div>
-			<?php endif; ?>
-
-			<?php if ( ! in_array( 'text_widget_paste_html', $dismissed_pointers, true ) ) : ?>
-				<div hidden class="wp-pointer paste-html-pointer wp-pointer-top">
-					<div class="wp-pointer-content">
-						<h3><?php _e( 'Did you just paste HTML?' ); ?></h3>
-						<p><?php _e( 'Hey there, looks like you just pasted HTML into the &#8220;Visual&#8221; tab of the Text widget. You may want to paste your code into the &#8220;Text&#8221; tab instead. Alternately, try out the new &#8220;Custom HTML&#8221; widget!' ); ?></p>
-						<div class="wp-pointer-buttons">
-							<a class="close" href="#"><?php _e( 'Dismiss' ); ?></a>
-						</div>
-					</div>
-					<div class="wp-pointer-arrow">
-						<div class="wp-pointer-arrow-inner"></div>
-					</div>
-				</div>
-			<?php endif; ?>
 
 			<p>
 				<label for="{{ elementIdPrefix }}text" class="screen-reader-text"><?php esc_html_e( 'Content:' ); ?></label>

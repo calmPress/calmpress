@@ -4,7 +4,6 @@ wp.textWidgets = ( function( $ ) {
 	'use strict';
 
 	var component = {
-		dismissedPointers: [],
 		idBases: [ 'text' ]
 	};
 
@@ -48,31 +47,6 @@ wp.textWidgets = ( function( $ ) {
 			control.$el.addClass( 'text-widget-fields' );
 			control.$el.html( wp.template( 'widget-text-control-fields' ) );
 
-			control.customHtmlWidgetPointer = control.$el.find( '.wp-pointer.custom-html-widget-pointer' );
-			if ( control.customHtmlWidgetPointer.length ) {
-				control.customHtmlWidgetPointer.find( '.close' ).on( 'click', function( event ) {
-					event.preventDefault();
-					control.customHtmlWidgetPointer.hide();
-					$( '#' + control.fields.text.attr( 'id' ) + '-html' ).focus();
-					control.dismissPointers( [ 'text_widget_custom_html' ] );
-				});
-				control.customHtmlWidgetPointer.find( '.add-widget' ).on( 'click', function( event ) {
-					event.preventDefault();
-					control.customHtmlWidgetPointer.hide();
-					control.openAvailableWidgetsPanel();
-				});
-			}
-
-			control.pasteHtmlPointer = control.$el.find( '.wp-pointer.paste-html-pointer' );
-			if ( control.pasteHtmlPointer.length ) {
-				control.pasteHtmlPointer.find( '.close' ).on( 'click', function( event ) {
-					event.preventDefault();
-					control.pasteHtmlPointer.hide();
-					control.editor.focus();
-					control.dismissPointers( [ 'text_widget_custom_html', 'text_widget_paste_html' ] );
-				});
-			}
-
 			control.fields = {
 				title: control.$el.find( '.title' ),
 				text: control.$el.find( '.text' )
@@ -90,23 +64,6 @@ wp.textWidgets = ( function( $ ) {
 
 				// Note that syncInput cannot be re-used because it will be destroyed with each widget-updated event.
 				fieldInput.val( control.syncContainer.find( '.sync-input.' + fieldName ).val() );
-			});
-		},
-
-		/**
-		 * Dismiss pointers for Custom HTML widget.
-		 *
-		 * @since 4.8.1
-		 *
-		 * @param {Array} pointers Pointer IDs to dismiss.
-		 * @returns {void}
-		 */
-		dismissPointers: function dismissPointers( pointers ) {
-			_.each( pointers, function( pointer ) {
-				wp.ajax.post( 'dismiss-wp-pointer', {
-					pointer: pointer
-				});
-				component.dismissedPointers.push( pointer );
 			});
 		},
 
@@ -222,7 +179,7 @@ wp.textWidgets = ( function( $ ) {
 			 * @returns {void}
 			 */
 			function buildEditor() {
-				var editor, onInit, showPointerElement;
+				var editor, onInit;
 
 				// Abort building if the textarea is gone, likely due to the widget having been deleted entirely.
 				if ( ! document.getElementById( id ) ) {
@@ -232,7 +189,7 @@ wp.textWidgets = ( function( $ ) {
 				// The user has disabled TinyMCE.
 				if ( typeof window.tinymce === 'undefined' ) {
 					wp.editor.initialize( id, {
-						quicktags: true,
+						quicktags: false,
 						mediaButtons: true
 					});
 
@@ -260,23 +217,9 @@ wp.textWidgets = ( function( $ ) {
 					tinymce: {
 						wpautop: true
 					},
-					quicktags: true,
+					quicktags: false,
 					mediaButtons: true
 				});
-
-				/**
-				 * Show a pointer, focus on dismiss, and speak the contents for a11y.
-				 *
-				 * @param {jQuery} pointerElement Pointer element.
-				 * @returns {void}
-				 */
-				showPointerElement = function( pointerElement ) {
-					pointerElement.show();
-					pointerElement.find( '.close' ).focus();
-					wp.a11y.speak( pointerElement.find( 'h3, p' ).map( function() {
-						return $( this ).text();
-					} ).get().join( '\n\n' ) );
-				};
 
 				editor = window.tinymce.get( id );
 				if ( ! editor ) {
@@ -293,34 +236,6 @@ wp.textWidgets = ( function( $ ) {
 					if ( restoreTextMode ) {
 						switchEditors.go( id, 'html' );
 					}
-
-					// Show the pointer.
-					$( '#' + id + '-html' ).on( 'click', function() {
-						control.pasteHtmlPointer.hide(); // Hide the HTML pasting pointer.
-
-						if ( -1 !== component.dismissedPointers.indexOf( 'text_widget_custom_html' ) ) {
-							return;
-						}
-						showPointerElement( control.customHtmlWidgetPointer );
-					});
-
-					// Hide the pointer when switching tabs.
-					$( '#' + id + '-tmce' ).on( 'click', function() {
-						control.customHtmlWidgetPointer.hide();
-					});
-
-					// Show pointer when pasting HTML.
-					editor.on( 'pastepreprocess', function( event ) {
-						var content = event.content;
-						if ( -1 !== component.dismissedPointers.indexOf( 'text_widget_paste_html' ) || ! content || ! /&lt;\w+.*?&gt;/.test( content ) ) {
-							return;
-						}
-
-						// Show the pointer after a slight delay so the user sees what they pasted.
-						_.delay( function() {
-							showPointerElement( control.pasteHtmlPointer );
-						}, 250 );
-					});
 				};
 
 				if ( editor.initialized ) {
