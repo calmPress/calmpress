@@ -1252,7 +1252,7 @@ window.wp = window.wp || {};
 		}
 
 		// Add wrap and the Visual|Text tabs.
-		if ( settings.tinymce && settings.quicktags ) {
+		if ( settings.tinymce && ( settings.quicktags || settings.mediaButtons ) ){
 			var $textarea = $( '#' + id );
 
 			var $wrap = $( '<div>' ).attr( {
@@ -1288,7 +1288,7 @@ window.wp = window.wp || {};
 				);
 			}
 
-			$wrap.append(
+			if ( settings.quicktags ) {
 				$editorTools
 					.append( $( '<div class="wp-editor-tabs">' )
 						.append( $button.clone().attr({
@@ -1299,7 +1299,12 @@ window.wp = window.wp || {};
 							id: id + '-html',
 							'class': 'wp-switch-editor switch-html'
 						}).text( window.tinymce.translate( 'Text' ) ) )
-					).append( $editorContainer )
+					);
+			}
+
+			$wrap.append(
+				$editorTools
+					.append( $editorContainer )
 			);
 
 			$textarea.after( $wrap );
