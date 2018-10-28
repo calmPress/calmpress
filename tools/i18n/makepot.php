@@ -211,10 +211,7 @@ class MakePOT {
 		$args = array_merge( $defaults, $args );
 		extract( $args );
 		$placeholders = array();
-		if ( $wp_version = $this->wp_version( $dir ) )
-			$placeholders['version'] = $wp_version;
-		else
-			return false;
+		$placeholders['version'] = '0.9.9';
 		$output = is_null( $output )? $default_output : $output;
 		$res = $this->xgettext( $project, $dir, $output, $placeholders, $excludes, $includes );
 		if ( !$res ) return false;
@@ -236,16 +233,8 @@ class MakePOT {
 	}
 
 	public function wp_frontend( $dir, $output ) {
-		if ( ! file_exists( "$dir/wp-admin/user/about.php" ) ) {
-			return false;
-		}
 
 		$excludes = array( 'wp-admin/.*', 'wp-content/themes/.*', 'wp-includes/class-pop3\.php' );
-
-		// Exclude Akismet all together for 3.9+.
-		if ( file_exists( "$dir/wp-admin/css/about.css" ) ) {
-			$excludes[] = 'wp-content/plugins/akismet/.*';
-		}
 
 		return $this->wp_generic( $dir, array(
 			'project' => 'wp-frontend', 'output' => $output,
@@ -280,18 +269,6 @@ class MakePOT {
 
 		$potextmeta = new PotExtMeta;
 
-		if ( ! file_exists( "$dir/wp-admin/css/about.css" ) ) { // < 3.9
-			$result = $potextmeta->append( "$dir/wp-content/plugins/akismet/akismet.php", $output );
-			if ( ! $result ) {
-				return false;
-			}
-		}
-
-		$result = $potextmeta->append( "$dir/wp-content/plugins/hello.php", $output );
-		if ( ! $result ) {
-			return false;
-		}
-
 		/* Adding non-gettexted strings can repeat some phrases */
 		$output_shell = escapeshellarg( $output );
 		system( "msguniq $output_shell -o $output_shell" );
@@ -307,7 +284,6 @@ class MakePOT {
 	}
 
 	public function wp_network_admin($dir, $output) {
-		if ( ! file_exists( "$dir/wp-admin/user/about.php" ) ) return false;
 
 		$frontend_pot = $this->tempnam( 'frontend.pot' );
 		if ( false === $frontend_pot ) return false;
@@ -345,18 +321,14 @@ class MakePOT {
 	}
 
 	private function get_wp_network_admin_files( $dir ) {
-		$wp_version = $this->wp_version( $dir );
 
 		// https://core.trac.wordpress.org/ticket/19852
 		$files = array( 'wp-admin/network/.*', 'wp-admin/network.php' );
 
-		// https://core.trac.wordpress.org/ticket/34910
-		if ( version_compare( $wp_version, '4.5-beta', '>=' ) ) {
-			$files = array_merge( $files, array(
-				'wp-admin/includes/class-wp-ms.*',
-				'wp-admin/includes/network.php',
-			) );
-		}
+		$files = array_merge( $files, array(
+			'wp-admin/includes/class-wp-ms.*',
+			'wp-admin/includes/network.php',
+		) );
 
 		return $files;
 	}
@@ -368,12 +340,6 @@ class MakePOT {
 			'excludes' => array(),
 			'default_output' => 'wordpress-continents-cities.pot',
 		) );
-	}
-
-	private function wp_version( $dir ) {
-		$version_php = $dir.'/wp-includes/version.php';
-		if ( !is_readable( $version_php ) ) return false;
-		return preg_match( '/\$wp_version\s*=\s*\'(.*?)\';/', file_get_contents( $version_php ), $matches )? $matches[1] : false;
 	}
 
 	public function get_first_lines($filename, $lines = 30) {
