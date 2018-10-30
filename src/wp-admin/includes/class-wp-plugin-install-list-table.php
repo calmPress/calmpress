@@ -103,18 +103,8 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 		if ( 'search' === $tab ) {
 			$tabs['search'] = __( 'Search Results' );
 		}
-		if ( $tab === 'beta' || false !== strpos( get_bloginfo( 'version' ), '-' ) ) {
-			$tabs['beta'] = _x( 'Beta Testing', 'Plugin Installer' );
-		}
-		$tabs['featured']    = _x( 'Featured', 'Plugin Installer' );
 		$tabs['popular']     = _x( 'Popular', 'Plugin Installer' );
-		$tabs['recommended'] = _x( 'Recommended', 'Plugin Installer' );
 		$tabs['favorites']   = _x( 'Favorites', 'Plugin Installer' );
-		if ( current_user_can( 'upload_plugins' ) ) {
-			// No longer a real tab. Here for filter compatibility.
-			// Gets skipped in get_views().
-			$tabs['upload'] = __( 'Upload Plugin' );
-		}
 
 		$nonmenu_tabs = array( 'plugin-information' ); // Valid actions to perform which do not have a Menu item.
 
@@ -123,8 +113,8 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 		 *
 		 * @since 2.7.0
 		 *
-		 * @param array $tabs The tabs shown on the Plugin Install screen. Defaults include 'featured', 'popular',
-		 *                    'recommended', 'favorites', and 'upload'.
+		 * @param array $tabs The tabs shown on the Plugin Install screen. Defaults include 'popular',
+		 *                    and 'favorites'.
 		 */
 		$tabs = apply_filters( 'install_plugins_tabs', $tabs );
 
@@ -175,14 +165,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 				break;
 
-			case 'featured':
-				$args['fields']['group'] = true;
-				$this->orderby = 'group';
-				// No break!
 			case 'popular':
-			case 'new':
-			case 'beta':
-			case 'recommended':
 				$args['browse'] = $tab;
 				break;
 
@@ -211,7 +194,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 		 * Filters API request arguments for each Plugin Install screen tab.
 		 *
 		 * The dynamic portion of the hook name, `$tab`, refers to the plugin install tabs.
-		 * Default tabs include 'featured', 'popular', 'recommended', 'favorites', and 'upload'.
+		 * Default tabs include 'popular', and 'favorites'.
 		 *
 		 * @since 3.7.0
 		 *
@@ -293,8 +276,6 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 			$href = self_admin_url('plugin-install.php?tab=' . $action);
 			$display_tabs['plugin-install-'.$action] = "<a href='$href'$current_link_attributes>$text</a>";
 		}
-		// No longer a real tab.
-		unset( $display_tabs['plugin-install-upload'] );
 
 		return $display_tabs;
 	}
@@ -360,10 +341,6 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 	 * @param string $which
 	 */
 	protected function display_tablenav( $which ) {
-		if ( $GLOBALS['tab'] === 'featured' ) {
-			return;
-		}
-
 		if ( 'top' === $which ) {
 			wp_referer_field();
 		?>

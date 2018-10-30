@@ -59,7 +59,7 @@
  *     @type string  $tag               Tag to filter plugins. Default empty.
  *     @type string  $author            Username of an plugin author to filter plugins. Default empty.
  *     @type string  $user              Username to query for their favorites. Default empty.
- *     @type string  $browse            Browse view: 'popular', 'new', 'beta', 'recommended'.
+ *     @type string  $browse            Browse view: 'popular', 'new', 'recommended'.
  *     @type string  $locale            Locale to provide context-sensitive results. Default is the value
  *                                      of get_locale().
  *     @type string  $installed_plugins Installed plugins to provide context-sensitive results.
@@ -348,15 +348,6 @@ function display_plugins_table() {
 			if ( empty( $_GET['user'] ) && ! get_user_option( 'wporg_favorites' ) ) {
 				return;
 			}
-			break;
-		case 'install_plugins_recommended' :
-			echo '<p>' . __( 'These suggestions are based on the plugins you and other users have installed.' ) . '</p>';
-			break;
-		case 'install_plugins_beta' :
-			printf(
-				'<p>' . __( 'You are using a development version of calmPress. These feature plugins are also under development. <a href="%s">Learn more</a>.' ) . '</p>',
-				'https://make.wordpress.org/core/handbook/about/release-cycle/features-as-plugins/'
-			);
 			break;
 	}
 
