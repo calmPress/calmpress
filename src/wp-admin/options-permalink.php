@@ -44,8 +44,6 @@ $iis7_permalinks = iis7_supports_permalinks();
 $permalink_structure = get_option( 'permalink_structure' );
 
 $prefix = $blog_prefix = '';
-if ( ! got_url_rewrite() )
-	$prefix = '/index.php';
 
 /**
  * In a subdirectory configuration of multisite, the `/blog` prefix is used by
@@ -78,8 +76,6 @@ if ( $iis7_permalinks ) {
 		$update_required = ( $new_rules !== $existing_rules );
 	}
 }
-
-$using_index_permalinks = $wp_rewrite->using_index_permalinks();
 
 if ( isset($_POST['permalink_structure']) || isset($_POST['category_base']) ) {
 	check_admin_referer('update-permalink');
@@ -120,12 +116,12 @@ if ( isset($_POST['permalink_structure']) || isset($_POST['category_base']) ) {
 	$message = __( 'Permalink structure updated.' );
 
 	if ( $iis7_permalinks ) {
-		if ( $permalink_structure && ! $using_index_permalinks && ! $writable ) {
+		if ( $permalink_structure && ! $writable ) {
 			$message = __( 'You should update your web.config now.' );
-		} elseif ( $permalink_structure && ! $using_index_permalinks && $writable ) {
+		} elseif ( $permalink_structure && $writable ) {
 			$message = __( 'Permalink structure updated. Remove write access on web.config file now!' );
 		}
-	} elseif ( ! $is_nginx && $permalink_structure && ! $using_index_permalinks && ! $writable && $update_required ) {
+	} elseif ( ! $is_nginx && $permalink_structure && ! $writable && $update_required ) {
 		$message = __( 'You should update your .htaccess now.' );
 	}
 
@@ -281,7 +277,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
   </form>
 <?php if ( !is_multisite() ) { ?>
 <?php if ( $iis7_permalinks ) :
-	if ( isset($_POST['submit']) && $permalink_structure && ! $using_index_permalinks && ! $writable ) :
+	if ( isset($_POST['submit']) && $permalink_structure && ! $writable ) :
 		if ( file_exists($home_path . 'web.config') ) : ?>
 <p><?php
 	printf(
@@ -326,7 +322,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 		<?php endif; ?>
 	<?php endif; ?>
 <?php else:
-	if ( $permalink_structure && ! $using_index_permalinks && ! $writable && $update_required ) : ?>
+	if ( $permalink_structure && ! $writable && $update_required ) : ?>
 <p><?php
 	printf(
 		/* translators: 1: .htaccess, 3: CTRL + a */

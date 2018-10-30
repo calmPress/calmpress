@@ -40,13 +40,13 @@ function create_initial_taxonomies() {
 			'category' => array(
 				'hierarchical' => true,
 				'slug' => get_option('category_base') ? get_option('category_base') : 'category',
-				'with_front' => ! get_option('category_base') || $wp_rewrite->using_index_permalinks(),
+				'with_front' => ! get_option('category_base'),
 				'ep_mask' => EP_CATEGORIES,
 			),
 			'post_tag' => array(
 				'hierarchical' => false,
 				'slug' => get_option('tag_base') ? get_option('tag_base') : 'tag',
-				'with_front' => ! get_option('tag_base') || $wp_rewrite->using_index_permalinks(),
+				'with_front' => ! get_option('tag_base'),
 				'ep_mask' => EP_TAGS,
 			),
 			'post_format' => $post_format_base ? array( 'slug' => $post_format_base ) : false,

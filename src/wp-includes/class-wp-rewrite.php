@@ -151,15 +151,10 @@ class WP_Rewrite {
 	/**
 	 * The prefix for all permalink structures.
 	 *
-	 * If PATHINFO/index permalinks are in use then the root is the value of
-	 * `WP_Rewrite::$index` with a trailing slash appended. Otherwise the root
-	 * will be empty.
-	 *
 	 * @since 1.5.0
 	 * @var string
 	 *
 	 * @see WP_Rewrite::init()
-	 * @see WP_Rewrite::using_index_permalinks()
 	 */
 	public $root = '';
 
@@ -350,24 +345,6 @@ class WP_Rewrite {
 	}
 
 	/**
-	 * Determines whether permalinks are being used and rewrite module is not enabled.
-	 *
-	 * Means that permalink links are enabled and index.php is in the URL.
-	 *
-	 * @since 1.5.0
-	 *
-	 * @return bool Whether permalink links are enabled and index.php is in the URL.
-	 */
-	public function using_index_permalinks() {
-		if ( empty( $this->permalink_structure ) ) {
-			return false;
-		}
-
-		// If the index is not in the permalink, we're using mod_rewrite.
-		return preg_match( '#^/*' . $this->index . '#', $this->permalink_structure );
-	}
-
-	/**
 	 * Determines whether permalinks are being used and rewrite module is enabled.
 	 *
 	 * Using permalinks and index.php is not in the URL.
@@ -377,7 +354,7 @@ class WP_Rewrite {
 	 * @return bool Whether permalink links are enabled and index.php is NOT in the URL.
 	 */
 	public function using_mod_rewrite_permalinks() {
-		return $this->using_permalinks() && ! $this->using_index_permalinks();
+		return $this->using_permalinks();
 	}
 
 	/**
@@ -1768,9 +1745,6 @@ class WP_Rewrite {
 		$this->permalink_structure = get_option('permalink_structure');
 		$this->front = substr($this->permalink_structure, 0, strpos($this->permalink_structure, '%'));
 		$this->root = '';
-
-		if ( $this->using_index_permalinks() )
-			$this->root = $this->index . '/';
 
 		unset($this->author_structure);
 		unset($this->date_structure);

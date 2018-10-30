@@ -15,44 +15,7 @@
  */
 function got_mod_rewrite() {
 	$got_rewrite = apache_mod_loaded('mod_rewrite', true);
-
-	/**
-	 * Filters whether Apache and mod_rewrite are present.
-	 *
-	 * This filter was previously used to force URL rewriting for other servers,
-	 * like nginx. Use the {@see 'got_url_rewrite'} filter in got_url_rewrite() instead.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @see got_url_rewrite()
-	 *
-	 * @param bool $got_rewrite Whether Apache and mod_rewrite are present.
-	 */
-	return apply_filters( 'got_rewrite', $got_rewrite );
-}
-
-/**
- * Returns whether the server supports URL rewriting.
- *
- * Detects Apache's mod_rewrite, IIS 7.0+ permalink support, and nginx.
- *
- * @since 3.7.0
- *
- * @global bool $is_nginx
- *
- * @return bool Whether the server supports URL rewriting.
- */
-function got_url_rewrite() {
-	$got_url_rewrite = ( got_mod_rewrite() || $GLOBALS['is_nginx'] || iis7_supports_permalinks() );
-
-	/**
-	 * Filters whether URL rewriting is available.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @param bool $got_url_rewrite Whether URL rewriting is available.
-	 */
-	return apply_filters( 'got_url_rewrite', $got_url_rewrite );
+	return $got_rewrite;
 }
 
 /**

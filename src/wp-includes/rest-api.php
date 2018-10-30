@@ -310,11 +310,7 @@ function get_rest_url( $blog_id = null, $path = '/', $scheme = 'rest' ) {
 	if ( is_multisite() && get_blog_option( $blog_id, 'permalink_structure' ) || get_option( 'permalink_structure' ) ) {
 		global $wp_rewrite;
 
-		if ( $wp_rewrite->using_index_permalinks() ) {
-			$url = get_home_url( $blog_id, $wp_rewrite->index . '/' . rest_get_url_prefix(), $scheme );
-		} else {
-			$url = get_home_url( $blog_id, rest_get_url_prefix(), $scheme );
-		}
+		$url = get_home_url( $blog_id, rest_get_url_prefix(), $scheme );
 
 		$url .= '/' . ltrim( $path, '/' );
 	} else {
