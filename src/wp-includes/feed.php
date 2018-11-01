@@ -446,8 +446,6 @@ function html_type_rss() {
  * @since 1.5.0
  */
 function rss_enclosure() {
-	if ( post_password_required() )
-		return;
 
 	foreach ( (array) get_post_custom() as $key => $val) {
 		if ($key == 'enclosure') {
@@ -485,8 +483,6 @@ function rss_enclosure() {
  * @since 2.2.0
  */
 function atom_enclosure() {
-	if ( post_password_required() )
-		return;
 
 	foreach ( (array) get_post_custom() as $key => $val ) {
 		if ($key == 'enclosure') {

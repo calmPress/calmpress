@@ -1406,11 +1406,6 @@ function comments_popup_link( $zero = false, $one = false, $more = false, $css_c
 		return;
 	}
 
-	if ( post_password_required() ) {
-		_e( 'Enter your password to view comments.' );
-		return;
-	}
-
 	echo '<a href="';
 	if ( 0 == $number ) {
 		$respond_link = get_permalink() . '#respond';

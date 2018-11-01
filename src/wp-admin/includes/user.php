@@ -719,7 +719,6 @@ function _wp_personal_data_cleanup_requests() {
 		wp_update_post( array(
 			'ID'            => $request_id,
 			'post_status'   => 'request-failed',
-			'post_password' => '',
 		) );
 	}
 }

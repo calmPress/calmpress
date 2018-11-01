@@ -2590,19 +2590,6 @@ function wp_handle_comment_submission( $comment_data ) {
 			return new WP_Error( 'comment_on_draft' );
 		}
 
-	} elseif ( post_password_required( $comment_post_ID ) ) {
-
-		/**
-		 * Fires when a comment is attempted on a password-protected post.
-		 *
-		 * @since 2.9.0
-		 *
-		 * @param int $comment_post_ID Post ID.
-		 */
-		do_action( 'comment_on_password_protected', $comment_post_ID );
-
-		return new WP_Error( 'comment_on_password_protected' );
-
 	} else {
 
 		/**

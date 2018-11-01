@@ -2054,7 +2054,7 @@ function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {
 	}
 
 	if ( 'edit' == $context ) {
-		$format_to_edit = array('post_content', 'post_excerpt', 'post_title', 'post_password');
+		$format_to_edit = array('post_content', 'post_excerpt', 'post_title');
 
 		if ( $prefixed ) {
 
@@ -3075,7 +3075,6 @@ function wp_get_recent_posts( $args = array(), $output = ARRAY_A ) {
  *                                         Default is the value of 'default_comment_status' option.
  *     @type string $ping_status           Whether the post can accept pings. Accepts 'open' or 'closed'.
  *                                         Default is the value of 'default_ping_status' option.
- *     @type string $post_password         The password to access the post. Default empty.
  *     @type string $post_name             The post name. Default is the sanitized post title
  *                                         when creating a new post.
  *     @type string $to_ping               Space or carriage return-separated list of URLs to ping.
@@ -3329,11 +3328,6 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 		$menu_order = 0;
 	}
 
-	$post_password = isset( $postarr['post_password'] ) ? $postarr['post_password'] : '';
-	if ( 'private' == $post_status ) {
-		$post_password = '';
-	}
-
 	if ( isset( $postarr['post_parent'] ) ) {
 		$post_parent = (int) $postarr['post_parent'];
 	} else {
@@ -3387,7 +3381,7 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 	$post_mime_type = isset( $postarr['post_mime_type'] ) ? $postarr['post_mime_type'] : '';
 
 	// Expected_slashed (everything!).
-	$data = compact( 'post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_content_filtered', 'post_title', 'post_excerpt', 'post_status', 'post_type', 'comment_status', 'ping_status', 'post_password', 'post_name', 'to_ping', 'pinged', 'post_modified', 'post_modified_gmt', 'post_parent', 'menu_order', 'post_mime_type', 'guid' );
+	$data = compact( 'post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_content_filtered', 'post_title', 'post_excerpt', 'post_status', 'post_type', 'comment_status', 'ping_status', 'post_name', 'to_ping', 'pinged', 'post_modified', 'post_modified_gmt', 'post_parent', 'menu_order', 'post_mime_type', 'guid' );
 
 	$emoji_fields = array( 'post_title', 'post_content', 'post_excerpt' );
 

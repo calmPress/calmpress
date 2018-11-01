@@ -540,7 +540,7 @@ function export_wp( $args = array() ) {
 		<wp:post_parent><?php echo intval( $post->post_parent ); ?></wp:post_parent>
 		<wp:menu_order><?php echo intval( $post->menu_order ); ?></wp:menu_order>
 		<wp:post_type><?php echo wxr_cdata( $post->post_type ); ?></wp:post_type>
-		<wp:post_password><?php echo wxr_cdata( $post->post_password ); ?></wp:post_password>
+		<wp:post_password><?php echo wxr_cdata( '' ); ?></wp:post_password>
 		<wp:is_sticky><?php echo intval( $is_sticky ); ?></wp:is_sticky>
 <?php	if ( $post->post_type == 'attachment' ) : ?>
 		<wp:attachment_url><?php echo wxr_cdata( wp_get_attachment_url( $post->ID ) ); ?></wp:attachment_url>

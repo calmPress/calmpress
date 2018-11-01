@@ -1554,26 +1554,11 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		$posts_controller = new WP_REST_Posts_Controller( $post->post_type );
 		$post_type = get_post_type_object( $post->post_type );
 
-		$has_password_filter = false;
-
 		// Only check password if a specific post was queried for or a single comment
 		$requested_post = ! empty( $request['post'] ) && ( !is_array( $request['post'] ) || 1 === count( $request['post'] ) );
 		$requested_comment = ! empty( $request['id'] );
-		if ( ( $requested_post || $requested_comment ) && $posts_controller->can_access_password_content( $post, $request ) ) {
-			add_filter( 'post_password_required', '__return_false' );
 
-			$has_password_filter = true;
-		}
-
-		if ( post_password_required( $post ) ) {
-			$result = current_user_can( $post_type->cap->edit_post, $post->ID );
-		} else {
-			$result = $posts_controller->check_read_permission( $post );
-		}
-
-		if ( $has_password_filter ) {
-			remove_filter( 'post_password_required', '__return_false' );
-		}
+		$result = $posts_controller->check_read_permission( $post );
 
 		return $result;
 	}

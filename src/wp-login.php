@@ -471,38 +471,6 @@ $login_link_separator = apply_filters( 'login_link_separator', ' | ' );
 
 switch ($action) {
 
-case 'postpass' :
-	if ( ! array_key_exists( 'post_password', $_POST ) ) {
-		wp_safe_redirect( wp_get_referer() );
-		exit();
-	}
-
-	/**
-	 * Filters the life span of the post password cookie.
-	 *
-	 * By default, the cookie expires 10 days from creation. To turn this
-	 * into a session cookie, return 0.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @param int $expires The expiry time, as passed to setcookie().
-	 */
-	$expire = apply_filters( 'post_password_expires', time() + 10 * DAY_IN_SECONDS );
-	$referer = wp_get_referer();
-	if ( $referer ) {
-		$secure = ( 'https' === parse_url( $referer, PHP_URL_SCHEME ) );
-	} else {
-		$secure = false;
-	}
-	setcookie( 'wp-postpass_' . COOKIEHASH, password_verify( wp_unslash( $_POST['post_password'] ) ), $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
-
-	if ( $switched_locale ) {
-	    restore_previous_locale();
-	}
-
-	wp_safe_redirect( wp_get_referer() );
-	exit();
-
 case 'logout' :
 	check_admin_referer('log-out');
 

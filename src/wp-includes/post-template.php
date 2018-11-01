@@ -114,22 +114,7 @@ function get_the_title( $post = 0 ) {
 	$id = isset( $post->ID ) ? $post->ID : 0;
 
 	if ( ! is_admin() ) {
-		if ( ! empty( $post->post_password ) ) {
-
-			/**
-			 * Filters the text prepended to the post title for protected posts.
-			 *
-			 * The filter is only applied on the front end.
-			 *
-			 * @since 2.8.0
-			 *
-			 * @param string  $prepend Text displayed before the post title.
-			 *                         Default 'Protected: %s'.
-			 * @param WP_Post $post    Current post object.
-			 */
-			$protected_title_format = apply_filters( 'protected_title_format', __( 'Protected: %s' ), $post );
-			$title = sprintf( $protected_title_format, $title );
-		} elseif ( isset( $post->post_status ) && 'private' == $post->post_status ) {
+		if ( isset( $post->post_status ) && 'private' == $post->post_status ) {
 
 			/**
 			 * Filters the text prepended to the post title of private posts.
@@ -277,10 +262,6 @@ function get_the_content( $more_link_text = null, $strip_teaser = false ) {
 	$output = '';
 	$has_teaser = false;
 
-	// If post password required and it doesn't match the cookie.
-	if ( post_password_required( $post ) )
-		return get_the_password_form( $post );
-
 	if ( $page > count( $pages ) ) // if the requested page doesn't exist
 		$page = count( $pages ); // give them the highest numbered page that DOES exist
 
@@ -378,10 +359,6 @@ function get_the_excerpt( $post = null ) {
 		return '';
 	}
 
-	if ( post_password_required( $post ) ) {
-		return __( 'There is no excerpt because this is a protected post.' );
-	}
-
 	/**
 	 * Filters the retrieved post excerpt.
 	 *
@@ -476,17 +453,8 @@ function get_post_class( $class = '', $post_id = null ) {
 			$classes[] = 'format-standard';
 	}
 
-	$post_password_required = post_password_required( $post->ID );
-
-	// Post requires password.
-	if ( $post_password_required ) {
-		$classes[] = 'post-password-required';
-	} elseif ( ! empty( $post->post_password ) ) {
-		$classes[] = 'post-password-protected';
-	}
-
 	// Post thumbnails.
-	if ( current_theme_supports( 'post-thumbnails' ) && has_post_thumbnail( $post->ID ) && ! is_attachment( $post ) && ! $post_password_required ) {
+	if ( current_theme_supports( 'post-thumbnails' ) && has_post_thumbnail( $post->ID ) && ! is_attachment( $post ) ) {
 		$classes[] = 'has-post-thumbnail';
 	}
 
@@ -767,42 +735,6 @@ function get_body_class( $class = '' ) {
 	$classes = apply_filters( 'body_class', $classes, $class );
 
 	return array_unique( $classes );
-}
-
-/**
- * Whether post requires password and correct password has been provided.
- *
- * @since 2.7.0
- *
- * @param int|WP_Post|null $post An optional post. Global $post used if not provided.
- * @return bool false if a password is not required or the correct password cookie is present, true otherwise.
- */
-function post_password_required( $post = null ) {
-	$post = get_post($post);
-
-	if ( empty( $post->post_password ) ) {
-		/** This filter is documented in wp-includes/post-template.php */
-		return apply_filters( 'post_password_required', false, $post );
-	}
-
-	if ( ! isset( $_COOKIE[ 'wp-postpass_' . COOKIEHASH ] ) ) {
-		/** This filter is documented in wp-includes/post-template.php */
-		return apply_filters( 'post_password_required', true, $post );
-	}
-
-	$hash = wp_unslash( $_COOKIE[ 'wp-postpass_' . COOKIEHASH ] );
-	$required = ! password_verify( $post->post_password, $hash );
-
-	/**
-	 * Filters whether a post requires the user to supply a password.
-	 *
-	 * @since 4.7.0
-	 *
-	 * @param bool    $required Whether the user needs to supply a password. True if password has not been
-	 *                          provided or is incorrect, false if password has been supplied or is not required.
-	 * @param WP_Post $post     Post data.
-	 */
-	return apply_filters( 'post_password_required', $required, $post );
 }
 
 //
@@ -1582,36 +1514,6 @@ function prepend_attachment($content) {
 //
 // Misc
 //
-
-/**
- * Retrieve protected post password form content.
- *
- * @since 1.0.0
- *
- * @param int|WP_Post $post Optional. Post ID or WP_Post object. Default is global $post.
- * @return string HTML content for password form for password protected post.
- */
-function get_the_password_form( $post = 0 ) {
-	$post = get_post( $post );
-	$label = 'pwbox-' . ( empty($post->ID) ? rand() : $post->ID );
-	$output = '<form action="' . esc_url( site_url( 'wp-login.php?action=postpass', 'login_post' ) ) . '" class="post-password-form" method="post">
-	<p>' . __( 'This content is password protected. To view it please enter your password below:' ) . '</p>
-	<p><label for="' . $label . '">' . __( 'Password:' ) . ' <input name="post_password" id="' . $label . '" type="password" size="20" /></label> <input type="submit" name="Submit" value="' . esc_attr_x( 'Enter', 'post password form' ) . '" /></p></form>
-	';
-
-	/**
-	 * Filters the HTML output for the protected post password form.
-	 *
-	 * If modifying the password field, please note that the core database schema
-	 * limits the password field to 20 characters regardless of the value of the
-	 * size attribute in the form input.
-	 *
-	 * @since 2.7.0
-	 *
-	 * @param string $output The password form HTML output.
-	 */
-	return apply_filters( 'the_password_form', $output );
-}
 
 /**
  * Whether currently in a page template.

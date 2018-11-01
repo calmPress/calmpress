@@ -95,11 +95,7 @@ if ( have_comments() ) : while ( have_comments() ) : the_comment();
 		<id><?php comment_guid(); ?></id>
 		<updated><?php echo mysql2date('Y-m-d\TH:i:s\Z', get_comment_time('Y-m-d H:i:s', true, false), false); ?></updated>
 		<published><?php echo mysql2date('Y-m-d\TH:i:s\Z', get_comment_time('Y-m-d H:i:s', true, false), false); ?></published>
-<?php if ( post_password_required($comment_post) ) : ?>
-		<content type="html" xml:base="<?php comment_link(); ?>"><![CDATA[<?php echo get_the_password_form(); ?>]]></content>
-<?php else : // post pass ?>
 		<content type="html" xml:base="<?php comment_link(); ?>"><![CDATA[<?php comment_text(); ?>]]></content>
-<?php endif; // post pass
 	// Return comment threading information (https://www.ietf.org/rfc/rfc4685.txt)
 	if ( $comment->comment_parent == 0 ) : // This comment is top level ?>
 		<thr:in-reply-to ref="<?php the_guid(); ?>" href="<?php the_permalink_rss() ?>" type="<?php bloginfo_rss('html_type'); ?>" />

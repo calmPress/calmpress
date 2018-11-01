@@ -796,7 +796,6 @@ jQuery(document).ready( function($) {
 		$postVisibilitySelect.find('.cancel-post-visibility').click( function( event ) {
 			$postVisibilitySelect.slideUp('fast');
 			$('#visibility-radio-' + $('#hidden-post-visibility').val()).prop('checked', true);
-			$('#post_password').val($('#hidden-post-password').val());
 			$('#sticky').prop('checked', $('#hidden-post-sticky').prop('checked'));
 			$('#post-visibility-display').html(visibility);
 			$('#visibility .edit-visibility').show().focus();

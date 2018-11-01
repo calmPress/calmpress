@@ -869,7 +869,6 @@ class wp_xmlrpc_server extends IXR_Server {
 			'post_type'         => $post['post_type'],
 			'post_name'         => $post['post_name'],
 			'post_author'       => $post['post_author'],
-			'post_password'     => $post['post_password'],
 			'post_excerpt'      => $post['post_excerpt'],
 			'post_content'      => $post['post_content'],
 			'post_parent'       => strval( $post['post_parent'] ),
@@ -1092,7 +1091,6 @@ class wp_xmlrpc_server extends IXR_Server {
 			'mt_allow_comments'      => $allow_comments,
 			'mt_allow_pings'         => $allow_pings,
 			'wp_slug'                => $page->post_name,
-			'wp_password'            => $page->post_password,
 			'wp_author'              => $author->display_name,
 			'wp_page_parent_id'      => $page->post_parent,
 			'wp_page_parent_title'   => $parent_title,
@@ -1236,7 +1234,6 @@ class wp_xmlrpc_server extends IXR_Server {
 	 *         @type string $post_content   Post content.
 	 *         @type string $post_date_gmt  Post date in GMT.
 	 *         @type string $post_date      Post date.
-	 *         @type string $post_password  Post password (20-character limit).
 	 *         @type string $comment_status Post comment enabled status. Accepts 'open' or 'closed'.
 	 *         @type string $ping_status    Post ping status. Accepts 'open' or 'closed'.
 	 *         @type bool   $sticky         Whether the post should be sticky. Automatically false if
@@ -1319,7 +1316,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		$post_type = get_post_type_object( $post_data['post_type'] );
 
 		// Private and password-protected posts cannot be stickied.
-		if ( 'private' === $post_data['post_status'] || ! empty( $post_data['post_password'] ) ) {
+		if ( 'private' === $post_data['post_status'] ) {
 			// Error if the client tried to stick the post, otherwise, silently unstick.
 			if ( ! empty( $post_data['sticky'] ) ) {
 				return new IXR_Error( 401, __( 'Sorry, you cannot stick a private post.' ) );
@@ -1358,7 +1355,6 @@ class wp_xmlrpc_server extends IXR_Server {
 			'post_status'    => 'draft',
 			'post_type'      => 'post',
 			'post_author'    => null,
-			'post_password'  => null,
 			'post_excerpt'   => null,
 			'post_content'   => null,
 			'post_title'     => null,
@@ -1416,9 +1412,6 @@ class wp_xmlrpc_server extends IXR_Server {
 					$post_data['post_status'] = 'draft';
 			break;
 		}
-
-		if ( ! empty( $post_data['post_password'] ) && ! current_user_can( $post_type->cap->publish_posts ) )
-			return new IXR_Error( 401, __( 'Sorry, you are not allowed to create password protected posts in this post type.' ) );
 
 		$post_data['post_author'] = absint( $post_data['post_author'] );
 		if ( ! empty( $post_data['post_author'] ) && $post_data['post_author'] != $user->ID ) {
@@ -1762,7 +1755,6 @@ class wp_xmlrpc_server extends IXR_Server {
 	 *  - 'post_type'
 	 *  - 'post_name'
 	 *  - 'post_author'
-	 *  - 'post_password'
 	 *  - 'post_excerpt'
 	 *  - 'post_content'
 	 *  - 'link'
@@ -5000,13 +4992,6 @@ class wp_xmlrpc_server extends IXR_Server {
 		if ( isset($content_struct['wp_slug']) )
 			$post_name = $content_struct['wp_slug'];
 
-		// Only use a password if one was given.
-		if ( isset($content_struct['wp_password']) ) {
-			$post_password = $content_struct['wp_password'];
-		} else {
-			$post_password = '';
-		}
-
 		// Only set a post parent if one was provided.
 		if ( isset($content_struct['wp_page_parent_id']) ) {
 			$post_parent = $content_struct['wp_page_parent_id'];
@@ -5136,7 +5121,7 @@ class wp_xmlrpc_server extends IXR_Server {
 			}
 		}
 
-		$postdata = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_category', 'post_status', 'post_excerpt', 'comment_status', 'ping_status', 'to_ping', 'post_type', 'post_name', 'post_password', 'post_parent', 'menu_order', 'tags_input', 'page_template');
+		$postdata = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_category', 'post_status', 'post_excerpt', 'comment_status', 'ping_status', 'to_ping', 'post_type', 'post_name', 'post_parent', 'menu_order', 'tags_input', 'page_template');
 
 		$post_ID = $postdata['ID'] = get_default_post_to_edit( $post_type, true )->ID;
 
@@ -5305,7 +5290,6 @@ class wp_xmlrpc_server extends IXR_Server {
 		$post_content   = $postdata['post_content'];
 		$post_title     = $postdata['post_title'];
 		$post_excerpt   = $postdata['post_excerpt'];
-		$post_password  = $postdata['post_password'];
 		$post_parent    = $postdata['post_parent'];
 		$post_type      = $postdata['post_type'];
 		$menu_order     = $postdata['menu_order'];
@@ -5316,10 +5300,6 @@ class wp_xmlrpc_server extends IXR_Server {
 		$post_name = $postdata['post_name'];
 		if ( isset($content_struct['wp_slug']) )
 			$post_name = $content_struct['wp_slug'];
-
-		// Only use a password if one was given.
-		if ( isset($content_struct['wp_password']) )
-			$post_password = $content_struct['wp_password'];
 
 		// Only set a post parent if one was given.
 		if ( isset($content_struct['wp_page_parent_id']) )
@@ -5466,7 +5446,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		// We've got all the data -- post it.
-		$newpost = compact('ID', 'post_content', 'post_title', 'post_category', 'post_status', 'post_excerpt', 'comment_status', 'ping_status', 'edit_date', 'post_date', 'post_date_gmt', 'to_ping', 'post_name', 'post_password', 'post_parent', 'menu_order', 'post_author', 'tags_input', 'page_template');
+		$newpost = compact('ID', 'post_content', 'post_title', 'post_category', 'post_status', 'post_excerpt', 'comment_status', 'ping_status', 'edit_date', 'post_date', 'post_date_gmt', 'to_ping', 'post_name', 'post_parent', 'menu_order', 'post_author', 'tags_input', 'page_template');
 
 		$result = wp_update_post($newpost, true);
 		if ( is_wp_error( $result ) )
@@ -5633,7 +5613,7 @@ class wp_xmlrpc_server extends IXR_Server {
 				'mt_allow_pings' => $allow_pings,
 				'mt_keywords' => $tagnames,
 				'wp_slug' => $postdata['post_name'],
-				'wp_password' => $postdata['post_password'],
+				'wp_password' => '',
 				'wp_author_id' => (string) $author->ID,
 				'wp_author_display_name' => $author->display_name,
 				'date_created_gmt' => $post_date_gmt,
@@ -5756,7 +5736,7 @@ class wp_xmlrpc_server extends IXR_Server {
 				'mt_allow_pings' => $allow_pings,
 				'mt_keywords' => $tagnames,
 				'wp_slug' => $entry['post_name'],
-				'wp_password' => $entry['post_password'],
+				'wp_password' => '',
 				'wp_author_id' => (string) $author->ID,
 				'wp_author_display_name' => $author->display_name,
 				'date_created_gmt' => $post_date_gmt,

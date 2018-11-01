@@ -258,7 +258,7 @@ var inlineEditPost;
 			id = t.getId(id);
 		}
 
-		fields = ['post_title', 'post_name', 'post_author', '_status', 'jj', 'mm', 'aa', 'hh', 'mn', 'ss', 'post_password', 'post_format', 'menu_order', 'page_template'];
+		fields = ['post_title', 'post_name', 'post_author', '_status', 'jj', 'mm', 'aa', 'hh', 'mn', 'ss', 'post_format', 'menu_order', 'page_template'];
 		if ( t.type === 'page' ) {
 			fields.push('post_parent');
 		}
