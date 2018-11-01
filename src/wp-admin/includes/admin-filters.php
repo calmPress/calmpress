@@ -78,6 +78,7 @@ add_filter( 'whitelist_options', 'option_update_filter' );
 
 // Plugin Install hooks.
 add_action( 'install_plugins_popular',                'install_dashboard' );
+add_action( 'install_plugins_upload',                 'install_plugins_upload' );
 add_action( 'install_plugins_search',                 'display_plugins_table' );
 add_action( 'install_plugins_favorites',              'display_plugins_table' );
 add_action( 'install_plugins_pre_plugin-information', 'install_plugin_information' );
