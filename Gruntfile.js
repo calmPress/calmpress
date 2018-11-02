@@ -335,13 +335,10 @@ module.exports = function(grunt) {
 					'wp-includes/js/tinymce/plugins/wp*/plugin.js',
 					// Third party scripts
 					'!wp-includes/js/codemirror/*.js',
-					'!wp-admin/js/farbtastic.js',
 					'!wp-includes/js/backbone*.js',
-					'!wp-includes/js/swfobject.js',
 					'!wp-includes/js/underscore*.js',
 					'!wp-includes/js/colorpicker.js',
 					'!wp-includes/js/hoverIntent.js',
-					'!wp-includes/js/json2.js',
 					'!wp-includes/js/tw-sack.js',
 					'!**/*.min.js'
 				],
@@ -471,11 +468,9 @@ module.exports = function(grunt) {
 
 					// Exceptions
 					'!wp-admin/js/custom-header.js', // Why? We should minify this.
-					'!wp-admin/js/farbtastic.js',
 					'!wp-admin/js/iris.min.js',
 					'!wp-includes/js/backbone.*',
 					'!wp-includes/js/masonry.min.js',
-					'!wp-includes/js/swfobject.js',
 					'!wp-includes/js/underscore.*',
 					'!wp-includes/js/zxcvbn.min.js',
 					'!wp-includes/js/wp-embed.js' // We have extra options for this, see uglify:embed
