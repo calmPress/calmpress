@@ -937,6 +937,8 @@ function post_custom( $key = '' ) {
  *
  */
 function the_meta() {
+	_deprecated_function( __FUNCTION__, 'calmPress 1.0' );
+
 	if ( $keys = get_post_custom_keys() ) {
 		echo "<ul class='post-meta'>\n";
 		foreach ( (array) $keys as $key ) {
