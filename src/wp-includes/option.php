@@ -1892,12 +1892,6 @@ function register_initial_settings() {
 		'default'      => 'en_US',
 	) );
 
-	register_setting( 'writing', 'default_category', array(
-		'show_in_rest' => true,
-		'type'         => 'integer',
-		'description'  => __( 'Default post category.' ),
-	) );
-
 	register_setting( 'reading', 'posts_per_page', array(
 		'show_in_rest' => true,
 		'type'         => 'integer',

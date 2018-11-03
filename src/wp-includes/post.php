@@ -3090,7 +3090,6 @@ function wp_get_recent_posts( $args = array(), $output = ARRAY_A ) {
  *     @type string $post_mime_type        The mime type of the post. Default empty.
  *     @type string $guid                  Global Unique ID for referencing the post. Default empty.
  *     @type array  $post_category         Array of category names, slugs, or IDs.
- *                                         Defaults to value of the 'default_category' option.
  *     @type array  $tags_input            Array of tag names, slugs, or IDs. Default empty.
  *     @type array  $tax_input             Array of taxonomy terms keyed by their taxonomy name. Default empty.
  *     @type array  $meta_input            Array of post meta values keyed by their post meta key. Default empty.
@@ -3203,16 +3202,8 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 	if ( ! empty( $postarr['post_category'] ) ) {
 		// Filter out empty terms.
 		$post_category = array_filter( $postarr['post_category'] );
-	}
-
-	// Make sure we set a valid category.
-	if ( empty( $post_category ) || 0 == count( $post_category ) || ! is_array( $post_category ) ) {
-		// 'post' requires at least one category.
-		if ( 'post' == $post_type && 'auto-draft' != $post_status ) {
-			$post_category = array( get_option('default_category') );
-		} else {
-			$post_category = array();
-		}
+	} else {
+		$post_category = array();
 	}
 
 	// Don't allow contributors to set the post slug for pending review posts.
@@ -4064,14 +4055,7 @@ function wp_set_post_categories( $post_ID = 0, $post_categories = array(), $appe
 	$post_status = get_post_status( $post_ID );
 	// If $post_categories isn't already an array, make it one:
 	$post_categories = (array) $post_categories;
-	if ( empty( $post_categories ) ) {
-		if ( 'post' == $post_type && 'auto-draft' != $post_status ) {
-			$post_categories = array( get_option('default_category') );
-			$append = false;
-		} else {
-			$post_categories = array();
-		}
-	} elseif ( 1 == count( $post_categories ) && '' == reset( $post_categories ) ) {
+	if ( 1 == count( $post_categories ) && '' == reset( $post_categories ) ) {
 		return true;
 	}
 

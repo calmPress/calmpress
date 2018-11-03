@@ -32,15 +32,6 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 <?php settings_fields('writing'); ?>
 
 <table class="form-table">
-<tr>
-<th scope="row"><label for="default_category"><?php _e('Default Post Category') ?></label></th>
-<td>
-<?php
-wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'default_category', 'orderby' => 'name', 'selected' => get_option('default_category'), 'hierarchical' => true));
-?>
-</td>
-</tr>
-
 <?php
 do_settings_fields('writing', 'default');
 do_settings_fields('writing', 'remote_publishing'); // A deprecated section.

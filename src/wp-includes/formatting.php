@@ -3991,7 +3991,6 @@ function sanitize_option( $option, $value ) {
 		case 'page_on_front':
 		case 'page_for_posts':
 		case 'rss_excerpt_length':
-		case 'default_category':
 		case 'close_comments_days_old':
 		case 'comments_per_page':
 		case 'thread_comments_depth':

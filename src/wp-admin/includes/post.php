@@ -574,7 +574,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 		$post->comment_status = get_default_comment_status( $post_type );
 		$post->ping_status = 'closed';
 		$post->post_pingback = 0;
-		$post->post_category = get_option( 'default_category' );
+		$post->post_category = '';
 		$post->page_template = 'default';
 		$post->post_parent = 0;
 		$post->menu_order = 0;

@@ -135,9 +135,6 @@ $whitelist_options = array(
 		'page_for_posts',
 		'blog_public',
 	),
-	'writing' => array(
-		'default_category',
-	),
 );
 $whitelist_options['misc'] = $whitelist_options['options'] = $whitelist_options['privacy'] = array();
 

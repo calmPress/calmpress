@@ -484,11 +484,6 @@ function map_meta_cap( $cap, $user_id ) {
 			break;
 		}
 
-		if ( 'delete_term' === $cap && ( $term->term_id == get_option( 'default_' . $term->taxonomy ) ) ) {
-			$caps[] = 'do_not_allow';
-			break;
-		}
-
 		$taxo_cap = $cap . 's';
 
 		$caps = map_meta_cap( $tax->cap->$taxo_cap, $user_id, $term_id );

@@ -188,14 +188,6 @@ function get_permalink( $post = 0, $leavename = false ) {
 				if ( $parent = $category_object->parent )
 					$category = get_category_parents($parent, false, '/', true) . $category;
 			}
-			// show default category in permalinks, without
-			// having to assign it explicitly
-			if ( empty($category) ) {
-				$default_category = get_term( get_option( 'default_category' ), 'category' );
-				if ( $default_category && ! is_wp_error( $default_category ) ) {
-					$category = $default_category->slug;
-				}
-			}
 		}
 
 		$author = '';

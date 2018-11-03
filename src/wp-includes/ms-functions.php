@@ -1965,8 +1965,6 @@ function global_terms( $term_id, $deprecated = '' ) {
 	}
 
 	if ( $global_id != $term_id ) {
-		if ( get_option( 'default_category' ) == $term_id )
-			update_option( 'default_category', $global_id );
 
 		$wpdb->update( $wpdb->terms, array('term_id' => $global_id), array('term_id' => $term_id) );
 		$wpdb->update( $wpdb->term_taxonomy, array('term_id' => $global_id), array('term_id' => $term_id) );

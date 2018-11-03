@@ -474,24 +474,19 @@ function xmlrpc_getposttitle( $content ) {
 /**
  * Retrieve the post category or categories from XMLRPC XML.
  *
- * If the category element is not found, then the default post category will be
- * used. The return type then would be what $post_default_category. If the
- * category is found, then it will always be an array.
+ * If there is no category assigned to the post return an empty array.
  *
  * @since 0.71
- *
- * @global string $post_default_category Default XML-RPC post category.
  *
  * @param string $content XMLRPC XML Request content
  * @return string|array List of categories or category name.
  */
 function xmlrpc_getpostcategory( $content ) {
-	global $post_default_category;
 	if ( preg_match( '/<category>(.+?)<\/category>/is', $content, $matchcat ) ) {
 		$post_category = trim( $matchcat[1], ',' );
 		$post_category = explode( ',', $post_category );
 	} else {
-		$post_category = $post_default_category;
+		$post_category = array();
 	}
 	return $post_category;
 }
