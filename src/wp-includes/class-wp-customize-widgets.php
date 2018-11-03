@@ -34,7 +34,6 @@ class WP_Customize_Widgets {
 	 */
 	protected $core_widget_id_bases = array(
 		'archives',
-		'calendar',
 		'categories',
 		'custom_html',
 		'media_audio',

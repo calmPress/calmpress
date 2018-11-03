@@ -1779,9 +1779,6 @@ function get_theme_starter_content() {
 			'archives' => array( 'archives', array(
 				'title' => _x( 'Archives', 'Theme starter content' ),
 			) ),
-			'calendar' => array( 'calendar', array(
-				'title' => _x( 'Calendar', 'Theme starter content' ),
-			) ),
 			'categories' => array( 'categories', array(
 				'title' => _x( 'Categories', 'Theme starter content' ),
 			) ),

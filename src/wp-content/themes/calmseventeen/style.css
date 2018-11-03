@@ -2794,17 +2794,6 @@ h2.widget-title {
 	text-decoration: none;
 }
 
-/* Calendar widget */
-
-.widget_calendar th,
-.widget_calendar td {
-	text-align: center;
-}
-
-.widget_calendar tfoot td {
-	border: 0;
-}
-
 /* Gallery widget */
 
 .gallery-columns-5 .gallery-caption,
