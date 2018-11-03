@@ -793,102 +793,13 @@ span.wp-media-buttons-icon:before {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.post-state-format:before,
-.post-format-icon:before {
+.post-state-format:before {
 	color: #ddd;
 	transition: all .1s ease-in-out;
 }
 
-a.post-state-format:hover:before,
-a.post-format-icon:hover:before {
+a.post-state-format:hover:before {
 	color: #00a0d2;
-}
-
-#post-formats-select {
-	line-height: 2em;
-}
-
-#post-formats-select .post-format-icon:before {
-	top: 5px;
-}
-
-input.post-format {
-	margin-top: 1px;
-}
-
-label.post-format-icon {
-	margin-left: 0px;
-	padding: 2px 0 2px 0px;
-}
-
-.post-format-icon:before {
-	position: relative;
-	display: inline-block;
-	margin-right: 7px;
-	font: normal 20px/1 dashicons;
-	speak: none;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-.post-state-format.post-format-standard:before,
-.post-format-icon.post-format-standard:before,
-a.post-state-format.format-standard:before {
-	content: "\f109";
-}
-
-.post-state-format.post-format-image:before,
-.post-format-icon.post-format-image:before,
-a.post-state-format.format-image:before {
-	content: "\f128";
-}
-
-.post-state-format.post-format-gallery:before,
-.post-format-icon.post-format-gallery:before,
-a.post-state-format.format-gallery:before {
-	content: "\f161";
-}
-
-.post-state-format.post-format-audio:before,
-.post-format-icon.post-format-audio:before,
-a.post-state-format.format-audio:before {
-	content: "\f127";
-}
-
-.post-state-format.post-format-video:before,
-.post-format-icon.post-format-video:before,
-a.post-state-format.format-video:before {
-	content: "\f126";
-}
-
-.post-state-format.post-format-chat:before,
-.post-format-icon.post-format-chat:before,
-a.post-state-format.format-chat:before {
-	content: "\f125";
-}
-
-.post-state-format.post-format-status:before,
-.post-format-icon.post-format-status:before,
-a.post-state-format.format-status:before {
-	content: "\f130";
-}
-
-.post-state-format.post-format-aside:before,
-.post-format-icon.post-format-aside:before,
-a.post-state-format.format-aside:before {
-	content: "\f123";
-}
-
-.post-state-format.post-format-quote:before,
-.post-format-icon.post-format-quote:before,
-a.post-state-format.format-quote:before {
-	content: "\f122";
-}
-
-.post-state-format.post-format-link:before,
-.post-format-icon.post-format-link:before,
-a.post-state-format.format-link:before {
-	content: "\f103";
 }
 
 /*------------------------------------------------------------------------------
@@ -1368,29 +1279,6 @@ table.links-table {
 	#poststuff .stuffbox > h3, /* Back-compat for pre-4.4 */
 	#poststuff h2 {
 		padding: 12px;
-	}
-
-	.post-format-options {
-		padding-right: 0;
-	}
-
-	.post-format-options a {
-		margin-right: 5px;
-		margin-bottom: 5px;
-		min-width: 52px;
-	}
-
-	.post-format-options .post-format-title {
-		font-size: 11px;
-	}
-
-	.post-format-options a div {
-		height: 28px;
-		width: 28px;
-	}
-
-	.post-format-options a div:before {
-		font-size: 26px !important;
 	}
 
 	/* Publish Metabox Options */

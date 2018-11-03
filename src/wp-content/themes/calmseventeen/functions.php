@@ -66,21 +66,6 @@ function calmseventeen_setup() {
 		'caption',
 	) );
 
-	/*
-	 * Enable support for Post Formats.
-	 *
-	 * See: https://codex.wordpress.org/Post_Formats
-	 */
-	add_theme_support( 'post-formats', array(
-		'aside',
-		'image',
-		'video',
-		'quote',
-		'link',
-		'gallery',
-		'audio',
-	) );
-
 	// Add theme support for Custom Logo.
 	add_theme_support( 'custom-logo', array(
 		'width'       => 250,

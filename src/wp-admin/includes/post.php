@@ -233,10 +233,6 @@ function edit_post( $post_data = null ) {
 	if ( is_wp_error($post_data) )
 		wp_die( $post_data->get_error_message() );
 
-	// Post Formats
-	if ( isset( $post_data['post_format'] ) )
-		set_post_format( $post_ID, $post_data['post_format'] );
-
 	$format_meta_urls = array( 'url', 'link_url', 'quote_source_url' );
 	foreach ( $format_meta_urls as $format_meta_url ) {
 		$keyed = '_format_' . $format_meta_url;
@@ -417,7 +413,7 @@ function bulk_edit_posts( $post_data = null ) {
 		'post_author', 'post_status',
 		'post_parent', 'page_template', 'comment_status',
 		'ping_status', 'keep_private', 'tax_input',
-		'post_category', 'sticky', 'post_format',
+		'post_category', 'sticky',
 	);
 
 	foreach ( $reset as $field ) {
@@ -525,11 +521,6 @@ function bulk_edit_posts( $post_data = null ) {
 			continue;
 		}
 
-		if ( isset( $post_data['post_format'] ) ) {
-			set_post_format( $post_ID, $post_data['post_format'] );
-			unset( $post_data['tax_input']['post_format'] );
-		}
-
 		$updated[] = wp_update_post( $post_data );
 
 		if ( isset( $post_data['sticky'] ) && current_user_can( $ptype->cap->edit_others_posts ) ) {
@@ -568,8 +559,6 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 	if ( $create_in_db ) {
 		$post_id = wp_insert_post( array( 'post_title' => __( 'Auto Draft' ), 'post_type' => $post_type, 'post_status' => 'auto-draft' ) );
 		$post = get_post( $post_id );
-		if ( current_theme_supports( 'post-formats' ) && post_type_supports( $post->post_type, 'post-formats' ) && get_option( 'default_post_format' ) )
-			set_post_format( $post, get_option( 'default_post_format' ) );
 	} else {
 		$post = new stdClass;
 		$post->ID = 0;
@@ -1595,10 +1584,6 @@ function post_preview() {
 	if ( $is_autosave && $saved_post_id ) {
 		$query_args['preview_id'] = $post->ID;
 		$query_args['preview_nonce'] = wp_create_nonce( 'post_preview_' . $post->ID );
-
-		if ( isset( $_POST['post_format'] ) ) {
-			$query_args['post_format'] = empty( $_POST['post_format'] ) ? 'standard' : sanitize_key( $_POST['post_format'] );
-		}
 
 		if ( isset( $_POST['_thumbnail_id'] ) ) {
 			$query_args['_thumbnail_id'] = ( intval( $_POST['_thumbnail_id'] ) <= 0 ) ? '-1' : intval( $_POST['_thumbnail_id'] );

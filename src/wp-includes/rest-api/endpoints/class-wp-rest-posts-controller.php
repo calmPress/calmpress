@@ -515,10 +515,6 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			$this->handle_featured_media( $request['featured_media'], $post_id );
 		}
 
-		if ( ! empty( $schema['properties']['format'] ) && ! empty( $request['format'] ) ) {
-			set_post_format( $post, $request['format'] );
-		}
-
 		if ( ! empty( $schema['properties']['template'] ) && isset( $request['template'] ) ) {
 			$this->handle_template( $request['template'], $post_id, true );
 		}
@@ -628,10 +624,6 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 		do_action( "rest_insert_{$this->post_type}", $post, $request, false );
 
 		$schema = $this->get_item_schema();
-
-		if ( ! empty( $schema['properties']['format'] ) && ! empty( $request['format'] ) ) {
-			set_post_format( $post, $request['format'] );
-		}
 
 		if ( ! empty( $schema['properties']['featured_media'] ) && isset( $request['featured_media'] ) ) {
 			$this->handle_featured_media( $request['featured_media'], $post_id );
@@ -1458,15 +1450,6 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			}
 		}
 
-		if ( in_array( 'format', $fields, true ) ) {
-			$data['format'] = get_post_format( $post->ID );
-
-			// Fill in blank post format.
-			if ( empty( $data['format'] ) ) {
-				$data['format'] = 'standard';
-			}
-		}
-
 		if ( in_array( 'meta', $fields, true ) ) {
 			$data['meta'] = $this->meta->get_value( $post->ID, $request );
 		}
@@ -1828,7 +1811,6 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			'comments',
 			'revisions',
 			'page-attributes',
-			'post-formats',
 			'custom-fields',
 		);
 		$fixed_schemas = array(
@@ -1840,7 +1822,6 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 				'thumbnail',
 				'comments',
 				'revisions',
-				'post-formats',
 				'custom-fields',
 			),
 			'page' => array(
@@ -1993,18 +1974,6 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 					$schema['properties']['menu_order'] = array(
 						'description' => __( 'The order of the object in relation to other object of its type.' ),
 						'type'        => 'integer',
-						'context'     => array( 'view', 'edit' ),
-					);
-					break;
-
-				case 'post-formats':
-					// Get the native post formats and remove the array keys.
-					$formats = array_values( get_post_format_slugs() );
-
-					$schema['properties']['format'] = array(
-						'description' => __( 'The format for the object.' ),
-						'type'        => 'string',
-						'enum'        => $formats,
 						'context'     => array( 'view', 'edit' ),
 					);
 					break;

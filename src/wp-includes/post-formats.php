@@ -18,9 +18,6 @@ function get_post_format( $post = null ) {
 	if ( ! $post = get_post( $post ) )
 		return false;
 
-	if ( ! post_type_supports( $post->post_type, 'post-formats' ) )
-		return false;
-
 	$_format = get_the_terms( $post->ID, 'post_format' );
 
 	if ( empty( $_format ) )
@@ -79,29 +76,6 @@ function set_post_format( $post, $format ) {
 }
 
 /**
- * Returns an array of post format slugs to their translated and pretty display versions
- *
- * @since 3.1.0
- *
- * @return array The array of translated post format names.
- */
-function get_post_format_strings() {
-	$strings = array(
-		'standard' => _x( 'Standard', 'Post format' ), // Special case. any value that evals to false will be considered standard
-		'aside'    => _x( 'Aside',    'Post format' ),
-		'chat'     => _x( 'Chat',     'Post format' ),
-		'gallery'  => _x( 'Gallery',  'Post format' ),
-		'link'     => _x( 'Link',     'Post format' ),
-		'image'    => _x( 'Image',    'Post format' ),
-		'quote'    => _x( 'Quote',    'Post format' ),
-		'status'   => _x( 'Status',   'Post format' ),
-		'video'    => _x( 'Video',    'Post format' ),
-		'audio'    => _x( 'Audio',    'Post format' ),
-	);
-	return $strings;
-}
-
-/**
  * Retrieves the array of post format slugs.
  *
  * @since 3.1.0
@@ -130,68 +104,6 @@ function get_post_format_string( $slug ) {
 }
 
 /**
- * Returns a link to a post format index.
- *
- * @since 3.1.0
- *
- * @param string $format The post format slug.
- * @return string|WP_Error|false The post format term link.
- */
-function get_post_format_link( $format ) {
-	$term = get_term_by('slug', 'post-format-' . $format, 'post_format' );
-	if ( ! $term || is_wp_error( $term ) )
-		return false;
-	return get_term_link( $term );
-}
-
-/**
- * Filters the request to allow for the format prefix.
- *
- * @access private
- * @since 3.1.0
- *
- * @param array $qvs
- * @return array
- */
-function _post_format_request( $qvs ) {
-	if ( ! isset( $qvs['post_format'] ) )
-		return $qvs;
-	$slugs = get_post_format_slugs();
-	if ( isset( $slugs[ $qvs['post_format'] ] ) )
-		$qvs['post_format'] = 'post-format-' . $slugs[ $qvs['post_format'] ];
-	$tax = get_taxonomy( 'post_format' );
-	if ( ! is_admin() )
-		$qvs['post_type'] = $tax->object_type;
-	return $qvs;
-}
-
-/**
- * Filters the post format term link to remove the format prefix.
- *
- * @access private
- * @since 3.1.0
- *
- * @global WP_Rewrite $wp_rewrite
- *
- * @param string $link
- * @param object $term
- * @param string $taxonomy
- * @return string
- */
-function _post_format_link( $link, $term, $taxonomy ) {
-	global $wp_rewrite;
-	if ( 'post_format' != $taxonomy ) {
-		return $link;
-	}
-	if ( $wp_rewrite->get_extra_permastruct( $taxonomy ) ) {
-		return str_replace( "/{$term->slug}", '/' . str_replace( 'post-format-', '', $term->slug ), $link );
-	} else {
-		$link = remove_query_arg( 'post_format', $link );
-		return add_query_arg( 'post_format', str_replace( 'post-format-', '', $term->slug ), $link );
-	}
-}
-
-/**
  * Remove the post format prefix from the name property of the term object created by get_term().
  *
  * @access private
@@ -205,50 +117,4 @@ function _post_format_get_term( $term ) {
 		$term->name = get_post_format_string( str_replace( 'post-format-', '', $term->slug ) );
 	}
 	return $term;
-}
-
-/**
- * Remove the post format prefix from the name property of the term objects created by get_terms().
- *
- * @access private
- * @since 3.1.0
- *
- * @param array        $terms
- * @param string|array $taxonomies
- * @param array        $args
- * @return array
- */
-function _post_format_get_terms( $terms, $taxonomies, $args ) {
-	if ( in_array( 'post_format', (array) $taxonomies ) ) {
-		if ( isset( $args['fields'] ) && 'names' == $args['fields'] ) {
-			foreach ( $terms as $order => $name ) {
-				$terms[$order] = get_post_format_string( str_replace( 'post-format-', '', $name ) );
-			}
-		} else {
-			foreach ( (array) $terms as $order => $term ) {
-				if ( isset( $term->taxonomy ) && 'post_format' == $term->taxonomy ) {
-					$terms[$order]->name = get_post_format_string( str_replace( 'post-format-', '', $term->slug ) );
-				}
-			}
-		}
-	}
-	return $terms;
-}
-
-/**
- * Remove the post format prefix from the name property of the term objects created by wp_get_object_terms().
- *
- * @access private
- * @since 3.1.0
- *
- * @param array $terms
- * @return array
- */
-function _post_format_wp_get_object_terms( $terms ) {
-	foreach ( (array) $terms as $order => $term ) {
-		if ( isset( $term->taxonomy ) && 'post_format' == $term->taxonomy ) {
-			$terms[$order]->name = get_post_format_string( str_replace( 'post-format-', '', $term->slug ) );
-		}
-	}
-	return $terms;
 }

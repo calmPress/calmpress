@@ -912,20 +912,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 		$pad = str_repeat( '&#8212; ', $this->current_level );
 		echo "<strong>";
 
-		$format = get_post_format( $post->ID );
-		if ( $format ) {
-			$label = get_post_format_string( $format );
-
-			$format_class = 'post-state-format post-format-icon post-format-' . $format;
-
-			$format_args = array(
-				'post_format' => $format,
-				'post_type' => $post->post_type
-			);
-
-			echo $this->get_edit_link( $format_args, $label . ':', $format_class );
-		}
-
 		$title = _draft_or_post_title();
 
 		if ( $can_edit_post && $post->post_status != 'trash' ) {
@@ -1648,33 +1634,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 	<?php endif; // 'post' && $can_publish && current_user_can( 'edit_others_cap' ) ?>
 
 			</div>
-
-	<?php
-
-	if ( $bulk && current_theme_supports( 'post-formats' ) && post_type_supports( $screen->post_type, 'post-formats' ) ) {
-		$post_formats = get_theme_support( 'post-formats' );
-
-		?>
-		<label class="alignleft">
-		<span class="title"><?php _ex( 'Format', 'post format' ); ?></span>
-		<select name="post_format">
-			<option value="-1"><?php _e( '&mdash; No Change &mdash;' ); ?></option>
-			<option value="0"><?php echo get_post_format_string( 'standard' ); ?></option>
-			<?php
-			if ( is_array( $post_formats[0] ) ) {
-				foreach ( $post_formats[0] as $format ) {
-					?>
-					<option value="<?php echo esc_attr( $format ); ?>"><?php echo esc_html( get_post_format_string( $format ) ); ?></option>
-					<?php
-				}
-			}
-			?>
-		</select></label>
-	<?php
-
-	}
-
-	?>
 
 		</div></fieldset>
 

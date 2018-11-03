@@ -467,9 +467,6 @@ function populate_options() {
 	'page_for_posts' => 0,
 	'page_on_front' => 0,
 
-	// 3.1
-	'default_post_format' => 0,
-
 	// 4.3.0
 	'finished_splitting_shared_terms' => 1,
 	'site_icon' => 0,

@@ -530,7 +530,6 @@ function _set_preview( $post ) {
 	$post->post_title = $preview->post_title;
 	$post->post_excerpt = $preview->post_excerpt;
 
-	add_filter( 'get_the_terms', '_wp_preview_terms_filter', 10, 3 );
 	add_filter( 'get_post_metadata', '_wp_preview_post_thumbnail_filter', 10, 3 );
 
 	return $post;
@@ -551,32 +550,6 @@ function _show_post_preview() {
 
 		add_filter('the_preview', '_set_preview');
 	}
-}
-
-/**
- * Filters terms lookup to set the post format.
- *
- * @since 3.6.0
- * @access private
- *
- * @param array  $terms
- * @param int    $post_id
- * @param string $taxonomy
- * @return array
- */
-function _wp_preview_terms_filter( $terms, $post_id, $taxonomy ) {
-	if ( ! $post = get_post() )
-		return $terms;
-
-	if ( empty( $_REQUEST['post_format'] ) || $post->ID != $post_id || 'post_format' != $taxonomy || 'revision' == $post->post_type )
-		return $terms;
-
-	if ( 'standard' == $_REQUEST['post_format'] )
-		$terms = array();
-	elseif ( $term = get_term_by( 'slug', 'post-format-' . sanitize_key( $_REQUEST['post_format'] ), 'post_format' ) )
-		$terms = array( $term ); // Can only have one post format
-
-	return $terms;
 }
 
 /**

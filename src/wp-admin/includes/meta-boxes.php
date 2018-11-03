@@ -384,45 +384,6 @@ function attachment_submit_meta_box( $post ) {
 }
 
 /**
- * Display post format form elements.
- *
- * @since 3.1.0
- *
- * @param WP_Post $post Post object.
- * @param array   $box {
- *     Post formats meta box arguments.
- *
- *     @type string   $id       Meta box 'id' attribute.
- *     @type string   $title    Meta box title.
- *     @type callable $callback Meta box display callback.
- *     @type array    $args     Extra meta box arguments.
- * }
- */
-function post_format_meta_box( $post, $box ) {
-	if ( current_theme_supports( 'post-formats' ) && post_type_supports( $post->post_type, 'post-formats' ) ) :
-	$post_formats = get_theme_support( 'post-formats' );
-
-	if ( is_array( $post_formats[0] ) ) :
-		$post_format = get_post_format( $post->ID );
-		if ( !$post_format )
-			$post_format = '0';
-		// Add in the current one if it isn't there yet, in case the current theme doesn't support it
-		if ( $post_format && !in_array( $post_format, $post_formats[0] ) )
-			$post_formats[0][] = $post_format;
-	?>
-	<div id="post-formats-select">
-		<fieldset>
-			<legend class="screen-reader-text"><?php _e( 'Post Formats' ); ?></legend>
-			<input type="radio" name="post_format" class="post-format" id="post-format-0" value="0" <?php checked( $post_format, '0' ); ?> /> <label for="post-format-0" class="post-format-icon post-format-standard"><?php echo get_post_format_string( 'standard' ); ?></label>
-			<?php foreach ( $post_formats[0] as $format ) : ?>
-			<br /><input type="radio" name="post_format" class="post-format" id="post-format-<?php echo esc_attr( $format ); ?>" value="<?php echo esc_attr( $format ); ?>" <?php checked( $post_format, $format ); ?> /> <label for="post-format-<?php echo esc_attr( $format ); ?>" class="post-format-icon post-format-<?php echo esc_attr( $format ); ?>"><?php echo esc_html( get_post_format_string( $format ) ); ?></label>
-			<?php endforeach; ?>
-		</fieldset>
-	</div>
-	<?php endif; endif;
-}
-
-/**
  * Display post tags form fields.
  *
  * @since 2.6.0

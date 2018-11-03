@@ -1132,17 +1132,6 @@ jQuery(document).ready( function($) {
 
 	// TinyMCE specific handling of Post Format changes to reflect in the editor.
 	if ( typeof tinymce !== 'undefined' ) {
-		// When changing post formats, change the editor body class.
-		$( '#post-formats-select input.post-format' ).on( 'change.set-editor-class', function() {
-			var editor, body, format = this.id;
-
-			if ( format && $( this ).prop( 'checked' ) && ( editor = tinymce.get( 'content' ) ) ) {
-				body = editor.getBody();
-				body.className = body.className.replace( /\bpost-format-[^ ]+/, '' );
-				editor.dom.addClass( body, format == 'post-format-0' ? 'post-format-standard' : format );
-				$( document ).trigger( 'editor-classchange' );
-			}
-		});
 
 		// When changing page template, change the editor body class
 		$( '#page_template' ).on( 'change.set-editor-class', function() {

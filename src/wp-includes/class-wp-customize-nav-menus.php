@@ -760,9 +760,6 @@ class WP_Customize_Nav_Menus {
 		$taxonomies = get_taxonomies( array( 'show_in_nav_menus' => true ), 'objects' );
 		if ( $taxonomies ) {
 			foreach ( $taxonomies as $slug => $taxonomy ) {
-				if ( 'post_format' === $taxonomy && ! current_theme_supports( 'post-formats' ) ) {
-					continue;
-				}
 				$item_types[] = array(
 					'title' => $taxonomy->labels->name,
 					'type_label' => $taxonomy->labels->singular_name,

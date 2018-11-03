@@ -243,7 +243,6 @@ function get_theme_feature_list( $api = true ) {
 			'featured-images'       => __( 'Featured Images' ),
 			'footer-widgets'        => __( 'Footer Widgets' ),
 			'full-width-template'   => __( 'Full Width Template' ),
-			'post-formats'          => __( 'Post Formats' ),
 			'sticky-post'           => __( 'Sticky Post' ),
 			'theme-options'         => __( 'Theme Options' ),
 		),

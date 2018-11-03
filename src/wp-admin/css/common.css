@@ -3415,8 +3415,7 @@ img {
 	/* Hidden Elements */
 	#screen-meta,
 	#screen-meta-links,
-	#collapse-menu,
-	.post-format-select {
+	#collapse-menu {
 		display: none !important;
 	}
 

@@ -137,7 +137,6 @@ $whitelist_options = array(
 	),
 	'writing' => array(
 		'default_category',
-		'default_post_format',
 	),
 );
 $whitelist_options['misc'] = $whitelist_options['options'] = $whitelist_options['privacy'] = array();

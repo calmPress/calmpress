@@ -1344,9 +1344,6 @@ function upgrade_350() {
 			$wpdb->query( "DELETE FROM $wpdb->usermeta WHERE meta_key IN ('$meta_keys')" );
 		}
 	}
-
-	if ( $wp_current_db_version < 22422 && $term = get_term_by( 'slug', 'post-format-standard', 'post_format' ) )
-		wp_delete_term( $term->term_id, 'post_format' );
 }
 
 /**

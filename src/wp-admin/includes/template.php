@@ -295,9 +295,6 @@ function get_inline_data($post) {
 	if ( !$post_type_object->hierarchical )
 		echo '<div class="sticky">' . (is_sticky($post->ID) ? 'sticky' : '') . '</div>';
 
-	if ( post_type_supports( $post->post_type, 'post-formats' ) )
-		echo '<div class="post_format">' . esc_html( get_post_format( $post->ID ) ) . '</div>';
-
 	/**
 	 * Fires after outputting the fields for the inline editor for posts and pages.
 	 *

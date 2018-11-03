@@ -25,7 +25,7 @@ function create_initial_taxonomies() {
 	global $wp_rewrite;
 
 	if ( ! did_action( 'init' ) ) {
-		$rewrite = array( 'category' => false, 'post_tag' => false, 'post_format' => false );
+		$rewrite = array( 'category' => false, 'post_tag' => false );
 	} else {
 
 		/**
@@ -35,7 +35,6 @@ function create_initial_taxonomies() {
 		 *
 		 * @param string $context Context of the rewrite base. Default 'type'.
 		 */
-		$post_format_base = apply_filters( 'post_format_rewrite_base', 'type' );
 		$rewrite = array(
 			'category' => array(
 				'hierarchical' => true,
@@ -49,7 +48,6 @@ function create_initial_taxonomies() {
 				'with_front' => ! get_option('tag_base'),
 				'ep_mask' => EP_TAGS,
 			),
-			'post_format' => $post_format_base ? array( 'slug' => $post_format_base ) : false,
 		);
 	}
 
@@ -106,17 +104,17 @@ function create_initial_taxonomies() {
 	) );
 
 	register_taxonomy( 'post_format', 'post', array(
-		'public' => true,
+		'public' => false,
 		'hierarchical' => false,
 		'labels' => array(
 			'name' => _x( 'Format', 'post format' ),
 			'singular_name' => _x( 'Format', 'post format' ),
 		),
-		'query_var' => true,
-		'rewrite' => $rewrite['post_format'],
+		'query_var' => false,
+		'rewrite' => false,
 		'show_ui' => false,
 		'_builtin' => true,
-		'show_in_nav_menus' => current_theme_supports( 'post-formats' ),
+		'show_in_nav_menus' => false,
 	) );
 }
 

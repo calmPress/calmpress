@@ -508,9 +508,8 @@ function get_single_template() {
  *
  * The hierarchy for this template looks like:
  *
- * 1. embed-{post_type}-{post_format}.php
- * 2. embed-{post_type}.php
- * 3. embed.php
+ * 1. embed-{post_type}.php
+ * 2. embed.php
  *
  * An example of this is:
  *
@@ -533,10 +532,6 @@ function get_embed_template() {
 	$templates = array();
 
 	if ( ! empty( $object->post_type ) ) {
-		$post_format = get_post_format( $object );
-		if ( $post_format ) {
-			$templates[] = "embed-{$object->post_type}-{$post_format}.php";
-		}
 		$templates[] = "embed-{$object->post_type}.php";
 	}
 

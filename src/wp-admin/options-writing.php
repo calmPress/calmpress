@@ -40,21 +40,6 @@ wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'default_category', 'o
 ?>
 </td>
 </tr>
-<?php
-$post_formats = get_post_format_strings();
-unset( $post_formats['standard'] );
-?>
-<tr>
-<th scope="row"><label for="default_post_format"><?php _e('Default Post Format') ?></label></th>
-<td>
-	<select name="default_post_format" id="default_post_format">
-		<option value="0"><?php echo get_post_format_string( 'standard' ); ?></option>
-<?php foreach ( $post_formats as $format_slug => $format_name ): ?>
-		<option<?php selected( get_option( 'default_post_format' ), $format_slug ); ?> value="<?php echo esc_attr( $format_slug ); ?>"><?php echo esc_html( $format_name ); ?></option>
-<?php endforeach; ?>
-	</select>
-</td>
-</tr>
 
 <?php
 do_settings_fields('writing', 'default');
