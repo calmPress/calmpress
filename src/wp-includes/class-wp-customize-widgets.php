@@ -33,7 +33,6 @@ class WP_Customize_Widgets {
 	 * @var array
 	 */
 	protected $core_widget_id_bases = array(
-		'archives',
 		'categories',
 		'custom_html',
 		'media_audio',

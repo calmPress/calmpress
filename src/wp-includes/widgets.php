@@ -1557,8 +1557,6 @@ function wp_widgets_init() {
 
 	register_widget( 'WP_Widget_Pages' );
 
-	register_widget( 'WP_Widget_Archives' );
-
 	register_widget( 'WP_Widget_Media_Audio' );
 
 	register_widget( 'WP_Widget_Media_Image' );

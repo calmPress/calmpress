@@ -1776,9 +1776,6 @@ function get_theme_starter_content() {
 				'filter' => true,
 				'visual' => true,
 			) ),
-			'archives' => array( 'archives', array(
-				'title' => _x( 'Archives', 'Theme starter content' ),
-			) ),
 			'categories' => array( 'categories', array(
 				'title' => _x( 'Categories', 'Theme starter content' ),
 			) ),

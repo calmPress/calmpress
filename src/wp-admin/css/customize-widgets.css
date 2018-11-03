@@ -315,9 +315,6 @@ body.adding-widget #customize-preview {
 /* wordpress */
 #available-widgets [class*="meta"] .widget-title:before { content: "\f120"; }
 
-/* archive-box */
-#available-widgets [class*="archives"] .widget-title:before { content: "\f480"; top: -4px; }
-
 /* category */
 #available-widgets [class*="categor"] .widget-title:before { content: "\f318"; top: -4px; }
 

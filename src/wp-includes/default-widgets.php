@@ -13,9 +13,6 @@ require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-pages.php' );
 /** WP_Widget_Search class */
 require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-search.php' );
 
-/** WP_Widget_Archives class */
-require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-archives.php' );
-
 /** WP_Widget_Media class */
 require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-media.php' );
 
