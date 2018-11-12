@@ -4009,7 +4009,6 @@ function sanitize_option( $option, $value ) {
 				$value = abs($value);
 			break;
 
-		case 'default_ping_status':
 		case 'default_comment_status':
 			// Options that if not there have 0 value but need to be something like "closed"
 			if ( $value == '0' || $value == '')

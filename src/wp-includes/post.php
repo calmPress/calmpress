@@ -3073,8 +3073,6 @@ function wp_get_recent_posts( $args = array(), $output = ARRAY_A ) {
  *     @type string $post_type             The post type. Default 'post'.
  *     @type string $comment_status        Whether the post can accept comments. Accepts 'open' or 'closed'.
  *                                         Default is the value of 'default_comment_status' option.
- *     @type string $ping_status           Whether the post can accept pings. Accepts 'open' or 'closed'.
- *                                         Default is the value of 'default_ping_status' option.
  *     @type string $post_name             The post name. Default is the sanitized post title
  *                                         when creating a new post.
  *     @type string $to_ping               Space or carriage return-separated list of URLs to ping.
