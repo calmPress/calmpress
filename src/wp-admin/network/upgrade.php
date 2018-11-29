@@ -40,7 +40,7 @@ switch ( $action ) {
 		$n = ( isset($_GET['n']) ) ? intval($_GET['n']) : 0;
 
 		if ( $n < 5 ) {
-			update_site_option( 'wpmu_upgrade_site', calmpress_version() );
+			update_site_option( 'calmpress_wpmu_upgrade_site', calmpress_version() );
 		}
 
 		$site_ids = get_sites( array(
@@ -111,7 +111,7 @@ switch ( $action ) {
 	break;
 	case 'show':
 	default:
-		if ( get_site_option( 'wpmu_upgrade_site' ) != calmpress_version() ) :
+		if ( get_site_option( 'calmpress_wpmu_upgrade_site' ) != calmpress_version() ) :
 		?>
 		<h2><?php _e( 'Database Update Required' ); ?></h2>
 		<p><?php _e( 'calmPress has been updated! Before we send you on your way, we need to individually upgrade the sites in your network.' ); ?></p>
