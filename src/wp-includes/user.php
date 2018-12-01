@@ -1582,7 +1582,7 @@ function wp_insert_user( $userdata ) {
 
 	if ( empty( $userdata['display_name'] ) ) {
 		if ( $update ) {
-			$display_name = $user_login;
+			$display_name = __( 'Anonymous' );
 		} elseif ( $meta['first_name'] && $meta['last_name'] ) {
 			/* translators: 1: first name, 2: last name */
 			$display_name = sprintf( _x( '%1$s %2$s', 'Display name based on first name and last name' ), $meta['first_name'], $meta['last_name'] );
@@ -1591,7 +1591,7 @@ function wp_insert_user( $userdata ) {
 		} elseif ( $meta['last_name'] ) {
 			$display_name = $meta['last_name'];
 		} else {
-			$display_name = $user_login;
+			$display_name = __( 'Anonymous' );
 		}
 	} else {
 		$display_name = $userdata['display_name'];
