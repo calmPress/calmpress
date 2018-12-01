@@ -57,7 +57,7 @@ foreach ( array( 'comment_author_email', 'user_email' ) as $filter ) {
 }
 
 // Save URL
-foreach ( array( 'pre_comment_author_url', 'pre_user_url',
+foreach ( array( 'pre_comment_author_url',
 	'pre_post_guid' ) as $filter ) {
 	add_filter( $filter, 'wp_strip_all_tags' );
 	add_filter( $filter, 'esc_url_raw'       );
@@ -65,7 +65,7 @@ foreach ( array( 'pre_comment_author_url', 'pre_user_url',
 }
 
 // Display URL
-foreach ( array( 'user_url', 'comment_url', 'post_guid' ) as $filter ) {
+foreach ( array( 'comment_url', 'post_guid' ) as $filter ) {
 	if ( is_admin() )
 		add_filter( $filter, 'wp_strip_all_tags' );
 	add_filter( $filter, 'esc_url'           );

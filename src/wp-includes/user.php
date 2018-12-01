@@ -1537,14 +1537,7 @@ function wp_insert_user( $userdata ) {
 
 	$raw_user_url = empty( $userdata['user_url'] ) ? '' : $userdata['user_url'];
 
-	/**
-	 * Filters a user's URL before the user is created or updated.
-	 *
-	 * @since 2.0.3
-	 *
-	 * @param string $raw_user_url The user's URL.
-	 */
-	$user_url = apply_filters( 'pre_user_url', $raw_user_url );
+	$user_url = $raw_user_url;
 
 	$raw_user_email = empty( $userdata['user_email'] ) ? '' : $userdata['user_email'];
 
