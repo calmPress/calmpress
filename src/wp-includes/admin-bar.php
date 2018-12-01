@@ -236,10 +236,9 @@ function wp_admin_bar_my_account_menu( $wp_admin_bar ) {
 	) );
 
 	$user_info  = get_avatar( $user_id, 64 );
-	$user_info .= "<span class='display-name'>{$current_user->display_name}</span>";
+	$user_info .= "<span class='display-name'>" . esc_html( $current_user->display_name ) . '</span>';
 
-	if ( $current_user->display_name !== $current_user->user_login )
-		$user_info .= "<span class='username'>{$current_user->user_login}</span>";
+	$user_info .= "<span class='username'>" . esc_html( $current_user->user_email ) . '</span>';
 
 	$wp_admin_bar->add_menu( array(
 		'parent' => 'user-actions',
