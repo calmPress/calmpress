@@ -57,15 +57,15 @@ foreach ( array( 'comment_author_email', 'user_email' ) as $filter ) {
 }
 
 // Save URL
-foreach ( array( 'pre_comment_author_url', 'pre_user_url', 'pre_link_url', 'pre_link_image',
-	'pre_link_rss', 'pre_post_guid' ) as $filter ) {
+foreach ( array( 'pre_comment_author_url', 'pre_user_url',
+	'pre_post_guid' ) as $filter ) {
 	add_filter( $filter, 'wp_strip_all_tags' );
 	add_filter( $filter, 'esc_url_raw'       );
 	add_filter( $filter, 'wp_filter_kses'    );
 }
 
 // Display URL
-foreach ( array( 'user_url', 'link_url', 'link_image', 'link_rss', 'comment_url', 'post_guid' ) as $filter ) {
+foreach ( array( 'user_url', 'comment_url', 'post_guid' ) as $filter ) {
 	if ( is_admin() )
 		add_filter( $filter, 'wp_strip_all_tags' );
 	add_filter( $filter, 'esc_url'           );
