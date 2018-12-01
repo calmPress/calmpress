@@ -45,7 +45,7 @@ else
 $profile_help = '<p>' . __('Your profile contains information about you (your &#8220;account&#8221;) as well as some personal options related to using calmPress.') . '</p>' .
 	'<p>' . __('You can change your password, turn on keyboard shortcuts, change the color scheme of your calmPress administration screens, and turn off the WYSIWYG (Visual) editor, among other things. You can hide the Toolbar (formerly called the Admin Bar) from the front end of your site, however it cannot be disabled on the admin screens.') . '</p>' .
 	'<p>' . __( 'You can select the language you wish to use while using the calmPress administration screen without affecting the language site visitors see.' ) . '</p>' .
-	'<p>' . __('Your username cannot be changed, but you can use other fields to enter your real name or a nickname, and change which name to display on your posts.') . '</p>' .
+	'<p>' . __('Your username cannot be changed, but you can use other fields to enter your real name, and change which name to display on your posts.') . '</p>' .
 	'<p>' . __( 'You can log out of other devices, such as your phone or a public computer, by clicking the Log Out Everywhere Else button.' ) . '</p>' .
 	'<p>' . __('Required fields are indicated; the rest are optional. Profile information will only be displayed if your theme is set up to do so.') . '</p>' .
 	'<p>' . __('Remember to click the Update Profile button when you are finished.') . '</p>';
@@ -394,18 +394,12 @@ if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE && current_user_c
 	<td><input type="text" name="last_name" id="last_name" value="<?php echo esc_attr($profileuser->last_name) ?>" class="regular-text" /></td>
 </tr>
 
-<tr class="user-nickname-wrap">
-	<th><label for="nickname"><?php _e('Nickname'); ?> <span class="description"><?php _e('(required)'); ?></span></label></th>
-	<td><input type="text" name="nickname" id="nickname" value="<?php echo esc_attr($profileuser->nickname) ?>" class="regular-text" /></td>
-</tr>
-
 <tr class="user-display-name-wrap">
 	<th><label for="display_name"><?php _e('Display name publicly as') ?></label></th>
 	<td>
 		<select name="display_name" id="display_name">
 		<?php
 			$public_display = array();
-			$public_display['display_nickname']  = $profileuser->nickname;
 			$public_display['display_username']  = $profileuser->user_login;
 
 			if ( !empty($profileuser->first_name) )

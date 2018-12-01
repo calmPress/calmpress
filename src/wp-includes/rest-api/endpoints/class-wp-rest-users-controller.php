@@ -891,10 +891,6 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			$data['locale'] = get_user_locale( $user );
 		}
 
-		if ( in_array( 'nickname', $fields, true ) ) {
-			$data['nickname'] = $user->nickname;
-		}
-
 		if ( in_array( 'slug', $fields, true ) ) {
 			$data['slug'] = $user->user_nicename;
 		}
@@ -1008,10 +1004,6 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 
 		if ( isset( $request['last_name'] ) && ! empty( $schema['properties']['last_name'] ) ) {
 			$prepared_user->last_name = $request['last_name'];
-		}
-
-		if ( isset( $request['nickname'] ) && ! empty( $schema['properties']['nickname'] ) ) {
-			$prepared_user->nickname = $request['nickname'];
 		}
 
 		if ( isset( $request['slug'] ) && ! empty( $schema['properties']['slug'] ) ) {
@@ -1231,14 +1223,6 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 					'type'        => 'string',
 					'enum'        => array_merge( array( '', 'en_US' ), get_available_languages() ),
 					'context'     => array( 'edit' ),
-				),
-				'nickname'    => array(
-					'description' => __( 'The nickname for the user.' ),
-					'type'        => 'string',
-					'context'     => array( 'edit' ),
-					'arg_options' => array(
-						'sanitize_callback' => 'sanitize_text_field',
-					),
 				),
 				'slug'        => array(
 					'description' => __( 'An alphanumeric identifier for the user.' ),

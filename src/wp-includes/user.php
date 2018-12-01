@@ -1570,14 +1570,7 @@ function wp_insert_user( $userdata ) {
 	}
 	$nickname = empty( $userdata['nickname'] ) ? $user_login : $userdata['nickname'];
 
-	/**
-	 * Filters a user's nickname before the user is created or updated.
-	 *
-	 * @since 2.0.3
-	 *
-	 * @param string $nickname The user's nickname.
-	 */
-	$meta['nickname'] = apply_filters( 'pre_user_nickname', $nickname );
+	$meta['nickname'] = $nickname;
 
 	$first_name = empty( $userdata['first_name'] ) ? '' : $userdata['first_name'];
 

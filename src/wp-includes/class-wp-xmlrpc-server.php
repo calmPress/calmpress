@@ -1173,7 +1173,6 @@ class wp_xmlrpc_server extends IXR_Server {
 			'registered'        => $this->_convert_date( $user->user_registered ),
 			'bio'               => $user->user_description,
 			'email'             => $user->user_email,
-			'nickname'          => $user->nickname,
 			'nicename'          => $user->user_nicename,
 			'url'               => $user->user_url,
 			'display_name'      => $user->display_name,
@@ -2676,9 +2675,6 @@ class wp_xmlrpc_server extends IXR_Server {
 
 		if ( isset( $content_struct['display_name'] ) )
 			$user_data['display_name'] = $content_struct['display_name'];
-
-		if ( isset( $content_struct['nickname'] ) )
-			$user_data['nickname'] = $content_struct['nickname'];
 
 		if ( isset( $content_struct['nicename'] ) )
 			$user_data['user_nicename'] = $content_struct['nicename'];
@@ -4456,7 +4452,6 @@ class wp_xmlrpc_server extends IXR_Server {
 		do_action( 'xmlrpc_call', 'blogger.getUserInfo' );
 
 		$struct = array(
-			'nickname'  => $user->nickname,
 			'userid'    => $user->ID,
 			'url'       => $user->user_url,
 			'lastname'  => $user->last_name,

@@ -77,8 +77,6 @@ function edit_user( $user_id = 0 ) {
 		$user->first_name = sanitize_text_field( $_POST['first_name'] );
 	if ( isset( $_POST['last_name'] ) )
 		$user->last_name = sanitize_text_field( $_POST['last_name'] );
-	if ( isset( $_POST['nickname'] ) )
-		$user->nickname = sanitize_text_field( $_POST['nickname'] );
 	if ( isset( $_POST['display_name'] ) )
 		$user->display_name = sanitize_text_field( $_POST['display_name'] );
 
@@ -121,11 +119,6 @@ function edit_user( $user_id = 0 ) {
 	/* checking that username has been typed */
 	if ( $user->user_login == '' )
 		$errors->add( 'user_login', __( '<strong>ERROR</strong>: Please enter a username.' ) );
-
-	/* checking that nickname has been typed */
-	if ( $update && empty( $user->nickname ) ) {
-		$errors->add( 'nickname', __( '<strong>ERROR</strong>: Please enter a nickname.' ) );
-	}
 
 	/**
 	 * Fires before the password and confirm password fields are checked for congruity.
