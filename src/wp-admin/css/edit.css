@@ -1091,39 +1091,6 @@ p.popular-tags a {
 	padding: 5px 0;
 }
 
-/* links tables */
-table.links-table {
-	width: 100%;
-	border-spacing: 0;
-}
-
-.links-table th {
-	font-weight: 400;
-	text-align: left;
-	vertical-align: top;
-	min-width: 80px;
-	width: 20%;
-	word-wrap: break-word;
-}
-
-.links-table th,
-.links-table td {
-	padding: 5px 0;
-}
-
-.links-table td label {
-	margin-right: 8px;
-}
-
-.links-table td input[type="text"],
-.links-table td textarea {
-	width: 100%;
-}
-
-.links-table #link_rel {
-	max-width: 280px;
-}
-
 /* DFW 2
 -------------------------------------------------------------- */
 
@@ -1453,16 +1420,6 @@ table.links-table {
 
 	.comment-ays td {
 		padding-top: 6px;
-	}
-
-	/* Links */
-	.links-table #link_rel {
-		max-width: none;
-	}
-
-	.links-table th,
-	.links-table td {
-		padding: 10px 0;
 	}
 
 	.privacy-text-box {
