@@ -705,10 +705,6 @@ table.form-table td .updated p {
 	font-size: 22px;
 }
 
-#display_name {
-	width: 15em;
-}
-
 #adduser .form-field input,
 #createuser .form-field input {
 	width: 25em;

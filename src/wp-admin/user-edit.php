@@ -387,24 +387,7 @@ if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE && current_user_c
 <tr class="user-display-name-wrap">
 	<th><label for="display_name"><?php _e('Display name publicly as') ?></label></th>
 	<td>
-		<select name="display_name" id="display_name">
-		<?php
-			$public_display = array();
-			$public_display['display_username']  = $profileuser->user_login;
-
-			if ( !in_array( $profileuser->display_name, $public_display ) ) // Only add this if it isn't duplicated elsewhere
-				$public_display = array( 'display_displayname' => $profileuser->display_name ) + $public_display;
-
-			$public_display = array_map( 'trim', $public_display );
-			$public_display = array_unique( $public_display );
-
-			foreach ( $public_display as $id => $item ) {
-		?>
-			<option <?php selected( $profileuser->display_name, $item ); ?>><?php echo $item; ?></option>
-		<?php
-			}
-		?>
-		</select>
+		<input type="text" name="display_name" id="display_name" value="<?php echo esc_attr( $profileuser->display_name ); ?>">
 	</td>
 </tr>
 </table>
