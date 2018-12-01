@@ -13,14 +13,14 @@
  */
 
 // Strip, trim, kses, special chars for string saves
-foreach ( array( 'pre_term_name', 'pre_comment_author_name', 'pre_link_name', 'pre_link_target', 'pre_link_rel', 'pre_user_display_name', 'pre_user_first_name', 'pre_user_last_name' ) as $filter ) {
+foreach ( array( 'pre_term_name', 'pre_comment_author_name', 'pre_user_display_name', 'pre_user_first_name', 'pre_user_last_name' ) as $filter ) {
 	add_filter( $filter, 'sanitize_text_field'  );
 	add_filter( $filter, 'wp_filter_kses'       );
 	add_filter( $filter, '_wp_specialchars', 30 );
 }
 
 // Strip, kses, special chars for string display
-foreach ( array( 'term_name', 'comment_author_name', 'link_name', 'link_target', 'link_rel', 'user_display_name', 'user_first_name', 'user_last_name' ) as $filter ) {
+foreach ( array( 'term_name', 'comment_author_name', 'user_display_name', 'user_first_name', 'user_last_name' ) as $filter ) {
 	if ( is_admin() ) {
 		// These are expensive. Run only on admin pages for defense in depth.
 		add_filter( $filter, 'sanitize_text_field'  );
@@ -30,13 +30,13 @@ foreach ( array( 'term_name', 'comment_author_name', 'link_name', 'link_target',
 }
 
 // Kses only for textarea saves
-foreach ( array( 'pre_term_description', 'pre_link_description', 'pre_link_notes', 'pre_user_description' ) as $filter ) {
+foreach ( array( 'pre_term_description', 'pre_user_description' ) as $filter ) {
 	add_filter( $filter, 'wp_filter_kses' );
 }
 
 // Kses only for textarea admin displays
 if ( is_admin() ) {
-	foreach ( array( 'term_description', 'link_description', 'link_notes', 'user_description' ) as $filter ) {
+	foreach ( array( 'term_description', 'user_description' ) as $filter ) {
 		add_filter( $filter, 'wp_kses_data' );
 	}
 	add_filter( 'comment_text', 'wp_kses_post' );
@@ -96,7 +96,7 @@ foreach ( array( 'content_save_pre', 'excerpt_save_pre', 'comment_save_pre', 'pr
 }
 
 // Format strings for display.
-foreach ( array( 'comment_author', 'term_name', 'link_name', 'link_description', 'link_notes', 'bloginfo', 'wp_title', 'widget_title' ) as $filter ) {
+foreach ( array( 'comment_author', 'term_name', 'bloginfo', 'wp_title', 'widget_title' ) as $filter ) {
 	add_filter( $filter, 'wptexturize'   );
 	add_filter( $filter, 'convert_chars' );
 	add_filter( $filter, 'esc_html'      );
