@@ -384,16 +384,6 @@ if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE && current_user_c
 </td></tr>
 <?php } ?>
 
-<tr class="user-first-name-wrap">
-	<th><label for="first_name"><?php _e('First Name') ?></label></th>
-	<td><input type="text" name="first_name" id="first_name" value="<?php echo esc_attr($profileuser->first_name) ?>" class="regular-text" /></td>
-</tr>
-
-<tr class="user-last-name-wrap">
-	<th><label for="last_name"><?php _e('Last Name') ?></label></th>
-	<td><input type="text" name="last_name" id="last_name" value="<?php echo esc_attr($profileuser->last_name) ?>" class="regular-text" /></td>
-</tr>
-
 <tr class="user-display-name-wrap">
 	<th><label for="display_name"><?php _e('Display name publicly as') ?></label></th>
 	<td>
@@ -401,17 +391,6 @@ if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE && current_user_c
 		<?php
 			$public_display = array();
 			$public_display['display_username']  = $profileuser->user_login;
-
-			if ( !empty($profileuser->first_name) )
-				$public_display['display_firstname'] = $profileuser->first_name;
-
-			if ( !empty($profileuser->last_name) )
-				$public_display['display_lastname'] = $profileuser->last_name;
-
-			if ( !empty($profileuser->first_name) && !empty($profileuser->last_name) ) {
-				$public_display['display_firstlast'] = $profileuser->first_name . ' ' . $profileuser->last_name;
-				$public_display['display_lastfirst'] = $profileuser->last_name . ' ' . $profileuser->first_name;
-			}
 
 			if ( !in_array( $profileuser->display_name, $public_display ) ) // Only add this if it isn't duplicated elsewhere
 				$public_display = array( 'display_displayname' => $profileuser->display_name ) + $public_display;

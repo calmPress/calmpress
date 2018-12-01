@@ -398,8 +398,6 @@ if ( current_user_can( 'create_users') ) {
 $creating = isset( $_POST['createuser'] );
 
 $new_user_login = $creating && isset( $_POST['user_login'] ) ? wp_unslash( $_POST['user_login'] ) : '';
-$new_user_firstname = $creating && isset( $_POST['first_name'] ) ? wp_unslash( $_POST['first_name'] ) : '';
-$new_user_lastname = $creating && isset( $_POST['last_name'] ) ? wp_unslash( $_POST['last_name'] ) : '';
 $new_user_email = $creating && isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : '';
 $new_user_uri = $creating && isset( $_POST['url'] ) ? wp_unslash( $_POST['url'] ) : '';
 $new_user_role = $creating && isset( $_POST['role'] ) ? wp_unslash( $_POST['role'] ) : '';
@@ -417,14 +415,6 @@ $new_user_ignore_pass = $creating && isset( $_POST['noconfirmation'] ) ? wp_unsl
 		<td><input name="email" type="email" id="email" value="<?php echo esc_attr( $new_user_email ); ?>" /></td>
 	</tr>
 <?php if ( !is_multisite() ) { ?>
-	<tr class="form-field">
-		<th scope="row"><label for="first_name"><?php _e('First Name') ?> </label></th>
-		<td><input name="first_name" type="text" id="first_name" value="<?php echo esc_attr($new_user_firstname); ?>" /></td>
-	</tr>
-	<tr class="form-field">
-		<th scope="row"><label for="last_name"><?php _e('Last Name') ?> </label></th>
-		<td><input name="last_name" type="text" id="last_name" value="<?php echo esc_attr($new_user_lastname); ?>" /></td>
-	</tr>
 	<tr class="form-field">
 		<th scope="row"><label for="url"><?php _e('Website') ?></label></th>
 		<td><input name="url" type="url" id="url" class="code" value="<?php echo esc_attr( $new_user_uri ); ?>" /></td>

@@ -36,7 +36,7 @@ var passwordStrength;
 			var i, userInputFieldsLength, rawValuesLength, currentField,
 				rawValues       = [],
 				blacklist       = [],
-				userInputFields = [ 'user_login', 'first_name', 'last_name', 'display_name', 'email', 'url', 'description', 'weblog_title', 'admin_email' ];
+				userInputFields = [ 'user_login', 'display_name', 'email', 'url', 'description', 'weblog_title', 'admin_email' ];
 
 			// Collect all the strings we want to blacklist
 			rawValues.push( document.title );

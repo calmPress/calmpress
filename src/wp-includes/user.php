@@ -1205,7 +1205,7 @@ function sanitize_user_field($field, $value, $user_id, $context) {
 			 * Filters a user field value in the 'edit' context.
 			 *
 			 * The dynamic portion of the hook name, `$field`, refers to the prefixed user
-			 * field being filtered, such as 'user_login', 'user_email', 'first_name', etc.
+			 * field being filtered, such as 'user_login', 'user_email', etc.
 			 *
 			 * @since 2.9.0
 			 *
@@ -1229,7 +1229,7 @@ function sanitize_user_field($field, $value, $user_id, $context) {
 			 * Filters the value of a user field in the 'db' context.
 			 *
 			 * The dynamic portion of the hook name, `$field`, refers to the prefixed user
-			 * field being filtered, such as 'user_login', 'user_email', 'first_name', etc.
+			 * field being filtered, such as 'user_login', 'user_email', etc.
  			 *
 			 * @since 2.9.0
 			 *
@@ -1249,7 +1249,7 @@ function sanitize_user_field($field, $value, $user_id, $context) {
 			 * Filters the value of a user field in a standard context.
 			 *
 			 * The dynamic portion of the hook name, `$field`, refers to the prefixed user
-			 * field being filtered, such as 'user_login', 'user_email', 'first_name', etc.
+			 * field being filtered, such as 'user_login', 'user_email', etc.
 			 *
 			 * @since 2.9.0
 			 *
@@ -1574,25 +1574,11 @@ function wp_insert_user( $userdata ) {
 
 	$first_name = empty( $userdata['first_name'] ) ? '' : $userdata['first_name'];
 
-	/**
-	 * Filters a user's first name before the user is created or updated.
-	 *
-	 * @since 2.0.3
-	 *
-	 * @param string $first_name The user's first name.
-	 */
-	$meta['first_name'] = apply_filters( 'pre_user_first_name', $first_name );
+	$meta['first_name'] = $first_name;
 
 	$last_name = empty( $userdata['last_name'] ) ? '' : $userdata['last_name'];
 
-	/**
-	 * Filters a user's last name before the user is created or updated.
-	 *
-	 * @since 2.0.3
-	 *
-	 * @param string $last_name The user's last name.
-	 */
-	$meta['last_name'] = apply_filters( 'pre_user_last_name', $last_name );
+	$meta['last_name'] = $last_name;
 
 	if ( empty( $userdata['display_name'] ) ) {
 		if ( $update ) {
