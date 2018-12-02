@@ -317,7 +317,6 @@ class WP_Users_List_Table extends WP_List_Table {
 	public function get_columns() {
 		$c = array(
 			'cb'       => '<input type="checkbox" />',
-			'username' => __( 'Username' ),
 			'name'     => __( 'Name' ),
 			'email'    => __( 'Email' ),
 			'role'     => __( 'Role' ),
@@ -339,7 +338,6 @@ class WP_Users_List_Table extends WP_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		$c = array(
-			'username' => 'login',
 			'email'    => 'email',
 		);
 
@@ -406,10 +404,10 @@ class WP_Users_List_Table extends WP_List_Table {
 			$edit_link = esc_url( add_query_arg( 'wp_http_referer', urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ), get_edit_user_link( $user_object->ID ) ) );
 
 			if ( current_user_can( 'edit_user',  $user_object->ID ) ) {
-				$edit = "<strong><a href=\"{$edit_link}\">{$user_object->user_login}</a>{$super_admin}</strong><br />";
+				$edit = "<strong><a href=\"{$edit_link}\">" . esc_html( $user_object->display_name ) . "</a>{$super_admin}</strong><br />";
 				$actions['edit'] = '<a href="' . $edit_link . '">' . __( 'Edit' ) . '</a>';
 			} else {
-				$edit = "<strong>{$user_object->user_login}{$super_admin}</strong><br />";
+				$edit = '<strong>' . esc_html( $user_object->display_name . $super_admin ) . '</strong><br />';
 			}
 
 			if ( !is_multisite() && get_current_user_id() != $user_object->ID && current_user_can( 'delete_user', $user_object->ID ) )
@@ -449,7 +447,7 @@ class WP_Users_List_Table extends WP_List_Table {
 						. "<input type='checkbox' name='users[]' id='user_{$user_object->ID}' class='{$role_classes}' value='{$user_object->ID}' />";
 
 		} else {
-			$edit = "<strong>{$user_object->user_login}{$super_admin}</strong>";
+			$edit = '<strong>' . esc_html( $user_object->display_name . $super_admin ) . '</strong>';
 		}
 		$avatar = get_avatar( $user_object->ID, 32 );
 
@@ -482,15 +480,8 @@ class WP_Users_List_Table extends WP_List_Table {
 			} else {
 				$r .= "<td $attributes>";
 				switch ( $column_name ) {
-					case 'username':
-						$r .= "$avatar $edit";
-						break;
 					case 'name':
-						if ( $user_object->display_name ) {
-							$r .= $user_object->display_name;
-						} else {
-							$r .= '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . _x( 'Unknown', 'name' ) . '</span>';
-						}
+						$r .= "$avatar $edit";
 						break;
 					case 'email':
 						$r .= "<a href='" . esc_url( "mailto:$email" ) . "'>$email</a>";
@@ -537,10 +528,10 @@ class WP_Users_List_Table extends WP_List_Table {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @return string Name of the default primary column, in this case, 'username'.
+	 * @return string Name of the default primary column, in this case, 'name'.
 	 */
 	protected function get_default_primary_column_name() {
-		return 'username';
+		return 'name';
 	}
 
 	/**

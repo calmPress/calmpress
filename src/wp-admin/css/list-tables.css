@@ -843,7 +843,7 @@ p.pagenav {
 }
 
 .column-author img,
-.column-username img,
+.column-name img,
 .column-comment .comment-author img {
 	float: left;
 	margin-right: 10px;
