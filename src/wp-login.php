@@ -735,19 +735,15 @@ case 'register' :
 		exit();
 	}
 
-	$user_login = '';
 	$user_email = '';
 
 	if ( $http_post ) {
-		if ( isset( $_POST['user_login'] ) && is_string( $_POST['user_login'] ) ) {
-			$user_login = $_POST['user_login'];
-		}
 
 		if ( isset( $_POST['user_email'] ) && is_string( $_POST['user_email'] ) ) {
 			$user_email = wp_unslash( $_POST['user_email'] );
 		}
 
-		$errors = register_new_user($user_login, $user_email);
+		$errors = register_new_user( md5( $user_email ), $user_email);
 		if ( !is_wp_error($errors) ) {
 			$redirect_to = !empty( $_POST['redirect_to'] ) ? $_POST['redirect_to'] : 'wp-login.php?checkemail=registered';
 			wp_safe_redirect( $redirect_to );
@@ -767,10 +763,6 @@ case 'register' :
 	login_header(__('Registration Form'), '<p class="message register">' . __('Register For This Site') . '</p>', $errors);
 ?>
 <form name="registerform" id="registerform" action="<?php echo esc_url( site_url( 'wp-login.php?action=register', 'login_post' ) ); ?>" method="post" novalidate="novalidate">
-	<p>
-		<label for="user_login"><?php _e('Username') ?><br />
-		<input type="text" name="user_login" id="user_login" class="input" value="<?php echo esc_attr(wp_unslash($user_login)); ?>" size="20" /></label>
-	</p>
 	<p>
 		<label for="user_email"><?php _e('Email') ?><br />
 		<input type="email" name="user_email" id="user_email" class="input" value="<?php echo esc_attr( wp_unslash( $user_email ) ); ?>" size="25" /></label>
