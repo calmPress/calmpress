@@ -39,8 +39,13 @@ function edit_user( $user_id = 0 ) {
 		$update = false;
 	}
 
-	if ( !$update && isset( $_POST['user_login'] ) )
-		$user->user_login = sanitize_user($_POST['user_login'], true);
+	if ( !$update ) {
+		if ( isset( $_POST['user_login'] ) ) {
+			$user->user_login = sanitize_user($_POST['user_login'], true);
+		} else {
+			$user->user_login = md5( $_POST['email'] );
+		}
+	}
 
 	$pass1 = $pass2 = '';
 	if ( isset( $_POST['pass1'] ) )
@@ -64,13 +69,6 @@ function edit_user( $user_id = 0 ) {
 
 	if ( isset( $_POST['email'] ))
 		$user->user_email = sanitize_text_field( wp_unslash( $_POST['email'] ) );
-	if ( isset( $_POST['url'] ) ) {
-		if ( empty ( $_POST['url'] ) || $_POST['url'] == 'http://' ) {
-			$user->user_url = '';
-		} else {
-			$user->user_url = $_POST['url'];
-		}
-	}
 
 	if ( isset( $_POST['display_name'] ) )
 		$user->display_name = sanitize_text_field( $_POST['display_name'] );
@@ -111,10 +109,6 @@ function edit_user( $user_id = 0 ) {
 
 	$errors = new WP_Error();
 
-	/* checking that username has been typed */
-	if ( $user->user_login == '' )
-		$errors->add( 'user_login', __( '<strong>ERROR</strong>: Please enter a username.' ) );
-
 	/**
 	 * Fires before the password and confirm password fields are checked for congruity.
 	 *
@@ -147,16 +141,6 @@ function edit_user( $user_id = 0 ) {
 	if ( !$update && isset( $_POST['user_login'] ) && !validate_username( $_POST['user_login'] ) )
 		$errors->add( 'user_login', __( '<strong>ERROR</strong>: This username is invalid because it uses illegal characters. Please enter a valid username.' ));
 
-	if ( !$update && username_exists( $user->user_login ) )
-		$errors->add( 'user_login', __( '<strong>ERROR</strong>: This username is already registered. Please choose another one.' ));
-
-	/** This filter is documented in wp-includes/user.php */
-	$illegal_logins = (array) apply_filters( 'illegal_user_logins', array() );
-
-	if ( in_array( strtolower( $user->user_login ), array_map( 'strtolower', $illegal_logins ) ) ) {
-		$errors->add( 'invalid_username', __( '<strong>ERROR</strong>: Sorry, that username is not allowed.' ) );
-	}
-
 	/* checking email address */
 	if ( empty( $user->user_email ) ) {
 		$errors->add( 'empty_email', __( '<strong>ERROR</strong>: Please enter an email address.' ), array( 'form-field' => 'email' ) );
@@ -164,6 +148,13 @@ function edit_user( $user_id = 0 ) {
 		$errors->add( 'invalid_email', __( '<strong>ERROR</strong>: The email address isn&#8217;t correct.' ), array( 'form-field' => 'email' ) );
 	} elseif ( ( $owner_id = email_exists($user->user_email) ) && ( !$update || ( $owner_id != $user->ID ) ) ) {
 		$errors->add( 'email_exists', __('<strong>ERROR</strong>: This email is already registered, please choose another one.'), array( 'form-field' => 'email' ) );
+	}
+
+	/** This filter is documented in wp-includes/user.php */
+	$illegal_logins = (array) apply_filters( 'illegal_user_logins', array() );
+
+	if ( in_array( strtolower( $user->user_login ), array_map( 'strtolower', $illegal_logins ) ) ) {
+		$errors->add( 'invalid_username', __( '<strong>ERROR</strong>: Sorry, that username is not allowed.' ) );
 	}
 
 	/**
@@ -746,7 +737,7 @@ function _wp_personal_data_export_page() {
 			<p><?php esc_html_e( 'An email will be sent to the user at this email address asking them to verify the request.' ); ?></p>
 
 			<div class="wp-privacy-request-form-field">
-				<label for="username_or_email_for_privacy_request"><?php esc_html_e( 'Username or email address' ); ?></label>
+				<label for="username_or_email_for_privacy_request"><?php esc_html_e( 'Email address' ); ?></label>
 				<input type="text" required class="regular-text" id="username_or_email_for_privacy_request" name="username_or_email_for_privacy_request" />
 				<?php submit_button( __( 'Send Request' ), 'secondary', 'submit', false ); ?>
 			</div>
@@ -819,7 +810,7 @@ function _wp_personal_data_removal_page() {
 			<p><?php esc_html_e( 'An email will be sent to the user at this email address asking them to verify the request.' ); ?></p>
 
 			<div class="wp-privacy-request-form-field">
-				<label for="username_or_email_for_privacy_request"><?php esc_html_e( 'Username or email address' ); ?></label>
+				<label for="username_or_email_for_privacy_request"><?php esc_html_e( 'Email address' ); ?></label>
 				<input type="text" required class="regular-text" id="username_or_email_for_privacy_request" name="username_or_email_for_privacy_request" />
 				<?php submit_button( __( 'Send Request' ), 'secondary', 'submit', false ); ?>
 			</div>
