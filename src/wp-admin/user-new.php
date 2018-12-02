@@ -186,7 +186,7 @@ if ( is_multisite() && current_user_can('promote_users') && current_user_can('cr
 $help = '<p>' . __('To add a new user to your site, fill in the form on this screen and click the Add New User button at the bottom.') . '</p>';
 
 if ( is_multisite() ) {
-	$help .= '<p>' . __('Because this is a multisite installation, you may add accounts that already exist on the Network by specifying a username or email, and defining a role. For more options, such as specifying a password, you have to be a Network Administrator and use the hover link under an existing user&#8217;s name to Edit the user profile under Network Admin > All Users.') . '</p>' .
+	$help .= '<p>' . __('Because this is a multisite installation, you may add accounts that already exist on the Network by specifying an email address, and defining a role. For more options, such as specifying a password, you have to be a Network Administrator and use the hover link under an existing user&#8217;s name to Edit the user profile under Network Admin > All Users.') . '</p>' .
 	'<p>' . __('New users will receive an email letting them know they&#8217;ve been added as a user for your site. This email will also contain their password. Check the box if you don&#8217;t want the user to receive a welcome email.') . '</p>';
 } else {
 	$help .= '<p>' . __('New users are automatically assigned a password, which they can change after logging in. You can view or edit the assigned password by clicking the Show Password button. The username cannot be changed once the user has been added.') . '</p>' .
@@ -415,10 +415,6 @@ $new_user_ignore_pass = $creating && isset( $_POST['noconfirmation'] ) ? wp_unsl
 		<td><input name="email" type="email" id="email" value="<?php echo esc_attr( $new_user_email ); ?>" /></td>
 	</tr>
 <?php if ( !is_multisite() ) { ?>
-	<tr class="form-field">
-		<th scope="row"><label for="url"><?php _e('Website') ?></label></th>
-		<td><input name="url" type="url" id="url" class="code" value="<?php echo esc_attr( $new_user_uri ); ?>" /></td>
-	</tr>
 	<tr class="form-field form-required user-pass1-wrap">
 		<th scope="row">
 			<label for="pass1">
