@@ -86,7 +86,6 @@ function display_setup_form( $error = null ) {
 	}
 
 	$weblog_title = isset( $_POST['weblog_title'] ) ? trim( wp_unslash( $_POST['weblog_title'] ) ) : '';
-	$user_name = isset($_POST['user_name']) ? trim( wp_unslash( $_POST['user_name'] ) ) : '';
 	$admin_email  = isset( $_POST['admin_email']  ) ? trim( wp_unslash( $_POST['admin_email'] ) ) : '';
 
 	if ( ! is_null( $error ) ) {
@@ -101,20 +100,10 @@ function display_setup_form( $error = null ) {
 			<td><input name="weblog_title" type="text" id="weblog_title" size="25" value="<?php echo esc_attr( $weblog_title ); ?>" /></td>
 		</tr>
 		<tr>
-			<th scope="row"><label for="user_login"><?php _e('Username'); ?></label></th>
-			<td>
-			<?php
-			if ( $user_table ) {
-				_e('User(s) already exists.');
-				echo '<input name="user_name" type="hidden" value="admin" />';
-			} else {
-				?><input name="user_name" type="text" id="user_login" size="25" value="<?php echo esc_attr( sanitize_user( $user_name, true ) ); ?>" />
-				<p><?php _e( 'Usernames can have only alphanumeric characters, spaces, underscores, hyphens, periods, and the @ symbol.' ); ?></p>
-			<?php
-			} ?>
-			</td>
+			<th scope="row"><label for="admin_email"><?php _e( 'Your Email' ); ?></label></th>
+			<td><input name="admin_email" type="email" id="admin_email" size="25" value="<?php echo esc_attr( $admin_email ); ?>" />
+			<p><?php _e( 'Double-check your email address before continuing.' ); ?></p></td>
 		</tr>
-		<?php if ( ! $user_table ) : ?>
 		<tr class="form-field form-required user-pass1-wrap">
 			<th scope="row">
 				<label for="pass1">
@@ -155,12 +144,6 @@ function display_setup_form( $error = null ) {
 					<?php _e( 'Confirm use of weak password' ); ?>
 				</label>
 			</td>
-		</tr>
-		<?php endif; ?>
-		<tr>
-			<th scope="row"><label for="admin_email"><?php _e( 'Your Email' ); ?></label></th>
-			<td><input name="admin_email" type="email" id="admin_email" size="25" value="<?php echo esc_attr( $admin_email ); ?>" />
-			<p><?php _e( 'Double-check your email address before continuing.' ); ?></p></td>
 		</tr>
 		<tr>
 			<th scope="row"><?php has_action( 'blog_privacy_selector' ) ? _e( 'Site Visibility' ) : _e( 'Search Engine Visibility' ); ?></th>
@@ -311,7 +294,6 @@ switch($step) {
 		display_header();
 		// Fill in the data we gathered
 		$weblog_title = isset( $_POST['weblog_title'] ) ? trim( wp_unslash( $_POST['weblog_title'] ) ) : '';
-		$user_name = isset($_POST['user_name']) ? trim( wp_unslash( $_POST['user_name'] ) ) : '';
 		$admin_password = isset($_POST['admin_password']) ? wp_unslash( $_POST['admin_password'] ) : '';
 		$admin_password_check = isset($_POST['admin_password2']) ? wp_unslash( $_POST['admin_password2'] ) : '';
 		$admin_email  = isset( $_POST['admin_email'] ) ?trim( wp_unslash( $_POST['admin_email'] ) ) : '';
@@ -319,14 +301,7 @@ switch($step) {
 
 		// Check email address.
 		$error = false;
-		if ( empty( $user_name ) ) {
-			// TODO: poka-yoke
-			display_setup_form( __( 'Please provide a valid username.' ) );
-			$error = true;
-		} elseif ( $user_name != sanitize_user( $user_name, true ) ) {
-			display_setup_form( __( 'The username you provided has invalid characters.' ) );
-			$error = true;
-		} elseif ( $admin_password != $admin_password_check ) {
+		if ( $admin_password != $admin_password_check ) {
 			// TODO: poka-yoke
 			display_setup_form( __( 'Your passwords do not match. Please try again.' ) );
 			$error = true;
@@ -342,7 +317,7 @@ switch($step) {
 
 		if ( $error === false ) {
 			$wpdb->show_errors();
-			$result = wp_install( $weblog_title, $user_name, $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
+			$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
 ?>
 
 <h1><?php _e( 'Success!' ); ?></h1>
@@ -351,8 +326,8 @@ switch($step) {
 
 <table class="form-table install-success">
 	<tr>
-		<th><?php _e( 'Username' ); ?></th>
-		<td><?php echo esc_html( sanitize_user( $user_name, true ) ); ?></td>
+		<th><?php _e( 'Email' ); ?></th>
+		<td><?php echo esc_html( $admin_email ); ?></td>
 	</tr>
 	<tr>
 		<th><?php _e( 'Password' ); ?></th>
