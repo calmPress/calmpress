@@ -910,14 +910,14 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 	}
 
 	/* translators: Do not translate USERNAME, SITE_NAME, BLOG_URL, PASSWORD: those are placeholders. */
-	$welcome_email = __( 'Howdy USERNAME,
+	$welcome_email = __( 'Howdy EMAIL,
 
 Your new SITE_NAME site has been successfully set up at:
 BLOG_URL
 
 You can log in to the administrator account with the following information:
 
-Username: USERNAME
+Email: EMAIL
 Password: PASSWORD
 Log in here: BLOG_URLwp-login.php
 

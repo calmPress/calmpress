@@ -1852,7 +1852,7 @@ function wp_update_user($userdata) {
 
 		if ( ! empty( $send_password_change_email ) ) {
 			/* translators: Do not translate USERNAME, ADMIN_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
-			$pass_change_text = __( 'Hi ###USERNAME###,
+			$pass_change_text = __( 'Hi ###EMAIL###,
 
 This notice confirms that your password was changed on ###SITENAME###.
 
@@ -1908,7 +1908,7 @@ All at ###SITENAME###
 
 		if ( ! empty( $send_email_change_email ) ) {
 			/* translators: Do not translate USERNAME, ADMIN_EMAIL, NEW_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
-			$email_change_text = __( 'Hi ###USERNAME###,
+			$email_change_text = __( 'Hi ###EMAIL###,
 
 This notice confirms that your email address on ###SITENAME### was changed to ###NEW_EMAIL###.
 
@@ -2620,7 +2620,7 @@ function send_confirmation_on_profile_email() {
 		$sitename = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
 		/* translators: Do not translate USERNAME, ADMIN_URL, EMAIL, SITENAME, SITEURL: those are placeholders. */
-		$email_text = __( 'Howdy ###USERNAME###,
+		$email_text = __( 'Howdy ###EMAIL###,
 
 You recently requested to have the email address on your account changed.
 

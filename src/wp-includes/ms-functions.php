@@ -1546,15 +1546,15 @@ function wpmu_welcome_notification( $blog_id, $user_id, $password, $title, $meta
 
 	$welcome_email = get_site_option( 'welcome_email' );
 	if ( $welcome_email == false ) {
-		/* translators: Do not translate USERNAME, SITE_NAME, BLOG_URL, PASSWORD: those are placeholders. */
-		$welcome_email = __( 'Howdy USERNAME,
+		/* translators: Do not translate USERNAME, EMAIL, SITE_NAME, BLOG_URL, PASSWORD: those are placeholders. */
+		$welcome_email = __( 'Howdy EMAIL,
 
 Your new SITE_NAME site has been successfully set up at:
 BLOG_URL
 
 You can log in to the administrator account with the following information:
 
-Username: USERNAME
+Email: EMAIL
 Password: PASSWORD
 Log in here: BLOG_URLwp-login.php
 
@@ -1569,6 +1569,7 @@ We hope you enjoy your new site. Thanks!
 	$welcome_email = str_replace( 'BLOG_TITLE', $title, $welcome_email );
 	$welcome_email = str_replace( 'BLOG_URL', $url, $welcome_email );
 	$welcome_email = str_replace( 'USERNAME', $user->user_login, $welcome_email );
+	$welcome_email = str_replace( 'EMAIL', $user->user_email, $welcome_email );
 	$welcome_email = str_replace( 'PASSWORD', $password, $welcome_email );
 
 	/**
@@ -1671,6 +1672,7 @@ function wpmu_welcome_user_notification( $user_id, $password, $meta = array() ) 
 	$welcome_email = apply_filters( 'update_welcome_user_email', $welcome_email, $user_id, $password, $meta );
 	$welcome_email = str_replace( 'SITE_NAME', $current_network->site_name, $welcome_email );
 	$welcome_email = str_replace( 'USERNAME', $user->user_login, $welcome_email );
+	$welcome_email = str_replace( 'EMAIL', $user->user_email, $welcome_email );
 	$welcome_email = str_replace( 'PASSWORD', $password, $welcome_email );
 	$welcome_email = str_replace( 'LOGINLINK', wp_login_url(), $welcome_email );
 
@@ -2218,13 +2220,13 @@ function welcome_user_msg_filter( $text ) {
 	if ( !$text ) {
 		remove_filter( 'site_option_welcome_user_email', 'welcome_user_msg_filter' );
 
-		/* translators: Do not translate USERNAME, PASSWORD, LOGINLINK, SITE_NAME: those are placeholders. */
-		$text = __( 'Howdy USERNAME,
+		/* translators: Do not translate USERNAME, EMAIL, PASSWORD, LOGINLINK, SITE_NAME: those are placeholders. */
+		$text = __( 'Howdy EMAIL,
 
 Your new account is set up.
 
 You can log in with the following information:
-Username: USERNAME
+Email: EMAIL
 Password: PASSWORD
 LOGINLINK
 
@@ -2590,7 +2592,7 @@ function update_network_option_new_admin_email( $old_value, $value ) {
 	$switched_locale = switch_to_locale( get_user_locale() );
 
 	/* translators: Do not translate USERNAME, ADMIN_URL, EMAIL, SITENAME, SITEURL: those are placeholders. */
-	$email_text = __( 'Howdy ###USERNAME###,
+	$email_text = __( 'Howdy ###EMAIL###,
 
 You recently requested to have the network admin email address on
 your network changed.
