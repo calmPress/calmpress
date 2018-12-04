@@ -140,7 +140,7 @@ Please click the following link to confirm the invite:
 	} else {
 		// Adding a new user to this site
 		$new_user_email = wp_unslash( $_REQUEST['email'] );
-		$user_details = wpmu_validate_user_signup( $_REQUEST['user_login'], $new_user_email );
+		$user_details = wpmu_validate_user_signup( md5( $new_user_email ), $new_user_email );
 		if ( is_wp_error( $user_details[ 'errors' ] ) && !empty( $user_details[ 'errors' ]->errors ) ) {
 			$add_user_errors = $user_details[ 'errors' ];
 		} else {
@@ -151,7 +151,7 @@ Please click the following link to confirm the invite:
 			 *
 			 * @param string $user_login The sanitized username.
 			 */
-			$new_user_login = apply_filters( 'pre_user_login', sanitize_user( wp_unslash( $_REQUEST['user_login'] ), true ) );
+			$new_user_login = md5( $new_user_email );
 			if ( isset( $_POST[ 'noconfirmation' ] ) && current_user_can( 'manage_network_users' ) ) {
 				add_filter( 'wpmu_signup_user_notification', '__return_false' ); // Disable confirmation email
 				add_filter( 'wpmu_welcome_user_notification', '__return_false' ); // Disable welcome email
@@ -325,8 +325,8 @@ if ( is_multisite() && current_user_can( 'promote_users' ) ) {
 		$label = __('Email');
 		$type  = 'email';
 	} else {
-		echo '<p>' . __( 'Enter the email address or username of an existing user on this network to invite them to this site. That person will be sent an email asking them to confirm the invite.' ) . '</p>';
-		$label = __('Email or Username');
+		echo '<p>' . __( 'Enter the email address of an existing user on this network to invite them to this site. That person will be sent an email asking them to confirm the invite.' ) . '</p>';
+		$label = __('Email');
 		$type  = 'text';
 	}
 ?>

@@ -57,11 +57,11 @@ if ( $action ) {
 		case 'newuser':
 			check_admin_referer( 'add-user', '_wpnonce_add-new-user' );
 			$user = $_POST['user'];
-			if ( ! is_array( $_POST['user'] ) || empty( $user['username'] ) || empty( $user['email'] ) ) {
+			if ( ! is_array( $_POST['user'] ) || empty( $user['email'] ) ) {
 				$update = 'err_new';
 			} else {
 				$password = wp_generate_password( 12, false);
-				$user_id = wpmu_create_user( esc_html( strtolower( $user['username'] ) ), $password, esc_html( $user['email'] ) );
+				$user_id = wpmu_create_user( md5( $user['email'] ), $password, esc_html( $user['email'] ) );
 
 				if ( false === $user_id ) {
 		 			$update = 'err_new_dup';
@@ -90,7 +90,7 @@ if ( $action ) {
 			if ( !empty( $_POST['newuser'] ) ) {
 				$update = 'adduser';
 				$newuser = $_POST['newuser'];
-				$user = get_user_by( 'login', $newuser );
+				$user = get_user_by( 'email', $newuser );
 				if ( $user && $user->exists() ) {
 					if ( ! is_user_member_of_blog( $user->ID, $id ) ) {
 						$result = add_user_to_blog( $id, $user->ID, $_POST['new_role'] );
@@ -237,7 +237,7 @@ if ( isset($_GET['update']) ) :
 		echo '<div id="message" class="error notice is-dismissible"><p>' . __( 'User could not be added to this site.' ) . '</p></div>';
 		break;
 	case 'err_add_notfound':
-		echo '<div id="message" class="error notice is-dismissible"><p>' . __( 'Enter the username of an existing user.' ) . '</p></div>';
+		echo '<div id="message" class="error notice is-dismissible"><p>' . __( 'Enter the email of an existing user.' ) . '</p></div>';
 		break;
 	case 'promote':
 		echo '<div id="message" class="updated notice is-dismissible"><p>' . __( 'Changed roles.' ) . '</p></div>';
@@ -255,10 +255,10 @@ if ( isset($_GET['update']) ) :
 		echo '<div id="message" class="updated notice is-dismissible"><p>' . __( 'User created.' ) . '</p></div>';
 		break;
 	case 'err_new':
-		echo '<div id="message" class="error notice is-dismissible"><p>' . __( 'Enter the username and email.' ) . '</p></div>';
+		echo '<div id="message" class="error notice is-dismissible"><p>' . __( 'Enter the email address.' ) . '</p></div>';
 		break;
 	case 'err_new_dup':
-		echo '<div id="message" class="error notice is-dismissible"><p>' . __( 'Duplicated username or email address.' ) . '</p></div>';
+		echo '<div id="message" class="error notice is-dismissible"><p>' . __( 'Duplicated email address.' ) . '</p></div>';
 		break;
 	}
 endif; ?>
@@ -292,7 +292,7 @@ if ( current_user_can( 'promote_users' ) && apply_filters( 'show_network_site_us
 	<input type="hidden" name="id" value="<?php echo esc_attr( $id ) ?>" />
 	<table class="form-table">
 		<tr>
-			<th scope="row"><label for="newuser"><?php _e( 'Username' ); ?></label></th>
+			<th scope="row"><label for="newuser"><?php _e( 'Email' ); ?></label></th>
 			<td><input type="text" class="regular-text wp-suggest-user" name="newuser" id="newuser" /></td>
 		</tr>
 		<tr>
@@ -325,11 +325,7 @@ if ( current_user_can( 'create_users' ) && apply_filters( 'show_network_site_use
 	<input type="hidden" name="id" value="<?php echo esc_attr( $id ) ?>" />
 	<table class="form-table">
 		<tr>
-			<th scope="row"><label for="user_username"><?php _e( 'Username' ) ?></label></th>
-			<td><input type="text" class="regular-text" name="user[username]" id="user_username" /></td>
-		</tr>
-		<tr>
-			<th scope="row"><label for="user_email"><?php _e( 'Email' ) ?></label></th>
+			<th scope="row"><label for="user_email"><?php _e( 'Email' ); ?></label></th>
 			<td><input type="text" class="regular-text" name="user[email]" id="user_email" /></td>
 		</tr>
 		<tr>

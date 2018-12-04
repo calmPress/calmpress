@@ -33,12 +33,12 @@ if ( isset($_REQUEST['action']) && 'add-user' == $_REQUEST['action'] ) {
 
 	$user = wp_unslash( $_POST['user'] );
 
-	$user_details = wpmu_validate_user_signup( $user['username'], $user['email'] );
+	$user_details = wpmu_validate_user_signup( md5( $user['email'] ), $user['email'] );
 	if ( is_wp_error( $user_details[ 'errors' ] ) && ! empty( $user_details[ 'errors' ]->errors ) ) {
 		$add_user_errors = $user_details[ 'errors' ];
 	} else {
 		$password = wp_generate_password( 12, false);
-		$user_id = wpmu_create_user( esc_html( strtolower( $user['username'] ) ), $password, sanitize_email( $user['email'] ) );
+		$user_id = wpmu_create_user( md5( $user['email'] ), $password, sanitize_email( $user['email'] ) );
 
 		if ( ! $user_id ) {
 	 		$add_user_errors = new WP_Error( 'add_user_fail', __( 'Cannot add user.' ) );
@@ -100,10 +100,6 @@ if ( isset( $add_user_errors ) && is_wp_error( $add_user_errors ) ) { ?>
 <?php } ?>
 	<form action="<?php echo network_admin_url('user-new.php?action=add-user'); ?>" id="adduser" method="post" novalidate="novalidate">
 	<table class="form-table">
-		<tr class="form-field form-required">
-			<th scope="row"><label for="username"><?php _e( 'Username' ) ?></label></th>
-			<td><input type="text" class="regular-text" name="user[username]" id="username" autocapitalize="none" autocorrect="off" maxlength="60" /></td>
-		</tr>
 		<tr class="form-field form-required">
 			<th scope="row"><label for="email"><?php _e( 'Email' ) ?></label></th>
 			<td><input type="email" class="regular-text" name="user[email]" id="email"/></td>

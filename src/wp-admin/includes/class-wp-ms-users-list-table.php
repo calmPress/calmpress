@@ -165,7 +165,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	public function get_columns() {
 		$users_columns = array(
 			'cb'         => '<input type="checkbox" />',
-			'username'   => __( 'Username' ),
 			'name'       => __( 'Name' ),
 			'email'      => __( 'Email' ),
 			'registered' => _x( 'Registered', 'user' ),
@@ -176,7 +175,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 		 *
 		 * @since MU (3.0.0)
 		 *
-		 * @param array $users_columns An array of user columns. Default 'cb', 'username',
+		 * @param array $users_columns An array of user columns. Default 'cb',
 		 *                             'name', 'email', 'registered', 'blogs'.
 		 */
 		return apply_filters( 'wpmu_users_columns', $users_columns );
@@ -188,7 +187,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		return array(
-			'username'   => 'login',
 			'name'       => 'name',
 			'email'      => 'email',
 			'registered' => 'id',
@@ -224,28 +222,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Handles the username column output.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @param WP_User $user The current WP_User object.
-	 */
-	public function column_username( $user ) {
-		$super_admins = get_super_admins();
-		$avatar	= get_avatar( $user->user_email, 32 );
-		$edit_link = esc_url( add_query_arg( 'wp_http_referer', urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ), get_edit_user_link( $user->ID ) ) );
-
-		echo $avatar;
-
-		?><strong><a href="<?php echo $edit_link; ?>" class="edit"><?php echo $user->user_login; ?></a><?php
-		if ( in_array( $user->user_login, $super_admins ) ) {
-			echo ' &mdash; ' . __( 'Super Admin' );
-		}
-		?></strong>
-	<?php
-	}
-
-	/**
 	 * Handles the name column output.
 	 *
 	 * @since 4.3.0
@@ -253,15 +229,25 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 * @param WP_User $user The current WP_User object.
 	 */
 	public function column_name( $user ) {
-		if ( $user->first_name && $user->last_name ) {
-			echo "$user->first_name $user->last_name";
-		} elseif ( $user->first_name ) {
-			echo $user->first_name;
-		} elseif ( $user->last_name ) {
-			echo $user->last_name;
+		$name = '';
+		if ( $user->display_name ) {
+			$name = esc_html( $user->display_name );
 		} else {
-			echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . _x( 'Unknown', 'name' ) . '</span>';
+			$name = '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . _x( 'Anonymous', 'name' ) . '</span>';
 		}
+
+		$super_admins = get_super_admins();
+		$avatar	= get_avatar( $user->user_email, 32 );
+		$edit_link = esc_url( add_query_arg( 'wp_http_referer', urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ), get_edit_user_link( $user->ID ) ) );
+
+		echo $avatar;
+
+		?><strong><a href="<?php echo $edit_link; ?>" class="edit"><?php echo $name; ?></a><?php
+		if ( in_array( $user->user_login, $super_admins ) ) {
+			echo ' &mdash; ' . __( 'Super Admin' );
+		}
+		?></strong>
+	<?php
 	}
 
 	/**
@@ -411,10 +397,10 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @return string Name of the default primary column, in this case, 'username'.
+	 * @return string Name of the default primary column, in this case, 'name'.
 	 */
 	protected function get_default_primary_column_name() {
-		return 'username';
+		return 'name';
 	}
 
 	/**
