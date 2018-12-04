@@ -80,5 +80,4 @@ require_once(ABSPATH . 'wp-admin/includes/deprecated.php');
 if ( is_multisite() ) {
 	require_once(ABSPATH . 'wp-admin/includes/ms-admin-filters.php');
 	require_once(ABSPATH . 'wp-admin/includes/ms.php');
-	require_once(ABSPATH . 'wp-admin/includes/ms-deprecated.php');
 }
