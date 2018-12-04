@@ -287,8 +287,8 @@ function wp_ajax_autocomplete_user() {
 
 	foreach ( $users as $user ) {
 		$return[] = array(
-			/* translators: 1: user_login, 2: user_email */
-			'label' => sprintf( _x( '%1$s (%2$s)', 'user autocomplete result' ), $user->user_login, $user->user_email ),
+			/* translators: 1: display_name, 2: user_email */
+			'label' => sprintf( _x( '%1$s (%2$s)', 'user autocomplete result' ), $user->display_name, $user->user_email ),
 			'value' => $user->$field,
 		);
 	}
