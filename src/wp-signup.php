@@ -463,7 +463,7 @@ function confirm_another_blog_signup( $domain, $path, $blog_title, $user_name, $
 	?></h2>
 	<p>
 		<?php printf(
-			/* translators: 1: link to new site, 2: login URL, 3: username */
+			/* translators: 1: link to new site, 2: login URL, 3: user email */
 			__( '%1$s is your new site. <a href="%2$s">Log in</a> as &#8220;%3$s&#8221; using your existing password.' ),
 			sprintf(
 				'<a href="%s">%s</a>',
@@ -471,7 +471,7 @@ function confirm_another_blog_signup( $domain, $path, $blog_title, $user_name, $
 				untrailingslashit( $domain . $path )
 			),
 			esc_url( $login_url ),
-			$user_name
+			$user_email
 		); ?>
 	</p>
 	<?php
@@ -654,8 +654,14 @@ function signup_blog($user_name = '', $user_email = '', $blogname = '', $blog_ti
 	$blog_title = $filtered_results['blog_title'];
 	$errors = $filtered_results['errors'];
 
-	if ( empty($blogname) )
-		$blogname = $user_name;
+	if ( empty($blogname) ) {
+		// if no blog name is given, use the user part of the email as a suggestion.
+		$parts = explode( '@', $user_email );
+
+		// Do minimal sanitation for the suggestion, make sure it do not contain
+		// any character which is not a lower case or number.
+		$blogname = preg_replace( '/[^a-z0-9 ]/', '', strtolower( $parts[0] ) );
+	}
 	?>
 	<form id="setupform" method="post" action="wp-signup.php">
 		<input type="hidden" name="stage" value="validate-blog-signup" />
