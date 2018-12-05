@@ -225,16 +225,7 @@ function show_user_form($user_name = '', $user_email = '', $errors = '') {
 	if ( ! is_wp_error( $errors ) ) {
 		$errors = new WP_Error();
 	}
-
-	// User name
-	echo '<label for="user_name">' . __('Username:') . '</label>';
-	if ( $errmsg = $errors->get_error_message('user_name') ) {
-		echo '<p class="error">'.$errmsg.'</p>';
-	}
-	echo '<input name="user_name" type="text" id="user_name" value="'. esc_attr( $user_name ) .'" autocapitalize="none" autocorrect="off" maxlength="60" /><br />';
-	_e( '(Must be at least 4 characters, letters and numbers only.)' );
 	?>
-
 	<label for="user_email"><?php _e( 'Email&nbsp;Address:' ) ?></label>
 	<?php if ( $errmsg = $errors->get_error_message('user_email') ) { ?>
 		<p class="error"><?php echo $errmsg ?></p>
@@ -249,7 +240,7 @@ function show_user_form($user_name = '', $user_email = '', $errors = '') {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param WP_Error $errors A WP_Error object containing 'user_name' or 'user_email' errors.
+	 * @param WP_Error $errors A WP_Error object containing 'user_email' errors.
 	 */
 	do_action( 'signup_extra_fields', $errors );
 }
@@ -262,7 +253,7 @@ function show_user_form($user_name = '', $user_email = '', $errors = '') {
  * @return array Contains username, email, and error messages.
  */
 function validate_user_form() {
-	return wpmu_validate_user_signup($_POST['user_name'], $_POST['user_email']);
+	return wpmu_validate_user_signup( md5( $_POST['user_email'] ), $_POST['user_email'] );
 }
 
 /**
@@ -557,7 +548,7 @@ function signup_user( $user_name = '', $user_email = '', $errors = '' ) {
 			<label class="checkbox" for="signupblog"><?php _e('Gimme a site!') ?></label>
 			<br />
 			<input id="signupuser" type="radio" name="signup_for" value="user" <?php checked( $signup_for, 'user' ); ?> />
-			<label class="checkbox" for="signupuser"><?php _e('Just a username, please.') ?></label>
+			<label class="checkbox" for="signupuser"><?php _e('Just a user, please.') ?></label>
 		<?php } ?>
 		</p>
 
@@ -606,12 +597,12 @@ function validate_user_signup() {
  */
 function confirm_user_signup($user_name, $user_email) {
 	?>
-	<h2><?php /* translators: %s: username */
-	printf( __( '%s is your new username' ), $user_name) ?></h2>
-	<p><?php _e( 'But, before you can start using your new username, <strong>you must activate it</strong>.' ) ?></p>
+	<h2><?php /* translators: %s: user email */
+	printf( __( 'One last step %s' ), esc_html( $user_email ) ); ?></h2>
+	<p><?php _e( 'Before you can start using your new user, <strong>you must activate it</strong>.' ) ?></p>
 	<p><?php /* translators: %s: email address */
-	printf( __( 'Check your inbox at %s and click the link given.' ), '<strong>' . $user_email . '</strong>' ); ?></p>
-	<p><?php _e( 'If you do not activate your username within two days, you will have to sign up again.' ); ?></p>
+	printf( __( 'Check your inbox at %s and click the link given.' ), '<strong>' . esc_html( $user_email ) . '</strong>' ); ?></p>
+	<p><?php _e( 'If you do not activate your user within two days, you will have to sign up again.' ); ?></p>
 	<?php
 	/** This action is documented in wp-signup.php */
 	do_action( 'signup_finished' );

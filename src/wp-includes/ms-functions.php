@@ -1007,7 +1007,7 @@ function wpmu_signup_user_notification( $user_login, $user_email, $key, $meta = 
 			$user_login, $user_email, $key, $meta
 		),
 		$from_name,
-		$user_login
+		$user_email
 	);
 	wp_mail( $user_email, wp_specialchars_decode( $subject ), $message, $message_headers );
 
