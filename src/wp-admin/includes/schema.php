@@ -950,7 +950,7 @@ We hope you enjoy your new site. Thanks!
 		'site_admins' => $site_admins,
 		'allowedthemes' => $allowed_themes,
 		'illegal_names' => array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
-		'wpmu_upgrade_site' => calmpress_version(),
+		'calmpress_wpmu_upgrade_site' => calmpress_version(),
 		'welcome_email' => $welcome_email,
 		/* translators: %s: site link */
 		'first_post' => __( 'Welcome to %s. This is your first post. Edit or delete it, then start blogging!' ),

@@ -132,16 +132,19 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu( array(
 		'parent'    => 'wp-logo-external',
 		'id'        => 'documentation',
-		'title'     => __('Documentation (wordpress codex)'),
+		'title'     => __('Documentation (WordPress Codex)'),
 		'href'      => __('https://codex.wordpress.org/'),
 	) );
+
+	$version_slug_parts = explode( '.', calmpress_version() );
+	$version_slug = $version_slug_parts[0] . '-' . $version_slug_parts[1];
 
 	// Add github wiki link
 	$wp_admin_bar->add_menu( array(
 		'parent'    => 'wp-logo-external',
 		'id'        => 'calmpress-documentation',
-		'title'     => __('Documentation (calmPress Wiki)'),
-		'href'      => __('https://github.com/calmPress/calmpress/wiki'),
+		'title'     => __('Documentation (calmPress User Guides)'),
+		'href'      => __( 'https://users.calmpress.org/' . $version_slug . '/' ),
 	) );
 
 	// Add github link
