@@ -381,7 +381,7 @@ if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE && current_user_c
 <?php } ?>
 
 <tr class="user-display-name-wrap">
-	<th><label for="display_name"><?php _e('Display name publicly as') ?></label></th>
+	<th><label for="display_name"><?php esc_html_e( 'Display name publicly as' ); ?> <span class="description"><?php esc_html_e( '(required)' ); ?></span></label></th>
 	<td>
 		<input type="text" name="display_name" id="display_name" value="<?php echo esc_attr( $profileuser->display_name ); ?>">
 	</td>
