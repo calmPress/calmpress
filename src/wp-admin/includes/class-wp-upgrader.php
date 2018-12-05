@@ -288,7 +288,7 @@ class WP_Upgrader {
 
 		$this->skin->feedback('unpack_package');
 
-		$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
+		$upgrade_folder = $wp_filesystem->wp_content_dir() . '.upgrade/';
 
 		//Clean up contents of upgrade directory beforehand.
 		$upgrade_files = $wp_filesystem->dirlist($upgrade_folder);
