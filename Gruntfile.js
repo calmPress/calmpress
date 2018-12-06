@@ -104,7 +104,7 @@ module.exports = function(grunt) {
 					},
 					{
 						src: 'wp-config-sample.php',
-						dest: BUILD_DIR
+						dest: BUILD_DIR + 'wp-admin/wp-config.sample'
 					}
 				]
 			},

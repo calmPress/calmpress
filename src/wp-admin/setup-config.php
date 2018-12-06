@@ -40,18 +40,7 @@ require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
 
 nocache_headers();
 
-// Support wp-config-sample.php one level up, for the develop repo.
-if ( file_exists( ABSPATH . 'wp-config-sample.php' ) ) {
-	$config_file = file( ABSPATH . 'wp-config-sample.php' );
-} elseif ( file_exists( dirname( ABSPATH ) . '/wp-config-sample.php' ) ) {
-	$config_file = file( dirname( ABSPATH ) . '/wp-config-sample.php' );
-} else {
-	wp_die( sprintf(
-		/* translators: %s: wp-config-sample.php */
-		__( 'Sorry, I need a %s file to work from. Please re-upload this file to your calmPress installation.' ),
-		'<code>wp-config-sample.php</code>'
-	) );
-}
+$config_file = file( ABSPATH . 'wp-admin/wp-config.sample' );
 
 // Check if wp-config.php has been created
 if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
@@ -143,13 +132,6 @@ switch($step) {
 		'<code>wp-config.php</code>'
 	);
 	?>
-	<strong><?php
-		/* translators: 1: wp-config-sample.php, 2: wp-config.php */
-		printf( __( 'If for any reason this automatic file creation doesn&#8217;t work, don&#8217;t worry. All this does is fill in the database information to a configuration file. You may also simply open %1$s in a text editor, fill in your information, and save it as %2$s.' ),
-			'<code>wp-config-sample.php</code>',
-			'<code>wp-config.php</code>'
-		);
-	?></strong>
 	</p>
 <p><?php _e( 'In all likelihood, these items were supplied to you by your Web Host. If you don&#8217;t have this information, then you will need to contact them before you can continue. If you&#8217;re all ready&hellip;' ); ?></p>
 
@@ -345,14 +327,7 @@ if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
 </script>
 <?php
 	else :
-		/*
-		 * If this file doesn't exist, then we are using the wp-config-sample.php
-		 * file one level up, which is for the develop repo.
-		 */
-		if ( file_exists( ABSPATH . 'wp-config-sample.php' ) )
-			$path_to_wp_config = ABSPATH . 'wp-config.php';
-		else
-			$path_to_wp_config = dirname( ABSPATH ) . '/wp-config.php';
+		$path_to_wp_config = ABSPATH . 'wp-config.php';
 
 		$handle = fopen( $path_to_wp_config, 'w' );
 		foreach ( $config_file as $line ) {
