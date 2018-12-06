@@ -1707,7 +1707,7 @@ function wp_password_change_notification( $user ) {
 	// but check to see if it's the admin whose password we're changing, and skip this
 	if ( 0 !== strcasecmp( $user->user_email, get_option( 'admin_email' ) ) ) {
 		/* translators: %s: user name */
-		$message = sprintf( __( 'Password changed for user: %s' ), $user->user_login ) . "\r\n";
+		$message = sprintf( __( 'Password changed for user: %s' ), $user->user_email ) . "\r\n";
 		// The blogname option is escaped with esc_html on the way into the database in sanitize_option
 		// we want to reverse this for the plain text arena of emails.
 		$blogname = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
@@ -1780,8 +1780,6 @@ function wp_new_user_notification( $user_id, $deprecated = null, $notify = '' ) 
 
 		/* translators: %s: site title */
 		$message  = sprintf( __( 'New user registration on your site %s:' ), $blogname ) . "\r\n\r\n";
-		/* translators: %s: user login */
-		$message .= sprintf( __( 'Username: %s' ), $user->user_login ) . "\r\n\r\n";
 		/* translators: %s: user email address */
 		$message .= sprintf( __( 'Email: %s' ), $user->user_email ) . "\r\n";
 
@@ -1841,7 +1839,7 @@ function wp_new_user_notification( $user_id, $deprecated = null, $notify = '' ) 
 	$switched_locale = switch_to_locale( get_user_locale( $user ) );
 
 	/* translators: %s: user login */
-	$message = sprintf(__('Username: %s'), $user->user_login) . "\r\n\r\n";
+	$message = sprintf(__('Email: %s'), $user->user_email) . "\r\n\r\n";
 	$message .= __('To set your password, visit the following address:') . "\r\n\r\n";
 	$message .= '<' . network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user->user_login), 'login') . ">\r\n\r\n";
 
@@ -1850,7 +1848,7 @@ function wp_new_user_notification( $user_id, $deprecated = null, $notify = '' ) 
 	$wp_new_user_notification_email = array(
 		'to'      => $user->user_email,
 		/* translators: Password change notification email subject. %s: Site title */
-		'subject' => __( '[%s] Your username and password info' ),
+		'subject' => __( '[%s] Your password info' ),
 		'message' => $message,
 		'headers' => '',
 	);
