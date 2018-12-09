@@ -1103,7 +1103,11 @@ function comments_open( $post_id = null ) {
 }
 
 /**
- * Whether the current post is open for pings.
+ * Determines whether the current post is open for pings.
+ *
+ * For more information on this and similar theme functions, check out
+ * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/
+ * Conditional Tags} article in the Theme Developer Handbook.
  *
  * For calmPress it exists just for backward compatibility. Always returns false.
  *

@@ -723,7 +723,7 @@ class WP_Test_REST_Tags_Controller extends WP_Test_REST_Controller_Testcase {
 			'test_tag_single' => 'tag-specific meta',
 			'test_cat_meta' => 'category-specific meta',
 		) );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertEquals( 'New Name', $data['name'] );

@@ -7,6 +7,8 @@ wp-tests-config.php
 
 # Files and folders related to build/test tools
 /phpunit.xml
+/.phpcs.xml
+/phpcs.xml
 /tests/phpunit/data/plugins/wordpress-importer
 /tests/phpunit/data/.trac-ticket-cache*
 /tests/qunit/compiled.html
@@ -17,6 +19,9 @@ wp-tests-config.php
 /tests/phpunit/build
 /wp-cli.local.yml
 /jsdoc
+/vendor
+/src/wp-includes/js/dist
+/src/wp-includes/css/dist
 
 # Files and folders that get created in wp-content
 /src/wp-content/blogs.dir
@@ -51,5 +56,3 @@ wp-tests-config.php
 *.patch
 *.diff
 .svn
-
-vendor

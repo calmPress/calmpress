@@ -1,7 +1,6 @@
 /* jshint node:true */
 /* globals Set */
-var webpackConfig = require( './webpack.config.prod' );
-var webpackDevConfig = require( './webpack.config.dev' );
+var webpackConfig = require( './webpack.config' );
 
 module.exports = function(grunt) {
 	var path = require('path'),
@@ -72,7 +71,11 @@ module.exports = function(grunt) {
 			}
 		},
 		clean: {
-			all: [BUILD_DIR],
+			all: [
+				BUILD_DIR,
+				SOURCE_DIR + 'wp-includes/js/dist',
+				SOURCE_DIR + 'wp-includes/css/dist'
+			],
 			dynamic: {
 				dot: true,
 				expand: true,
@@ -180,6 +183,15 @@ module.exports = function(grunt) {
 					'!wp-admin/css/wp-admin*.css',
 					'wp-includes/css/*.css',
 					'wp-includes/js/mediaelement/wp-mediaelement.css'
+				]
+			},
+			dist: {
+				expand: true,
+				cwd: BUILD_DIR,
+				dest: BUILD_DIR,
+				ext: '.min.css',
+				src: [
+					'wp-includes/css/dist/*/*.css'
 				]
 			},
 			rtl: {
@@ -525,8 +537,10 @@ module.exports = function(grunt) {
 			}
 		},
 		webpack: {
-			prod: webpackConfig,
-			dev: webpackDevConfig
+			prod: webpackConfig( { environment: 'production' } ),
+			devProdTarget: webpackConfig( { environment: 'development', forceBuildTarget: 'build/wp-includes' } ),
+			dev: webpackConfig( { environment: 'development' } ),
+			watch: webpackConfig( { environment: 'development', watch: true } )
 		},
 		concat: {
 			tinymce: {
@@ -565,6 +579,7 @@ module.exports = function(grunt) {
 					src: [
 						BUILD_DIR + 'wp-{admin,includes}/**/*.js',
 						BUILD_DIR + 'wp-content/themes/calm*/**/*.js'
+						'!' + BUILD_DIR + 'wp-includes/js/dist/vendor/*.js'
 					]
 				}
 			}
@@ -682,7 +697,6 @@ module.exports = function(grunt) {
 			config: {
 				files: [
 					'Gruntfile.js',
-					'webpack-dev.config.js',
 					'webpack.config.js'
 				]
 			},
@@ -895,6 +909,9 @@ module.exports = function(grunt) {
 		'includes:emoji',
 		'includes:embed',
 		'usebanner',
+		'webpack:prod',
+		'webpack:devProdTarget',
+		'cssmin:dist',
 		'jsvalidate:build'
 	] );
 

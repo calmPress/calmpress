@@ -524,7 +524,7 @@ class ftp_base {
 		return $exists;
 	}
 
-	function fget($fp, $remotefile,$rest=0) {
+	function fget($fp, $remotefile, $rest=0) {
 		if($this->_can_restore and $rest!=0) fseek($fp, $rest);
 		$pi=pathinfo($remotefile);
 		if($this->_type==FTP_ASCII or ($this->_type==FTP_AUTOASCII and in_array(strtoupper($pi["extension"]), $this->AutoAsciiExt))) $mode=FTP_ASCII;

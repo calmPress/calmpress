@@ -182,6 +182,14 @@ class WP_Screen {
 	private $_screen_settings;
 
 	/**
+	 * Whether the screen is using the block editor.
+	 *
+	 * @since 5.0.0
+	 * @var bool
+	 */
+	public $is_block_editor = false;
+
+	/**
 	 * Fetches a screen object.
 	 *
 	 * @since 3.3.0
@@ -397,6 +405,22 @@ class WP_Screen {
 			return (bool) $this->in_admin;
 
 		return ( $admin == $this->in_admin );
+	}
+
+	/**
+	 * Sets or returns whether the block editor is loading on the current screen.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @param bool $set Optional. Sets whether the block editor is loading on the current screen or not.
+	 * @return bool True if the block editor is being loaded, false otherwise.
+	 */
+	public function is_block_editor( $set = null ) {
+		if ( $set !== null ) {
+			$this->is_block_editor = (bool) $set;
+		}
+
+		return $this->is_block_editor;
 	}
 
 	/**
@@ -1031,6 +1055,7 @@ class WP_Screen {
 				echo '<input type="checkbox" id="wp_welcome_panel-hide"' . checked( (bool) $welcome_checked, true, false ) . ' />';
 				echo _x( 'Welcome', 'Welcome panel' ) . "</label>\n";
 			}
+
 		?>
 		</fieldset>
 		<?php
