@@ -1662,7 +1662,7 @@ class WP_Privacy_Policy_Content {
 	 * @since 4.9.6
 	 */
 	public static function add_suggested_content() {
-		$content = self::get_default_content( truem false );
+		$content = self::get_default_content( true, false );
 		wp_add_privacy_policy_content( __( 'calmPress' ), $content );
 	}
 }
