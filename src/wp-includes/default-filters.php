@@ -151,7 +151,6 @@ add_filter( 'the_title', 'wptexturize'   );
 add_filter( 'the_title', 'convert_chars' );
 add_filter( 'the_title', 'trim'          );
 
-add_filter( 'the_content', 'do_blocks',                      9 );
 add_filter( 'the_content', 'wptexturize'                       );
 add_filter( 'the_content', 'wpautop'                           );
 add_filter( 'the_content', 'shortcode_unautop'                 );
