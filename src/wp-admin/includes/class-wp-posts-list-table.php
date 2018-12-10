@@ -1220,14 +1220,12 @@ class WP_Posts_List_Table extends WP_List_Table {
 				__( 'Edit' )
 			);
 
-			if ( 'wp_block' !== $post->post_type ) {
-				$actions['inline hide-if-no-js'] = sprintf(
-					'<a href="#" class="editinline" aria-label="%s">%s</a>',
-					/* translators: %s: post title */
-					esc_attr( sprintf( __( 'Quick edit &#8220;%s&#8221; inline' ), $title ) ),
-					__( 'Quick&nbsp;Edit' )
-				);
-			}
+			$actions['inline hide-if-no-js'] = sprintf(
+				'<a href="#" class="editinline" aria-label="%s">%s</a>',
+				/* translators: %s: post title */
+				esc_attr( sprintf( __( 'Quick edit &#8220;%s&#8221; inline' ), $title ) ),
+				__( 'Quick&nbsp;Edit' )
+			);
 		}
 
 		if ( current_user_can( 'delete_post', $post->ID ) ) {
@@ -1280,16 +1278,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 					__( 'View' )
 				);
 			}
-		}
-
-		if ( 'wp_block' === $post->post_type ) {
-			$actions['export'] = sprintf(
-				'<button type="button" class="wp-list-reusable-blocks__export button-link" data-id="%s" aria-label="%s">%s</button>',
-				$post->ID,
-				/* translators: %s: post title */
-				esc_attr( sprintf( __( 'Export &#8220;%s&#8221; as JSON' ), $title ) ),
-				__( 'Export as JSON' )
-			);
 		}
 
 		if ( is_post_type_hierarchical( $post->post_type ) ) {

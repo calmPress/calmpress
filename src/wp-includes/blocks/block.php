@@ -17,11 +17,6 @@ function render_block_core_block( $attributes ) {
 		return '';
 	}
 
-	$reusable_block = get_post( $attributes['ref'] );
-	if ( ! $reusable_block || 'wp_block' !== $reusable_block->post_type ) {
-		return '';
-	}
-
 	return do_blocks( $reusable_block->post_content );
 }
 
