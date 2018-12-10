@@ -1681,40 +1681,15 @@ function redirect_post($post_id = '') {
 /**
  * Return whether the post can be edited in the block editor.
  *
+ * Always false for calmPress.
+ *
  * @since 5.0.0
  *
  * @param int|WP_Post $post Post ID or WP_Post object.
  * @return bool Whether the post can be edited in the block editor.
  */
 function use_block_editor_for_post( $post ) {
-	$post = get_post( $post );
-
-	if ( ! $post ) {
-		return false;
-	}
-
-	// We're in the meta box loader, so don't use the block editor.
-	if ( isset( $_GET['meta-box-loader'] ) ) {
-		check_admin_referer( 'meta-box-loader' );
-		return false;
-	}
-
-	// The posts page can't be edited in the block editor.
-	if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
-		return false;
-	}
-
-	$use_block_editor = use_block_editor_for_post_type( $post->post_type );
-
-	/**
-	 * Filter whether a post is able to be edited in the block editor.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param bool    $use_block_editor Whether the post can be edited or not.
-	 * @param WP_Post $post             The post being checked.
-	 */
-	return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
+	return false;
 }
 
 /**
@@ -1723,34 +1698,15 @@ function use_block_editor_for_post( $post ) {
  * The block editor depends on the REST API, and if the post type is not shown in the
  * REST API, then it won't work with the block editor.
  *
+ * Always false for calmPress.
+ *
  * @since 5.0.0
  *
  * @param string $post_type The post type.
  * @return bool Whether the post type can be edited with the block editor.
  */
 function use_block_editor_for_post_type( $post_type ) {
-	if ( ! post_type_exists( $post_type ) ) {
-		return false;
-	}
-
-	if ( ! post_type_supports( $post_type, 'editor' ) ) {
-		return false;
-	}
-
-	$post_type_object = get_post_type_object( $post_type );
-	if ( $post_type_object && ! $post_type_object->show_in_rest ) {
-		return false;
-	}
-
-	/**
-	 * Filter whether a post is able to be edited in the block editor.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param bool   $use_block_editor  Whether the post type can be edited or not. Default true.
-	 * @param string $post_type         The post type being checked.
-	 */
-	return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+	return false;
 }
 
 /**
