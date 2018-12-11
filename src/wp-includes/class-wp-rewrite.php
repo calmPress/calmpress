@@ -345,6 +345,21 @@ class WP_Rewrite {
 	}
 
 	/**
+	 * Determines whether permalinks are being used and rewrite module is not enabled.
+	 *
+	 * Means that permalink links are enabled and index.php is in the URL.
+	 *
+	 * Always false for calmPress.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @return bool Whether permalink links are enabled and index.php is in the URL.
+	 */
+	public function using_index_permalinks() {
+		return false;
+	}
+
+	/**
 	 * Determines whether permalinks are being used and rewrite module is enabled.
 	 *
 	 * Using permalinks and index.php is not in the URL.
