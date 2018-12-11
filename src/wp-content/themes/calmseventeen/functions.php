@@ -85,10 +85,7 @@ function calmseventeen_setup() {
 	// Load regular editor styles into the new block-based editor.
 	add_theme_support( 'editor-styles' );
 
- 	// Load default block styles.
-	add_theme_support( 'wp-block-styles' );
-
-	// Add support for responsive embeds.
+ 	// Add support for responsive embeds.
 	add_theme_support( 'responsive-embeds' );
 
 	// Define and register starter content to showcase the theme on new sites.
@@ -390,9 +387,6 @@ function calmseventeen_scripts() {
 	// Theme stylesheet.
 	wp_enqueue_style( 'calmseventeen-style', get_stylesheet_uri() );
 
-	// Theme block stylesheet.
-	wp_enqueue_style( 'twentyseventeen-block-style', get_theme_file_uri( '/assets/css/blocks.css' ), array( 'twentyseventeen-style' ), '1.0' );
-
 	// Load the dark colorscheme.
 	if ( 'dark' === get_theme_mod( 'colorscheme', 'light' ) || is_customize_preview() ) {
 		wp_enqueue_style( 'calmseventeen-colors-dark', get_theme_file_uri( '/assets/css/colors-dark.css' ), array( 'calmseventeen-style' ), '1.0' );
@@ -436,19 +430,6 @@ function calmseventeen_scripts() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'calmseventeen_scripts' );
-
-/**
- * Enqueue editor styles for Gutenberg
- *
- * @since Twenty Seventeen 1.8
- */
-function twentyseventeen_block_editor_styles() {
-	// Block styles.
-	wp_enqueue_style( 'twentyseventeen-block-editor-style', get_theme_file_uri( '/assets/css/editor-blocks.css' ) );
-	// Add custom fonts.
-	wp_enqueue_style( 'twentyseventeen-fonts', twentyseventeen_fonts_url(), array(), null );
-}
-add_action( 'enqueue_block_editor_assets', 'twentyseventeen_block_editor_styles' );
 
 /**
  * Add custom image sizes attribute to enhance responsive image functionality

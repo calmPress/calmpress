@@ -1412,6 +1412,7 @@ class WP_Privacy_Policy_Content {
 	 *
 	 * @param bool $description Whether to include the descriptions under the section headings. Default false.
 	 * @param bool $blocks      Whether to format the content for the block editor. Default true.
+	 *                          Has no impact in calmPress.
 	 * @return string The default policy content.
 	 */
 	public static function get_default_content( $description = false, $blocks = true ) {
@@ -1623,22 +1624,6 @@ class WP_Privacy_Policy_Content {
 			$strings[] = '</div>';
 		}
 
-		if ( $blocks ) {
-			foreach ( $strings as $key => $string ) {
-				if ( 0 === strpos( $string, '<p>' ) ) {
-					$strings[ $key ] = '<!-- wp:paragraph -->' . $string . '<!-- /wp:paragraph -->';
-				}
-
-				if ( 0 === strpos( $string, '<h2>' ) ) {
-					$strings[ $key ] = '<!-- wp:heading -->' . $string . '<!-- /wp:heading -->';
-				}
-
-				if ( 0 === strpos( $string, '<h3>' ) ) {
-					$strings[ $key ] = '<!-- wp:heading {"level":3} -->' . $string . '<!-- /wp:heading -->';
-				}
-			}
-		}
-
 		$content = implode( '', $strings );
 		// End of the suggested privacy policy text.
 
@@ -1653,7 +1638,7 @@ class WP_Privacy_Policy_Content {
 		 * @param $description bool   Whether policy descriptions should be included.
 		 * @param $blocks      bool   Whether the content should be formatted for the block editor.
 		 */
-		return apply_filters( 'wp_get_default_privacy_policy_content', $content, $strings, $description, $blocks );
+		return apply_filters( 'wp_get_default_privacy_policy_content', $content, $strings, $description, false );
 	}
 
 	/**

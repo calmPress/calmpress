@@ -55,43 +55,7 @@ module.exports = function( env = { environment: 'production', watch: false, forc
 	const buildTarget = env.forceBuildTarget ? env.forceBuildTarget : ( mode === 'production' ? 'build' : 'src' ) + '/wp-includes';
 
 	const packages = [
-		'api-fetch',
-		'a11y',
-		'annotations',
-		'autop',
-		'blob',
-		'blocks',
-		'block-library',
-		'block-serialization-default-parser',
-		'components',
-		'compose',
-		'core-data',
-		'data',
-		'date',
-		'deprecated',
-		'dom',
-		'dom-ready',
-		'edit-post',
-		'editor',
-		'element',
-		'escape-html',
-		'format-library',
 		'hooks',
-		'html-entities',
-		'i18n',
-		'is-shallow-equal',
-		'keycodes',
-		'list-reusable-blocks',
-		'notices',
-		'nux',
-		'plugins',
-		'redux-routine',
-		'rich-text',
-		'shortcode',
-		'token-list',
-		'url',
-		'viewport',
-		'wordcount',
 	];
 
 	const vendors = {
@@ -119,16 +83,6 @@ module.exports = function( env = { environment: 'production', watch: false, forc
 		'wp-polyfill-fetch.min.js': 'whatwg-fetch/dist/fetch.umd.js',
 		'wp-polyfill-element-closest.min.js': 'element-closest/element-closest.js',
 		'wp-polyfill-node-contains.min.js': 'polyfill-library/polyfills/Node/prototype/contains/polyfill.js',
-	};
-
-	const phpFiles = {
-		'block-serialization-default-parser/parser.php': 'wp-includes/class-wp-block-parser.php',
-		'block-library/src/archives/index.php': 'wp-includes/blocks/archives.php',
-		'block-library/src/block/index.php': 'wp-includes/blocks/block.php',
-		'block-library/src/categories/index.php': 'wp-includes/blocks/categories.php',
-		'block-library/src/latest-comments/index.php': 'wp-includes/blocks/latest-comments.php',
-		'block-library/src/latest-posts/index.php': 'wp-includes/blocks/latest-posts.php',
-		'block-library/src/shortcode/index.php': 'wp-includes/blocks/shortcode.php',
 	};
 
 	const externals = {
@@ -177,11 +131,6 @@ module.exports = function( env = { environment: 'production', watch: false, forc
 
 			return content;
 		}
-	} ) );
-
-	const phpCopies = Object.keys( phpFiles ).map( ( filename ) => ( {
-		from: join( baseDir, `node_modules/@wordpress/${ filename }` ),
-		to: join( baseDir, `src/${ phpFiles[ filename ] }` ),
 	} ) );
 
 	const config = {
@@ -253,7 +202,6 @@ module.exports = function( env = { environment: 'production', watch: false, forc
 				[
 					...vendorCopies,
 					...cssCopies,
-					...phpCopies,
 				],
 			),
 		],

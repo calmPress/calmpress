@@ -1423,7 +1423,6 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 				/** This filter is documented in wp-includes/post-template.php */
 				'rendered'      => apply_filters( 'the_content', $post->post_content ),
 				'protected'     => false,
-				'block_version' => block_version( $post->post_content ),
 			);
 		}
 
@@ -1955,12 +1954,6 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 								'description' => __( 'HTML content for the object, transformed for display.' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
-								'readonly'    => true,
-							),
-							'block_version' => array(
-								'description' => __( 'Version of the content block format used by the object.' ),
-								'type'        => 'integer',
-								'context'     => array( 'edit' ),
 								'readonly'    => true,
 							),
 							'protected'       => array(

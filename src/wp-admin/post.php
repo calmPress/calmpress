@@ -156,11 +156,6 @@ case 'edit':
 		break;
 	}
 
-	if ( use_block_editor_for_post( $post ) ) {
-		include( ABSPATH . 'wp-admin/edit-form-blocks.php' );
-		break;
-	}
-
 	if ( ! wp_check_post_lock( $post->ID ) ) {
 		$active_post_lock = wp_set_post_lock( $post->ID );
 

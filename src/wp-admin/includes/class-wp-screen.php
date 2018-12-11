@@ -410,17 +410,15 @@ class WP_Screen {
 	/**
 	 * Sets or returns whether the block editor is loading on the current screen.
 	 *
+	 * Always false for calmPress.
+	 *
 	 * @since 5.0.0
 	 *
 	 * @param bool $set Optional. Sets whether the block editor is loading on the current screen or not.
 	 * @return bool True if the block editor is being loaded, false otherwise.
 	 */
 	public function is_block_editor( $set = null ) {
-		if ( $set !== null ) {
-			$this->is_block_editor = (bool) $set;
-		}
-
-		return $this->is_block_editor;
+		return false;
 	}
 
 	/**
