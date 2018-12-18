@@ -59,9 +59,7 @@ var postboxes;
 					.attr( 'aria-expanded', ariaExpandedValue );
 			}
 
-			if ( postboxes.page !== 'press-this' ) {
-				postboxes.save_state( postboxes.page );
-			}
+			postboxes.save_state( postboxes.page );
 
 			if ( id ) {
 				if ( !p.hasClass('closed') && $.isFunction( postboxes.pbshow ) ) {

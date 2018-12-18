@@ -61,11 +61,7 @@ if ( $action ) {
 				update_site_option( 'recently_activated', $recent );
 			}
 
-			if ( isset($_GET['from']) && 'press-this' == $_GET['from'] ) {
-				wp_redirect( self_admin_url( "press-this.php") );
-			} else {
-				wp_redirect( self_admin_url("plugins.php?activate=true&plugin_status=$status&paged=$page&s=$s") ); // overrides the ?error=true one above
-			}
+			wp_redirect( self_admin_url("plugins.php?activate=true&plugin_status=$status&paged=$page&s=$s") ); // overrides the ?error=true one above
 			exit;
 
 		case 'activate-selected':

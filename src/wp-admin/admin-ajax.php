@@ -70,7 +70,7 @@ $core_actions_post = array(
 );
 
 // Deprecated
-$core_actions_post_deprecated = array( 'wp-fullscreen-save-post', 'press-this-save-post', 'press-this-add-category' );
+$core_actions_post_deprecated = array( 'wp-fullscreen-save-post' );
 $core_actions_post = array_merge( $core_actions_post, $core_actions_post_deprecated );
 
 // Register core Ajax calls.

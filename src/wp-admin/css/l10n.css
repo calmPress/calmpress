@@ -3,8 +3,7 @@
 ------------------------------------------------------------------------------*/
 
 /* RTL except Hebrew (see below): Tahoma as the first font; */
-body.rtl,
-body.rtl .press-this a.wp-switch-editor {
+body.rtl {
 	font-family: Tahoma, Arial, sans-serif;
 }
 
@@ -20,8 +19,7 @@ body.rtl .press-this a.wp-switch-editor {
 }
 
 /* he_IL: Remove Tahoma from the font stack. Arial is best for Hebrew. */
-body.locale-he-il,
-body.locale-he-il .press-this a.wp-switch-editor {
+body.locale-he-il {
 	font-family: Arial, sans-serif;
 }
 
@@ -86,12 +84,6 @@ body.locale-he-il .press-this a.wp-switch-editor {
 .locale-ru-ru.post-php .tagsdiv .newtag,
 .locale-ru-ru.post-new-php .tagsdiv .newtag {
 	width: 165px; /* default 180px - 15px */
-}
-.locale-ru-ru.press-this .posting {
-	margin-right: 277px; /* default 252px + 25px */
-}
-.locale-ru-ru .press-this-sidebar {
-	width: 265px; /* default 240px + 25px */
 }
 .locale-ru-ru #customize-header-actions .button {
 	padding: 0 5px 1px; /* default 0 10px 1px */
