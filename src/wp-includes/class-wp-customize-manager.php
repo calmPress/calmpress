@@ -308,7 +308,6 @@ class WP_Customize_Manager {
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-site-icon-control.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-header-image-control.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-theme-control.php' );
-		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-code-editor-control.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-widget-area-customize-control.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-widget-form-customize-control.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-nav-menu-control.php' );
