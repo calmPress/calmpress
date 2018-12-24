@@ -145,7 +145,7 @@ function wp_authenticate_username_password($user, $username, $password) {
 	if ( !$user ) {
 		// The next line waste CPU cycles to prevent detection of invalid user names
 		// via timing attacks.
-		password_verify( $password, password_hash( $password ) );
+		password_verify( $password, password_hash( $password, PASSWORD_DEFAULT ) );
 
 		return new WP_Error( 'incorrect_password',
 			sprintf(
@@ -231,7 +231,7 @@ function wp_authenticate_email_password( $user, $email, $password ) {
 	if ( ! $user ) {
 		// The next line waste CPU cycles to prevent detection of invalid user names
 		// via timing attacks.
-		password_verify( $password, password_hash( $password ) );
+		password_verify( $password, password_hash( $password, PASSWORD_DEFAULT ) );
 
 		return new WP_Error( 'incorrect_password',
 			sprintf(
@@ -1328,9 +1328,9 @@ function clean_user_cache( $user ) {
 
 /**
  * Determines whether the given username exists.
- * 
+ *
  * For more information on this and similar theme functions, check out
- * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/ 
+ * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
  * @since 2.0.0
@@ -1358,9 +1358,9 @@ function username_exists( $username ) {
 
 /**
  * Determines whether the given email exists.
- * 
+ *
  * For more information on this and similar theme functions, check out
- * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/ 
+ * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
  * @since 2.1.0
