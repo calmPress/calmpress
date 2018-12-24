@@ -725,6 +725,18 @@ function get_body_class( $class = '' ) {
 	return array_unique( $classes );
 }
 
+/**
+ * Whether post requires password and correct password has been provided.
+ *
+ * @since 2.7.0
+ *
+ * @param int|WP_Post|null $post An optional post. Global $post used if not provided.
+ * @return bool Always false in calmPress indicating it is not required.
+ */
+function post_password_required( $post = null ) {
+	return false;
+}
+
 //
 // Page Template Functions for usage in Themes
 //
