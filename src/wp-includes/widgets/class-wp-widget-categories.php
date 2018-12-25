@@ -74,6 +74,7 @@ class WP_Widget_Categories extends WP_Widget {
 
 			$cat_args['show_option_none'] = __( 'Select Category' );
 			$cat_args['id'] = $dropdown_id;
+			$cat_args['echo'] = false;
 
 			/**
 			 * Filters the arguments for the Categories widget drop-down.
@@ -86,7 +87,17 @@ class WP_Widget_Categories extends WP_Widget {
 			 * @param array $cat_args An array of Categories widget drop-down arguments.
 			 * @param array $instance Array of settings for the current widget.
 			 */
-			wp_dropdown_categories( apply_filters( 'widget_categories_dropdown_args', $cat_args, $instance ) );
+			$dropdown = wp_dropdown_categories( apply_filters( 'widget_categories_dropdown_args', $cat_args, $instance ) );
+
+			/*
+			 * We are replacing the category id indicated as the value in the dropdown
+			 * with the actual URL to be used later in the JS redirect.
+			 * The pattern matches only positive integer and avoids replacing the default
+			 * option.
+			 */
+			echo preg_replace_callback( '#value="(\\d+)"#', function ( array $matches ) {
+				return 'value="' . esc_attr( get_category_link( $matches[1] ) ) . '"';
+			}, $dropdown );
 
 			echo '</form>';
 			?>
@@ -96,8 +107,9 @@ class WP_Widget_Categories extends WP_Widget {
 (function() {
 	var dropdown = document.getElementById( "<?php echo esc_js( $dropdown_id ); ?>" );
 	function onCatChange() {
-		if ( dropdown.options[ dropdown.selectedIndex ].value > 0 ) {
-			dropdown.parentNode.submit();
+		var url = dropdown.options[ dropdown.selectedIndex ].value;
+		if ( url != '-1' ) {
+			window.location.href = url;
 		}
 	}
 	dropdown.onchange = onCatChange;
