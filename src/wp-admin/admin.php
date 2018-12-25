@@ -155,6 +155,13 @@ if ( current_user_can( 'manage_options' ) ) {
  */
 do_action( 'admin_init' );
 
+// Remove the writing settings page from the menu if it do not have any registered fields.
+global $wp_settings_fields, $submenu;
+
+if ( ! isset( $wp_settings_fields['writing'] ) ) {
+	unset( $submenu['options-general.php'][15] );
+}
+
 if ( isset($plugin_page) ) {
 	if ( !empty($typenow) )
 		$the_parent = $pagenow . '?post_type=' . $typenow;
