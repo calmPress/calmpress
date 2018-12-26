@@ -1438,6 +1438,9 @@ class WP_Rewrite {
 		// Prevent -f checks on index.php.
 		$rules .= "RewriteRule ^index\.php$ - [L]\n";
 
+		// Prevent access to files and directories starting with a ".".
+		$rules .= "RewriteRule \"(^|/)\.\" - [F]\n";
+
 		// Add in the rules that don't redirect to WP's index.php (and thus shouldn't be handled by WP at all).
 		foreach ( (array) $this->non_wp_rules as $match => $query) {
 			// Apache 1.3 does not support the reluctant (non-greedy) modifier.
