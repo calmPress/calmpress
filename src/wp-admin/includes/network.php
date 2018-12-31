@@ -428,7 +428,7 @@ function network_step2( $errors = false ) {
 				__( 'Add the following to your %1$s file in %2$s <strong>above</strong> the line reading %3$s:' ),
 				'<code>wp-config.php</code>',
 				'<code>' . $location_of_wp_config . '</code>',
-				'<code>/* ' . _'That&#8217;s all, stop editing! Happy blogging.' . ' */</code>'
+				'<code>/* ' . 'That&#8217;s all, stop editing! Happy blogging.' . ' */</code>'
 			); ?></p>
 				<textarea class="code" readonly="readonly" cols="100" rows="7">
 define('MULTISITE', true);
@@ -520,6 +520,7 @@ define('BLOG_ID_CURRENT_SITE', 1);
 RewriteEngine On
 RewriteBase {$base}
 RewriteRule ^index\.php$ - [L]
+RewriteRule "(^|/)\." - [F]
 {$ms_files_rewriting}
 # add a trailing slash to /wp-admin
 RewriteRule ^{$subdir_match}wp-admin$ {$subdir_replacement_01}wp-admin/ [R=301,L]
