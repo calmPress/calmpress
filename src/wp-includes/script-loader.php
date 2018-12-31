@@ -35,6 +35,20 @@ require( ABSPATH . WPINC . '/class.wp-styles.php' );
 require( ABSPATH . WPINC . '/functions.wp-styles.php' );
 
 /**
+ * "Hide" the version used for cache busting by hashing it.
+ *
+ * @since calmPress 1.0.
+ *
+ * @param string version The original version to "hide".
+ *
+ * @return string The string to be used as the version indicator.
+ */
+function calm_version_hash( $version ) {
+
+    return hash_hmac('md5', $version, AUTH_SALT );
+}
+
+/**
  * Registers TinyMCE scripts.
  *
  * @since 5.0.0
@@ -311,7 +325,7 @@ function wp_default_scripts( &$scripts ) {
 
 	$scripts->base_url = $guessurl;
 	$scripts->content_url = defined('WP_CONTENT_URL')? WP_CONTENT_URL : '';
-	$scripts->default_version = wp_hash( get_bloginfo( 'version' ) );
+	$scripts->default_version = calm_version_hash( get_bloginfo( 'version' ) );
 	$scripts->default_dirs = array('/wp-admin/js/', '/wp-includes/js/');
 
 	$suffix = SCRIPT_DEBUG ? '' : '.min';
@@ -1139,7 +1153,7 @@ function wp_default_styles( &$styles ) {
 
 	$styles->base_url = $guessurl;
 	$styles->content_url = defined('WP_CONTENT_URL')? WP_CONTENT_URL : '';
-	$styles->default_version = wp_hash( get_bloginfo( 'version' ) );
+	$styles->default_version = calm_version_hash( get_bloginfo( 'version' ) );
 	$styles->text_direction = function_exists( 'is_rtl' ) && is_rtl() ? 'rtl' : 'ltr';
 	$styles->default_dirs = array('/wp-admin/', '/wp-includes/css/');
 
