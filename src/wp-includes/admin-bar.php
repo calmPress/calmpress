@@ -139,7 +139,7 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 	$version_slug_parts = explode( '.', calmpress_version() );
 	$version_slug = $version_slug_parts[0] . '-' . $version_slug_parts[1];
 
-	// Add github wiki link
+	// Add link to user documentation site.
 	$wp_admin_bar->add_menu( array(
 		'parent'    => 'wp-logo-external',
 		'id'        => 'calmpress-documentation',
@@ -147,12 +147,12 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 		'href'      => __( 'https://users.calmpress.org/' . $version_slug . '/' ),
 	) );
 
-	// Add github link
+	// Add link to forums.
 	$wp_admin_bar->add_menu( array(
 		'parent'    => 'wp-logo-external',
 		'id'        => 'support-forums',
-		'title'     => __('Bug reports and suggestions'),
-		'href'      => __('https://github.com/calmPress/calmpress/issues'),
+		'title'     => __('Support, Bug reports and suggestions'),
+		'href'      => __('https://forums.calmpress.org/'),
 	) );
 }
 
