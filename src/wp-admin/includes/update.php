@@ -149,7 +149,7 @@ function core_update_footer( $msg = '' ) {
 
 	// If no available upgrade, or user can not upgrade, just show the current version.
 	if ( empty( $cur ) || ! current_user_can( 'update_core' ) ) {
-		return sprintf( __( 'Version %s' ), get_bloginfo( 'version', 'display' ) );
+		return sprintf( __( 'Version %s' ), calmpress_version() );
 	}
 
 	// If there is possible upgrade show the link to the page which will do the upgrade.
@@ -237,7 +237,7 @@ function update_right_now_message() {
 	 */
 	$content = apply_filters( 'update_right_now_text', $content );
 
-	$msg .= sprintf( '<span id="wp-version">' . $content . '</span>', get_bloginfo( 'version', 'display' ), wordpress_core_version(), $theme_name );
+	$msg .= sprintf( '<span id="wp-version">' . $content . '</span>', calmpress_version(), wordpress_core_version(), $theme_name );
 
 	echo "<p id='wp-version-message'>$msg</p>";
 }

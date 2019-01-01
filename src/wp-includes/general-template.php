@@ -691,7 +691,7 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			$output = get_option('html_type');
 			break;
 		case 'version':
-			$output = calmpress_version();
+			$output = wordpress_core_version();
 			break;
 		case 'language':
 			/* translators: Translate this to the correct language tag for your locale,
@@ -4118,10 +4118,10 @@ function get_the_generator( $type = '' ) {
 
 	switch ( $type ) {
 		case 'html':
-			$gen = '<meta name="generator" content="calmPress ' . esc_attr( get_bloginfo( 'version' ) ) . '">';
+			$gen = '<meta name="generator" content="calmPress ' . esc_attr( calmpress_version() ) . '">';
 			break;
 		case 'xhtml':
-			$gen = '<meta name="generator" content="calmPress ' . esc_attr( get_bloginfo( 'version' ) ) . '" />';
+			$gen = '<meta name="generator" content="calmPress ' . esc_attr( calmpress_version() ) . '" />';
 			break;
 		case 'atom':
 			$gen = '<generator uri="https://calmpress.org/" version="' . esc_attr( get_bloginfo_rss( 'version' ) ) . '">calmPress</generator>';
@@ -4133,7 +4133,7 @@ function get_the_generator( $type = '' ) {
 			$gen = '<admin:generatorAgent rdf:resource="' . esc_url_raw( 'https://calmpress.org/?v=' . get_bloginfo_rss( 'version' ) ) . '" />';
 			break;
 		case 'comment':
-			$gen = '<!-- generator="calmPress/' . esc_attr( get_bloginfo( 'version' ) ) . '" -->';
+			$gen = '<!-- generator="calmPress/' . esc_attr( calmpress_version() ) . '" -->';
 			break;
 		case 'export':
 			$gen = '<!-- generator="calmPress/' . esc_attr( get_bloginfo_rss( 'version' ) ) . '" created="' . date( 'Y-m-d H:i' ) . '" -->';
