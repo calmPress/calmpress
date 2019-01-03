@@ -517,10 +517,16 @@ define('BLOG_ID_CURRENT_SITE', 1);
 		}
 
 		$htaccess_file = <<<EOF
+<files wp-config.php>
+order allow,deny
+deny from all
+</files>
 RewriteEngine On
 RewriteBase {$base}
 RewriteRule ^index\.php$ - [L]
-RewriteRule "(^|/)\." - [F]
+RewriteRule (^|/)\. - [F]
+RewriteRule ^wp-includes/(.*)\.php$ - [F]
+RewriteRule ^wp-content/(.*)\.php$ - [F]
 {$ms_files_rewriting}
 # add a trailing slash to /wp-admin
 RewriteRule ^{$subdir_match}wp-admin$ {$subdir_replacement_01}wp-admin/ [R=301,L]

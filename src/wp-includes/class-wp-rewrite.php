@@ -1431,7 +1431,14 @@ class WP_Rewrite {
 		else
 			$home_root = '/';
 
-		$rules = "<IfModule mod_rewrite.c>\n";
+		// Add rules to prevent access to wp-config.php
+		$rules = "<files wp-config.php>\n";
+		$rules .= "order allow,deny\n";
+		$rules .= "deny from all\n";
+		$rules .= "</files>\n";
+
+		// rewrite rules.
+		$rules .= "<IfModule mod_rewrite.c>\n";
 		$rules .= "RewriteEngine On\n";
 		$rules .= "RewriteBase $home_root\n";
 
@@ -1439,7 +1446,13 @@ class WP_Rewrite {
 		$rules .= "RewriteRule ^index\.php$ - [L]\n";
 
 		// Prevent access to files and directories starting with a ".".
-		$rules .= "RewriteRule \"(^|/)\.\" - [F]\n";
+		$rules .= "RewriteRule (^|/)\. - [F]\n";
+
+		// Prevent access to php files in wp-includes.
+		$rules .= "RewriteRule ^wp-includes/(.*)\.php$ - [F]\n";
+
+		// Prevent access to php files in wp-content.
+		$rules .= "RewriteRule ^wp-content/(.*)\.php$ - [F]\n";
 
 		// Add in the rules that don't redirect to WP's index.php (and thus shouldn't be handled by WP at all).
 		foreach ( (array) $this->non_wp_rules as $match => $query) {
