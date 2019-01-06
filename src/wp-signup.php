@@ -590,6 +590,15 @@ function validate_user_signup() {
 		$errors->remove('user_name');
 	}
 
+	// If the email already exists we are going to get an error indication about
+	// that and the user name. Instead of displaying it we are going to assume a user is not aware
+	// that he has an acount and send him a password reset email.
+	if ( email_exists( $user_email ) ) {
+		$errors->remove('user_email');
+		$errors->remove('user_name');
+		signup_retrieve_password( $user_email );
+	}
+	
 	if ( $errors->get_error_code() ) {
 		signup_user($user_name, $user_email, $errors);
 		return false;
@@ -600,10 +609,15 @@ function validate_user_signup() {
 		return false;
 	}
 
-	/** This filter is documented in wp-signup.php */
-	wpmu_signup_user( $user_name, $user_email, apply_filters( 'add_signup_meta', array() ) );
-
+	// User might already exist, and if so avoid generation of possible errors.
+	if ( ! email_exists( $user_email ) ) {
+		/** This filter is documented in wp-signup.php */
+		wpmu_signup_user( $user_name, $user_email, apply_filters( 'add_signup_meta', array() ) );
+	}
+	
 	confirm_user_signup($user_name, $user_email);
+
+	
 	return true;
 }
 
@@ -619,10 +633,8 @@ function confirm_user_signup($user_name, $user_email) {
 	?>
 	<h2><?php /* translators: %s: user email */
 	printf( __( 'One last step %s' ), esc_html( $user_email ) ); ?></h2>
-	<p><?php _e( 'Before you can start using your new user, <strong>you must activate it</strong>.' ) ?></p>
 	<p><?php /* translators: %s: email address */
-	printf( __( 'Check your inbox at %s and click the link given.' ), '<strong>' . esc_html( $user_email ) . '</strong>' ); ?></p>
-	<p><?php _e( 'If you do not activate your user within two days, you will have to sign up again.' ); ?></p>
+	printf( __( 'Check your inbox at %s and follow the instructions included in it.' ), '<strong>' . esc_html( $user_email ) . '</strong>' ); ?></p>
 	<?php
 	/** This action is documented in wp-signup.php */
 	do_action( 'signup_finished' );
@@ -830,6 +842,37 @@ function signup_get_available_languages() {
 	 * in a callback hooked to the 'signup_get_available_languages' filter before this point.
 	 */
 	return array_intersect_assoc( $languages, get_available_languages() );
+}
+
+/**
+ * Handles sending password retrieval email to user.
+ *
+ * @since calmPress 1.0
+ *
+ * @param string $user_email The email of the user to which to send the password reset.
+ */
+function signup_retrieve_password( $user_email ) {
+
+	$user_data = get_user_by( 'email', $user_email );
+
+	$user_login = $user_data->user_login;
+	$key = get_password_reset_key( $user_data );
+
+	$site_name = get_network()->site_name;
+
+	$message = __( 'Someone has tried to create a new user with this email. If it was you and you just forgot your password, a password reset instructions are added:' ) . "\r\n\r\n";
+	/* translators: %s: site name */
+	$message .= sprintf( __( 'Site Name: %s'), $site_name ) . "\r\n\r\n";
+	/* translators: %s: user login */
+	$message .= sprintf( __( 'Email: %s'), $user_email ) . "\r\n\r\n";
+	$message .= __( 'If this was a mistake, just ignore this email and nothing will happen.' ) . "\r\n\r\n";
+	$message .= __( 'To reset your password, visit the following address:' ) . "\r\n\r\n";
+	$message .= '<' . network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) . ">\r\n";
+
+	/* translators: Password reset email subject. %s: Site name */
+	$title = sprintf( __( '[%s] User creation' ), $site_name );
+
+	wp_mail( $user_email, wp_specialchars_decode( $title ), $message );
 }
 
 // Main
