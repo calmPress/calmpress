@@ -403,6 +403,46 @@ function retrieve_password() {
 	return true;
 }
 
+/**
+ * Handles sending password retrieval email to user in case an attempt was made to register
+ * another email with the user.
+ *
+ * @since calmPress 1.0
+ *
+ * @param string $user_email The email of the user to which to send the password reset.
+ */
+function login_retrieve_password( $user_email ) {
+
+	$user_data = get_user_by( 'email', $user_email );
+
+	$user_login = $user_data->user_login;
+	$key = get_password_reset_key( $user_data );
+
+	if ( is_multisite() ) {
+		$site_name = get_network()->site_name;
+	} else {
+		/*
+		 * The blogname option is escaped with esc_html on the way into the database
+		 * in sanitize_option we want to reverse this for the plain text arena of emails.
+		 */
+		$site_name = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	}
+
+	$message = __( 'Someone has tried to create a new user with this email. If it was you and you just forgot your password, a password reset instructions are added:' ) . "\r\n\r\n";
+	/* translators: %s: site name */
+	$message .= sprintf( __( 'Site Name: %s'), $site_name ) . "\r\n\r\n";
+	/* translators: %s: user login */
+	$message .= sprintf( __( 'Email: %s'), $user_email ) . "\r\n\r\n";
+	$message .= __( 'If this was a mistake, just ignore this email and nothing will happen.' ) . "\r\n\r\n";
+	$message .= __( 'To reset your password, visit the following address:' ) . "\r\n\r\n";
+	$message .= '<' . network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) . ">\r\n";
+
+	/* translators: Password reset email subject. %s: Site name */
+	$title = sprintf( __( '[%s] User creation' ), $site_name );
+
+	wp_mail( $user_email, wp_specialchars_decode( $title ), $message );
+}
+
 //
 // Main
 //
@@ -730,6 +770,13 @@ case 'register' :
 
 		$errors = register_new_user( md5( $user_email ), $user_email);
 		if ( !is_wp_error($errors) ) {
+			$redirect_to = !empty( $_POST['redirect_to'] ) ? $_POST['redirect_to'] : 'wp-login.php?checkemail=registered';
+			wp_safe_redirect( $redirect_to );
+			exit();
+		} elseif ( email_exists( $user_email ) ) {
+			// We got an error because someone tried to register with an email address of an existing user.
+			// In that case send an email with a link to password reset.
+			login_retrieve_password( $user_email );
 			$redirect_to = !empty( $_POST['redirect_to'] ) ? $_POST['redirect_to'] : 'wp-login.php?checkemail=registered';
 			wp_safe_redirect( $redirect_to );
 			exit();
