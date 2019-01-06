@@ -202,12 +202,12 @@ function show_blog_form( $blogname = '', $blog_title = '', $errors = '' ) {
  *
  * @since MU (3.0.0)
  *
+ * @param WP_User $user The user to associate the new site with, or null if the
+ *                      site should be associated with the currently logged in user.
+ *
  * @return array Contains the new site data and error messages.
  */
-function validate_blog_form() {
-	$user = '';
-	if ( is_user_logged_in() )
-		$user = wp_get_current_user();
+function validate_blog_form( $user ) {
 
 	return wpmu_validate_blog_signup($_POST['blogname'], $_POST['blog_title'], $user);
 }
@@ -343,17 +343,25 @@ function signup_another_blog( $blogname = '', $blog_title = '', $errors = '' ) {
  *
  * @since MU (3.0.0)
  *
+ * @param WP_User $user The user to associate the new site with, or null if the
+ *                      site should be associated with the currently logged in user.
+ *
  * @return null|bool True if site signup was validated, false if error.
  *                   The function halts all execution if the user is not logged in.
  */
-function validate_another_blog_signup() {
+function validate_another_blog_signup( $user=null ) {
 	global $blogname, $blog_title, $errors, $domain, $path;
-	$current_user = wp_get_current_user();
-	if ( ! is_user_logged_in() ) {
-		die();
+
+	if ( null === $user ) {
+		$current_user = wp_get_current_user();
+		if ( ! is_user_logged_in() ) {
+			die();
+		}
+	} else {
+		$current_user = $user;
 	}
 
-	$result = validate_blog_form();
+	$result = validate_blog_form( $current_user );
 
 	// Extracted values set/overwrite globals.
 	$domain = $result['domain'];
@@ -363,7 +371,11 @@ function validate_another_blog_signup() {
 	$errors = $result['errors'];
 
 	if ( $errors->get_error_code() ) {
-		signup_another_blog($blogname, $blog_title, $errors);
+		if ( null === $user ) {
+			signup_another_blog($blogname, $blog_title, $errors);
+		} else {
+			signup_blog($user->user_login, $user->user_email, $blogname, $blog_title, $errors);
+		}
 		return false;
 	}
 
@@ -570,6 +582,14 @@ function validate_user_signup() {
 	$user_email = $result['user_email'];
 	$errors = $result['errors'];
 
+	// If the email already exists we are going to get an error indication about
+	// that and the user name, an error that is irrelevant for new site creation flow, and therefor
+	// we are ignoring it in that context.
+	if ( ( 'blog' === $_POST['signup_for'] ) && ( email_exists( $user_email ) ) ) {
+		$errors->remove('user_email');
+		$errors->remove('user_name');
+	}
+
 	if ( $errors->get_error_code() ) {
 		signup_user($user_name, $user_email, $errors);
 		return false;
@@ -690,6 +710,13 @@ function validate_blog_signup() {
 	$user_name = $user_result['user_name'];
 	$user_email = $user_result['user_email'];
 	$user_errors = $user_result['errors'];
+
+	// If the email already exists we are going to get an error indication about
+	// that and the user name, an error that is irrelevant for new site creation flow, and therefor
+	// we are ignoring it.
+	if ( email_exists( $user_email ) ) {
+		return validate_another_blog_signup( get_user_by( 'email', $user_email ) );
+	}
 
 	if ( $user_errors->get_error_code() ) {
 		signup_user( $user_name, $user_email, $user_errors );
