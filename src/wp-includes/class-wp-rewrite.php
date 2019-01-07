@@ -1487,6 +1487,18 @@ class WP_Rewrite {
 
 		$rules .= "</IfModule>\n";
 
+		// Add compression related rules.
+		$rules .= "<IfModule mod_deflate.c>\n" .
+		  "AddOutputFilterByType DEFLATE application/javascript\n" .
+		  "AddOutputFilterByType DEFLATE application/x-javascript\n" .
+		  "AddOutputFilterByType DEFLATE application/xml\n" .
+		  "AddOutputFilterByType DEFLATE image/svg+xml\n" .
+		  "AddOutputFilterByType DEFLATE text/css\n" .
+		  "AddOutputFilterByType DEFLATE text/html\n" .
+		  "AddOutputFilterByType DEFLATE text/javascript\n" .
+		  "AddOutputFilterByType DEFLATE text/xml\n" .
+		"</IfModule>\n";
+
 		/**
 		 * Filters the list of rewrite rules formatted for output to an .htaccess file.
 		 *
