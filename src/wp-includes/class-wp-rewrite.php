@@ -1499,6 +1499,20 @@ class WP_Rewrite {
 		  "AddOutputFilterByType DEFLATE text/xml\n" .
 		"</IfModule>\n";
 
+		$rules .= "<IfModule mod_expires.c>\n" .
+		"ExpiresActive On\n" .
+		"ExpiresByType text/css \"access 1 month\"\n" .
+		"ExpiresByType image/gif \"access 1 month\"\n" .
+		"ExpiresByType image/png \"access 1 month\"\n" .
+		"ExpiresByType image/jpg \"access 1 month\"\n" .
+		"ExpiresByType image/jpeg \"access 1 month\"\n" .
+		"ExpiresByType image/svg+xml \"access 1 month\"\n" .
+		"ExpiresByType image/x-icon \"access 1 month\"\n" .
+		"ExpiresByType application/pdf \"access 1 month\"\n" .
+		"ExpiresByType application/javascript \"access 1 month\"\n" .
+		"ExpiresByType text/x-javascript \"access 1 month\"\n" .
+		"</IfModule>\n";
+
 		/**
 		 * Filters the list of rewrite rules formatted for output to an .htaccess file.
 		 *

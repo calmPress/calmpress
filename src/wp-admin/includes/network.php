@@ -549,6 +549,20 @@ RewriteRule . index.php [L]
   AddOutputFilterByType DEFLATE text/xml
 </IfModule>
 
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType text/css "access 1 month"
+ExpiresByType image/gif "access 1 year"
+ExpiresByType image/png "access 1 year"
+ExpiresByType image/jpg "access 1 year"
+ExpiresByType image/jpeg "access 1 year"
+ExpiresByType image/svg+xml "access 1 year"
+ExpiresByType image/x-icon "access 1 year"
+ExpiresByType application/pdf "access 1 month"
+ExpiresByType application/javascript "access 1 month"
+ExpiresByType text/x-javascript "access 1 month"
+</IfModule>
+
 EOF;
 
 		echo '<li><p>';
