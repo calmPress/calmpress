@@ -106,6 +106,7 @@ $_old_files = array(
 	'wp-links-opml.php',
 	'wp-mail.php',
 	'wp-trackback.php',
+	'wp-config-sample.php',
 );
 
 /**
