@@ -1,4 +1,4 @@
-# gitignore file for WordPress Core
+# gitignore file for calmPress
 
 # Configuration files with possibly sensitive information
 wp-config.php
