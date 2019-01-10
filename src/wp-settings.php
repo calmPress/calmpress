@@ -243,6 +243,9 @@ require( ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-user-meta-fields.php'
 require( ABSPATH . WPINC . '/rest-api/search/class-wp-rest-search-handler.php' );
 require( ABSPATH . WPINC . '/rest-api/search/class-wp-rest-post-search-handler.php' );
 
+// load calmPress related files
+require( ABSPATH . WPINC . '/calmpress/autoloader.php' );
+
 $GLOBALS['wp_embed'] = new WP_Embed();
 
 // Load multisite-specific files.
