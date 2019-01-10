@@ -90,7 +90,7 @@ function wp_register_tinymce_scripts( &$scripts, $force_uncompressed = false ) {
 function wp_default_packages_vendor( &$scripts ) {
 	global $wp_locale;
 
-	$dev_suffix = wp_scripts_get_suffix( 'dev' );
+	$suffix = wp_scripts_get_suffix();
 
 	$vendor_scripts = array(
 		'react' => array( 'wp-polyfill' ),
@@ -122,7 +122,7 @@ function wp_default_packages_vendor( &$scripts ) {
 			$dependencies = array();
 		}
 
-		$path = "/wp-includes/js/dist/vendor/$handle$dev_suffix.js";
+		$path    = "/wp-includes/js/dist/vendor/$handle$suffix.js";
 		$version = $vendor_scripts_versions[ $handle ];
 
 		$scripts->add( $handle, $path, $dependencies, $version, 1 );
@@ -238,7 +238,7 @@ function wp_default_packages_scripts( &$scripts ) {
 	$suffix = wp_scripts_get_suffix();
 
 	$packages_versions = array(
-		'hooks' => '2.0.3',
+		'hooks' => '2.0.4',
 	);
 
 	$packages_dependencies = array(

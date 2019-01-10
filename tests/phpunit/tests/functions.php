@@ -960,6 +960,34 @@ class Tests_Functions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests wp_unique_id().
+	 *
+	 * @covers ::wp_unique_id
+	 * @ticket 44883
+	 */
+	function test_wp_unique_id() {
+
+		// Test without prefix.
+		$ids = array();
+		for ( $i = 0; $i < 20; $i += 1 ) {
+			$id = wp_unique_id();
+			$this->assertInternalType( 'string', $id );
+			$this->assertTrue( is_numeric( $id ) );
+			$ids[] = $id;
+		}
+		$this->assertEquals( $ids, array_unique( $ids ) );
+
+		// Test with prefix.
+		$ids = array();
+		for ( $i = 0; $i < 20; $i += 1 ) {
+			$id = wp_unique_id( 'foo-' );
+			$this->assertRegExp( '/^foo-\d+$/', $id );
+			$ids[] = $id;
+		}
+		$this->assertEquals( $ids, array_unique( $ids ) );
+	}
+
+	/**
 	 * @ticket 40017
 	 * @dataProvider _wp_get_image_mime
 	 */
@@ -1044,7 +1072,7 @@ class Tests_Functions extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data profider for test_wp_get_image_mime();
+	 * Data provider for test_wp_get_image_mime();
 	 */
 	public function _wp_get_image_mime() {
 		$data = array(
@@ -1150,42 +1178,94 @@ class Tests_Functions extends WP_UnitTestCase {
 					'proper_filename' => false,
 				),
 			),
+			// Non-image file not allowed even if it's named like one.
+			array(
+				DIR_TESTDATA . '/export/crazy-cdata.xml',
+				'crazy-cdata.jpg',
+				array(
+					'ext'             => false,
+					'type'            => false,
+					'proper_filename' => false,
+				),
+			),
+			// Non-image file not allowed if it's named like something else.
+			array(
+				DIR_TESTDATA . '/export/crazy-cdata.xml',
+				'crazy-cdata.doc',
+				array(
+					'ext'             => false,
+					'type'            => false,
+					'proper_filename' => false,
+				),
+			),
 		);
 
 		// Test a few additional file types on single sites.
 		if ( ! is_multisite() ) {
-			$data = array_merge( $data, array(
-				// Standard non-image file.
+			$data = array_merge(
+				$data,
 				array(
-					DIR_TESTDATA . '/formatting/big5.txt',
-					'big5.txt',
+					// Standard non-image file.
 					array(
-						'ext' => 'txt',
-						'type' => 'text/plain',
-						'proper_filename' => false,
+						DIR_TESTDATA . '/formatting/big5.txt',
+						'big5.txt',
+						array(
+							'ext' => 'txt',
+							'type' => 'text/plain',
+							'proper_filename' => false,
+						),
 					),
-				),
-				// Non-image file with wrong sub-type.
-				array(
-					DIR_TESTDATA . '/uploads/pages-to-word.docx',
-					'pages-to-word.docx',
+					// Non-image file with wrong sub-type.
 					array(
-						'ext' => 'docx',
-						'type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-						'proper_filename' => false,
+						DIR_TESTDATA . '/uploads/pages-to-word.docx',
+						'pages-to-word.docx',
+						array(
+							'ext' => 'docx',
+							'type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+							'proper_filename' => false,
+						),
 					),
-				),
-				// FLAC file.
-				array(
-					DIR_TESTDATA . '/uploads/small-audio.flac',
-					'small-audio.flac',
+					// FLAC file.
 					array(
-						'ext' => 'flac',
-						'type' => 'audio/flac',
-						'proper_filename' => false,
+						DIR_TESTDATA . '/uploads/small-audio.flac',
+						'small-audio.flac',
+						array(
+							'ext' => 'flac',
+							'type' => 'audio/flac',
+							'proper_filename' => false,
+						),
 					),
-				),
-			) );
+					// Assorted text/* sample files
+					array(
+						DIR_TESTDATA . '/uploads/test.vtt',
+						'test.vtt',
+						array(
+							'ext'             => 'vtt',
+							'type'            => 'text/vtt',
+							'proper_filename' => false,
+						),
+					),
+					array(
+						DIR_TESTDATA . '/uploads/test.csv',
+						'test.csv',
+						array(
+							'ext'             => 'csv',
+							'type'            => 'text/csv',
+							'proper_filename' => false,
+						),
+					),
+					// RTF files.
+					array(
+						DIR_TESTDATA . '/uploads/test.rtf',
+						'test.rtf',
+						array(
+							'ext'             => 'rtf',
+							'type'            => 'application/rtf',
+							'proper_filename' => false,
+						),
+					),
+				)
+			);
 		}
 
 		return $data;
