@@ -281,7 +281,7 @@ class WP_Media_List_Table extends WP_List_Table {
 		$posts_columns['cb'] = '<input type="checkbox" />';
 		/* translators: column name */
 		$posts_columns['title'] = _x( 'File', 'column name' );
-		$posts_columns['author'] = __( 'Author' );
+		$posts_columns['author'] = __( 'Editor' );
 
 		$taxonomies = get_taxonomies_for_attachments( 'objects' );
 		$taxonomies = wp_filter_object_list( $taxonomies, array( 'show_admin_column' => true ), 'and', 'name' );

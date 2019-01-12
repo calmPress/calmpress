@@ -678,7 +678,7 @@ $editable_slug = apply_filters( 'editable_slug', $post->post_name, $post );
 function post_author_meta_box($post) {
 	global $user_ID;
 ?>
-<label class="screen-reader-text" for="post_author_override"><?php _e('Author'); ?></label>
+<label class="screen-reader-text" for="post_author_override"><?php _e('Editor'); ?></label>
 <?php
 	wp_dropdown_users( array(
 		'who' => 'authors',
@@ -941,7 +941,7 @@ function register_and_do_post_meta_boxes( $post ) {
 		add_meta_box('slugdiv', __('Slug'), 'post_slug_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
 
 	if ( post_type_supports( $post_type, 'author' ) && current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-		add_meta_box( 'authordiv', __( 'Author' ), 'post_author_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'authordiv', __( 'Editor' ), 'post_author_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
 	}
 
 	/**

@@ -536,7 +536,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 		$posts_columns['title'] = _x( 'Title', 'column name' );
 
 		if ( post_type_supports( $post_type, 'author' ) ) {
-			$posts_columns['author'] = __( 'Author' );
+			$posts_columns['author'] = __( 'Editor' );
 		}
 
 		$taxonomies = get_object_taxonomies( $post_type, 'objects' );
@@ -1435,7 +1435,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 
 				if ( $authors = wp_dropdown_users( $users_opt ) ) :
 					$authors_dropdown  = '<label class="inline-edit-author">';
-					$authors_dropdown .= '<span class="title">' . __( 'Author' ) . '</span>';
+					$authors_dropdown .= '<span class="title">' . __( 'Editor' ) . '</span>';
 					$authors_dropdown .= $authors;
 					$authors_dropdown .= '</label>';
 				endif;

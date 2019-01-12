@@ -401,7 +401,7 @@ class WP_Comments_List_Table extends WP_List_Table {
 		if ( $this->checkbox )
 			$columns['cb'] = '<input type="checkbox" />';
 
-		$columns['author'] = __( 'Author' );
+		$columns['author'] = __( 'Editor' );
 		$columns['comment'] = _x( 'Comment', 'column name' );
 
 		if ( ! $post_id ) {
