@@ -961,9 +961,7 @@ function wp_get_document_title() {
 	} elseif ( is_category() || is_tag() ) {
 		$title['title'] = single_term_title( '', false );
 
-	// If on an author archive, use the author's display name.
-	} elseif ( is_author() && $author = get_queried_object() ) {
-		$title['title'] = $author->display_name;
+	}
 
 	// If it's a date archive, use the date as the title.
 	} elseif ( is_year() ) {
@@ -1102,14 +1100,6 @@ function wp_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 		if ( $term ) {
 			$tax   = get_taxonomy( $term->taxonomy );
 			$title = single_term_title( $tax->labels->name . $t_sep, false );
-		}
-	}
-
-	// If there's an author
-	if ( is_author() && ! is_post_type_archive() ) {
-		$author = get_queried_object();
-		if ( $author ) {
-			$title = $author->display_name;
 		}
 	}
 
@@ -1430,9 +1420,6 @@ function get_the_archive_title() {
 	} elseif ( is_tag() ) {
 		/* translators: Tag archive title. 1: Tag name */
 		$title = sprintf( __( 'Tag: %s' ), single_tag_title( '', false ) );
-	} elseif ( is_author() ) {
-		/* translators: Author archive title. 1: Author name */
-		$title = sprintf( __( 'Author: %s' ), '<span class="vcard">' . get_the_author() . '</span>' );
 	} elseif ( is_year() ) {
 		/* translators: Yearly archive title. 1: Year */
 		$title = sprintf( __( 'Year: %s' ), get_the_date( _x( 'Y', 'yearly archives date format' ) ) );
@@ -1492,9 +1479,7 @@ function the_archive_description( $before = '', $after = '' ) {
  * @return string Archive description.
  */
 function get_the_archive_description() {
-	if ( is_author() ) {
-		$description = get_the_author_meta( 'description' );
-	} elseif ( is_post_type_archive() ) {
+	if ( is_post_type_archive() ) {
 		$description = get_the_post_type_description();
 	} else {
 		$description = term_description();
@@ -2424,11 +2409,6 @@ function feed_links_extra( $args = array() ) {
  		$tax = get_taxonomy( $term->taxonomy );
  		$title = sprintf( $args['taxtitle'], get_bloginfo('name'), $args['separator'], $term->name, $tax->labels->singular_name );
  		$href = get_term_feed_link( $term->term_id, $term->taxonomy );
-	} elseif ( is_author() ) {
-		$author_id = intval( get_query_var('author') );
-
-		$title = sprintf( $args['authortitle'], get_bloginfo('name'), $args['separator'], get_the_author_meta( 'display_name', $author_id ) );
-		$href = get_author_feed_link( $author_id );
 	} elseif ( is_search() ) {
 		$title = sprintf( $args['searchtitle'], get_bloginfo('name'), $args['separator'], get_search_query( false ) );
 		$href = get_search_feed_link();

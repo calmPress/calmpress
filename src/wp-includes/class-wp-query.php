@@ -852,22 +852,13 @@ class WP_Query {
 			}
 			unset( $tax_query );
 
-			if ( empty($qv['author']) || ($qv['author'] == '0') ) {
-				$this->is_author = false;
-			} else {
-				$this->is_author = true;
-			}
-
-			if ( '' != $qv['author_name'] )
-				$this->is_author = true;
-
 			if ( !empty( $qv['post_type'] ) && ! is_array( $qv['post_type'] ) ) {
 				$post_type_obj = get_post_type_object( $qv['post_type'] );
 				if ( ! empty( $post_type_obj->has_archive ) )
 					$this->is_post_type_archive = true;
 			}
 
-			if ( $this->is_post_type_archive || $this->is_date || $this->is_author || $this->is_category || $this->is_tag || $this->is_tax )
+			if ( $this->is_post_type_archive || $this->is_date || $this->is_category || $this->is_tag || $this->is_tax )
 				$this->is_archive = true;
 		}
 
@@ -3261,9 +3252,6 @@ class WP_Query {
 		} elseif ( $this->is_singular && ! empty( $this->post ) ) {
 			$this->queried_object = $this->post;
 			$this->queried_object_id = (int) $this->post->ID;
-		} elseif ( $this->is_author ) {
-			$this->queried_object_id = (int) $this->get('author');
-			$this->queried_object = get_userdata( $this->queried_object_id );
 		}
 
 		return $this->queried_object;
@@ -3411,33 +3399,13 @@ class WP_Query {
 
 	/**
 	 * Is the query for an existing author archive page?
+	 * Since we do not have explicit author pages it always returns false.
 	 *
-	 * If the $author parameter is specified, this function will additionally
-	 * check if the query is for one of the authors specified.
+	 * @since calmPress 1.0.0
 	 *
-	 * @since 3.1.0
-	 *
-	 * @param mixed $author Optional. User ID, nickname, nicename, or array of User IDs, nicknames, and nicenames
 	 * @return bool
 	 */
 	public function is_author( $author = '' ) {
-		if ( !$this->is_author )
-			return false;
-
-		if ( empty($author) )
-			return true;
-
-		$author_obj = $this->get_queried_object();
-
-		$author = array_map( 'strval', (array) $author );
-
-		if ( in_array( (string) $author_obj->ID, $author ) )
-			return true;
-		elseif ( in_array( $author_obj->nickname, $author ) )
-			return true;
-		elseif ( in_array( $author_obj->user_nicename, $author ) )
-			return true;
-
 		return false;
 	}
 
@@ -3927,7 +3895,7 @@ class WP_Query {
 	 * @return true True when finished.
 	 */
 	public function setup_postdata( $post ) {
-		global $id, $authordata, $currentday, $currentmonth, $page, $pages, $multipage, $more, $numpages;
+		global $id, $currentday, $currentmonth, $page, $pages, $multipage, $more, $numpages;
 
 		if ( ! ( $post instanceof WP_Post ) ) {
 			$post = get_post( $post );

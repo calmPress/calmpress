@@ -49,7 +49,7 @@ function get_query_template( $type, $templates = array() ) {
 	 * extension and any non-alphanumeric characters delimiting words -- of the file to load.
 	 * This hook also applies to various types of files loaded as part of the Template Hierarchy.
 	 *
-	 * Possible values for `$type` include: 'index', '404', 'archive', 'author', 'category', 'tag', 'taxonomy', 'date',
+	 * Possible values for `$type` include: 'index', '404', 'archive', 'category', 'tag', 'taxonomy', 'date',
 	 * 'embed', 'home', 'frontpage', 'page', 'paged', 'search', 'single', 'singular', and 'attachment'.
 	 *
 	 * @since 1.5.0
@@ -148,39 +148,15 @@ function get_post_type_archive_template() {
 /**
  * Retrieve path of author template in current or parent template.
  *
- * The hierarchy for this template looks like:
+ * Exists only for backward compatibility since calmPress do not have author pages.
  *
- * 1. author-{nicename}.php
- * 2. author-{id}.php
- * 3. author.php
- *
- * An example of this is:
- *
- * 1. author-john.php
- * 2. author-1.php
- * 3. author.php
- *
- * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
- * and {@see '$type_template'} dynamic hooks, where `$type` is 'author'.
- *
- * @since 1.5.0
- *
- * @see get_query_template()
+ * @since calmPress 1.0.0
  *
  * @return string Full path to author template file.
  */
 function get_author_template() {
-	$author = get_queried_object();
 
-	$templates = array();
-
-	if ( $author instanceof WP_User ) {
-		$templates[] = "author-{$author->user_nicename}.php";
-		$templates[] = "author-{$author->ID}.php";
-	}
-	$templates[] = 'author.php';
-
-	return get_query_template( 'author', $templates );
+	return '';
 }
 
 /**

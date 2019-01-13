@@ -1066,7 +1066,7 @@ function wp_dropdown_users( $args = '' ) {
 		'role__not_in' => array(),
 	);
 
-	$defaults['selected'] = is_author() ? get_query_var( 'author' ) : 0;
+	$defaults['selected'] = 0;
 
 	$r = wp_parse_args( $args, $defaults );
 
