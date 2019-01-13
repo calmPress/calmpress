@@ -3895,7 +3895,7 @@ class WP_Query {
 	 * @return true True when finished.
 	 */
 	public function setup_postdata( $post ) {
-		global $id, $currentday, $currentmonth, $page, $pages, $multipage, $more, $numpages;
+		global $id, $authordata, $currentday, $currentmonth, $page, $pages, $multipage, $more, $numpages;
 
 		if ( ! ( $post instanceof WP_Post ) ) {
 			$post = get_post( $post );
