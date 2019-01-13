@@ -551,7 +551,6 @@ class WP {
 	 * @global string       $request The SQL statement for the request.
 	 * @global int          $more Only set, if single page or post.
 	 * @global int          $single If single page or post. Only set, if single page or post.
-	 * @global WP_User      $authordata Only set, if author archive.
 	 */
 	public function register_globals() {
 		global $wp_query;
@@ -570,9 +569,6 @@ class WP {
 			$GLOBALS['more']   = 1;
 			$GLOBALS['single'] = 1;
 		}
-
-		if ( $wp_query->is_author() && isset( $wp_query->post ) )
-			$GLOBALS['authordata'] = get_userdata( $wp_query->post->post_author );
 	}
 
 	/**
@@ -663,13 +659,6 @@ class WP {
 
 		// We will 404 for paged queries, as no posts were found.
 		if ( ! is_paged() ) {
-
-			// Don't 404 for authors without posts as long as they matched an author on this site.
-			$author = get_query_var( 'author' );
-			if ( is_author() && is_numeric( $author ) && $author > 0 && is_user_member_of_blog( $author ) ) {
-				status_header( 200 );
-				return;
-			}
 
 			// Don't 404 for these queries if they matched an object.
 			if ( ( is_tag() || is_category() || is_tax() || is_post_type_archive() ) && get_queried_object() ) {
