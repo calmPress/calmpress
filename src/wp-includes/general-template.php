@@ -961,8 +961,6 @@ function wp_get_document_title() {
 	} elseif ( is_category() || is_tag() ) {
 		$title['title'] = single_term_title( '', false );
 
-	}
-
 	// If it's a date archive, use the date as the title.
 	} elseif ( is_year() ) {
 		$title['title'] = get_the_date( _x( 'Y', 'yearly archives date format' ) );
