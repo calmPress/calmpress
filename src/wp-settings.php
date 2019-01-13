@@ -440,6 +440,9 @@ do_action( 'after_setup_theme' );
 // Set up current user.
 $GLOBALS['wp']->init();
 
+// Initialize everything related to taxonomy based authors.
+calmpress\post_authors\Post_Authors_As_Taxonomy::init();
+
 /**
  * Fires after WordPress has finished loading but before any headers are sent.
  *
