@@ -279,7 +279,6 @@ class WP_Rewrite {
 		'%minute%',
 		'%second%',
 		'%postname%',
-		'%author%',
 		'%pagename%',
 		'%search%'
 	);
@@ -318,7 +317,6 @@ class WP_Rewrite {
 		'minute=',
 		'second=',
 		'name=',
-		'author_name=',
 		'pagename=',
 		's='
 	);
