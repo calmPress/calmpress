@@ -116,7 +116,6 @@ function the_modified_editor() {
  * - user_pass
  * - user_registered
  * - user_status
- * - user_url
  *
  * @since 2.8.0
  *
@@ -136,7 +135,7 @@ function get_the_author_meta( $field = '', $user_id = false ) {
 		$authordata = get_userdata( $user_id );
 	}
 
-	if ( in_array( $field, array( 'login', 'pass', 'nicename', 'email', 'url', 'registered', 'activation_key', 'status' ) ) )
+	if ( in_array( $field, array( 'login', 'pass', 'nicename', 'email', 'registered', 'activation_key', 'status' ) ) )
 		$field = 'user_' . $field;
 
 	$value = isset( $authordata->$field ) ? $authordata->$field : '';
@@ -184,27 +183,14 @@ function the_author_meta( $field = '', $user_id = false ) {
 }
 
 /**
- * Retrieve either author's link or author's name.
- *
- * If the author has a home page set, return an HTML link, otherwise just return the
- * author's name.
+ * Retrieve the author's name.
  *
  * @since 3.0.0
  *
- * @return string|null An HTML link if the author's url exist in user meta,
- *                     else the result of get_the_author().
+ * @return string The result of get_the_author().
  */
 function get_the_author_link() {
-	if ( get_the_author_meta('url') ) {
-		return sprintf( '<a href="%1$s" title="%2$s" rel="author external">%3$s</a>',
-			esc_url( get_the_author_meta('url') ),
-			/* translators: %s: author's display name */
-			esc_attr( sprintf( __( 'Visit %s&#8217;s website' ), get_the_author() ) ),
-			get_the_author()
-		);
-	} else {
-		return get_the_author();
-	}
+	return get_the_author();
 }
 
 /**
@@ -562,7 +548,6 @@ function _get_the_editor() {
  * - user_pass
  * - user_registered
  * - user_status
- * - user_url
  *
  * @since calmPress 1.0.0
  *
