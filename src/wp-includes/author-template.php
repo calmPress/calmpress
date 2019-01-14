@@ -57,36 +57,35 @@ function the_author() {
 }
 
 /**
- * Retrieve the author who last edited the current post.
+ * Retrieve the editor who last edited the current post.
  *
- * @since 2.8.0
+ * In WordPress this function used to be called get_the_modified_author
  *
- * @return string|void The author's display name.
+ * @since calmPress 1.0.0
+ *
+ * @return string The editor's display name.
  */
-function get_the_modified_author() {
+function get_the_modified_editor() {
 	if ( $last_id = get_post_meta( get_post()->ID, '_edit_last', true) ) {
 		$last_user = get_userdata($last_id);
 
-		/**
-		 * Filters the display name of the author who last edited the current post.
-		 *
-		 * @since 2.8.0
-		 *
-		 * @param string $last_user->display_name The author's display name.
-		 */
-		return apply_filters('the_modified_author', $last_user->display_name);
+		return $last_user->display_name;
 	}
+
+	return '';
 }
 
 /**
- * Display the name of the author who last edited the current post,
- * if the author's ID is available.
+ * Display the name of the editor who last edited the current post,
+ * if the editors's ID is available.
  *
- * @since 2.8.0
+ * In WordPress this function used to be called the_modified_author
  *
- * @see get_the_author()
+ * @since calmPress 1.0.0
+ *
+ * @see get_the_editor()
  */
-function the_modified_author() {
+function the_modified_editor() {
 	echo get_the_modified_author();
 }
 
@@ -477,11 +476,11 @@ function wp_list_authors( $args = '' ) {
  * Determines whether this site has more than one author.
  *
  * Checks to see if more than one author has published posts.
- * 
+ *
  * For more information on this and similar theme functions, check out
- * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/ 
+ * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- * 
+ *
  * @since 3.2.0
  *
  * @global wpdb $wpdb WordPress database abstraction object.
@@ -515,4 +514,64 @@ function is_multi_author() {
  */
 function __clear_multi_author_cache() {
 	delete_transient( 'is_multi_author' );
+}
+
+/**
+ * Retrieve the editor (what in WP was author) of the current post.
+ *
+ * Unlike the WP original get_the_author function, this should be used only
+ * from inside calmPress code.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @global object $authordata The current author's DB object.
+ *
+ * @return string|null The editor's display name.
+ */
+function _get_the_editor() {
+	global $authordata;
+
+	return is_object($authordata) ? $authordata->display_name : null;
+}
+
+/**
+ * calmPress alias to get_the_author_meta meant to have a better distinction
+ * between frontend and backend usage.
+ *
+ * Valid values for the `$field` parameter include:
+ *
+ * - admin_color
+ * - comment_shortcuts
+ * - description
+ * - display_name
+ * - first_name
+ * - ID
+ * - last_name
+ * - nickname
+ * - plugins_last_view
+ * - plugins_per_page
+ * - syntax_highlighting
+ * - user_activation_key
+ * - user_description
+ * - user_email
+ * - user_firstname
+ * - user_lastname
+ * - user_level
+ * - user_login
+ * - user_nicename
+ * - user_pass
+ * - user_registered
+ * - user_status
+ * - user_url
+ *
+ * @since calmPress 1.0.0
+ *
+ * @global object $authordata The current author's DB object.
+ *
+ * @param string $field   Optional. The user field to retrieve. Default empty.
+ * @param int    $user_id Optional. User ID.
+ * @return string The author's field from the current author's DB object, otherwise an empty string.
+ */
+function _get_the_editor_meta( $field = '', $user_id = false ) {
+	return get_the_author_meta( $field, $user_id );
 }

@@ -507,7 +507,7 @@ function export_wp( $args = array() ) {
 		?></title>
 		<link><?php the_permalink_rss() ?></link>
 		<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ); ?></pubDate>
-		<dc:creator><?php echo wxr_cdata( get_the_author_meta( 'login' ) ); ?></dc:creator>
+		<dc:creator><?php echo wxr_cdata( _get_the_editor_meta( 'login' ) ); ?></dc:creator>
 		<guid isPermaLink="false"><?php the_guid(); ?></guid>
 		<description></description>
 		<content:encoded><?php

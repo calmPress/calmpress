@@ -897,10 +897,6 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			$data['description'] = $user->description;
 		}
 
-		if ( in_array( 'link', $fields, true ) ) {
-			$data['link'] = get_author_posts_url( $user->ID, $user->user_nicename );
-		}
-
 		if ( in_array( 'locale', $fields, true ) ) {
 			$data['locale'] = get_user_locale( $user );
 		}

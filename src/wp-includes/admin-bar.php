@@ -639,17 +639,6 @@ function wp_admin_bar_edit_menu( $wp_admin_bar ) {
 				'title' => $tax->labels->view_item,
 				'href' => get_term_link( $tag )
 			) );
-		} elseif ( 'user-edit' == $current_screen->base
-			&& isset( $user_id )
-			&& ( $user_object = get_userdata( $user_id ) )
-			&& $user_object->exists()
-			&& $view_link = get_author_posts_url( $user_object->ID ) )
-		{
-			$wp_admin_bar->add_menu( array(
-				'id'    => 'view',
-				'title' => __( 'View User' ),
-				'href'  => $view_link,
-			) );
 		}
 	} else {
 		$current_object = $wp_the_query->get_queried_object();
@@ -965,11 +954,11 @@ function show_admin_bar( $show ) {
 
 /**
  * Determines whether the admin bar should be showing.
- * 
+ *
  * For more information on this and similar theme functions, check out
- * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/ 
+ * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- * 
+ *
  * @since 3.1.0
  *
  * @global bool   $show_admin_bar

@@ -1050,9 +1050,9 @@ class WP_Posts_List_Table extends WP_List_Table {
 	public function column_author( $post ) {
 		$args = array(
 			'post_type' => $post->post_type,
-			'author' => get_the_author_meta( 'ID' )
+			'author' => _get_the_editor_meta( 'ID' )
 		);
-		echo $this->get_edit_link( $args, get_the_author() );
+		echo $this->get_edit_link( $args, _get_the_editor() );
 	}
 
 	/**
