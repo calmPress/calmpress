@@ -228,14 +228,16 @@ function the_author_link() {
  *
  * @since 1.5.0
  *
- * @return int The number of posts by the author.
+ * @return int The number of posts by the author. In case of multiple authors
+ *             the number is an aggregate of all authors.
  */
 function get_the_author_posts() {
 	$post = get_post();
 	if ( ! $post ) {
 		return 0;
 	}
-	return count_user_posts( $post->post_author, $post->post_type );
+
+	return post_authors\Post_Authors_As_Taxonomy::authors_post_count( $post );
 }
 
 /**
