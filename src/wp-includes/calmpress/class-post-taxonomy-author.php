@@ -22,6 +22,17 @@ class Post_Taxonomy_Author implements Post_Author {
 	private $term;
 
 	/**
+	 * Construct the author object based on a taxonomy term.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Term $term The term.
+	 */
+	public function __construct( \WP_Term $term ) {
+		$this->term = $term;
+	}
+
+	/**
 	 * Provides the human friendly name of the author based on the term title.
 	 *
 	 * @since 1.0.0
@@ -39,7 +50,9 @@ class Post_Taxonomy_Author implements Post_Author {
 	 *
 	 * @return int The ID of the attachment or 0 if no image is associated with the author.
 	 */
-	public function image_attachment_id() : int ;
+	public function image_attachment_id() : int {
+		return 0;
+	}
 
 	/**
 	 * Provides the human friendly description of the author in HTML.
@@ -72,7 +85,7 @@ class Post_Taxonomy_Author implements Post_Author {
 	 *
 	 * @return string The URL of the page, or empty string if none exists.
 	 */
-	public string function posts_url() : string {
+	public function posts_url() : string {
 		return get_term_link( $this->term, Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 	}
 }
