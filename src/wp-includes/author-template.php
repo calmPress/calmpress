@@ -213,12 +213,9 @@ function get_the_author_link() {
 }
 
 /**
- * Display either author's link or author's name.
+ * Display the author's name.
  *
- * If the author has a home page set, echo an HTML link, otherwise just echo the
- * author's name.
- *
- * @link https://codex.wordpress.org/Template_Tags/the_author_link
+ * Echo the author's name.
  *
  * @since 2.1.0
  */
