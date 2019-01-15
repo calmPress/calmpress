@@ -10,6 +10,8 @@
  * @subpackage Template
  */
 
+use calmpress\post_authors;
+
 /**
  * Retrieve the author of the current post.
  *
@@ -20,7 +22,24 @@
  * @return string|null The author's display name.
  */
 function get_the_author() {
-	global $authordata;
+	global $post;
+
+	$display_name = null;
+
+	// make sure we are in the post loop context.
+	if ( isset( $post ) ) {
+		 $authors = post_authors\Post_Authors_As_Taxonomy::post_authors( $post );
+
+		 // For backward compatibility reasons, prefer to return a null over empty string
+		 // when there is no associated author.
+		 if ( ! empty( $authors) ) {
+			 $name_array = array_map(function ( $author ) {
+	 			return $author->name();
+	 		}, $authors );
+
+			$display_name = join( ', ', $name_array );
+		}
+	}
 
 	/**
 	 * Filters the display name of the current post's author.
@@ -29,7 +48,7 @@ function get_the_author() {
 	 *
 	 * @param string $authordata->display_name The author's display name.
 	 */
-	return apply_filters('the_author', is_object($authordata) ? $authordata->display_name : null);
+	return apply_filters('the_author', $display_name);
 }
 
 /**
