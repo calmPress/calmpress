@@ -88,4 +88,26 @@ class Post_Taxonomy_Author implements Post_Author {
 	public function posts_url() : string {
 		return get_term_link( $this->term, Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 	}
+
+	/**
+	 * The number of posts the author published.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int The number of posts.
+	 */
+	public function posts_count() : int {
+		return (int) $this->term->count;
+	}
+
+	/**
+	 * The slug of the author.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The slug.
+	 */
+	public function slug() : string {
+		return $this->term->slug;
+	}
 }

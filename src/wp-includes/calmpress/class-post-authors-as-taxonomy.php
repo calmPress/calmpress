@@ -133,21 +133,59 @@ class Post_Authors_As_Taxonomy {
 	 *
 	 * @return int The number of posts.
 	 */
-	public function authors_post_count( \WP_Post $post ) : int {
+	public static function authors_post_count( \WP_Post $post ) : int {
 		$authors = self::post_authors( $post );
 
 		if ( empty( $authors ) ) {
 			return 0;
 		}
+
 		// For the sake of avoiding DB queries a heuristic is being used that
 		// if there are more than one authors, they are not sharing other posts and
 		// therefor it is good enough to just avoid counting this post multiple
 		// times.
 		$count  = 1 - count( $authors ) ;
 		foreach ( $authors as $author ) {
-			$count += $author->count;
+			$count += $author->count();
 		}
 
 		return $count;
+	}
+
+	/**
+	 * Get the URL of an archive page which includes posts from all the authors
+	 * of a specific post.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The URL, or empty string if there are no authors.
+	 */
+	public static function combined_authors_url( $post ) : string {
+		$authors = self::post_authors( $post );
+
+		if ( empty( $authors ) ) {
+			return '';
+		}
+
+		if ( 1 === count( $authors ) ) {
+			return $authors[0]->posts_url();
+		}
+
+		/*
+		 * More than one author therefor need to have the slugs separated by ",".
+		 */
+
+		$url = $authors[0]->posts_url();
+
+		// Need to get rid of possible slash before appending other slugs.
+		$url = rtrim( $url, '/' );
+
+		// Append the other slugs.
+		for ( $i = 1; $i < count( $authors ); $i++) {
+			$url .= ',' . $authors[ $i ]->slug();
+		}
+
+		// Add slash in the end if needed.
+		return user_trailingslashit($url, 'category' );
 	}
 }

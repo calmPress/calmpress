@@ -252,36 +252,37 @@ function the_author_posts() {
 
 /**
  * Retrieves an HTML link to the author page of the current post's author.
- *
- * Returns an HTML-formatted link using get_author_posts_url().
+ * If there are more than one author the HTML will include links to the post's
+ * of each of them.
  *
  * @since 4.4.0
+ * @since calmPress 1.0.0
  *
- * @global object $authordata The current author's DB object.
+ * @global WP_Post $post The current post's DB object.
  *
- * @return string An HTML link to the author page.
+ * @return string An HTML with link(s) to the author post page(s).
  */
 function get_the_author_posts_link() {
-	global $authordata;
-	if ( ! is_object( $authordata ) ) {
-		return;
+	global $post;
+	if ( ! is_object( $post ) ) {
+		return '';
 	}
 
-	$link = sprintf( '<a href="%1$s" title="%2$s" rel="author">%3$s</a>',
-		esc_url( get_author_posts_url( $authordata->ID, $authordata->user_nicename ) ),
-		/* translators: %s: author's display name */
-		esc_attr( sprintf( __( 'Posts by %s' ), get_the_author() ) ),
-		get_the_author()
-	);
+	$authors = post_authors\Post_Authors_As_Taxonomy::post_authors( $post );
+	if ( empty( $authors ) ) {
+		return '';
+	}
 
-	/**
-	 * Filters the link to the author page of the author of the current post.
-	 *
-	 * @since 2.9.0
-	 *
-	 * @param string $link HTML link.
-	 */
-	return apply_filters( 'the_author_posts_link', $link );
+	$links_array = array_map(function ( $author ) {
+	   return sprintf( '<a href="%1$s" title="%2$s" rel="author">%3$s</a>',
+	   		esc_url( $author->posts_url() ),
+	   		/* translators: %s: author's display name */
+	   		esc_attr( sprintf( __( 'Posts by %s' ), $author->name() ) ),
+	   		esc_html( $author->name() )
+	   	);
+   }, $authors );
+
+   return join( ', ', $links_array );
 }
 
 /**
@@ -297,44 +298,38 @@ function the_author_posts_link() {
 /**
  * Retrieve the URL to the author page for the user with the ID provided.
  *
- * @since 2.1.0
+ * For calmPress, since there is no user posts page, but we do not want to break
+ * themes, we are trying to detect when the function is being called from the loop
+ * and in that case return the url to the relevant author's post page.
  *
- * @global WP_Rewrite $wp_rewrite
+ * If the function is called out of the loop, or there are no authors it returns
+ * the url of the home page.
+ *
+ * @since 2.1.0
+ * @since calmPress 1.0.0
+ *
+ * @global WP_Post $post.
  *
  * @param int    $author_id       Author ID.
  * @param string $author_nicename Optional. The author's nicename (slug). Default empty.
  * @return string The URL to the author's page.
  */
 function get_author_posts_url( $author_id, $author_nicename = '' ) {
-	global $wp_rewrite;
+	global $post;
 	$auth_ID = (int) $author_id;
-	$link = $wp_rewrite->get_author_permastruct();
 
-	if ( empty($link) ) {
-		$file = home_url( '/' );
-		$link = $file . '?author=' . $auth_ID;
-	} else {
-		if ( '' == $author_nicename ) {
-			$user = get_userdata($author_id);
-			if ( !empty($user->user_nicename) )
-				$author_nicename = $user->user_nicename;
-		}
-		$link = str_replace('%author%', $author_nicename, $link);
-		$link = home_url( user_trailingslashit( $link ) );
+	// If we are not in the loop return the homepage.
+	if ( ! is_object( $post ) ) {
+		return home_url( '/' );
 	}
 
-	/**
-	 * Filters the URL to the author's page.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $link            The URL to the author's page.
-	 * @param int    $author_id       The author's id.
-	 * @param string $author_nicename The author's nice name.
-	 */
-	$link = apply_filters( 'author_link', $link, $author_id, $author_nicename );
+	$link = '';
+	// if the author id is the same as the post author we are most likely in a loop.
+	if ( $post->post_author == $auth_ID ) {
+		return post_authors\Post_Authors_As_Taxonomy::combined_authors_url( $post );
+	}
 
-	return $link;
+	return home_url( '/' );
 }
 
 /**
