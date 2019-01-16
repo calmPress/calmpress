@@ -15,24 +15,6 @@ class Tests_Category extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Validate get_all_category_ids
-	 *
-	 * @expectedDeprecated get_all_category_ids
-	 */
-	function test_get_all_category_ids() {
-		// create categories
-		self::factory()->category->create_many( 2 );
-
-		// create new taxonomy to ensure not included
-		register_taxonomy( 'test_tax_cat', 'post' );
-		wp_insert_term( "test1", 'test_tax_cat' );
-
-		// Validate length is 1 + created due to uncategorized
-		$cat_ids = get_all_category_ids();
-		$this->assertEquals( 3, count($cat_ids));
-	}
-
-	/**
 	 * Validate get_category_by_slug function
 	 */
 	function test_get_category_by_slug() {
