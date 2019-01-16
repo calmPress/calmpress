@@ -86,7 +86,7 @@ class Tests_Compat extends WP_UnitTestCase {
 		$this->assertEquals( 'DEF', _mb_substr($string_ascii, 3) );
 		$this->assertEquals( 'DEF', _mb_substr($string_ascii, 3, 5, 'ISO-8859-1') );
 
-		// specific latin-1 as that is the default the core php test opporates under	
+		// specific latin-1 as that is the default the core php test opporates under
 		$this->assertEquals( 'peacrOiqng==' , base64_encode( _mb_substr($string_mb, 2, 7, 'latin-1' ) ) );
 		$this->assertEquals( '6Kqe44OG44Kt44K544OI44Gn44GZ', base64_encode( _mb_substr($string_mb, 2, 7, 'utf-8') ) );
 
@@ -98,7 +98,7 @@ class Tests_Compat extends WP_UnitTestCase {
 		$heredoc = <<<EOT
 hello world
 EOT;
-		$inputs = array( 
+		$inputs = array(
 		/*1*/  0,
 			   1,
 			   12345,
@@ -177,14 +177,6 @@ EOT;
 	function test_hash_hmac_output() {
 		$this->assertEquals(array( 1 => '140d1cb79fa12e2a31f32d35ad0a2723'), unpack('H32', _hash_hmac('md5', 'simple', 'key', true)));
 		$this->assertEquals(array( 1 => '993003b95758e0ac2eba451a4c5877eb1bb7b92a'), unpack('H40', _hash_hmac('sha1', 'simple', 'key', true)));
-	}
-
-	function test_json_encode_decode() {
-		require_once( ABSPATH . WPINC . '/class-json.php' );
-		$json = new Services_JSON();
-		// Super basic test to verify Services_JSON is intact and working.
-		$this->assertEquals( '["foo"]', $json->encodeUnsafe( array( 'foo' ) ) );
-		$this->assertEquals( array( 'foo' ), $json->decode( '["foo"]' ) );
 	}
 
 	/**
@@ -314,7 +306,7 @@ EOT;
 	}
 }
 
-/* used in test_mb_substr_phpcore */ 
+/* used in test_mb_substr_phpcore */
 class classA {
 	public function __toString() {
 		return "Class A object";
