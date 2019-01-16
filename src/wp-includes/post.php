@@ -3177,7 +3177,6 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 		'post_type' => 'post',
 		'comment_status' => '',
 		'ping_status' => '',
-		'post_password' => '',
 		'to_ping' =>  '',
 		'pinged' => '',
 		'post_parent' => 0,
@@ -3373,7 +3372,8 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 	$to_ping = '';
 	$pinged = '';
 	$import_id = isset( $postarr['import_id'] ) ? $postarr['import_id'] : 0;
-
+	$post_password = '';
+	
 	/*
 	 * The 'wp_insert_post_parent' filter expects all variables to be present.
 	 * Previously, these variables would have already been extracted
