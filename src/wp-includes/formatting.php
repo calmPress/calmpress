@@ -4787,6 +4787,20 @@ function wp_encode_emoji( $content ) {
 }
 
 /**
+ * On WordPress converts emoji to a static img element.
+ * On calmPress does nothing and is here for backward compatibility.
+ *
+ * @since 4.2.0
+ * @since calmPress 1.0.0
+ *
+ * @param string $text The content to encode.
+ * @return string The value of $text.
+ */
+function wp_staticize_emoji( $text ) {
+	return $text;
+}
+
+/**
  * Returns a arrays of emoji data.
  *
  * These arrays automatically built from the regex in twemoji.js - if they need to be updated,
