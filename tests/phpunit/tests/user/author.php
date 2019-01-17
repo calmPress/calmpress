@@ -102,28 +102,6 @@ class Tests_User_Author_Template extends WP_UnitTestCase {
 	/**
 	 * @ticket 30355
 	 */
-	public function test_get_the_author_posts_link_no_permalinks() {
-		$author = self::factory()->user->create_and_get( array(
-			'display_name'  => 'Foo',
-			'user_nicename' => 'bar'
-		) );
-
-		$GLOBALS['authordata'] = $author->data;
-
-		$link = get_the_author_posts_link();
-
-		$url = sprintf( 'http://%1$s/?author=%2$s', WP_TESTS_DOMAIN, $author->ID );
-
-		$this->assertContains( $url, $link );
-		$this->assertContains( 'Posts by Foo', $link );
-		$this->assertContains( '>Foo</a>', $link );
-
-		unset( $GLOBALS['authordata'] );
-	}
-
-	/**
-	 * @ticket 30355
-	 */
 	public function test_get_the_author_posts_link_with_permalinks() {
 		$this->set_permalink_structure( '/%postname%/' );
 
