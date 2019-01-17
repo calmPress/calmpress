@@ -63,21 +63,6 @@ class Tests_Theme extends WP_UnitTestCase {
 		$this->assertEquals( $this->theme_name, $themes[ $this->theme_name ]->name );
 	}
 
-	/**
-	 * @expectedDeprecated get_theme
-	 * @expectedDeprecated get_themes
-	 */
-	function test_get_theme() {
-		$themes = get_themes();
-		foreach (array_keys($themes) as $name) {
-			$theme = get_theme($name);
-			// WP_Theme implements ArrayAccess. Even ArrayObject returns false for is_array().
-			$this->assertFalse( is_array( $theme ) );
-			$this->assertInstanceOf( 'WP_Theme', $theme );
-			$this->assertEquals($theme, $themes[$name]);
-		}
-	}
-
 	function test_wp_get_theme() {
 		$themes = wp_get_themes();
 		foreach ( $themes as $theme ) {
