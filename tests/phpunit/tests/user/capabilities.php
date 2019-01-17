@@ -563,42 +563,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		return $allcaps;
 	}
 
-	// special case for the link manager
-	function test_link_manager_caps() {
-		$caps = array(
-			'manage_links' => array( 'administrator', 'editor' ),
-		);
-
-		$this->assertSame( '0', get_option( 'link_manager_enabled' ) );
-
-		// no-one should have access to the link manager by default
-		foreach ( self::$users as $role => $user ) {
-			foreach ( $caps as $cap => $roles ) {
-				$this->assertFalse( $user->has_cap( $cap ), "User with the {$role} role should not have the {$cap} capability" );
-				$this->assertFalse( user_can( $user, $cap ), "User with the {$role} role should not have the {$cap} capability" );
-			}
-		}
-
-		update_option( 'link_manager_enabled', '1' );
-		$this->assertSame( '1', get_option( 'link_manager_enabled' ) );
-
-		foreach ( self::$users as $role => $user ) {
-			foreach ( $caps as $cap => $roles ) {
-				if ( in_array( $role, $roles, true ) ) {
-					$this->assertTrue( $user->has_cap( $cap ), "User with the {$role} role should have the {$cap} capability" );
-					$this->assertTrue( user_can( $user, $cap ), "User with the {$role} role should have the {$cap} capability" );
-				} else {
-					$this->assertFalse( $user->has_cap( $cap ), "User with the {$role} role should not have the {$cap} capability" );
-					$this->assertFalse( user_can( $user, $cap ), "User with the {$role} role should not have the {$cap} capability" );
-				}
-			}
-		}
-
-		update_option( 'link_manager_enabled', '0' );
-		$this->assertSame( '0', get_option( 'link_manager_enabled' ) );
-
-	}
-
 	// special case for unfiltered uploads
 	function test_unfiltered_upload_caps() {
 		$this->assertFalse( defined( 'ALLOW_UNFILTERED_UPLOADS' ) );
