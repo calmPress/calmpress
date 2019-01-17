@@ -1115,6 +1115,25 @@ function wp_check_comment_data_max_lengths( $comment_data ) {
 }
 
 /**
+ * Does comment contain blacklisted characters or words.
+ * For calmPress it exists just for backward compatility and does nothin
+ *
+ * @since 1.5.0
+ * @since calmPress 1.0.0
+ *
+ * @param string $author The author of the comment
+ * @param string $email The email of the comment
+ * @param string $url The url used in the comment
+ * @param string $comment The comment content
+ * @param string $user_ip The comment author's IP address
+ * @param string $user_agent The author's browser user agent
+ * @return bool Always false.
+ */
+function wp_blacklist_check($author, $email, $url, $comment, $user_ip, $user_agent) {
+	return false;
+}
+
+/**
  * Retrieve total comments for blog or single post.
  *
  * The properties of the returned object contain the 'moderated', 'approved',
