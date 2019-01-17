@@ -280,7 +280,11 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 * @covers ::is_network_only_plugin
 	 */
 	public function test_is_network_only_plugin_hello() {
-		$this->assertFalse( is_network_only_plugin( 'hello.php' ) );
+		$p = $this->_create_plugin( "<?php\n/*\nPlugin Name: test" );
+
+		$this->assertFalse( is_network_only_plugin( $p[0] ) );
+
+		unlink( $p[1] );
 	}
 
 	/**
