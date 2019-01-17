@@ -439,14 +439,14 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
 		foreach ($types as $type) {
 				$this->go_to("/author/user-a/feed/{$type}");
-				$this->assertQueryTrue('is_archive', 'is_feed', 'is_author');
+				$this->assertQueryTrue('is_archive', 'is_feed');
 		}
 
 		// check the short form
 		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
 		foreach ($types as $type) {
 				$this->go_to("/author/user-a/{$type}");
-				$this->assertQueryTrue('is_archive', 'is_feed', 'is_author');
+				$this->assertQueryTrue('is_archive', 'is_feed');
 		}
 	}
 
@@ -456,7 +456,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( array( 'user_login' => 'user-a' ) );
 		self::factory()->post->create_many( 3, array( 'post_author' => $user_id ) );
 		$this->go_to('/author/user-a/page/2/');
-		$this->assertQueryTrue('is_archive', 'is_author', 'is_paged');
+		$this->assertQueryTrue('is_archive', 'is_paged');
 	}
 
 	// 'author/([^/]+)/?$' => 'index.php?author_name=$matches[1]',
@@ -464,13 +464,13 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( array( 'user_login' => 'user-a' ) );
 		self::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->go_to('/author/user-a/');
-		$this->assertQueryTrue('is_archive', 'is_author');
+		$this->assertQueryTrue('is_archive');
 	}
 
 	function test_author_with_no_posts() {
 		$user_id = self::factory()->user->create( array( 'user_login' => 'user-a' ) );
 		$this->go_to('/author/user-a/');
-		$this->assertQueryTrue('is_archive', 'is_author');
+		$this->assertQueryTrue('is_archive');
 	}
 
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
@@ -930,27 +930,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	/**
 	 * @ticket 24674
 	 */
-	public function test_is_author_with_nicename_that_begins_with_a_number_that_clashes_with_another_author_id() {
-		$u1 = self::factory()->user->create();
-
-		$u2_name = $u1 . '_user';
-		$u2 = self::factory()->user->create( array(
-			'user_nicename' => $u2_name,
-		) );
-
-		$this->go_to( "/?author=$u1" );
-
-		$q = $GLOBALS['wp_query'];
-
-		$this->assertTrue( $q->is_author() );
-		$this->assertTrue( $q->is_author( $u1 ) );
-		$this->assertFalse( $q->is_author( $u2_name ) );
-		$this->assertFalse( $q->is_author( $u2 ) );
-	}
-
-	/**
-	 * @ticket 24674
-	 */
 	public function test_is_category_with_slug_that_begins_with_a_number_that_clashes_with_another_category_id() {
 		$c1 = self::factory()->category->create();
 
@@ -1139,44 +1118,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 		$this->assertTrue( is_attachment( $p2 ) );
 		$this->assertFalse( is_attachment( $p1 ) );
-	}
-
-	/**
-	 * @ticket 35902
-	 */
-	public function test_is_author_should_not_match_numeric_id_to_nickname_beginning_with_id() {
-		$u1 = self::factory()->user->create( array(
-			'nickname' => 'Foo',
-			'user_nicename' => 'foo',
-		) );
-		$u2 = self::factory()->user->create( array(
-			'nickname' => "$u1 Foo",
-			'user_nicename' => 'foo-2',
-		) );
-
-		$this->go_to( get_author_posts_url( $u2 ) );
-
-		$this->assertTrue( is_author( $u2 ) );
-		$this->assertFalse( is_author( $u1 ) );
-	}
-
-	/**
-	 * @ticket 35902
-	 */
-	public function test_is_author_should_not_match_numeric_id_to_user_nicename_beginning_with_id() {
-		$u1 = self::factory()->user->create( array(
-			'nickname' => 'Foo',
-			'user_nicename' => 'foo',
-		) );
-		$u2 = self::factory()->user->create( array(
-			'nickname' => 'Foo',
-			'user_nicename' => "$u1-foo",
-		) );
-
-		$this->go_to( get_author_posts_url( $u2 ) );
-
-		$this->assertTrue( is_author( $u2 ) );
-		$this->assertFalse( is_author( $u1 ) );
 	}
 
 	/**

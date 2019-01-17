@@ -243,7 +243,7 @@ class Tests_Multisite_User extends WP_UnitTestCase {
 		$wp_rewrite->init();
 
 		$this->go_to( get_author_posts_url( $user_id ) );
-		$this->assertQueryTrue( 'is_author', 'is_archive' );
+		$this->assertQueryTrue( 'is_archive' );
 
 		add_user_to_blog( $first, $user_id, 'administrator' );
 		$blogs = get_blogs_of_user( $user_id );
@@ -253,7 +253,7 @@ class Tests_Multisite_User extends WP_UnitTestCase {
 		$wp_rewrite->init();
 
 		$this->go_to( get_author_posts_url( $user_id ) );
-		$this->assertQueryTrue( 'is_author', 'is_archive' );
+		$this->assertQueryTrue( 'is_archive' );
 	}
 
 	function test_revoked_super_admin_can_be_deleted() {
