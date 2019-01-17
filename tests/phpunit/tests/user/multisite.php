@@ -108,33 +108,6 @@ class Tests_Multisite_User extends WP_UnitTestCase {
 		$this->assertEquals( $blog_ids, $blog_ids_of_user );
 	}
 
-	/**
-	 * @expectedDeprecated is_blog_user
-	 */
-	function test_is_blog_user() {
-		global $wpdb;
-
-		$user1_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-
-		$old_current = get_current_user_id();
-		wp_set_current_user( $user1_id );
-
-		$this->assertTrue( is_blog_user() );
-		$this->assertTrue( is_blog_user( get_current_blog_id() ) );
-
-		$blog_ids = array();
-
-		$blog_ids = self::factory()->blog->create_many( 1 );
-		foreach ( $blog_ids as $blog_id ) {
-			$this->assertInternalType( 'int', $blog_id );
-			$this->assertTrue( is_blog_user( $blog_id ) );
-			$this->assertTrue( remove_user_from_blog( $user1_id, $blog_id ) );
-			$this->assertFalse( is_blog_user( $blog_id ) );
-		}
-
-		wp_set_current_user( $old_current );
-	}
-
 	function test_is_user_member_of_blog() {
 		global $wpdb;
 

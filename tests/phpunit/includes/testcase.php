@@ -137,17 +137,6 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * Detect post-test failure conditions.
-	 *
-	 * We use this method to detect expectedDeprecated and expectedIncorrectUsage annotations.
-	 *
-	 * @since 4.2.0
-	 */
-	protected function assertPostConditions() {
-		$this->expectedDeprecated();
-	}
-
-	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
 	 */
 	function tearDown() {
@@ -184,7 +173,7 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 	/**
 	 * Allow tests to be skipped on some automated runs
 	 *
-	 * For test runs on Travis for something other than trunk/master 
+	 * For test runs on Travis for something other than trunk/master
 	 * we want to skip tests that only need to run for master.
 	 */
 	public function skipOnAutomatedBranches() {

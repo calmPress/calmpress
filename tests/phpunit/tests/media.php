@@ -383,45 +383,6 @@ https://w.org</a>'
 	}
 
 	/**
-	 * @ticket 19067
-	 * @expectedDeprecated wp_convert_bytes_to_hr
-	 */
-	function test_wp_convert_bytes_to_hr() {
-		$kb = 1024;
-		$mb = $kb * 1024;
-		$gb = $mb * 1024;
-		$tb = $gb * 1024;
-
-		// test if boundaries are correct
-		$this->assertEquals( '1TB', wp_convert_bytes_to_hr( $tb ) );
-		$this->assertEquals( '1GB', wp_convert_bytes_to_hr( $gb ) );
-		$this->assertEquals( '1MB', wp_convert_bytes_to_hr( $mb ) );
-		$this->assertEquals( '1KB', wp_convert_bytes_to_hr( $kb ) );
-
-		$this->assertEquals( '1 TB', size_format( $tb ) );
-		$this->assertEquals( '1 GB', size_format( $gb ) );
-		$this->assertEquals( '1 MB', size_format( $mb ) );
-		$this->assertEquals( '1 KB', size_format( $kb ) );
-
-		// now some values around
-		$hr = wp_convert_bytes_to_hr( $tb + $tb / 2 + $mb );
-		$this->assertEquals( 1.50000095367, (float) str_replace( ',', '.', $hr ), 'The values should be equal', 0.0001 );
-
-		$hr = wp_convert_bytes_to_hr( $tb - $mb - $kb );
-		$this->assertEquals( 1023.99902248, (float) str_replace( ',', '.', $hr ), 'The values should be equal', 0.0001 );
-
-		$hr = wp_convert_bytes_to_hr( $gb + $gb / 2 + $mb );
-		$this->assertEquals( 1.5009765625, (float) str_replace( ',', '.', $hr ), 'The values should be equal', 0.0001 );
-
-		$hr = wp_convert_bytes_to_hr( $gb - $mb - $kb );
-		$this->assertEquals( 1022.99902344, (float) str_replace( ',', '.', $hr ), 'The values should be equal', 0.0001 );
-
-		// edge
-		$this->assertEquals( '-1B', wp_convert_bytes_to_hr( -1 ) );
-		$this->assertEquals( '0B', wp_convert_bytes_to_hr( 0 ) );
-	}
-
-	/**
 	 * @ticket 22960
 	 */
 	function test_get_attached_images() {

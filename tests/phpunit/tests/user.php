@@ -204,19 +204,6 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @depends test_user_unset
-	 * @expectedDeprecated WP_User->id
-	 * @ticket 20043
-	 */
-	function test_user_unset_lowercase_id( $user ) {
-		// Test 'id' (lowercase)
-		$id = $user->id;
-		unset( $user->id );
-		$this->assertSame( $id, $user->id );
-		return $user;
-	}
-
-	/**
 	 * @depends test_user_unset_lowercase_id
 	 * @ticket 20043
 	 */
@@ -236,18 +223,6 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertTrue( isset( $user->foo ) );
 
 		$this->assertEquals( 'foo', $user->foo );
-	}
-
-	/**
-	 * @expectedDeprecated WP_User->id
-	 */
-	function test_id_property_back_compat() {
-		$user = new WP_User( self::$author_id );
-
-		$this->assertTrue( isset( $user->id ) );
-		$this->assertEquals( $user->ID, $user->id );
-		$user->id = 1234;
-		$this->assertEquals( $user->ID, $user->id );
 	}
 
 	/**
@@ -1086,33 +1061,6 @@ class Tests_User extends WP_UnitTestCase {
 				true,
 			),
 		);
-	}
-
-	/**
-	 * Set up a user and try sending a notification using the old, deprecated
-	 * function signature `wp_new_user_notification( $user, 'plaintext_password' );`.
-	 *
-	 * @ticket 33654
-	 * @expectedDeprecated wp_new_user_notification
-	 */
-	function test_wp_new_user_notification_old_signature_throws_deprecated_warning_but_sends() {
-		reset_phpmailer_instance();
-
-		$was_admin_email_sent = false;
-		$was_user_email_sent = false;
-		wp_new_user_notification( self::$contrib_id, 'this_is_a_test_password' );
-
-		/*
-		 * Check to see if a notification email was sent to the
-		 * post author `blackburn@battlefield3.com` and and site admin `admin@example.org`.
-		 */
-		if ( ! empty( $GLOBALS['phpmailer']->mock_sent ) ) {
-			$was_admin_email_sent = ( isset( $GLOBALS['phpmailer']->mock_sent[0] ) && WP_TESTS_EMAIL == $GLOBALS['phpmailer']->mock_sent[0]['to'][0][0] );
-			$was_user_email_sent = ( isset( $GLOBALS['phpmailer']->mock_sent[1] ) && 'blackburn@battlefield3.com' == $GLOBALS['phpmailer']->mock_sent[1]['to'][0][0] );
-		}
-
-		$this->assertTrue( $was_admin_email_sent );
-		$this->assertTrue( $was_user_email_sent );
 	}
 
 	/**

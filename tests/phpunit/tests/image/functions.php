@@ -260,18 +260,10 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 	 * Try loading a directory
 	 *
 	 * @ticket 17814
-	 * @expectedDeprecated wp_load_image
 	 */
 	public function test_load_directory() {
 
-		// First, test with deprecated wp_load_image function
-		$editor1 = wp_load_image( DIR_TESTDATA );
-		$this->assertNotInternalType( 'resource', $editor1 );
-
-		$editor2 = wp_get_image_editor( DIR_TESTDATA );
-		$this->assertNotInternalType( 'resource', $editor2 );
-
-		// Then, test with editors.
+		// Test with editors.
 		$classes = array('WP_Image_Editor_GD', 'WP_Image_Editor_Imagick');
 		foreach ( $classes as $class ) {
 			// If the image editor isn't available, skip it

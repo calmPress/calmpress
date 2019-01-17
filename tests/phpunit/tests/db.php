@@ -497,14 +497,6 @@ class Tests_DB extends WP_UnitTestCase {
 		);
 	}
 
-	/**
-	 * @expectedDeprecated supports_collation
-	 */
-	function test_supports_collation() {
-		global $wpdb;
-		$this->assertTrue( $wpdb->supports_collation() );
-	}
-
 	function test_check_database_version() {
 		global $wpdb;
 		$this->assertEmpty( $wpdb->check_database_version() );

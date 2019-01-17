@@ -1720,15 +1720,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 23016
-	 * @expectedDeprecated WP_Roles::reinit
-	 */
-	public function test_wp_roles_reinit_deprecated() {
-		$wp_roles = new WP_Roles();
-		$wp_roles->reinit();
-	}
-
-	/**
 	 * @ticket 38412
 	 */
 	public function test_no_one_can_edit_user_meta_for_non_existent_term() {
