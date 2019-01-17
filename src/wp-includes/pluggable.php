@@ -2121,10 +2121,10 @@ if ( !function_exists('wp_check_password') ) :
  *
  * @param string     $password Plaintext user's password
  * @param string     $hash     Hash of the user's password to check against.
- * @param int        $user_id  The ID of the user for which the password is checked.
+ * @param string|int        $user_id  The ID of the user for which the password is checked.
  * @return bool False, if the $password does not match the hashed password
  */
-function wp_check_password($password, $hash, int $user_id) {
+function wp_check_password($password, $hash, $user_id = '') {
 
 	if ( 0 === strpos( $hash, '$P$' ) ) {
 		// If the hash is WordPress style password hash (indicated by having the $P$ string),
@@ -2133,17 +2133,17 @@ function wp_check_password($password, $hash, int $user_id) {
 		$wp_hasher = new PasswordHash( 8, true );
 
 		$check = $wp_hasher->CheckPassword( $password, $hash );
-		if ( $check ) {
+		if ( $check && $user_id ) {
 			$hash = wp_set_password( $password, $user_id );
 		}
 	} else {
-		// Hash generated with moder PHP APIs
+		// Hash generated with older PHP APIs
 		$check = password_verify( $password, $hash );
 	}
 
 	// If the current PHP version has a different password hashing algorithm
 	// "upgrade" the hash and store the result in the DB.
-	if ( $check && password_needs_rehash( $hash, PASSWORD_DEFAULT ) ) {
+	if ( $check && password_needs_rehash( $hash, PASSWORD_DEFAULT ) && $user_id ) {
 		// the password needs to be rehashed as it was not generated with
 		// the current default algorithm.
 		$hash = wp_set_password( $password, $user_id );
