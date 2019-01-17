@@ -161,68 +161,6 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 		$this->assertEquals('', get_post_meta($this->post_id_2, 'unique_delete_by_key', true));
 	}
 
-	function test_get_post_meta_by_id() {
-		$mid = add_post_meta( $this->post_id, 'get_post_meta_by_key', 'get_post_meta_by_key_value', true );
-		$this->assertInternalType( 'integer', $mid );
-
-		$mobj = new stdClass;
-		$mobj->meta_id = $mid;
-		$mobj->post_id = $this->post_id;
-		$mobj->meta_key = 'get_post_meta_by_key';
-		$mobj->meta_value = 'get_post_meta_by_key_value';
-		$this->assertEquals( $mobj, get_post_meta_by_id( $mid ) );
-		delete_metadata_by_mid( 'post', $mid );
-
-		$mid = add_post_meta( $this->post_id, 'get_post_meta_by_key', array( 'foo', 'bar' ), true );
-		$this->assertInternalType( 'integer', $mid );
-		$mobj->meta_id = $mid;
-		$mobj->meta_value = array( 'foo', 'bar' );
-		$this->assertEquals( $mobj, get_post_meta_by_id( $mid ) );
-		delete_metadata_by_mid( 'post', $mid );
-	}
-
-	function test_delete_meta() {
-		$mid = add_post_meta( $this->post_id, 'delete_meta', 'delete_meta_value', true );
-		$this->assertInternalType( 'integer', $mid );
-
-		$this->assertTrue( delete_meta( $mid ) );
-		$this->assertFalse( get_metadata_by_mid( 'post', $mid ) );
-
-		$this->assertFalse( delete_meta( 123456789 ) );
-	}
-
-	function test_update_meta() {
-		// Add a unique post meta item
-		$this->assertInternalType( 'integer', $mid1 = add_post_meta($this->post_id, 'unique_update', 'value', true) );
-
-		// Add two non unique post meta item
-		$this->assertInternalType( 'integer', $mid2 = add_post_meta($this->post_id, 'nonunique_update', 'value') );
-		$this->assertInternalType( 'integer', $mid3 = add_post_meta($this->post_id, 'nonunique_update', 'another value') );
-
-		//Check they exist
-		$this->assertEquals('value', get_post_meta($this->post_id, 'unique_update', true));
-		$this->assertEquals(array('value'), get_post_meta($this->post_id, 'unique_update', false));
-		$this->assertEquals('value', get_post_meta($this->post_id, 'nonunique_update', true));
-		$this->assertEquals(array('value', 'another value'), get_post_meta($this->post_id, 'nonunique_update', false));
-
-		// Update them
-		$this->assertTrue( update_meta( $mid1, 'unique_update', 'new' ) );
-		$this->assertTrue( update_meta( $mid2, 'nonunique_update', 'new' ) );
-		$this->assertTrue( update_meta( $mid3, 'nonunique_update', 'another new' ) );
-
-		//Check they updated
-		$this->assertEquals('new', get_post_meta($this->post_id, 'unique_update', true));
-		$this->assertEquals(array('new'), get_post_meta($this->post_id, 'unique_update', false));
-		$this->assertEquals('new', get_post_meta($this->post_id, 'nonunique_update', true));
-		$this->assertEquals(array('new', 'another new'), get_post_meta($this->post_id, 'nonunique_update', false));
-
-		// Slashed update
-		$data = "'quote and \slash";
-		$this->assertTrue( update_meta( $mid1, 'unique_update', addslashes( $data ) ) );
-		$meta = get_metadata_by_mid( 'post', $mid1 );
-		$this->assertEquals( $data, $meta->meta_value );
-	}
-
 	/**
 	 * @ticket 12860
 	 */
