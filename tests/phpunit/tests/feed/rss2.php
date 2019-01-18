@@ -86,7 +86,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 * with the expected child elements and attributes.
 	 */
 	function test_rss_element() {
-		$this->go_to( '/?feed=rss2' );
+		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
 		$xml = xml_to_array( $feed );
 
@@ -110,7 +110,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 * @return [type] [description]
 	 */
 	function test_channel_element() {
-		$this->go_to( '/?feed=rss2' );
+		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
 		$xml = xml_to_array( $feed );
 
@@ -148,7 +148,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 		$GLOBALS['wp_locale'] = $locale;
 
-		$this->go_to( '/?feed=rss2' );
+		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
 
 		// Restore original locale.
@@ -162,7 +162,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	}
 
 	function test_item_elements() {
-		$this->go_to( '/?feed=rss2' );
+		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
 		$xml = xml_to_array( $feed );
 
@@ -255,7 +255,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	function test_items_comments_closed() {
 		add_filter( 'comments_open', '__return_false' );
 
-		$this->go_to( '/?feed=rss2' );
+		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
 		$xml = xml_to_array( $feed );
 
