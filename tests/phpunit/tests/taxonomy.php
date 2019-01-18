@@ -5,11 +5,7 @@
  */
 class Tests_Taxonomy extends WP_UnitTestCase {
 	function test_get_post_taxonomies() {
-		$this->assertEquals(array('category', 'post_tag', 'post_format'), get_object_taxonomies('post'));
-	}
-
-	function test_get_link_taxonomies() {
-		$this->assertEquals(array('link_category'), get_object_taxonomies('link'));
+		$this->assertEquals(array('category', 'post_tag', 'post_format', 'calm_authors' ), get_object_taxonomies('post'));
 	}
 
 	/**
@@ -29,7 +25,7 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 			// should return an object with the correct taxonomy object type
 			$this->assertTrue( is_object( $tax ) );
 			$this->assertTrue( is_array( $tax->object_type ) );
-			$this->assertEquals( array( 'post' ), $tax->object_type );
+			$this->assertContains( 'post', $tax->object_type );
 		}
 	}
 
@@ -37,7 +33,11 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 		$post_id = self::factory()->post->create();
 
 		$taxes = get_the_taxonomies( $post_id );
-		$this->assertNotEmpty( $taxes );
+		$this->assertEmpty( $taxes );
+
+		$id = self::factory()->category->create();
+		wp_set_post_categories( $post_id, array( $id ) );
+		$taxes = get_the_taxonomies( $post_id );
 		$this->assertEquals( array( 'category' ), array_keys( $taxes ) );
 
 		$id = self::factory()->tag->create();
@@ -54,24 +54,28 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 	 */
 	public function test_get_the_taxonomies_term_template() {
 		$post_id = self::factory()->post->create();
+		$id = self::factory()->category->create( [ 'name' => 'Uncategorized' ] );
+		wp_set_post_categories( $post_id, array( $id ) );
 
 		$taxes = get_the_taxonomies( $post_id, array( 'term_template' => '%2$s' ) );
 		$this->assertEquals( 'Categories: Uncategorized.', $taxes['category'] );
 
 		$taxes = get_the_taxonomies( $post_id, array( 'term_template' => '<span class="foo"><a href="%1$s">%2$s</a></span>' ) );
 		$link = get_category_link( 1 );
-		$this->assertEquals( 'Categories: <span class="foo"><a href="' . $link . '">Uncategorized</a></span>.', $taxes['category'] );
+		$this->assertEquals( 'Categories: <span class="foo"><a href="http://example.org/category/uncategorized/">Uncategorized</a></span>.', $taxes['category'] );
 	}
 
 	function test_the_taxonomies() {
 		$post_id = self::factory()->post->create();
+		$id = self::factory()->category->create( [ 'name' => 'Uncategorized' ] );
+		wp_set_post_categories( $post_id, array( $id ) );
 
 		ob_start();
 		the_taxonomies( array( 'post' => $post_id ) );
 		$output = ob_get_clean();
 
 		$link = get_category_link( 1 );
-		$expected = 'Categories: <a href="' . $link . '">Uncategorized</a>.';
+		$expected = 'Categories: <a href="http://example.org/category/uncategorized/">Uncategorized</a>.';
 		$this->assertEquals( $expected, $output );
 	}
 
@@ -80,13 +84,15 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 	 */
 	function test_the_taxonomies_term_template() {
 		$post_id = self::factory()->post->create();
+		$id = self::factory()->category->create( [ 'name' => 'Uncategorized' ] );
+		wp_set_post_categories( $post_id, array( $id ) );
 
 		$output = get_echo( 'the_taxonomies', array( array( 'post' => $post_id, 'term_template' => '%2$s' ) ) );
 		$this->assertEquals( 'Categories: Uncategorized.', $output );
 
 		$output = get_echo( 'the_taxonomies', array( array( 'post' => $post_id, 'term_template' => '<span class="foo"><a href="%1$s">%2$s</a></span>' ) ) );
 		$link = get_category_link( 1 );
-		$this->assertEquals( 'Categories: <span class="foo"><a href="' . $link . '">Uncategorized</a></span>.', $output );
+		$this->assertEquals( 'Categories: <span class="foo"><a href="http://example.org/category/uncategorized/">Uncategorized</a></span>.', $output );
 	}
 
 	function test_get_link_taxonomy() {
@@ -102,7 +108,6 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 	function test_taxonomy_exists_known() {
 		$this->assertTrue( taxonomy_exists('category') );
 		$this->assertTrue( taxonomy_exists('post_tag') );
-		$this->assertTrue( taxonomy_exists('link_category') );
 	}
 
 	function test_taxonomy_exists_unknown() {
@@ -387,12 +392,14 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 	}
 
 	function test_insert_category_update() {
+		$id = self::factory()->category->create( [ 'name' => 'Uncategorized' ] );
+
 		$cat = array(
-			'cat_ID' => 1,
+			'cat_ID' => $id,
 			'taxonomy' => 'category',
 			'cat_name' => 'Updated Name'
 		);
-		$this->assertEquals( 1, wp_insert_category( $cat ) );
+		$this->assertEquals( $id, wp_insert_category( $cat ) );
 	}
 
 	function test_insert_category_force_error_handle() {
