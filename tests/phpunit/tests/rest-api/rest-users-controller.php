@@ -1803,9 +1803,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertEquals( $expected_output['name']       , $actual_output['name'] );
 		$this->assertEquals( $expected_output['first_name'] , $actual_output['first_name'] );
 		$this->assertEquals( $expected_output['last_name']  , $actual_output['last_name'] );
-		$this->assertEquals( $expected_output['url']        , $actual_output['url'] );
 		$this->assertEquals( $expected_output['description'], $actual_output['description'] );
-		$this->assertEquals( $expected_output['nickname']   , $actual_output['nickname'] );
 
 		// Compare expected API output to WP internal values
 		$user = get_userdata( $actual_output['id'] );
@@ -1815,9 +1813,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertEquals( $expected_output['name']       , $user->display_name );
 		$this->assertEquals( $expected_output['first_name'] , $user->first_name );
 		$this->assertEquals( $expected_output['last_name']  , $user->last_name );
-		$this->assertEquals( $expected_output['url']        , $user->user_url );
 		$this->assertEquals( $expected_output['description'], $user->description );
-		$this->assertEquals( $expected_output['nickname']   , $user->nickname );
 		$this->assertTrue( wp_check_password( addslashes( $expected_output['password'] ), $user->user_pass ) );
 	}
 
