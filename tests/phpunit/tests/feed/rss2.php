@@ -48,6 +48,14 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		foreach ( self::$posts as $post ) {
 			wp_set_object_terms( $post, self::$category->slug, 'category' );
 		}
+
+		// Assign authors to some posts.
+		$term1 = wp_insert_term( 'author 1', calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, [] );
+		$term2 = wp_insert_term( 'second', calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, [] );
+
+		wp_set_object_terms( self::$posts[0], [ $term1['term_id'], $term2['term_id'] ], calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( self::$posts[1], [ $term1['term_id'] ], calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( self::$posts[2], [ $term2['term_id'] ], calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 	}
 
 	/**
@@ -162,6 +170,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	}
 
 	function test_item_elements() {
+		global $post;
 		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
 		$xml = xml_to_array( $feed );
@@ -180,8 +189,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 			// Get post for comparison
 			$guid = xml_find( $items[$key]['child'], 'guid' );
-			preg_match( '/\?p=(\d+)/', $guid[0]['content'], $matches );
-			$post = get_post( $matches[1] );
+			$post = get_post( url_to_postid( $guid[0]['content'] ) );
 
 			// Title
 			$title = xml_find( $items[$key]['child'], 'title' );
@@ -201,8 +209,12 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 			// Author
 			$creator = xml_find( $items[$key]['child'], 'dc:creator' );
-			$user = new WP_User( $post->post_author );
-			$this->assertEquals( $user->display_name, $creator[0]['content'] );
+			if ( ! isset( $creator[0]['content'] ) ) {
+				// Will happen in case there is no author.
+				$this->assertEmpty( get_the_author() );
+			} else {
+				$this->assertEquals( get_the_author(), $creator[0]['content'] );
+			}
 
 			// Categories (perhaps multiple)
 			$categories = xml_find( $items[$key]['child'], 'category' );
@@ -266,8 +278,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		foreach ( $items as $key => $item ) {
 			// Get post for comparison
 			$guid = xml_find( $items[$key]['child'], 'guid' );
-			preg_match( '/\?p=(\d+)/', $guid[0]['content'], $matches );
-			$post = get_post( $matches[1] );
+			$post = get_post( url_to_postid( $guid[0]['content'] ) );
 
 			// comment link
 			$comments_link = xml_find( $items[ $key ]['child'], 'comments' );
