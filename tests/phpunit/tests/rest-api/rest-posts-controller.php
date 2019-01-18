@@ -18,8 +18,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 	protected static $contributor_id;
 	protected static $private_reader_id;
 
-	protected static $supported_formats;
-
 	protected $forbidden_cat;
 	protected $posts_clauses;
 
@@ -50,18 +48,9 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			update_site_option( 'site_admins', array( 'superadmin' ) );
 		}
 
-		// Only support 'post' and 'gallery'
-		self::$supported_formats = get_theme_support( 'post-formats' );
-		add_theme_support( 'post-formats', array( 'post', 'gallery' ) );
 	}
 
 	public static function wpTearDownAfterClass() {
-		// Restore theme support for formats.
-		if ( self::$supported_formats ) {
-			add_theme_support( 'post-formats', self::$supported_formats );
-		} else {
-			remove_theme_support( 'post-formats' );
-		}
 
 		wp_delete_post( self::$post_id, true );
 
@@ -169,7 +158,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$data = $response->get_data();
 		$keys = array_keys( $data['endpoints'][0]['args'] );
 		sort( $keys );
-		$this->assertEquals( array( 'context', 'id', 'password' ), $keys );
+		$this->assertEquals( array( 'context', 'id' ), $keys );
 	}
 
 	public function test_get_items() {
@@ -1115,16 +1104,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->assertEquals( $post2, $data[0]['id'] );
 	}
 
-	public function test_get_items_all_post_formats() {
-		$request = new WP_REST_Request( 'OPTIONS', '/wp/v2/posts' );
-		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
-
-		$formats = array_values( get_post_format_slugs() );
-
-		$this->assertEquals( $formats, $data['schema']['properties']['format']['enum'] );
-	}
-
 	public function test_get_item() {
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = $this->server->dispatch( $request );
@@ -1156,19 +1135,16 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->assertEquals( $attachments_url, $links['https://api.w.org/attachment'][0]['href'] );
 
 		$term_links = $links['https://api.w.org/term'];
-		$tag_link = $cat_link = $format_link = null;
+		$tag_link = $cat_link = null;
 		foreach ( $term_links as $link ) {
 			if ( 'post_tag' === $link['attributes']['taxonomy'] ) {
 				$tag_link = $link;
 			} elseif ( 'category' === $link['attributes']['taxonomy'] ) {
 				$cat_link = $link;
-			} elseif ( 'post_format' === $link['attributes']['taxonomy'] ) {
-				$format_link = $link;
 			}
 		}
 		$this->assertNotEmpty( $tag_link );
 		$this->assertNotEmpty( $cat_link );
-		$this->assertNull( $format_link );
 
 		$tags_url = add_query_arg( 'post', self::$post_id, rest_url( '/wp/v2/tags' ) );
 		$this->assertEquals( $tags_url, $tag_link['href'] );
@@ -1265,73 +1241,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->assertErrorResponse( 'rest_forbidden_context', $response, 401 );
 	}
 
-	public function test_get_post_with_password() {
-		$post_id = $this->factory->post->create( array(
-			'post_password' => '$inthebananastand',
-		) );
-
-		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $post_id ) );
-		$response = $this->server->dispatch( $request );
-
-		$this->check_get_post_response( $response, 'view' );
-
-		$data = $response->get_data();
-		$this->assertEquals( '', $data['content']['rendered'] );
-		$this->assertTrue( $data['content']['protected'] );
-		$this->assertEquals( '', $data['excerpt']['rendered'] );
-		$this->assertTrue( $data['excerpt']['protected'] );
-	}
-
-	public function test_get_post_with_password_using_password() {
-		$post_id = $this->factory->post->create( array(
-			'post_password' => '$inthebananastand',
-			'post_content'  => 'Some secret content.',
-			'post_excerpt'  => 'Some secret excerpt.',
-		) );
-
-		$post = get_post( $post_id );
-		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $post_id ) );
-		$request->set_param( 'password', '$inthebananastand' );
-		$response = $this->server->dispatch( $request );
-
-		$this->check_get_post_response( $response, 'view' );
-
-		$data = $response->get_data();
-		$this->assertEquals( wpautop( $post->post_content ), $data['content']['rendered'] );
-		$this->assertTrue( $data['content']['protected'] );
-		$this->assertEquals( wpautop( $post->post_excerpt ), $data['excerpt']['rendered'] );
-		$this->assertTrue( $data['excerpt']['protected'] );
-	}
-
-	public function test_get_post_with_password_using_incorrect_password() {
-		$post_id = $this->factory->post->create( array(
-			'post_password' => '$inthebananastand',
-		) );
-
-		$post = get_post( $post_id );
-		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $post_id ) );
-		$request->set_param( 'password', 'wrongpassword' );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertErrorResponse( 'rest_post_incorrect_password', $response, 403 );
-	}
-
-	public function test_get_post_with_password_without_permission() {
-		$post_id = $this->factory->post->create( array(
-			'post_password' => '$inthebananastand',
-			'post_content'  => 'Some secret content.',
-			'post_excerpt'  => 'Some secret excerpt.',
-		) );
-		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $post_id ) );
-		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
-		$this->check_get_post_response( $response, 'view' );
-		$this->assertEquals( '', $data['content']['rendered'] );
-		$this->assertTrue( $data['content']['protected'] );
-		$this->assertEquals( '', $data['excerpt']['rendered'] );
-		$this->assertTrue( $data['excerpt']['protected'] );
-	}
-
 	/**
 	 * The post response should not have `block_version` when in view context.
 	 *
@@ -1370,7 +1279,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$data = $response->get_data();
 		$this->assertSame( 1, $data['content']['block_version'] );
 	}
-	
+
 	/**
 	 * The post response should have `block_version` indicate that no block content is present when in edit context.
 	 *
@@ -1806,71 +1715,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
 	}
 
-	public function test_create_post_with_format() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
-		$params = $this->set_post_data( array(
-			'format' => 'gallery',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$data = $response->get_data();
-		$new_post = get_post( $data['id'] );
-		$this->assertEquals( 'gallery', $data['format'] );
-		$this->assertEquals( 'gallery', get_post_format( $new_post->ID ) );
-	}
-
-	public function test_create_post_with_standard_format() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
-		$params = $this->set_post_data( array(
-			'format' => 'standard',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$data = $response->get_data();
-		$new_post = get_post( $data['id'] );
-		$this->assertEquals( 'standard', $data['format'] );
-		$this->assertFalse( get_post_format( $new_post->ID ) );
-	}
-
-	public function test_create_post_with_invalid_format() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
-		$params = $this->set_post_data( array(
-			'format' => 'testformat',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
-	}
-
-	/**
-	 * Test with a valid format, but one unsupported by the theme.
-	 *
-	 * https://core.trac.wordpress.org/ticket/38610
-	 */
-	public function test_create_post_with_unsupported_format() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
-		$params = $this->set_post_data( array(
-			'format' => 'link',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 201, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertEquals( 'link', $data['format'] );
-	}
-
 	public function test_create_update_post_with_featured_media() {
 
 		$file = DIR_TESTDATA . '/images/canola.jpg';
@@ -1927,65 +1771,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_cannot_edit_others', $response, 403 );
-	}
-
-	public function test_create_post_with_password() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
-		$params = $this->set_post_data( array(
-			'password' => 'testing',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$data = $response->get_data();
-		$this->assertEquals( 'testing', $data['password'] );
-	}
-
-	public function test_create_post_with_falsy_password() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
-		$params = $this->set_post_data( array(
-			'password' => '0',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$data = $response->get_data();
-
-		$this->assertEquals( '0', $data['password'] );
-	}
-
-	public function test_create_post_with_empty_string_password_and_sticky() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
-		$params = $this->set_post_data( array(
-			'password' => '',
-			'sticky'   => true,
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertEquals( 201, $response->get_status() );
-		$data = $response->get_data();
-		$this->assertEquals( '', $data['password'] );
-	}
-
-	public function test_create_post_with_password_and_sticky_fails() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
-		$params = $this->set_post_data( array(
-			'password' => '123',
-			'sticky'   => true,
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertErrorResponse( 'rest_invalid_field', $response, 400 );
 	}
 
 	public function test_create_post_custom_date() {
@@ -2092,7 +1877,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$category = wp_insert_term( 'Test Category', 'category' );
 		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
 		$params = $this->set_post_data( array(
-			'password'   => 'testing',
 			'categories' => array(
 				$category['term_id']
 			),
@@ -2123,7 +1907,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		wp_set_current_user( self::$editor_id );
 		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
 		$params = $this->set_post_data( array(
-			'password'   => 'testing',
 			'categories' => array(
 				REST_TESTS_IMPOSSIBLY_HIGH_NUMBER
 			),
@@ -2145,7 +1928,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		wp_set_current_user( self::$editor_id );
 		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
 		$params = $this->set_post_data( array(
-			'password'   => 'testing',
 			'categories' => $cats,
 		) );
 		$request->set_body_params( $params );
@@ -2304,71 +2086,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_post_invalid_id', $response, 404 );
-	}
-
-	public function test_update_post_with_format() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
-		$params = $this->set_post_data( array(
-			'format' => 'gallery',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$data = $response->get_data();
-		$new_post = get_post( $data['id'] );
-		$this->assertEquals( 'gallery', $data['format'] );
-		$this->assertEquals( 'gallery', get_post_format( $new_post->ID ) );
-	}
-
-	public function test_update_post_with_standard_format() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
-		$params = $this->set_post_data( array(
-			'format' => 'standard',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$data = $response->get_data();
-		$new_post = get_post( $data['id'] );
-		$this->assertEquals( 'standard', $data['format'] );
-		$this->assertFalse( get_post_format( $new_post->ID ) );
-	}
-
-	public function test_update_post_with_invalid_format() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
-		$params = $this->set_post_data( array(
-			'format' => 'testformat',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
-	}
-
-	/**
-	 * Test with a valid format, but one unsupported by the theme.
-	 *
-	 * https://core.trac.wordpress.org/ticket/38610
-	 */
-	public function test_update_post_with_unsupported_format() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
-		$params = $this->set_post_data( array(
-			'format' => 'link',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 200, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertEquals( 'link', $data['format'] );
 	}
 
 	public function test_update_post_ignore_readonly() {
@@ -2620,67 +2337,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->assertEquals( '', $new_data['content']['raw'] );
 	}
 
-	public function test_update_post_with_empty_password() {
-		wp_set_current_user( self::$editor_id );
-		wp_update_post( array(
-			'ID'            => self::$post_id,
-			'post_password' => 'foo',
-		) );
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
-		$params = $this->set_post_data( array(
-			'password' => '',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
-		$this->assertEquals( '', $data['password'] );
-	}
-
-	public function test_update_post_with_password_and_sticky_fails() {
-		wp_set_current_user( self::$editor_id );
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
-		$params = $this->set_post_data( array(
-			'password' => '123',
-			'sticky'   => true,
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertErrorResponse( 'rest_invalid_field', $response, 400 );
-	}
-
-	public function test_update_stick_post_with_password_fails() {
-		wp_set_current_user( self::$editor_id );
-
-		stick_post( self::$post_id );
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
-		$params = $this->set_post_data( array(
-			'password' => '123',
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertErrorResponse( 'rest_invalid_field', $response, 400 );
-	}
-
-	public function test_update_password_protected_post_with_sticky_fails() {
-		wp_set_current_user( self::$editor_id );
-
-		wp_update_post( array( 'ID' => self::$post_id, 'post_password' => '123' ) );
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
-		$params = $this->set_post_data( array(
-			'sticky' => true,
-		) );
-		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertErrorResponse( 'rest_invalid_field', $response, 400 );
-	}
-
 	public function test_update_post_with_quotes_in_title() {
 		wp_set_current_user( self::$editor_id );
 
@@ -2755,7 +2411,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		wp_set_current_user( self::$editor_id );
 		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$params = $this->set_post_data( array(
-			'password'   => 'testing',
 			'categories' => $cats,
 		) );
 		$request->set_body_params( $params );
@@ -3163,13 +2818,11 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->assertArrayHasKey( 'featured_media', $properties );
 		$this->assertArrayHasKey( 'generated_slug', $properties );
 		$this->assertArrayHasKey( 'guid', $properties );
-		$this->assertArrayHasKey( 'format', $properties );
 		$this->assertArrayHasKey( 'id', $properties );
 		$this->assertArrayHasKey( 'link', $properties );
 		$this->assertArrayHasKey( 'meta', $properties );
 		$this->assertArrayHasKey( 'modified', $properties );
 		$this->assertArrayHasKey( 'modified_gmt', $properties );
-		$this->assertArrayHasKey( 'password', $properties );
 		$this->assertArrayHasKey( 'permalink_template', $properties );
 		$this->assertArrayHasKey( 'ping_status', $properties );
 		$this->assertArrayHasKey( 'slug', $properties );
@@ -3201,7 +2854,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			'date_gmt',
 			'excerpt',
 			'featured_media',
-			'format',
 			'guid',
 			'id',
 			'link',
@@ -3239,7 +2891,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			'date_gmt',
 			'excerpt',
 			'featured_media',
-			'format',
 			'generated_slug',
 			'guid',
 			'id',
@@ -3247,7 +2898,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			'meta',
 			'modified',
 			'modified_gmt',
-			'password',
 			'permalink_template',
 			'ping_status',
 			'slug',
@@ -3513,8 +3163,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->assertArrayHasKey( 'https://api.w.org/action-assign-tags', $rels );
 		$this->assertArrayHasKey( 'https://api.w.org/action-create-tags', $rels );
 
-		$this->assertArrayNotHasKey( 'https://api.w.org/action-assign-post_format', $rels );
-		$this->assertArrayNotHasKey( 'https://api.w.org/action-create-post_format', $rels );
 		$this->assertArrayNotHasKey( 'https://api.w.org/action-assign-nav_menu', $rels );
 		$this->assertArrayNotHasKey( 'https://api.w.org/action-create-nav_menu', $rels );
 	}
@@ -3686,7 +3334,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		$this->assertArrayHasKey( 'https://api.w.org/action-create-categories', $links );
 		$this->assertArrayHasKey( 'https://api.w.org/action-create-tags', $links );
-		$this->assertArrayNotHasKey( 'https://api.w.org/action-create-post_format', $links );
 	}
 
 	public function test_create_term_action_non_hierarchical_exists_for_author() {
