@@ -69,10 +69,6 @@ abstract class WP_Test_REST_Post_Type_Controller_Testcase extends WP_Test_REST_C
 			$this->assertEquals( is_sticky( $post->ID ), $data['sticky'] );
 		}
 
-		if ( 'post' === $post->post_type && 'edit' === $context ) {
-			$this->assertEquals( $post->post_password, $data['password'] );
-		}
-
 		if ( 'page' === $post->post_type ) {
 			$this->assertEquals( get_page_template_slug( $post->ID ), $data['template'] );
 		}
@@ -81,18 +77,6 @@ abstract class WP_Test_REST_Post_Type_Controller_Testcase extends WP_Test_REST_C
 			$this->assertEquals( (int) get_post_thumbnail_id( $post->ID ), $data['featured_media'] );
 		} else {
 			$this->assertFalse( isset( $data['featured_media'] ) );
-		}
-
-		// Check post format.
-		if ( post_type_supports( $post->post_type, 'post-formats' ) ) {
-			$post_format = get_post_format( $post->ID );
-			if ( empty( $post_format ) ) {
-				$this->assertEquals( 'standard', $data['format'] );
-			} else {
-				$this->assertEquals( get_post_format( $post->ID ), $data['format'] );
-			}
-		} else {
-			$this->assertFalse( isset( $data['format'] ) );
 		}
 
 		// Check filtered values.
