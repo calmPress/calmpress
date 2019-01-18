@@ -68,10 +68,6 @@ add_action( 'populate_options', '_set_default_permalink_structure_for_tests' );
 
 wp_install( WP_TESTS_TITLE, 'admin', WP_TESTS_EMAIL, true, null, 'password' );
 
-// Delete dummy permalink structure, as prefilled above.
-if ( ! is_multisite() ) {
-	delete_option( 'permalink_structure' );
-}
 remove_action( 'populate_options', '_set_default_permalink_structure_for_tests' );
 
 if ( $multisite ) {
@@ -84,5 +80,5 @@ if ( $multisite ) {
 
 	install_network();
 	populate_network( 1, WP_TESTS_DOMAIN, WP_TESTS_EMAIL, $title, '/', $subdomain_install );
-	$wp_rewrite->set_permalink_structure( '' );
+	$wp_rewrite->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 }

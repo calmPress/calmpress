@@ -126,9 +126,9 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 			$this->reset_post_statuses();
 			$this->reset__SERVER();
 
-			if ( $wp_rewrite->permalink_structure ) {
-				$this->set_permalink_structure( '' );
-			}
+			$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+			do_action( 'init' );
+
 		}
 
 		$this->start_transaction();
@@ -241,6 +241,7 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 			_unregister_taxonomy( $tax );
 		}
 		create_initial_taxonomies();
+		calmpress\post_authors\Post_Authors_As_Taxonomy::init();
 	}
 
 	/**

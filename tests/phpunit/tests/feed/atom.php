@@ -44,6 +44,13 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 			wp_set_object_terms( $post, self::$category->slug, 'category' );
 		}
 
+		// Assign authors to some posts.
+		$term1 = wp_insert_term( 'author 1', calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, [] );
+		$term2 = wp_insert_term( 'second', calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, [] );
+
+		wp_set_object_terms( self::$posts[0], [ $term1['term_id'], $term2['term_id'] ], calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( self::$posts[1], [ $term1['term_id'] ], calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( self::$posts[2], [ $term2['term_id'] ], calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 	}
 
 	/**
@@ -122,6 +129,8 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 	 * Validate <entry> child elements.
 	 */
 	function test_entry_elements() {
+		global $post;
+
 		$this->go_to( '/feed/atom' );
 		$feed = $this->do_atom();
 		$xml = xml_to_array( $feed );
@@ -140,13 +149,16 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 
 			// Get post for comparison
 			$id = xml_find( $entries[$key]['child'], 'id' );
-			preg_match( '/\?p=(\d+)/', $id[0]['content'], $matches );
-			$post = get_post( $matches[1] );
+			$post = get_post( url_to_postid( $id[0]['content'] ) );
 
 			// Author
 			$author = xml_find( $entries[$key]['child'], 'author', 'name' );
-			$user = new WP_User( $post->post_author );
-			$this->assertEquals( $user->display_name, $author[0]['content'] );
+			if ( ! isset( $author[0]['content'] ) ) {
+				// Will happen in case there is no author.
+				$this->assertEmpty( get_the_author() );
+			} else {
+				$this->assertEquals( get_the_author(), $author[0]['content'] );
+			}
 
 			// Title
 			$title = xml_find( $entries[$key]['child'], 'title' );
