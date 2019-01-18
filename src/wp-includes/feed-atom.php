@@ -52,7 +52,7 @@ do_action( 'rss_tag_pre', 'atom' );
 	<entry>
 		<author>
 			<name><?php the_author() ?></name>
-
+			<?php
 			/**
 			 * Fires at the end of each Atom feed author entry.
 			 *
