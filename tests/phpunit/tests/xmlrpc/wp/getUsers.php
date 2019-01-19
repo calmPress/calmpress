@@ -35,7 +35,6 @@ class Tests_XMLRPC_wp_getUsers extends WP_XMLRPC_UnitTestCase {
 		$this->assertInstanceOf( 'IXR_Date', $result[0]['registered'] );
 		$this->assertInternalType( 'string', $result[0]['bio'] );
 		$this->assertInternalType( 'string', $result[0]['email'] );
-		$this->assertInternalType( 'string', $result[0]['nickname'] );
 		$this->assertInternalType( 'string', $result[0]['nicename'] );
 		$this->assertInternalType( 'string', $result[0]['url'] );
 		$this->assertInternalType( 'string', $result[0]['display_name'] );

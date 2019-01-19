@@ -55,7 +55,6 @@ class Tests_XMLRPC_wp_getPage extends WP_XMLRPC_UnitTestCase {
 		$this->assertInternalType( 'int',    $result['mt_allow_comments'] );
 		$this->assertInternalType( 'int',    $result['mt_allow_pings'] );
 		$this->assertInternalType( 'string', $result['wp_slug'] );
-		$this->assertInternalType( 'string', $result['wp_password'] );
 		$this->assertInternalType( 'string', $result['wp_author'] );
 		$this->assertInternalType( 'int',    $result['wp_page_parent_id'] );
 		$this->assertInternalType( 'string', $result['wp_page_parent_title'] );

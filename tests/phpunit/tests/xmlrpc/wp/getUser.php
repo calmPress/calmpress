@@ -83,7 +83,6 @@ class Tests_XMLRPC_wp_getUser extends WP_XMLRPC_UnitTestCase {
 		$this->assertInstanceOf( 'IXR_Date', $result['registered'] );
 		$this->assertInternalType( 'string', $result['bio'] );
 		$this->assertInternalType( 'string', $result['email'] );
-		$this->assertInternalType( 'string', $result['nickname'] );
 		$this->assertInternalType( 'string', $result['nicename'] );
 		$this->assertInternalType( 'string', $result['url'] );
 		$this->assertInternalType( 'string', $result['display_name'] );
@@ -97,7 +96,6 @@ class Tests_XMLRPC_wp_getUser extends WP_XMLRPC_UnitTestCase {
 		$this->assertEquals( $registered_date, $result['registered']->getTimestamp() );
 		$this->assertEquals( $user_data['description'], $result['bio'] );
 		$this->assertEquals( $user_data['user_email'], $result['email'] );
-		$this->assertEquals( $user_data['nickname'], $result['nickname'] );
 		$this->assertEquals( $user_data['user_nicename'], $result['nicename'] );
 		$this->assertEquals( $user_data['user_url'], $result['url'] );
 		$this->assertEquals( $user_data['display_name'], $result['display_name'] );
