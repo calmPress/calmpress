@@ -45,35 +45,26 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 		return array(
 			// Categories
 
-			array( '?cat=%d', array( 'url' => '/category/parent/' ), 15256 ),
-			array( '?cat=%d', array( 'url' => '/category/parent/child-1/' ), 15256 ),
-			array( '?cat=%d', array( 'url' => '/category/parent/child-1/child-2/' ) ), // no children
 			array( '/category/uncategorized/', array( 'url' => '/category/uncategorized/', 'qv' => array( 'category_name' => 'uncategorized' ) ) ),
 			array( '/category/uncategorized/page/2/', array( 'url' => '/category/uncategorized/page/2/', 'qv' => array( 'category_name' => 'uncategorized', 'paged' => 2) ) ),
-			array( '/category/uncategorized/?paged=2', array( 'url' => '/category/uncategorized/page/2/', 'qv' => array( 'category_name' => 'uncategorized', 'paged' => 2) ) ),
-			array( '/category/uncategorized/?paged=2&category_name=uncategorized', array( 'url' => '/category/uncategorized/page/2/', 'qv' => array( 'category_name' => 'uncategorized', 'paged' => 2) ), 17174 ),
 
 			// Categories & Intersections with other vars
 			array( '/category/uncategorized/?tag=post-formats', array( 'url' => '/category/uncategorized/?tag=post-formats', 'qv' => array('category_name' => 'uncategorized', 'tag' => 'post-formats') ) ),
-			array( '/?category_name=cat-a,cat-b', array( 'url' => '/?category_name=cat-a,cat-b', 'qv' => array( 'category_name' => 'cat-a,cat-b' ) ) ),
 
 			// Taxonomies with extra Query Vars
 			array( '/category/cat-a/page/1/?test=one%20two', '/category/cat-a/?test=one%20two', 18086), // Extra query vars should stay encoded
 
 			// Categories with Dates
 			array( '/2008/04/?cat=1', array( 'url' => '/2008/04/?cat=1', 'qv' => array('cat' => '1', 'year' => '2008', 'monthnum' => '04' ) ), 17661 ),
-//			array( '/2008/?category_name=cat-a', array( 'url' => '/2008/?category_name=cat-a', 'qv' => array('category_name' => 'cat-a', 'year' => '2008' ) ) ),
 
 			// Pages
 			array( '/child-page-1/', '/parent-page/child-page-1/'),
-			array( '/?page_id=144', '/parent-page/child-page-1/'),
 			array( '/abo', '/about/' ),
 			array( '/parent/child1/grandchild/', '/parent/child1/grandchild/' ),
 			array( '/parent/child2/grandchild/', '/parent/child2/grandchild/' ),
 
 			// Posts
 			array( '?p=587', '/2008/06/02/post-format-test-audio/'),
-			array( '/?name=images-test', '/2008/09/03/images-test/'),
 			// Incomplete slug should resolve and remove the ?name= parameter
 			array( '/?name=images-te', '/2008/09/03/images-test/', 20374),
 			// Page slug should resolve to post slug and remove the ?pagename= parameter
@@ -92,10 +83,6 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 			// Comments
 			array( '/2008/03/03/comment-test/?cpage=2', '/2008/03/03/comment-test/comment-page-2/' ),
 
-			// Attachments
-			array( '/?attachment_id=611', '/2008/06/10/post-format-test-gallery/canola2/' ),
-			array( '/2008/06/10/post-format-test-gallery/?attachment_id=611', '/2008/06/10/post-format-test-gallery/canola2/' ),
-
 			// Dates
 			array( '/?m=2008', '/2008/' ),
 			array( '/?m=200809', '/2008/09/'),
@@ -109,11 +96,6 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 
 			array( '/2012/13/', '/2012/'),
 			array( '/2012/11/51/', '/2012/11/', 0, array( 'WP_Date_Query' ) ),
-
-			// Authors
-			array( '/?author=%d', '/author/canonical-author/' ),
-//			array( '/?author=%d&year=2008', '/2008/?author=3'),
-//			array( '/author/canonical-author/?year=2008', '/2008/?author=3'), //Either or, see previous testcase.
 
 			// Feeds
 			array( '/?feed=atom', '/feed/atom/' ),
