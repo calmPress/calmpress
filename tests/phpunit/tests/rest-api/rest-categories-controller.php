@@ -129,6 +129,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 
 	public function test_get_items_hide_empty_arg() {
 		$post_id = $this->factory->post->create();
+		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		$category1 = $this->factory->category->create( array( 'name' => 'Season 5' ) );
 		$category2 = $this->factory->category->create( array( 'name' => 'The Be Sharps' ) );
 		wp_set_object_terms( $post_id, array( $category1, $category2 ), 'category' );
@@ -265,6 +266,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_items_orderby_args() {
+		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		$this->factory->category->create( array( 'name' => 'Apple' ) );
 		$this->factory->category->create( array( 'name' => 'Banana' ) );
 		/*
@@ -294,6 +296,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_items_orderby_id() {
+		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		$this->factory->category->create( array( 'name' => 'Cantaloupe' ) );
 		$this->factory->category->create( array( 'name' => 'Apple' ) );
 		$this->factory->category->create( array( 'name' => 'Banana' ) );
@@ -305,7 +308,6 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 		$this->assertEquals( 'Apple', $data[0]['name'] );
 		$this->assertEquals( 'Banana', $data[1]['name'] );
 		$this->assertEquals( 'Cantaloupe', $data[2]['name'] );
-		$this->assertEquals( 'Uncategorized', $data[3]['name'] );
 		// orderby=id, with default order=asc
 		$request = new WP_REST_Request( 'GET', '/wp/v2/categories' );
 		$request->set_param( 'orderby', 'id' );
@@ -511,8 +513,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_terms_pagination_headers() {
-		// Start of the index + Uncategorized default term
-		for ( $i = 0; $i < 49; $i++ ) {
+		for ( $i = 0; $i < 50; $i++ ) {
 			$this->factory->category->create( array(
 				'name'   => "Category {$i}",
 				) );
@@ -576,8 +577,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_items_per_page_exceeds_number_of_items() {
-		// Start of the index + Uncategorized default term
-		for ( $i = 0; $i < 17; $i++ ) {
+		for ( $i = 0; $i < 18; $i++ ) {
 			$this->factory->category->create( array(
 				'name'   => "Category {$i}",
 				) );
@@ -601,13 +601,15 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_item() {
-		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/1' );
+		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
+		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
 		$response = $this->server->dispatch( $request );
-		$this->check_get_taxonomy_term_response( $response );
+		$this->check_get_taxonomy_term_response( $response, $id );
 	}
 
 	public function test_get_item_meta() {
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/categories/1' );
+		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertArrayHasKey( 'meta', $data );
@@ -624,7 +626,8 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_item_meta_registered_for_different_taxonomy() {
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/categories/1' );
+		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
 		$response = rest_get_server()->dispatch( $request );
 		$data = $response->get_data();
 		$this->assertArrayHasKey( 'meta', $data );
@@ -647,8 +650,9 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_item_invalid_permission_for_context() {
+		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		wp_set_current_user( 0 );
-		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/1' );
+		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
 		$request->set_param( 'context', 'edit' );
 		$response = $this->server->dispatch( $request );
 		$this->assertErrorResponse( 'rest_forbidden_context', $response, 401 );
@@ -885,9 +889,10 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_prepare_item() {
-		$term = get_term( 1, 'category' );
+		$id = $this->factory->category->create( array( 'name' => 'Season 5' ) );
+		$term = get_term( $id, 'category' );
 
-		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/1' );
+		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
 		$response = $this->server->dispatch( $request );
 		$data = $response->get_data();
 
@@ -895,10 +900,11 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_prepare_item_limit_fields() {
+		$id = $this->factory->category->create( array( 'name' => 'Season 5' ) );
 		$request  = new WP_REST_Request;
 		$endpoint = new WP_REST_Terms_Controller( 'category' );
 		$request->set_param( '_fields', 'id,name' );
-		$term     = get_term( 1, 'category' );
+		$term     = get_term( $id, 'category' );
 		$response = $endpoint->prepare_item_for_response( $term, $request );
 		$this->assertEquals( array(
 			'id',
@@ -907,8 +913,9 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_prepare_taxonomy_term_child() {
+		$id = $this->factory->category->create( array( 'name' => 'Season 5' ) );
 		$child = $this->factory->category->create( array(
-			'parent' => 1,
+			'parent' => $id,
 		) );
 		$term = get_term( $child, 'category' );
 
@@ -918,10 +925,10 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 
 		$this->check_taxonomy_term( $term, $data, $response->get_links() );
 
-		$this->assertEquals( 1, $data['parent'] );
+		$this->assertEquals( $id, $data['parent'] );
 
 		$links = $response->get_links();
-		$this->assertEquals( rest_url( 'wp/v2/categories/1' ), $links['up'][0]['href'] );
+		$this->assertEquals( rest_url( 'wp/v2/categories/' . $id ), $links['up'][0]['href'] );
 	}
 
 	public function test_get_item_schema() {
@@ -1029,12 +1036,12 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 		$this->assertEquals( add_query_arg( 'categories', $term->term_id, rest_url( 'wp/v2/posts' ) ), $links['https://api.w.org/post_type'][0]['href'] );
 	}
 
-	protected function check_get_taxonomy_term_response( $response ) {
+	protected function check_get_taxonomy_term_response( $response, $id ) {
 
 		$this->assertEquals( 200, $response->get_status() );
 
 		$data = $response->get_data();
-		$category = get_term( 1, 'category' );
+		$category = get_term( $id, 'category' );
 		$this->check_taxonomy_term( $category, $data, $response->get_links() );
 	}
 }
