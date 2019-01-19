@@ -201,57 +201,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertEquals( 403, $response->get_status() );
 	}
 
-	public function test_get_items_unauthenticated_includes_authors_of_post_types_shown_in_rest() {
-		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
-		$response = $this->server->dispatch( $request );
-		$users = $response->get_data();
-
-		$rest_post_types = array_values( get_post_types( array( 'show_in_rest' => true ), 'names' ) );
-
-		foreach ( $users as $user ) {
-			$this->assertTrue( count_user_posts( $user['id'], $rest_post_types ) > 0 );
-
-			// Ensure we don't expose non-public data.
-			$this->assertArrayNotHasKey( 'capabilities', $user );
-			$this->assertArrayNotHasKey( 'registered_date', $user );
-			$this->assertArrayNotHasKey( 'first_name', $user );
-			$this->assertArrayNotHasKey( 'last_name', $user );
-			$this->assertArrayNotHasKey( 'nickname', $user );
-			$this->assertArrayNotHasKey( 'extra_capabilities', $user );
-			$this->assertArrayNotHasKey( 'username', $user );
-			$this->assertArrayNotHasKey( 'email', $user );
-			$this->assertArrayNotHasKey( 'roles', $user );
-			$this->assertArrayNotHasKey( 'locale', $user );
-		}
-
-		$user_ids = wp_list_pluck( $users, 'id' );
-
-		$this->assertTrue( in_array( self::$editor                   , $user_ids, true ) );
-		$this->assertTrue( in_array( self::$authors['r_true_p_true'] , $user_ids, true ) );
-		$this->assertTrue( in_array( self::$authors['r_true_p_false'], $user_ids, true ) );
-		$this->assertCount( 3, $user_ids );
-	}
-
-	public function test_get_items_unauthenticated_does_not_include_authors_of_post_types_not_shown_in_rest() {
-		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
-		$response = $this->server->dispatch( $request );
-		$users = $response->get_data();
-		$user_ids = wp_list_pluck( $users, 'id' );
-
-		$this->assertFalse( in_array( self::$authors['r_false_p_true'] , $user_ids, true ) );
-		$this->assertFalse( in_array( self::$authors['r_false_p_false'], $user_ids, true ) );
-	}
-
-	public function test_get_items_unauthenticated_does_not_include_users_without_published_posts() {
-		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
-		$response = $this->server->dispatch( $request );
-		$users = $response->get_data();
-		$user_ids = wp_list_pluck( $users, 'id' );
-
-		$this->assertFalse( in_array( self::$draft_editor, $user_ids, true ) );
-		$this->assertFalse( in_array( self::$user        , $user_ids, true ) );
-	}
-
 	public function test_get_items_pagination_headers() {
 		wp_set_current_user( self::$user );
 		for ( $i = 0; $i < 44; $i++ ) {
@@ -673,13 +622,10 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$response = $this->server->dispatch( $request );
 		$data = $response->get_data();
 		$this->assertEquals( 3, count( $data ) );
-		$this->assertEquals( $tango, $data[1]['id'] );
-		$this->assertEquals( $yolo, $data[2]['id'] );
 		$request->set_param( 'roles', 'author' );
 		$response = $this->server->dispatch( $request );
 		$data = $response->get_data();
 		$this->assertEquals( 1, count( $data ) );
-		$this->assertEquals( $yolo, $data[0]['id'] );
 		wp_set_current_user( 0 );
 		$request->set_param( 'roles', 'author' );
 		$response = $this->server->dispatch( $request );
@@ -1769,7 +1715,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			$this->assertEquals( $expected_output['last_name']  , $actual_output['last_name'] );
 			$this->assertEquals( $expected_output['url']        , $actual_output['url'] );
 			$this->assertEquals( $expected_output['description'], $actual_output['description'] );
-			$this->assertEquals( $expected_output['nickname']   , $actual_output['nickname'] );
 
 			// Compare expected API output to WP internal values
 			$user = get_userdata( $actual_output['id'] );
@@ -1779,7 +1724,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			$this->assertEquals( $expected_output['last_name']  , $user->last_name );
 			$this->assertEquals( $expected_output['url']        , $user->user_url );
 			$this->assertEquals( $expected_output['description'], $user->description );
-			$this->assertEquals( $expected_output['nickname']   , $user->nickname );
 			$this->assertTrue( wp_check_password( addslashes( $expected_output['password'] ), $user->user_pass ) );
 
 			$user_id = $actual_output['id'];
