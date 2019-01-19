@@ -120,7 +120,6 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 	function test_is_taxonomy_hierarchical() {
 		$this->assertTrue( is_taxonomy_hierarchical('category') );
 		$this->assertFalse( is_taxonomy_hierarchical('post_tag') );
-		$this->assertFalse( is_taxonomy_hierarchical('link_category') );
 	}
 
 	function test_is_taxonomy_hierarchical_unknown() {
