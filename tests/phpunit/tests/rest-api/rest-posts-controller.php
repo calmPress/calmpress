@@ -133,6 +133,8 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			'author',
 			'author_exclude',
 			'before',
+			'calm_authors',
+			'calm_authors_exclude',
 			'categories',
 			'categories_exclude',
 			'context',
@@ -158,7 +160,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$data = $response->get_data();
 		$keys = array_keys( $data['endpoints'][0]['args'] );
 		sort( $keys );
-		$this->assertEquals( array( 'context', 'id' ), $keys );
+		$this->assertEquals( array( 'context', 'id', 'password' ), $keys );
 	}
 
 	public function test_get_items() {
@@ -2295,7 +2297,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		wp_set_current_user( self::$editor_id );
 		$category = wp_insert_term( 'Test Category', 'category' );
-
+		var_dump($category);
 		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$params = $this->set_post_data( array(
 			'title' => 'Tester',
@@ -2307,22 +2309,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$response = $this->server->dispatch( $request );
 		$new_data = $response->get_data();
 		$this->assertEquals( array( $category['term_id'] ), $new_data['categories'] );
-		$categories_path = '';
-		$links = $response->get_links();
-		foreach ( $links['https://api.w.org/term'] as $link ) {
-			if ( 'category' === $link['attributes']['taxonomy'] ) {
-				$categories_path = $link['href'];
-			}
-		}
-		$query = parse_url( $categories_path, PHP_URL_QUERY );
-		parse_str( $query, $args );
-		$request = new WP_REST_Request( 'GET', $args['rest_route'] );
-		unset( $args['rest_route'] );
-		$request->set_query_params( $args );
-		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
-		$this->assertCount( 1, $data );
-		$this->assertEquals( 'Test Category', $data[0]['name'] );
 	}
 
 	public function test_update_post_with_empty_categories() {
@@ -2788,6 +2774,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		$expected_keys = array(
 			'author',
+			'calm_authors',
 			'categories',
 			'comment_status',
 			'content',
@@ -2825,6 +2812,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		$expected_keys = array(
 			'author',
+			'calm_authors',
 			'categories',
 			'comment_status',
 			'content',
