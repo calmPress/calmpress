@@ -205,9 +205,9 @@ EXPECTED;
 		$data = array(
 			0 => home_url( '/?foo=bar&s=search+term' ),
 			1 => home_url( '/?foo=bar&s=search+term' ),
-			3 => home_url( '/?paged=3&foo=bar&s=search+term' ),
-			5 => home_url( '/?paged=5&foo=bar&s=search+term' ),
-			6 => home_url( '/?paged=3&foo=bar&s=search+term' ),
+			3 => home_url( '/page/3/?foo=bar&s=search+term' ),
+			5 => home_url( '/page/5/?foo=bar&s=search+term' ),
+			6 => home_url( '/page/3/?foo=bar&s=search+term' ),
 		);
 
 		foreach ( $data as $index => $expected_href ) {
@@ -243,9 +243,9 @@ EXPECTED;
 		$data = array(
 			0 => home_url( '/?baz=qux&foo=bar&s=search+term' ),
 			1 => home_url( '/?baz=qux&foo=bar&s=search+term' ),
-			3 => home_url( '/?paged=3&baz=qux&foo=bar&s=search+term' ),
-			5 => home_url( '/?paged=5&baz=qux&foo=bar&s=search+term' ),
-			6 => home_url( '/?paged=3&baz=qux&foo=bar&s=search+term' ),
+			3 => home_url( '/page/3/?baz=qux&foo=bar&s=search+term' ),
+			5 => home_url( '/page/5/?baz=qux&foo=bar&s=search+term' ),
+			6 => home_url( '/page/3/?baz=qux&foo=bar&s=search+term' ),
 		);
 
 		foreach ( $data as $index => $expected_href ) {
