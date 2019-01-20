@@ -2101,7 +2101,7 @@ if ( !function_exists('wp_hash_password') ) :
  */
 function wp_hash_password($password) {
 
-	return password_hash($password, PASSWORD_DEFAULT );
+	return password_hash( trim( $password ), PASSWORD_DEFAULT );
 }
 endif;
 
