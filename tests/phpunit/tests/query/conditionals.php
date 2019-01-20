@@ -116,25 +116,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue('is_page','is_singular');
 	}
 
-	// '(about)/trackback/?$' => 'index.php?pagename=$matches[1]&tb=1'
-	function test_page_trackback() {
-		$page_ids = array();
-		$page_ids[] = $page_id = self::factory()->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
-		$page_ids[] = $page_id = self::factory()->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $page_id ) );
-		$page_ids[] = $page_id = self::factory()->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-2', 'post_parent' => $page_id ) );
-		foreach ( $page_ids as $page_id ) {
-			$url = get_permalink( $page_id );
-			$this->go_to("{$url}trackback/");
-
-			// make sure the correct wp_query flags are set
-			$this->assertQueryTrue('is_page','is_singular','is_trackback');
-
-			// make sure the correct page was fetched
-			global $wp_query;
-			$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
-		}
-	}
-
 	//'(about)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?pagename=$matches[1]&feed=$matches[2]'
 	function test_page_feed() {
 		$page_ids = array();
@@ -240,7 +221,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 	// FIXME: no tests for these yet
 	// 'about/attachment/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
-	// 'about/attachment/([^/]+)/trackback/?$' => 'index.php?attachment=$matches[1]&tb=1',
 	// 'about/attachment/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 	// 'about/attachment/([^/]+)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 
@@ -371,8 +351,12 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 	// 'category/(.+?)/page/?([0-9]{1,})/?$' => 'index.php?category_name=$matches[1]&paged=$matches[2]',
 	function test_category_paged() {
+		$c1 = self::factory()->category->create( ['name' => 'Uncategorized'] );
 		update_option( 'posts_per_page', 2 );
-		self::factory()->post->create_many( 3 );
+		$posts = self::factory()->post->create_many( 3 );
+		foreach ( $posts as $post_id ) {
+			wp_set_object_terms( $post_id, $c1, 'category' );
+		}
 		$this->go_to('/category/uncategorized/page/2/');
 		$this->assertQueryTrue('is_archive', 'is_category', 'is_paged');
 	}
@@ -429,48 +413,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertTrue( is_tag( array( $tag->name ) ) );
 		$this->assertTrue( is_tag( array( $tag->slug ) ) );
 		$this->assertTrue( is_tag( array( $tag->term_id ) ) );
-	}
-
-	// 'author/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?author_name=$matches[1]&feed=$matches[2]',
-	// 'author/([^/]+)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?author_name=$matches[1]&feed=$matches[2]',
-	function test_author_feed() {
-		self::factory()->user->create( array( 'user_login' => 'user-a' ) );
-		// check the long form
-		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
-		foreach ($types as $type) {
-				$this->go_to("/author/user-a/feed/{$type}");
-				$this->assertQueryTrue('is_archive', 'is_feed');
-		}
-
-		// check the short form
-		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
-		foreach ($types as $type) {
-				$this->go_to("/author/user-a/{$type}");
-				$this->assertQueryTrue('is_archive', 'is_feed');
-		}
-	}
-
-	// 'author/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?author_name=$matches[1]&paged=$matches[2]',
-	function test_author_paged() {
-		update_option( 'posts_per_page', 2 );
-		$user_id = self::factory()->user->create( array( 'user_login' => 'user-a' ) );
-		self::factory()->post->create_many( 3, array( 'post_author' => $user_id ) );
-		$this->go_to('/author/user-a/page/2/');
-		$this->assertQueryTrue('is_archive', 'is_paged');
-	}
-
-	// 'author/([^/]+)/?$' => 'index.php?author_name=$matches[1]',
-	function test_author() {
-		$user_id = self::factory()->user->create( array( 'user_login' => 'user-a' ) );
-		self::factory()->post->create( array( 'post_author' => $user_id ) );
-		$this->go_to('/author/user-a/');
-		$this->assertQueryTrue('is_archive');
-	}
-
-	function test_author_with_no_posts() {
-		$user_id = self::factory()->user->create( array( 'user_login' => 'user-a' ) );
-		$this->go_to('/author/user-a/');
-		$this->assertQueryTrue('is_archive');
 	}
 
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
@@ -575,14 +517,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue('is_archive', 'is_date', 'is_year');
 	}
 
-	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)/trackback/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&tb=1',
-	function test_post_trackback() {
-		$post_id = self::factory()->post->create();
-		$permalink = get_permalink( $post_id );
-		$this->go_to("{$permalink}trackback/");
-		$this->assertQueryTrue('is_single', 'is_singular', 'is_trackback');
-	}
-
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&feed=$matches[5]',
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&feed=$matches[5]',
 	function test_post_comment_feed() {
@@ -624,11 +558,9 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue('is_single', 'is_attachment', 'is_singular');
 	}
 
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/trackback/?$' => 'index.php?attachment=$matches[1]&tb=1',
 	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/trackback/?$' => 'index.php?attachment=$matches[1]&tb=1',
 	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 
@@ -931,14 +863,14 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	 * @ticket 24674
 	 */
 	public function test_is_category_with_slug_that_begins_with_a_number_that_clashes_with_another_category_id() {
-		$c1 = self::factory()->category->create();
+		$c1 = self::factory()->category->create( ['name' => 'c1'] );
 
 		$c2_name = $c1 . '-category';
 		$c2 = self::factory()->category->create( array(
 			'slug' => $c2_name,
 		) );
 
-		$this->go_to( "/?cat=$c1" );
+		$this->go_to( '/category/c1' );
 
 		$q = $GLOBALS['wp_query'];
 
@@ -1050,32 +982,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->go_to( get_post_permalink( $post_id ) );
 		$this->assertFalse( is_page_template( array( 'test.php' ) ) );
 		$this->assertTrue( is_page_template( array( 'test.php', 'example.php' ) ) );
-	}
-
-	/**
-	 * @ticket 39211
-	 */
-	function test_is_page_template_not_singular() {
-		global $wpdb;
-
-		// We need a non-post that shares an ID with a post assigned a template.
-		$user_id = self::factory()->user->create();
-		if ( ! get_post( $user_id ) ) {
-			$post_id = self::factory()->post->create( array( 'post_type' => 'post' ) );
-			$wpdb->update( $wpdb->posts, array( 'ID' => $user_id ), array( 'ID' => $post_id ), array( '%d' ) );
-		}
-
-		update_post_meta( $user_id, '_wp_page_template', 'example.php' );
-
-		// Verify that the post correctly reports having a template.
-		$this->go_to( get_post_permalink( $user_id ) );
-		$this->assertInstanceOf( 'WP_Post', get_queried_object() );
-		$this->assertTrue( is_page_template( 'example.php' ) );
-
-		// Verify that the non-post with a matching ID does not report having a template.
-		$this->go_to( get_author_posts_url( $user_id ) );
-		$this->assertInstanceOf( 'WP_User', get_queried_object() );
-		$this->assertFalse( is_page_template( 'example.php' ) );
 	}
 
 	/**

@@ -697,7 +697,6 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 			'is_admin',
 			'is_archive',
 			'is_attachment',
-			'is_author',
 			'is_category',
 			'is_comment_feed',
 			'is_date',
@@ -719,7 +718,6 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 			'is_tag',
 			'is_tax',
 			'is_time',
-			'is_trackback',
 			'is_year',
 		);
 		$true = func_get_args();
