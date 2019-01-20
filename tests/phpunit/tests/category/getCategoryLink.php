@@ -6,10 +6,10 @@
  */
 class Tests_Category_GetCategoryLink extends WP_UnitTestCase {
 	public function test_success() {
-		$c = self::factory()->category->create();
+		$c = self::factory()->category->create( [ 'name' => 'cat' ] );
 
 		$found = get_category_link( $c );
-		$expected = home_url( '?cat=' . $c );
+		$expected = home_url( '/category/cat/' );
 
 		$this->assertSame( $expected, $found );
 	}
@@ -28,7 +28,7 @@ class Tests_Category_GetCategoryLink extends WP_UnitTestCase {
 		$term = get_term( $t );
 
 		$found = get_category_link( $t );
-		$expected = home_url( '?wptests_tax=test-term' );
+		$expected = home_url( '/wptests_tax/test-term/' );
 
 		$this->assertSame( $expected, $found );
 	}
@@ -47,7 +47,7 @@ class Tests_Category_GetCategoryLink extends WP_UnitTestCase {
 		clean_term_cache( $t );
 
 		$found = get_category_link( $t );
-		$expected = home_url( '?wptests_tax=test-term' );
+		$expected = home_url( '/wptests_tax/test-term/' );
 
 		$this->assertSame( $expected, $found );
 	}
