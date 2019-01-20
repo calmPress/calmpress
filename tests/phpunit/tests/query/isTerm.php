@@ -49,6 +49,7 @@ class Tests_Query_IsTerm extends WP_UnitTestCase {
 		_make_cat_compat( $this->cat );
 		$this->tag = get_term( $this->tag_id, 'post_tag' );
 
+		self::factory()->category->create( array( 'name' => 'Uncategorized' ) );
 		$this->uncat = get_term_by( 'slug', 'uncategorized', 'category' );
 		_make_cat_compat( $this->uncat );
 
@@ -75,31 +76,6 @@ class Tests_Query_IsTerm extends WP_UnitTestCase {
 		$this->assertNotEmpty( get_query_var( 'term_id' ) );
 		$this->assertNotEmpty( get_query_var( 'tag_id' ) );
 		$this->assertEquals( get_queried_object(), $this->tag );
-	}
-
-	function test_tag_query_cat_action_tax() {
-		// tag + category with tax added
-		$this->go_to( home_url( "/tag/tag-slug/?cat=$this->cat_id" ) );
-		$this->assertQueryTrue( 'is_category', 'is_tag', 'is_archive' );
-		$this->assertNotEmpty( get_query_var( 'tax_query' ) );
-		$this->assertNotEmpty( get_query_var( 'taxonomy' ) );
-		$this->assertNotEmpty( get_query_var( 'term_id' ) );
-		$this->assertNotEmpty( get_query_var( 'cat' ) );
-		$this->assertNotEmpty( get_query_var( 'tag_id' ) );
-		$this->assertEquals( get_queried_object(), $this->cat );
-	}
-
-	function test_tag_query_cat_query_tax_action_tax() {
-		// tag + category + tax with tax added
-		$this->go_to( home_url( "/tag/tag-slug/?cat=$this->cat_id&testtax=tax-slug2" ) );
-		$this->assertQueryTrue( 'is_category', 'is_tag', 'is_tax', 'is_archive' );
-		$this->assertNotEmpty( get_query_var( 'tax_query' ) );
-		$this->assertNotEmpty( get_query_var( 'taxonomy' ) );
-		$this->assertNotEmpty( get_query_var( 'term_id' ) );
-		$this->assertNotEmpty( get_query_var( 'cat' ) );
-		$this->assertNotEmpty( get_query_var( 'tag_id' ) );
-		$this->assertNotEmpty( get_query_var( 'testtax' ) );
-		$this->assertEquals( get_queried_object(), $this->cat );
 	}
 
 	function test_cat_action_tax() {
@@ -161,17 +137,6 @@ class Tests_Query_IsTerm extends WP_UnitTestCase {
 		$this->assertNotEmpty( get_query_var( 'term_id' ) );
 		$this->assertNotEmpty( get_query_var( 'tag_id' ) );
 		$this->assertEquals( get_queried_object(), $this->tag );
-	}
-
-	function test_tax_query_cat_action_tax() {
-		// tax + cat with tax added
-		$this->go_to( home_url( "/testtax/tax-slug2/?cat=$this->cat_id" ) );
-		$this->assertQueryTrue( 'is_category', 'is_tax', 'is_archive' );
-		$this->assertNotEmpty( get_query_var( 'tax_query' ) );
-		$this->assertNotEmpty( get_query_var( 'taxonomy' ) );
-		$this->assertNotEmpty( get_query_var( 'term_id' ) );
-		$this->assertNotEmpty( get_query_var( 'cat' ) );
-		$this->assertEquals( get_queried_object(), $this->cat );
 	}
 
 	function pre_get_posts_tax_category_tax_query( &$query ) {
