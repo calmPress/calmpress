@@ -184,9 +184,6 @@ class Tests_Post_Types extends WP_UnitTestCase {
 	}
 
 	function test_post_type_supports() {
-		$this->assertTrue( post_type_supports( 'post', 'post-formats' ) );
-		$this->assertFalse( post_type_supports( 'page', 'post-formats' ) );
-		$this->assertFalse( post_type_supports( 'notaposttype', 'post-formats' ) );
 		$this->assertFalse( post_type_supports( 'post', 'notafeature' ) );
 		$this->assertFalse( post_type_supports( 'notaposttype', 'notafeature' ) );
 	}
@@ -500,8 +497,8 @@ class Tests_Post_Types extends WP_UnitTestCase {
 	 * @ticket 34010
 	 */
 	public function test_get_post_types_by_support_or_operator() {
-		$this->assertContains( 'post', get_post_types_by_support( array( 'post-formats', 'page-attributes' ), 'or' ) );
-		$this->assertContains( 'page', get_post_types_by_support( array( 'post-formats', 'page-attributes' ), 'or' ) );
+		var_dump(get_post_types_by_support( array( 'page-attributes' ), 'or' ));
+		$this->assertContains( 'post', get_post_types_by_support( array( 'thumbnail', 'page-attributes' ), 'or' ) );
 	}
 
 	/**
