@@ -59,7 +59,7 @@ class Tests_Term extends WP_UnitTestCase {
 	function test_wp_count_terms() {
 		$count = wp_count_terms( 'category', array( 'hide_empty' => true ) );
 		// there are 5 posts, all Uncategorized
-		$this->assertEquals( 1, $count );
+		$this->assertEquals( 0, $count );
 	}
 
 	/**
@@ -144,8 +144,7 @@ class Tests_Term extends WP_UnitTestCase {
 		$post = get_post( $post_id );
 
 		$this->assertInternalType( 'array', $post->post_category );
-		$this->assertEquals( 1, count( $post->post_category ) );
-		$this->assertEquals( get_option( 'default_category' ), $post->post_category[0] );
+		$this->assertEquals( 0, count( $post->post_category ) );
 		$term1 = wp_insert_term( 'Foo', 'category' );
 		$term2 = wp_insert_term( 'Bar', 'category' );
 		$term3 = wp_insert_term( 'Baz', 'category' );

@@ -497,7 +497,6 @@ class Tests_Post_Types extends WP_UnitTestCase {
 	 * @ticket 34010
 	 */
 	public function test_get_post_types_by_support_or_operator() {
-		var_dump(get_post_types_by_support( array( 'page-attributes' ), 'or' ));
 		$this->assertContains( 'post', get_post_types_by_support( array( 'thumbnail', 'page-attributes' ), 'or' ) );
 	}
 
