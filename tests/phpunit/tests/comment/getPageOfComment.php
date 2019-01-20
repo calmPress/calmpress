@@ -35,27 +35,6 @@ class Tests_Comment_GetPageOfComment extends WP_UnitTestCase {
 		$this->assertEquals( 1, get_page_of_comment( $comment_first[0], array( 'per_page' => 10 ) ) );
 	}
 
-	public function test_type_pings() {
-		$p = self::factory()->post->create();
-		$now = time();
-
-		$trackbacks = array();
-		for ( $i = 0; $i <= 3; $i++ ) {
-			$trackbacks[ $i ] = self::factory()->comment->create( array( 'comment_post_ID' => $p, 'comment_type' => 'trackback', 'comment_date_gmt' => date( 'Y-m-d H:i:s', $now ) ) );
-			$now -= 10 * $i;
-		}
-
-		$pingbacks = array();
-		for ( $i = 0; $i <= 6; $i++ ) {
-			$pingbacks[ $i ] = self::factory()->comment->create( array( 'comment_post_ID' => $p, 'comment_type' => 'pingback', 'comment_date_gmt' => date( 'Y-m-d H:i:s', $now ) ) );
-			$now -= 10 * $i;
-		}
-
-		$this->assertEquals( 2, get_page_of_comment( $trackbacks[0], array( 'per_page' => 2, 'type' => 'trackback' ) ) );
-		$this->assertEquals( 3, get_page_of_comment( $pingbacks[0], array( 'per_page' => 2, 'type' => 'pingback' ) ) );
-		$this->assertEquals( 5, get_page_of_comment( $trackbacks[0], array( 'per_page' => 2, 'type' => 'pings' ) ) );
-	}
-
 	/**
 	 * @ticket 11334
 	 */
