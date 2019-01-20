@@ -415,23 +415,6 @@ class Tests_AdminBar extends WP_UnitTestCase {
 	 * @ticket 37949
 	 * @group ms-excluded
 	 */
-	public function test_admin_bar_contains_correct_about_link_for_users_with_role() {
-		wp_set_current_user( self::$editor_id );
-
-		$wp_admin_bar = $this->get_standard_admin_bar();
-		$wp_logo_node = $wp_admin_bar->get_node( 'wp-logo' );
-		$about_node   = $wp_admin_bar->get_node( 'about' );
-
-		$this->assertNotNull( $wp_logo_node );
-		$this->assertSame( admin_url( 'about.php' ), $wp_logo_node->href );
-		$this->assertArrayNotHasKey( 'tabindex', $wp_logo_node->meta );
-		$this->assertNotNull( $about_node );
-	}
-
-	/**
-	 * @ticket 37949
-	 * @group ms-excluded
-	 */
 	public function test_admin_bar_contains_correct_about_link_for_users_with_no_role() {
 		wp_set_current_user( self::$no_role_id );
 
