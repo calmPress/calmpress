@@ -69,19 +69,6 @@ class Tests_Template extends WP_UnitTestCase {
 		) );
 	}
 
-	public function test_author_template_hierarchy() {
-		$author = self::factory()->user->create_and_get( array(
-			'user_nicename' => 'foo',
-		) );
-
-		$this->assertTemplateHierarchy( get_author_posts_url( $author->ID ), array(
-			'author-foo.php',
-			"author-{$author->ID}.php",
-			'author.php',
-			'archive.php',
-		) );
-	}
-
 	public function test_category_template_hierarchy() {
 		$term = self::factory()->term->create_and_get( array(
 			'taxonomy' => 'category',
@@ -299,7 +286,6 @@ class Tests_Template extends WP_UnitTestCase {
 
 	public function test_embed_template_hierarchy_for_post() {
 		$this->assertTemplateHierarchy( get_post_embed_url( self::$post ), array(
-			'embed-post-quote.php',
 			'embed-post.php',
 			'embed.php',
 			'templates/post.php',
