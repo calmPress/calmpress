@@ -147,7 +147,7 @@ class Tests_General_DocumentTitle extends WP_UnitTestCase {
 	}
 
 	function test_category_title() {
-		$this->go_to( '?cat=' . self::$category_id );
+		$this->go_to( '/category/test_category/' );
 
 		$this->assertEquals( sprintf( 'test_category &#8211; %s', $this->blog_name ), wp_get_document_title() );
 	}
@@ -156,12 +156,6 @@ class Tests_General_DocumentTitle extends WP_UnitTestCase {
 		$this->go_to( '?s=test_title' );
 
 		$this->assertEquals( sprintf( 'Search Results for &#8220;test_title&#8221; &#8211; %s', $this->blog_name ), wp_get_document_title() );
-	}
-
-	function test_author_title() {
-		$this->go_to( '?author=' . self::$author_id );
-
-		$this->assertEquals( sprintf( 'test_author &#8211; %s', $this->blog_name ), wp_get_document_title() );
 	}
 
 	function test_post_type_archive_title() {
