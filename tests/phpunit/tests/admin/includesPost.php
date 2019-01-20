@@ -245,31 +245,6 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 41396
-	 */
-	public function test_bulk_edit_posts_should_set_post_format_before_wp_update_post_runs() {
-		wp_set_current_user( self::$admin_id );
-
-		$request = array(
-			'post_format' => 'aside',
-			'_status'     => -1,
-			'post'        => array( self::$post_id ),
-		);
-
-		add_action( 'save_post', array( $this, 'check_post_format' ) );
-
-		bulk_edit_posts( $request );
-
-		remove_action( 'save_post', array( $this, 'check_post_format' ) );
-	}
-
-	public function check_post_format( $post_id ) {
-		if ( self::$post_id === $post_id ) {
-			$this->assertEquals( 'aside', get_post_format( $post_id ) );
-		}
-	}
-
-	/**
 	 * @ticket 38293
 	 */
 	public function test_user_cant_delete_protected_meta() {
@@ -330,8 +305,7 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 		$p = self::factory()->post->create( array( 'post_status' => 'future', 'post_name' => 'foo', 'post_date' => $future_date ) );
 
 		$found = get_sample_permalink_html( $p );
-		$this->assertContains( 'href="' . get_option( 'home' ) . '/?p=' . $p . '"', $found );
-		$this->assertContains( '>' . get_option( 'home' ) . '/?p=' . $p . '<', $found );
+		$this->assertStringMatchesFormat( '%Ahref="' . get_option( 'home' ) . '%S/foo/"%A', $found );
 	}
 
 	/**
