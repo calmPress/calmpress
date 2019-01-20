@@ -148,109 +148,6 @@ class Tests_Query extends WP_UnitTestCase {
 		$this->assertContains( "ORDER BY $wpdb->posts.post_title DESC, $wpdb->posts.post_date DESC", $q->request );
 	}
 
-	public function test_cat_querystring_single_term() {
-		$c1 = self::factory()->category->create( array(
-			'name' => 'Test Category 1',
-			'slug' => 'test1',
-		) );
-		$c2 = self::factory()->category->create( array(
-			'name' => 'Test Category 2',
-			'slug' => 'test2',
-		) );
-
-		$p1 = self::factory()->post->create();
-		$p2 = self::factory()->post->create();
-		$p3 = self::factory()->post->create();
-
-		wp_set_object_terms( $p1, $c1, 'category' );
-		wp_set_object_terms( $p2, array( $c1, $c2 ), 'category' );
-		wp_set_object_terms( $p3, $c2, 'category' );
-
-		$url = add_query_arg( array(
-			'cat' => $c1,
-		), '/' );
-
-		$this->go_to( $url );
-
-		$matching_posts = wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' );
-
-		$this->assertEqualSets( array( $p1, $p2 ), $matching_posts );
-	}
-
-	public function test_category_querystring_multiple_terms_comma_separated() {
-		$c1 = self::factory()->category->create( array(
-			'name' => 'Test Category 1',
-			'slug' => 'test1',
-		) );
-		$c2 = self::factory()->category->create( array(
-			'name' => 'Test Category 2',
-			'slug' => 'test2',
-		) );
-		$c3 = self::factory()->category->create( array(
-			'name' => 'Test Category 3',
-			'slug' => 'test3',
-		) );
-
-		$p1 = self::factory()->post->create();
-		$p2 = self::factory()->post->create();
-		$p3 = self::factory()->post->create();
-		$p4 = self::factory()->post->create();
-
-		wp_set_object_terms( $p1, $c1, 'category' );
-		wp_set_object_terms( $p2, array( $c1, $c2 ), 'category' );
-		wp_set_object_terms( $p3, $c2, 'category' );
-		wp_set_object_terms( $p4, $c3, 'category' );
-
-		$url = add_query_arg( array(
-			'cat' => implode( ',',array( $c1,$c2 ) ),
-		), '/' );
-
-		$this->go_to( $url );
-
-		$matching_posts = wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' );
-
-		$this->assertEqualSets( array( $p1, $p2, $p3 ), $matching_posts );
-	}
-
-	/**
-	 * @ticket 33532
-	 */
-	public function test_category_querystring_multiple_terms_formatted_as_array() {
-		$c1 = self::factory()->category->create( array(
-			'name' => 'Test Category 1',
-			'slug' => 'test1',
-		) );
-		$c2 = self::factory()->category->create( array(
-			'name' => 'Test Category 2',
-			'slug' => 'test2',
-		) );
-		$c3 = self::factory()->category->create( array(
-			'name' => 'Test Category 3',
-			'slug' => 'test3',
-		) );
-
-		$p1 = self::factory()->post->create();
-		$p2 = self::factory()->post->create();
-		$p3 = self::factory()->post->create();
-		$p4 = self::factory()->post->create();
-
-		wp_set_object_terms( $p1, $c1, 'category' );
-		wp_set_object_terms( $p2, array( $c1, $c2 ), 'category' );
-		wp_set_object_terms( $p3, $c2, 'category' );
-		wp_set_object_terms( $p4, $c3, 'category' );
-
-		$url = add_query_arg( array(
-			'cat' => array( $c1, $c2 ),
-		), '/' );
-
-		$this->go_to( $url );
-
-		$matching_posts = wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' );
-
-		$this->assertEqualSets( array( $p1, $p2, $p3 ), $matching_posts );
-	}
-
-
 	public function test_tag_querystring_single_term() {
 		$t1 = self::factory()->tag->create_and_get( array(
 			'name' => 'Test Tag 1',
@@ -522,21 +419,6 @@ class Tests_Query extends WP_UnitTestCase {
 		$q = new WP_Query( array(
 			'fields' => 'ids',
 			'comment_status' => 'closed',
-		) );
-
-		$this->assertSame( array( $p2 ), $q->posts );
-	}
-
-	/**
-	 * @ticket 35601
-	 */
-	public function test_ping_status() {
-		$p1 = self::factory()->post->create( array( 'ping_status' => 'open' ) );
-		$p2 = self::factory()->post->create( array( 'ping_status' => 'closed' ) );
-
-		$q = new WP_Query( array(
-			'fields' => 'ids',
-			'ping_status' => 'closed',
 		) );
 
 		$this->assertSame( array( $p2 ), $q->posts );
