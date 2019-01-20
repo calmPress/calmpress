@@ -115,25 +115,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 	}
 
 	/**
-	 * 'pings' is an alias for 'trackback' + 'pingback'.
-	 */
-	public function test_query_type_pings() {
-		$c1 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1' ) );
-		$c2 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'pingback' ) );
-		$c3 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'trackback' ) );
-		$c4 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'mario' ) );
-		$c5 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'luigi' ) );
-
-		$q = new WP_Comment_Query();
-		$found = $q->query( array(
-			'type' => 'pings',
-			'fields' => 'ids',
-		) );
-
-		$this->assertEqualSets( array( $c2, $c3 ), $found );
-	}
-
-	/**
 	 * Comments and custom
 	 * @ticket 12668
 	 */
@@ -198,27 +179,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 	/**
 	 * @ticket 12668
 	 */
-	public function test_type_array_and_type__not_in_array_custom() {
-		$c1 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1' ) );
-		$c2 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'pingback' ) );
-		$c3 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'trackback' ) );
-		$c4 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'mario' ) );
-		$c5 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'luigi' ) );
-		$c6 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'mario' ) );
-
-		$q = new WP_Comment_Query();
-		$found = $q->query( array(
-			'type' => array( 'pings' ),
-			'type__not_in' => array( 'mario' ),
-			'fields' => 'ids',
-		) );
-
-		$this->assertEqualSets( array( $c2, $c3 ), $found );
-	}
-
-	/**
-	 * @ticket 12668
-	 */
 	public function test_type__not_in_custom() {
 		$c1 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1' ) );
 		$c2 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'pingback' ) );
@@ -234,42 +194,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 		) );
 
 		$this->assertEqualSets( array( $c1, $c2, $c3, $c4, $c6 ), $found );
-	}
-
-	/**
-	 * @ticket 12668
-	 */
-	public function test_type_array_comments_and_pings() {
-		$c1 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1' ) );
-		$c2 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'pingback' ) );
-		$c3 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'trackback' ) );
-		$c4 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'mario' ) );
-		$c5 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'luigi' ) );
-
-		$q = new WP_Comment_Query();
-		$found = $q->query( array(
-			'type' => array( 'comments', 'pings' ),
-			'fields' => 'ids',
-		) );
-
-		$this->assertEqualSets( array( $c1, $c2, $c3 ), $found );
-	}
-
-	/**
-	 * @ticket 12668
-	 */
-	public function test_type_array_comment_pings() {
-		$c1 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1' ) );
-		$c2 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'pingback' ) );
-		$c3 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'trackback' ) );
-
-		$q = new WP_Comment_Query();
-		$found = $q->query( array(
-			'type' => array( 'comment', 'pings' ),
-			'fields' => 'ids',
-		) );
-
-		$this->assertEqualSets( array( $c1, $c2, $c3 ), $found );
 	}
 
 	/**
@@ -309,42 +233,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 	/**
 	 * @ticket 12668
 	 */
-	public function test_type_array_pings() {
-		$c1 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1' ) );
-		$c2 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'pingback' ) );
-		$c3 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'pingback' ) );
-
-		$q = new WP_Comment_Query();
-		$found = $q->query( array(
-			'type' => array( 'pings' ),
-			'fields' => 'ids',
-		) );
-
-		$this->assertEqualSets( array( $c2, $c3 ), $found );
-	}
-
-	/**
-	 * @ticket 12668
-	 */
-	public function test_type_status_approved_array_comment_pings() {
-		$c1 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1' ) );
-		$c2 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'pingback' ) );
-		$c3 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'pingback' ) );
-		$c4 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '0', 'comment_type' => 'pingback' ) );
-
-		$q = new WP_Comment_Query();
-		$found = $q->query( array(
-			'status' => 'approve',
-			'type' => array( 'pings' ),
-			'fields' => 'ids',
-		) );
-
-		$this->assertEqualSets( array( $c3, $c2 ), $found );
-	}
-
-	/**
-	 * @ticket 12668
-	 */
 	public function test_type_array_trackback() {
 		$c1 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1' ) );
 		$c2 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'trackback' ) );
@@ -374,25 +262,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 		) );
 
 		$this->assertEquals( array( $c2 ), $found );
-	}
-
-	/**
-	 * @ticket 12668
-	 */
-	public function test_type_array_pings_approved() {
-		$c1 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1' ) );
-		$c2 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'trackback' ) );
-		$c3 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '1', 'comment_type' => 'trackback' ) );
-		$c4 = self::factory()->comment->create( array( 'comment_post_ID' => self::$post_id, 'comment_approved' => '0', 'comment_type' => 'trackback' ) );
-
-		$q = new WP_Comment_Query();
-		$found = $q->query( array(
-			'status' => 'approve',
-			'type' => array( 'pings' ),
-			'fields' => 'ids',
-		) );
-
-		$this->assertEqualSets( array( $c3, $c2 ), $found );
 	}
 
 	/**
