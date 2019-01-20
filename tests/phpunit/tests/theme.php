@@ -6,12 +6,10 @@
  * @group themes
  */
 class Tests_Theme extends WP_UnitTestCase {
-	protected $theme_slug = 'twentyeleven';
-	protected $theme_name = 'Twenty Eleven';
+	protected $theme_slug = 'calmseventeen';
+	protected $theme_name = 'calm Seventeen';
 	protected $default_themes = array(
-		'twentyten', 'twentyeleven', 'twentytwelve', 'twentythirteen',
-		'twentyfourteen', 'twentyfifteen', 'twentysixteen', 'twentyseventeen',
-		'twentynineteen',
+		'calmseventeen'
 	);
 
 	function setUp() {
@@ -88,8 +86,8 @@ class Tests_Theme extends WP_UnitTestCase {
 	 */
 	function test_default_theme_in_default_theme_list() {
 		$latest_default_theme = WP_Theme::get_core_default_theme();
-		if ( ! $latest_default_theme->exists() || 'twenty' !== substr( $latest_default_theme->get_stylesheet(), 0, 6 ) ) {
-			$this->fail( 'No Twenty* series default themes are installed' );
+		if ( ! $latest_default_theme->exists() || 'calm' !== substr( $latest_default_theme->get_stylesheet(), 0, 4 ) ) {
+			$this->fail( 'No calm* series default themes are installed' );
 		}
 		$this->assertContains( $latest_default_theme->get_stylesheet(), $this->default_themes );
 	}
