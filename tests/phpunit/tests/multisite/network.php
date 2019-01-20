@@ -246,6 +246,7 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 	}
 
 	function test_active_network_plugins() {
+		copy( DIR_TESTDATA . '/plugins/hello.php', WP_PLUGIN_DIR . '/hello.php' );
 		$path = "hello.php";
 
 		// local activate, should be invisible for the network
@@ -271,12 +272,14 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		deactivate_plugins($path, true); // silent
 
 		$this->assertEquals( 1, $this->plugin_hook_count ); // testing actions and silent mode
+		unlink( WP_PLUGIN_DIR . '/hello.php' );
 	}
 
 	/**
 	 * @ticket 28651
 	 */
 	function test_duplicate_network_active_plugin() {
+		copy( DIR_TESTDATA . '/plugins/hello.php', WP_PLUGIN_DIR . '/hello.php' );
 		$path = "hello.php";
 		$mock = new MockAction();
 		add_action( 'activate_' . $path, array ( $mock, 'action' ) );
@@ -294,11 +297,14 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		$this->assertEquals( 1, $mock->get_call_count() );
 
 		remove_action( 'activate_' . $path, array ( $mock, 'action' ) );
+		unlink( WP_PLUGIN_DIR . '/hello.php' );
 	}
 
 	function test_is_plugin_active_for_network_true() {
+		copy( DIR_TESTDATA . '/plugins/hello.php', WP_PLUGIN_DIR . '/hello.php' );
 		activate_plugin( 'hello.php', '', true );
 		$this->assertTrue( is_plugin_active_for_network( 'hello.php' ) );
+		unlink( WP_PLUGIN_DIR . '/hello.php' );
 	}
 
 	function test_is_plugin_active_for_network_false() {
