@@ -174,24 +174,6 @@ class Tests_XMLRPC_wp_newPost extends WP_XMLRPC_UnitTestCase {
 		$this->assertEquals( 401, $result->code );
 	}
 
-	function test_post_format() {
-		$this->make_user_by_role( 'editor' );
-
-		$post = array( 'post_title' => 'Test', 'post_format' => 'quote' );
-		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post ) );
-		$this->assertNotIXRError( $result );
-		$this->assertEquals( 'quote', get_post_format( $result ) );
-	}
-
-	function test_invalid_post_format() {
-		$this->make_user_by_role( 'editor' );
-
-		$post = array( 'post_title' => 'Test', 'post_format' => 'tumblr' );
-		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post ) );
-		$this->assertNotIXRError( $result );
-		$this->assertEquals( '', get_post_format( $result ) );
-	}
-
 	function test_invalid_taxonomy() {
 		$this->make_user_by_role( 'editor' );
 
