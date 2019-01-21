@@ -20,7 +20,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 		include_once( DIR_TESTDATA . '/../includes/mock-image-editor.php' );
 
 		// Ensure no legacy / failed tests detritus.
-		$folder = '/tmp/wordpress-gsoc-flyer*.{jpg,pdf}';
+		$folder = sys_get_temp_dir() . '/wordpress-gsoc-flyer*.{jpg,pdf}';
 
 		foreach ( glob( $folder, GLOB_BRACE ) as $file ) {
 			unlink( $file );
@@ -360,7 +360,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 		}
 
 		$orig_file = DIR_TESTDATA . '/images/wordpress-gsoc-flyer.pdf';
-		$test_file = '/tmp/wordpress-gsoc-flyer.pdf';
+		$test_file = sys_get_temp_dir() . '/wordpress-gsoc-flyer.pdf';
 		copy( $orig_file, $test_file );
 
 		$attachment_id = $this->factory->attachment->create_object( $test_file, 0, array(
@@ -403,7 +403,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 
 		unlink( $test_file );
 		foreach ( $metadata['sizes'] as $size ) {
-			unlink ( '/tmp/' . $size['file'] );
+			unlink ( sys_get_temp_dir() . '/' . $size['file'] );
 		}
 	}
 
@@ -466,7 +466,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 
 		unlink( $test_file );
 		foreach ( $metadata['sizes'] as $size ) {
-			unlink( get_temp_dir() . $size['file'] );
+			unlink( get_temp_dir() . '/' . $size['file'] );
 		}
 	}
 
@@ -479,7 +479,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 		}
 
 		$orig_file = DIR_TESTDATA . '/images/wordpress-gsoc-flyer.pdf';
-		$test_file = '/tmp/wordpress-gsoc-flyer.pdf';
+		$test_file = sys_get_temp_dir() . '/wordpress-gsoc-flyer.pdf';
 		copy( $orig_file, $test_file );
 
 		$attachment_id = $this->factory->attachment->create_object( $test_file, 0, array(
@@ -507,7 +507,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 
 		unlink( $test_file );
 		foreach ( $metadata['sizes'] as $size ) {
-			unlink ( '/tmp/' . $size['file'] );
+			unlink ( sys_get_temp_dir() . '/' . $size['file'] );
 		}
 	}
 
@@ -528,13 +528,13 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 		}
 
 		// Dummy JPEGs.
-		$jpg1_path = '/tmp/test.jpg'; // Straight.
+		$jpg1_path = sys_get_temp_dir() . '/test.jpg'; // Straight.
 		file_put_contents( $jpg1_path, 'asdf' );
-		$jpg2_path = '/tmp/test-pdf.jpg'; // With PDF marker.
+		$jpg2_path = sys_get_temp_dir() . '/test-pdf.jpg'; // With PDF marker.
 		file_put_contents( $jpg2_path, 'fdsa' );
 
 		// PDF with same name as JPEG.
-		$pdf_path = '/tmp/test.pdf';
+		$pdf_path = sys_get_temp_dir() . '/test.pdf';
 		copy( DIR_TESTDATA . '/images/wordpress-gsoc-flyer.pdf', $pdf_path );
 
 		$attachment_id = $this->factory->attachment->create_object( $pdf_path, 0, array(
@@ -542,7 +542,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 		) );
 
 		$metadata = wp_generate_attachment_metadata( $attachment_id, $pdf_path );
-		$preview_path = '/tmp/' . $metadata['sizes']['full']['file'];
+		$preview_path = sys_get_temp_dir() . '/' . $metadata['sizes']['full']['file'];
 
 		// PDF preview didn't overwrite PDF.
 		$this->assertNotEquals( $pdf_path, $preview_path );
@@ -558,7 +558,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 		unlink( $jpg2_path );
 		unlink( $pdf_path );
 		foreach ( $metadata['sizes'] as $size ) {
-			unlink( '/tmp/' . $size['file'] );
+			unlink( sys_get_temp_dir() . '/' . $size['file'] );
 		}
 	}
 }

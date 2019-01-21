@@ -8,7 +8,7 @@ class Tests_File extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 
-		$file = tempnam( '/tmp', 'foo') ;
+		$file = tempnam( sys_get_temp_dir(), 'foo') ;
 		$this->dir = dirname( $file );
 		unlink( $file );
 

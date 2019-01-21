@@ -127,6 +127,11 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 			$this->reset__SERVER();
 
 			$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+
+			// set widget globals back to default state
+			global $wp_registered_sidebars;
+			$wp_registered_sidebars = [];
+			
 			do_action( 'init' );
 
 		}

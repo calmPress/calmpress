@@ -211,7 +211,7 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			'description' => 'REST API Client Fixture: Tag',
 		) );
 
-		$media_id = $this->factory->attachment->create_object( '/tmp/canola.jpg', 0, array(
+		$media_id = $this->factory->attachment->create_object( sys_get_temp_dir() . '/canola.jpg', 0, array(
 			'post_mime_type' => 'image/jpeg',
 			'post_excerpt'   => 'A sample caption',
 			'post_name'      => 'restapi-client-fixture-attachment',
