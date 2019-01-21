@@ -31,7 +31,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	}
 
 	function test_should_have_defaults_on_frontend() {
-		$expected = "<link rel='dns-prefetch' href='//s.w.org' />\n";
+		$expected = "";
 
 		$this->expectOutputString( $expected );
 
@@ -39,8 +39,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	}
 
 	function test_dns_prefetching() {
-		$expected = "<link rel='dns-prefetch' href='//s.w.org' />\n" .
-					"<link rel='dns-prefetch' href='//wordpress.org' />\n" .
+		$expected = "<link rel='dns-prefetch' href='//wordpress.org' />\n" .
 					"<link rel='dns-prefetch' href='//google.com' />\n" .
 					"<link rel='dns-prefetch' href='//make.wordpress.org' />\n";
 
@@ -70,8 +69,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	 * @ticket 37652
 	 */
 	function test_preconnect() {
-		$expected = "<link rel='dns-prefetch' href='//s.w.org' />\n" .
-		            "<link rel='preconnect' href='//wordpress.org' />\n" .
+		$expected = "<link rel='preconnect' href='//wordpress.org' />\n" .
 		            "<link rel='preconnect' href='https://make.wordpress.org' />\n" .
 		            "<link rel='preconnect' href='http://google.com' />\n" .
 		            "<link rel='preconnect' href='http://w.org' />\n";
@@ -98,8 +96,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	}
 
 	function test_prerender() {
-		$expected = "<link rel='dns-prefetch' href='//s.w.org' />\n" .
-					"<link rel='prerender' href='https://make.wordpress.org/great-again' />\n" .
+		$expected = "<link rel='prerender' href='https://make.wordpress.org/great-again' />\n" .
 					"<link rel='prerender' href='http://jobs.wordpress.net' />\n" .
 					"<link rel='prerender' href='//core.trac.wordpress.org' />\n";
 
@@ -124,8 +121,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	}
 
 	function test_parse_url_dns_prefetch() {
-		$expected = "<link rel='dns-prefetch' href='//s.w.org' />\n" .
-					"<link rel='dns-prefetch' href='//make.wordpress.org' />\n";
+		$expected = "<link rel='dns-prefetch' href='//make.wordpress.org' />\n";
 
 		add_filter( 'wp_resource_hints', array( $this, '_add_dns_prefetch_long_urls' ), 10, 2 );
 
@@ -145,8 +141,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	}
 
 	function test_dns_prefetch_styles() {
-		$expected = "<link rel='dns-prefetch' href='//fonts.googleapis.com' />\n" .
-					"<link rel='dns-prefetch' href='//s.w.org' />\n";
+		$expected = "<link rel='dns-prefetch' href='//fonts.googleapis.com' />\n";
 
 		$args = array(
 			'family' => 'Open+Sans:400',
@@ -164,8 +159,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	}
 
 	function test_dns_prefetch_scripts() {
-		$expected = "<link rel='dns-prefetch' href='//fonts.googleapis.com' />\n" .
-					"<link rel='dns-prefetch' href='//s.w.org' />\n";
+		$expected = "<link rel='dns-prefetch' href='//fonts.googleapis.com' />\n";
 
 		$args = array(
 			'family' => 'Open+Sans:400',
@@ -182,7 +176,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	}
 
 	function test_dns_prefetch_scripts_does_not_included_registered_only() {
-		$expected = "<link rel='dns-prefetch' href='//s.w.org' />\n";
+		$expected = "";
 		$unexpected = "<link rel='dns-prefetch' href='//wordpress.org' />\n";
 
 		wp_register_script( 'jquery-elsewhere', 'https://wordpress.org/wp-includes/js/jquery/jquery.js' );
@@ -199,7 +193,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	 * @ticket 37502
 	 */
 	function test_deregistered_scripts_are_ignored() {
-		$expected = "<link rel='dns-prefetch' href='//s.w.org' />\n";
+		$expected = "";
 
 		wp_enqueue_script( 'test-script', 'http://example.org/script.js' );
 		wp_deregister_script( 'test-script' );
@@ -212,7 +206,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	 * @ticket 37652
 	 */
 	function test_malformed_urls() {
-		$expected = "<link rel='dns-prefetch' href='//s.w.org' />\n";
+		$expected = "";
 
 		// Errant colon.
 		add_filter( 'wp_resource_hints', array( $this, '_add_malformed_url_errant_colon' ), 10, 2 );
@@ -247,8 +241,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	 * @group 38121
 	 */
 	function test_custom_attributes() {
-		$expected = "<link rel='dns-prefetch' href='//s.w.org' />\n" .
-		            "<link rel='preconnect' href='https://make.wordpress.org' />\n" .
+		$expected = "<link rel='preconnect' href='https://make.wordpress.org' />\n" .
 		            "<link crossorigin as='image' pr='0.5' href='https://example.com/foo.jpeg' rel='prefetch' />\n" .
 		            "<link crossorigin='use-credentials' as='style' href='https://example.com/foo.css' rel='prefetch' />\n" .
 		            "<link href='http://wordpress.org' rel='prerender' />\n";
