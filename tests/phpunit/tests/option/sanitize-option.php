@@ -74,8 +74,6 @@ class Tests_Sanitize_Option extends WP_UnitTestCase {
 			array( 'default_role', 'subscriber', 'subscriber' ),
 			array( 'default_role', 'subscriber', 'invalid' ),
 			array( 'default_role', 'editor', 'editor' ),
-			array( 'moderation_keys', 'string of words', 'string of words' ),
-			array( 'moderation_keys', "one\ntwo three", "one\none\ntwo three" ),
 		);
 	}
 

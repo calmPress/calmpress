@@ -66,38 +66,6 @@ class Tests_Comment_CheckComment extends WP_UnitTestCase {
 		$this->assertTrue( $results );
 	}
 
-	public function test_should_return_false_when_content_matches_moderation_key() {
-		update_option( 'comment_whitelist', 0 );
-
-		$author       = 'WendytheBuilder';
-		$author_email = 'wendy@example.com';
-		$author_url   = 'http://example.com';
-		$comment      = 'Has anyone seen Scoop?';
-		$author_ip    = '192.168.0.1';
-		$user_agent   = '';
-		$comment_type = '';
-
-		update_option( 'moderation_keys',"foo\nbar\nscoop" );
-		$results = check_comment( $author, $author_email, $author_url, $comment, $author_ip, $user_agent, $comment_type );
-		$this->assertFalse( $results );
-	}
-
-	public function test_should_return_true_when_content_does_not_match_moderation_keys() {
-		update_option( 'comment_whitelist', 0 );
-
-		$author       = 'WendytheBuilder';
-		$author_email = 'wendy@example.com';
-		$author_url   = 'http://example.com';
-		$comment      = 'Has anyone seen Scoop?';
-		$author_ip    = '192.168.0.1';
-		$user_agent   = '';
-		$comment_type = '';
-
-		update_option( 'moderation_keys',"foo\nbar" );
-		$results = check_comment( $author, $author_email, $author_url, $comment, $author_ip, $user_agent, $comment_type );
-		$this->assertTrue( $results );
-	}
-
 	public function test_should_return_false_when_link_count_exceeds_comment_max_length_setting() {
 		update_option( 'comment_whitelist', 0 );
 
