@@ -32,7 +32,7 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 
 		unset( $GLOBALS['_wp_sidebars_widgets'] ); // clear out cache set by wp_get_sidebars_widgets()
 		$sidebars_widgets = wp_get_sidebars_widgets();
-		$this->assertEqualSets( array( 'wp_inactive_widgets', 'sidebar-1' ), array_keys( wp_get_sidebars_widgets() ) );
+		$this->assertEqualSets( array( 'wp_inactive_widgets', 'sidebar-1', 'sidebar-2', 'sidebar-3' ), array_keys( wp_get_sidebars_widgets() ) );
 		$this->assertContains( 'search-2', $sidebars_widgets['sidebar-1'] );
 		$this->assertContains( 'categories-2', $sidebars_widgets['sidebar-1'] );
 		$this->assertArrayHasKey( 2, get_option( 'widget_search' ) );
@@ -649,19 +649,5 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 		$this->assertEquals( 1, substr_count( $output, 'data-customize-partial-id' ) );
 		$this->assertEquals( 1, substr_count( $output, 'data-customize-partial-type="widget"' ) );
 		$this->assertContains( ' id="search-2"', $output );
-	}
-
-	/**
-	 * Test deprecated methods.
-	 */
-	public function test_deprecated_methods() {
-		$this->setExpectedDeprecated( 'WP_Customize_Widgets::setup_widget_addition_previews' );
-		$this->setExpectedDeprecated( 'WP_Customize_Widgets::prepreview_added_sidebars_widgets' );
-		$this->setExpectedDeprecated( 'WP_Customize_Widgets::prepreview_added_widget_instance' );
-		$this->setExpectedDeprecated( 'WP_Customize_Widgets::remove_prepreview_filters' );
-		$this->manager->widgets->setup_widget_addition_previews();
-		$this->manager->widgets->prepreview_added_sidebars_widgets();
-		$this->manager->widgets->prepreview_added_widget_instance();
-		$this->manager->widgets->remove_prepreview_filters();
 	}
 }
