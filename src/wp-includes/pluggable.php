@@ -318,7 +318,7 @@ function wp_mail( $to, $subject, $message, $headers = '', $attachments = array()
 	if ( !isset( $from_name ) )
 		$from_name = 'calmPress';
 
-	/* If we don't have an email from the input headers default to wordpress@$sitename
+	/* If we don't have an email from the input headers default to calmpress@$sitename
 	 * Some hosts will block outgoing mail from this address if it doesn't exist but
 	 * there's no easy alternative. Defaulting to admin_email might appear to be another
 	 * option but some hosts may refuse to relay mail from an unknown domain. See
@@ -332,7 +332,7 @@ function wp_mail( $to, $subject, $message, $headers = '', $attachments = array()
 			$sitename = substr( $sitename, 4 );
 		}
 
-		$from_email = 'wordpress@' . $sitename;
+		$from_email = 'calmpress@' . $sitename;
 	}
 
 	/**
@@ -1494,7 +1494,7 @@ function wp_notify_postauthor( $comment_id ) {
 		$notify_message .= sprintf( __( 'Spam it: %s' ), admin_url( "comment.php?action=spam&c={$comment->comment_ID}#wpbody-content" ) ) . "\r\n";
 	}
 
-	$wp_email = 'wordpress@' . preg_replace('#^www\.#', '', strtolower($_SERVER['SERVER_NAME']));
+	$wp_email = 'calmpress@' . preg_replace('#^www\.#', '', strtolower($_SERVER['SERVER_NAME']));
 
 	if ( '' == $comment->comment_author ) {
 		$from = "From: \"$blogname\" <$wp_email>";
