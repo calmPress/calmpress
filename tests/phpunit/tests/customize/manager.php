@@ -623,7 +623,7 @@ class Tests_WP_Customize_Manager extends WP_UnitTestCase {
 			'header_image_data',
 			'background_image',
 			'widget_text[2]',
-			'widget_meta[3]',
+			'widget_meta[2]',
 			'sidebars_widgets[sidebar-1]',
 			'nav_menus_created_posts',
 			'nav_menu[-1]',
@@ -640,19 +640,18 @@ class Tests_WP_Customize_Manager extends WP_UnitTestCase {
 		);
 		$this->assertEqualSets( $expected_setting_ids, array_keys( $changeset_values ) );
 
-		foreach ( array( 'widget_text[2]', 'widget_meta[3]' ) as $setting_id ) {
+		foreach ( array( 'widget_text[2]', 'widget_meta[2]' ) as $setting_id ) {
 			$this->assertInternalType( 'array', $changeset_values[ $setting_id ] );
 			$instance_data = $wp_customize->widgets->sanitize_widget_instance( $changeset_values[ $setting_id ] );
 			$this->assertInternalType( 'array', $instance_data );
 			$this->assertArrayHasKey( 'title', $instance_data );
 		}
 
-		$this->assertEquals( array( 'text-2', 'meta-3' ), $changeset_values['sidebars_widgets[sidebar-1]'] );
+		$this->assertEquals( array( 'text-2', 'meta-2' ), $changeset_values['sidebars_widgets[sidebar-1]'] );
 
 		$posts_by_name = array();
 		$this->assertCount( 7, $changeset_values['nav_menus_created_posts'] );
 		$this->assertContains( $existing_published_home_page_id, $changeset_values['nav_menus_created_posts'], 'Expected reuse of non-auto-draft posts.' );
-		$this->assertContains( $existing_canola_attachment_id, $changeset_values['nav_menus_created_posts'], 'Expected reuse of non-auto-draft attachment.' );
 		$this->assertNotContains( $existing_auto_draft_about_page_id, $changeset_values['nav_menus_created_posts'], 'Expected non-reuse of auto-draft posts.' );
 		foreach ( $changeset_values['nav_menus_created_posts'] as $post_id ) {
 			$post = get_post( $post_id );
