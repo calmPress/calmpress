@@ -16,7 +16,7 @@ class Tests_XMLRPC_wp_getOptions extends WP_XMLRPC_UnitTestCase {
 
 		$result = $this->myxmlrpcserver->wp_getOptions( array( 1, 'subscriber', 'subscriber' ) );
 		$this->assertInternalType( 'array', $result );
-		$this->assertEquals( 'WordPress', $result['software_name']['value'] );
+		$this->assertEquals( 'calmPress', $result['software_name']['value'] );
 	}
 
 	function test_option_value() {
@@ -40,10 +40,10 @@ class Tests_XMLRPC_wp_getOptions extends WP_XMLRPC_UnitTestCase {
 		$this->assertInternalType( 'array', $result );
 
 		// Read Only options
-		$this->assertEquals( 'WordPress', $result['software_name']['value'] );
+		$this->assertEquals( 'calmPress', $result['software_name']['value'] );
 		$this->assertTrue( $result['software_name']['readonly'] );
 
-		$this->assertEquals( $wp_version, $result['software_version']['value'] );
+		$this->assertEquals( calmpress_version(), $result['software_version']['value'] );
 		$this->assertTrue( $result['software_version']['readonly'] );
 
 		$this->assertEquals( get_site_url(), $result['blog_url']['value'] );
@@ -115,9 +115,6 @@ class Tests_XMLRPC_wp_getOptions extends WP_XMLRPC_UnitTestCase {
 
 		$this->assertEquals( get_option( 'default_comment_status' ), $result['default_comment_status']['value'] );
 		$this->assertTrue( $result['default_comment_status']['readonly'] );
-
-		$this->assertEquals( get_option( 'default_ping_status' ), $result['default_ping_status']['value'] );
-		$this->assertTrue( $result['default_ping_status']['readonly'] );
 	}
 
 	function test_option_values_admin() {
@@ -129,10 +126,10 @@ class Tests_XMLRPC_wp_getOptions extends WP_XMLRPC_UnitTestCase {
 		$this->assertInternalType( 'array', $result );
 
 		// Read Only options
-		$this->assertEquals( 'WordPress', $result['software_name']['value'] );
+		$this->assertEquals( 'calmPress', $result['software_name']['value'] );
 		$this->assertTrue( $result['software_name']['readonly'] );
 
-		$this->assertEquals( $wp_version, $result['software_version']['value'] );
+		$this->assertEquals( calmpress_version(), $result['software_version']['value'] );
 		$this->assertTrue( $result['software_version']['readonly'] );
 
 		$this->assertEquals( get_site_url(), $result['blog_url']['value'] );
@@ -204,8 +201,5 @@ class Tests_XMLRPC_wp_getOptions extends WP_XMLRPC_UnitTestCase {
 
 		$this->assertEquals( get_option( 'default_comment_status' ), $result['default_comment_status']['value'] );
 		$this->assertFalse( $result['default_comment_status']['readonly'] );
-
-		$this->assertEquals( get_option( 'default_ping_status' ), $result['default_ping_status']['value'] );
-		$this->assertFalse( $result['default_ping_status']['readonly'] );
 	}
 }
