@@ -597,12 +597,6 @@ class Tests_DB extends WP_UnitTestCase {
 
 		return array(
 			array(
-				"SELECT display_name FROM $wpdb->users",
-				'admin',
-				array(),
-				0,
-			),
-			array(
 				"SELECT user_login, user_email FROM $wpdb->users",
 				'admin',
 				array(),
