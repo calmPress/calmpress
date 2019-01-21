@@ -140,26 +140,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 	}
 
-	public function test_submitting_comment_to_password_required_post_returns_error() {
-
-		$error = 'comment_on_password_protected';
-
-		$this->assertSame( 0, did_action( $error ) );
-
-		$post = self::factory()->post->create_and_get( array(
-			'post_password' => 'password',
-		) );
-		$data = array(
-			'comment_post_ID' => $post->ID,
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		$this->assertSame( 1, did_action( $error ) );
-		$this->assertWPError( $comment );
-		$this->assertSame( $error, $comment->get_error_code() );
-
-	}
-
 	public function test_submitting_comment_to_password_protected_post_succeeds() {
 
 		$password = 'password';
