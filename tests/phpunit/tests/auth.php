@@ -177,53 +177,6 @@ class Tests_Auth extends WP_UnitTestCase {
 		unset( $_REQUEST['_wpnonce'] );
 	}
 
-	function test_password_length_limit() {
-		$limit = str_repeat( 'a', 4096 );
-
-		wp_set_password( $limit, self::$user_id );
-		// phpass hashed password
-		$this->assertStringStartsWith( '$P$', $this->user->data->user_pass );
-
-		$user = wp_authenticate( $this->user->user_login, 'aaaaaaaa' );
-		// Wrong Password
-		$this->assertInstanceOf( 'WP_Error', $user );
-
-		$user = wp_authenticate( $this->user->user_login, $limit );
-		$this->assertInstanceOf( 'WP_User', $user );
-		$this->assertEquals( self::$user_id, $user->ID );
-
-		// one char too many
-		$user = wp_authenticate( $this->user->user_login, $limit . 'a' );
-		// Wrong Password
-		$this->assertInstanceOf( 'WP_Error', $user );
-
-		wp_set_password( $limit . 'a', self::$user_id );
-		$user = get_user_by( 'id', self::$user_id );
-		// Password broken by setting it to be too long.
-		$this->assertEquals( '*', $user->data->user_pass );
-
-		$user = wp_authenticate( $this->user->user_login, '*' );
-		$this->assertInstanceOf( 'WP_Error', $user );
-
-		$user = wp_authenticate( $this->user->user_login, '*0' );
-		$this->assertInstanceOf( 'WP_Error', $user );
-
-		$user = wp_authenticate( $this->user->user_login, '*1' );
-		$this->assertInstanceOf( 'WP_Error', $user );
-
-		$user = wp_authenticate( $this->user->user_login, 'aaaaaaaa' );
-		// Wrong Password
-		$this->assertInstanceOf( 'WP_Error', $user );
-
-		$user = wp_authenticate( $this->user->user_login, $limit );
-		// Wrong Password
-		$this->assertInstanceOf( 'WP_Error', $user );
-
-		$user = wp_authenticate( $this->user->user_login, $limit . 'a' );
-		// Password broken by setting it to be too long.
-		$this->assertInstanceOf( 'WP_Error', $user );
-	}
-
 	/**
 	 * @ticket 32429
 	 */
