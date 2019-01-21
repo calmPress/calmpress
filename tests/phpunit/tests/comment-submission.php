@@ -140,31 +140,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 	}
 
-	public function test_submitting_comment_to_password_protected_post_succeeds() {
-
-		$password = 'password';
-		$hasher   = new PasswordHash( 8, true );
-
-		$_COOKIE['wp-postpass_' . COOKIEHASH] = $hasher->HashPassword( $password );
-
-		$post = self::factory()->post->create_and_get( array(
-			'post_password' => $password,
-		) );
-		$data = array(
-			'comment_post_ID' => $post->ID,
-			'comment'         => 'Comment',
-			'author'          => 'Comment Author',
-			'email'           => 'comment@example.org',
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		unset( $_COOKIE['wp-postpass_' . COOKIEHASH] );
-
-		$this->assertNotWPError( $comment );
-		$this->assertInstanceOf( 'WP_Comment', $comment );
-
-	}
-
 	public function test_submitting_valid_comment_as_logged_in_user_succeeds() {
 
 		$user = self::factory()->user->create_and_get( array(
