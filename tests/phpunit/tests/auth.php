@@ -54,16 +54,6 @@ class Tests_Auth extends WP_UnitTestCase {
 		$this->assertEquals( false, wp_validate_auth_cookie( self::$user_id, 'auth' ), 'altered cookie' );
 	}
 
-	function test_auth_cookie_scheme() {
-		// arbitrary scheme name
-		$cookie = wp_generate_auth_cookie( self::$user_id, time() + 3600, 'foo' );
-		$this->assertEquals( self::$user_id, wp_validate_auth_cookie( $cookie, 'foo' ) );
-
-		// wrong scheme name - should fail
-		$cookie = wp_generate_auth_cookie( self::$user_id, time() + 3600, 'foo' );
-		$this->assertEquals( false, wp_validate_auth_cookie( $cookie, 'bar' ) );
-	}
-
 	/**
 	 * @ticket 23494
 	 */
