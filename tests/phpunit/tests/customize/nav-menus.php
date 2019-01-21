@@ -518,11 +518,8 @@ class Test_WP_Customize_Nav_Menus extends WP_UnitTestCase {
 			array( 'title' => 'Pages', 'type' => 'post_type', 'object' => 'page', 'type_label' => __( 'Page' ) ),
 			array( 'title' => 'Categories', 'type' => 'taxonomy', 'object' => 'category', 'type_label' => __( 'Category' ) ),
 			array( 'title' => 'Tags', 'type' => 'taxonomy', 'object' => 'post_tag', 'type_label' => __( 'Tag' ) ),
+			array( 'title' => 'Authors', 'type' => 'taxonomy', 'object' => 'calm_authors', 'type_label' => __( 'Author' ) ),
 		);
-
-		if ( current_theme_supports( 'post-formats' ) ) {
-			$expected[] = array( 'title' => 'Format', 'type' => 'taxonomy', 'object' => 'post_format', 'type_label' => __( 'Format' ) );
-		}
 
 		$this->assertEquals( $expected, $menus->available_item_types() );
 
