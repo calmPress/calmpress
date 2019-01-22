@@ -217,18 +217,6 @@ class Tests_XMLRPC_wp_editPost extends WP_XMLRPC_UnitTestCase {
 		$this->assertFalse( is_sticky( $post_id ) );
 	}
 
-	function test_password_transition_unsticky() {
-		// when transitioning to private status or adding a post password, post should be un-stuck
-		$editor_id = $this->make_user_by_role( 'editor' );
-		$post_id = self::factory()->post->create( array( 'post_author' => $editor_id ) );
-		stick_post( $post_id );
-
-		$post2 = array( 'post_password' => 'foobar',  'sticky' => false );
-		$result = $this->myxmlrpcserver->wp_editPost( array( 1, 'editor', 'editor', $post_id, $post2 ) );
-		$this->assertNotIXRError( $result );
-		$this->assertFalse( is_sticky( $post_id ) );
-	}
-
 	function test_if_not_modified_since() {
 		$editor_id = $this->make_user_by_role( 'editor' );
 
