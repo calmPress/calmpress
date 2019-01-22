@@ -21,13 +21,13 @@ class Tests_Post_GetBodyClass extends WP_UnitTestCase {
 		$cat_id3 = self::factory()->category->create( array( 'name' => '25кадр' ) );
 		wp_set_post_terms( $this->post_id, array( $cat_id1, $cat_id2, $cat_id3 ), 'category' );
 
-		$this->go_to( home_url( "?cat=$cat_id1" ) );
+		$this->go_to( get_category_link( $cat_id1 ) );
 		$this->assertContains( "category-$cat_id1", get_body_class() );
 
-		$this->go_to( home_url( "?cat=$cat_id2" ) );
+		$this->go_to( get_category_link( $cat_id2 ) );
 		$this->assertContains( "category-$cat_id2", get_body_class() );
 
-		$this->go_to( home_url( "?cat=$cat_id3" ) );
+		$this->go_to( get_category_link( $cat_id3 ) );
 		$this->assertContains( "category-$cat_id3", get_body_class() );
 	}
 
@@ -89,7 +89,6 @@ class Tests_Post_GetBodyClass extends WP_UnitTestCase {
 		$class = get_body_class();
 		$this->assertContains( "single-post", $class );
 		$this->assertContains( "postid-{$post_id}", $class );
-		$this->assertContains( "single-format-standard", $class );
 	}
 
 	public function test_page_template_body_classes_no_template() {
