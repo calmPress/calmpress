@@ -34,7 +34,6 @@ class Tests_XMLRPC_wp_editProfile extends WP_XMLRPC_UnitTestCase {
         $this->assertEquals( $new_data['last_name'], $user_data->last_name );
         $this->assertEquals( $new_data['url'], $user_data->user_url );
         $this->assertEquals( $new_data['display_name'], $user_data->display_name );
-        $this->assertEquals( $new_data['nickname'], $user_data->nickname );
         $this->assertEquals( $new_data['nicename'], $user_data->user_nicename );
         $this->assertEquals( $new_data['bio'], $user_data->description );
     }
