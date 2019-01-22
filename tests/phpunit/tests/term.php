@@ -163,12 +163,10 @@ class Tests_Term extends WP_UnitTestCase {
 		$this->assertEquals( array( $term2['term_id'], $term4['term_id'], $term1['term_id'] ), $post->post_category );
 
 		wp_set_post_categories( $post_id, array(), true );
-		$this->assertEquals( 1, count( $post->post_category ) );
-		$this->assertEquals( get_option( 'default_category' ), $post->post_category[0] );
+		$this->assertEquals( 3, count( $post->post_category ) );
 
 		wp_set_post_categories( $post_id, array() );
-		$this->assertEquals( 1, count( $post->post_category ) );
-		$this->assertEquals( get_option( 'default_category' ), $post->post_category[0] );
+		$this->assertEquals( 0, count( $post->post_category ) );
 	}
 
 	/**
