@@ -99,10 +99,6 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			'/wp/v2/pages/(?P<parent>[\\d]+)/autosaves/(?P<id>[\\d]+)',
 			'/wp/v2/media',
 			'/wp/v2/media/(?P<id>[\\d]+)',
-			'/wp/v2/blocks',
-			'/wp/v2/blocks/(?P<id>[\d]+)',
-			'/wp/v2/blocks/(?P<id>[\d]+)/autosaves',
-			'/wp/v2/blocks/(?P<parent>[\d]+)/autosaves/(?P<id>[\d]+)',
 			'/wp/v2/types',
 			'/wp/v2/types/(?P<type>[\\w-]+)',
 			'/wp/v2/statuses',
@@ -113,18 +109,14 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			'/wp/v2/categories/(?P<id>[\\d]+)',
 			'/wp/v2/tags',
 			'/wp/v2/tags/(?P<id>[\\d]+)',
+			'/wp/v2/calm_authors',
+			'/wp/v2/calm_authors/(?P<id>[\\d]+)',
 			'/wp/v2/users',
 			'/wp/v2/users/(?P<id>[\\d]+)',
 			'/wp/v2/users/me',
 			'/wp/v2/comments',
 			'/wp/v2/comments/(?P<id>[\\d]+)',
 			'/wp/v2/search',
-			'/wp/v2/block-renderer/(?P<name>core/block)',
-			'/wp/v2/block-renderer/(?P<name>core/latest-comments)',
-			'/wp/v2/block-renderer/(?P<name>core/archives)',
-			'/wp/v2/block-renderer/(?P<name>core/categories)',
-			'/wp/v2/block-renderer/(?P<name>core/latest-posts)',
-			'/wp/v2/block-renderer/(?P<name>core/shortcode)',
 			'/wp/v2/settings',
 			'/wp/v2/themes',
 		);
@@ -204,6 +196,12 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 				'post_type'    => 'page',
 			)
 		);
+
+		$cat_id = $this->factory->category->create( array(
+			'name'        => 'REST API Client Fixture: Category',
+			'slug'        => 'restapi-client-fixture-category',
+			'description' => 'REST API Client Fixture: Category',
+		) );
 
 		$tag_id = $this->factory->tag->create( array(
 			'name'        => 'REST API Client Fixture: Tag',
@@ -357,10 +355,6 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			array(
 				'route' => '/wp/v2/categories',
 				'name'  => 'CategoriesCollection',
-			),
-			array(
-				'route' => '/wp/v2/categories/1',
-				'name'  => 'CategoryModel',
 			),
 			array(
 				'route' => '/wp/v2/tags',

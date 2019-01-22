@@ -358,6 +358,24 @@ mockedApiResponse.Schema = {
                                 "type": "integer"
                             }
                         },
+                        "calm_authors": {
+                            "required": false,
+                            "default": [],
+                            "description": "Limit result set to all items that have the specified term assigned in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "calm_authors_exclude": {
+                            "required": false,
+                            "default": [],
+                            "description": "Limit result set to all items except those that have the specified term assigned in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
                         "sticky": {
                             "required": false,
                             "description": "Limit result set to items that are sticky.",
@@ -445,23 +463,6 @@ mockedApiResponse.Schema = {
                             "description": "Whether or not the object can be pinged.",
                             "type": "string"
                         },
-                        "format": {
-                            "required": false,
-                            "enum": [
-                                "standard",
-                                "aside",
-                                "chat",
-                                "gallery",
-                                "link",
-                                "image",
-                                "quote",
-                                "status",
-                                "video",
-                                "audio"
-                            ],
-                            "description": "The format for the object.",
-                            "type": "string"
-                        },
                         "meta": {
                             "required": false,
                             "description": "Meta fields.",
@@ -488,6 +489,14 @@ mockedApiResponse.Schema = {
                         "tags": {
                             "required": false,
                             "description": "The terms assigned to the object in the post_tag taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "calm_authors": {
+                            "required": false,
+                            "description": "The terms assigned to the object in the calm_authors taxonomy.",
                             "type": "array",
                             "items": {
                                 "type": "integer"
@@ -625,23 +634,6 @@ mockedApiResponse.Schema = {
                             "description": "Whether or not the object can be pinged.",
                             "type": "string"
                         },
-                        "format": {
-                            "required": false,
-                            "enum": [
-                                "standard",
-                                "aside",
-                                "chat",
-                                "gallery",
-                                "link",
-                                "image",
-                                "quote",
-                                "status",
-                                "video",
-                                "audio"
-                            ],
-                            "description": "The format for the object.",
-                            "type": "string"
-                        },
                         "meta": {
                             "required": false,
                             "description": "Meta fields.",
@@ -668,6 +660,14 @@ mockedApiResponse.Schema = {
                         "tags": {
                             "required": false,
                             "description": "The terms assigned to the object in the post_tag taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "calm_authors": {
+                            "required": false,
+                            "description": "The terms assigned to the object in the calm_authors taxonomy.",
                             "type": "array",
                             "items": {
                                 "type": "integer"
@@ -965,23 +965,6 @@ mockedApiResponse.Schema = {
                             "description": "Whether or not the object can be pinged.",
                             "type": "string"
                         },
-                        "format": {
-                            "required": false,
-                            "enum": [
-                                "standard",
-                                "aside",
-                                "chat",
-                                "gallery",
-                                "link",
-                                "image",
-                                "quote",
-                                "status",
-                                "video",
-                                "audio"
-                            ],
-                            "description": "The format for the object.",
-                            "type": "string"
-                        },
                         "meta": {
                             "required": false,
                             "description": "Meta fields.",
@@ -1008,6 +991,14 @@ mockedApiResponse.Schema = {
                         "tags": {
                             "required": false,
                             "description": "The terms assigned to the object in the post_tag taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "calm_authors": {
+                            "required": false,
+                            "description": "The terms assigned to the object in the calm_authors taxonomy.",
                             "type": "array",
                             "items": {
                                 "type": "integer"
@@ -1227,6 +1218,24 @@ mockedApiResponse.Schema = {
                                 ],
                                 "type": "string"
                             }
+                        },
+                        "calm_authors": {
+                            "required": false,
+                            "default": [],
+                            "description": "Limit result set to all items that have the specified term assigned in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "calm_authors_exclude": {
+                            "required": false,
+                            "default": [],
+                            "description": "Limit result set to all items except those that have the specified term assigned in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
                         }
                     }
                 },
@@ -1329,6 +1338,14 @@ mockedApiResponse.Schema = {
                             "required": false,
                             "description": "The theme file to use to display the object.",
                             "type": "string"
+                        },
+                        "calm_authors": {
+                            "required": false,
+                            "description": "The terms assigned to the object in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
                         }
                     }
                 }
@@ -1481,6 +1498,14 @@ mockedApiResponse.Schema = {
                             "required": false,
                             "description": "The theme file to use to display the object.",
                             "type": "string"
+                        },
+                        "calm_authors": {
+                            "required": false,
+                            "description": "The terms assigned to the object in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
                         }
                     }
                 },
@@ -1788,6 +1813,14 @@ mockedApiResponse.Schema = {
                             "required": false,
                             "description": "The theme file to use to display the object.",
                             "type": "string"
+                        },
+                        "calm_authors": {
+                            "required": false,
+                            "description": "The terms assigned to the object in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
                         }
                     }
                 }
@@ -1988,6 +2021,24 @@ mockedApiResponse.Schema = {
                                 "type": "string"
                             }
                         },
+                        "calm_authors": {
+                            "required": false,
+                            "default": [],
+                            "description": "Limit result set to all items that have the specified term assigned in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "calm_authors_exclude": {
+                            "required": false,
+                            "default": [],
+                            "description": "Limit result set to all items except those that have the specified term assigned in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
                         "media_type": {
                             "required": false,
                             "enum": [
@@ -2076,6 +2127,14 @@ mockedApiResponse.Schema = {
                             "required": false,
                             "description": "The theme file to use to display the object.",
                             "type": "string"
+                        },
+                        "calm_authors": {
+                            "required": false,
+                            "description": "The terms assigned to the object in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
                         },
                         "alt_text": {
                             "required": false,
@@ -2214,6 +2273,14 @@ mockedApiResponse.Schema = {
                             "description": "The theme file to use to display the object.",
                             "type": "string"
                         },
+                        "calm_authors": {
+                            "required": false,
+                            "description": "The terms assigned to the object in the calm_authors taxonomy.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
                         "alt_text": {
                             "required": false,
                             "description": "Alternative text to display when attachment is not displayed.",
@@ -2251,446 +2318,6 @@ mockedApiResponse.Schema = {
                             "default": false,
                             "description": "Whether to bypass trash and force deletion.",
                             "type": "boolean"
-                        }
-                    }
-                }
-            ]
-        },
-        "/wp/v2/blocks": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET",
-                "POST"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "view",
-                                "embed",
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
-                        },
-                        "page": {
-                            "required": false,
-                            "default": 1,
-                            "description": "Current page of the collection.",
-                            "type": "integer"
-                        },
-                        "per_page": {
-                            "required": false,
-                            "default": 10,
-                            "description": "Maximum number of items to be returned in result set.",
-                            "type": "integer"
-                        },
-                        "search": {
-                            "required": false,
-                            "description": "Limit results to those matching a string.",
-                            "type": "string"
-                        },
-                        "after": {
-                            "required": false,
-                            "description": "Limit response to posts published after a given ISO8601 compliant date.",
-                            "type": "string"
-                        },
-                        "before": {
-                            "required": false,
-                            "description": "Limit response to posts published before a given ISO8601 compliant date.",
-                            "type": "string"
-                        },
-                        "exclude": {
-                            "required": false,
-                            "default": [],
-                            "description": "Ensure result set excludes specific IDs.",
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
-                        },
-                        "include": {
-                            "required": false,
-                            "default": [],
-                            "description": "Limit result set to specific IDs.",
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
-                        },
-                        "offset": {
-                            "required": false,
-                            "description": "Offset the result set by a specific number of items.",
-                            "type": "integer"
-                        },
-                        "order": {
-                            "required": false,
-                            "default": "desc",
-                            "enum": [
-                                "asc",
-                                "desc"
-                            ],
-                            "description": "Order sort attribute ascending or descending.",
-                            "type": "string"
-                        },
-                        "orderby": {
-                            "required": false,
-                            "default": "date",
-                            "enum": [
-                                "author",
-                                "date",
-                                "id",
-                                "include",
-                                "modified",
-                                "parent",
-                                "relevance",
-                                "slug",
-                                "include_slugs",
-                                "title"
-                            ],
-                            "description": "Sort collection by object attribute.",
-                            "type": "string"
-                        },
-                        "slug": {
-                            "required": false,
-                            "description": "Limit result set to posts with one or more specific slugs.",
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "status": {
-                            "required": false,
-                            "default": "publish",
-                            "description": "Limit result set to posts assigned one or more statuses.",
-                            "type": "array",
-                            "items": {
-                                "enum": [
-                                    "publish",
-                                    "future",
-                                    "draft",
-                                    "pending",
-                                    "private",
-                                    "trash",
-                                    "auto-draft",
-                                    "inherit",
-                                    "request-pending",
-                                    "request-confirmed",
-                                    "request-failed",
-                                    "request-completed",
-                                    "any"
-                                ],
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                {
-                    "methods": [
-                        "POST"
-                    ],
-                    "args": {
-                        "date": {
-                            "required": false,
-                            "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
-                        },
-                        "date_gmt": {
-                            "required": false,
-                            "description": "The date the object was published, as GMT.",
-                            "type": "string"
-                        },
-                        "slug": {
-                            "required": false,
-                            "description": "An alphanumeric identifier for the object unique to its type.",
-                            "type": "string"
-                        },
-                        "status": {
-                            "required": false,
-                            "enum": [
-                                "publish",
-                                "future",
-                                "draft",
-                                "pending",
-                                "private"
-                            ],
-                            "description": "A named status for the object.",
-                            "type": "string"
-                        },
-                        "password": {
-                            "required": false,
-                            "description": "A password to protect access to the content and excerpt.",
-                            "type": "string"
-                        },
-                        "title": {
-                            "required": false,
-                            "description": "The title for the object.",
-                            "type": "object"
-                        },
-                        "content": {
-                            "required": false,
-                            "description": "The content for the object.",
-                            "type": "object"
-                        },
-                        "template": {
-                            "required": false,
-                            "description": "The theme file to use to display the object.",
-                            "type": "string"
-                        }
-                    }
-                }
-            ],
-            "_links": {
-                "self": "http://example.org/index.php?rest_route=/wp/v2/blocks"
-            }
-        },
-        "/wp/v2/blocks/(?P<id>[\\d]+)": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET",
-                "POST",
-                "PUT",
-                "PATCH",
-                "DELETE"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "id": {
-                            "required": false,
-                            "description": "Unique identifier for the object.",
-                            "type": "integer"
-                        },
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "view",
-                                "embed",
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
-                        },
-                        "password": {
-                            "required": false,
-                            "description": "The password for the post if it is password protected.",
-                            "type": "string"
-                        }
-                    }
-                },
-                {
-                    "methods": [
-                        "POST",
-                        "PUT",
-                        "PATCH"
-                    ],
-                    "args": {
-                        "id": {
-                            "required": false,
-                            "description": "Unique identifier for the object.",
-                            "type": "integer"
-                        },
-                        "date": {
-                            "required": false,
-                            "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
-                        },
-                        "date_gmt": {
-                            "required": false,
-                            "description": "The date the object was published, as GMT.",
-                            "type": "string"
-                        },
-                        "slug": {
-                            "required": false,
-                            "description": "An alphanumeric identifier for the object unique to its type.",
-                            "type": "string"
-                        },
-                        "status": {
-                            "required": false,
-                            "enum": [
-                                "publish",
-                                "future",
-                                "draft",
-                                "pending",
-                                "private"
-                            ],
-                            "description": "A named status for the object.",
-                            "type": "string"
-                        },
-                        "password": {
-                            "required": false,
-                            "description": "A password to protect access to the content and excerpt.",
-                            "type": "string"
-                        },
-                        "title": {
-                            "required": false,
-                            "description": "The title for the object.",
-                            "type": "object"
-                        },
-                        "content": {
-                            "required": false,
-                            "description": "The content for the object.",
-                            "type": "object"
-                        },
-                        "template": {
-                            "required": false,
-                            "description": "The theme file to use to display the object.",
-                            "type": "string"
-                        }
-                    }
-                },
-                {
-                    "methods": [
-                        "DELETE"
-                    ],
-                    "args": {
-                        "id": {
-                            "required": false,
-                            "description": "Unique identifier for the object.",
-                            "type": "integer"
-                        },
-                        "force": {
-                            "required": false,
-                            "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
-                            "type": "boolean"
-                        }
-                    }
-                }
-            ]
-        },
-        "/wp/v2/blocks/(?P<id>[\\d]+)/autosaves": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET",
-                "POST"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "parent": {
-                            "required": false,
-                            "description": "The ID for the parent of the object.",
-                            "type": "integer"
-                        },
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "view",
-                                "embed",
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
-                        }
-                    }
-                },
-                {
-                    "methods": [
-                        "POST"
-                    ],
-                    "args": {
-                        "parent": {
-                            "required": false,
-                            "description": "The ID for the parent of the object.",
-                            "type": "integer"
-                        },
-                        "date": {
-                            "required": false,
-                            "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
-                        },
-                        "date_gmt": {
-                            "required": false,
-                            "description": "The date the object was published, as GMT.",
-                            "type": "string"
-                        },
-                        "slug": {
-                            "required": false,
-                            "description": "An alphanumeric identifier for the object unique to its type.",
-                            "type": "string"
-                        },
-                        "status": {
-                            "required": false,
-                            "enum": [
-                                "publish",
-                                "future",
-                                "draft",
-                                "pending",
-                                "private"
-                            ],
-                            "description": "A named status for the object.",
-                            "type": "string"
-                        },
-                        "password": {
-                            "required": false,
-                            "description": "A password to protect access to the content and excerpt.",
-                            "type": "string"
-                        },
-                        "title": {
-                            "required": false,
-                            "description": "The title for the object.",
-                            "type": "object"
-                        },
-                        "content": {
-                            "required": false,
-                            "description": "The content for the object.",
-                            "type": "object"
-                        },
-                        "template": {
-                            "required": false,
-                            "description": "The theme file to use to display the object.",
-                            "type": "string"
-                        }
-                    }
-                }
-            ]
-        },
-        "/wp/v2/blocks/(?P<parent>[\\d]+)/autosaves/(?P<id>[\\d]+)": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "parent": {
-                            "required": false,
-                            "description": "The ID for the parent of the object.",
-                            "type": "integer"
-                        },
-                        "id": {
-                            "required": false,
-                            "description": "The ID for the object.",
-                            "type": "integer"
-                        },
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "view",
-                                "embed",
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
                         }
                     }
                 }
@@ -3349,6 +2976,235 @@ mockedApiResponse.Schema = {
                 }
             ]
         },
+        "/wp/v2/calm_authors": {
+            "namespace": "wp/v2",
+            "methods": [
+                "GET",
+                "POST"
+            ],
+            "endpoints": [
+                {
+                    "methods": [
+                        "GET"
+                    ],
+                    "args": {
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        },
+                        "page": {
+                            "required": false,
+                            "default": 1,
+                            "description": "Current page of the collection.",
+                            "type": "integer"
+                        },
+                        "per_page": {
+                            "required": false,
+                            "default": 10,
+                            "description": "Maximum number of items to be returned in result set.",
+                            "type": "integer"
+                        },
+                        "search": {
+                            "required": false,
+                            "description": "Limit results to those matching a string.",
+                            "type": "string"
+                        },
+                        "exclude": {
+                            "required": false,
+                            "default": [],
+                            "description": "Ensure result set excludes specific IDs.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "include": {
+                            "required": false,
+                            "default": [],
+                            "description": "Limit result set to specific IDs.",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "offset": {
+                            "required": false,
+                            "description": "Offset the result set by a specific number of items.",
+                            "type": "integer"
+                        },
+                        "order": {
+                            "required": false,
+                            "default": "asc",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ],
+                            "description": "Order sort attribute ascending or descending.",
+                            "type": "string"
+                        },
+                        "orderby": {
+                            "required": false,
+                            "default": "name",
+                            "enum": [
+                                "id",
+                                "include",
+                                "name",
+                                "slug",
+                                "include_slugs",
+                                "term_group",
+                                "description",
+                                "count"
+                            ],
+                            "description": "Sort collection by term attribute.",
+                            "type": "string"
+                        },
+                        "hide_empty": {
+                            "required": false,
+                            "default": false,
+                            "description": "Whether to hide terms not assigned to any posts.",
+                            "type": "boolean"
+                        },
+                        "post": {
+                            "required": false,
+                            "description": "Limit result set to terms assigned to a specific post.",
+                            "type": "integer"
+                        },
+                        "slug": {
+                            "required": false,
+                            "description": "Limit result set to terms with one or more specific slugs.",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "POST"
+                    ],
+                    "args": {
+                        "description": {
+                            "required": false,
+                            "description": "HTML description of the term.",
+                            "type": "string"
+                        },
+                        "name": {
+                            "required": true,
+                            "description": "HTML title for the term.",
+                            "type": "string"
+                        },
+                        "slug": {
+                            "required": false,
+                            "description": "An alphanumeric identifier for the term unique to its type.",
+                            "type": "string"
+                        },
+                        "meta": {
+                            "required": false,
+                            "description": "Meta fields.",
+                            "type": "object"
+                        }
+                    }
+                }
+            ],
+            "_links": {
+                "self": "http://example.org/wp-json/wp/v2/calm_authors"
+            }
+        },
+        "/wp/v2/calm_authors/(?P<id>[\\d]+)": {
+            "namespace": "wp/v2",
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE"
+            ],
+            "endpoints": [
+                {
+                    "methods": [
+                        "GET"
+                    ],
+                    "args": {
+                        "id": {
+                            "required": false,
+                            "description": "Unique identifier for the term.",
+                            "type": "integer"
+                        },
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "POST",
+                        "PUT",
+                        "PATCH"
+                    ],
+                    "args": {
+                        "id": {
+                            "required": false,
+                            "description": "Unique identifier for the term.",
+                            "type": "integer"
+                        },
+                        "description": {
+                            "required": false,
+                            "description": "HTML description of the term.",
+                            "type": "string"
+                        },
+                        "name": {
+                            "required": false,
+                            "description": "HTML title for the term.",
+                            "type": "string"
+                        },
+                        "slug": {
+                            "required": false,
+                            "description": "An alphanumeric identifier for the term unique to its type.",
+                            "type": "string"
+                        },
+                        "meta": {
+                            "required": false,
+                            "description": "Meta fields.",
+                            "type": "object"
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "DELETE"
+                    ],
+                    "args": {
+                        "id": {
+                            "required": false,
+                            "description": "Unique identifier for the term.",
+                            "type": "integer"
+                        },
+                        "force": {
+                            "required": false,
+                            "default": false,
+                            "description": "Required to be true, as terms do not support trashing.",
+                            "type": "boolean"
+                        }
+                    }
+                }
+            ]
+        },
         "/wp/v2/users": {
             "namespace": "wp/v2",
             "methods": [
@@ -3516,11 +3372,6 @@ mockedApiResponse.Schema = {
                             "description": "Locale for the user.",
                             "type": "string"
                         },
-                        "nickname": {
-                            "required": false,
-                            "description": "The nickname for the user.",
-                            "type": "string"
-                        },
                         "slug": {
                             "required": false,
                             "description": "An alphanumeric identifier for the user.",
@@ -3641,11 +3492,6 @@ mockedApiResponse.Schema = {
                                 "es_ES"
                             ],
                             "description": "Locale for the user.",
-                            "type": "string"
-                        },
-                        "nickname": {
-                            "required": false,
-                            "description": "The nickname for the user.",
                             "type": "string"
                         },
                         "slug": {
@@ -3778,11 +3624,6 @@ mockedApiResponse.Schema = {
                                 "es_ES"
                             ],
                             "description": "Locale for the user.",
-                            "type": "string"
-                        },
-                        "nickname": {
-                            "required": false,
-                            "description": "The nickname for the user.",
                             "type": "string"
                         },
                         "slug": {
@@ -4287,246 +4128,6 @@ mockedApiResponse.Schema = {
                 "self": "http://example.org/index.php?rest_route=/wp/v2/search"
             }
         },
-        "/wp/v2/block-renderer/(?P<name>core/block)": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "name": {
-                            "required": false,
-                            "description": "Unique registered name for the block.",
-                            "type": "string"
-                        },
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
-                        },
-                        "attributes": {
-                            "required": false,
-                            "default": [],
-                            "description": "Attributes for core/block block",
-                            "type": "object"
-                        },
-                        "post_id": {
-                            "required": false,
-                            "description": "ID of the post context.",
-                            "type": "integer"
-                        }
-                    }
-                }
-            ]
-        },
-        "/wp/v2/block-renderer/(?P<name>core/latest-comments)": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "name": {
-                            "required": false,
-                            "description": "Unique registered name for the block.",
-                            "type": "string"
-                        },
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
-                        },
-                        "attributes": {
-                            "required": false,
-                            "default": [],
-                            "description": "Attributes for core/latest-comments block",
-                            "type": "object"
-                        },
-                        "post_id": {
-                            "required": false,
-                            "description": "ID of the post context.",
-                            "type": "integer"
-                        }
-                    }
-                }
-            ]
-        },
-        "/wp/v2/block-renderer/(?P<name>core/archives)": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "name": {
-                            "required": false,
-                            "description": "Unique registered name for the block.",
-                            "type": "string"
-                        },
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
-                        },
-                        "attributes": {
-                            "required": false,
-                            "default": [],
-                            "description": "Attributes for core/archives block",
-                            "type": "object"
-                        },
-                        "post_id": {
-                            "required": false,
-                            "description": "ID of the post context.",
-                            "type": "integer"
-                        }
-                    }
-                }
-            ]
-        },
-        "/wp/v2/block-renderer/(?P<name>core/categories)": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "name": {
-                            "required": false,
-                            "description": "Unique registered name for the block.",
-                            "type": "string"
-                        },
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
-                        },
-                        "attributes": {
-                            "required": false,
-                            "default": [],
-                            "description": "Attributes for core/categories block",
-                            "type": "object"
-                        },
-                        "post_id": {
-                            "required": false,
-                            "description": "ID of the post context.",
-                            "type": "integer"
-                        }
-                    }
-                }
-            ]
-        },
-        "/wp/v2/block-renderer/(?P<name>core/latest-posts)": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "name": {
-                            "required": false,
-                            "description": "Unique registered name for the block.",
-                            "type": "string"
-                        },
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
-                        },
-                        "attributes": {
-                            "required": false,
-                            "default": [],
-                            "description": "Attributes for core/latest-posts block",
-                            "type": "object"
-                        },
-                        "post_id": {
-                            "required": false,
-                            "description": "ID of the post context.",
-                            "type": "integer"
-                        }
-                    }
-                }
-            ]
-        },
-        "/wp/v2/block-renderer/(?P<name>core/shortcode)": {
-            "namespace": "wp/v2",
-            "methods": [
-                "GET"
-            ],
-            "endpoints": [
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "name": {
-                            "required": false,
-                            "description": "Unique registered name for the block.",
-                            "type": "string"
-                        },
-                        "context": {
-                            "required": false,
-                            "default": "view",
-                            "enum": [
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
-                            "type": "string"
-                        },
-                        "attributes": {
-                            "required": false,
-                            "default": [],
-                            "description": "Attributes for core/shortcode block",
-                            "type": "object"
-                        },
-                        "post_id": {
-                            "required": false,
-                            "description": "ID of the post context.",
-                            "type": "integer"
-                        }
-                    }
-                }
-            ]
-        },
         "/wp/v2/settings": {
             "namespace": "wp/v2",
             "methods": [
@@ -4591,37 +4192,13 @@ mockedApiResponse.Schema = {
                         },
                         "language": {
                             "required": false,
-                            "description": "WordPress locale code.",
-                            "type": "string"
-                        },
-                        "use_smilies": {
-                            "required": false,
-                            "description": "Convert emoticons like :-) and :-P to graphics on display.",
-                            "type": "boolean"
-                        },
-                        "default_category": {
-                            "required": false,
-                            "description": "Default post category.",
-                            "type": "integer"
-                        },
-                        "default_post_format": {
-                            "required": false,
-                            "description": "Default post format.",
+                            "description": "calmPress locale code.",
                             "type": "string"
                         },
                         "posts_per_page": {
                             "required": false,
                             "description": "Blog pages show at most.",
                             "type": "integer"
-                        },
-                        "default_ping_status": {
-                            "required": false,
-                            "enum": [
-                                "open",
-                                "closed"
-                            ],
-                            "description": "Allow link notifications from other blogs (pingbacks and trackbacks) on new articles.",
-                            "type": "string"
                         },
                         "default_comment_status": {
                             "required": false,
@@ -4860,17 +4437,15 @@ mockedApiResponse.PostsCollection = [
         "author": 0,
         "featured_media": 0,
         "comment_status": "open",
-        "ping_status": "open",
+        "ping_status": "closed",
         "sticky": false,
         "template": "",
-        "format": "standard",
         "meta": {
             "meta_key": "meta_value"
         },
-        "categories": [
-            1
-        ],
+        "categories": [],
         "tags": [],
+        "calm_authors": [],
         "_links": {
             "self": [
                 {
@@ -4920,6 +4495,11 @@ mockedApiResponse.PostsCollection = [
                     "taxonomy": "post_tag",
                     "embeddable": true,
                     "href": "http://example.org/index.php?rest_route=%2Fwp%2Fv2%2Ftags&post=4"
+                },
+                {
+                    "taxonomy": "calm_authors",
+                    "embeddable": true,
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=4"
                 }
             ],
             "curies": [
@@ -4960,17 +4540,15 @@ mockedApiResponse.PostModel = {
     "author": 0,
     "featured_media": 0,
     "comment_status": "open",
-    "ping_status": "open",
+    "ping_status": "closed",
     "sticky": false,
     "template": "",
-    "format": "standard",
     "meta": {
         "meta_key": "meta_value"
     },
-    "categories": [
-        1
-    ],
-    "tags": []
+    "categories": [],
+    "tags": [],
+    "calm_authors": []
 };
 
 mockedApiResponse.postRevisions = [
@@ -5147,6 +4725,7 @@ mockedApiResponse.PagesCollection = [
         "meta": {
             "meta_key": ""
         },
+        "calm_authors": [],
         "_links": {
             "self": [
                 {
@@ -5184,6 +4763,13 @@ mockedApiResponse.PagesCollection = [
             "wp:attachment": [
                 {
                     "href": "http://example.org/index.php?rest_route=%2Fwp%2Fv2%2Fmedia&parent=7"
+                }
+            ],
+            "wp:term": [
+                {
+                    "taxonomy": "calm_authors",
+                    "embeddable": true,
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=7"
                 }
             ],
             "curies": [
@@ -5230,7 +4816,8 @@ mockedApiResponse.PageModel = {
     "template": "",
     "meta": {
         "meta_key": ""
-    }
+    },
+    "calm_authors": []
 };
 
 mockedApiResponse.pageRevisions = [
@@ -5396,6 +4983,7 @@ mockedApiResponse.MediaCollection = [
         "meta": {
             "meta_key": ""
         },
+        "calm_authors": [],
         "description": {
             "rendered": "<p class=\"attachment\"><!-- <a...><img.../></a> --></p>"
         },
@@ -5429,6 +5017,20 @@ mockedApiResponse.MediaCollection = [
                     "embeddable": true,
                     "href": "http://example.org/index.php?rest_route=%2Fwp%2Fv2%2Fcomments&post=10"
                 }
+            ],
+            "wp:term": [
+                {
+                    "taxonomy": "calm_authors",
+                    "embeddable": true,
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=10"
+                }
+            ],
+            "curies": [
+                {
+                    "name": "wp",
+                    "href": "https://api.w.org/{rel}",
+                    "templated": true
+                }
             ]
         }
     }
@@ -5457,6 +5059,7 @@ mockedApiResponse.MediaModel = {
     "meta": {
         "meta_key": ""
     },
+    "calm_authors": [],
     "description": {
         "rendered": "<p class=\"attachment\"><!-- <a...><img.../></a> --></p>"
     },
@@ -5479,7 +5082,8 @@ mockedApiResponse.TypesCollection = {
         "slug": "post",
         "taxonomies": [
             "category",
-            "post_tag"
+            "post_tag",
+            "calm_authors"
         ],
         "rest_base": "posts",
         "_links": {
@@ -5507,7 +5111,9 @@ mockedApiResponse.TypesCollection = {
         "hierarchical": true,
         "name": "Pages",
         "slug": "page",
-        "taxonomies": [],
+        "taxonomies": [
+            "calm_authors"
+        ],
         "rest_base": "pages",
         "_links": {
             "collection": [
@@ -5534,7 +5140,9 @@ mockedApiResponse.TypesCollection = {
         "hierarchical": false,
         "name": "Media",
         "slug": "attachment",
-        "taxonomies": [],
+        "taxonomies": [
+            "calm_authors"
+        ],
         "rest_base": "media",
         "_links": {
             "collection": [
@@ -5555,33 +5163,6 @@ mockedApiResponse.TypesCollection = {
                 }
             ]
         }
-    },
-    "wp_block": {
-        "description": "",
-        "hierarchical": false,
-        "name": "Blocks",
-        "slug": "wp_block",
-        "taxonomies": [],
-        "rest_base": "blocks",
-        "_links": {
-            "collection": [
-                {
-                    "href": "http://example.org/index.php?rest_route=/wp/v2/types"
-                }
-            ],
-            "wp:items": [
-                {
-                    "href": "http://example.org/index.php?rest_route=/wp/v2/blocks"
-                }
-            ],
-            "curies": [
-                {
-                    "name": "wp",
-                    "href": "https://api.w.org/{rel}",
-                    "templated": true
-                }
-            ]
-        }
     }
 };
 
@@ -5592,7 +5173,8 @@ mockedApiResponse.TypeModel = {
     "slug": "post",
     "taxonomies": [
         "category",
-        "post_tag"
+        "post_tag",
+        "calm_authors"
     ],
     "rest_base": "posts"
 };
@@ -5743,6 +5325,39 @@ mockedApiResponse.TaxonomiesCollection = {
                 }
             ]
         }
+    },
+    "calm_authors": {
+        "name": "Authors",
+        "slug": "calm_authors",
+        "description": "",
+        "types": [
+            "post",
+            "page",
+            "attachment",
+            "revision",
+            "customize_changeset"
+        ],
+        "hierarchical": false,
+        "rest_base": "calm_authors",
+        "_links": {
+            "collection": [
+                {
+                    "href": "http://example.org/wp-json/wp/v2/taxonomies"
+                }
+            ],
+            "wp:items": [
+                {
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors"
+                }
+            ],
+            "curies": [
+                {
+                    "name": "wp",
+                    "href": "https://api.w.org/{rel}",
+                    "templated": true
+                }
+            ]
+        }
     }
 };
 
@@ -5760,19 +5375,15 @@ mockedApiResponse.TaxonomyModel = {
 mockedApiResponse.CategoriesCollection = [
     {
         "id": 1,
-        "count": 1,
-        "description": "",
+        "count": 0,
+        "description": "REST API Client Fixture: Category",
         "link": "http://example.org/?cat=1",
-        "name": "Uncategorized",
-        "slug": "uncategorized",
+        "name": "REST API Client Fixture: Category",
+        "slug": "restapi-client-fixture-category",
         "taxonomy": "category",
         "parent": 0,
         "meta": {
-            "test_single": "",
-            "test_multi": [],
-            "meta_key": "",
-            "test_cat_single": "",
-            "test_cat_multi": []
+            "meta_key": ""
         },
         "_links": {
             "self": [
@@ -5806,24 +5417,6 @@ mockedApiResponse.CategoriesCollection = [
     }
 ];
 
-mockedApiResponse.CategoryModel = {
-    "id": 1,
-    "count": 1,
-    "description": "",
-    "link": "http://example.org/?cat=1",
-    "name": "Uncategorized",
-    "slug": "uncategorized",
-    "taxonomy": "category",
-    "parent": 0,
-    "meta": {
-        "test_single": "",
-        "test_multi": [],
-        "meta_key": "",
-        "test_cat_single": "",
-        "test_cat_multi": []
-    }
-};
-
 mockedApiResponse.TagsCollection = [
     {
         "id": 2,
@@ -5834,10 +5427,7 @@ mockedApiResponse.TagsCollection = [
         "slug": "restapi-client-fixture-tag",
         "taxonomy": "post_tag",
         "meta": {
-            "test_single": "",
-            "test_multi": [],
-            "meta_key": "meta_value",
-            "test_tag_meta": ""
+            "meta_key": "meta_value"
         },
         "_links": {
             "self": [
@@ -5880,20 +5470,16 @@ mockedApiResponse.TagModel = {
     "slug": "restapi-client-fixture-tag",
     "taxonomy": "post_tag",
     "meta": {
-        "test_single": "",
-        "test_multi": [],
-        "meta_key": "meta_value",
-        "test_tag_meta": ""
+        "meta_key": "meta_value"
     }
 };
 
 mockedApiResponse.UsersCollection = [
     {
         "id": 1,
-        "name": "admin",
+        "name": "Anonymous",
         "url": "",
         "description": "",
-        "link": "http://example.org/?author=1",
         "slug": "admin",
         "avatar_urls": {
             "24": "http://0.gravatar.com/avatar/96614ec98aa0c0d2ee75796dced6df54?s=24&d=mm&r=g",
@@ -5921,7 +5507,6 @@ mockedApiResponse.UsersCollection = [
         "name": "REST API Client Fixture: User",
         "url": "",
         "description": "",
-        "link": "http://example.org/?author=2",
         "slug": "restapiclientfixtureuser",
         "avatar_urls": {
             "24": "http://2.gravatar.com/avatar/57cbd982c963c7eb2294e2eee1b4448e?s=24&d=mm&r=g",
@@ -5951,7 +5536,6 @@ mockedApiResponse.UserModel = {
     "name": "REST API Client Fixture: User",
     "url": "",
     "description": "",
-    "link": "http://example.org/?author=2",
     "slug": "restapiclientfixtureuser",
     "avatar_urls": {
         "24": "http://2.gravatar.com/avatar/57cbd982c963c7eb2294e2eee1b4448e?s=24&d=mm&r=g",
@@ -5968,7 +5552,6 @@ mockedApiResponse.me = {
     "name": "REST API Client Fixture: User",
     "url": "",
     "description": "",
-    "link": "http://example.org/?author=2",
     "slug": "restapiclientfixtureuser",
     "avatar_urls": {
         "24": "http://2.gravatar.com/avatar/57cbd982c963c7eb2294e2eee1b4448e?s=24&d=mm&r=g",
@@ -6061,10 +5644,6 @@ mockedApiResponse.settings = {
     "time_format": "g:i a",
     "start_of_week": 1,
     "language": "en_US",
-    "use_smilies": true,
-    "default_category": 1,
-    "default_post_format": "0",
     "posts_per_page": 10,
-    "default_ping_status": "open",
     "default_comment_status": "open"
 };
