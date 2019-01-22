@@ -80,10 +80,7 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 			'time_format',
 			'start_of_week',
 			'language',
-			'default_category',
-			'default_post_format',
 			'posts_per_page',
-			'default_ping_status',
 			'default_comment_status',
 		);
 
@@ -548,7 +545,7 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 
 		wp_set_current_user( self::$administrator );
 		$request = new WP_REST_Request( 'PUT', '/wp/v2/settings' );
-		$request->set_param( 'default_ping_status', 'open&closed' );
+		$request->set_param( 'default_comment_status', 'open&closed' );
 		$response = $this->server->dispatch( $request );
 		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
 	}
