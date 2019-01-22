@@ -40,24 +40,6 @@ class Tests_WpGetCanonicalURL extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test non permalink structure page usage.
-	 */
-	public function test_paged_with_plain_permalink_structure() {
-		$link = add_query_arg( array(
-			'page' => 2,
-			'foo'  => 'bar',
-		), get_permalink( self::$post_id ) );
-
-		$this->go_to( $link );
-
-		$expected = add_query_arg( array(
-			'page' => 2,
-		), get_permalink( self::$post_id ) );
-
-		$this->assertEquals( $expected, wp_get_canonical_url( self::$post_id ) );
-	}
-
-	/**
 	 * Test permalink structure page usage.
 	 */
 	public function test_paged_with_custom_permalink_structure() {
@@ -74,26 +56,6 @@ class Tests_WpGetCanonicalURL extends WP_UnitTestCase {
 		$expected = trailingslashit( get_permalink( self::$post_id ) ) . user_trailingslashit( $page, 'single_paged' );
 
 		$this->assertEquals( $expected, wp_get_canonical_url( self::$post_id ) );
-	}
-
-	/**
-	 *  Test non permalink structure comment page usage.
-	 */
-	public function test_comments_paged_with_plain_permalink_structure() {
-		$cpage = 2;
-
-		$link = add_query_arg( array(
-			'cpage' => $cpage,
-			'foo'   => 'bar',
-		), get_permalink( self::$post_id ) );
-
-		$this->go_to( $link );
-
-		$expected = add_query_arg( array(
-			'cpage' => $cpage,
-		), get_permalink( self::$post_id ) . '#comments' );
-
-		$this->assertEquals( $expected , wp_get_canonical_url( self::$post_id ) );
 	}
 
 	/**
