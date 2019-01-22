@@ -3509,7 +3509,7 @@ function wp_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 		if ( 'page' === $post->post_type && $post->ID == get_option( 'page_on_front' ) && 'page' == get_option( 'show_on_front' ) ) {
 			$shortlink = home_url( '/' );
 		} elseif ( $post_type->public ) {
-			$shortlink = home_url( '?p=' . $post_id );
+			$shortlink = get_the_permalink( $post_id );
 		}
 	}
 
@@ -3525,85 +3525,6 @@ function wp_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	 */
 	return apply_filters( 'get_shortlink', $shortlink, $id, $context, $allow_slugs );
 }
-
-/**
- * Injects rel=shortlink into the head if a shortlink is defined for the current page.
- *
- * Attached to the {@see 'wp_head'} action.
- *
- * @since 3.0.0
- */
-function wp_shortlink_wp_head() {
-	$shortlink = wp_get_shortlink( 0, 'query' );
-
-	if ( empty( $shortlink ) )
-		return;
-
-	echo "<link rel='shortlink' href='" . esc_url( $shortlink ) . "' />\n";
-}
-
-/**
- * Sends a Link: rel=shortlink header if a shortlink is defined for the current page.
- *
- * Attached to the {@see 'wp'} action.
- *
- * @since 3.0.0
- */
-function wp_shortlink_header() {
-	if ( headers_sent() )
-		return;
-
-	$shortlink = wp_get_shortlink(0, 'query');
-
-	if ( empty($shortlink) )
-		return;
-
-	header('Link: <' . $shortlink . '>; rel=shortlink', false);
-}
-
-/**
- * Displays the shortlink for a post.
- *
- * Must be called from inside "The Loop"
- *
- * Call like the_shortlink( __( 'Shortlinkage FTW' ) )
- *
- * @since 3.0.0
- *
- * @param string $text   Optional The link text or HTML to be displayed. Defaults to 'This is the short link.'
- * @param string $title  Optional The tooltip for the link. Must be sanitized. Defaults to the sanitized post title.
- * @param string $before Optional HTML to display before the link. Default empty.
- * @param string $after  Optional HTML to display after the link. Default empty.
- */
-function the_shortlink( $text = '', $title = '', $before = '', $after = '' ) {
-	$post = get_post();
-
-	if ( empty( $text ) )
-		$text = __('This is the short link.');
-
-	if ( empty( $title ) )
-		$title = the_title_attribute( array( 'echo' => false ) );
-
-	$shortlink = wp_get_shortlink( $post->ID );
-
-	if ( !empty( $shortlink ) ) {
-		$link = '<a rel="shortlink" href="' . esc_url( $shortlink ) . '" title="' . $title . '">' . $text . '</a>';
-
-		/**
-		 * Filters the short link anchor tag for a post.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param string $link      Shortlink anchor tag.
-		 * @param string $shortlink Shortlink URL.
-		 * @param string $text      Shortlink's text.
-		 * @param string $title     Shortlink's title attribute.
-		 */
-		$link = apply_filters( 'the_shortlink', $link, $shortlink, $text, $title );
-		echo $before, $link, $after;
-	}
-}
-
 
 /**
  * Retrieves the avatar URL.

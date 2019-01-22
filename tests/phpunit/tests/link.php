@@ -56,30 +56,12 @@ class Tests_Link extends WP_UnitTestCase {
 		$this->assertEquals( '', wp_get_shortlink( 0, 'post' ) );
 		$this->assertEquals( '', wp_get_shortlink( 0 ) );
 		$this->assertEquals( '', wp_get_shortlink() );
-
-		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
-
-		// With a permalink structure set, get_permalink() will no longer match.
-		$this->assertNotEquals( get_permalink( $post_id ), wp_get_shortlink( $post_id, 'post' ) );
-		$this->assertEquals( home_url( '?p=' . $post_id ), wp_get_shortlink( $post_id, 'post' ) );
-
-		// Global post and permalink structure are set
-		$GLOBALS['post'] = get_post( $post_id );
-		$this->assertEquals( home_url( '?p=' . $post_id ), wp_get_shortlink( 0, 'post' ) );
-		$this->assertEquals( home_url( '?p=' . $post_id ), wp_get_shortlink( 0 ) );
-		$this->assertEquals( home_url( '?p=' . $post_id ), wp_get_shortlink() );
 	}
 
 	function test_wp_get_shortlink_with_page() {
 		$post_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
 
-		// Basic case
-		// Don't test against get_permalink() since it uses ?page_id= for pages.
-		$this->assertEquals( home_url( '?p=' . $post_id ), wp_get_shortlink( $post_id, 'post' ) );
-
-		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
-
-		$this->assertEquals( home_url( '?p=' . $post_id ), wp_get_shortlink( $post_id, 'post' ) );
+		$this->assertEquals( get_permalink( $post_id ), wp_get_shortlink( $post_id, 'post' ) );
 	}
 
 	/**
