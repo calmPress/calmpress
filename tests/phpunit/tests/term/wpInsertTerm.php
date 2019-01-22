@@ -516,35 +516,6 @@ class Tests_Term_WpInsertTerm extends WP_UnitTestCase {
 		_unregister_taxonomy( 'wptests_tax', 'post' );
 	}
 
-	/**
-	 * @ticket 5809
-	 */
-	public function test_wp_insert_term_duplicate_slug_different_taxonomy_before_410_schema_change() {
-
-		register_taxonomy( 'wptests_tax', 'post' );
-		register_taxonomy( 'wptests_tax_2', 'post' );
-		$t = self::factory()->term->create( array(
-			'name' => 'Foo',
-			'slug' => 'foo',
-			'taxonomy' => 'wptests_tax',
-		) );
-
-		$term = get_term( $t, 'wptests_tax' );
-
-		$created = wp_insert_term( 'Foo 2', 'wptests_tax_2', array(
-			'slug' => 'foo',
-		) );
-
-		$this->assertNotWPError( $created );
-
-		$new_term = get_term( $created['term_id'], 'wptests_tax_2' );
-
-		$this->assertSame( 'foo-2', $new_term->slug );
-		$this->assertNotEquals( $new_term->term_id, $term->term_id );
-
-		_unregister_taxonomy( 'wptests_tax', 'post' );
-	}
-
 	public function test_wp_insert_term_alias_of_no_term_group() {
 		register_taxonomy( 'wptests_tax', 'post' );
 		$t1 = self::factory()->term->create( array(
