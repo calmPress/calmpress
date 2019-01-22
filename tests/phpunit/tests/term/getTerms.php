@@ -286,7 +286,7 @@ class Tests_Term_getTerms extends WP_UnitTestCase {
 	 */
 	function test_get_terms_exclude_tree() {
 
-		$term_id_uncategorized = get_option( 'default_category' );
+		$term_id_uncategorized = self::factory()->category->create();
 
 		$term_id1 = self::factory()->category->create();
 		$term_id11 = self::factory()->category->create( array( 'parent' => $term_id1 ) );
