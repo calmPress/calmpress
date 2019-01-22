@@ -146,6 +146,8 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 			'author',
 			'author_exclude',
 			'before',
+			'calm_authors',
+			'calm_authors_exclude',
 			'context',
 			'exclude',
 			'include',
@@ -1116,8 +1118,9 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$response = $this->server->dispatch( $request );
 		$data = $response->get_data();
 		$properties = $data['schema']['properties'];
-		$this->assertEquals( 26, count( $properties ) );
+		$this->assertEquals( 27, count( $properties ) );
 		$this->assertArrayHasKey( 'author', $properties );
+		$this->assertArrayHasKey( 'calm_authors', $properties );
 		$this->assertArrayHasKey( 'alt_text', $properties );
 		$this->assertArrayHasKey( 'caption', $properties );
 		$this->assertArrayHasKey( 'raw', $properties['caption']['properties'] );
