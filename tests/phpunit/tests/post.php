@@ -447,24 +447,6 @@ class Tests_Post extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 5305
-	 * @ticket 33392
-	 */
-	public function test_wp_insert_post_should_invalidate_post_cache_before_generating_guid_when_post_name_is_empty_and_is_generated_from_the_post_ID(){
-		register_post_type( 'wptests_pt' );
-
-		$p = wp_insert_post( array(
-			'post_title' => '',
-			'post_type' => 'wptests_pt',
-			'post_status' => 'publish',
-		) );
-
-		$post = get_post( $p );
-
-		$this->assertContains( 'wptests_pt=' . $p, $post->guid );
-	}
-
-	/**
 	 * @ticket 20451
 	 */
 	public function test_wp_insert_post_with_meta_input() {
@@ -1001,7 +983,6 @@ class Tests_Post extends WP_UnitTestCase {
 		$post = get_post( $post_id );
 
 		$this->assertEquals( 'open', $post->comment_status );
-		$this->assertEquals( 'open', $post->ping_status );
 	}
 
 	/**
@@ -1037,7 +1018,6 @@ class Tests_Post extends WP_UnitTestCase {
 		$post = get_post( $post_id );
 
 		$this->assertEquals( 'open', $post->comment_status );
-		$this->assertEquals( 'open', $post->ping_status );
 		_unregister_post_type( $post_type );
 	}
 
