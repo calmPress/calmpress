@@ -576,7 +576,6 @@ class Test_WP_Widget_Text extends WP_UnitTestCase {
 	 * @covers WP_Widget_Text::form
 	 */
 	function test_form() {
-		add_filter( 'user_can_richedit', '__return_true' );
 		$widget = new WP_Widget_Text();
 		$widget->_set( 2 );
 		$instance = array(
@@ -629,21 +628,6 @@ class Test_WP_Widget_Text extends WP_UnitTestCase {
 		$this->assertContains( 'class="visual sync-input" type="hidden" value="on"', $form );
 		$this->assertContains( '&lt;code&gt;&amp;lt;strong&amp;gt;BOLD!', $form );
 		$this->assertNotContains( 'class="visual sync-input" type="hidden" value=""', $form );
-
-		remove_filter( 'user_can_richedit', '__return_true' );
-		add_filter( 'user_can_richedit', '__return_false' );
-		$instance = array(
-			'title' => 'Title',
-			'text' => 'Evil:</textarea><script>alert("XSS")</script>',
-			'filter' => true,
-			'visual' => true,
-		);
-		$this->assertFalse( $widget->is_legacy_instance( $instance ) );
-		ob_start();
-		$widget->form( $instance );
-		$form = ob_get_clean();
-		$this->assertNotContains( 'Evil:</textarea>', $form );
-		$this->assertContains( 'Evil:&lt;/textarea>', $form );
 	}
 
 	/**
