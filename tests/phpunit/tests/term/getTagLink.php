@@ -12,7 +12,7 @@ class Tests_Term_GetTagLink extends WP_UnitTestCase {
 		) );
 
 		$found = get_tag_link( $t );
-		$expected = home_url( '?tag=term-slug' );
+		$expected = home_url( '/tag/term-slug/' );
 
 		$this->assertSame( $expected, $found );
 	}
@@ -31,7 +31,7 @@ class Tests_Term_GetTagLink extends WP_UnitTestCase {
 		$term = get_term( $t );
 
 		$found = get_tag_link( $t );
-		$expected = home_url( '?wptests_tax=test-term' );
+		$expected = home_url( '/wptests_tax/test-term/' );
 
 		$this->assertSame( $expected, $found );
 	}
@@ -50,7 +50,7 @@ class Tests_Term_GetTagLink extends WP_UnitTestCase {
 		clean_term_cache( $t );
 
 		$found = get_tag_link( $t );
-		$expected = home_url( '?wptests_tax=test-term' );
+		$expected = home_url( '/wptests_tax/test-term/' );
 
 		$this->assertSame( $expected, $found );
 	}
