@@ -147,7 +147,7 @@ class Tests_Pluggable extends WP_UnitTestCase {
 			'_wp_sanitize_utf8_in_redirect'   => array( 'matches' ),
 			'wp_safe_redirect'                => array( 'location', 'status' => 302 ),
 			'wp_validate_redirect'            => array( 'location', 'default' => '' ),
-			'wp_notify_postauthor'            => array( 'comment_id', 'deprecated' => null ),
+			'wp_notify_postauthor'            => array( 'comment_id' ),
 			'wp_notify_moderator'             => array( 'comment_id' ),
 			'wp_password_change_notification' => array( 'user' ),
 			'wp_new_user_notification'        => array( 'user_id', 'deprecated' => null, 'notify' => '' ),
@@ -193,7 +193,6 @@ class Tests_Pluggable extends WP_UnitTestCase {
 				'wp_cache_switch_to_blog'            => array( 'blog_id' ),
 				'wp_cache_add_global_groups'         => array( 'groups' ),
 				'wp_cache_add_non_persistent_groups' => array( 'groups' ),
-				'wp_cache_reset'                     => array(),
 			) );
 		}
 
