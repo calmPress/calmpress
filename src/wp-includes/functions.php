@@ -648,11 +648,11 @@ function wp_get_http_headers( $url ) {
 /**
  * Determines whether the publish date of the current post in the loop is different
  * from the publish date of the previous post in the loop.
- * 
+ *
  * For more information on this and similar theme functions, check out
- * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/ 
+ * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- * 
+ *
  * @since 0.71
  *
  * @global string $currentday  The day of the current post in the loop.
@@ -1343,9 +1343,9 @@ function do_robots() {
  * cache, and the database goes away, then you might have problems.
  *
  * Checks for the 'siteurl' option for whether WordPress is installed.
- * 
+ *
  * For more information on this and similar theme functions, check out
- * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/ 
+ * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
  * @since 2.1.0
@@ -2397,7 +2397,7 @@ function wp_check_filetype_and_ext( $file, $filename, $mimes = null ) {
 		} else {
 			if ( $type !== $real_mime ) {
 				/*
-				 * Everything else including image/* and application/*: 
+				 * Everything else including image/* and application/*:
 				 * If the real content type doesn't match the file extension, assume it's dangerous.
 				 */
 				$type = $ext = false;
@@ -2406,7 +2406,7 @@ function wp_check_filetype_and_ext( $file, $filename, $mimes = null ) {
 		}
 	}
 
-	// The mime type must be allowed 
+	// The mime type must be allowed
 	if ( $type ) {
 		$allowed = get_allowed_mime_types();
 
@@ -3047,12 +3047,28 @@ function _scalar_wp_die_handler( $message = '' ) {
  * @return string|false The JSON encoded string, or false if it cannot be encoded.
  */
 function wp_json_encode( $data, $options = 0, $depth = 512 ) {
-	// Prepare the data for JSON serialization.
-	$data = _wp_json_prepare_data( $data );
 
-	$json = json_encode( $data, $options, $depth );
+    $args = array( $data, $options, $depth );
 
-	return $json;
+    // Prepare the data for JSON serialization.
+    $data = _wp_json_prepare_data( $data );
+
+    $json = json_encode($data, $options, $depth);
+
+    // If json_encode() was successful, no need to do more sanity checking.
+    // ... unless we're in an old version of PHP, and json_encode() returned
+    // a string containing 'null'. Then we need to do more sanity checking.
+    if ( false !== $json && ( version_compare( PHP_VERSION, '5.5', '>=' ) || false === strpos( $json, 'null' ) ) )  {
+        return $json;
+    }
+
+    try {
+        $data = _wp_json_sanity_check( $data, $depth );
+    } catch ( Exception $e ) {
+        return false;
+    }
+
+    return json_encode($data, $options, $depth);
 }
 
 /**
