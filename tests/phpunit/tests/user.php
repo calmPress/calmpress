@@ -335,8 +335,8 @@ class Tests_User extends WP_UnitTestCase {
 		// Test update of fields in _get_additional_user_keys()
 		$user_data = array(
 			'ID' => self::$author_id, 'use_ssl' => 1, 'show_admin_bar_front' => 1,
-			'rich_editing' => 1, 'syntax_highlighting' => 1, 'first_name' => 'first', 'last_name' => 'last',
-			'nickname' => 'nick', 'comment_shortcuts' => 'true', 'admin_color' => 'classic',
+			'syntax_highlighting' => 1, 'first_name' => 'first', 'last_name' => 'last',
+			'comment_shortcuts' => 'true', 'admin_color' => 'classic',
 			'description' => 'describe'
 		);
 		wp_update_user( $user_data );
@@ -1232,9 +1232,6 @@ class Tests_User extends WP_UnitTestCase {
 		$_POST['role'] = 'subscriber';
 		$_POST['email'] = 'user1@example.com';
 		$_POST['user_login'] = 'user_login1';
-		$_POST['first_name'] = 'first_name1';
-		$_POST['last_name'] = 'last_name1';
-		$_POST['nickname'] = 'nickname1';
 		$_POST['display_name'] = 'display_name1';
 
 		// Check new user with missing password.
@@ -1251,19 +1248,15 @@ class Tests_User extends WP_UnitTestCase {
 
 		$this->assertInternalType( 'int', $user_id );
 		$this->assertInstanceOf( 'WP_User', $user );
-		$this->assertEquals( 'nickname1', $user->nickname );
 
 		// Check updating user with empty password.
-		$_POST['nickname'] = 'nickname_updated';
 		$_POST['pass1'] = $_POST['pass2'] = '';
 
 		$user_id = edit_user( $user_id );
 
 		$this->assertInternalType( 'int', $user_id );
-		$this->assertEquals( 'nickname_updated', $user->nickname );
 
 		// Check updating user with missing second password.
-		$_POST['nickname'] = 'nickname_updated2';
 		$_POST['pass1'] = 'blank_pass2';
 		$_POST['pass2'] = '';
 
@@ -1271,7 +1264,6 @@ class Tests_User extends WP_UnitTestCase {
 
 		$this->assertInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 'pass', $response->get_error_code() );
-		$this->assertEquals( 'nickname_updated', $user->nickname );
 
 		// Check updating user with empty password via `check_passwords` action.
 		add_action( 'check_passwords', array( $this, 'action_check_passwords_blank_pw' ), 10, 2 );
@@ -1279,7 +1271,6 @@ class Tests_User extends WP_UnitTestCase {
 		remove_action( 'check_passwords', array( $this, 'action_check_passwords_blank_pw' ) );
 
 		$this->assertInternalType( 'int', $user_id );
-		$this->assertEquals( 'nickname_updated2', $user->nickname );
 	}
 
 	/**
