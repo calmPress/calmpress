@@ -9,6 +9,17 @@ class Tests_Widgets extends WP_UnitTestCase {
 	public $sidebar_index;
 	public $valid_sidebar;
 
+	public function setUp() {
+		global $wp_widget_factory, $wp_registered_sidebars, $wp_registered_widgets, $wp_registered_widget_controls, $wp_registered_widget_updates;
+		
+		parent::setUp();
+		$wp_registered_sidebars = array();
+		$wp_registered_widgets = array();
+		$wp_registered_widget_controls = array();
+		$wp_registered_widget_updates = array();
+		$wp_widget_factory->widgets = array();
+	}
+
 	function clean_up_global_scope() {
 		global $wp_widget_factory, $wp_registered_sidebars, $wp_registered_widgets, $wp_registered_widget_controls, $wp_registered_widget_updates;
 
