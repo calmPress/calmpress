@@ -332,8 +332,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	function test_all_caps_of_users_are_being_tested() {
 		$caps = $this->getPrimitiveCapsAndRoles();
 
-		// `manage_links` is a special case
-		$this->assertSame( '0', get_option( 'link_manager_enabled' ) );
 		// `unfiltered_upload` is a special case
 		$this->assertFalse( defined( 'ALLOW_UNFILTERED_UPLOADS' ) );
 
@@ -345,8 +343,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			$user_caps = $user->allcaps;
 
 			unset(
-				// `manage_links` is a special case
-				$user_caps['manage_links'],
 				// `unfiltered_upload` is a special case
 				$user_caps['unfiltered_upload']
 			);
@@ -381,8 +377,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		);
 
 		unset(
-			// `manage_links` is a special case in the caps tests:
-			$expected['manage_links'],
 			// `unfiltered_upload` is a special case in the caps tests:
 			$expected['unfiltered_upload']
 		);
@@ -435,7 +429,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			$expected['edit_users'],
 			$expected['delete_users'],
 			$expected['create_users'],
-			$expected['manage_links'],
 			// Singular object meta capabilities (where an object ID is passed) are not tested:
 			$expected['activate_plugin'],
 			$expected['deactivate_plugin'],
@@ -1243,28 +1236,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	 *
 	 * @ticket 35614
 	 */
-	public function test_default_taxonomy_term_cannot_be_deleted( $taxonomy ) {
-		if ( ! taxonomy_exists( $taxonomy ) ) {
-			register_taxonomy( $taxonomy, 'post' );
-		}
-
-		$tax  = get_taxonomy( $taxonomy );
-		$user = self::$users['administrator'];
-		$term = self::factory()->term->create_and_get( array(
-			'taxonomy' => $taxonomy,
-		) );
-
-		update_option( "default_{$taxonomy}", $term->term_id );
-
-		$this->assertTrue( user_can( $user->ID, $tax->cap->delete_terms ) );
-		$this->assertFalse( user_can( $user->ID, 'delete_term', $term->term_id ) );
-	}
-
-	/**
-	 * @dataProvider dataTaxonomies
-	 *
-	 * @ticket 35614
-	 */
 	public function test_taxonomy_caps_map_correctly_to_their_meta_cap( $taxonomy ) {
 		if ( ! taxonomy_exists( $taxonomy ) ) {
 			register_taxonomy( $taxonomy, 'post' );
@@ -1682,7 +1653,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		}
 
 		// Special cases for link manager and unfiltered uploads:
-		$this->assertFalse( current_user_can( 'manage_links' ), "Non-logged-in user should not have the manage_links capability" );
 		$this->assertFalse( current_user_can( 'unfiltered_upload' ), "Non-logged-in user should not have the unfiltered_upload capability" );
 
 		$this->assertFalse( current_user_can( 'start_a_fire' ), "Non-logged-in user should not have a custom capability" );
