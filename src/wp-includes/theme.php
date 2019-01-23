@@ -2438,6 +2438,10 @@ function current_theme_supports( $feature ) {
 			return in_array( $content_type, $_wp_theme_features[$feature][0] );
 
 		case 'html5':
+			// Specific areas of HTML5 support *must* be passed via an array to add_theme_support()
+
+			$type = $args[0];
+			return in_array( $type, $_wp_theme_features[$feature][0] );
 
 		case 'custom-logo':
 		case 'custom-header':
