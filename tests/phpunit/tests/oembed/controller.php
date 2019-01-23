@@ -474,19 +474,6 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		$this->assertTrue( _oembed_rest_pre_serve_request( true, $response, $request, $this->server ) );
 	}
 
-	function test_get_oembed_endpoint_url() {
-		$this->assertEquals( home_url() . '/index.php?rest_route=/oembed/1.0/embed', get_oembed_endpoint_url() );
-		$this->assertEquals( home_url() . '/index.php?rest_route=/oembed/1.0/embed', get_oembed_endpoint_url( '', 'json' ) );
-		$this->assertEquals( home_url() . '/index.php?rest_route=/oembed/1.0/embed', get_oembed_endpoint_url( '', 'xml' ) );
-
-		$post_id     = $this->factory()->post->create();
-		$url         = get_permalink( $post_id );
-		$url_encoded = urlencode( $url );
-
-		$this->assertEquals( home_url() . '/index.php?rest_route=%2Foembed%2F1.0%2Fembed&url=' . $url_encoded, get_oembed_endpoint_url( $url ) );
-		$this->assertEquals( home_url() . '/index.php?rest_route=%2Foembed%2F1.0%2Fembed&url=' . $url_encoded . '&format=xml', get_oembed_endpoint_url( $url, 'xml' ) );
-	}
-
 	function test_get_oembed_endpoint_url_pretty_permalinks() {
 		update_option( 'permalink_structure', '/%postname%' );
 
