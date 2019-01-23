@@ -2204,13 +2204,13 @@ if ( !function_exists('wp_rand') ) :
  * @param int $max Upper limit for the generated number
  * @return int A random number between min and max
  */
-function wp_rand( $min = 0, $max = 2147483647 ) {
+function wp_rand( $min = 0, $max = 0 ) {
 
 	// We only handle Ints, floats are truncated to their integer value.
 	$min = (int) $min;
 	$max = (int) $max;
 
-	$_max = ( 0 != $max ) ? $max : $max_random_number;
+	$_max = ( 0 != $max ) ? $max : PHP_INT_MAX;
 	// wp_rand() can accept arguments in either order, PHP cannot.
 	$_max = max( $min, $_max );
 	$_min = min( $min, $_max );
