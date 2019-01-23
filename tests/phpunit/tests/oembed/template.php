@@ -106,7 +106,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$this->go_to( get_post_embed_url( $post_id ) );
 
-		$this->assertQueryTrue( 'is_404', 'is_embed' );
+		$this->assertQueryTrue( 'is_404' );
 
 		ob_start();
 		include( ABSPATH . WPINC . '/theme-compat/embed.php' );
@@ -128,7 +128,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$this->go_to( get_post_embed_url( $post_id ) );
 
-		$this->assertQueryTrue( 'is_404', 'is_embed' );
+		$this->assertQueryTrue( 'is_404' );
 
 		ob_start();
 		include( ABSPATH . WPINC . '/theme-compat/embed.php' );
