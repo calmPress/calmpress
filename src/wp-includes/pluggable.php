@@ -2204,10 +2204,7 @@ if ( !function_exists('wp_rand') ) :
  * @param int $max Upper limit for the generated number
  * @return int A random number between min and max
  */
-function wp_rand( $min = 0, $max = 0 ) {
-
-	// Some misconfigured 32bit environments (Entropy PHP, for example) truncate integers larger than PHP_INT_MAX to PHP_INT_MAX rather than overflowing them to floats.
-	$max_random_number = 3000000000 === 2147483647 ? (float) "4294967295" : 4294967295; // 4294967295 = 0xffffffff
+function wp_rand( $min = 0, $max = 2147483647 ) {
 
 	// We only handle Ints, floats are truncated to their integer value.
 	$min = (int) $min;
