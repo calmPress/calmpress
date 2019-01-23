@@ -140,42 +140,6 @@ JS;
 	}
 
 	/**
-	 * Testing `wp_script_add_data` with the conditional key.
-	 * @ticket 16024
-	 */
-	function test_wp_script_add_data_with_conditional_key() {
-		// Enqueue & add conditional comments
-		wp_enqueue_script( 'test-only-conditional', 'example.com', array(), null );
-		wp_script_add_data( 'test-only-conditional', 'conditional', 'gt IE 7' );
-		$expected = "<!--[if gt IE 7]>\n<script type='text/javascript' src='http://example.com'></script>\n<![endif]-->\n";
-
-		// Go!
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
-
-		// No scripts left to print
-		$this->assertEquals( '', get_echo( 'wp_print_scripts' ) );
-	}
-
-	/**
-	 * Testing `wp_script_add_data` with both the data & conditional keys.
-	 * @ticket 16024
-	 */
-	function test_wp_script_add_data_with_data_and_conditional_keys() {
-		// Enqueue & add data plus conditional comments for both
-		wp_enqueue_script( 'test-conditional-with-data', 'example.com', array(), null );
-		wp_script_add_data( 'test-conditional-with-data', 'data', 'testing' );
-		wp_script_add_data( 'test-conditional-with-data', 'conditional', 'lt IE 9' );
-		$expected = "<!--[if lt IE 9]>\n<script type='text/javascript'>\n/* <![CDATA[ */\ntesting\n/* ]]> */\n</script>\n<![endif]-->\n";
-		$expected.= "<!--[if lt IE 9]>\n<script type='text/javascript' src='http://example.com'></script>\n<![endif]-->\n";
-
-		// Go!
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
-
-		// No scripts left to print
-		$this->assertEquals( '', get_echo( 'wp_print_scripts' ) );
-	}
-
-	/**
 	 * Testing `wp_script_add_data` with an anvalid key.
 	 * @ticket 16024
 	 */
@@ -567,36 +531,6 @@ JS;
 	}
 
 	/**
-	 * @ticket 14853
-	 */
-	public function test_wp_add_inline_script_after_and_before_with_concat_and_conditional() {
-		global $wp_scripts;
-
-		$wp_scripts->do_concat = true;
-		$wp_scripts->default_dirs = array('/wp-admin/js/', '/wp-includes/js/'); // Default dirs as in wp-includes/script-loader.php
-
-		$expected_localized = "<!--[if gte IE 9]>\n";
-		$expected_localized .= "<script type='text/javascript'>\n/* <![CDATA[ */\nvar testExample = {\"foo\":\"bar\"};\n/* ]]> */\n</script>\n";
-		$expected_localized .= "<![endif]-->\n";
-
-		$expected  = "<!--[if gte IE 9]>\n";
-		$expected .= "<script type='text/javascript'>\nconsole.log(\"before\");\n</script>\n";
-		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
-		$expected .= "<script type='text/javascript'>\nconsole.log(\"after\");\n</script>\n";
-		$expected .= "<![endif]-->\n";
-
-		wp_enqueue_script( 'test-example', 'example.com', array(), null );
-		wp_localize_script( 'test-example', 'testExample', array( 'foo' => 'bar' ) );
-		wp_add_inline_script( 'test-example', 'console.log("before");', 'before' );
-		wp_add_inline_script( 'test-example', 'console.log("after");' );
-		wp_script_add_data( 'test-example', 'conditional', 'gte IE 9' );
-
-		$this->assertEquals( $expected_localized, get_echo( 'wp_print_scripts' ) );
-		$this->assertEquals( $expected, $wp_scripts->print_html );
-		$this->assertTrue( $wp_scripts->do_concat );
-	}
-
-	/**
 	 * @ticket 36392
 	 */
 	public function test_wp_add_inline_script_after_with_concat_and_core_dependency() {
@@ -614,34 +548,6 @@ JS;
 
 		wp_enqueue_script( 'test-example', 'http://example.com', array( 'jquery' ), null );
 		wp_add_inline_script( 'test-example', 'console.log("after");' );
-
-		wp_print_scripts();
-		$print_scripts = get_echo( '_print_scripts' );
-
-		$this->assertEquals( $expected, $print_scripts );
-	}
-
-	/**
-	 * @ticket 36392
-	 */
-	public function test_wp_add_inline_script_after_with_concat_and_conditional_and_core_dependency() {
-		global $wp_scripts;
-
-		wp_default_scripts( $wp_scripts );
-
-		$wp_scripts->base_url  = '';
-		$wp_scripts->do_concat = true;
-
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
-		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=jquery-core,jquery-migrate&amp;ver={$ver}'></script>\n";
-		$expected .= "<!--[if gte IE 9]>\n";
-		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
-		$expected .= "<script type='text/javascript'>\nconsole.log(\"after\");\n</script>\n";
-		$expected .= "<![endif]-->\n";
-
-		wp_enqueue_script( 'test-example', 'http://example.com', array( 'jquery' ), null );
-		wp_add_inline_script( 'test-example', 'console.log("after");' );
-		wp_script_add_data( 'test-example', 'conditional', 'gte IE 9' );
 
 		wp_print_scripts();
 		$print_scripts = get_echo( '_print_scripts' );
@@ -701,34 +607,6 @@ JS;
 		$print_scripts = get_echo( '_print_scripts' );
 
 		$this->assertEquals( $expected, $print_scripts );
-	}
-
-	/**
-	 * @ticket 36392
-	 */
-	public function test_wp_add_inline_script_customize_dependency() {
-		global $wp_scripts;
-
-		wp_default_scripts( $wp_scripts );
-
-		$wp_scripts->base_url  = '';
-		$wp_scripts->do_concat = true;
-
-		$expected_tail = "<![endif]-->\n";
-		$expected_tail .= "<script type='text/javascript' src='/customize-dependency.js'></script>\n";
-		$expected_tail .= "<script type='text/javascript'>\n";
-		$expected_tail .= "tryCustomizeDependency()\n";
-		$expected_tail .= "</script>\n";
-
-		$handle = 'customize-dependency';
-		wp_enqueue_script( $handle, '/customize-dependency.js', array( 'customize-controls' ), null );
-		wp_add_inline_script( $handle, 'tryCustomizeDependency()' );
-
-		wp_print_scripts();
-		$print_scripts = get_echo( '_print_scripts' );
-
-		$tail = substr( $print_scripts, strrpos( $print_scripts, "<![endif]-->" ) );
-		$this->assertEquals( $expected_tail, $tail );
 	}
 
 	/**
