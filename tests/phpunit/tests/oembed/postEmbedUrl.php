@@ -19,14 +19,6 @@ class Tests_Post_Embed_URL extends WP_UnitTestCase {
 		$this->assertEquals( $permalink . '/embed', $embed_url );
 	}
 
-	function test_with_ugly_permalinks() {
-		$post_id   = self::factory()->post->create();
-		$permalink = get_permalink( $post_id );
-		$embed_url = get_post_embed_url( $post_id );
-
-		$this->assertEquals( $permalink . '&embed=true', $embed_url );
-	}
-
 	/**
 	 * @ticket 34971
 	 */
@@ -41,22 +33,6 @@ class Tests_Post_Embed_URL extends WP_UnitTestCase {
 		$embed_url = get_post_embed_url( $post_id );
 
 		$this->assertSame( user_trailingslashit( trailingslashit( home_url() ) . 'embed' ), $embed_url );
-
-		update_option( 'show_on_front', 'posts' );
-	}
-
-	/**
-	 * @ticket 34971
-	 */
-	function test_static_front_page_with_ugly_permalinks() {
-		$post_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
-
-		update_option( 'show_on_front', 'page' );
-		update_option( 'page_on_front', $post_id );
-
-		$embed_url = get_post_embed_url( $post_id );
-
-		$this->assertSame( trailingslashit( home_url() ) . '?embed=true', $embed_url );
 
 		update_option( 'show_on_front', 'posts' );
 	}
