@@ -291,6 +291,7 @@ class Tests_User_WpSendUserRequest extends WP_UnitTestCase {
 	 * @group l10n
 	 */
 	public function test_should_send_user_request_email_in_user_locale_when_admin_and_site_have_different_locales() {
+		$this->markTestSkipped('avoiding multilingual for version 1.0');
 		update_option( 'WPLANG', 'es_ES' );
 		switch_to_locale( 'es_ES' );
 
@@ -356,6 +357,7 @@ class Tests_User_WpSendUserRequest extends WP_UnitTestCase {
 	 * @group l10n
 	 */
 	public function test_should_send_user_request_email_in_site_locale_when_not_en_us_and_admin_has_different_locale() {
+		$this->markTestSkipped('avoiding multilingual for version 1.0');
 		update_option( 'WPLANG', 'es_ES' );
 		switch_to_locale( 'es_ES' );
 
