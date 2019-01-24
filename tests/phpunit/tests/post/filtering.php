@@ -36,23 +36,6 @@ EOF;
 		$this->assertEquals( $expected, $post->post_content );
 	}
 
-	// a simple test to make sure unbalanced tags are fixed
-	function test_post_content_unbalanced_tag() {
-
-		$content = <<<EOF
-<i>italics
-EOF;
-
-		$expected = <<<EOF
-<i>italics</i>
-EOF;
-
-		$id = self::factory()->post->create( array( 'post_content' => $content ) );
-		$post = get_post($id);
-
-		$this->assertEquals( $expected, $post->post_content );
-	}
-
 	// test kses filtering of disallowed attribute
 	function test_post_content_disallowed_attr() {
 
