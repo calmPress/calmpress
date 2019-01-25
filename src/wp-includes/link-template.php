@@ -684,45 +684,6 @@ function post_comments_feed_link( $link_text = '', $post_id = '', $feed = '' ) {
 }
 
 /**
- * Retrieves the feed link for a given author.
- *
- * Returns a link to the feed for all posts by a given author. A specific feed
- * can be requested or left blank to get the default feed.
- *
- * @since 2.5.0
- *
- * @param int    $author_id Author ID.
- * @param string $feed      Optional. Feed type. Default empty.
- * @return string Link to the feed for the author specified by $author_id.
- */
-function get_author_feed_link( $author_id, $feed = '' ) {
-	$author_id = (int) $author_id;
-
-	if ( empty($feed) )
-		$feed = get_default_feed();
-
-	$link = get_author_posts_url($author_id);
-	if ( $feed == get_default_feed() )
-		$feed_link = 'feed';
-	else
-		$feed_link = "feed/$feed";
-
-	$link = trailingslashit($link) . user_trailingslashit($feed_link, 'feed');
-
-	/**
-	 * Filters the feed link for a given author.
-	 *
-	 * @since 1.5.1
-	 *
-	 * @param string $link The author feed link.
-	 * @param string $feed Feed type.
-	 */
-	$link = apply_filters( 'author_feed_link', $link, $feed );
-
-	return $link;
-}
-
-/**
  * Retrieves the feed link for a category.
  *
  * Returns a link to the feed for all posts in a given category. A specific feed
