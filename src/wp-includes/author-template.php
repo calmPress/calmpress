@@ -338,26 +338,17 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
  * @link https://codex.wordpress.org/Template_Tags/wp_list_authors
  *
  * @since 1.2.0
- *
- * @global wpdb $wpdb WordPress database abstraction object.
+ * @since calmPress 1.0.0
  *
  * @param string|array $args {
  *     Optional. Array or string of default arguments.
  *
- *     @type string       $orderby       How to sort the authors. Accepts 'nicename', 'email', 'url', 'registered',
- *                                       'user_nicename', 'user_email', 'user_url', 'user_registered', 'name',
- *                                       'display_name', 'post_count', 'ID', 'meta_value', 'user_login'. Default 'name'.
+ *     @type string       $orderby       How to sort the authors. Accepts 'name',
+ *                                       'display_name', 'post_count'. Default 'name'.
  *     @type string       $order         Sorting direction for $orderby. Accepts 'ASC', 'DESC'. Default 'ASC'.
  *     @type int          $number        Maximum authors to return or display. Default empty (all authors).
  *     @type bool         $optioncount   Show the count in parenthesis next to the author's name. Default false.
- *     @type bool         $exclude_admin Whether to exclude the 'admin' account, if it exists. Default false.
- *     @type bool         $show_fullname Whether to show the author's full name. Default false.
  *     @type bool         $hide_empty    Whether to hide any authors with no posts. Default true.
- *     @type string       $feed          If not empty, show a link to the author's feed and use this text as the alt
- *                                       parameter of the link. Default empty.
- *     @type string       $feed_image    If not empty, show a link to the author's feed and use this image URL as
- *                                       clickable anchor. Default empty.
- *     @type string       $feed_type     The feed type to link to, such as 'rss2'. Defaults to default feed type.
  *     @type bool         $echo          Whether to output the result or instead return it. Default true.
  *     @type string       $style         If 'list', each author is wrapped in an `<li>` element, otherwise the authors
  *                                       will be separated by commas.
@@ -368,13 +359,12 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
  * @return string|void The output, if echo is set to false.
  */
 function wp_list_authors( $args = '' ) {
-	global $wpdb;
 
 	$defaults = array(
 		'orderby' => 'name', 'order' => 'ASC', 'number' => '',
-		'optioncount' => false, 'exclude_admin' => true,
-		'show_fullname' => false, 'hide_empty' => true,
-		'feed' => '', 'feed_image' => '', 'feed_type' => '', 'echo' => true,
+		'optioncount' => false,
+		'hide_empty' => true,
+		'echo' => true,
 		'style' => 'list', 'html' => true, 'exclude' => '', 'include' => ''
 	);
 
@@ -382,32 +372,52 @@ function wp_list_authors( $args = '' ) {
 
 	$return = '';
 
-	$query_args = wp_array_slice_assoc( $args, array( 'orderby', 'order', 'number', 'exclude', 'include' ) );
-	$query_args['fields'] = 'ids';
-	$authors = get_users( $query_args );
-
-	$author_count = array();
-	foreach ( (array) $wpdb->get_results( "SELECT DISTINCT post_author, COUNT(ID) AS count FROM $wpdb->posts WHERE " . get_private_posts_cap_sql( 'post' ) . " GROUP BY post_author" ) as $row ) {
-		$author_count[$row->post_author] = $row->count;
-	}
-	foreach ( $authors as $author_id ) {
-		$author = get_userdata( $author_id );
-
-		if ( $args['exclude_admin'] && 'admin' == $author->display_name ) {
-			continue;
-		}
-
-		$posts = isset( $author_count[$author->ID] ) ? $author_count[$author->ID] : 0;
-
-		if ( ! $posts && $args['hide_empty'] ) {
-			continue;
-		}
-
-		if ( $args['show_fullname'] && $author->first_name && $author->last_name ) {
-			$name = "$author->first_name $author->last_name";
+	// Set the sort parameter.
+	$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NONE;
+	if ( 'name' === $args['orderby'] || 'display_name' === $args['orderby'] ) {
+		if ( 'DESC' === $args['order'] ) {
+			$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_DESC;
 		} else {
-			$name = $author->display_name;
+			$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_ASC;
 		}
+	} elseif ( 'post_count' === $args['orderby'] ) {
+		if ( 'DESC' === $args['order'] ) {
+			$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_DESC;
+		} else {
+			$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_ASC;
+		}
+	}
+
+	// Convert the exclude parameter to array of authors.
+	$exclude_arr = [];
+	if ( ! empty( $args['exclude'] ) ) {
+		$exclude_arr = array_map( function ( $term_id ) {
+			$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+			return new post_authors\Post_Taxonomy_Author( $term );
+			}, wp_parse_id_list( $args['exclude'] ) );
+	}
+
+	// Convert the include parameter to array of authors.
+	$include_arr = [];
+	if ( ! empty( $args['include'] ) ) {
+		$include_arr = array_map( function ( $term_id ) {
+			$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+			return new post_authors\Post_Taxonomy_Author( $term );
+		}, wp_parse_id_list( $args['include'] ) );
+	}
+
+	$authors = post_authors\Post_Authors_As_Taxonomy::get_authors( (int) $args['number'],
+		$order,
+		! $args['hide_empty'],
+		$exclude_arr,
+		$include_arr
+	);
+
+	foreach ( $authors as $author ) {
+
+		$posts = $author->posts_count();
+
+		$name = $author->name();
 
 		if ( ! $args['html'] ) {
 			$return .= $name . ', ';
@@ -420,40 +430,11 @@ function wp_list_authors( $args = '' ) {
 		}
 
 		$link = sprintf( '<a href="%1$s" title="%2$s">%3$s</a>',
-			get_author_posts_url( $author->ID, $author->user_nicename ),
+			$author->posts_url(),
 			/* translators: %s: author's display name */
-			esc_attr( sprintf( __( 'Posts by %s' ), $author->display_name ) ),
+			esc_attr( sprintf( __( 'Posts by %s' ), $name ) ),
 			$name
 		);
-
-		if ( ! empty( $args['feed_image'] ) || ! empty( $args['feed'] ) ) {
-			$link .= ' ';
-			if ( empty( $args['feed_image'] ) ) {
-				$link .= '(';
-			}
-
-			$link .= '<a href="' . get_author_feed_link( $author->ID, $args['feed_type'] ) . '"';
-
-			$alt = '';
-			if ( ! empty( $args['feed'] ) ) {
-				$alt = ' alt="' . esc_attr( $args['feed'] ) . '"';
-				$name = $args['feed'];
-			}
-
-			$link .= '>';
-
-			if ( ! empty( $args['feed_image'] ) ) {
-				$link .= '<img src="' . esc_url( $args['feed_image'] ) . '" style="border: none;"' . $alt . ' />';
-			} else {
-				$link .= $name;
-			}
-
-			$link .= '</a>';
-
-			if ( empty( $args['feed_image'] ) ) {
-				$link .= ')';
-			}
-		}
 
 		if ( $args['optioncount'] ) {
 			$link .= ' ('. $posts . ')';

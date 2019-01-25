@@ -20,6 +20,11 @@ class Post_Authors_As_Taxonomy {
 
 	const TAXONOMY_NAME = 'calm_authors';
 	const TAXONOMY_SLUG = 'author';
+	const SORT_TYPE_NUMBER_POSTS_ASC = 1;
+	const SORT_TYPE_NUMBER_POSTS_DESC = 2;
+	const SORT_TYPE_NONE = 3;
+	const SORT_TYPE_NAME_ASC = 4;
+	const SORT_TYPE_NAME_DESC = 5;
 
 	/**
 	 * Perform required initializations in boot time.
@@ -72,7 +77,7 @@ class Post_Authors_As_Taxonomy {
 					register_taxonomy_for_object_type( self::TAXONOMY_NAME, $post_type );
 				}
 			}
-		}, 9999 );
+		}, PHP_INT_MAX );
 
 		// Add the admin menu.
 		add_action( 'admin_menu', function () {
@@ -187,5 +192,81 @@ class Post_Authors_As_Taxonomy {
 
 		// Add slash in the end if needed.
 		return user_trailingslashit($url, 'category' );
+	}
+
+	/**
+	 * Get all of the authors that match a criteria.
+	 *
+	 * Returns an array of authors
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $number The maximal number of authors to return. A special
+	 *                    value of 0 indicates that all authors should be returned.
+	 * @param int $sort_type Indicates in which order the authors should be ordered
+	 *                       in the returned array, and more importantly,
+	 *                       implicitly indicates which authors have a preference
+	 *						 to be returned if the are more authors then the
+	 *                       limit specified in the number parameter.
+	 *                       possible values:
+	 *                       SORT_TYPE_NONE : no explicit sort order.
+	 *						 SORT_TYPE_NUMBER_POSTS_ASC : Ascending by number of posts.
+	 *					 	 SORT_TYPE_NUMBER_POSTS_DESC : Descending by number of posts.
+	 *					 	 SORT_TYPE_NAME_ASC : Ascending by author name.
+	 *					 	 SORT_TYPE_NAME_DESC : Descending by author name.
+	 * @param bool $include_empty Indicates if authors with no posts should be returned.
+	 * @param calmpress\post_authors\Post_Author[] $exclude authors to always exclude.
+	 * @param calmpress\post_authors\Post_Author[] $include authors to always include.
+	 *
+	 * @return calmpress\post_authors\Post_Author[] The authors.
+	 */
+	public static function get_authors(int $number,
+									int $sort_type,
+									bool $include_empty,
+									array $exclude,
+									array $include ) {
+
+		$args['number'] = $number;
+
+		switch ( $sort_type ) {
+			case ( self::SORT_TYPE_NAME_ASC ) :
+				$args['orderby'] = 'name';
+				$args['order'] = 'ASC';
+			break;
+			case ( self::SORT_TYPE_NAME_DESC ) :
+				$args['orderby'] = 'name';
+				$args['order'] = 'DESC';
+			break;
+			case ( self::SORT_TYPE_NUMBER_POSTS_ASC ) :
+				$args['orderby'] = 'count';
+				$args['order'] = 'ASC';
+			break;
+			case ( self::SORT_TYPE_NUMBER_POSTS_DESC ) :
+				$args['orderby'] = 'count';
+				$args['order'] = 'DESC';
+			break;
+		}
+
+		if ( $include_empty ) {
+			$args['hide_empty'] = false;
+		} else {
+			$args['hide_empty'] = true;
+		}
+
+		$args['exclude'] = [];
+		foreach ( $exclude as $author ) {
+			$args['exclude'][] = $author->term_id();
+		}
+
+		$args['include'] = [];
+		foreach ( $include as $author ) {
+			$args['include'][] = $author->term_id();
+		}
+
+		$authors = get_terms( self::TAXONOMY_NAME, $args );
+
+		return array_map( function ( $term ) {
+			return new Post_Taxonomy_Author( $term );
+		}, $authors );
 	}
 }

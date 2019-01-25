@@ -44,6 +44,17 @@ class Post_Taxonomy_Author implements Post_Author {
 	}
 
 	/**
+	 * The ID of the term identifying it in WordPress APIs.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int The ID of the term.
+	 */
+	public function term_id() : int {
+		return $this->term->term_id;
+	}
+
+	/**
 	 * Provide the ID of an attachment image associated with the author.
 	 *
 	 * @since 1.0.0
