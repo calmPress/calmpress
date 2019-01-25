@@ -95,16 +95,6 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 		$this->assertEquals( 'Categories: <span class="foo"><a href="http://example.org/category/uncategorized/">Uncategorized</a></span>.', $output );
 	}
 
-	function test_get_link_taxonomy() {
-		foreach ( get_object_taxonomies('link') as $taxonomy ) {
-			$tax = get_taxonomy($taxonomy);
-			// should return an object with the correct taxonomy object type
-			$this->assertTrue( is_object($tax) );
-			$this->assertTrue( is_array( $tax->object_type ) );
-			$this->assertEquals( array( 'link' ), $tax->object_type );
-		}
-	}
-
 	function test_taxonomy_exists_known() {
 		$this->assertTrue( taxonomy_exists('category') );
 		$this->assertTrue( taxonomy_exists('post_tag') );

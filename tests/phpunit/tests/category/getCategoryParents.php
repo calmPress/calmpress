@@ -50,11 +50,6 @@ class Tests_Category_GetCategoryParents extends WP_UnitTestCase {
 		$this->assertSame( $expected, $found );
 	}
 
-	public function test_deprecated_argument_visited() {
-		$this->setExpectedDeprecated( 'get_category_parents' );
-		$found = get_category_parents( $this->c2->term_id, false, '/', false, array( $this->c1->term_id ) );
-	}
-
 	public function test_category_without_parents() {
 		$expected = $this->c1->name . '/';
 		$found = get_category_parents( $this->c1->term_id );

@@ -72,18 +72,4 @@ class Tests_Option_Registration extends WP_UnitTestCase {
 		$this->assertTrue( add_option( 'test_default', 'hello' ) );
 		$this->assertEquals( 'hello', get_option( 'test_default' ) );
 	}
-
-	/**
-	 * @expectedDeprecated register_setting
-	 */
-	public function test_register_deprecated_group_misc() {
-		register_setting( 'misc', 'test_option' );
-	}
-
-	/**
-	 * @expectedDeprecated register_setting
-	 */
-	public function test_register_deprecated_group_privacy() {
-		register_setting( 'privacy', 'test_option' );
-	}
 }
