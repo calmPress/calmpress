@@ -146,7 +146,7 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 
 			// And the table should not be empty, unless commentmeta, termmeta, or links.
 			$result = $wpdb->get_results( "SELECT * FROM $prefix$table LIMIT 1" );
-			if ( 'commentmeta' == $table || 'termmeta' == $table || 'links' == $table ) {
+			if ( 'term_relationships' == $table || 'term_taxonomy' == $table || 'terms' == $table || 'commentmeta' == $table || 'termmeta' == $table || 'links' == $table ) {
 				$this->assertEmpty( $result );
 			} else {
 				$this->assertNotEmpty( $result );
