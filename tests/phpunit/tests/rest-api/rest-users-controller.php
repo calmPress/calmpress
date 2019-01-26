@@ -602,7 +602,11 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/users/%d', $user_id ) );
 
 		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 403, $response->get_status() );
+		if ( is_multisite() ) {
+			$this->assertEquals( 403, $response->get_status() );
+		} else {
+			$this->check_get_user_response( $response, 'embed' );
+		}
 	}
 
 	public function test_prepare_item() {
