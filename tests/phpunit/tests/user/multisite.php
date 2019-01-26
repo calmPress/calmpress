@@ -187,48 +187,6 @@ class Tests_Multisite_User extends WP_UnitTestCase {
 		$this->assertFalse( is_user_spammy( 'testuser1' ) );
 	}
 
-	/**
-	 * @ticket 20601
-	 */
-	function test_user_member_of_blog() {
-		global $wp_rewrite;
-
-		self::factory()->blog->create();
-		$user_id = self::factory()->user->create();
-		self::factory()->blog->create( array( 'user_id' => $user_id ) );
-
-		$blogs = get_blogs_of_user( $user_id );
-		$this->assertCount( 2, $blogs );
-		$first = reset( $blogs )->userblog_id;
-		remove_user_from_blog( $user_id, $first );
-
-		$blogs = get_blogs_of_user( $user_id );
-		$second = reset( $blogs )->userblog_id;
-		$this->assertCount( 1, $blogs );
-
-		switch_to_blog( $first );
-		$wp_rewrite->init();
-
-		$this->go_to( get_author_posts_url( $user_id ) );
-		$this->assertQueryTrue( 'is_404' );
-
-		switch_to_blog( $second );
-		$wp_rewrite->init();
-
-		$this->go_to( get_author_posts_url( $user_id ) );
-		$this->assertQueryTrue( 'is_archive' );
-
-		add_user_to_blog( $first, $user_id, 'administrator' );
-		$blogs = get_blogs_of_user( $user_id );
-		$this->assertCount( 2, $blogs );
-
-		switch_to_blog( $first );
-		$wp_rewrite->init();
-
-		$this->go_to( get_author_posts_url( $user_id ) );
-		$this->assertQueryTrue( 'is_archive' );
-	}
-
 	function test_revoked_super_admin_can_be_deleted() {
 		if ( isset( $GLOBALS['super_admins'] ) ) {
 			$old_global = $GLOBALS['super_admins'];
