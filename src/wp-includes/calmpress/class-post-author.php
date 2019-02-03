@@ -48,7 +48,7 @@ interface Post_Author {
 	 *
 	 * @return string The HTML
 	 */
-	public function description() : string ;
+	public function description() : string;
 
 	/**
 	 * Provides the unescaped url for a page associate with the author.
@@ -57,5 +57,5 @@ interface Post_Author {
 	 *
 	 * @return string The URL of the page, or empty string if none exists.
 	 */
-	public function posts_url() : string ;
+	public function posts_url() : string;
 }

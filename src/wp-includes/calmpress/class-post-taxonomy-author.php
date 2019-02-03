@@ -7,18 +7,25 @@
  * @since 1.0.0
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
 namespace calmpress\post_authors;
 
 /**
-* Implementation of the Post_Author interface for authors stored
-* in a taxonomy
+ * Implementation of the Post_Author interface for authors stored
+ * in a taxonomy
  *
  * @since 1.0.0
  */
 class Post_Taxonomy_Author implements Post_Author {
 
+	/**
+	 * The term holding the author information.
+	 *
+	 * @var \WP_Term
+	 *
+	 * @since 1.0.0
+	 */
 	private $term;
 
 	/**
