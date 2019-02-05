@@ -69,7 +69,13 @@ class Post_Taxonomy_Author implements Post_Author {
 	 * @return int The ID of the attachment or 0 if no image is associated with the author.
 	 */
 	public function image_attachment_id() : int {
-		return 0;
+		$id = get_term_meta( $this->term->term_id, 'calm_featured_image', true );
+
+		if ( !$id ) {
+			return 0;
+		}
+
+		return (int) $id;
 	}
 
 	/**

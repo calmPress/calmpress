@@ -29,7 +29,11 @@ interface Post_Author {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return int The ID of the attachment or 0 if no image is associated with the author.
+	 * @return int The ID of the attachment or 0 if no image is associated with
+	 *             the author. As attachments can be deleted in an independent way
+	 *             from core author information, the user needs to take into account
+	 *             that a non zero value do not guaranty there is an actual image
+	 *             at that id.
 	 */
 	public function image_attachment_id() : int;
 
