@@ -18,13 +18,16 @@ namespace calmpress\post_authors;
  */
 class Post_Authors_As_Taxonomy {
 
+	// Taxonomy related constants.
 	const TAXONOMY_NAME = 'calm_authors';
 	const TAXONOMY_SLUG = 'author';
-	const SORT_TYPE_NUMBER_POSTS_ASC = 1;
+
+	// Constants used to indicate the required sorting in get_authors.
+	const SORT_TYPE_NUMBER_POSTS_ASC  = 1;
 	const SORT_TYPE_NUMBER_POSTS_DESC = 2;
-	const SORT_TYPE_NONE = 3;
-	const SORT_TYPE_NAME_ASC = 4;
-	const SORT_TYPE_NAME_DESC = 5;
+	const SORT_TYPE_NONE              = 3;
+	const SORT_TYPE_NAME_ASC          = 4;
+	const SORT_TYPE_NAME_DESC         = 5;
 
 	/**
 	 * Perform required initializations in boot time.
@@ -82,9 +85,8 @@ class Post_Authors_As_Taxonomy {
 		// Add the admin menu.
 		add_action( 'admin_menu', function () {
 			$tax = get_taxonomy( self::TAXONOMY_NAME );
-   	 		add_menu_page( __( 'Autors' ), __( 'Authors' ), $tax->cap->manage_terms, 'edit-tags.php?taxonomy=' . $tax->name, '', 'dashicons-admin-users', 69 );
+			add_menu_page( __( 'Autors' ), __( 'Authors' ), $tax->cap->manage_terms, 'edit-tags.php?taxonomy=' . $tax->name, '', 'dashicons-admin-users', 69 );
 		} );
-
 	}
 
 	/**
@@ -92,10 +94,10 @@ class Post_Authors_As_Taxonomy {
 	 *
 	 * @since 1.0.0
 	 */
-	 static function admin_menu() {
-		 $tax = get_taxonomy( internal\TAXONOMY_NAME );
-	 	add_menu_page( __( 'Autors', 'authors_as_taxonomy' ), __( 'Authors', 'authors_as_taxonomy' ), $tax->cap->manage_terms, 'edit-tags.php?taxonomy=' . $tax->name, '', 'dashicons-admin-users', 69 );
-	 }
+	public static function admin_menu() {
+		$tax = get_taxonomy( internal\TAXONOMY_NAME );
+		add_menu_page( __( 'Authors', 'authors_as_taxonomy' ), __( 'Authors', 'authors_as_taxonomy' ), $tax->cap->manage_terms, 'edit-tags.php?taxonomy=' . $tax->name, '', 'dashicons-admin-users', 69 );
+	}
 
 	/**
 	 * Get the authors of a post.
@@ -105,6 +107,8 @@ class Post_Authors_As_Taxonomy {
 	 * The array might be empty if there are no authors or an error occurred.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $post the post for which to retrieve authors.
 	 *
 	 * @return calmpress\post_authors\Post_Author[] The post authors.
 	 */
@@ -136,6 +140,8 @@ class Post_Authors_As_Taxonomy {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param \WP_Post $post the post for which to retrieve the count.
+	 *
 	 * @return int The number of posts.
 	 */
 	public static function authors_post_count( \WP_Post $post ) : int {
@@ -149,7 +155,7 @@ class Post_Authors_As_Taxonomy {
 		// if there are more than one authors, they are not sharing other posts and
 		// therefor it is good enough to just avoid counting this post multiple
 		// times.
-		$count  = 1 - count( $authors ) ;
+		$count = 1 - count( $authors );
 		foreach ( $authors as $author ) {
 			$count += $author->count();
 		}
@@ -163,9 +169,11 @@ class Post_Authors_As_Taxonomy {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param \WP_Post $post the post for which to retrieve authors.
+	 *
 	 * @return string The URL, or empty string if there are no authors.
 	 */
-	public static function combined_authors_url( $post ) : string {
+	public static function combined_authors_url( \WP_Post $post ) : string {
 		$authors = self::post_authors( $post );
 
 		if ( empty( $authors ) ) {
@@ -186,12 +194,12 @@ class Post_Authors_As_Taxonomy {
 		$url = rtrim( $url, '/' );
 
 		// Append the other slugs.
-		for ( $i = 1; $i < count( $authors ); $i++) {
+		for ( $i = 1; $i < count( $authors ); $i++ ) {
 			$url .= ',' . $authors[ $i ]->slug();
 		}
 
 		// Add slash in the end if needed.
-		return user_trailingslashit($url, 'category' );
+		return user_trailingslashit( $url, 'category' );
 	}
 
 	/**
@@ -203,24 +211,26 @@ class Post_Authors_As_Taxonomy {
 	 *
 	 * @param int $number The maximal number of authors to return. A special
 	 *                    value of 0 indicates that all authors should be returned.
+	 *
 	 * @param int $sort_type Indicates in which order the authors should be ordered
 	 *                       in the returned array, and more importantly,
 	 *                       implicitly indicates which authors have a preference
-	 *						 to be returned if the are more authors then the
+	 *                       to be returned if the are more authors then the
 	 *                       limit specified in the number parameter.
 	 *                       possible values:
 	 *                       SORT_TYPE_NONE : no explicit sort order.
-	 *						 SORT_TYPE_NUMBER_POSTS_ASC : Ascending by number of posts.
-	 *					 	 SORT_TYPE_NUMBER_POSTS_DESC : Descending by number of posts.
-	 *					 	 SORT_TYPE_NAME_ASC : Ascending by author name.
-	 *					 	 SORT_TYPE_NAME_DESC : Descending by author name.
+	 *                       SORT_TYPE_NUMBER_POSTS_ASC : Ascending by number of posts.
+	 *                       SORT_TYPE_NUMBER_POSTS_DESC : Descending by number of posts.
+	 *                       SORT_TYPE_NAME_ASC : Ascending by author name.
+	 *                       SORT_TYPE_NAME_DESC : Descending by author name.
+	 *
 	 * @param bool $include_empty Indicates if authors with no posts should be returned.
 	 * @param calmpress\post_authors\Post_Author[] $exclude authors to always exclude.
 	 * @param calmpress\post_authors\Post_Author[] $include authors to always include.
 	 *
 	 * @return calmpress\post_authors\Post_Author[] The authors.
 	 */
-	public static function get_authors(int $number,
+	public static function get_authors( int $number,
 									int $sort_type,
 									bool $include_empty,
 									array $exclude,
@@ -229,22 +239,22 @@ class Post_Authors_As_Taxonomy {
 		$args['number'] = $number;
 
 		switch ( $sort_type ) {
-			case ( self::SORT_TYPE_NAME_ASC ) :
+			case ( self::SORT_TYPE_NAME_ASC ):
 				$args['orderby'] = 'name';
-				$args['order'] = 'ASC';
-			break;
-			case ( self::SORT_TYPE_NAME_DESC ) :
+				$args['order']   = 'ASC';
+				break;
+			case ( self::SORT_TYPE_NAME_DESC ):
 				$args['orderby'] = 'name';
-				$args['order'] = 'DESC';
-			break;
-			case ( self::SORT_TYPE_NUMBER_POSTS_ASC ) :
+				$args['order']   = 'DESC';
+				break;
+			case ( self::SORT_TYPE_NUMBER_POSTS_ASC ):
 				$args['orderby'] = 'count';
-				$args['order'] = 'ASC';
-			break;
-			case ( self::SORT_TYPE_NUMBER_POSTS_DESC ) :
+				$args['order']   = 'ASC';
+				break;
+			case ( self::SORT_TYPE_NUMBER_POSTS_DESC ):
 				$args['orderby'] = 'count';
-				$args['order'] = 'DESC';
-			break;
+				$args['order']   = 'DESC';
+				break;
 		}
 
 		if ( $include_empty ) {

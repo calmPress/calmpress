@@ -56,6 +56,11 @@ get_current_screen()->set_screen_reader_content( array(
 	'heading_list'       => $tax->labels->items_list,
 ) );
 
+// Not ideal but for now inserting the author's image with an hook as the alternative
+// is to change signature of term creation and update API.
+add_action( 'create_calm_authors', 'calm_save_author', 10, 2 );
+add_action( 'edit_calm_authors', 'calm_save_author', 10, 2 );
+
 $location = false;
 $referer = wp_get_referer();
 if ( ! $referer ) { // For POST requests.
@@ -208,6 +213,12 @@ if ( $pagenum > $total_pages && $total_pages > 0 ) {
 }
 
 wp_enqueue_script('admin-tags');
+
+if ( 'calm_authors' === $taxonomy ) {
+	wp_enqueue_media();
+	wp_enqueue_script( 'calm-author' );
+}
+
 if ( current_user_can($tax->cap->edit_terms) )
 	wp_enqueue_script('inline-edit-tax');
 
@@ -411,8 +422,33 @@ do_action( "{$taxonomy}_term_new_form_tag" );
 	<textarea name="description" id="tag-description" rows="5" cols="40"></textarea>
 	<p><?php _e('The description is not prominent by default; however, some themes may show it.'); ?></p>
 </div>
-
+<?php if ( 'calm_authors' === $taxonomy ) {	?>
+	<style>
+	#featured-image {
+		max-height: 150px;
+		max-width: 150px;
+		height: auto;
+		width: auto;
+		border: 2px solid #ccc;
+	}
+	</style>
+	<div class="form-field featured-image-wrap">
+		<label for="featured-image"><?php esc_html_e( 'Image' ); ?></label>
+		<div>
+			<img id="featured-image" style="display:none" src="" />
+			<input type="hidden" name="featured-image-id" id="featured-image-id" value="0" />
+		</div>
+		<a class="button-secondary featured-image-choose">
+			<?php esc_html_e( 'Select Image' ); ?>
+		</a>
+		<a class="button featured-image-remove" style="display:none">
+			<?php esc_html_e( 'Deselect The Image' ); ?>
+		</a>
+		<p class="description"><?php esc_html_e( 'An image that can be used to identify the author where appropriate.' ); ?></p></td>
+	</div>
 <?php
+}
+
 if ( ! is_taxonomy_hierarchical( $taxonomy ) ) {
 	/**
 	 * Fires after the Add Tag form fields for non-hierarchical taxonomies.

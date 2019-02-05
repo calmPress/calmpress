@@ -1124,6 +1124,12 @@ function wp_default_scripts( &$scripts ) {
 		$scripts->add( 'custom-background', "/wp-admin/js/custom-background$suffix.js", array( 'wp-color-picker', 'media-views' ), false, 1 );
 		$scripts->add( 'media-gallery', "/wp-admin/js/media-gallery$suffix.js", array('jquery'), false, 1 );
 
+		$scripts->add( 'calm-author', "/wp-admin/js/author$suffix.js", array( 'jquery' ), false, 1 );
+		did_action( 'init' ) && $scripts->localize( 'calm-author', 'calmAuthorL10N', array(
+			'mediaTitle' => esc_html__( 'Choose an Image', 'wp-term-images' ),
+			'selectText'   => esc_html__( 'Set as image',    'wp-term-images' ),
+		) );
+
 		$scripts->add( 'svg-painter', '/wp-admin/js/svg-painter.js', array( 'jquery' ), false, 1 );
 	}
 }

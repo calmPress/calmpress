@@ -288,3 +288,24 @@ function wp_create_term($tag_name, $taxonomy = 'post_tag') {
 
 	return wp_insert_term($tag_name, $taxonomy);
 }
+
+/**
+ * Store the author's image.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @param  int    $term_id  The author's term id.
+ * @param  string $taxonomy Not used, specified for compatibility with the
+ *                           specification of the relevant actions.
+ */
+function calm_save_author( $term_id, $taxonomy ) {
+
+	// Should not happen, but better be safe.
+	if ( ! isset( $_POST[ 'featured-image-id' ] ) ) {
+		return;
+	}
+
+	$attachment_id = (int) $_POST[ 'featured-image-id' ];
+
+	update_term_meta( $term_id, 'calm_featured_image', $attachment_id );
+}

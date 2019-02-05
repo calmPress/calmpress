@@ -60,6 +60,12 @@ get_current_screen()->set_screen_reader_content( array(
 	'heading_list'       => $tax->labels->items_list,
 ) );
 wp_enqueue_script( 'admin-tags' );
+
+if ( 'calm_authors' === $taxonomy ) {
+	wp_enqueue_media();
+	wp_enqueue_script( 'calm-author' );
+}
+
 require_once( ABSPATH . 'wp-admin/admin-header.php' );
 include( ABSPATH . 'wp-admin/edit-tag-form.php' );
 include( ABSPATH . 'wp-admin/admin-footer.php' );

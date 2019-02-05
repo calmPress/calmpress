@@ -167,6 +167,51 @@ do_action( "{$taxonomy}_term_edit_form_top", $tag, $taxonomy );
 			<p class="description"><?php _e('The description is not prominent by default; however, some themes may show it.'); ?></p></td>
 		</tr>
 		<?php
+		if ( 'calm_authors' === $taxonomy ) {
+			$attachment_id = (int) get_term_meta( $tag->term_id, 'calm_featured_image', true );
+			$img_url       = '';
+			if ( 0 !== $attachment_id ) {
+				$img_url = wp_get_attachment_image_url( $attachment_id, array( 150, 150 ) );
+				// In case the attachment was deleted for whatever reason pretend
+				// was never set.
+				if ( ! $img_url ) {
+					$attachment_id = 0;
+					$img_url       = '';
+				}
+			}
+
+			$deselect_style = '';
+			if ( 0 === $attachment_id ) {
+				$deselect_style = ' style="display:none"';
+			}
+			?>
+			<style>
+			#featured-image {
+				max-height: 150px;
+				max-width: 150px;
+				height: auto;
+				width: auto;
+				border: 2px solid #ccc;
+			}
+			</style>
+			<tr class="form-field featured-image-wrap">
+				<th scope="row"><label for="featured-image"><?php esc_html_e( 'Image' ); ?></label></th>
+				<td>
+					<div>
+						<img id="featured-image" <?php echo $deselect_style; ?> src="<?php echo esc_url( $img_url ); ?>" />
+						<input type="hidden" name="featured-image-id" id="featured-image-id" value="<?php echo esc_attr( $attachment_id ); ?>" />
+					</div>
+					<a class="button-secondary featured-image-choose">
+						<?php esc_html_e( 'Select Image' ); ?>
+					</a>
+					<a class="button featured-image-remove"<?php echo $deselect_style; ?>>
+						<?php esc_html_e( 'Deselect The Image' ); ?>
+					</a>
+				</td>
+				<p class="description"><?php esc_html_e( 'An image that can be used to identify the author where appropriate.' ); ?></p></td>
+			</tr>
+			<?php
+		}
 		// Back compat hooks
 		if ( 'category' == $taxonomy ) {
 			/**
