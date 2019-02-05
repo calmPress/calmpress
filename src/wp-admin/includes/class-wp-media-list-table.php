@@ -562,8 +562,7 @@ class WP_Media_List_Table extends WP_List_Table {
 				$out = array();
 				foreach ( $terms as $t ) {
 					$posts_in_term_qv = array();
-					$posts_in_term_qv['taxonomy'] = $taxonomy;
-					$posts_in_term_qv['term'] = $t->slug;
+					$posts_in_term_qv[ $taxonomy ] = $t->slug;
 
 					$out[] = sprintf( '<a href="%s">%s</a>',
 						esc_url( add_query_arg( $posts_in_term_qv, 'upload.php' ) ),
