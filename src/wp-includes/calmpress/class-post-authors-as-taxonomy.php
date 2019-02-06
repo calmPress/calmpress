@@ -226,15 +226,13 @@ class Post_Authors_As_Taxonomy {
 	 *
 	 * @param bool $include_empty Indicates if authors with no posts should be returned.
 	 * @param calmpress\post_authors\Post_Author[] $exclude Authors to always exclude.
-	 * @param calmpress\post_authors\Post_Author[] $include Authors to always include.
 	 *
 	 * @return calmpress\post_authors\Post_Author[] The authors.
 	 */
 	public static function get_authors( int $number,
 									int $sort_type,
 									bool $include_empty,
-									array $exclude,
-									array $include ) {
+									array $exclude ) {
 
 		$args['number'] = $number;
 
@@ -272,11 +270,6 @@ class Post_Authors_As_Taxonomy {
 		$args['exclude'] = [];
 		foreach ( $exclude as $author ) {
 			$args['exclude'][] = $author->term_id();
-		}
-
-		$args['include'] = [];
-		foreach ( $include as $author ) {
-			$args['include'][] = $author->term_id();
 		}
 
 		$authors = get_terms( self::TAXONOMY_NAME, $args );
