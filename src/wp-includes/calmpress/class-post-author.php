@@ -25,17 +25,14 @@ interface Post_Author {
 	public function name() : string;
 
 	/**
-	 * Provide the ID of an attachment image associated with the author.
+	 * Provide the attachment image associated with the author.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return int The ID of the attachment or 0 if no image is associated with
-	 *             the author. As attachments can be deleted in an independent way
-	 *             from core author information, the user needs to take into account
-	 *             that a non zero value do not guaranty there is an actual image
-	 *             at that id.
+	 * @return \WP_Post|null The WP_Post object for the image attachment or null if
+	 *                       no image is associated with the author.
 	 */
-	public function image_attachment_id() : int;
+	public function image();
 
 	/**
 	 * Provides the human friendly description of the author in HTML.

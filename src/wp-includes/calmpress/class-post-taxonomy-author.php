@@ -67,20 +67,23 @@ class Post_Taxonomy_Author implements Post_Author {
 	}
 
 	/**
-	 * Provide the ID of an attachment image associated with the author.
+	 * Provide the attachment image associated with the author.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return int The ID of the attachment or 0 if no image is associated with the author.
+	 * @return \WP_Post|null The WP_Post object for the image attachment or null if
+	 *                       no image is associated with the author.
 	 */
-	public function image_attachment_id() : int {
+	public function image() : int {
 		$id = get_term_meta( $this->term->term_id, 'calm_featured_image', true );
 
 		if ( !$id ) {
-			return 0;
+			return null;
 		}
 
-		return (int) $id;
+		// Rely on get_post to verify that the id is an actual post.
+		// Right now not checking the post and mime types.
+		return get_post( (int) $id );
 	}
 
 	/**
