@@ -128,7 +128,7 @@ class Post_Authors_As_Taxonomy {
 		}
 
 		return array_map( function ( $term ) {
-			return new Post_Taxonomy_Author( $term );
+			return new Taxonomy_Based_Post_Author( $term );
 		}, $authors );
 	}
 
@@ -275,7 +275,7 @@ class Post_Authors_As_Taxonomy {
 		$authors = get_terms( self::TAXONOMY_NAME, $args );
 
 		return array_map( function ( $term ) {
-			return new Post_Taxonomy_Author( $term );
+			return new Taxonomy_Based_Post_Author( $term );
 		}, $authors );
 	}
 }

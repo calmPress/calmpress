@@ -393,7 +393,7 @@ function wp_list_authors( $args = '' ) {
 	if ( ! empty( $args['exclude'] ) ) {
 		$exclude_arr = array_map( function ( $term_id ) {
 			$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
-			return new post_authors\Post_Taxonomy_Author( $term );
+			return new post_authors\Taxonomy_Based_Post_Author( $term );
 			}, wp_parse_id_list( $args['exclude'] ) );
 	}
 
@@ -402,7 +402,7 @@ function wp_list_authors( $args = '' ) {
 	if ( ! empty( $args['include'] ) ) {
 		$include_arr = array_map( function ( $term_id ) {
 			$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
-			return new post_authors\Post_Taxonomy_Author( $term );
+			return new post_authors\Taxonomy_Based_Post_Author( $term );
 		}, wp_parse_id_list( $args['include'] ) );
 	}
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests covering Post_Taxonomy_Author functionality
+ * Unit tests covering Taxonomy_Based_Post_Author functionality
  *
  * @package calmPress
  * @since 1.0.0
@@ -8,7 +8,7 @@
 
 use calmpress\post_authors;
 
-class WP_Test_Post_Taxonomy_Author extends WP_UnitTestCase {
+class WP_Test_Taxonomy_Based_Post_Author extends WP_UnitTestCase {
 
 	/**
 	 * Test the constructor and term_id method.
@@ -20,14 +20,14 @@ class WP_Test_Post_Taxonomy_Author extends WP_UnitTestCase {
 		// Construct out of correct taxonomy.
 		$author1 = wp_insert_term( 'author1', post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author1 = $author1['term_id'];
-		$author = new post_authors\Post_Taxonomy_Author( get_term( $author1 ) );
+		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
 		$this->assertEquals( $author1, $author->term_id() );
 
 		// Construct with wrong taxonomy generate error.
 		$author1 = wp_insert_term( 'author1', 'category' );
 		$author1 = $author1['term_id'];
 		$this->setExpectedException('PHPUnit_Framework_Error_Notice');
-		$author = new post_authors\Post_Taxonomy_Author( get_term( $author1 ) );
+		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
 
 		// An error is generated but the term is still used as if it was legit.
 		$this->assertEquals( $author1, $author->term_id() );
@@ -41,7 +41,7 @@ class WP_Test_Post_Taxonomy_Author extends WP_UnitTestCase {
 	function test_name() {
 		$author1 = wp_insert_term( 'author1', post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author1 = $author1['term_id'];
-		$author = new post_authors\Post_Taxonomy_Author( get_term( $author1 ) );
+		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
 		$this->assertEquals( 'author1', $author->name() );
 	}
 
@@ -53,7 +53,7 @@ class WP_Test_Post_Taxonomy_Author extends WP_UnitTestCase {
 	function test_slug() {
 		$author1 = wp_insert_term( 'author1', post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author1 = $author1['term_id'];
-		$author = new post_authors\Post_Taxonomy_Author( get_term( $author1 ) );
+		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
 		$this->assertEquals( 'author1', $author->slug() );
 	}
 
@@ -83,7 +83,7 @@ class WP_Test_Post_Taxonomy_Author extends WP_UnitTestCase {
 		wp_set_object_terms( $post1, $author1, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		wp_set_object_terms( $post2, $author1, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 
-		$author = new post_authors\Post_Taxonomy_Author( get_term( $author1 ) );
+		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
 		$this->assertEquals( 2, $author->posts_count() );
 	}
 
@@ -97,7 +97,7 @@ class WP_Test_Post_Taxonomy_Author extends WP_UnitTestCase {
 		// Test no image associated.
 		$author1 = wp_insert_term( 'author1', post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author1 = $author1['term_id'];
-		$author = new post_authors\Post_Taxonomy_Author( get_term( $author1 ) );
+		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
 		$this->assertNull( $author->image() );
 
 		// Test when a junk value.
@@ -120,7 +120,7 @@ class WP_Test_Post_Taxonomy_Author extends WP_UnitTestCase {
 	function test_posts_url() {
 		$author1 = wp_insert_term( 'author1', post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author1 = $author1['term_id'];
-		$author = new post_authors\Post_Taxonomy_Author( get_term( $author1 ) );
+		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
 		$this->assertEquals( get_term_link( $author1, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ), $author->posts_url() );
 	}
 

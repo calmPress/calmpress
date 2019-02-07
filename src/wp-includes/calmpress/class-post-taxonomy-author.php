@@ -17,7 +17,7 @@ namespace calmpress\post_authors;
  *
  * @since 1.0.0
  */
-class Post_Taxonomy_Author implements Post_Author {
+class Taxonomy_Based_Post_Author implements Post_Author {
 
 	/**
 	 * The term holding the author information.

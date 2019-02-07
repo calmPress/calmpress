@@ -35,12 +35,12 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 			}
 
 			$author_term = get_term( $authorid, 'calm_authors' );
-			$post_author = new calmpress\post_authors\Post_Taxonomy_Author( $author_term );
+			$post_author = new calmpress\post_authors\Taxonomy_Based_Post_Author( $author_term );
 			self::$user_urls[] = $post_author->posts_url();
 		}
 
 		$author_term = get_term( self::$fred_id, 'calm_authors' );
-		$post_author = new calmpress\post_authors\Post_Taxonomy_Author( $author_term );
+		$post_author = new calmpress\post_authors\Taxonomy_Based_Post_Author( $author_term );
 		self::$fred_url = $post_author->posts_url();
 	}
 

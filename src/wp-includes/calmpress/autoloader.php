@@ -19,7 +19,7 @@ const MAP = [
 	'calmpress\post_authors\Post_Author' => __DIR__ . '/class-post-author.php',
 	'calmpress\post_authors\Post_Authors_As_Taxonomy' => __DIR__ . '/class-post-authors-as-taxonomy.php',
 	'calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade' => __DIR__ . '/class-post-authors-as-taxonomy-db-upgrade.php',
-	'calmpress\post_authors\Post_Taxonomy_Author' => __DIR__ . '/class-post-taxonomy-author.php',
+	'calmpress\post_authors\Taxonomy_Based_Post_Author' => __DIR__ . '/class-post-taxonomy-author.php',
 ];
 
 spl_autoload_register( function ( string $classname ) {

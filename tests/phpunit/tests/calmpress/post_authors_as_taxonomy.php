@@ -323,7 +323,7 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 			2,
 			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_DESC,
 			true,
-			[new post_authors\Post_Taxonomy_Author( get_term( $author2 ) ) ],
+			[new post_authors\Taxonomy_Based_Post_Author( get_term( $author2 ) ) ],
 			[]
 			);
 
