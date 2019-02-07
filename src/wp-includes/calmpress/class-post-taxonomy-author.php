@@ -74,7 +74,7 @@ class Post_Taxonomy_Author implements Post_Author {
 	 * @return \WP_Post|null The WP_Post object for the image attachment or null if
 	 *                       no image is associated with the author.
 	 */
-	public function image() : int {
+	public function image() {
 		$id = get_term_meta( $this->term->term_id, 'calm_featured_image', true );
 
 		if ( !$id ) {
