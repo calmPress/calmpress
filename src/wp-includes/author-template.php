@@ -397,20 +397,10 @@ function wp_list_authors( $args = '' ) {
 			}, wp_parse_id_list( $args['exclude'] ) );
 	}
 
-	// Convert the include parameter to array of authors.
-	$include_arr = [];
-	if ( ! empty( $args['include'] ) ) {
-		$include_arr = array_map( function ( $term_id ) {
-			$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
-			return new post_authors\Taxonomy_Based_Post_Author( $term );
-		}, wp_parse_id_list( $args['include'] ) );
-	}
-
 	$authors = post_authors\Post_Authors_As_Taxonomy::get_authors( (int) $args['number'],
 		$order,
 		! $args['hide_empty'],
-		$exclude_arr,
-		$include_arr
+		$exclude_arr
 	);
 
 	foreach ( $authors as $author ) {
