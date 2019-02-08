@@ -354,7 +354,6 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
  *                                       will be separated by commas.
  *     @type bool         $html          Whether to list the items in HTML form or plaintext. Default true.
  *     @type array|string $exclude       Array or comma/space-separated list of author IDs to exclude. Default empty.
- *     @type array|string $include       Array or comma/space-separated list of author IDs to include. Default empty.
  * }
  * @return string|void The output, if echo is set to false.
  */
