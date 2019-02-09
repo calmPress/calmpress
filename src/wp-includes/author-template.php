@@ -38,6 +38,8 @@ function get_the_author() {
 	 		}, $authors );
 
 			$display_name = join( ', ', $name_array );
+		} else {
+			$display_name = __( 'Anonymous' );
 		}
 	}
 
