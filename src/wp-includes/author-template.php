@@ -148,7 +148,30 @@ function get_the_author_meta( $field = '', $user_id = false ) {
 	$original_user_id = $user_id;
 
 	if ( ! $user_id ) {
-		global $authordata;
+		// If user id is not given assume it is the author of current post if we are in a loop,
+		// and not an actual user when trying to get a description.
+		global $post, $authordata;
+
+		if ( ! empty( $post ) && in_array( $field, [ 'description', 'user_description', 'display_name' ], true ) ) {
+
+			$authors = calmpress\post_authors\Post_Authors_As_Taxonomy::post_authors( $post );
+
+			if ( 'display_name' === $field ) {
+				$name = join( ', ', array_map( $authors, function( $author ) {
+					return $author->name();
+				} ) );
+
+				return $name;
+			}
+
+			$description = '';
+			foreach ( $authors as $author ) {
+				$description .= $author->description;
+			}
+
+			return $description;
+		}
+
 		$user_id = isset( $authordata->ID ) ? $authordata->ID : 0;
 	} else {
 		$authordata = get_userdata( $user_id );
