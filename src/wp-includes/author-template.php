@@ -168,7 +168,7 @@ function get_the_author_meta( $field = '', $user_id = false ) {
 
 			$description = '';
 			foreach ( $authors as $author ) {
-				$description .= $author->description;
+				$description .= '<div>' . $author->description() . '</div>';
 			}
 
 			return $description;

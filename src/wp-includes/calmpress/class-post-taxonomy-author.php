@@ -87,19 +87,16 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	}
 
 	/**
-	 * Provides the human friendly description of the author in HTML.
-	 *
-	 * The HTML is constructed in a way in which an output of it will create
-	 * content which is valid to be included inside of another HTML block element.
-	 * It should not include any JS or CSS, neither as remote resources or inlined.
-	 *
-	 * All plain text has to be organized in paragraphs (enclosed in a P tag).
-	 * This means that even if the description is just the word "text", this
-	 * function should return "<p>text</p>".
+	* Provides the human friendly description of the author.
+	*
+	* Due to the legacy of how WordPress used to store such information,
+	* the only valid expectations about the format of the returned value is that
+	* it is a mix of text and HTML.
+	* It should not include any JS or CSS, neither as remote resources or inlined.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string The HTML
+	 * @return string The description text.
 	 */
 	public function description() : string {
 
