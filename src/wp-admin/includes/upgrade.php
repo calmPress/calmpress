@@ -399,6 +399,11 @@ function wp_upgrade() {
 	if ( ! is_blog_installed() )
 		return;
 
+	// If empty, initialize $clampress_db_version to something that can be compared to other versions.
+	if ( $clampress_db_version ) {
+		$clampress_db_version = '0.1';
+	}
+
 	wp_check_mysql_version();
 	wp_cache_flush();
 	pre_schema_upgrade();
@@ -539,6 +544,10 @@ function upgrade_all() {
 		if ( $wp_current_db_version < 43764 )
 			upgrade_500();
 
+		if ( version_compare( $calmpress_db_version, '1.0.0-alpha9' , '<') ) {
+			calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade::upgrade();
+			delete_option('rewrite_rules');
+		}
 
 		maybe_disable_automattic_widgets();
 	}
