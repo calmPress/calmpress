@@ -1,20 +1,21 @@
-
 # BEGIN calmPress
 <files wp-config.php>
 order allow,deny
 deny from all
 </files>
+
 <IfModule mod_rewrite.c>
 RewriteEngine On
-RewriteBase /calmtest/
+RewriteBase /
 RewriteRule ^index\.php$ - [L]
 RewriteRule (^|/)\. - [F]
 RewriteRule ^wp-includes/(.*)\.php$ - [F]
 RewriteRule ^wp-content/(.*)\.php$ - [F]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /calmtest/index.php [L]
+RewriteRule . /index.php [L]
 </IfModule>
+
 <IfModule mod_deflate.c>
 AddOutputFilterByType DEFLATE application/javascript
 AddOutputFilterByType DEFLATE application/x-javascript
@@ -25,6 +26,7 @@ AddOutputFilterByType DEFLATE text/html
 AddOutputFilterByType DEFLATE text/javascript
 AddOutputFilterByType DEFLATE text/xml
 </IfModule>
+
 <IfModule mod_expires.c>
 ExpiresActive On
 ExpiresByType text/css "access 1 month"

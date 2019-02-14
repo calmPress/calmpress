@@ -1436,7 +1436,7 @@ class WP_Rewrite {
 		$rules .= "</files>\n";
 
 		// rewrite rules.
-		$rules .= "<IfModule mod_rewrite.c>\n";
+		$rules .= "\n<IfModule mod_rewrite.c>\n";
 		$rules .= "RewriteEngine On\n";
 		$rules .= "RewriteBase $home_root\n";
 
@@ -1486,7 +1486,7 @@ class WP_Rewrite {
 		$rules .= "</IfModule>\n";
 
 		// Add compression related rules.
-		$rules .= "<IfModule mod_deflate.c>\n" .
+		$rules .= "\n<IfModule mod_deflate.c>\n" .
 		  "AddOutputFilterByType DEFLATE application/javascript\n" .
 		  "AddOutputFilterByType DEFLATE application/x-javascript\n" .
 		  "AddOutputFilterByType DEFLATE application/xml\n" .
@@ -1497,7 +1497,7 @@ class WP_Rewrite {
 		  "AddOutputFilterByType DEFLATE text/xml\n" .
 		"</IfModule>\n";
 
-		$rules .= "<IfModule mod_expires.c>\n" .
+		$rules .= "\n<IfModule mod_expires.c>\n" .
 		"ExpiresActive On\n" .
 		"ExpiresByType text/css \"access 1 month\"\n" .
 		"ExpiresByType image/gif \"access 1 month\"\n" .
