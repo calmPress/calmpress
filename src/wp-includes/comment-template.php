@@ -756,21 +756,14 @@ function get_comment_link( $comment = null, $args = array() ) {
 	}
 
 	if ( $cpage && get_option( 'page_comments' ) ) {
-		if ( $wp_rewrite->using_permalinks() ) {
-			if ( $cpage ) {
-				$link = trailingslashit( $link ) . $wp_rewrite->comments_pagination_base . '-' . $cpage;
-			}
-
-			$link = user_trailingslashit( $link, 'comment' );
-		} elseif ( $cpage ) {
-			$link = add_query_arg( 'cpage', $cpage, $link );
+		if ( $cpage ) {
+			$link = trailingslashit( $link ) . $wp_rewrite->comments_pagination_base . '-' . $cpage;
 		}
 
-	}
-
-	if ( $wp_rewrite->using_permalinks() ) {
 		$link = user_trailingslashit( $link, 'comment' );
 	}
+
+	$link = user_trailingslashit( $link, 'comment' );
 
 	$link = $link . '#comment-' . $comment->comment_ID;
 

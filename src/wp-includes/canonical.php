@@ -151,7 +151,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			$redirect_url = get_permalink( $wp_query->post->ID );
 		}
 
-	} elseif ( is_object($wp_rewrite) && $wp_rewrite->using_permalinks() ) {
+	} elseif ( is_object($wp_rewrite) ) {
 		// rewriting of old ?p=X, ?m=2004, ?m=200401, ?m=20040101
 		if ( is_attachment() &&
 			! array_diff( array_keys( $wp->query_vars ), array( 'attachment', 'attachment_id' ) ) &&
@@ -403,7 +403,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 	$redirect['path'] = str_replace( '/' . $wp_rewrite->index . '/', '/', $redirect['path'] );
 
 	// trailing slashes
-	if ( is_object($wp_rewrite) && $wp_rewrite->using_permalinks() && !is_404() && (!is_front_page() || ( is_front_page() && (get_query_var('paged') > 1) ) ) ) {
+	if ( is_object($wp_rewrite) && !is_404() && (!is_front_page() || ( is_front_page() && (get_query_var('paged') > 1) ) ) ) {
 		$user_ts_type = '';
 		if ( get_query_var('paged') > 0 ) {
 			$user_ts_type = 'paged';
@@ -623,8 +623,8 @@ function redirect_guess_404_permalink() {
  * @global WP_Rewrite $wp_rewrite
  */
 function wp_redirect_admin_locations() {
-	global $wp_rewrite;
-	if ( ! ( is_404() && $wp_rewrite->using_permalinks() ) )
+
+	if ( ! ( is_404() ) )
 		return;
 
 	$admins = array(

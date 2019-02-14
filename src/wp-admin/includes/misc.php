@@ -176,7 +176,7 @@ function save_mod_rewrite_rules() {
 	 * If the file doesn't already exist check for write access to the directory
 	 * and whether we have some rules. Else check for write access to the file.
 	 */
-	if ((!file_exists($htaccess_file) && is_writable($home_path) && $wp_rewrite->using_mod_rewrite_permalinks()) || is_writable($htaccess_file)) {
+	if ((!file_exists($htaccess_file) && is_writable($home_path) ) || is_writable($htaccess_file)) {
 		if ( got_mod_rewrite() ) {
 			$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
 			return insert_with_markers( $htaccess_file, 'calmPress', $rules );
@@ -209,7 +209,7 @@ function iis7_save_url_rewrite_rules(){
 	$web_config_file = $home_path . 'web.config';
 
 	// Using win_is_writable() instead of is_writable() because of a bug in Windows PHP
-	if ( iis7_supports_permalinks() && ( ( ! file_exists($web_config_file) && win_is_writable($home_path) && $wp_rewrite->using_mod_rewrite_permalinks() ) || win_is_writable($web_config_file) ) ) {
+	if ( iis7_supports_permalinks() && ( ( ! file_exists($web_config_file) && win_is_writable($home_path) ) || win_is_writable($web_config_file) ) ) {
 		$rule = $wp_rewrite->iis7_url_rewrite_rules(false, '', '');
 		if ( ! empty($rule) ) {
 			return iis7_add_rewrite_rule($web_config_file, $rule);

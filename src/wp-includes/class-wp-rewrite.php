@@ -367,7 +367,7 @@ class WP_Rewrite {
 	 * @return bool Whether permalink links are enabled and index.php is NOT in the URL.
 	 */
 	public function using_mod_rewrite_permalinks() {
-		return $this->using_permalinks();
+		return true;
 	}
 
 	/**
@@ -1416,8 +1416,6 @@ class WP_Rewrite {
 	 * @return string
 	 */
 	public function mod_rewrite_rules() {
-		if ( ! $this->using_permalinks() )
-			return '';
 
 		$site_root = parse_url( site_url() );
 		if ( isset( $site_root['path'] ) )
@@ -1544,8 +1542,6 @@ class WP_Rewrite {
 	 * @return string IIS7 URL rewrite rule sets.
 	 */
 	public function iis7_url_rewrite_rules( $add_parent_tags = false ) {
-		if ( ! $this->using_permalinks() )
-			return '';
 		$rules = '';
 		if ( $add_parent_tags ) {
 			$rules .= '<configuration>

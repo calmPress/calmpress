@@ -87,7 +87,7 @@ function wp_install( $blog_title, $user_name, $user_email, $public, $deprecated 
 
 	wp_install_enable_pretty_permalinks();
 
-	flush_rewrite_rules();
+	flush_rewrite_rules( true );
 
 	wp_new_blog_notification($blog_title, $guessurl, $user_id, ($email_password ? $user_password : __('The password you chose during installation.') ) );
 

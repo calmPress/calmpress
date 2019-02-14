@@ -392,7 +392,7 @@ function get_attachment_link( $post = null, $leavename = false ) {
 		$parent = false;
 	}
 
-	if ( $wp_rewrite->using_permalinks() && $parent ) {
+	if ( $parent ) {
 		if ( 'page' == $parent->post_type )
 			$parentlink = _get_page_link( $post->post_parent ); // Ignores page_on_front
 		else
@@ -408,7 +408,7 @@ function get_attachment_link( $post = null, $leavename = false ) {
 
 		if ( ! $leavename )
 			$link = str_replace( '%postname%', $name, $link );
-	} elseif ( $wp_rewrite->using_permalinks() && ! $leavename ) {
+	} elseif ( ! $leavename ) {
 		$link = home_url( user_trailingslashit( $post->post_name ) );
 	}
 
@@ -1945,7 +1945,7 @@ function get_pagenum_link($pagenum = 1, $escape = true ) {
 	$request = preg_replace('|^'. $home_root . '|i', '', $request);
 	$request = preg_replace('|^/+|', '', $request);
 
-	if ( !$wp_rewrite->using_permalinks() || is_admin() ) {
+	if ( is_admin() ) {
 		$base = trailingslashit( get_bloginfo( 'url' ) );
 
 		if ( $pagenum > 1 ) {
@@ -2473,16 +2473,10 @@ function get_comments_pagenum_link( $pagenum = 1, $max_page = 0 ) {
 
 	if ( 'newest' == get_option('default_comments_page') ) {
 		if ( $pagenum != $max_page ) {
-			if ( $wp_rewrite->using_permalinks() )
-				$result = user_trailingslashit( trailingslashit($result) . $wp_rewrite->comments_pagination_base . '-' . $pagenum, 'commentpaged');
-			else
-				$result = add_query_arg( 'cpage', $pagenum, $result );
+			$result = user_trailingslashit( trailingslashit($result) . $wp_rewrite->comments_pagination_base . '-' . $pagenum, 'commentpaged');
 		}
 	} elseif ( $pagenum > 1 ) {
-		if ( $wp_rewrite->using_permalinks() )
-			$result = user_trailingslashit( trailingslashit($result) . $wp_rewrite->comments_pagination_base . '-' . $pagenum, 'commentpaged');
-		else
-			$result = add_query_arg( 'cpage', $pagenum, $result );
+		$result = user_trailingslashit( trailingslashit($result) . $wp_rewrite->comments_pagination_base . '-' . $pagenum, 'commentpaged');
 	}
 
 	$result .= '#comments';
@@ -2628,8 +2622,7 @@ function paginate_comments_links( $args = array() ) {
 		'echo' => true,
 		'add_fragment' => '#comments'
 	);
-	if ( $wp_rewrite->using_permalinks() )
-		$defaults['base'] = user_trailingslashit(trailingslashit(get_permalink()) . $wp_rewrite->comments_pagination_base . '-%#%', 'commentpaged');
+	$defaults['base'] = user_trailingslashit(trailingslashit(get_permalink()) . $wp_rewrite->comments_pagination_base . '-%#%', 'commentpaged');
 
 	$args = wp_parse_args( $args, $defaults );
 	$page_links = paginate_links( $args );
