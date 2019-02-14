@@ -39,7 +39,7 @@ function get_the_author() {
 
 			$display_name = join( ', ', $name_array );
 		} else {
-			$display_name = __( 'Anonymous' );
+			$display_name = '';
 		}
 	}
 
