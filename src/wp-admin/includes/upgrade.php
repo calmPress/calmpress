@@ -544,15 +544,15 @@ function upgrade_all() {
 		if ( $wp_current_db_version < 43764 )
 			upgrade_500();
 
-		if ( version_compare( $calmpress_db_version, '1.0.0-alpha9' , '<') ) {
-			calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade::upgrade();
-			delete_option('rewrite_rules');
-		}
-
 		maybe_disable_automattic_widgets();
 	}
 
-	delete_option( 'db_version', $wp_db_version );
+	if ( version_compare( $calmpress_db_version, '1.0.0-alpha9' , '<') ) {
+		calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade::upgrade();
+		delete_option('rewrite_rules');
+	}
+
+	delete_option( 'db_version' );
 	update_option( 'calmpress_db_version', calmpress_version() );
 	update_option( 'db_upgraded', true );
 }
