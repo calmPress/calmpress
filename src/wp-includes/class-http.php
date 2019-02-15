@@ -180,7 +180,7 @@ class WP_Http {
 			 *
 			 * @param string $user_agent calmPress user agent string.
 			 */
-			'user-agent' => apply_filters( 'http_headers_useragent', 'calmPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ),
+			'user-agent' => apply_filters( 'http_headers_useragent', 'WordPress/' . wordpress_core_version() . '; ' . get_bloginfo( 'url' ) ),
 			/**
 			 * Filters whether to pass URLs through wp_http_validate_url() in an HTTP request.
 			 *
