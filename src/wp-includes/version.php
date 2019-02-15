@@ -39,7 +39,7 @@ if ( ! function_exists( 'calmpress_version' ) ) {
 	 * @return string The version string.
 	 */
 	function calmpress_version() {
-		return '1.0.0-alpha8';
+		return '1.0.0-alpha9';
 	}
 }
 
@@ -56,7 +56,7 @@ if ( ! function_exists( 'calmpress_db_version_compatibility' ) ) {
 	 * @return string
 	 */
 	function calmpress_db_version_compatibility() {
-		return '0.9';
+		return '1.0.0-alpha9';
 	}
 }
 
