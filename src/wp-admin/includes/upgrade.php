@@ -549,7 +549,7 @@ function upgrade_all() {
 
 	if ( version_compare( $calmpress_db_version, '1.0.0-alpha9' , '<') ) {
 		calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade::upgrade();
-		delete_option('rewrite_rules');
+		flush_rewrite_rules( true );
 	}
 
 	delete_option( 'db_version' );
