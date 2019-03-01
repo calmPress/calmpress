@@ -539,7 +539,6 @@ function map_meta_cap( $cap, $user_id ) {
 		case 'manage_network_options':
 		case 'upgrade_network':
 			$caps[] = $cap;
->>>>>>> upstream/5.1
 			break;
 		case 'setup_network':
 			if ( is_multisite() ) {
