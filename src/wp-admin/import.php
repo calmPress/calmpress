@@ -6,7 +6,7 @@
  * @subpackage Administration
  */
 
-define('WP_LOAD_IMPORTERS', true);
+define( 'WP_LOAD_IMPORTERS', true );
 
 /** Load WordPress Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -15,7 +15,7 @@ if ( ! current_user_can( 'import' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to import content.' ) );
 }
 
-$title = __('Import');
+$title = __( 'Import' );
 
 get_current_screen()->add_help_tab( array(
 	'id'      => 'overview',
@@ -31,10 +31,12 @@ $parent_file = 'tools.php';
 <h1><?php echo esc_html( $title ); ?></h1>
 <?php if ( ! empty( $_GET['invalid'] ) ) : ?>
 	<div class="error">
-		<p><strong><?php _e( 'ERROR:' ); ?></strong> <?php
-			/* translators: %s: importer slug */
-			printf( __( 'The %s importer is invalid or is not installed.' ), '<strong>' . esc_html( $_GET['invalid'] ) . '</strong>' );
-		?></p>
+		<p><strong><?php _e( 'ERROR:' ); ?></strong>
+								<?php
+								/* translators: %s: importer slug */
+								printf( __( 'The %s importer is invalid or is not installed.' ), '<strong>' . esc_html( $_GET['invalid'] ) . '</strong>' );
+								?>
+		</p>
 	</div>
 <?php endif; ?>
 
@@ -43,16 +45,16 @@ $parent_file = 'tools.php';
 $importers = get_importers();
 
 if ( empty( $importers ) ) {
-	echo '<p>' . __('No importers are available.') . '</p>'; // TODO: make more helpful
+	echo '<p>' . __( 'No importers are available.' ) . '</p>'; // TODO: make more helpful
 } else {
 	echo '<p>' . __('Following is a list of importers available at the site:') . '</p>';
 	uasort( $importers, '_usort_by_first_member' );
-?>
+	?>
 <table class="widefat importers striped">
 
 	<?php
 	foreach ( $importers as $importer_id => $data ) {
-		$plugin_slug = $action = '';
+		$plugin_slug         = $action = '';
 		$is_plugin_installed = false;
 
 		if ( isset( $data['install'] ) ) {
@@ -62,14 +64,20 @@ if ( empty( $importers ) ) {
 				// Looks like an importer is installed, but not active.
 				$plugins = get_plugins( '/' . $plugin_slug );
 				if ( ! empty( $plugins ) ) {
-					$keys = array_keys( $plugins );
+					$keys        = array_keys( $plugins );
 					$plugin_file = $plugin_slug . '/' . $keys[0];
-					$url = wp_nonce_url( add_query_arg( array(
-						'action' => 'activate',
-						'plugin' => $plugin_file,
-						'from'   => 'import',
-					), admin_url( 'plugins.php' ) ), 'activate-plugin_' . $plugin_file );
-					$action = sprintf(
+					$url         = wp_nonce_url(
+						add_query_arg(
+							array(
+								'action' => 'activate',
+								'plugin' => $plugin_file,
+								'from'   => 'import',
+							),
+							admin_url( 'plugins.php' )
+						),
+						'activate-plugin_' . $plugin_file
+					);
+					$action      = sprintf(
 						'<a href="%s" aria-label="%s">%s</a>',
 						esc_url( $url ),
 						/* translators: %s: Importer name */
@@ -83,18 +91,24 @@ if ( empty( $importers ) ) {
 
 			if ( empty( $action ) ) {
 				if ( is_main_site() ) {
-					$url = wp_nonce_url( add_query_arg( array(
-						'action' => 'install-plugin',
-						'plugin' => $plugin_slug,
-						'from'   => 'import',
-					), self_admin_url( 'update.php' ) ), 'install-plugin_' . $plugin_slug );
+					$url    = wp_nonce_url(
+						add_query_arg(
+							array(
+								'action' => 'install-plugin',
+								'plugin' => $plugin_slug,
+								'from'   => 'import',
+							),
+							self_admin_url( 'update.php' )
+						),
+						'install-plugin_' . $plugin_slug
+					);
 					$action = sprintf(
 						'<a href="%1$s" class="install-now" data-slug="%2$s" data-name="%3$s" aria-label="%4$s">%5$s</a>',
 						esc_url( $url ),
 						esc_attr( $plugin_slug ),
 						esc_attr( $data[0] ),
 						/* translators: %s: Importer name */
-						esc_attr( sprintf( __( 'Install %s' ), $data[0] ) ),
+						esc_attr( sprintf( __( 'Install %s now' ), $data[0] ) ),
 						__( 'Install Now' )
 					);
 				} else {
@@ -106,9 +120,12 @@ if ( empty( $importers ) ) {
 				}
 			}
 		} else {
-			$url = add_query_arg( array(
-				'import' => $importer_id,
-			), self_admin_url( 'admin.php' ) );
+			$url    = add_query_arg(
+				array(
+					'import' => $importer_id,
+				),
+				self_admin_url( 'admin.php' )
+			);
 			$action = sprintf(
 				'<a href="%1$s" aria-label="%2$s">%3$s</a>',
 				esc_url( $url ),
@@ -121,14 +138,17 @@ if ( empty( $importers ) ) {
 		}
 
 		if ( ! $is_plugin_installed && is_main_site() ) {
-			$url = add_query_arg( array(
-				'tab'       => 'plugin-information',
-				'plugin'    => $plugin_slug,
-				'from'      => 'import',
-				'TB_iframe' => 'true',
-				'width'     => 600,
-				'height'    => 550,
-			), network_admin_url( 'plugin-install.php' ) );
+			$url     = add_query_arg(
+				array(
+					'tab'       => 'plugin-information',
+					'plugin'    => $plugin_slug,
+					'from'      => 'import',
+					'TB_iframe' => 'true',
+					'width'     => 600,
+					'height'    => 550,
+				),
+				network_admin_url( 'plugin-install.php' )
+			);
 			$action .= sprintf(
 				' | <a href="%1$s" class="thickbox open-plugin-details-modal" aria-label="%2$s">%3$s</a>',
 				esc_url( $url ),
@@ -151,11 +171,11 @@ if ( empty( $importers ) ) {
 	}
 	?>
 </table>
-<?php
+	<?php
 }
 
 if ( current_user_can('install_plugins') )
-	echo '<p>' . sprintf( __('If the importer you need is not listed, <a href="%s">search the wordpress.org plugin directory</a> to see if an importer is available.'), esc_url( network_admin_url( 'plugin-install.php?tab=search&type=tag&s=importer' ) ) ) . '</p>';
+	echo '<p>' . sprintf( __( 'If the importer you need is not listed, <a href="%s">search the wordpress.org plugin directory</a> to see if an importer is available.' ), esc_url( network_admin_url( 'plugin-install.php?tab=search&type=tag&s=importer' ) ) ) . '</p>';
 ?>
 
 </div>

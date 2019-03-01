@@ -246,6 +246,11 @@
 	top: -1px;
 }
 
+.welcome-panel .welcome-setup-home:before {
+	content: "\f102";
+	top: -1px;
+}
+
 .welcome-panel .welcome-view-site:before {
 	content: "\f115";
 	top: -2px;
@@ -841,6 +846,28 @@ a.rsswidget {
 	word-wrap: break-word;
 }
 
+/* PHP Nag */
+#dashboard_php_nag .dashicons-warning {
+	color: #ffb900;
+	padding-right: 6px;
+}
+
+#dashboard_php_nag.php-insecure .dashicons-warning {
+	color: #df3232;
+}
+
+#dashboard_php_nag p {
+	margin: 12px 0;
+}
+
+#dashboard_php_nag h3 {
+	font-weight: 600;
+}
+
+#dashboard_php_nag .button .dashicons-external {
+	line-height: 25px;
+}
+
 /* =Media Queries
 -------------------------------------------------------------- */
 
@@ -950,7 +977,7 @@ a.rsswidget {
 	}
 }
 
-@media screen and ( max-width: 782px ) {
+@media screen and (max-width: 782px) {
 	#dashboard_recent_comments #the-comment-list .comment-item .avatar {
 		height: 30px;
 		width: 30px;

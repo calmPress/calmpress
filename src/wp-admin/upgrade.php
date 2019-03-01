@@ -22,12 +22,13 @@ nocache_headers();
 timer_start();
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-delete_site_transient('update_core');
+delete_site_transient( 'update_core' );
 
-if ( isset( $_GET['step'] ) )
+if ( isset( $_GET['step'] ) ) {
 	$step = $_GET['step'];
-else
+} else {
 	$step = 0;
+}
 
 // Do it. No output.
 if ( 'upgrade_db' === $step ) {
@@ -44,13 +45,14 @@ global $wp_version, $required_php_version, $required_mysql_version;
 
 $step = (int) $step;
 
-$php_version    = phpversion();
-$mysql_version  = $wpdb->db_version();
-$php_compat     = version_compare( $php_version, $required_php_version, '>=' );
-if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) )
+$php_version   = phpversion();
+$mysql_version = $wpdb->db_version();
+$php_compat    = version_compare( $php_version, $required_php_version, '>=' );
+if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) ) {
 	$mysql_compat = true;
-else
+} else {
 	$mysql_compat = version_compare( $mysql_version, $required_mysql_version, '>=' );
+}
 
 @header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
 ?>
@@ -66,7 +68,7 @@ else
 	?>
 </head>
 <body class="wp-core-ui">
-<p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'WordPress' ); ?></a></p>
+<p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>"><?php _e( 'calmPress' ); ?></a></p>
 
 <?php if ( get_option( 'calmpress_db_version' ) == calmpress_version() || !is_blog_installed() ) : ?>
 
@@ -106,25 +108,24 @@ switch ( $step ) :
 		break;
 	case 1:
 		wp_upgrade();
-
-			$backto = !empty($_GET['backto']) ? wp_unslash( urldecode( $_GET['backto'] ) ) : __get_option( 'home' ) . '/';
+			$backto = ! empty( $_GET['backto'] ) ? wp_unslash( urldecode( $_GET['backto'] ) ) : __get_option( 'home' ) . '/';
 			$backto = esc_url( $backto );
-			$backto = wp_validate_redirect($backto, __get_option( 'home' ) . '/');
-?>
-<h1><?php _e( 'Update Complete' ); ?></h1>
+			$backto = wp_validate_redirect( $backto, __get_option( 'home' ) . '/' );
+			?>
+	<h1><?php _e( 'Update Complete' ); ?></h1>
 	<p><?php _e( 'Your calmPress database has been successfully updated!' ); ?></p>
 	<p class="step"><a class="button button-large" href="<?php echo $backto; ?>"><?php _e( 'Continue' ); ?></a></p>
 
 <!--
 <pre>
-<?php printf( __( '%s queries' ), $wpdb->num_queries ); ?>
+			<?php printf( __( '%s queries' ), $wpdb->num_queries ); ?>
 
-<?php printf( __( '%s seconds' ), timer_stop( 0 ) ); ?>
+			<?php printf( __( '%s seconds' ), timer_stop( 0 ) ); ?>
 </pre>
 -->
 
-<?php
-		break;
+			<?php
+			break;
 endswitch;
 endif;
 ?>

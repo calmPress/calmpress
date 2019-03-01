@@ -1,7 +1,11 @@
 <?php
 
 /* Path to the WordPress codebase you'd like to test. Add a forward slash in the end. */
-define( 'ABSPATH', dirname( __FILE__ ) . '/src/' );
+if ( defined( 'WP_RUN_CORE_TESTS' ) && WP_RUN_CORE_TESTS ) {
+	define( 'ABSPATH', dirname( __FILE__ ) . '/build/' );
+} else {
+	define( 'ABSPATH', dirname( __FILE__ ) . '/src/' );
+}
 
 /*
  * Path to the theme to test with.
@@ -44,16 +48,16 @@ define( 'DB_COLLATE', '' );
  * Change these to different unique phrases!
  * You can generate these using the {@link https://api.wordpress.org/secret-key/1.1/salt/ WordPress.org secret-key service}
  */
-define('AUTH_KEY',         'put your unique auth key phrase here');
-define('SECURE_AUTH_KEY',  'put your unique secure auth key phrase here');
-define('LOGGED_IN_KEY',    'put your unique logged in key phrase here');
-define('NONCE_KEY',        'put your unique nonce key phrase here');
-define('AUTH_SALT',        'put your unique auth salt phrase here');
-define('SECURE_AUTH_SALT', 'put your unique secure auth salt phrase here');
-define('LOGGED_IN_SALT',   'put your unique logged in salt phrase here');
-define('NONCE_SALT',       'put your unique nonce salt phrase here');
+define( 'AUTH_KEY',         'put your unique phrase here' );
+define( 'SECURE_AUTH_KEY',  'put your unique phrase here' );
+define( 'LOGGED_IN_KEY',    'put your unique phrase here' );
+define( 'NONCE_KEY',        'put your unique phrase here' );
+define( 'AUTH_SALT',        'put your unique phrase here' );
+define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
+define( 'LOGGED_IN_SALT',   'put your unique phrase here' );
+define( 'NONCE_SALT',       'put your unique phrase here' );
 
-$table_prefix  = 'wptests_';   // Only numbers, letters, and underscores please!
+$table_prefix = 'wptests_';   // Only numbers, letters, and underscores please!
 
 define( 'WP_TESTS_DOMAIN', 'example.org' );
 define( 'WP_TESTS_EMAIL', 'admin@example.org' );

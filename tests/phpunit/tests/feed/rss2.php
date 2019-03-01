@@ -19,17 +19,21 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
 		// Create a user
-		self::$user_id = $factory->user->create( array(
-			'role'         => 'author',
-			'user_login'   => 'test_author',
-			'display_name' => 'Test A. Uthor',
-		) );
+		self::$user_id = $factory->user->create(
+			array(
+				'role'         => 'author',
+				'user_login'   => 'test_author',
+				'display_name' => 'Test A. Uthor',
+			)
+		);
 
 		// Create a taxonomy
-		self::$category = $factory->category->create_and_get( array(
-			'name' => 'Foo Category',
-			'slug' => 'foo',
-		) );
+		self::$category = $factory->category->create_and_get(
+			array(
+				'name' => 'Foo Category',
+				'slug' => 'foo',
+			)
+		);
 
 		// Set a predictable time for testing date archives.
 		self::$post_date = '2003-05-27 10:07:53';
@@ -37,12 +41,15 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		$count = get_option( 'posts_per_rss' ) + 1;
 
 		// Create a few posts
-		self::$posts = $factory->post->create_many( $count, array(
-			'post_author'  => self::$user_id,
-			'post_date'    => self::$post_date,
-			'post_content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec velit massa, ultrices eu est suscipit, mattis posuere est. Donec vitae purus lacus. Cras vitae odio odio.',
-			'post_excerpt' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-		) );
+		self::$posts = $factory->post->create_many(
+			$count,
+			array(
+				'post_author'  => self::$user_id,
+				'post_date'    => self::$post_date,
+				'post_content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec velit massa, ultrices eu est suscipit, mattis posuere est. Donec vitae purus lacus. Cras vitae odio odio.',
+				'post_excerpt' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+			)
+		);
 
 		// Assign a category to those posts
 		foreach ( self::$posts as $post ) {
@@ -64,7 +71,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->post_count = (int) get_option( 'posts_per_rss' );
+		$this->post_count   = (int) get_option( 'posts_per_rss' );
 		$this->excerpt_only = get_option( 'rss_use_excerpt' );
 		// this seems to break something
 
@@ -80,9 +87,9 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		// Nasty hack! In the future it would better to leverage do_feed( 'rss2' ).
 		global $post;
 		try {
-			@require(ABSPATH . 'wp-includes/feed-rss2.php');
+			@require( ABSPATH . 'wp-includes/feed-rss2.php' );
 			$out = ob_get_clean();
-		} catch (Exception $e) {
+		} catch ( Exception $e ) {
 			$out = ob_get_clean();
 			throw($e);
 		}
@@ -96,7 +103,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	function test_rss_element() {
 		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
-		$xml = xml_to_array( $feed );
+		$xml  = xml_to_array( $feed );
 
 		// Get the <rss> child element of <xml>.
 		$rss = xml_find( $xml, 'rss' );
@@ -115,12 +122,13 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 	/**
 	 * [test_channel_element description]
+	 *
 	 * @return [type] [description]
 	 */
 	function test_channel_element() {
 		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
-		$xml = xml_to_array( $feed );
+		$xml  = xml_to_array( $feed );
 
 		// get the rss -> channel element
 		$channel = xml_find( $xml, 'rss', 'channel' );
@@ -144,6 +152,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 	/**
 	 * Test that translated feeds have a valid listed date.
+	 *
 	 * @group 39141
 	 */
 	function test_channel_pubdate_element_translated() {
@@ -151,8 +160,8 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		/* @var WP_Locale $locale */
 		$locale = clone $GLOBALS['wp_locale'];
 
-		$locale->weekday[2] = 'Tuesday_Translated';
-		$locale->weekday_abbrev[ 'Tuesday_Translated' ] = 'Tue_Translated';
+		$locale->weekday[2]                           = 'Tuesday_Translated';
+		$locale->weekday_abbrev['Tuesday_Translated'] = 'Tue_Translated';
 
 		$GLOBALS['wp_locale'] = $locale;
 
@@ -173,7 +182,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		global $post;
 		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
-		$xml = xml_to_array( $feed );
+		$xml  = xml_to_array( $feed );
 
 		// Get all the <item> child elements of the <channel> element
 		$items = xml_find( $xml, 'rss', 'channel', 'item' );
@@ -192,19 +201,19 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 			$post = get_post( url_to_postid( $guid[0]['content'] ) );
 
 			// Title
-			$title = xml_find( $items[$key]['child'], 'title' );
+			$title = xml_find( $items[ $key ]['child'], 'title' );
 			$this->assertEquals( $post->post_title, $title[0]['content'] );
 
 			// Link
-			$link = xml_find( $items[$key]['child'], 'link' );
+			$link = xml_find( $items[ $key ]['child'], 'link' );
 			$this->assertEquals( get_permalink( $post ), $link[0]['content'] );
 
 			// Comment link
-			$comments_link = xml_find( $items[$key]['child'], 'comments' );
+			$comments_link = xml_find( $items[ $key ]['child'], 'comments' );
 			$this->assertEquals( get_permalink( $post ) . '#respond', $comments_link[0]['content'] );
 
 			// Pub date
-			$pubdate = xml_find( $items[$key]['child'], 'pubDate' );
+			$pubdate = xml_find( $items[ $key ]['child'], 'pubDate' );
 			$this->assertEquals( strtotime( $post->post_date_gmt ), strtotime( $pubdate[0]['content'] ) );
 
 			// Author
@@ -217,8 +226,8 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 			}
 
 			// Categories (perhaps multiple)
-			$categories = xml_find( $items[$key]['child'], 'category' );
-			$cats = array();
+			$categories = xml_find( $items[ $key ]['child'], 'category' );
+			$cats       = array();
 			foreach ( get_the_category( $post->ID ) as $term ) {
 				$cats[] = $term->name;
 			}
@@ -235,28 +244,28 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 			// ..with the same names
 			foreach ( $cats as $id => $cat ) {
-				$this->assertEquals( $cat, $categories[$id]['content'] );
+				$this->assertEquals( $cat, $categories[ $id ]['content'] );
 			}
 
 			// GUID
-			$guid = xml_find( $items[$key]['child'], 'guid' );
+			$guid = xml_find( $items[ $key ]['child'], 'guid' );
 			$this->assertEquals( 'false', $guid[0]['attributes']['isPermaLink'] );
 			$this->assertEquals( $post->guid, $guid[0]['content'] );
 
 			// Description / Excerpt
 			if ( ! empty( $post->post_excerpt ) ) {
-				$description = xml_find( $items[$key]['child'], 'description' );
+				$description = xml_find( $items[ $key ]['child'], 'description' );
 				$this->assertEquals( trim( $post->post_excerpt ), trim( $description[0]['content'] ) );
 			}
 
 			// Post content
 			if ( ! $this->excerpt_only ) {
-				$content = xml_find( $items[$key]['child'], 'content:encoded' );
+				$content = xml_find( $items[ $key ]['child'], 'content:encoded' );
 				$this->assertEquals( trim( apply_filters( 'the_content', $post->post_content ) ), trim( $content[0]['content'] ) );
 			}
 
 			// Comment rss
-			$comment_rss = xml_find( $items[$key]['child'], 'wfw:commentRss' );
+			$comment_rss = xml_find( $items[ $key ]['child'], 'wfw:commentRss' );
 			$this->assertEquals( html_entity_decode( get_post_comments_feed_link( $post->ID ) ), $comment_rss[0]['content'] );
 		}
 	}
@@ -269,7 +278,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
-		$xml = xml_to_array( $feed );
+		$xml  = xml_to_array( $feed );
 
 		// get all the rss -> channel -> item elements
 		$items = xml_find( $xml, 'rss', 'channel', 'item' );

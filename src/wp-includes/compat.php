@@ -118,7 +118,7 @@ function _mb_substr( $str, $start, $length = null, $encoding = null ) {
 
 		$chars = array_merge( $chars, $pieces );
 
-	// If there's anything left over, repeat the loop.
+		// If there's anything left over, repeat the loop.
 	} while ( count( $pieces ) > 1 && $str = array_pop( $pieces ) );
 
 	return join( '', array_slice( $chars, $start, $length ) );
@@ -202,33 +202,33 @@ function _mb_strlen( $str, $encoding = null ) {
 		// Increment.
 		$count += count( $pieces );
 
-	// If there's anything left over, repeat the loop.
+		// If there's anything left over, repeat the loop.
 	} while ( $str = array_pop( $pieces ) );
 
 	// Fencepost: preg_split() always returns one extra item in the array.
 	return --$count;
 }
 
-if ( !function_exists('hash_hmac') ):
-/**
- * Compat function to mimic hash_hmac().
- *
- * @ignore
- * @since 3.2.0
- *
- * @see _hash_hmac()
- *
- * @param string $algo       Hash algorithm. Accepts 'md5' or 'sha1'.
- * @param string $data       Data to be hashed.
- * @param string $key        Secret key to use for generating the hash.
- * @param bool   $raw_output Optional. Whether to output raw binary data (true),
- *                           or lowercase hexits (false). Default false.
- * @return string|false The hash in output determined by `$raw_output`. False if `$algo`
- *                      is unknown or invalid.
- */
-function hash_hmac($algo, $data, $key, $raw_output = false) {
-	return _hash_hmac($algo, $data, $key, $raw_output);
-}
+if ( ! function_exists( 'hash_hmac' ) ) :
+	/**
+	 * Compat function to mimic hash_hmac().
+	 *
+	 * @ignore
+	 * @since 3.2.0
+	 *
+	 * @see _hash_hmac()
+	 *
+	 * @param string $algo       Hash algorithm. Accepts 'md5' or 'sha1'.
+	 * @param string $data       Data to be hashed.
+	 * @param string $key        Secret key to use for generating the hash.
+	 * @param bool   $raw_output Optional. Whether to output raw binary data (true),
+	 *                           or lowercase hexits (false). Default false.
+	 * @return string|false The hash in output determined by `$raw_output`. False if `$algo`
+	 *                      is unknown or invalid.
+	 */
+	function hash_hmac( $algo, $data, $key, $raw_output = false ) {
+		return _hash_hmac( $algo, $data, $key, $raw_output );
+	}
 endif;
 
 /**
@@ -245,60 +245,106 @@ endif;
  * @return string|false The hash in output determined by `$raw_output`. False if `$algo`
  *                      is unknown or invalid.
  */
-function _hash_hmac($algo, $data, $key, $raw_output = false) {
-	$packs = array('md5' => 'H32', 'sha1' => 'H40');
+function _hash_hmac( $algo, $data, $key, $raw_output = false ) {
+	$packs = array(
+		'md5'  => 'H32',
+		'sha1' => 'H40',
+	);
 
-	if ( !isset($packs[$algo]) )
+	if ( ! isset( $packs[ $algo ] ) ) {
 		return false;
+	}
 
-	$pack = $packs[$algo];
+	$pack = $packs[ $algo ];
 
-	if (strlen($key) > 64)
-		$key = pack($pack, $algo($key));
+	if ( strlen( $key ) > 64 ) {
+		$key = pack( $pack, $algo( $key ) );
+	}
 
-	$key = str_pad($key, 64, chr(0));
+	$key = str_pad( $key, 64, chr( 0 ) );
 
-	$ipad = (substr($key, 0, 64) ^ str_repeat(chr(0x36), 64));
-	$opad = (substr($key, 0, 64) ^ str_repeat(chr(0x5C), 64));
+	$ipad = ( substr( $key, 0, 64 ) ^ str_repeat( chr( 0x36 ), 64 ) );
+	$opad = ( substr( $key, 0, 64 ) ^ str_repeat( chr( 0x5C ), 64 ) );
 
-	$hmac = $algo($opad . pack($pack, $algo($ipad . $data)));
+	$hmac = $algo( $opad . pack( $pack, $algo( $ipad . $data ) ) );
 
-	if ( $raw_output )
+	if ( $raw_output ) {
 		return pack( $pack, $hmac );
+	}
 	return $hmac;
 }
 
 if ( ! function_exists( 'hash_equals' ) ) :
-/**
- * Timing attack safe string comparison
- *
- * Compares two strings using the same time whether they're equal or not.
- *
- * This function was added in PHP 5.6.
- *
- * Note: It can leak the length of a string when arguments of differing length are supplied.
- *
- * @since 3.9.2
- *
- * @param string $a Expected string.
- * @param string $b Actual, user supplied, string.
- * @return bool Whether strings are equal.
- */
-function hash_equals( $a, $b ) {
-	$a_length = strlen( $a );
-	if ( $a_length !== strlen( $b ) ) {
-		return false;
-	}
-	$result = 0;
+	/**
+	 * Timing attack safe string comparison
+	 *
+	 * Compares two strings using the same time whether they're equal or not.
+	 *
+	 * This function was added in PHP 5.6.
+	 *
+	 * Note: It can leak the length of a string when arguments of differing length are supplied.
+	 *
+	 * @since 3.9.2
+	 *
+	 * @param string $a Expected string.
+	 * @param string $b Actual, user supplied, string.
+	 * @return bool Whether strings are equal.
+	 */
+	function hash_equals( $a, $b ) {
+		$a_length = strlen( $a );
+		if ( $a_length !== strlen( $b ) ) {
+			return false;
+		}
+		$result = 0;
 
-	// Do not attempt to "optimize" this.
-	for ( $i = 0; $i < $a_length; $i++ ) {
-		$result |= ord( $a[ $i ] ) ^ ord( $b[ $i ] );
-	}
+		// Do not attempt to "optimize" this.
+		for ( $i = 0; $i < $a_length; $i++ ) {
+			$result |= ord( $a[ $i ] ) ^ ord( $b[ $i ] );
+		}
 
-	return $result === 0;
-}
+		return $result === 0;
+	}
 endif;
+
+if ( ! function_exists( 'is_countable' ) ) {
+	/**
+	 * Polyfill for is_countable() function added in PHP 7.3.
+	 *
+	 * Verify that the content of a variable is an array or an object
+	 * implementing the Countable interface.
+	 *
+	 * @since 4.9.6
+	 *
+	 * @param mixed $var The value to check.
+	 *
+	 * @return bool True if `$var` is countable, false otherwise.
+	 */
+	function is_countable( $var ) {
+		return ( is_array( $var )
+			|| $var instanceof Countable
+			|| $var instanceof SimpleXMLElement
+			|| $var instanceof ResourceBundle
+		);
+	}
+}
+
+if ( ! function_exists( 'is_iterable' ) ) {
+	/**
+	 * Polyfill for is_iterable() function added in PHP 7.1.
+	 *
+	 * Verify that the content of a variable is an array or an object
+	 * implementing the Traversable interface.
+	 *
+	 * @since 4.9.6
+	 *
+	 * @param mixed $var The value to check.
+	 *
+	 * @return bool True if `$var` is iterable, false otherwise.
+	 */
+	function is_iterable( $var ) {
+		return ( is_array( $var ) || $var instanceof Traversable );
+	}
+}
 
 if ( ! function_exists( 'is_countable' ) ) {
 	/**

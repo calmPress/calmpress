@@ -1,29 +1,37 @@
-const path         = require( 'path' );
-const SOURCE_DIR   = 'src/';
-const mediaEntries  = {};
-const mediaBuilds  = [ 'audiovideo', 'grid', 'models', 'views' ];
+const UglifyJsPlugin = require( 'uglifyjs-webpack-plugin' );
 
-mediaBuilds.forEach( function ( build ) {
-	var path = SOURCE_DIR + 'wp-includes/js/media';
-	mediaEntries[ build ] = './' + path + '/' + build + '.manifest.js';
-} );
+var path            = require( 'path' ),
+	admin_files     = {};
 
 const baseDir = path.join( __dirname, '../../' );
 
-module.exports = function( env = { environment: 'production', watch: false } ) {
+module.exports = function( env = { environment: 'production', watch: false, buildTarget: false } ) {
+	const include_files = {
+		[ env.buildTarget + 'wp-includes/js/media-audiovideo.js' ]: ['./src/js/_enqueues/wp/media/audiovideo.js'],
+		[ env.buildTarget + 'wp-includes/js/media-audiovideo.min.js' ]: ['./src/js/_enqueues/wp/media/audiovideo.js'],
+		[ env.buildTarget + 'wp-includes/js/media-grid.js' ]: ['./src/js/_enqueues/wp/media/grid.js'],
+		[ env.buildTarget + 'wp-includes/js/media-grid.min.js' ]: ['./src/js/_enqueues/wp/media/grid.js'],
+		[ env.buildTarget + 'wp-includes/js/media-models.js' ]: ['./src/js/_enqueues/wp/media/models.js'],
+		[ env.buildTarget + 'wp-includes/js/media-models.min.js' ]: ['./src/js/_enqueues/wp/media/models.js'],
+		[ env.buildTarget + 'wp-includes/js/media-views.js' ]: ['./src/js/_enqueues/wp/media/views.js'],
+		[ env.buildTarget + 'wp-includes/js/media-views.min.js' ]: ['./src/js/_enqueues/wp/media/views.js'],
+	};
 
 	const mediaConfig = {
 		mode: "production",
 		cache: true,
-		entry: mediaEntries,
+		entry: Object.assign( admin_files, include_files ),
 		output: {
-			path: path.join( baseDir, 'src/wp-includes/js' ),
-			filename: 'media-[name].js'
+			path: baseDir,
+			filename: '[name]',
 		},
 		optimization: {
-			// The files are minified by uglify afterwards. We could change this
-			// later, but for now prevent doing the work twice.
-			minimize: false
+			minimize: true,
+			minimizer: [
+				new UglifyJsPlugin( {
+					include: /\.min\.js$/,
+				} )
+			]
 		},
 		watch: env.watch,
 	};

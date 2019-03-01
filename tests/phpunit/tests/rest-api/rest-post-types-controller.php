@@ -6,37 +6,37 @@
  * @subpackage REST API
  */
 
- /**
-  * @group restapi
-  */
+/**
+ * @group restapi
+ */
 class WP_Test_REST_Post_Types_Controller extends WP_Test_REST_Controller_Testcase {
 
 	public function test_register_routes() {
-		$routes = $this->server->get_routes();
+		$routes = rest_get_server()->get_routes();
 		$this->assertArrayHasKey( '/wp/v2/types', $routes );
 		$this->assertArrayHasKey( '/wp/v2/types/(?P<type>[\w-]+)', $routes );
 	}
 
 	public function test_context_param() {
 		// Collection
-		$request = new WP_REST_Request( 'OPTIONS', '/wp/v2/types' );
-		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/types' );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
 		$this->assertEquals( 'view', $data['endpoints'][0]['args']['context']['default'] );
 		$this->assertEqualSets( array( 'view', 'edit', 'embed' ), $data['endpoints'][0]['args']['context']['enum'] );
 		// Single
-		$request = new WP_REST_Request( 'OPTIONS', '/wp/v2/types/post' );
-		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/types/post' );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
 		$this->assertEquals( 'view', $data['endpoints'][0]['args']['context']['default'] );
 		$this->assertEqualSets( array( 'view', 'edit', 'embed' ), $data['endpoints'][0]['args']['context']['enum'] );
 	}
 
 	public function test_get_items() {
-		$request = new WP_REST_Request( 'GET', '/wp/v2/types' );
-		$response = $this->server->dispatch( $request );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/types' );
+		$response = rest_get_server()->dispatch( $request );
 
-		$data = $response->get_data();
+		$data       = $response->get_data();
 		$post_types = get_post_types( array( 'show_in_rest' => true ), 'objects' );
 		$this->assertEquals( count( $post_types ), count( $data ) );
 		$this->assertEquals( $post_types['post']->name, $data['post']['slug'] );
@@ -50,29 +50,29 @@ class WP_Test_REST_Post_Types_Controller extends WP_Test_REST_Controller_Testcas
 		wp_set_current_user( 0 );
 		$request = new WP_REST_Request( 'GET', '/wp/v2/types' );
 		$request->set_param( 'context', 'edit' );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_cannot_view', $response, 401 );
 	}
 
 	public function test_get_item() {
-		$request = new WP_REST_Request( 'GET', '/wp/v2/types/post' );
-		$response = $this->server->dispatch( $request );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/types/post' );
+		$response = rest_get_server()->dispatch( $request );
 		$this->check_post_type_object_response( 'view', $response );
 		$data = $response->get_data();
 		$this->assertEquals( array( 'category', 'post_tag', 'calm_authors' ), $data['taxonomies'] );
 	}
 
 	public function test_get_item_page() {
-		$request = new WP_REST_Request( 'GET', '/wp/v2/types/page' );
-		$response = $this->server->dispatch( $request );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/types/page' );
+		$response = rest_get_server()->dispatch( $request );
 		$this->check_post_type_object_response( 'view', $response, 'page' );
 		$data = $response->get_data();
 		$this->assertEquals( array( 'calm_authors' ), $data['taxonomies'] );
 	}
 
 	public function test_get_item_invalid_type() {
-		$request = new WP_REST_Request( 'GET', '/wp/v2/types/invalid' );
-		$response = $this->server->dispatch( $request );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/types/invalid' );
+		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_type_invalid', $response, 404 );
 	}
 
@@ -81,7 +81,7 @@ class WP_Test_REST_Post_Types_Controller extends WP_Test_REST_Controller_Testcas
 		wp_set_current_user( $editor_id );
 		$request = new WP_REST_Request( 'GET', '/wp/v2/types/post' );
 		$request->set_param( 'context', 'edit' );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 		$this->check_post_type_object_response( 'edit', $response );
 	}
 
@@ -89,35 +89,35 @@ class WP_Test_REST_Post_Types_Controller extends WP_Test_REST_Controller_Testcas
 		wp_set_current_user( 0 );
 		$request = new WP_REST_Request( 'GET', '/wp/v2/types/post' );
 		$request->set_param( 'context', 'edit' );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_forbidden_context', $response, 401 );
 	}
 
 	public function test_create_item() {
-		/** Post types can't be created **/
-		$request = new WP_REST_Request( 'POST', '/wp/v2/types' );
-		$response = $this->server->dispatch( $request );
+		/** Post types can't be created */
+		$request  = new WP_REST_Request( 'POST', '/wp/v2/types' );
+		$response = rest_get_server()->dispatch( $request );
 		$this->assertEquals( 404, $response->get_status() );
 	}
 
 	public function test_update_item() {
-		/** Post types can't be updated **/
-		$request = new WP_REST_Request( 'POST', '/wp/v2/types/post' );
-		$response = $this->server->dispatch( $request );
+		/** Post types can't be updated */
+		$request  = new WP_REST_Request( 'POST', '/wp/v2/types/post' );
+		$response = rest_get_server()->dispatch( $request );
 		$this->assertEquals( 404, $response->get_status() );
 	}
 
 	public function test_delete_item() {
-		/** Post types can't be deleted **/
-		$request = new WP_REST_Request( 'DELETE', '/wp/v2/types/post' );
-		$response = $this->server->dispatch( $request );
+		/** Post types can't be deleted */
+		$request  = new WP_REST_Request( 'DELETE', '/wp/v2/types/post' );
+		$response = rest_get_server()->dispatch( $request );
 		$this->assertEquals( 404, $response->get_status() );
 	}
 
 	public function test_prepare_item() {
-		$obj = get_post_type_object( 'post' );
+		$obj      = get_post_type_object( 'post' );
 		$endpoint = new WP_REST_Post_Types_Controller;
-		$request = new WP_REST_Request;
+		$request  = new WP_REST_Request;
 		$request->set_param( 'context', 'edit' );
 		$response = $endpoint->prepare_item_for_response( $obj, $request );
 		$this->check_post_type_obj( 'edit', $obj, $response->get_data(), $response->get_links() );
@@ -130,16 +130,19 @@ class WP_Test_REST_Post_Types_Controller extends WP_Test_REST_Controller_Testcas
 		$request->set_param( 'context', 'edit' );
 		$request->set_param( '_fields', 'id,name' );
 		$response = $endpoint->prepare_item_for_response( $obj, $request );
-		$this->assertEquals( array(
-			// 'id' doesn't exist in this context.
-			'name',
-		), array_keys( $response->get_data() ) );
+		$this->assertEquals(
+			array(
+				// 'id' doesn't exist in this context.
+				'name',
+			),
+			array_keys( $response->get_data() )
+		);
 	}
 
 	public function test_get_item_schema() {
-		$request = new WP_REST_Request( 'OPTIONS', '/wp/v2/types' );
-		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
+		$request    = new WP_REST_Request( 'OPTIONS', '/wp/v2/types' );
+		$response   = rest_get_server()->dispatch( $request );
+		$data       = $response->get_data();
 		$properties = $data['schema']['properties'];
 		$this->assertEquals( 10, count( $properties ) );
 		$this->assertArrayHasKey( 'capabilities', $properties );
@@ -163,23 +166,27 @@ class WP_Test_REST_Post_Types_Controller extends WP_Test_REST_Controller_Testcas
 			'context'     => array( 'view', 'edit' ),
 		);
 
-		register_rest_field( 'type', 'my_custom_int', array(
-			'schema'          => $schema,
-			'get_callback'    => array( $this, 'additional_field_get_callback' ),
-			'update_callback' => array( $this, 'additional_field_update_callback' ),
-		) );
+		register_rest_field(
+			'type',
+			'my_custom_int',
+			array(
+				'schema'          => $schema,
+				'get_callback'    => array( $this, 'additional_field_get_callback' ),
+				'update_callback' => array( $this, 'additional_field_update_callback' ),
+			)
+		);
 
 		$request = new WP_REST_Request( 'OPTIONS', '/wp/v2/types/schema' );
 
-		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
 
 		$this->assertArrayHasKey( 'my_custom_int', $data['schema']['properties'] );
 		$this->assertEquals( $schema, $data['schema']['properties']['my_custom_int'] );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/types/post' );
 
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 		$this->assertArrayHasKey( 'my_custom_int', $response->data );
 
 		global $wp_rest_additional_fields;
@@ -221,7 +228,7 @@ class WP_Test_REST_Post_Types_Controller extends WP_Test_REST_Controller_Testcas
 	protected function check_post_type_object_response( $context, $response, $post_type = 'post' ) {
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
-		$obj = get_post_type_object( $post_type );
+		$obj  = get_post_type_object( $post_type );
 		$this->check_post_type_obj( $context, $obj, $data, $response->get_links() );
 	}
 

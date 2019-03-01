@@ -37,7 +37,7 @@ class Tests_Post_GetTheExcerpt extends WP_UnitTestCase {
 	 */
 	public function test_the_excerpt_specific_post() {
 		$GLOBALS['post'] = self::factory()->post->create_and_get( array( 'post_excerpt' => 'Foo' ) );
-		$post_id = self::factory()->post->create( array( 'post_excerpt' => 'Bar' ) );
+		$post_id         = self::factory()->post->create( array( 'post_excerpt' => 'Bar' ) );
 		$this->assertSame( 'Bar', get_the_excerpt( $post_id ) );
 	}
 }

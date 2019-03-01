@@ -19,11 +19,11 @@ if ( is_multisite() && ! is_network_admin() ) {
 	exit();
 }
 
-if ( ! current_user_can( 'update_core' ) && ! current_user_can( 'update_themes' ) && ! current_user_can( 'update_plugins' ) && ! current_user_can( 'update_languages' ) )
+if ( ! current_user_can( 'update_core' ) && ! current_user_can( 'update_themes' ) && ! current_user_can( 'update_plugins' ) && ! current_user_can( 'update_languages' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to update this site.' ) );
+}
 
 /**
- *
  * @global wpdb   $wpdb
  *
  * @staticvar bool $first_pass
@@ -31,8 +31,8 @@ if ( ! current_user_can( 'update_core' ) && ! current_user_can( 'update_themes' 
  * @param object $update
  */
 function list_core_update( $update ) {
- 	global $wpdb;
-  	static $first_pass = true;
+	global $wpdb;
+	static $first_pass = true;
 
 	$version = get_bloginfo( 'version' );
 
@@ -73,9 +73,9 @@ function list_core_update( $update ) {
 	echo $message;
 	echo '</p>';
 	echo '<form method="post" action="' . $form_action . '" name="upgrade" class="upgrade">';
-	wp_nonce_field('upgrade-core');
+	wp_nonce_field( 'upgrade-core' );
 	echo '<p>';
-	echo '<input name="version" value="'. esc_attr($update->version) .'" type="hidden"/>';
+	echo '<input name="version" value="'. esc_attr( $update->version ) .'" type="hidden"/>';
 	if ( $show_buttons ) {
 		if ( $first_pass ) {
 			submit_button( $submit, 'primary regular', 'upgrade', false );
@@ -93,24 +93,28 @@ function list_core_update( $update ) {
  * @since 2.7.0
  */
 function dismissed_updates() {
-	$dismissed = get_core_updates( array( 'dismissed' => true, 'available' => false ) );
+	$dismissed = get_core_updates(
+		array(
+			'dismissed' => true,
+			'available' => false,
+		)
+	);
 	if ( $dismissed ) {
 
-		$show_text = esc_js(__('Show hidden updates'));
-		$hide_text = esc_js(__('Hide hidden updates'));
-	?>
+		$show_text = esc_js( __( 'Show hidden updates' ) );
+		$hide_text = esc_js( __( 'Hide hidden updates' ) );
+		?>
 	<script type="text/javascript">
-
-		jQuery(function($) {
-			$('dismissed-updates').show();
-			$('#show-dismissed').toggle(function(){$(this).text('<?php echo $hide_text; ?>');}, function() {$(this).text('<?php echo $show_text; ?>')});
-			$('#show-dismissed').click(function() { $('#dismissed-updates').toggle('slow');});
+		jQuery(function( $ ) {
+			$( 'dismissed-updates' ).show();
+			$( '#show-dismissed' ).toggle( function() { $( this ).text( '<?php echo $hide_text; ?>' ).attr( 'aria-expanded', 'true' ); }, function() { $( this ).text( '<?php echo $show_text; ?>' ).attr( 'aria-expanded', 'false' ); } );
+			$( '#show-dismissed' ).click( function() { $( '#dismissed-updates' ).toggle( 'fast' ); } );
 		});
 	</script>
-	<?php
-		echo '<p class="hide-if-no-js"><a id="show-dismissed" href="#">'.__('Show hidden updates').'</a></p>';
+		<?php
+		echo '<p class="hide-if-no-js"><button type="button" class="button" id="show-dismissed" aria-expanded="false">' . __( 'Show hidden updates' ) . '</button></p>';
 		echo '<ul id="dismissed-updates" class="core-updates dismissed">';
-		foreach ( (array) $dismissed as $update) {
+		foreach ( (array) $dismissed as $update ) {
 			echo '<li>';
 			list_core_update( $update );
 			echo '</li>';
@@ -162,10 +166,10 @@ function core_upgrade_preamble() {
 }
 
 function list_plugin_updates() {
-	$version = get_bloginfo( 'version' );
+	$version     = get_bloginfo( 'version' );
 	$cur_version = preg_replace( '/-.*$/', '', $version );
 
-	require_once(ABSPATH . 'wp-admin/includes/plugin-install.php');
+	require_once( ABSPATH . 'wp-admin/includes/plugin-install.php' );
 	$plugins = get_plugin_updates();
 	if ( empty( $plugins ) ) {
 		echo '<h2>' . __( 'Plugins' ) . '</h2>';
@@ -175,16 +179,17 @@ function list_plugin_updates() {
 	$form_action = 'update-core.php?action=do-plugin-upgrade';
 
 	$core_updates = get_core_updates();
-	if ( !isset($core_updates[0]->response) || 'latest' == $core_updates[0]->response || 'development' == $core_updates[0]->response || version_compare( $core_updates[0]->current, $cur_version, '=') )
+	if ( ! isset( $core_updates[0]->response ) || 'latest' == $core_updates[0]->response || 'development' == $core_updates[0]->response || version_compare( $core_updates[0]->current, $cur_version, '=') ) {
 		$core_update_version = false;
-	else
+	} else {
 		$core_update_version = $core_updates[0]->current;
+	}
 	?>
 <h2><?php _e( 'Plugins' ); ?></h2>
 <p><?php _e( 'The following plugins have new versions available. Check the ones you want to update and then click &#8220;Update Plugins&#8221;.' ); ?></p>
 <form method="post" action="<?php echo esc_url( $form_action ); ?>" name="upgrade-plugins" class="upgrade">
-<?php wp_nonce_field('upgrade-core'); ?>
-<p><input id="upgrade-plugins" class="button" type="submit" value="<?php esc_attr_e('Update Plugins'); ?>" name="upgrade" /></p>
+	<?php wp_nonce_field( 'upgrade-core' ); ?>
+<p><input id="upgrade-plugins" class="button" type="submit" value="<?php esc_attr_e( 'Update Plugins' ); ?>" name="upgrade" /></p>
 <table class="widefat updates-table" id="update-plugins-table">
 	<thead>
 	<tr>
@@ -194,12 +199,12 @@ function list_plugin_updates() {
 	</thead>
 
 	<tbody class="plugins">
-<?php
+	<?php
 	foreach ( (array) $plugins as $plugin_file => $plugin_data ) {
 		$plugin_data = (object) _get_plugin_data_markup_translate( $plugin_file, (array) $plugin_data, false, true );
 
-		$icon = '<span class="dashicons dashicons-admin-plugins"></span>';
-		$preferred_icons = array( 'svg', '1x', '2x', 'default' );
+		$icon            = '<span class="dashicons dashicons-admin-plugins"></span>';
+		$preferred_icons = array( 'svg', '2x', '1x', 'default' );
 		foreach ( $preferred_icons as $preferred_icon ) {
 			if ( ! empty( $plugin_data->update->icons[ $preferred_icon ] ) ) {
 				$icon = '<img src="' . esc_url( $plugin_data->update->icons[ $preferred_icon ] ) . '" alt="" />';
@@ -228,14 +233,14 @@ function list_plugin_updates() {
 			}
 		}
 		// Get the upgrade notice for the new plugin version.
-		if ( isset($plugin_data->update->upgrade_notice) ) {
-			$upgrade_notice = '<br />' . strip_tags($plugin_data->update->upgrade_notice);
+		if ( isset( $plugin_data->update->upgrade_notice ) ) {
+			$upgrade_notice = '<br />' . strip_tags( $plugin_data->update->upgrade_notice );
 		} else {
 			$upgrade_notice = '';
 		}
 
-		$details_url = self_admin_url('plugin-install.php?tab=plugin-information&plugin=' . $plugin_data->update->slug . '&section=changelog&TB_iframe=true&width=640&height=662');
-		$details = sprintf(
+		$details_url = self_admin_url( 'plugin-install.php?tab=plugin-information&plugin=' . $plugin_data->update->slug . '&section=changelog&TB_iframe=true&width=640&height=662' );
+		$details     = sprintf(
 			'<a href="%1$s" class="thickbox open-plugin-details-modal" aria-label="%2$s">%3$s</a>',
 			esc_url( $details_url ),
 			/* translators: 1: plugin name, 2: version number */
@@ -244,34 +249,38 @@ function list_plugin_updates() {
 			sprintf( __( 'View version %s details.' ), $plugin_data->update->new_version )
 		);
 
-		$checkbox_id = "checkbox_" . md5( $plugin_data->Name );
+		$checkbox_id = 'checkbox_' . md5( $plugin_data->Name );
 		?>
-		<tr>
-			<td class="check-column">
-				<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $plugin_file ); ?>" />
-				<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text"><?php
-					/* translators: %s: plugin name */
-					printf( __( 'Select %s' ),
-						$plugin_data->Name
-					);
-				?></label>
-			</td>
-			<td class="plugin-title"><p>
+	<tr>
+		<td class="check-column">
+			<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $plugin_file ); ?>" />
+			<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
+			<?php
+				/* translators: %s: plugin name */
+				printf(
+					__( 'Select %s' ),
+					$plugin_data->Name
+				);
+			?>
+			</label>
+		</td>
+		<td class="plugin-title"><p>
 				<?php echo $icon; ?>
-				<strong><?php echo $plugin_data->Name; ?></strong>
-				<?php
-					/* translators: 1: plugin version, 2: new version */
-					printf( __( 'You have version %1$s installed. Update to %2$s.' ),
-						$plugin_data->Version,
-						$plugin_data->update->new_version
-					);
-					echo ' ' . $details . $compat . $upgrade_notice;
-				?>
-			</p></td>
-		</tr>
-		<?php
+			<strong><?php echo $plugin_data->Name; ?></strong>
+			<?php
+			/* translators: 1: plugin version, 2: new version */
+			printf(
+				__( 'You have version %1$s installed. Update to %2$s.' ),
+				$plugin_data->Version,
+				$plugin_data->update->new_version
+			);
+				echo ' ' . $details . $compat . $upgrade_notice;
+			?>
+		</p></td>
+	</tr>
+			<?php
 	}
-?>
+	?>
 	</tbody>
 
 	<tfoot>
@@ -281,9 +290,9 @@ function list_plugin_updates() {
 	</tr>
 	</tfoot>
 </table>
-<p><input id="upgrade-plugins-2" class="button" type="submit" value="<?php esc_attr_e('Update Plugins'); ?>" name="upgrade" /></p>
+<p><input id="upgrade-plugins-2" class="button" type="submit" value="<?php esc_attr_e( 'Update Plugins' ); ?>" name="upgrade" /></p>
 </form>
-<?php
+	<?php
 }
 
 /**
@@ -298,13 +307,13 @@ function list_theme_updates() {
 	}
 
 	$form_action = 'update-core.php?action=do-theme-upgrade';
-?>
+	?>
 <h2><?php _e( 'Themes' ); ?></h2>
 <p><?php _e( 'The following themes have new versions available. Check the ones you want to update and then click &#8220;Update Themes&#8221;.' ); ?></p>
 <p><?php printf( __( '<strong>Please Note:</strong> Any customizations you have made to theme files will be lost. Please consider using <a href="%s">child themes</a> for modifications.' ), __( 'https://codex.wordpress.org/Child_Themes' ) ); ?></p>
 <form method="post" action="<?php echo esc_url( $form_action ); ?>" name="upgrade-themes" class="upgrade">
-<?php wp_nonce_field('upgrade-core'); ?>
-<p><input id="upgrade-themes" class="button" type="submit" value="<?php esc_attr_e('Update Themes'); ?>" name="upgrade" /></p>
+	<?php wp_nonce_field( 'upgrade-core' ); ?>
+<p><input id="upgrade-themes" class="button" type="submit" value="<?php esc_attr_e( 'Update Themes' ); ?>" name="upgrade" /></p>
 <table class="widefat updates-table" id="update-themes-table">
 	<thead>
 	<tr>
@@ -314,35 +323,39 @@ function list_theme_updates() {
 	</thead>
 
 	<tbody class="plugins">
-<?php
+	<?php
 	foreach ( $themes as $stylesheet => $theme ) {
 		$checkbox_id = 'checkbox_' . md5( $theme->get( 'Name' ) );
 		?>
-		<tr>
-			<td class="check-column">
-				<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $stylesheet ); ?>" />
-				<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text"><?php
-					/* translators: %s: theme name */
-					printf( __( 'Select %s' ),
-						$theme->display( 'Name' )
-					);
-				?></label>
-			</td>
-			<td class="plugin-title"><p>
-				<img src="<?php echo esc_url( $theme->get_screenshot() ); ?>" width="85" height="64" class="updates-table-screenshot" alt="" />
-				<strong><?php echo $theme->display( 'Name' ); ?></strong>
-				<?php
-					/* translators: 1: theme version, 2: new version */
-					printf( __( 'You have version %1$s installed. Update to %2$s.' ),
-						$theme->display( 'Version' ),
-						$theme->update['new_version']
-					);
-				?>
-			</p></td>
-		</tr>
-		<?php
+	<tr>
+		<td class="check-column">
+			<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $stylesheet ); ?>" />
+			<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
+			<?php
+				/* translators: %s: theme name */
+				printf(
+					__( 'Select %s' ),
+					$theme->display( 'Name' )
+				);
+			?>
+			</label>
+		</td>
+		<td class="plugin-title"><p>
+			<img src="<?php echo esc_url( $theme->get_screenshot() ); ?>" width="85" height="64" class="updates-table-screenshot" alt="" />
+			<strong><?php echo $theme->display( 'Name' ); ?></strong>
+			<?php
+			/* translators: 1: theme version, 2: new version */
+			printf(
+				__( 'You have version %1$s installed. Update to %2$s.' ),
+				$theme->display( 'Version' ),
+				$theme->update['new_version']
+			);
+			?>
+		</p></td>
+	</tr>
+			<?php
 	}
-?>
+	?>
 	</tbody>
 
 	<tfoot>
@@ -352,9 +365,9 @@ function list_theme_updates() {
 	</tr>
 	</tfoot>
 </table>
-<p><input id="upgrade-themes-2" class="button" type="submit" value="<?php esc_attr_e('Update Themes'); ?>" name="upgrade" /></p>
+<p><input id="upgrade-themes-2" class="button" type="submit" value="<?php esc_attr_e( 'Update Themes' ); ?>" name="upgrade" /></p>
 </form>
-<?php
+	<?php
 }
 
 /**
@@ -386,7 +399,7 @@ function list_translation_updates() {
  *
  * @since 2.7.0
  *
- * @global WP_Filesystem_Base $wp_filesystem Subclass
+ * @global WP_Filesystem_Base $wp_filesystem WordPress filesystem subclass.
  *
  * @param bool $reinstall
  */
@@ -395,26 +408,28 @@ function do_core_upgrade( $reinstall = false ) {
 
 	include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
-	if ( $reinstall )
+	if ( $reinstall ) {
 		$url = 'update-core.php?action=do-core-reinstall';
-	else
+	} else {
 		$url = 'update-core.php?action=do-core-upgrade';
-	$url = wp_nonce_url($url, 'upgrade-core');
+	}
+	$url = wp_nonce_url( $url, 'upgrade-core' );
 
-	$version = isset( $_POST['version'] )? $_POST['version'] : false;
-	$locale = isset( $_POST['locale'] )? $_POST['locale'] : 'en_US';
-	$update = find_core_update( $version, $locale );
-	if ( !$update )
+	$version = isset( $_POST['version'] ) ? $_POST['version'] : false;
+	$locale  = isset( $_POST['locale'] ) ? $_POST['locale'] : 'en_US';
+	$update  = find_core_update( $version, $locale );
+	if ( ! $update ) {
 		return;
+	}
 
 	// Allow relaxed file ownership writes for User-initiated upgrades when the API specifies
 	// that it's safe to do so. This only happens when there are no new files to create.
 	$allow_relaxed_file_ownership = ! $reinstall && isset( $update->new_files ) && ! $update->new_files;
 
-?>
+	?>
 	<div class="wrap">
 	<h1><?php _e( 'Update calmPress' ); ?></h1>
-<?php
+	<?php
 
 	if ( false === ( $credentials = request_filesystem_credentials( $url, '', false, ABSPATH, array( 'version', 'locale' ), $allow_relaxed_file_ownership ) ) ) {
 		echo '</div>';
@@ -428,27 +443,33 @@ function do_core_upgrade( $reinstall = false ) {
 		return;
 	}
 
-	if ( $wp_filesystem->errors->get_error_code() ) {
-		foreach ( $wp_filesystem->errors->get_error_messages() as $message )
-			show_message($message);
+	if ( $wp_filesystem->errors->has_errors() ) {
+		foreach ( $wp_filesystem->errors->get_error_messages() as $message ) {
+			show_message( $message );
+		}
 		echo '</div>';
 		return;
 	}
 
-	if ( $reinstall )
+	if ( $reinstall ) {
 		$update->response = 'reinstall';
+	}
 
 	add_filter( 'update_feedback', 'show_message' );
 
 	$upgrader = new Core_Upgrader();
-	$result = $upgrader->upgrade( $update, array(
-		'allow_relaxed_file_ownership' => $allow_relaxed_file_ownership
-	) );
+	$result   = $upgrader->upgrade(
+		$update,
+		array(
+			'allow_relaxed_file_ownership' => $allow_relaxed_file_ownership,
+		)
+	);
 
-	if ( is_wp_error($result) ) {
-		show_message($result);
-		if ( 'up_to_date' != $result->get_error_code() && 'locked' != $result->get_error_code() )
-			show_message( __('Installation Failed') );
+	if ( is_wp_error( $result ) ) {
+		show_message( $result );
+		if ( 'up_to_date' != $result->get_error_code() && 'locked' != $result->get_error_code() ) {
+			show_message( __( 'Installation Failed' ) );
+		}
 		echo '</div>';
 		return;
 	}
@@ -463,13 +484,14 @@ function do_core_upgrade( $reinstall = false ) {
  * @since 2.7.0
  */
 function do_dismiss_core_update() {
-	$version = isset( $_POST['version'] )? $_POST['version'] : false;
-	$locale = isset( $_POST['locale'] )? $_POST['locale'] : 'en_US';
-	$update = find_core_update( $version, $locale );
-	if ( !$update )
+	$version = isset( $_POST['version'] ) ? $_POST['version'] : false;
+	$locale  = isset( $_POST['locale'] ) ? $_POST['locale'] : 'en_US';
+	$update  = find_core_update( $version, $locale );
+	if ( ! $update ) {
 		return;
+	}
 	dismiss_core_update( $update );
-	wp_redirect( wp_nonce_url('update-core.php?action=upgrade-core', 'upgrade-core') );
+	wp_redirect( wp_nonce_url( 'update-core.php?action=upgrade-core', 'upgrade-core' ) );
 	exit;
 }
 
@@ -477,36 +499,39 @@ function do_dismiss_core_update() {
  * @since 2.7.0
  */
 function do_undismiss_core_update() {
-	$version = isset( $_POST['version'] )? $_POST['version'] : false;
-	$locale = isset( $_POST['locale'] )? $_POST['locale'] : 'en_US';
-	$update = find_core_update( $version, $locale );
-	if ( !$update )
+	$version = isset( $_POST['version'] ) ? $_POST['version'] : false;
+	$locale  = isset( $_POST['locale'] ) ? $_POST['locale'] : 'en_US';
+	$update  = find_core_update( $version, $locale );
+	if ( ! $update ) {
 		return;
+	}
 	undismiss_core_update( $version, $locale );
-	wp_redirect( wp_nonce_url('update-core.php?action=upgrade-core', 'upgrade-core') );
+	wp_redirect( wp_nonce_url( 'update-core.php?action=upgrade-core', 'upgrade-core' ) );
 	exit;
 }
 
-$action = isset($_GET['action']) ? $_GET['action'] : 'upgrade-core';
+$action = isset( $_GET['action'] ) ? $_GET['action'] : 'upgrade-core';
 
 $upgrade_error = false;
 if ( ( 'do-theme-upgrade' == $action || ( 'do-plugin-upgrade' == $action && ! isset( $_GET['plugins'] ) ) )
 	&& ! isset( $_POST['checked'] ) ) {
 	$upgrade_error = $action == 'do-theme-upgrade' ? 'themes' : 'plugins';
-	$action = 'upgrade-core';
+	$action        = 'upgrade-core';
 }
 
-$title = __('calmPress Updates');
+$title       = __( 'calmPress Updates' );
 $parent_file = 'index.php';
 
 $updates_overview  = '<p>' . __( 'On this screen, you can update to the latest version of calmPress, as well as update your themes, plugins, and translations from the WordPress.org repositories.' ) . '</p>';
 $updates_overview .= '<p>' . __( 'If an update is available, you&#8127;ll see a notification appear in the Toolbar and navigation menu.' ) . ' ' . __( 'Keeping your site updated is important for security. It also makes the internet a safer place for you and your readers.' ) . '</p>';
 
-get_current_screen()->add_help_tab( array(
-	'id'      => 'overview',
-	'title'   => __( 'Overview' ),
-	'content' => $updates_overview
-) );
+get_current_screen()->add_help_tab(
+	array(
+		'id'      => 'overview',
+		'title'   => __( 'Overview' ),
+		'content' => $updates_overview,
+	)
+);
 
 $updates_howto  = '<p>' . __( '<strong>calmPress</strong> &mdash; Updating your calmPress installation is a simple one-click procedure: just <strong>click on the &#8220;Update Now&#8221; button</strong> when you are notified that a new version is available.' ) . '</p>';
 $updates_howto .= '<p>' . __( '<strong>Themes and Plugins</strong> &mdash; To update individual themes or plugins from this screen, use the checkboxes to make your selection, then <strong>click on the appropriate &#8220;Update&#8221; button</strong>. To update all of your themes or plugins at once, you can check the box at the top of the section to select all before clicking the update button.' ) . '</p>';
@@ -515,42 +540,45 @@ if ( 'en_US' != get_locale() ) {
 	$updates_howto .= '<p>' . __( '<strong>Translations</strong> &mdash; The files translating calmPress into your language are updated for you whenever any other updates occur. But if these files are out of date, you can <strong>click the &#8220;Update Translations&#8221;</strong> button.' ) . '</p>';
 }
 
-get_current_screen()->add_help_tab( array(
-	'id'      => 'how-to-update',
-	'title'   => __( 'How to Update' ),
-	'content' => $updates_howto
-) );
+get_current_screen()->add_help_tab(
+	array(
+		'id'      => 'how-to-update',
+		'title'   => __( 'How to Update' ),
+		'content' => $updates_howto,
+	)
+);
 
 if ( 'upgrade-core' == $action ) {
 	// Force a update check when requested
 	$force_check = ! empty( $_GET['force-check'] );
 	wp_version_check( array(), $force_check );
 
-	require_once(ABSPATH . 'wp-admin/admin-header.php');
+	require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	?>
 	<div class="wrap">
 	<h1><?php _e( 'calmPress Updates' ); ?></h1>
 	<?php
 	if ( $upgrade_error ) {
 		echo '<div class="error"><p>';
-		if ( $upgrade_error == 'themes' )
-			_e('Please select one or more themes to update.');
-		else
-			_e('Please select one or more plugins to update.');
+		if ( $upgrade_error == 'themes' ) {
+			_e( 'Please select one or more themes to update.' );
+		} else {
+			_e( 'Please select one or more plugins to update.' );
+		}
 		echo '</p></div>';
 	}
 
 	$last_update_check = false;
-	$current = get_site_transient( 'update_core' );
+	$current           = get_site_transient( 'update_core' );
 
-	if ( $current && isset ( $current->last_checked ) )	{
+	if ( $current && isset( $current->last_checked ) ) {
 		$last_update_check = $current->last_checked + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
 	}
 
 	echo '<p>';
-	/* translators: %1 date, %2 time. */
+	/* translators: 1: date, 2: time */
 	printf( __( 'Last checked on %1$s at %2$s.' ), date_i18n( __( 'F j, Y' ), $last_update_check ), date_i18n( __( 'g:i a' ), $last_update_check ) );
-	echo ' &nbsp; <a class="button" href="' . esc_url( self_admin_url('update-core.php?force-check=1') ) . '">' . __( 'Check Again' ) . '</a>';
+	echo ' &nbsp; <a class="button" href="' . esc_url( self_admin_url( 'update-core.php?force-check=1' ) ) . '">' . __( 'Check Again' ) . '</a>';
 	echo '</p>';
 
 	if ( current_user_can( 'update_core' ) ) {
@@ -574,129 +602,156 @@ if ( 'upgrade-core' == $action ) {
 	do_action( 'core_upgrade_preamble' );
 	echo '</div>';
 
-	wp_localize_script( 'updates', '_wpUpdatesItemCounts', array(
-		'totals'  => wp_get_update_data(),
-	) );
+	wp_localize_script(
+		'updates',
+		'_wpUpdatesItemCounts',
+		array(
+			'totals' => wp_get_update_data(),
+		)
+	);
 
-	include(ABSPATH . 'wp-admin/admin-footer.php');
+	include( ABSPATH . 'wp-admin/admin-footer.php' );
 
 } elseif ( 'do-core-upgrade' == $action || 'do-core-reinstall' == $action ) {
 
-	if ( ! current_user_can( 'update_core' ) )
+	if ( ! current_user_can( 'update_core' ) ) {
 		wp_die( __( 'Sorry, you are not allowed to update this site.' ) );
+	}
 
-	check_admin_referer('upgrade-core');
+	check_admin_referer( 'upgrade-core' );
 
 	// Do the (un)dismiss actions before headers, so that they can redirect.
-	if ( isset( $_POST['dismiss'] ) )
+	if ( isset( $_POST['dismiss'] ) ) {
 		do_dismiss_core_update();
-	elseif ( isset( $_POST['undismiss'] ) )
+	} elseif ( isset( $_POST['undismiss'] ) ) {
 		do_undismiss_core_update();
+	}
 
-	require_once(ABSPATH . 'wp-admin/admin-header.php');
-	if ( 'do-core-reinstall' == $action )
+	require_once( ABSPATH . 'wp-admin/admin-header.php' );
+	if ( 'do-core-reinstall' == $action ) {
 		$reinstall = true;
-	else
+	} else {
 		$reinstall = false;
+	}
 
-	if ( isset( $_POST['upgrade'] ) )
-		do_core_upgrade($reinstall);
+	if ( isset( $_POST['upgrade'] ) ) {
+		do_core_upgrade( $reinstall );
+	}
 
-	wp_localize_script( 'updates', '_wpUpdatesItemCounts', array(
-		'totals'  => wp_get_update_data(),
-	) );
+	wp_localize_script(
+		'updates',
+		'_wpUpdatesItemCounts',
+		array(
+			'totals' => wp_get_update_data(),
+		)
+	);
 
-	include(ABSPATH . 'wp-admin/admin-footer.php');
+	include( ABSPATH . 'wp-admin/admin-footer.php' );
 
 } elseif ( 'do-plugin-upgrade' == $action ) {
 
-	if ( ! current_user_can( 'update_plugins' ) )
+	if ( ! current_user_can( 'update_plugins' ) ) {
 		wp_die( __( 'Sorry, you are not allowed to update this site.' ) );
+	}
 
-	check_admin_referer('upgrade-core');
+	check_admin_referer( 'upgrade-core' );
 
 	if ( isset( $_GET['plugins'] ) ) {
 		$plugins = explode( ',', $_GET['plugins'] );
 	} elseif ( isset( $_POST['checked'] ) ) {
 		$plugins = (array) $_POST['checked'];
 	} else {
-		wp_redirect( admin_url('update-core.php') );
+		wp_redirect( admin_url( 'update-core.php' ) );
 		exit;
 	}
 
-	$url = 'update.php?action=update-selected&plugins=' . urlencode(implode(',', $plugins));
-	$url = wp_nonce_url($url, 'bulk-update-plugins');
+	$url = 'update.php?action=update-selected&plugins=' . urlencode( implode( ',', $plugins ) );
+	$url = wp_nonce_url( $url, 'bulk-update-plugins' );
 
-	$title = __('Update Plugins');
+	$title = __( 'Update Plugins' );
 
-	require_once(ABSPATH . 'wp-admin/admin-header.php');
+	require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	echo '<div class="wrap">';
 	echo '<h1>' . __( 'Update Plugins' ) . '</h1>';
 	echo '<iframe src="', $url, '" style="width: 100%; height: 100%; min-height: 750px;" frameborder="0" title="' . esc_attr__( 'Update progress' ) . '"></iframe>';
 	echo '</div>';
 
-	wp_localize_script( 'updates', '_wpUpdatesItemCounts', array(
-		'totals'  => wp_get_update_data(),
-	) );
+	wp_localize_script(
+		'updates',
+		'_wpUpdatesItemCounts',
+		array(
+			'totals' => wp_get_update_data(),
+		)
+	);
 
-	include(ABSPATH . 'wp-admin/admin-footer.php');
+	include( ABSPATH . 'wp-admin/admin-footer.php' );
 
 } elseif ( 'do-theme-upgrade' == $action ) {
 
-	if ( ! current_user_can( 'update_themes' ) )
+	if ( ! current_user_can( 'update_themes' ) ) {
 		wp_die( __( 'Sorry, you are not allowed to update this site.' ) );
+	}
 
-	check_admin_referer('upgrade-core');
+	check_admin_referer( 'upgrade-core' );
 
 	if ( isset( $_GET['themes'] ) ) {
 		$themes = explode( ',', $_GET['themes'] );
 	} elseif ( isset( $_POST['checked'] ) ) {
 		$themes = (array) $_POST['checked'];
 	} else {
-		wp_redirect( admin_url('update-core.php') );
+		wp_redirect( admin_url( 'update-core.php' ) );
 		exit;
 	}
 
-	$url = 'update.php?action=update-selected-themes&themes=' . urlencode(implode(',', $themes));
-	$url = wp_nonce_url($url, 'bulk-update-themes');
+	$url = 'update.php?action=update-selected-themes&themes=' . urlencode( implode( ',', $themes ) );
+	$url = wp_nonce_url( $url, 'bulk-update-themes' );
 
-	$title = __('Update Themes');
+	$title = __( 'Update Themes' );
 
-	require_once(ABSPATH . 'wp-admin/admin-header.php');
+	require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	?>
 	<div class="wrap">
 		<h1><?php _e( 'Update Themes' ); ?></h1>
-		<iframe src="<?php echo $url ?>" style="width: 100%; height: 100%; min-height: 750px;" frameborder="0" title="<?php esc_attr_e( 'Update progress' ); ?>"></iframe>
+		<iframe src="<?php echo $url; ?>" style="width: 100%; height: 100%; min-height: 750px;" frameborder="0" title="<?php esc_attr_e( 'Update progress' ); ?>"></iframe>
 	</div>
 	<?php
 
-	wp_localize_script( 'updates', '_wpUpdatesItemCounts', array(
-		'totals'  => wp_get_update_data(),
-	) );
+	wp_localize_script(
+		'updates',
+		'_wpUpdatesItemCounts',
+		array(
+			'totals' => wp_get_update_data(),
+		)
+	);
 
-	include(ABSPATH . 'wp-admin/admin-footer.php');
+	include( ABSPATH . 'wp-admin/admin-footer.php' );
 
 } elseif ( 'do-translation-upgrade' == $action ) {
 
-	if ( ! current_user_can( 'update_languages' ) )
+	if ( ! current_user_can( 'update_languages' ) ) {
 		wp_die( __( 'Sorry, you are not allowed to update this site.' ) );
+	}
 
 	check_admin_referer( 'upgrade-translations' );
 
 	require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
-	$url = 'update-core.php?action=do-translation-upgrade';
-	$nonce = 'upgrade-translations';
-	$title = __( 'Update Translations' );
+	$url     = 'update-core.php?action=do-translation-upgrade';
+	$nonce   = 'upgrade-translations';
+	$title   = __( 'Update Translations' );
 	$context = WP_LANG_DIR;
 
 	$upgrader = new Language_Pack_Upgrader( new Language_Pack_Upgrader_Skin( compact( 'url', 'nonce', 'title', 'context' ) ) );
-	$result = $upgrader->bulk_upgrade();
+	$result   = $upgrader->bulk_upgrade();
 
-	wp_localize_script( 'updates', '_wpUpdatesItemCounts', array(
-		'totals'  => wp_get_update_data(),
-	) );
+	wp_localize_script(
+		'updates',
+		'_wpUpdatesItemCounts',
+		array(
+			'totals' => wp_get_update_data(),
+		)
+	);
 
 	require_once( ABSPATH . 'wp-admin/admin-footer.php' );
 

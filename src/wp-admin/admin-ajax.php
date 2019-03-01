@@ -25,8 +25,9 @@ require_once( dirname( dirname( __FILE__ ) ) . '/wp-load.php' );
 send_origin_headers();
 
 // Require an action parameter
-if ( empty( $_REQUEST['action'] ) )
+if ( empty( $_REQUEST['action'] ) ) {
 	wp_die( '0', 400 );
+}
 
 /** Load WordPress Administration APIs */
 require_once( ABSPATH . 'wp-admin/includes/admin.php' );
@@ -44,8 +45,14 @@ nocache_headers();
 do_action( 'admin_init' );
 
 $core_actions_get = array(
-	'fetch-list', 'ajax-tag-search', 'wp-compression-test', 'imgedit-preview', 'oembed-cache',
-	'autocomplete-user', 'dashboard-widgets', 'logged-in',
+	'fetch-list',
+	'ajax-tag-search',
+	'wp-compression-test',
+	'imgedit-preview',
+	'oembed-cache',
+	'autocomplete-user',
+	'dashboard-widgets',
+	'logged-in',
 );
 
 $core_actions_post = array(
@@ -71,47 +78,51 @@ $core_actions_post = array(
 
 // Deprecated
 $core_actions_post_deprecated = array( 'wp-fullscreen-save-post' );
-$core_actions_post = array_merge( $core_actions_post, $core_actions_post_deprecated );
+$core_actions_post            = array_merge( $core_actions_post, $core_actions_post_deprecated );
 
 // Register core Ajax calls.
-if ( ! empty( $_GET['action'] ) && in_array( $_GET['action'], $core_actions_get ) )
+if ( ! empty( $_GET['action'] ) && in_array( $_GET['action'], $core_actions_get ) ) {
 	add_action( 'wp_ajax_' . $_GET['action'], 'wp_ajax_' . str_replace( '-', '_', $_GET['action'] ), 1 );
+}
 
-if ( ! empty( $_POST['action'] ) && in_array( $_POST['action'], $core_actions_post ) )
+if ( ! empty( $_POST['action'] ) && in_array( $_POST['action'], $core_actions_post ) ) {
 	add_action( 'wp_ajax_' . $_POST['action'], 'wp_ajax_' . str_replace( '-', '_', $_POST['action'] ), 1 );
+}
 
 add_action( 'wp_ajax_nopriv_heartbeat', 'wp_ajax_nopriv_heartbeat', 1 );
 
+$action = ( isset( $_REQUEST['action'] ) ) ? $_REQUEST['action'] : '';
+
 if ( is_user_logged_in() ) {
 	// If no action is registered, return a Bad Request response.
-	if ( ! has_action( 'wp_ajax_' . $_REQUEST['action'] ) ) {
+	if ( ! has_action( "wp_ajax_{$action}" ) ) {
 		wp_die( '0', 400 );
 	}
 
 	/**
 	 * Fires authenticated Ajax actions for logged-in users.
 	 *
-	 * The dynamic portion of the hook name, `$_REQUEST['action']`,
-	 * refers to the name of the Ajax action callback being fired.
+	 * The dynamic portion of the hook name, `$action`, refers
+	 * to the name of the Ajax action callback being fired.
 	 *
 	 * @since 2.1.0
 	 */
-	do_action( 'wp_ajax_' . $_REQUEST['action'] );
+	do_action( "wp_ajax_{$action}" );
 } else {
 	// If no action is registered, return a Bad Request response.
-	if ( ! has_action( 'wp_ajax_nopriv_' . $_REQUEST['action'] ) ) {
+	if ( ! has_action( "wp_ajax_nopriv_{$action}" ) ) {
 		wp_die( '0', 400 );
 	}
 
 	/**
 	 * Fires non-authenticated Ajax actions for logged-out users.
 	 *
-	 * The dynamic portion of the hook name, `$_REQUEST['action']`,
-	 * refers to the name of the Ajax action callback being fired.
+	 * The dynamic portion of the hook name, `$action`, refers
+	 * to the name of the Ajax action callback being fired.
 	 *
 	 * @since 2.8.0
 	 */
-	do_action( 'wp_ajax_nopriv_' . $_REQUEST['action'] );
+	do_action( "wp_ajax_nopriv_{$action}" );
 }
 // Default status
 wp_die( '0' );

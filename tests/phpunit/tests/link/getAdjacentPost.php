@@ -11,29 +11,37 @@ class Tests_Link_GetAdjacentPost extends WP_UnitTestCase {
 	 */
 	public function test_get_adjacent_post() {
 		// Need some sample posts to test adjacency
-		$post_one = self::factory()->post->create_and_get( array(
-			'post_title' => 'First',
-			'post_date' => '2012-01-01 12:00:00'
-		) );
+		$post_one = self::factory()->post->create_and_get(
+			array(
+				'post_title' => 'First',
+				'post_date'  => '2012-01-01 12:00:00',
+			)
+		);
 
-		$post_two = self::factory()->post->create_and_get( array(
-			'post_title' => 'Second',
-			'post_date' => '2012-02-01 12:00:00'
-		) );
+		$post_two = self::factory()->post->create_and_get(
+			array(
+				'post_title' => 'Second',
+				'post_date'  => '2012-02-01 12:00:00',
+			)
+		);
 
-		$post_three = self::factory()->post->create_and_get( array(
-			'post_title' => 'Third',
-			'post_date' => '2012-03-01 12:00:00'
-		) );
+		$post_three = self::factory()->post->create_and_get(
+			array(
+				'post_title' => 'Third',
+				'post_date'  => '2012-03-01 12:00:00',
+			)
+		);
 
-		$post_four = self::factory()->post->create_and_get( array(
-			'post_title' => 'Fourth',
-			'post_date' => '2012-04-01 12:00:00'
-		) );
+		$post_four = self::factory()->post->create_and_get(
+			array(
+				'post_title' => 'Fourth',
+				'post_date'  => '2012-04-01 12:00:00',
+			)
+		);
 
 		// Assign some terms
-		wp_set_object_terms( $post_one->ID, 'wordpress', 'category', false );
-		wp_set_object_terms( $post_three->ID, 'wordpress', 'category', false );
+		wp_set_object_terms( $post_one->ID, 'WordPress', 'category', false );
+		wp_set_object_terms( $post_three->ID, 'WordPress', 'category', false );
 
 		wp_set_object_terms( $post_two->ID, 'plugins', 'post_tag', false );
 		wp_set_object_terms( $post_four->ID, 'plugins', 'post_tag', false );
@@ -84,38 +92,57 @@ class Tests_Link_GetAdjacentPost extends WP_UnitTestCase {
 	function test_get_adjacent_post_exclude_self_term() {
 		// Bump term_taxonomy to mimic shared term offsets.
 		global $wpdb;
-		$wpdb->insert( $wpdb->term_taxonomy, array( 'taxonomy' => 'foo', 'term_id' => 12345, 'description' => '' ) );
+		$wpdb->insert(
+			$wpdb->term_taxonomy,
+			array(
+				'taxonomy'    => 'foo',
+				'term_id'     => 12345,
+				'description' => '',
+			)
+		);
 
-		$include = self::factory()->term->create( array(
-			'taxonomy' => 'category',
-			'name' => 'Include',
-		) );
+		$include = self::factory()->term->create(
+			array(
+				'taxonomy' => 'category',
+				'name'     => 'Include',
+			)
+		);
 		$exclude = self::factory()->category->create();
 
-		$one = self::factory()->post->create_and_get( array(
-			'post_date' => '2012-01-01 12:00:00',
-			'post_category' => array( $include, $exclude ),
-		) );
+		$one = self::factory()->post->create_and_get(
+			array(
+				'post_date'     => '2012-01-01 12:00:00',
+				'post_category' => array( $include, $exclude ),
+			)
+		);
 
-		$two = self::factory()->post->create_and_get( array(
-			'post_date' => '2012-01-02 12:00:00',
-			'post_category' => array(),
-		) );
+		$two = self::factory()->post->create_and_get(
+			array(
+				'post_date'     => '2012-01-02 12:00:00',
+				'post_category' => array(),
+			)
+		);
 
-		$three = self::factory()->post->create_and_get( array(
-			'post_date' => '2012-01-03 12:00:00',
-			'post_category' => array( $include, $exclude ),
-		) );
+		$three = self::factory()->post->create_and_get(
+			array(
+				'post_date'     => '2012-01-03 12:00:00',
+				'post_category' => array( $include, $exclude ),
+			)
+		);
 
-		$four = self::factory()->post->create_and_get( array(
-			'post_date' => '2012-01-04 12:00:00',
-			'post_category' => array( $include ),
-		) );
+		$four = self::factory()->post->create_and_get(
+			array(
+				'post_date'     => '2012-01-04 12:00:00',
+				'post_category' => array( $include ),
+			)
+		);
 
-		$five = self::factory()->post->create_and_get( array(
-			'post_date' => '2012-01-05 12:00:00',
-			'post_category' => array( $include, $exclude ),
-		) );
+		$five = self::factory()->post->create_and_get(
+			array(
+				'post_date'     => '2012-01-05 12:00:00',
+				'post_category' => array( $include, $exclude ),
+			)
+		);
 
 		// First post
 		$this->go_to( get_permalink( $one ) );
@@ -152,9 +179,11 @@ class Tests_Link_GetAdjacentPost extends WP_UnitTestCase {
 	public function test_get_adjacent_post_excluded_terms() {
 		register_taxonomy( 'wptests_tax', 'post' );
 
-		$t = self::factory()->term->create( array(
-			'taxonomy' => 'wptests_tax',
-		) );
+		$t = self::factory()->term->create(
+			array(
+				'taxonomy' => 'wptests_tax',
+			)
+		);
 
 		$p1 = self::factory()->post->create( array( 'post_date' => '2015-08-27 12:00:00' ) );
 		$p2 = self::factory()->post->create( array( 'post_date' => '2015-08-26 12:00:00' ) );
@@ -163,7 +192,7 @@ class Tests_Link_GetAdjacentPost extends WP_UnitTestCase {
 		wp_set_post_terms( $p2, array( $t ), 'wptests_tax' );
 
 		// Fake current page.
-		$_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$_post           = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		$GLOBALS['post'] = get_post( $p1 );
 
 		$found = get_adjacent_post( false, array( $t ), true, 'wptests_tax' );
@@ -184,9 +213,11 @@ class Tests_Link_GetAdjacentPost extends WP_UnitTestCase {
 	public function test_get_adjacent_post_excluded_terms_should_not_require_posts_to_have_terms_in_any_taxonomy() {
 		register_taxonomy( 'wptests_tax', 'post' );
 
-		$t = self::factory()->term->create( array(
-			'taxonomy' => 'wptests_tax',
-		) );
+		$t = self::factory()->term->create(
+			array(
+				'taxonomy' => 'wptests_tax',
+			)
+		);
 
 		$p1 = self::factory()->post->create( array( 'post_date' => '2015-08-27 12:00:00' ) );
 		$p2 = self::factory()->post->create( array( 'post_date' => '2015-08-26 12:00:00' ) );
@@ -198,7 +229,7 @@ class Tests_Link_GetAdjacentPost extends WP_UnitTestCase {
 		wp_delete_object_term_relationships( $p3, 'category' );
 
 		// Fake current page.
-		$_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$_post           = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		$GLOBALS['post'] = get_post( $p1 );
 
 		$found = get_adjacent_post( false, array( $t ), true, 'wptests_tax' );
@@ -216,12 +247,15 @@ class Tests_Link_GetAdjacentPost extends WP_UnitTestCase {
 	/**
 	 * @ticket 35211
 	 */
-	public function test_excluded_terms_filter() {
+	public function test_get_adjacent_post_excluded_terms_filter() {
 		register_taxonomy( 'wptests_tax', 'post' );
 
-		$terms = self::factory()->term->create_many( 2, array(
-			'taxonomy' => 'wptests_tax',
-		) );
+		$terms = self::factory()->term->create_many(
+			2,
+			array(
+				'taxonomy' => 'wptests_tax',
+			)
+		);
 
 		$p1 = self::factory()->post->create( array( 'post_date' => '2015-08-27 12:00:00' ) );
 		$p2 = self::factory()->post->create( array( 'post_date' => '2015-08-26 12:00:00' ) );
@@ -237,6 +271,74 @@ class Tests_Link_GetAdjacentPost extends WP_UnitTestCase {
 		add_filter( 'get_previous_post_excluded_terms', array( $this, 'filter_excluded_terms' ) );
 
 		$found = get_adjacent_post( true, array(), true, 'wptests_tax' );
+
+		remove_filter( 'get_previous_post_excluded_terms', array( $this, 'filter_excluded_terms' ) );
+		unset( $this->exclude_term );
+
+		$this->assertSame( $p3, $found->ID );
+	}
+
+	/**
+	 * @ticket 43521
+	 */
+	public function test_get_adjacent_post_excluded_terms_filter_should_apply_to_empty_excluded_terms_parameter() {
+		register_taxonomy( 'wptests_tax', 'post' );
+
+		$terms = self::factory()->term->create_many(
+			2,
+			array(
+				'taxonomy' => 'wptests_tax',
+			)
+		);
+
+		$p1 = self::factory()->post->create( array( 'post_date' => '2015-08-27 12:00:00' ) );
+		$p2 = self::factory()->post->create( array( 'post_date' => '2015-08-26 12:00:00' ) );
+		$p3 = self::factory()->post->create( array( 'post_date' => '2015-08-25 12:00:00' ) );
+
+		wp_set_post_terms( $p1, array( $terms[0], $terms[1] ), 'wptests_tax' );
+		wp_set_post_terms( $p2, array( $terms[1] ), 'wptests_tax' );
+		wp_set_post_terms( $p3, array( $terms[0] ), 'wptests_tax' );
+
+		$this->go_to( get_permalink( $p1 ) );
+
+		$this->exclude_term = $terms[1];
+		add_filter( 'get_previous_post_excluded_terms', array( $this, 'filter_excluded_terms' ) );
+
+		$found = get_adjacent_post( false, array(), true, 'wptests_tax' );
+
+		remove_filter( 'get_previous_post_excluded_terms', array( $this, 'filter_excluded_terms' ) );
+		unset( $this->exclude_term );
+
+		$this->assertSame( $p3, $found->ID );
+	}
+
+	/**
+	 * @ticket 43521
+	 */
+	public function test_excluded_terms_filter_empty() {
+		register_taxonomy( 'wptests_tax', 'post' );
+
+		$terms = self::factory()->term->create_many(
+			2,
+			array(
+				'taxonomy' => 'wptests_tax',
+			)
+		);
+
+		$p1 = self::factory()->post->create( array( 'post_date' => '2015-08-27 12:00:00' ) );
+		$p2 = self::factory()->post->create( array( 'post_date' => '2015-08-26 12:00:00' ) );
+		$p3 = self::factory()->post->create( array( 'post_date' => '2015-08-25 12:00:00' ) );
+
+		wp_set_post_terms( $p1, array( $terms[0], $terms[1] ), 'wptests_tax' );
+		wp_set_post_terms( $p2, array( $terms[1] ), 'wptests_tax' );
+		wp_set_post_terms( $p3, array( $terms[0] ), 'wptests_tax' );
+
+		$this->go_to( get_permalink( $p1 ) );
+
+		$this->exclude_term = $terms[1];
+		add_filter( 'get_previous_post_excluded_terms', array( $this, 'filter_excluded_terms' ) );
+
+		$found = get_adjacent_post( false, array(), true, 'wptests_tax' );
 
 		remove_filter( 'get_previous_post_excluded_terms', array( $this, 'filter_excluded_terms' ) );
 		unset( $this->exclude_term );

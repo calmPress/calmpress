@@ -12,37 +12,37 @@ class Tests_TestHelpers extends WP_UnitTestCase {
 			array(
 				array( 1, 2, 3 ), // test expected
 				array( 1, 2, 3 ), // test actual
-				false             // exception expected
+				false,             // exception expected
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 2, 3, 1 ),
-				false
+				false,
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 1, 2, 3, 4 ),
-				true
+				true,
 			),
 			array(
 				array( 1, 2, 3, 4 ),
 				array( 1, 2, 3 ),
-				true
+				true,
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 3, 4, 2, 1 ),
-				true
+				true,
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 1, 2, 3, 3 ),
-				true
+				true,
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 2, 3, 1, 3 ),
-				true
+				true,
 			),
 		);
 	}
@@ -73,72 +73,133 @@ class Tests_TestHelpers extends WP_UnitTestCase {
 			array(
 				array( 1, 2, 3 ), // test expected
 				array( 1, 2, 3 ), // test actual
-				false             // exception expected
+				false,             // exception expected
 			),
 			array(
-				array( 'a' => 1, 'b' => 2, 'c' => 3 ),
-				array( 'a' => 1, 'b' => 2, 'c' => 3 ),
-				false
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+				),
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+				),
+				false,
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 2, 3, 1 ),
-				true
+				true,
 			),
 			array(
-				array( 'a' => 1, 'b' => 2, 'c' => 3 ),
-				array( 'b' => 2, 'c' => 3, 'a' => 1 ),
-				false
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+				),
+				array(
+					'b' => 2,
+					'c' => 3,
+					'a' => 1,
+				),
+				false,
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 1, 2, 3, 4 ),
-				true
+				true,
 			),
 			array(
 				array( 1, 2, 3, 4 ),
 				array( 1, 2, 3 ),
-				true
+				true,
 			),
 			array(
-				array( 'a' => 1, 'b' => 2, 'c' => 3 ),
-				array( 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4 ),
-				true
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+				),
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+					'd' => 4,
+				),
+				true,
 			),
 			array(
-				array( 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4 ),
-				array( 'a' => 1, 'b' => 2, 'c' => 3 ),
-				true
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+					'd' => 4,
+				),
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+				),
+				true,
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 3, 4, 2, 1 ),
-				true
+				true,
 			),
 			array(
-				array( 'a' => 1, 'b' => 2, 'c' => 3 ),
-				array( 'c' => 3, 'b' => 2, 'd' => 4, 'a' => 1 ),
-				true
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+				),
+				array(
+					'c' => 3,
+					'b' => 2,
+					'd' => 4,
+					'a' => 1,
+				),
+				true,
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 1, 2, 3, 3 ),
-				true
+				true,
 			),
 			array(
-				array( 'a' => 1, 'b' => 2, 'c' => 3 ),
-				array( 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 3 ),
-				true
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+				),
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+					'd' => 3,
+				),
+				true,
 			),
 			array(
 				array( 1, 2, 3 ),
 				array( 2, 3, 1, 3 ),
-				true
+				true,
 			),
 			array(
-				array( 'a' => 1, 'b' => 2, 'c' => 3 ),
-				array( 'c' => 3, 'b' => 2, 'd' => 3, 'a' => 1 ),
-				true
+				array(
+					'a' => 1,
+					'b' => 2,
+					'c' => 3,
+				),
+				array(
+					'c' => 3,
+					'b' => 2,
+					'd' => 3,
+					'a' => 1,
+				),
+				true,
 			),
 		);
 	}
@@ -214,12 +275,115 @@ class Tests_TestHelpers extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 45933
+	 * @dataProvider data_die_process_input
+	 */
+	public function test_die_process_input( $input, $expected ) {
+		$defaults = array(
+			'message' => '',
+			'title'   => '',
+			'args'    => array(),
+		);
+
+		$input    = wp_parse_args(
+			$input,
+			$defaults
+		);
+		$expected = wp_parse_args(
+			$expected,
+			$defaults
+		);
+
+		list( $message, $title, $args ) = _wp_die_process_input( $input['message'], $input['title'], $input['args'] );
+
+		$this->assertSame( $expected['message'], $message );
+		$this->assertSame( $expected['title'], $title );
+
+		// Only check arguments that are explicitly asked for.
+		$this->assertEqualSets( $expected['args'], array_intersect_key( $args, $expected['args'] ) );
+	}
+
+	public function data_die_process_input() {
+		return array(
+			array(
+				array(
+					'message' => 'Broken.',
+				),
+				array(
+					'message' => 'Broken.',
+					'title'   => 'WordPress &rsaquo; Error',
+					'args'    => array(
+						'response'       => 500,
+						'code'           => 'wp_die',
+						'text_direction' => 'ltr',
+					),
+				),
+			),
+			array(
+				array(
+					'message' => 'Broken.',
+					'title'   => 'Fatal Error',
+					'args'    => array(
+						'response' => null,
+					),
+				),
+				array(
+					'message' => 'Broken.',
+					'title'   => 'Fatal Error',
+					'args'    => array(
+						'response' => 500,
+					),
+				),
+			),
+			array(
+				array(
+					'message' => 'More breakage.',
+					'args'    => array(
+						'response'       => 400,
+						'code'           => 'custom_code',
+						'text_direction' => 'rtl',
+					),
+				),
+				array(
+					'message' => 'More breakage.',
+					'title'   => 'WordPress &rsaquo; Error',
+					'args'    => array(
+						'response'       => 400,
+						'code'           => 'custom_code',
+						'text_direction' => 'rtl',
+					),
+				),
+			),
+			array(
+				array(
+					'message' => new WP_Error(
+						'no_access',
+						'You do not have access.',
+						array(
+							'status' => 403,
+							'title'  => 'Permission Error',
+						)
+					),
+				),
+				array(
+					'message' => 'You do not have access.',
+					'title'   => 'Permission Error',
+					'args'    => array(
+						'response' => 403,
+						'code'     => 'no_access',
+					),
+				),
+			),
+		);
+	}
+
+	/**
 	 * This test is just a setup for the one that follows.
 	 *
 	 * @ticket 38196
 	 */
 	public function test_setup_postdata_globals_should_be_reset_on_teardown__setup() {
-		$post = self::factory()->post->create_and_get();
+		$post                = self::factory()->post->create_and_get();
 		$GLOBALS['wp_query'] = new WP_Query();
 		$GLOBALS['wp_query']->setup_postdata( $post );
 		$this->assertNotEmpty( $post );

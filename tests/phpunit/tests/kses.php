@@ -15,7 +15,7 @@ class Tests_Kses extends WP_UnitTestCase {
 
 		$attributes = array(
 			'class' => 'classname',
-			'id' => 'id',
+			'id'    => 'id',
 			'style' => 'color: red;',
 			'style' => 'color: red',
 			'style' => 'color: red; text-align:center',
@@ -24,7 +24,7 @@ class Tests_Kses extends WP_UnitTestCase {
 		);
 
 		foreach ( $attributes as $name => $value ) {
-			$string = "<address $name='$value'>1 WordPress Avenue, The Internet.</address>";
+			$string        = "<address $name='$value'>1 WordPress Avenue, The Internet.</address>";
 			$expect_string = "<address $name='" . str_replace( '; ', ';', trim( $value, ';' ) ) . "'>1 WordPress Avenue, The Internet.</address>";
 			$this->assertEquals( $expect_string, wp_kses( $string, $allowedposttags ) );
 		}
@@ -37,26 +37,26 @@ class Tests_Kses extends WP_UnitTestCase {
 		global $allowedposttags;
 
 		$attributes = array(
-			'class' => 'classname',
-			'id' => 'id',
-			'style' => 'color: red;',
-			'title' => 'title',
-			'href' => 'http://example.com',
-			'rel' => 'related',
-			'rev' => 'revision',
-			'name' => 'name',
-			'target' => '_blank',
+			'class'    => 'classname',
+			'id'       => 'id',
+			'style'    => 'color: red;',
+			'title'    => 'title',
+			'href'     => 'http://example.com',
+			'rel'      => 'related',
+			'rev'      => 'revision',
+			'name'     => 'name',
+			'target'   => '_blank',
 			'download' => '',
 		);
 
 		foreach ( $attributes as $name => $value ) {
 			if ( $value ) {
-				$attr = "$name='$value'";
+				$attr          = "$name='$value'";
 				$expected_attr = "$name='" . trim( $value, ';' ) . "'";
 			} else {
 				$attr = $expected_attr = $name;
 			}
-			$string = "<a $attr>I link this</a>";
+			$string        = "<a $attr>I link this</a>";
 			$expect_string = "<a $expected_attr>I link this</a>";
 			$this->assertEquals( $expect_string, wp_kses( $string, $allowedposttags ) );
 		}
@@ -70,13 +70,13 @@ class Tests_Kses extends WP_UnitTestCase {
 
 		$attributes = array(
 			'class' => 'classname',
-			'id' => 'id',
+			'id'    => 'id',
 			'style' => 'color: red;',
 			'title' => 'title',
 		);
 
 		foreach ( $attributes as $name => $value ) {
-			$string = "<abbr $name='$value'>WP</abbr>";
+			$string        = "<abbr $name='$value'>WP</abbr>";
 			$expect_string = "<abbr $name='" . trim( $value, ';' ) . "'>WP</abbr>";
 			$this->assertEquals( $expect_string, wp_kses( $string, $allowedposttags ) );
 		}
@@ -149,14 +149,23 @@ EOF;
 			$result = wp_kses_bad_protocol( wp_kses_normalize_entities( $x ), wp_allowed_protocols() );
 			if ( ! empty( $result ) && $result != 'alert(1);' && $result != 'alert(1)' ) {
 				switch ( $k ) {
-					case 6: $this->assertEquals( 'javascript&amp;#0000058alert(1);', $result ); break;
+					case 6:
+						$this->assertEquals( 'javascript&amp;#0000058alert(1);', $result );
+						break;
 					case 12:
 						$this->assertEquals( str_replace( '&', '&amp;', $x ), $result );
 						break;
-					case 22: $this->assertEquals( 'javascript&amp;#0000058alert(1);', $result ); break;
-					case 23: $this->assertEquals( 'javascript&amp;#0000058alert(1)//?:', $result ); break;
-					case 24: $this->assertEquals( 'feed:alert(1)', $result ); break;
-					default: $this->fail( "wp_kses_bad_protocol failed on $x. Result: $result" );
+					case 22:
+						$this->assertEquals( 'javascript&amp;#0000058alert(1);', $result );
+						break;
+					case 23:
+						$this->assertEquals( 'javascript&amp;#0000058alert(1)//?:', $result );
+						break;
+					case 24:
+						$this->assertEquals( 'feed:alert(1)', $result );
+						break;
+					default:
+						$this->fail( "wp_kses_bad_protocol failed on $x. Result: $result" );
 				}
 			}
 		}
@@ -173,60 +182,64 @@ EOF;
 		);
 		foreach ( $safe as $x ) {
 			$result = wp_kses_bad_protocol( wp_kses_normalize_entities( $x ), array( 'http', 'https', 'dummy' ) );
-			if ( $result != $x && $result != 'http://example.org/' )
+			if ( $result != $x && $result != 'http://example.org/' ) {
 				$this->fail( "wp_kses_bad_protocol incorrectly blocked $x" );
+			}
 		}
 	}
 
 	public function test_hackers_attacks() {
 		$xss = simplexml_load_file( DIR_TESTDATA . '/formatting/xssAttacks.xml' );
 		foreach ( $xss->attack as $attack ) {
-			if ( in_array( $attack->name, array( 'IMG Embedded commands 2', 'US-ASCII encoding', 'OBJECT w/Flash 2', 'Character Encoding Example' ) ) )
+			if ( in_array( $attack->name, array( 'IMG Embedded commands 2', 'US-ASCII encoding', 'OBJECT w/Flash 2', 'Character Encoding Example' ) ) ) {
 				continue;
+			}
 
 			$code = (string) $attack->code;
 
-			if ( $code == 'See Below' )
+			if ( $code == 'See Below' ) {
 				continue;
+			}
 
 			if ( substr( $code, 0, 4 ) == 'perl' ) {
-				$pos = strpos( $code, '"' ) + 1;
-				$code = substr( $code, $pos, strrpos($code, '"') - $pos );
+				$pos  = strpos( $code, '"' ) + 1;
+				$code = substr( $code, $pos, strrpos( $code, '"' ) - $pos );
 				$code = str_replace( '\0', "\0", $code );
 			}
 
 			$result = trim( wp_kses_data( $code ) );
 
-			if ( $result == '' || $result == 'XSS' || $result == 'alert("XSS");' || $result == "alert('XSS');" )
+			if ( $result == '' || $result == 'XSS' || $result == 'alert("XSS");' || $result == "alert('XSS');" ) {
 				continue;
+			}
 
 			switch ( $attack->name ) {
 				case 'XSS Locator':
-					$this->assertEquals('\';alert(String.fromCharCode(88,83,83))//\\\';alert(String.fromCharCode(88,83,83))//";alert(String.fromCharCode(88,83,83))//\\";alert(String.fromCharCode(88,83,83))//--&gt;"&gt;\'&gt;alert(String.fromCharCode(88,83,83))=&amp;{}', $result);
+					$this->assertEquals( '\';alert(String.fromCharCode(88,83,83))//\\\';alert(String.fromCharCode(88,83,83))//";alert(String.fromCharCode(88,83,83))//\\";alert(String.fromCharCode(88,83,83))//--&gt;"&gt;\'&gt;alert(String.fromCharCode(88,83,83))=&amp;{}', $result );
 					break;
 				case 'XSS Quick Test':
-					$this->assertEquals('\'\';!--"=&amp;{()}', $result);
+					$this->assertEquals( '\'\';!--"=&amp;{()}', $result );
 					break;
 				case 'SCRIPT w/Alert()':
 					$this->assertEquals( "alert('XSS')", $result );
 					break;
 				case 'SCRIPT w/Char Code':
-					$this->assertEquals('alert(String.fromCharCode(88,83,83))', $result);
+					$this->assertEquals( 'alert(String.fromCharCode(88,83,83))', $result );
 					break;
 				case 'IMG STYLE w/expression':
-					$this->assertEquals('exp/*', $result);
+					$this->assertEquals( 'exp/*', $result );
 					break;
 				case 'List-style-image':
-					$this->assertEquals('li {list-style-image: url("javascript:alert(\'XSS\')");}XSS', $result);
+					$this->assertEquals( 'li {list-style-image: url("javascript:alert(\'XSS\')");}XSS', $result );
 					break;
 				case 'STYLE':
-					$this->assertEquals( "alert('XSS');", $result);
+					$this->assertEquals( "alert('XSS');", $result );
 					break;
 				case 'STYLE w/background-image':
-					$this->assertEquals('.XSS{background-image:url("javascript:alert(\'XSS\')");}<A></A>', $result);
+					$this->assertEquals( '.XSS{background-image:url("javascript:alert(\'XSS\')");}<A></A>', $result );
 					break;
 				case 'STYLE w/background':
-					$this->assertEquals('BODY{background:url("javascript:alert(\'XSS\')")}', $result);
+					$this->assertEquals( 'BODY{background:url("javascript:alert(\'XSS\')")}', $result );
 					break;
 				case 'Remote Stylesheet 2':
 					$this->assertEquals( "@import'http://ha.ckers.org/xss.css';", $result );
@@ -235,10 +248,10 @@ EOF;
 					$this->assertEquals( '&lt;META HTTP-EQUIV=&quot;Link&quot; Content=&quot;; REL=stylesheet"&gt;', $result );
 					break;
 				case 'Remote Stylesheet 4':
-					$this->assertEquals('BODY{-moz-binding:url("http://ha.ckers.org/xssmoz.xml#xss")}', $result);
+					$this->assertEquals( 'BODY{-moz-binding:url("http://ha.ckers.org/xssmoz.xml#xss")}', $result );
 					break;
 				case 'XML data island w/CDATA':
-					$this->assertEquals( "&lt;![CDATA[]]&gt;", $result );
+					$this->assertEquals( '&lt;![CDATA[]]&gt;', $result );
 					break;
 				case 'XML data island w/comment':
 					$this->assertEquals( "<I><B>&lt;IMG SRC=&quot;javas<!-- -->cript:alert('XSS')\"&gt;</B></I>", $result );
@@ -262,7 +275,7 @@ EOF;
 					$this->assertEquals( '+ADw-SCRIPT+AD4-alert(\'XSS\');+ADw-/SCRIPT+AD4-', $result );
 					break;
 				case 'Escaping JavaScript escapes':
-					$this->assertEquals('\";alert(\'XSS\');//', $result);
+					$this->assertEquals( '\";alert(\'XSS\');//', $result );
 					break;
 				case 'STYLE w/broken up JavaScript':
 					$this->assertEquals( '@im\port\'\ja\vasc\ript:alert("XSS")\';', $result );
@@ -283,7 +296,7 @@ EOF;
 					$this->assertEquals( '&lt;alert("XSS");//&lt;', $result );
 					break;
 				case 'Malformed IMG Tags':
-					$this->assertEquals('alert("XSS")"&gt;', $result);
+					$this->assertEquals( 'alert("XSS")"&gt;', $result );
 					break;
 				case 'No Quotes/Semicolons':
 					$this->assertEquals( "a=/XSS/\nalert(a.source)", $result );
@@ -310,10 +323,11 @@ EOF;
 	}
 
 	function _wp_kses_allowed_html_filter( $html, $context ) {
-		if ( 'post' == $context )
+		if ( 'post' == $context ) {
 			return array( 'a' => array( 'href' => true ) );
-		else
+		} else {
 			return array( 'a' => array( 'href' => false ) );
+		}
 	}
 
 	/**
@@ -324,7 +338,7 @@ EOF;
 
 		$this->assertEquals( $allowedposttags, wp_kses_allowed_html( 'post' ) );
 
-		$tags = wp_kses_allowed_html( 'post' ) ;
+		$tags = wp_kses_allowed_html( 'post' );
 
 		foreach ( $tags as $tag ) {
 			$this->assertTrue( $tag['class'] );
@@ -347,10 +361,10 @@ EOF;
 
 		$custom_tags = array(
 			'a' => array(
-				'href' => true,
-				'rel' => true,
-				'rev' => true,
-				'name' => true,
+				'href'   => true,
+				'rel'    => true,
+				'rev'    => true,
+				'name'   => true,
 				'target' => true,
 			),
 		);
@@ -368,15 +382,15 @@ EOF;
 	}
 
 	function test_hyphenated_tag() {
-		$string = "<hyphenated-tag attribute=\"value\" otherattribute=\"value2\">Alot of hyphens.</hyphenated-tag>";
-		$custom_tags = array(
+		$string                 = '<hyphenated-tag attribute="value" otherattribute="value2">Alot of hyphens.</hyphenated-tag>';
+		$custom_tags            = array(
 			'hyphenated-tag' => array(
 				'attribute' => true,
 			),
 		);
 		$expect_stripped_string = 'Alot of hyphens.';
 
-		$expect_valid_string = "<hyphenated-tag attribute=\"value\">Alot of hyphens.</hyphenated-tag>";
+		$expect_valid_string = '<hyphenated-tag attribute="value">Alot of hyphens.</hyphenated-tag>';
 		$this->assertEquals( $expect_stripped_string, wp_kses_post( $string ) );
 		$this->assertEquals( $expect_valid_string, wp_kses( $string, $custom_tags ) );
 	}
@@ -569,7 +583,7 @@ EOF;
 			),
 			array(
 				'<a title="hello"disabled href=# id=\'my_id\'>',
-				array( '<a ', 'title="hello"', 'disabled ', 'href=# ', "id='my_id'", ">" ),
+				array( '<a ', 'title="hello"', 'disabled ', 'href=# ', "id='my_id'", '>' ),
 			),
 			array(
 				'<a     >',
@@ -690,7 +704,7 @@ EOF;
 	 * @ticket 40680
 	 */
 	function test_wp_kses_attr_no_attributes_allowed_with_empty_array() {
-		$element = 'foo';
+		$element   = 'foo';
 		$attribute = 'title="foo" class="bar"';
 
 		$this->assertEquals( "<{$element}>", wp_kses_attr( $element, $attribute, array( 'foo' => array() ), array() ) );
@@ -700,7 +714,7 @@ EOF;
 	 * @ticket 40680
 	 */
 	function test_wp_kses_attr_no_attributes_allowed_with_true() {
-		$element = 'foo';
+		$element   = 'foo';
 		$attribute = 'title="foo" class="bar"';
 
 		$this->assertEquals( "<{$element}>", wp_kses_attr( $element, $attribute, array( 'foo' => true ), array() ) );
@@ -710,7 +724,7 @@ EOF;
 	 * @ticket 40680
 	 */
 	function test_wp_kses_attr_single_attribute_is_allowed() {
-		$element = 'foo';
+		$element   = 'foo';
 		$attribute = 'title="foo" class="bar"';
 
 		$this->assertEquals( "<{$element} title=\"foo\">", wp_kses_attr( $element, $attribute, array( 'foo' => array( 'title' => true ) ), array() ) );
@@ -727,12 +741,105 @@ EOF;
 	}
 
 	/**
+	 * Testing the safecss_filter_attr() function.
+	 *
+	 * @ticket 42729
+	 * @dataProvider data_test_safecss_filter_attr
+	 *
+	 * @param string $css      A string of CSS rules.
+	 * @param string $expected Expected string of CSS rules.
+	 */
+	public function test_safecss_filter_attr( $css, $expected ) {
+		$this->assertSame( $expected, safecss_filter_attr( $css ) );
+	}
+
+	/**
+	 * Data Provider for test_safecss_filter_attr().
+	 *
+	 * @return array {
+	 *     @type array {
+	 *         @string string $css      A string of CSS rules.
+	 *         @string string $expected Expected string of CSS rules.
+	 *     }
+	 * }
+	 */
+	public function data_test_safecss_filter_attr() {
+		return array(
+			// Empty input, empty output.
+			array(
+				'css'      => '',
+				'expected' => '',
+			),
+			// An arbitrary attribute name isn't allowed.
+			array(
+				'css'      => 'foo:bar',
+				'expected' => '',
+			),
+			// A single attribute name, with a single value.
+			array(
+				'css'      => 'margin-top: 2px',
+				'expected' => 'margin-top: 2px',
+			),
+			// Backslash \ isn't supported.
+			array(
+				'css'      => 'margin-top: \2px',
+				'expected' => '',
+			),
+			// Curly bracket } isn't supported.
+			array(
+				'css'      => 'margin-bottom: 2px}',
+				'expected' => '',
+			),
+			// A single attribute name, with a single text value.
+			array(
+				'css'      => 'text-transform: uppercase',
+				'expected' => 'text-transform: uppercase',
+			),
+			// Only lowercase attribute names are supported.
+			array(
+				'css'      => 'Text-transform: capitalize',
+				'expected' => '',
+			),
+			// Uppercase attribute values goes through.
+			array(
+				'css'      => 'text-transform: None',
+				'expected' => 'text-transform: None',
+			),
+			// A single attribute, with multiple values.
+			array(
+				'css'      => 'font: bold 15px arial, sans-serif',
+				'expected' => 'font: bold 15px arial, sans-serif',
+			),
+			// Multiple attributes, with single values.
+			array(
+				'css'      => 'font-weight: bold;font-size: 15px',
+				'expected' => 'font-weight: bold;font-size: 15px',
+			),
+			// Multiple attributes, separated by a space.
+			array(
+				'css'      => 'font-weight: bold; font-size: 15px',
+				'expected' => 'font-weight: bold;font-size: 15px',
+			),
+			// Multiple attributes, with multiple values.
+			array(
+				'css'      => 'margin: 10px 20px;padding: 5px 10px',
+				'expected' => 'margin: 10px 20px;padding: 5px 10px',
+			),
+			// Parenthesis ( is supported for some attributes.
+			array(
+				'css'      => 'background: green url("foo.jpg") no-repeat fixed center',
+				'expected' => 'background: green url("foo.jpg") no-repeat fixed center',
+			),
+		);
+	}
+
+	/**
 	 * Data attributes are globally accepted.
 	 *
 	 * @ticket 33121
 	 */
 	function test_wp_kses_attr_data_attribute_is_allowed() {
-		$test = '<div data-foo="foo" data-bar="bar" datainvalid="gone" data--invaild="gone"  data-also-invaild-="gone" data-two-hyphens="remains">Pens and pencils</div>';
+		$test     = '<div data-foo="foo" data-bar="bar" datainvalid="gone" data--invaild="gone"  data-also-invaild-="gone" data-two-hyphens="remains">Pens and pencils</div>';
 		$expected = '<div data-foo="foo" data-bar="bar" data-two-hyphens="remains">Pens and pencils</div>';
 
 		$this->assertEquals( $expected, wp_kses_post( $test ) );
@@ -747,11 +854,11 @@ EOF;
 		$allowed_html = array(
 			'div' => array(
 				'data-*' => true,
-				'on-*' => true,
+				'on-*'   => true,
 			),
 		);
 
-		$string = '<div datamelformed-prefix="gone" data="gone" data-="gone" onclick="alert(1)">Malformed attributes</div>';
+		$string   = '<div datamelformed-prefix="gone" data="gone" data-="gone" onclick="alert(1)">Malformed attributes</div>';
 		$expected = '<div>Malformed attributes</div>';
 
 		$actual = wp_kses( $string, $allowed_html );
@@ -771,7 +878,7 @@ EOF;
 			),
 		);
 
-		$string = '<div data-wp-id="pens-and-pencils">Well formed attribute</div>';
+		$string   = '<div data-wp-id="pens-and-pencils">Well formed attribute</div>';
 		$expected = '<div data-wp-id="pens-and-pencils">Well formed attribute</div>';
 
 		$actual = wp_kses( $string, $allowed_html );
@@ -793,7 +900,7 @@ EOF;
 			),
 		);
 
-		$name = str_replace( '*', strtolower( __FUNCTION__ ), $wildcard_attribute );
+		$name  = str_replace( '*', strtolower( __FUNCTION__ ), $wildcard_attribute );
 		$value = __FUNCTION__;
 		$whole = "{$name}=\"{$value}\"";
 
@@ -898,8 +1005,8 @@ EOF;
 
 			// Error check: valid property not containing a URL.
 			array(
-				"background: red",
-				"background: red",
+				'background: red',
+				'background: red',
 			),
 
 			/*

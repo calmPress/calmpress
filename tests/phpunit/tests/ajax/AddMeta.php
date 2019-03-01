@@ -21,9 +21,9 @@ class Tests_Ajax_AddMeta extends WP_Ajax_UnitTestCase {
 		$this->_setRole( 'administrator' );
 
 		$_POST = array(
-			'post_id'      => $p,
-			'metakeyinput' => 'testkey',
-			'metavalue'    => '',
+			'post_id'              => $p,
+			'metakeyinput'         => 'testkey',
+			'metavalue'            => '',
 			'_ajax_nonce-add-meta' => wp_create_nonce( 'add-meta' ),
 		);
 

@@ -6,24 +6,26 @@
  * @subpackage Administration
  */
 // TODO route this pages via a specific iframe handler instead of the do_action below
-if ( !defined( 'IFRAME_REQUEST' ) && isset( $_GET['tab'] ) && ( 'plugin-information' == $_GET['tab'] ) )
+if ( ! defined( 'IFRAME_REQUEST' ) && isset( $_GET['tab'] ) && ( 'plugin-information' == $_GET['tab'] ) ) {
 	define( 'IFRAME_REQUEST', true );
+}
 
 /**
  * WordPress Administration Bootstrap.
  */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
-if ( ! current_user_can('install_plugins') )
-	wp_die(__('Sorry, you are not allowed to install plugins on this site.'));
+if ( ! current_user_can( 'install_plugins' ) ) {
+	wp_die( __( 'Sorry, you are not allowed to install plugins on this site.' ) );
+}
 
 if ( is_multisite() && ! is_network_admin() ) {
 	wp_redirect( network_admin_url( 'plugin-install.php' ) );
 	exit();
 }
 
-$wp_list_table = _get_list_table('WP_Plugin_Install_List_Table');
-$pagenum = $wp_list_table->get_pagenum();
+$wp_list_table = _get_list_table( 'WP_Plugin_Install_List_Table' );
+$pagenum       = $wp_list_table->get_pagenum();
 
 if ( ! empty( $_REQUEST['_wp_http_referer'] ) ) {
 	$location = remove_query_arg( '_wp_http_referer', wp_unslash( $_SERVER['REQUEST_URI'] ) );
@@ -45,12 +47,13 @@ if ( $pagenum > $total_pages && $total_pages > 0 ) {
 	exit;
 }
 
-$title = __( 'Add Plugins' );
+$title       = __( 'Add Plugins' );
 $parent_file = 'plugins.php';
 
 wp_enqueue_script( 'plugin-install' );
-if ( 'plugin-information' != $tab )
+if ( 'plugin-information' != $tab ) {
 	add_thickbox();
+}
 
 $body_id = $tab;
 
@@ -102,16 +105,19 @@ get_current_screen()->set_screen_reader_content( array(
 /**
  * WordPress Administration Template Header.
  */
-include(ABSPATH . 'wp-admin/admin-header.php');
+include( ABSPATH . 'wp-admin/admin-header.php' );
 ?>
 <div class="wrap <?php echo esc_attr( "plugin-install-tab-$tab" ); ?>">
-<h1 class="wp-heading-inline"><?php
+<h1 class="wp-heading-inline">
+<?php
 echo esc_html( $title );
-?></h1>
+?>
+</h1>
 
 <?php
 if ( ! empty( $tabs['upload'] ) && current_user_can( 'upload_plugins' ) ) {
-	printf( ' <a href="%s" class="upload-view-toggle page-title-action"><span class="upload">%s</span><span class="browse">%s</span></a>',
+	printf(
+		' <a href="%s" class="upload-view-toggle page-title-action"><span class="upload">%s</span><span class="browse">%s</span></a>',
 		( 'upload' === $tab ) ? self_admin_url( 'plugin-install.php' ) : self_admin_url( 'plugin-install.php?tab=upload' ),
 		__( 'Upload Plugin' ),
 		__( 'Browse Plugins' )
@@ -149,7 +155,8 @@ if ( 'upload' !== $tab ) {
  *
  * @param int $paged The current page number of the plugins list table.
  */
-do_action( "install_plugins_{$tab}", $paged ); ?>
+do_action( "install_plugins_{$tab}", $paged );
+?>
 
 	<span class="spinner"></span>
 </div>
@@ -161,4 +168,4 @@ wp_print_admin_notice_templates();
 /**
  * WordPress Administration Template Footer.
  */
-include(ABSPATH . 'wp-admin/admin-footer.php');
+include( ABSPATH . 'wp-admin/admin-footer.php' );

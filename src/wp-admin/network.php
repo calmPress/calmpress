@@ -49,10 +49,10 @@ if ( ! network_domain_check() && ( ! defined( 'WP_ALLOW_MULTISITE' ) || ! WP_ALL
 }
 
 if ( is_network_admin() ) {
-	$title = __( 'Network Setup' );
+	$title       = __( 'Network Setup' );
 	$parent_file = 'settings.php';
 } else {
-	$title = __( 'Create a Network of calmPress Sites' );
+	$title       = __( 'Create a Network of calmPress Sites' );
 	$parent_file = 'tools.php';
 }
 
@@ -66,11 +66,13 @@ $network_help = '<p>' . __('This screen allows you to configure a network as hav
 	'<p>' . __( '<a href="https://codex.wordpress.org/Create_A_Network">Documentation on Creating a Network</a>' ) . '</p>' .
 	'<p>' . __( '<a href="https://codex.wordpress.org/Tools_Network_Screen">Documentation on the Network Screen</a>' ) . '</p>';
 
-get_current_screen()->add_help_tab( array(
-	'id'      => 'network',
-	'title'   => __('Network'),
-	'content' => $network_help,
-) );
+get_current_screen()->add_help_tab(
+	array(
+		'id'      => 'network',
+		'title'   => __( 'Network' ),
+		'content' => $network_help,
+	)
+);
 
 include( ABSPATH . 'wp-admin/admin-header.php' );
 ?>
@@ -86,14 +88,15 @@ if ( $_POST ) {
 	// Create network tables.
 	install_network();
 	$base              = parse_url( trailingslashit( get_option( 'home' ) ), PHP_URL_PATH );
-	$subdomain_install = allow_subdomain_install() ? !empty( $_POST['subdomain_install'] ) : false;
+	$subdomain_install = allow_subdomain_install() ? ! empty( $_POST['subdomain_install'] ) : false;
 	if ( ! network_domain_check() ) {
 		$result = populate_network( 1, get_clean_basedomain(), sanitize_email( $_POST['email'] ), wp_unslash( $_POST['sitename'] ), $base, $subdomain_install );
 		if ( is_wp_error( $result ) ) {
-			if ( 1 == count( $result->get_error_codes() ) && 'no_wildcard_dns' == $result->get_error_code() )
+			if ( 1 == count( $result->get_error_codes() ) && 'no_wildcard_dns' == $result->get_error_code() ) {
 				network_step2( $result );
-			else
+			} else {
 				network_step1( $result );
+			}
 		} else {
 			network_step2();
 		}

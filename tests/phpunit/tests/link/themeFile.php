@@ -106,7 +106,7 @@ class Test_Theme_File extends WP_UnitTestCase {
 	 * @dataProvider data_theme_files
 	 */
 	public function test_theme_file_uri_returns_valid_uri( $file, $expected_theme, $existence ) {
-		$uri = get_theme_file_uri( $file );
+		$uri        = get_theme_file_uri( $file );
 		$parent_uri = get_parent_theme_file_uri( $file );
 
 		$this->assertSame( esc_url_raw( $uri ), $uri );
@@ -143,8 +143,7 @@ class Test_Theme_File extends WP_UnitTestCase {
 			array(
 				'neither.php',
 				$parent,
-				array(
-				),
+				array(),
 			),
 		);
 	}

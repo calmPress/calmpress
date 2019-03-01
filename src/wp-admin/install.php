@@ -45,7 +45,7 @@ function display_header( $body_classes = '' ) {
 	if ( $body_classes ) {
 		$body_classes = ' ' . $body_classes;
 	}
-?>
+	?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
 <head>
@@ -58,10 +58,10 @@ function display_header( $body_classes = '' ) {
 		wp_admin_css( 'dashicons', true );
 	?>
 </head>
-<body class="wp-core-ui<?php echo $body_classes ?>">
-<p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>" tabindex="-1"><?php _e( 'calmPress' ); ?></a></p>
+<body class="wp-core-ui<?php echo $body_classes; ?>">
+<p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>"><?php _e( 'calmPress' ); ?></a></p>
 
-<?php
+	<?php
 } // end display_header()
 
 /**
@@ -76,7 +76,7 @@ function display_header( $body_classes = '' ) {
 function display_setup_form( $error = null ) {
 	global $wpdb;
 
-	$sql = $wpdb->prepare( "SHOW TABLES LIKE %s", $wpdb->esc_like( $wpdb->users ) );
+	$sql        = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->users ) );
 	$user_table = ( $wpdb->get_var( $sql ) != null );
 
 	// Ensure that Blogs appear in search engines by default.
@@ -89,7 +89,7 @@ function display_setup_form( $error = null ) {
 	$admin_email  = isset( $_POST['admin_email']  ) ? trim( wp_unslash( $_POST['admin_email'] ) ) : '';
 
 	if ( ! is_null( $error ) ) {
-?>
+		?>
 <h1><?php _ex( 'Welcome', 'Howdy' ); ?></h1>
 <p class="message"><?php echo $error; ?></p>
 <?php } ?>
@@ -151,16 +151,18 @@ function display_setup_form( $error = null ) {
 				<fieldset>
 					<legend class="screen-reader-text"><span><?php has_action( 'blog_privacy_selector' ) ? _e( 'Site Visibility' ) : _e( 'Search Engine Visibility' ); ?> </span></legend>
 					<?php
-					if ( has_action( 'blog_privacy_selector' ) ) { ?>
+					if ( has_action( 'blog_privacy_selector' ) ) {
+						?>
 						<input id="blog-public" type="radio" name="blog_public" value="1" <?php checked( 1, $blog_public ); ?> />
-						<label for="blog-public"><?php _e( 'Allow search engines to index this site' );?></label><br/>
+						<label for="blog-public"><?php _e( 'Allow search engines to index this site' ); ?></label><br/>
 						<input id="blog-norobots" type="radio" name="blog_public" value="0" <?php checked( 0, $blog_public ); ?> />
 						<label for="blog-norobots"><?php _e( 'Discourage search engines from indexing this site' ); ?></label>
 						<p class="description"><?php _e( 'Note: Neither of these options blocks access to your site &mdash; it is up to search engines to honor your request.' ); ?></p>
 						<?php
 						/** This action is documented in wp-admin/options-reading.php */
 						do_action( 'blog_privacy_selector' );
-					 } else { ?>
+					} else {
+						?>
 						<label for="blog_public"><input name="blog_public" type="checkbox" id="blog_public" value="0" <?php checked( 0, $blog_public ); ?> />
 						<?php _e( 'Discourage search engines from indexing this site' ); ?></label>
 						<p class="description"><?php _e( 'It is up to search engines to honor this request.' ); ?></p>
@@ -172,7 +174,7 @@ function display_setup_form( $error = null ) {
 	<p class="step"><?php submit_button( __( 'Install calmPress' ), 'large', 'Submit', false, array( 'id' => 'submit' ) ); ?></p>
 	<input type="hidden" name="language" value="<?php echo isset( $_REQUEST['language'] ) ? esc_attr( $_REQUEST['language'] ) : ''; ?>" />
 </form>
-<?php
+	<?php
 } // end display_setup_form()
 
 // Let's check to make sure WP isn't already installed.
@@ -212,7 +214,7 @@ if ( !$mysql_compat && !$php_compat ) {
 	$compat = sprintf( __( 'You cannot install because <a href="https://calmpress.org/Version/%1$s">calmPress %2$s</a> requires MySQL version %3$s or higher. You are running version %4$s.' ), $version_slug, calmpress_version(), $required_mysql_version, $mysql_version );
 }
 
-if ( !$mysql_compat || !$php_compat ) {
+if ( ! $mysql_compat || ! $php_compat ) {
 	display_header();
 	die( '<h1>' . __( 'Insufficient Requirements' ) . '</h1><p>' . $compat . '</p></body></html>' );
 }
@@ -254,7 +256,7 @@ if ( ! empty( $_REQUEST['language'] ) ) {
 
 $scripts_to_print = array( 'jquery' );
 
-switch($step) {
+switch ( $step ) {
 
 	case 1: // Step 1, direct link or from language chooser.
 		if ( ! empty( $language ) ) {
@@ -268,36 +270,37 @@ switch($step) {
 		$scripts_to_print[] = 'user-profile';
 
 		display_header();
-?>
+		?>
 <h1><?php _ex( 'Welcome', 'Howdy' ); ?></h1>
 <p><?php _e( 'Almost done! Just fill in the information below and you&#8217;ll be on your way to using the calmest CMS in the world.' ); ?></p>
 
 <h2><?php _e( 'Information needed' ); ?></h2>
 <p><?php _e( 'Please provide the following information. Don&#8217;t worry, you can always change these settings later.' ); ?></p>
 
-<?php
+		<?php
 		display_setup_form();
 		break;
 	case 2:
 		if ( ! empty( $language ) && load_default_textdomain( $language ) ) {
-			$loaded_language = $language;
+			$loaded_language      = $language;
 			$GLOBALS['wp_locale'] = new WP_Locale();
 		} else {
 			$loaded_language = 'en_US';
 		}
 
-		if ( ! empty( $wpdb->error ) )
+		if ( ! empty( $wpdb->error ) ) {
 			wp_die( $wpdb->error->get_error_message() );
+		}
 
 		$scripts_to_print[] = 'user-profile';
 
 		display_header();
 		// Fill in the data we gathered
-		$weblog_title = isset( $_POST['weblog_title'] ) ? trim( wp_unslash( $_POST['weblog_title'] ) ) : '';
-		$admin_password = isset($_POST['admin_password']) ? wp_unslash( $_POST['admin_password'] ) : '';
-		$admin_password_check = isset($_POST['admin_password2']) ? wp_unslash( $_POST['admin_password2'] ) : '';
-		$admin_email  = isset( $_POST['admin_email'] ) ?trim( wp_unslash( $_POST['admin_email'] ) ) : '';
-		$public       = isset( $_POST['blog_public'] ) ? (int) $_POST['blog_public'] : 1;
+		$weblog_title         = isset( $_POST['weblog_title'] ) ? trim( wp_unslash( $_POST['weblog_title'] ) ) : '';
+		$admin_password       = isset( $_POST['admin_password'] ) ? wp_unslash( $_POST['admin_password'] ) : '';
+		$admin_password_check = isset( $_POST['admin_password2'] ) ? wp_unslash( $_POST['admin_password2'] ) : '';
+		$admin_email          = isset( $_POST['admin_email'] ) ?trim( wp_unslash( $_POST['admin_email'] ) ) : '';
+		$public               = isset( $_POST['blog_public'] ) ? (int) $_POST['blog_public'] : 1;
 
 		// Check email address.
 		$error = false;
@@ -318,7 +321,7 @@ switch($step) {
 		if ( $error === false ) {
 			$wpdb->show_errors();
 			$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
-?>
+			?>
 
 <h1><?php _e( 'Success!' ); ?></h1>
 
@@ -331,18 +334,20 @@ switch($step) {
 	</tr>
 	<tr>
 		<th><?php _e( 'Password' ); ?></th>
-		<td><?php
-		if ( ! empty( $result['password'] ) && empty( $admin_password_check ) ): ?>
-			<code><?php echo esc_html( $result['password'] ) ?></code><br />
+		<td>
+			<?php
+			if ( ! empty( $result['password'] ) && empty( $admin_password_check ) ) :
+				?>
+			<code><?php echo esc_html( $result['password'] ); ?></code><br />
 		<?php endif ?>
-			<p><?php echo $result['password_message'] ?></p>
+			<p><?php echo $result['password_message']; ?></p>
 		</td>
 	</tr>
 </table>
 
 <p class="step"><a href="<?php echo esc_url( wp_login_url() ); ?>" class="button button-large"><?php _e( 'Log In' ); ?></a></p>
 
-<?php
+			<?php
 		}
 		break;
 }

@@ -10,7 +10,7 @@
  *
  * @global string $tinymce_version
  */
-$tinymce_version = '4800-20180716';
+$tinymce_version = '4920-20181217';
 
 /**
  * Holds the required PHP version
@@ -73,7 +73,7 @@ if ( ! function_exists( 'wordpress_core_version' ) ) {
 	 * @return string The version string.
 	 */
 	function wordpress_core_version() {
-		return '5.0.3';
+		return '5.1.0';
 	}
 }
 

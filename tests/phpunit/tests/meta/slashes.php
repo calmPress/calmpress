@@ -11,8 +11,8 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 	protected static $comment_id;
 
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$editor_id = $factory->user->create( array( 'role' => 'editor' ) );
-		self::$post_id = $factory->post->create();
+		self::$editor_id  = $factory->user->create( array( 'role' => 'editor' ) );
+		self::$post_id    = $factory->post->create();
 		self::$comment_id = $factory->comment->create( array( 'comment_post_ID' => self::$post_id ) );
 	}
 
@@ -32,7 +32,6 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 
 	/**
 	 * Tests the legacy model function that expects slashed data
-	 *
 	 */
 	function test_add_post_meta() {
 		$id = self::factory()->post->create();
@@ -47,7 +46,6 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 
 	/**
 	 * Tests the legacy model function that expects slashed data
-	 *
 	 */
 	function test_update_post_meta() {
 		$id = self::factory()->post->create();
@@ -62,7 +60,6 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 
 	/**
 	 * Tests the model function that expects slashed data
-	 *
 	 */
 	function test_add_comment_meta() {
 		$id = self::$comment_id;
@@ -86,7 +83,6 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 
 	/**
 	 * Tests the model function that expects slashed data
-	 *
 	 */
 	function test_update_comment_meta() {
 		$id = self::$comment_id;
@@ -114,7 +110,6 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 
 	/**
 	 * Tests the model function that expects slashed data
-	 *
 	 */
 	function test_add_user_meta() {
 		$id = self::factory()->user->create();
@@ -138,7 +133,6 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 
 	/**
 	 * Tests the model function that expects slashed data
-	 *
 	 */
 	function test_update_user_meta() {
 		$id = self::factory()->user->create();

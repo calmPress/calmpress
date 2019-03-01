@@ -163,7 +163,7 @@ body.post-new-php .submitbox .submitdelete {
 	border: 0 none;
 	float: right;
 	padding: 0 12px;
-	margin:0;
+	margin: 0;
 }
 
 .category-add input[type="text"],
@@ -210,7 +210,7 @@ ul.category-tabs li,
 
 /* Back-compat for pre-4.4 */
 #category-adder h4 {
-    margin: 0;
+	margin: 0;
 }
 
 .taxonomy-add-new {
@@ -598,8 +598,16 @@ span.wp-media-buttons-icon:before {
 	line-height: 1.4;
 }
 
+#poststuff .stuffbox h2 {
+	padding: 8px 10px;
+}
+
 #poststuff .inside {
 	margin: 6px 0 0 0;
+}
+
+#poststuff .stuffbox .inside {
+	margin: 0;
 }
 
 #poststuff .inside #parent_id,
@@ -633,7 +641,94 @@ span.wp-media-buttons-icon:before {
 
 #post-body-content,
 .edit-form-section {
- 	margin-bottom: 20px;
+	margin-bottom: 20px;
+}
+
+/* Suggested text for privacy policy */
+.wp-privacy-policy-guide {
+	max-width: 1000px;
+}
+
+.privacy-text-box {
+	width: calc(100% - 260px);
+}
+
+.privacy-text-box-toc {
+	float: right;
+	width: 250px;
+	background-color: #fff;
+}
+
+.privacy-text-box-toc p {
+	margin: 0;
+	padding: 0.7em 1em;
+	border-bottom: 1px solid #eee;
+}
+
+.privacy-text-box-toc ol {
+	margin-left: 2em;
+}
+
+.wp-privacy-policy-guide h3 {
+	font-size: 1.2em;
+	margin: 1em 0 0.5em;
+}
+
+.privacy-text-section .privacy-text-copy {
+	float: right;
+}
+
+.privacy-text-section {
+	position: relative;
+	border-top: 1px solid #e3e3e3;
+}
+
+.privacy-text-box-head,
+.privacy-text-section.text-removed {
+	padding-bottom: 12px;
+}
+
+.text-removed .policy-text {
+	font-style: italic;
+	color: #666;
+	font-weight: 600;
+}
+
+.privacy-text-actions {
+	height: 32px;
+	line-height: 32px;
+	padding-bottom: 6px;
+}
+
+.wp-privacy-policy-guide .policy-text h2 {
+	margin: 1.2em 0 1em;
+	padding: 0;
+}
+
+.suggested-policy-content {
+	font-style: italic;
+}
+
+.privacy-text-section a.return-to-top {
+	float: right;
+	margin-right: -250px;
+	margin-top: 6px;
+}
+
+.hide-privacy-policy-tutorial .privacy-policy-tutorial {
+	visibility: hidden;
+}
+
+.wp-suggested-text p {
+	font-style: italic;
+}
+
+.wp-suggested-text p.privacy-policy-tutorial {
+	font-style: normal;
+}
+
+.notice.wp-pp-notice {
+	margin: 15px 0 3px;
 }
 
 /* Suggested text for privacy policy */
@@ -833,11 +928,11 @@ a.post-state-format:hover:before {
 }
 
 div.tabs-panel-active {
-	display:block;
+	display: block;
 }
 
 div.tabs-panel-inactive {
-	display:none;
+	display: none;
 }
 
 #front-page-warning,
@@ -924,8 +1019,12 @@ span.description,
   13.0 - Tags
 ------------------------------------------------------------------------------*/
 
+#poststuff .tagsdiv .ajaxtag {
+	margin-top: 1em;
+}
+
 #poststuff .tagsdiv .howto {
-	margin: 0 0 6px 0;
+	margin: 1em 0 6px 0;
 }
 
 .ajaxtag .newtag {
@@ -1017,9 +1116,6 @@ p.popular-tags a {
 
 .edit-tag-actions {
 	margin-top: 20px;
-	overflow: hidden;
-	padding: 10px;
-	margin-right: 10px;
 }
 
 /* Comments */
@@ -1039,7 +1135,7 @@ p.popular-tags a {
 }
 
 .comment-ays .comment-content a[href]:after {
-	content: '(' attr( href ) ')';
+	content: "(" attr( href ) ")";
 	display: inline-block;
 	padding: 0 4px;
 	color: #72777C;
@@ -1052,7 +1148,7 @@ p.popular-tags a {
 }
 
 .comment-ays .comment-content p.edit-comment a[href]:after {
-	content: '';
+	content: "";
 	padding: 0;
 }
 
@@ -1076,6 +1172,15 @@ p.popular-tags a {
 
 .stuffbox .editcomment {
 	clear: none;
+	margin-top: 0;
+}
+
+#namediv.stuffbox .editcomment input {
+	width: 100%;
+}
+
+#namediv.stuffbox .editcomment.form-table td {
+	padding: 10px;
 }
 
 #comment-status-radio p {
@@ -1223,7 +1328,7 @@ p.popular-tags a {
 	}
 }
 
-@media screen and ( max-width: 782px ) {
+@media screen and (max-width: 782px) {
 	.wp-core-ui .edit-tag-actions .button-primary {
 		margin-bottom: 0;
 	}
@@ -1236,10 +1341,18 @@ p.popular-tags a {
 		padding: 10px 10px;
 	}
 
+	#poststuff .stuffbox .inside {
+		padding: 0 2px 4px 0;
+	}
+
 	#poststuff h3.hndle, /* Back-compat for pre-4.4 */
 	#poststuff .stuffbox > h3, /* Back-compat for pre-4.4 */
 	#poststuff h2 {
 		padding: 12px;
+	}
+
+	#namediv.stuffbox .editcomment.form-table td {
+		padding: 5px 10px;
 	}
 
 	/* Publish Metabox Options */
@@ -1414,6 +1527,21 @@ p.popular-tags a {
 
 	.comment-ays td {
 		padding-top: 6px;
+	}
+
+	.privacy-text-box {
+		width: auto;
+	}
+
+	.privacy-text-box-toc {
+		float: none;
+		width: auto;
+		height: 100%;
+	}
+
+	.privacy-text-section a.return-to-top {
+		float: none;
+		margin: 0;
 	}
 
 	.privacy-text-box {

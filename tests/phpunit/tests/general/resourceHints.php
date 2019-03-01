@@ -11,15 +11,15 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 		$this->old_wp_scripts = isset( $GLOBALS['wp_scripts'] ) ? $GLOBALS['wp_scripts'] : null;
-		$this->old_wp_styles = isset( $GLOBALS['wp_styles'] ) ? $GLOBALS['wp_styles'] : null;
+		$this->old_wp_styles  = isset( $GLOBALS['wp_styles'] ) ? $GLOBALS['wp_styles'] : null;
 
 		remove_action( 'wp_default_scripts', 'wp_default_scripts' );
 		remove_action( 'wp_default_styles', 'wp_default_styles' );
 
-		$GLOBALS['wp_scripts'] = new WP_Scripts();
+		$GLOBALS['wp_scripts']                  = new WP_Scripts();
 		$GLOBALS['wp_scripts']->default_version = get_bloginfo( 'version' );
-		$GLOBALS['wp_styles'] = new WP_Styles();
-		$GLOBALS['wp_styles']->default_version = get_bloginfo( 'version' );
+		$GLOBALS['wp_styles']                   = new WP_Styles();
+		$GLOBALS['wp_styles']->default_version  = get_bloginfo( 'version' );
 	}
 
 	function tearDown() {
@@ -176,7 +176,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	}
 
 	function test_dns_prefetch_scripts_does_not_included_registered_only() {
-		$expected = "";
+		$expected   = '';
 		$unexpected = "<link rel='dns-prefetch' href='//wordpress.org' />\n";
 
 		wp_register_script( 'jquery-elsewhere', 'https://wordpress.org/wp-includes/js/jquery/jquery.js' );
@@ -258,7 +258,7 @@ class Tests_WP_Resource_Hints extends WP_UnitTestCase {
 	function _add_url_with_attributes( $hints, $method ) {
 		// Ignore hints with missing href attributes.
 		$hints[] = array(
-			'rel'  => 'foo',
+			'rel' => 'foo',
 		);
 
 		if ( 'preconnect' === $method ) {

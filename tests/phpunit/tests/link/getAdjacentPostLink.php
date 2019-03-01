@@ -8,7 +8,7 @@ class Tests_Link_GetAdjacentPostLink extends WP_UnitTestCase {
 	protected $post_ids;
 	protected $cat_id;
 
-	public function setUp(){
+	public function setUp() {
 		parent::setUp();
 		$prime_cat_id = self::factory()->category->create( array( 'name' => 'Uncategorized' ) );
 		$this->cat_id = self::factory()->category->create( array( 'name' => 'other' ) );
@@ -30,43 +30,43 @@ class Tests_Link_GetAdjacentPostLink extends WP_UnitTestCase {
 	}
 
 	public function test_get_next_post_link_default() {
-		$actual = get_next_post_link();
-		$title = get_post( $this->post_ids[1] )->post_title;
+		$actual   = get_next_post_link();
+		$title    = get_post( $this->post_ids[1] )->post_title;
 		$expected = '<a href="' . get_the_permalink( $this->post_ids[1] ) . '" rel="next">' . $title . '</a> &raquo;';
 		$this->assertSame( $expected, $actual );
 	}
 
 	public function test_get_previous_post_link_default() {
-		$actual = get_previous_post_link();
-		$title = get_post( $this->post_ids[3] )->post_title;
+		$actual   = get_previous_post_link();
+		$title    = get_post( $this->post_ids[3] )->post_title;
 		$expected = '&laquo; <a href="' . get_the_permalink( $this->post_ids[3] ) . '" rel="prev">' . $title . '</a>';
 		$this->assertSame( $expected, $actual );
 	}
 
 	public function test_get_next_post_link_same_category() {
-		$actual = get_next_post_link( '%link &raquo;', '%title', true );
-		$title = get_post( $this->post_ids[0] )->post_title;
+		$actual   = get_next_post_link( '%link &raquo;', '%title', true );
+		$title    = get_post( $this->post_ids[0] )->post_title;
 		$expected = '<a href="' . get_the_permalink( $this->post_ids[0] ) . '" rel="next">' . $title . '</a> &raquo;';
 		$this->assertSame( $expected, $actual );
 	}
 
 	public function test_get_previous_post_link_same_category() {
-		$actual = get_previous_post_link( '&laquo; %link', '%title', true );
-		$title = get_post( $this->post_ids[4] )->post_title;
+		$actual   = get_previous_post_link( '&laquo; %link', '%title', true );
+		$title    = get_post( $this->post_ids[4] )->post_title;
 		$expected = '&laquo; <a href="' . get_the_permalink( $this->post_ids[4] ) . '" rel="prev">' . $title . '</a>';
 		$this->assertSame( $expected, $actual );
 	}
 
 	public function test_get_next_post_link_exclude_category() {
-		$actual = get_next_post_link( '%link &raquo;', '%title', false, $this->cat_id );
-		$title = get_post( $this->post_ids[0] )->post_title;
+		$actual   = get_next_post_link( '%link &raquo;', '%title', false, $this->cat_id );
+		$title    = get_post( $this->post_ids[0] )->post_title;
 		$expected = '<a href="' . get_the_permalink( $this->post_ids[0] ) . '" rel="next">' . $title . '</a> &raquo;';
 		$this->assertSame( $expected, $actual );
 	}
 
 	public function test_get_previous_post_link_exclude_category() {
-		$actual = get_previous_post_link( '&laquo; %link', '%title', false, $this->cat_id );
-		$title = get_post( $this->post_ids[4] )->post_title;
+		$actual   = get_previous_post_link( '&laquo; %link', '%title', false, $this->cat_id );
+		$title    = get_post( $this->post_ids[4] )->post_title;
 		$expected = '&laquo; <a href="' . get_the_permalink( $this->post_ids[4] ) . '" rel="prev">' . $title . '</a>';
 		$this->assertSame( $expected, $actual );
 	}

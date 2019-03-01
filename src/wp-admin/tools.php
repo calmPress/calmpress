@@ -19,7 +19,7 @@ if ( $is_privacy_guide ) {
 
 } else {
 
-	$title = __('Tools');
+	$title = __( 'Tools' );
 
 }
 

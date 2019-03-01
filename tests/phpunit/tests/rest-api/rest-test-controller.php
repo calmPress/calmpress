@@ -18,9 +18,9 @@ class WP_REST_Test_Controller extends WP_REST_Controller {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function prepare_item_for_response( $item, $request ) {
-		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
-		$item = $this->add_additional_fields_to_object( $item, $request );
-		$item = $this->filter_response_by_context( $item, $context );
+		$context  = ! empty( $request['context'] ) ? $request['context'] : 'view';
+		$item     = $this->add_additional_fields_to_object( $item, $request );
+		$item     = $this->filter_response_by_context( $item, $context );
 		$response = rest_ensure_response( $item );
 		return $response;
 	}
@@ -32,56 +32,56 @@ class WP_REST_Test_Controller extends WP_REST_Controller {
 	 */
 	public function get_item_schema() {
 		$schema = array(
-			'$schema'              => 'http://json-schema.org/draft-04/schema#',
-			'title'                => 'type',
-			'type'                 => 'object',
-			'properties'           => array(
-				'somestring'       => array(
-					'type'         => 'string',
-					'description'  => 'A pretty string.',
-					'context'      => array( 'view' ),
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'type',
+			'type'       => 'object',
+			'properties' => array(
+				'somestring'     => array(
+					'type'        => 'string',
+					'description' => 'A pretty string.',
+					'context'     => array( 'view' ),
 				),
-				'someinteger'      => array(
-					'type'         => 'integer',
-					'context'      => array( 'view' ),
+				'someinteger'    => array(
+					'type'    => 'integer',
+					'context' => array( 'view' ),
 				),
-				'someboolean'      => array(
-					'type'         => 'boolean',
-					'context'      => array( 'view' ),
+				'someboolean'    => array(
+					'type'    => 'boolean',
+					'context' => array( 'view' ),
 				),
-				'someurl'          => array(
-					'type'         => 'string',
-					'format'       => 'uri',
-					'context'      => array( 'view' ),
+				'someurl'        => array(
+					'type'    => 'string',
+					'format'  => 'uri',
+					'context' => array( 'view' ),
 				),
-				'somedate'             => array(
-					'type'         => 'string',
-					'format'       => 'date-time',
-					'context'      => array( 'view' ),
+				'somedate'       => array(
+					'type'    => 'string',
+					'format'  => 'date-time',
+					'context' => array( 'view' ),
 				),
-				'someemail'             => array(
-					'type'         => 'string',
-					'format'       => 'email',
-					'context'      => array( 'view' ),
+				'someemail'      => array(
+					'type'    => 'string',
+					'format'  => 'email',
+					'context' => array( 'view' ),
 				),
-				'someenum'         => array(
-					'type'         => 'string',
-					'enum'         => array( 'a', 'b', 'c' ),
-					'context'      => array( 'view' ),
+				'someenum'       => array(
+					'type'    => 'string',
+					'enum'    => array( 'a', 'b', 'c' ),
+					'context' => array( 'view' ),
 				),
-				'someargoptions'   => array(
-					'type'         => 'integer',
-					'required'     => true,
-					'arg_options'  => array(
+				'someargoptions' => array(
+					'type'        => 'integer',
+					'required'    => true,
+					'arg_options' => array(
 						'required'          => false,
 						'sanitize_callback' => '__return_true',
 					),
 				),
-				'somedefault'      => array(
-					'type'         => 'string',
-					'enum'         => array( 'a', 'b', 'c' ),
-					'context'      => array( 'view' ),
-					'default'      => 'a',
+				'somedefault'    => array(
+					'type'    => 'string',
+					'enum'    => array( 'a', 'b', 'c' ),
+					'context' => array( 'view' ),
+					'default' => 'a',
 				),
 			),
 		);

@@ -23,8 +23,8 @@ foreach ( array( 'pre_term_name', 'pre_comment_author_name', 'pre_user_display_n
 foreach ( array( 'term_name', 'comment_author_name', 'user_display_name' ) as $filter ) {
 	if ( is_admin() ) {
 		// These are expensive. Run only on admin pages for defense in depth.
-		add_filter( $filter, 'sanitize_text_field'  );
-		add_filter( $filter, 'wp_kses_data'       );
+		add_filter( $filter, 'sanitize_text_field' );
+		add_filter( $filter, 'wp_kses_data' );
 	}
 	add_filter( $filter, '_wp_specialchars', 30 );
 }
@@ -44,7 +44,7 @@ if ( is_admin() ) {
 
 // Email saves
 foreach ( array( 'pre_comment_author_email', 'pre_user_email' ) as $filter ) {
-	add_filter( $filter, 'trim'           );
+	add_filter( $filter, 'trim' );
 	add_filter( $filter, 'sanitize_email' );
 	add_filter( $filter, 'wp_filter_kses' );
 }
@@ -52,25 +52,28 @@ foreach ( array( 'pre_comment_author_email', 'pre_user_email' ) as $filter ) {
 // Email admin display
 foreach ( array( 'comment_author_email', 'user_email' ) as $filter ) {
 	add_filter( $filter, 'sanitize_email' );
-	if ( is_admin() )
+	if ( is_admin() ) {
 		add_filter( $filter, 'wp_kses_data' );
+	}
 }
 
 // Save URL
 foreach ( array( 'pre_comment_author_url',
 	'pre_post_guid' ) as $filter ) {
 	add_filter( $filter, 'wp_strip_all_tags' );
-	add_filter( $filter, 'esc_url_raw'       );
-	add_filter( $filter, 'wp_filter_kses'    );
+	add_filter( $filter, 'esc_url_raw' );
+	add_filter( $filter, 'wp_filter_kses' );
 }
 
 // Display URL
 foreach ( array( 'comment_url', 'post_guid' ) as $filter ) {
 	if ( is_admin() )
 		add_filter( $filter, 'wp_strip_all_tags' );
-	add_filter( $filter, 'esc_url'           );
-	if ( is_admin() )
-		add_filter( $filter, 'wp_kses_data'    );
+	}
+	add_filter( $filter, 'esc_url' );
+	if ( is_admin() ) {
+		add_filter( $filter, 'wp_kses_data' );
+	}
 }
 
 // Slugs
@@ -98,6 +101,14 @@ add_action( 'deleted_post_meta', 'wp_cache_set_posts_last_changed' );
 add_action( 'added_term_meta', 'wp_cache_set_terms_last_changed' );
 add_action( 'updated_term_meta', 'wp_cache_set_terms_last_changed' );
 add_action( 'deleted_term_meta', 'wp_cache_set_terms_last_changed' );
+add_filter( 'get_term_metadata', 'wp_check_term_meta_support_prefilter' );
+add_filter( 'add_term_metadata', 'wp_check_term_meta_support_prefilter' );
+add_filter( 'update_term_metadata', 'wp_check_term_meta_support_prefilter' );
+add_filter( 'delete_term_metadata', 'wp_check_term_meta_support_prefilter' );
+add_filter( 'get_term_metadata_by_mid', 'wp_check_term_meta_support_prefilter' );
+add_filter( 'update_term_metadata_by_mid', 'wp_check_term_meta_support_prefilter' );
+add_filter( 'delete_term_metadata_by_mid', 'wp_check_term_meta_support_prefilter' );
+add_filter( 'update_term_metadata_cache', 'wp_check_term_meta_support_prefilter' );
 
 // Comment meta
 add_action( 'added_comment_meta', 'wp_cache_set_comments_last_changed' );
@@ -110,17 +121,20 @@ foreach ( array( 'content_save_pre', 'excerpt_save_pre', 'comment_save_pre', 'pr
 	add_filter( $filter, 'balanceTags', 50 );
 }
 
+// Add proper rel values for links with target.
+add_action( 'init', 'wp_init_targeted_link_rel_filters' );
+
 // Format strings for display.
 foreach ( array( 'comment_author', 'term_name', 'bloginfo', 'wp_title', 'widget_title' ) as $filter ) {
 	add_filter( $filter, 'wptexturize'   );
 	add_filter( $filter, 'convert_chars' );
-	add_filter( $filter, 'esc_html'      );
+	add_filter( $filter, 'esc_html' );
 }
 
 // Format titles
 foreach ( array( 'single_post_title', 'single_cat_title', 'single_tag_title', 'single_month_title', 'nav_menu_attr_title', 'nav_menu_description' ) as $filter ) {
 	add_filter( $filter, 'wptexturize' );
-	add_filter( $filter, 'strip_tags'  );
+	add_filter( $filter, 'strip_tags' );
 }
 
 // Format text area for display.
@@ -139,7 +153,7 @@ add_filter( 'wp_insert_post_parent', 'wp_check_post_hierarchy_for_loops', 10, 2 
 add_filter( 'wp_update_term_parent', 'wp_check_term_hierarchy_for_loops', 10, 3 );
 
 // Display filters
-add_filter( 'the_title', 'wptexturize'   );
+add_filter( 'the_title', 'wptexturize' );
 add_filter( 'the_title', 'convert_chars' );
 add_filter( 'the_title', 'trim'          );
 
@@ -158,15 +172,15 @@ add_filter( 'get_the_excerpt', 'wp_trim_excerpt'  );
 add_filter( 'the_post_thumbnail_caption', 'wptexturize'     );
 add_filter( 'the_post_thumbnail_caption', 'convert_chars'   );
 
-add_filter( 'comment_text', 'wptexturize'            );
-add_filter( 'comment_text', 'convert_chars'          );
-add_filter( 'comment_text', 'make_clickable',      9 );
+add_filter( 'comment_text', 'wptexturize' );
+add_filter( 'comment_text', 'convert_chars' );
+add_filter( 'comment_text', 'make_clickable', 9 );
 add_filter( 'comment_text', 'force_balance_tags', 25 );
 add_filter( 'comment_text', 'wpautop',            30 );
 
 add_filter( 'comment_excerpt', 'convert_chars' );
 
-add_filter( 'list_cats',         'wptexturize' );
+add_filter( 'list_cats', 'wptexturize' );
 
 add_filter( 'wp_sprintf', 'wp_sprintf_l', 10, 2 );
 
@@ -222,7 +236,7 @@ add_filter( 'title_save_pre',           'trim'                                );
 
 add_action( 'transition_comment_status', '_clear_modified_cache_on_transition_comment_status', 10, 2 );
 
-add_filter( 'http_request_host_is_external',    'allowed_http_request_hosts', 10, 2 );
+add_filter( 'http_request_host_is_external', 'allowed_http_request_hosts', 10, 2 );
 
 // REST API filters.
 add_action( 'wp_head',                    'rest_output_link_wp_head', 10, 0 );
@@ -254,16 +268,17 @@ add_action( 'init',                'check_theme_switched',            99    );
 add_action( 'after_switch_theme',  '_wp_menus_changed'                      );
 add_action( 'after_switch_theme',  '_wp_sidebars_changed'                   );
 
-if ( isset( $_GET['replytocom'] ) )
+if ( isset( $_GET['replytocom'] ) ) {
     add_action( 'wp_head', 'wp_no_robots' );
+}
 
 // Login actions
-add_filter( 'login_head',          'wp_resource_hints',             8     );
-add_action( 'login_head',          'wp_print_head_scripts',         9     );
-add_action( 'login_head',          'print_admin_styles',            9     );
-add_action( 'login_head',          'wp_site_icon',                  99    );
-add_action( 'login_footer',        'wp_print_footer_scripts',       20    );
-add_action( 'login_init',          'send_frame_options_header',     10, 0 );
+add_filter( 'login_head', 'wp_resource_hints', 8 );
+add_action( 'login_head', 'wp_print_head_scripts', 9 );
+add_action( 'login_head', 'print_admin_styles', 9 );
+add_action( 'login_head', 'wp_site_icon', 99 );
+add_action( 'login_footer', 'wp_print_footer_scripts', 20 );
+add_action( 'login_init', 'send_frame_options_header', 10, 0 );
 
 // Feed Site Icon
 add_action( 'atom_head', 'atom_site_icon' );
@@ -271,8 +286,9 @@ add_action( 'rss2_head', 'rss2_site_icon' );
 
 
 // WP Cron
-if ( !defined( 'DOING_CRON' ) )
+if ( ! defined( 'DOING_CRON' ) ) {
 	add_action( 'init', 'wp_cron' );
+}
 
 // 2 Actions 2 Furious
 add_action( 'do_feed_rdf',                'do_feed_rdf',                             10, 1 );
@@ -289,13 +305,23 @@ add_action( 'plugins_loaded',             'wp_maybe_load_widgets',              
 add_action( 'plugins_loaded',             'wp_maybe_load_embeds',                     0    );
 add_action( 'shutdown',                   'wp_ob_end_flush_all',                      1    );
 // Create a revision whenever a post is updated.
-add_action( 'post_updated',               'wp_save_post_revision',                   10, 1 );
-add_action( 'publish_post',               '_publish_post_hook',                       5, 1 );
-add_action( 'transition_post_status',     '_transition_post_status',                  5, 3 );
-add_action( 'transition_post_status',     '_update_term_count_on_transition_post_status', 10, 3 );
-add_action( 'comment_form',               'wp_comment_form_unfiltered_html_nonce'          );
-add_action( 'admin_init',                 'send_frame_options_header',               10, 0 );
-add_action( 'welcome_panel',              'wp_welcome_panel'                               );
+add_action( 'post_updated', 'wp_save_post_revision', 10, 1 );
+add_action( 'publish_post', '_publish_post_hook', 5, 1 );
+add_action( 'transition_post_status', '_transition_post_status', 5, 3 );
+add_action( 'transition_post_status', '_update_term_count_on_transition_post_status', 10, 3 );
+add_action( 'comment_form', 'wp_comment_form_unfiltered_html_nonce' );
+add_action( 'admin_init', 'send_frame_options_header', 10, 0 );
+add_action( 'welcome_panel', 'wp_welcome_panel' );
+
+// Privacy
+add_action( 'user_request_action_confirmed', '_wp_privacy_account_request_confirmed' );
+add_action( 'user_request_action_confirmed', '_wp_privacy_send_request_confirmation_notification', 12 ); // After request marked as completed.
+add_filter( 'wp_privacy_personal_data_exporters', 'wp_register_comment_personal_data_exporter' );
+add_filter( 'wp_privacy_personal_data_exporters', 'wp_register_media_personal_data_exporter' );
+add_filter( 'wp_privacy_personal_data_exporters', 'wp_register_user_personal_data_exporter', 1 );
+add_filter( 'wp_privacy_personal_data_erasers', 'wp_register_comment_personal_data_eraser' );
+add_action( 'init', 'wp_schedule_delete_old_privacy_export_files' );
+add_action( 'wp_privacy_delete_old_export_files', 'wp_privacy_delete_old_export_files' );
 
 // Privacy
 add_action( 'user_request_action_confirmed', '_wp_privacy_account_request_confirmed' );
@@ -308,29 +334,29 @@ add_action( 'init', 'wp_schedule_delete_old_privacy_export_files' );
 add_action( 'wp_privacy_delete_old_export_files', 'wp_privacy_delete_old_export_files' );
 
 // Cron tasks
-add_action( 'wp_scheduled_delete',            'wp_scheduled_delete'       );
-add_action( 'wp_scheduled_auto_draft_delete', 'wp_delete_auto_drafts'     );
-add_action( 'importer_scheduled_cleanup',     'wp_delete_attachment'      );
-add_action( 'upgrader_scheduled_cleanup',     'wp_delete_attachment'      );
-add_action( 'delete_expired_transients',      'delete_expired_transients' );
+add_action( 'wp_scheduled_delete', 'wp_scheduled_delete' );
+add_action( 'wp_scheduled_auto_draft_delete', 'wp_delete_auto_drafts' );
+add_action( 'importer_scheduled_cleanup', 'wp_delete_attachment' );
+add_action( 'upgrader_scheduled_cleanup', 'wp_delete_attachment' );
+add_action( 'delete_expired_transients', 'delete_expired_transients' );
 
 // Navigation menu actions
-add_action( 'delete_post',                '_wp_delete_post_menu_item'         );
-add_action( 'delete_term',                '_wp_delete_tax_menu_item',   10, 3 );
-add_action( 'transition_post_status',     '_wp_auto_add_pages_to_menu', 10, 3 );
-add_action( 'delete_post',                '_wp_delete_customize_changeset_dependent_auto_drafts' );
+add_action( 'delete_post', '_wp_delete_post_menu_item' );
+add_action( 'delete_term', '_wp_delete_tax_menu_item', 10, 3 );
+add_action( 'transition_post_status', '_wp_auto_add_pages_to_menu', 10, 3 );
+add_action( 'delete_post', '_wp_delete_customize_changeset_dependent_auto_drafts' );
 
 // Post Thumbnail CSS class filtering
-add_action( 'begin_fetch_post_thumbnail_html', '_wp_post_thumbnail_class_filter_add'    );
-add_action( 'end_fetch_post_thumbnail_html',   '_wp_post_thumbnail_class_filter_remove' );
+add_action( 'begin_fetch_post_thumbnail_html', '_wp_post_thumbnail_class_filter_add' );
+add_action( 'end_fetch_post_thumbnail_html', '_wp_post_thumbnail_class_filter_remove' );
 
 // Redirect Old Slugs
-add_action( 'template_redirect',  'wp_old_slug_redirect'              );
-add_action( 'post_updated',       'wp_check_for_changed_slugs', 12, 3 );
+add_action( 'template_redirect', 'wp_old_slug_redirect' );
+add_action( 'post_updated', 'wp_check_for_changed_slugs', 12, 3 );
 add_action( 'attachment_updated', 'wp_check_for_changed_slugs', 12, 3 );
 
 // Redirect Old Dates
-add_action( 'post_updated',       'wp_check_for_changed_dates', 12, 3 );
+add_action( 'post_updated', 'wp_check_for_changed_dates', 12, 3 );
 add_action( 'attachment_updated', 'wp_check_for_changed_dates', 12, 3 );
 
 // Nonce check for Post Previews
@@ -340,10 +366,10 @@ add_action( 'init', '_show_post_preview' );
 add_action( 'wp_head', 'wp_post_preview_js', 1 );
 
 // Timezone
-add_filter( 'pre_option_gmt_offset','wp_timezone_override_offset' );
+add_filter( 'pre_option_gmt_offset', 'wp_timezone_override_offset' );
 
 // Admin Color Schemes
-add_action( 'admin_init', 'register_admin_color_schemes', 1);
+add_action( 'admin_init', 'register_admin_color_schemes', 1 );
 add_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
 
 // This option no longer exists; tell plugins we always support auto-embedding.
@@ -354,18 +380,19 @@ add_filter( 'heartbeat_settings', 'wp_heartbeat_settings' );
 
 // Check if the user is logged out
 add_action( 'admin_enqueue_scripts', 'wp_auth_check_load' );
-add_filter( 'heartbeat_send',        'wp_auth_check' );
+add_filter( 'heartbeat_send', 'wp_auth_check' );
 add_filter( 'heartbeat_nopriv_send', 'wp_auth_check' );
 
 // Default authentication filters
-add_filter( 'authenticate', 'wp_authenticate_username_password',  20, 3 );
-add_filter( 'authenticate', 'wp_authenticate_email_password',     20, 3 );
-add_filter( 'authenticate', 'wp_authenticate_spam_check',         99    );
-add_filter( 'determine_current_user', 'wp_validate_auth_cookie'          );
+add_filter( 'authenticate', 'wp_authenticate_username_password', 20, 3 );
+add_filter( 'authenticate', 'wp_authenticate_email_password', 20, 3 );
+add_filter( 'authenticate', 'wp_authenticate_spam_check', 99 );
+add_filter( 'determine_current_user', 'wp_validate_auth_cookie' );
 add_filter( 'determine_current_user', 'wp_validate_logged_in_cookie', 20 );
 
 // Split term updates.
-add_action( 'admin_init',        '_wp_check_for_scheduled_split_terms' );
+add_action( 'admin_init', '_wp_check_for_scheduled_split_terms' );
+add_action( 'split_shared_term', '_wp_check_split_default_terms', 10, 4 );
 add_action( 'split_shared_term', '_wp_check_split_terms_in_menus', 10, 4 );
 add_action( 'split_shared_term', '_wp_check_split_nav_menu_terms', 10, 4 );
 add_action( 'wp_split_shared_term_batch', '_wp_batch_split_terms' );
@@ -374,13 +401,13 @@ add_action( 'wp_split_shared_term_batch', '_wp_batch_split_terms' );
 add_action( 'comment_post', 'wp_new_comment_notify_moderator' );
 add_action( 'comment_post', 'wp_new_comment_notify_postauthor' );
 add_action( 'after_password_reset', 'wp_password_change_notification' );
-add_action( 'register_new_user',      'wp_send_new_user_notifications' );
+add_action( 'register_new_user', 'wp_send_new_user_notifications' );
 add_action( 'edit_user_created_user', 'wp_send_new_user_notifications', 10, 2 );
 
 // REST API actions.
-add_action( 'init',          'rest_api_init' );
-add_action( 'rest_api_init', 'rest_api_default_filters',   10, 1 );
-add_action( 'rest_api_init', 'register_initial_settings',  10 );
+add_action( 'init', 'rest_api_init' );
+add_action( 'rest_api_init', 'rest_api_default_filters', 10, 1 );
+add_action( 'rest_api_init', 'register_initial_settings', 10 );
 add_action( 'rest_api_init', 'create_initial_rest_routes', 99 );
 add_action( 'parse_request', 'rest_api_loaded' );
 
@@ -403,7 +430,7 @@ add_action( 'transition_post_status', '__clear_multi_author_cache' );
 add_action( 'init', 'create_initial_post_types', 0 ); // highest priority
 add_action( 'admin_menu', '_add_post_type_submenus' );
 add_action( 'before_delete_post', '_reset_front_page_settings_for_post' );
-add_action( 'wp_trash_post',      '_reset_front_page_settings_for_post' );
+add_action( 'wp_trash_post', '_reset_front_page_settings_for_post' );
 add_action( 'change_locale', 'create_initial_post_types' );
 
 // Post Formats
@@ -462,7 +489,7 @@ add_filter( 'image_send_to_editor', 'image_add_caption', 20, 8 );
 add_filter( 'media_send_to_editor', 'image_media_send_to_editor', 10, 3 );
 
 // Embeds
-add_action( 'rest_api_init',          'wp_oembed_register_route'              );
+add_action( 'rest_api_init', 'wp_oembed_register_route' );
 add_filter( 'rest_pre_serve_request', '_oembed_rest_pre_serve_request', 10, 4 );
 
 add_action( 'wp_head',                'wp_oembed_add_discovery_links'         );

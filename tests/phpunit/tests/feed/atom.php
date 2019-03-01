@@ -18,26 +18,33 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
 		// Create a user
-		self::$user_id = $factory->user->create( array(
-			'role'         => 'author',
-			'user_login'   => 'test_author',
-			'display_name' => 'Test A. Uthor',
-		) );
+		self::$user_id = $factory->user->create(
+			array(
+				'role'         => 'author',
+				'user_login'   => 'test_author',
+				'display_name' => 'Test A. Uthor',
+			)
+		);
 
 		// Create a taxonomy
-		self::$category = self::factory()->category->create_and_get( array(
-			'name' => 'Test Category',
-			'slug' => 'test-cat',
-		) );
+		self::$category = self::factory()->category->create_and_get(
+			array(
+				'name' => 'Test Category',
+				'slug' => 'test-cat',
+			)
+		);
 
 		$count = get_option( 'posts_per_rss' ) + 1;
 
 		// Create a few posts
-		self::$posts = $factory->post->create_many( $count, array(
-			'post_author'  => self::$user_id,
-			'post_content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec velit massa, ultrices eu est suscipit, mattis posuere est. Donec vitae purus lacus. Cras vitae odio odio.',
-			'post_excerpt' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-		) );
+		self::$posts = $factory->post->create_many(
+			$count,
+			array(
+				'post_author'  => self::$user_id,
+				'post_content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec velit massa, ultrices eu est suscipit, mattis posuere est. Donec vitae purus lacus. Cras vitae odio odio.',
+				'post_excerpt' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+			)
+		);
 
 		// Assign a category to those posts
 		foreach ( self::$posts as $post ) {
@@ -59,7 +66,7 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->post_count = (int) get_option( 'posts_per_rss' );
+		$this->post_count   = (int) get_option( 'posts_per_rss' );
 		$this->excerpt_only = get_option( 'rss_use_excerpt' );
 	}
 
@@ -87,7 +94,7 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 	function test_feed_element() {
 		$this->go_to( '/feed/atom' );
 		$feed = $this->do_atom();
-		$xml = xml_to_array( $feed );
+		$xml  = xml_to_array( $feed );
 
 		// Get the <feed> child element of <xml>.
 		$atom = xml_find( $xml, 'feed' );
@@ -98,7 +105,7 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 		// Verify attributes.
 		$this->assertEquals( 'http://www.w3.org/2005/Atom', $atom[0]['attributes']['xmlns'] );
 		$this->assertEquals( 'http://purl.org/syndication/thread/1.0', $atom[0]['attributes']['xmlns:thr'] );
-		$this->assertEquals( site_url( '/wp-atom.php' ) , $atom[0]['attributes']['xml:base'] );
+		$this->assertEquals( site_url( '/wp-atom.php' ), $atom[0]['attributes']['xml:base'] );
 
 		// Verify the <feed> element is present and contains a <title> child element.
 		$title = xml_find( $xml, 'feed', 'title' );
@@ -133,7 +140,7 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 
 		$this->go_to( '/feed/atom' );
 		$feed = $this->do_atom();
-		$xml = xml_to_array( $feed );
+		$xml  = xml_to_array( $feed );
 
 		// Get all the <entry> child elements of the <feed> element.
 		$entries = xml_find( $xml, 'feed', 'entry' );
@@ -161,11 +168,11 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 			}
 
 			// Title
-			$title = xml_find( $entries[$key]['child'], 'title' );
+			$title = xml_find( $entries[ $key ]['child'], 'title' );
 			$this->assertEquals( $post->post_title, $title[0]['content'] );
 
 			// Link rel="alternate"
-			$link_alts = xml_find( $entries[$key]['child'], 'link' );
+			$link_alts = xml_find( $entries[ $key ]['child'], 'link' );
 			foreach ( $link_alts as $link_alt ) {
 				if ( 'alternate' == $link_alt['attributes']['rel'] ) {
 					$this->assertEquals( get_permalink( $post ), $link_alt['attributes']['href'] );
@@ -173,22 +180,22 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 			}
 
 			// Id
-			$guid = xml_find( $entries[$key]['child'], 'id' );
+			$guid = xml_find( $entries[ $key ]['child'], 'id' );
 			$this->assertEquals( $post->guid, $id[0]['content'] );
 
 			// Updated
-			$updated = xml_find( $entries[$key]['child'], 'updated' );
+			$updated = xml_find( $entries[ $key ]['child'], 'updated' );
 			$this->assertEquals( strtotime( $post->post_modified_gmt ), strtotime( $updated[0]['content'] ) );
 
 			// Published
-			$published = xml_find( $entries[$key]['child'], 'published' );
+			$published = xml_find( $entries[ $key ]['child'], 'published' );
 			$this->assertEquals( strtotime( $post->post_date_gmt ), strtotime( $published[0]['content'] ) );
 
 			// Category
 			foreach ( get_the_category( $post->ID ) as $term ) {
 				$terms[] = $term->name;
 			}
-			$categories = xml_find( $entries[$key]['child'], 'category' );
+			$categories = xml_find( $entries[ $key ]['child'], 'category' );
 			foreach ( $categories as $category ) {
 				$this->assertTrue( in_array( $category['attributes']['term'], $terms ) );
 			}
@@ -196,12 +203,12 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 
 			// Content
 			if ( ! $this->excerpt_only ) {
-				$content = xml_find( $entries[$key]['child'], 'content' );
+				$content = xml_find( $entries[ $key ]['child'], 'content' );
 				$this->assertEquals( trim( apply_filters( 'the_content', $post->post_content ) ), trim( $content[0]['content'] ) );
 			}
 
 			// Link rel="replies"
-			$link_replies = xml_find( $entries[$key]['child'], 'link' );
+			$link_replies = xml_find( $entries[ $key ]['child'], 'link' );
 			foreach ( $link_replies as $link_reply ) {
 				if ( 'replies' == $link_reply['attributes']['rel'] && 'application/atom+xml' == $link_reply['attributes']['type'] ) {
 					$this->assertEquals( get_post_comments_feed_link( $post->ID, 'atom' ), $link_reply['attributes']['href'] );

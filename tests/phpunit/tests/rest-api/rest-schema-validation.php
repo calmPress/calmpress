@@ -26,7 +26,7 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 
 	public function test_type_integer() {
 		$schema = array(
-			'type' => 'integer',
+			'type'    => 'integer',
 			'minimum' => 1,
 			'maximum' => 2,
 		);
@@ -64,7 +64,7 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 
 	public function test_format_email() {
 		$schema = array(
-			'type'  => 'string',
+			'type'   => 'string',
 			'format' => 'email',
 		);
 		$this->assertTrue( rest_validate_value_from_schema( 'email@example.com', $schema ) );
@@ -74,7 +74,7 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 
 	public function test_format_date_time() {
 		$schema = array(
-			'type'  => 'string',
+			'type'   => 'string',
 			'format' => 'date-time',
 		);
 		$this->assertTrue( rest_validate_value_from_schema( '2016-06-30T05:43:21', $schema ) );
@@ -87,7 +87,7 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 
 	public function test_format_ip() {
 		$schema = array(
-			'type'  => 'string',
+			'type'   => 'string',
 			'format' => 'ip',
 		);
 
@@ -113,20 +113,21 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 
 	public function test_type_array() {
 		$schema = array(
-			'type' => 'array',
+			'type'  => 'array',
 			'items' => array(
 				'type' => 'number',
 			),
 		);
 		$this->assertTrue( rest_validate_value_from_schema( array( 1 ), $schema ) );
 		$this->assertWPError( rest_validate_value_from_schema( array( true ), $schema ) );
+		$this->assertWPError( rest_validate_value_from_schema( null, $schema ) );
 	}
 
 	public function test_type_array_nested() {
 		$schema = array(
-			'type' => 'array',
+			'type'  => 'array',
 			'items' => array(
-				'type' => 'array',
+				'type'  => 'array',
 				'items' => array(
 					'type' => 'number',
 				),
@@ -137,7 +138,7 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 
 	public function test_type_array_as_csv() {
 		$schema = array(
-			'type' => 'array',
+			'type'  => 'array',
 			'items' => array(
 				'type' => 'number',
 			),
@@ -145,6 +146,8 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 		$this->assertTrue( rest_validate_value_from_schema( '1', $schema ) );
 		$this->assertTrue( rest_validate_value_from_schema( '1,2,3', $schema ) );
 		$this->assertWPError( rest_validate_value_from_schema( 'lol', $schema ) );
+		$this->assertTrue( rest_validate_value_from_schema( '1,,', $schema ) );
+		$this->assertTrue( rest_validate_value_from_schema( '', $schema ) );
 	}
 
 	public function test_type_array_with_enum() {
@@ -169,6 +172,8 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 		);
 		$this->assertTrue( rest_validate_value_from_schema( 'ribs,chicken', $schema ) );
 		$this->assertWPError( rest_validate_value_from_schema( 'chicken,coleslaw', $schema ) );
+		$this->assertTrue( rest_validate_value_from_schema( 'ribs,chicken,', $schema ) );
+		$this->assertTrue( rest_validate_value_from_schema( '', $schema ) );
 	}
 
 	public function test_type_array_is_associative() {
@@ -178,7 +183,15 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 				'type' => 'string',
 			),
 		);
-		$this->assertWPError( rest_validate_value_from_schema( array( 'first' => '1', 'second' => '2' ), $schema ) );
+		$this->assertWPError(
+			rest_validate_value_from_schema(
+				array(
+					'first'  => '1',
+					'second' => '2',
+				),
+				$schema
+			)
+		);
 	}
 
 	public function test_type_object() {
@@ -191,14 +204,22 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 			),
 		);
 		$this->assertTrue( rest_validate_value_from_schema( array( 'a' => 1 ), $schema ) );
-		$this->assertTrue( rest_validate_value_from_schema( array( 'a' => 1, 'b' => 2 ), $schema ) );
+		$this->assertTrue(
+			rest_validate_value_from_schema(
+				array(
+					'a' => 1,
+					'b' => 2,
+				),
+				$schema
+			)
+		);
 		$this->assertWPError( rest_validate_value_from_schema( array( 'a' => 'invalid' ), $schema ) );
 	}
 
 	public function test_type_object_additional_properties_false() {
 		$schema = array(
-			'type'       => 'object',
-			'properties' => array(
+			'type'                 => 'object',
+			'properties'           => array(
 				'a' => array(
 					'type' => 'number',
 				),
@@ -206,20 +227,28 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 			'additionalProperties' => false,
 		);
 		$this->assertTrue( rest_validate_value_from_schema( array( 'a' => 1 ), $schema ) );
-		$this->assertWPError( rest_validate_value_from_schema( array( 'a' => 1, 'b' => 2 ), $schema ) );
+		$this->assertWPError(
+			rest_validate_value_from_schema(
+				array(
+					'a' => 1,
+					'b' => 2,
+				),
+				$schema
+			)
+		);
 	}
 
 	public function test_type_object_nested() {
 		$schema = array(
-			'type' => 'object',
+			'type'       => 'object',
 			'properties' => array(
 				'a' => array(
-					'type'  => 'object',
+					'type'       => 'object',
 					'properties' => array(
 						'b' => array( 'type' => 'number' ),
 						'c' => array( 'type' => 'number' ),
-					)
-				)
+					),
+				),
 			),
 		);
 		$this->assertTrue(
@@ -233,7 +262,17 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 				$schema
 			)
 		);
-		$this->assertWPError( rest_validate_value_from_schema( array( 'a' => array( 'b' => 1, 'c' => 'invalid' ) ), $schema ) );
+		$this->assertWPError(
+			rest_validate_value_from_schema(
+				array(
+					'a' => array(
+						'b' => 1,
+						'c' => 'invalid',
+					),
+				),
+				$schema
+			)
+		);
 		$this->assertWPError( rest_validate_value_from_schema( array( 'a' => 1 ), $schema ) );
 	}
 
@@ -242,7 +281,7 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 			'type'       => 'object',
 			'properties' => array(
 				'a' => array(
-					'type' => 'number'
+					'type' => 'number',
 				),
 			),
 		);
@@ -251,7 +290,7 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 
 	public function test_type_unknown() {
 		$schema = array(
-			'type'  => 'lalala',
+			'type' => 'lalala',
 		);
 		$this->assertTrue( rest_validate_value_from_schema( 'Best lyrics', $schema ) );
 		$this->assertTrue( rest_validate_value_from_schema( 1, $schema ) );

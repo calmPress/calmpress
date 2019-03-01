@@ -50,7 +50,7 @@ function get_the_author() {
 	 *
 	 * @param string $authordata->display_name The author's display name.
 	 */
-	return apply_filters('the_author', $display_name);
+	return apply_filters( 'the_author', $display_name );
 }
 
 /**
@@ -87,10 +87,19 @@ function the_author() {
  * @return string The editor's display name.
  */
 function get_the_modified_editor() {
-	if ( $last_id = get_post_meta( get_post()->ID, '_edit_last', true) ) {
-		$last_user = get_userdata($last_id);
+	$last_id = get_post_meta( get_post()->ID, '_edit_last', true );
 
-		return $last_user->display_name;
+	if ( $last_id ) {
+		$last_user = get_userdata( $last_id );
+
+		/**
+		 * Filters the display name of the author who last edited the current post.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $last_user->display_name The author's display name.
+		 */
+		return apply_filters( 'the_modified_editor', $last_user->display_name );
 	}
 
 	return '';
@@ -179,8 +188,9 @@ function get_the_author_meta( $field = '', $user_id = false ) {
 		$authordata = get_userdata( $user_id );
 	}
 
-	if ( in_array( $field, array( 'login', 'pass', 'nicename', 'email', 'registered', 'activation_key', 'status' ) ) )
+	if ( in_array( $field, array( 'login', 'pass', 'nicename', 'email', 'registered', 'activation_key', 'status' ) ) ) {
 		$field = 'user_' . $field;
+	}
 
 	$value = isset( $authordata->$field ) ? $authordata->$field : '';
 
@@ -451,7 +461,7 @@ function wp_list_authors( $args = '' ) {
 		);
 
 		if ( $args['optioncount'] ) {
-			$link .= ' ('. $posts . ')';
+			$link .= ' (' . $posts . ')';
 		}
 
 		$return .= $link;

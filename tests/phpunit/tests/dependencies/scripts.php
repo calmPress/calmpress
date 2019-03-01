@@ -13,7 +13,7 @@ class Tests_Dependencies_Scripts extends WP_UnitTestCase {
 		$this->old_wp_scripts = isset( $GLOBALS['wp_scripts'] ) ? $GLOBALS['wp_scripts'] : null;
 		remove_action( 'wp_default_scripts', 'wp_default_scripts' );
 		remove_action( 'wp_default_scripts', 'wp_default_packages' );
-		$GLOBALS['wp_scripts'] = new WP_Scripts();
+		$GLOBALS['wp_scripts']                  = new WP_Scripts();
 		$GLOBALS['wp_scripts']->default_version = calm_version_hash( get_bloginfo( 'version' ) );
 
 		$this->wp_scripts_print_translations_output  = <<<JS
@@ -36,58 +36,56 @@ JS;
 
 	/**
 	 * Test versioning
+	 *
 	 * @ticket 11315
 	 */
 	function test_wp_enqueue_script() {
-		wp_enqueue_script('no-deps-no-version', 'example.com', array());
-		wp_enqueue_script('empty-deps-no-version', 'example.com' );
-		wp_enqueue_script('empty-deps-version', 'example.com', array(), 1.2);
-		wp_enqueue_script('empty-deps-null-version', 'example.com', array(), null);
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
 		$expected  = "<script type='text/javascript' src='http://example.com?ver=$ver'></script>\n";
 		$expected .= "<script type='text/javascript' src='http://example.com?ver=$ver'></script>\n";
 		$expected .= "<script type='text/javascript' src='http://example.com?ver=1.2'></script>\n";
 		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
 
-		$this->assertEquals($expected, get_echo('wp_print_scripts'));
+		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
 
 		// No scripts left to print
-		$this->assertEquals("", get_echo('wp_print_scripts'));
+		$this->assertEquals( '', get_echo( 'wp_print_scripts' ) );
 	}
 
 	/**
 	 * Test the different protocol references in wp_enqueue_script
+	 *
 	 * @global WP_Scripts $wp_scripts
 	 * @ticket 16560
 	 */
 	public function test_protocols() {
 		// Init
 		global $wp_scripts;
-		$base_url_backup = $wp_scripts->base_url;
+		$base_url_backup      = $wp_scripts->base_url;
 		$wp_scripts->base_url = 'http://example.com/wordpress';
-		$expected = '';
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
+		$expected             = '';
+		$ver                  = calm_version_hash( get_bloginfo( 'version' ) );
 
 		// Try with an HTTP reference
 		wp_enqueue_script( 'jquery-http', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' );
-		$expected  .= "<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
+		$expected .= "<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
 
 		// Try with an HTTPS reference
 		wp_enqueue_script( 'jquery-https', 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' );
-		$expected  .= "<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
+		$expected .= "<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
 
 		// Try with an automatic protocol reference (//)
 		wp_enqueue_script( 'jquery-doubleslash', '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' );
-		$expected  .= "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
+		$expected .= "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
 
 		// Try with a local resource and an automatic protocol reference (//)
 		$url = '//my_plugin/script.js';
 		wp_enqueue_script( 'plugin-script', $url );
-		$expected  .= "<script type='text/javascript' src='$url?ver=$ver'></script>\n";
+		$expected .= "<script type='text/javascript' src='$url?ver=$ver'></script>\n";
 
 		// Try with a bad protocol
 		wp_enqueue_script( 'jquery-ftp', 'ftp://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' );
-		$expected  .= "<script type='text/javascript' src='{$wp_scripts->base_url}ftp://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
+		$expected .= "<script type='text/javascript' src='{$wp_scripts->base_url}ftp://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
 
 		// Go!
 		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
@@ -105,7 +103,7 @@ JS;
 	public function test_script_concatenation() {
 		global $wp_scripts;
 
-		$wp_scripts->do_concat = true;
+		$wp_scripts->do_concat    = true;
 		$wp_scripts->default_dirs = array( '/directory/' );
 
 		wp_enqueue_script( 'one', '/directory/script.js' );
@@ -115,7 +113,7 @@ JS;
 		wp_print_scripts();
 		$print_scripts = get_echo( '_print_scripts' );
 
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver      = calm_version_hash( get_bloginfo( 'version' ) );
 		$expected = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=one,two,three&amp;ver={$ver}'></script>\n";
 
 		$this->assertEquals( $expected, $print_scripts );
@@ -123,14 +121,15 @@ JS;
 
 	/**
 	 * Testing `wp_script_add_data` with the data key.
+	 *
 	 * @ticket 16024
 	 */
 	function test_wp_script_add_data_with_data_key() {
 		// Enqueue & add data
 		wp_enqueue_script( 'test-only-data', 'example.com', array(), null );
 		wp_script_add_data( 'test-only-data', 'data', 'testing' );
-		$expected = "<script type='text/javascript'>\n/* <![CDATA[ */\ntesting\n/* ]]> */\n</script>\n";
-		$expected.= "<script type='text/javascript' src='http://example.com'></script>\n";
+		$expected  = "<script type='text/javascript'>\n/* <![CDATA[ */\ntesting\n/* ]]> */\n</script>\n";
+		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
 
 		// Go!
 		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
@@ -141,6 +140,7 @@ JS;
 
 	/**
 	 * Testing `wp_script_add_data` with an anvalid key.
+	 *
 	 * @ticket 16024
 	 */
 	function test_wp_script_add_data_with_invalid_key() {
@@ -458,7 +458,7 @@ JS;
 	public function test_wp_add_inline_script_before_with_concat() {
 		global $wp_scripts;
 
-		$wp_scripts->do_concat = true;
+		$wp_scripts->do_concat    = true;
 		$wp_scripts->default_dirs = array( '/directory/' );
 
 		wp_enqueue_script( 'one', '/directory/one.js' );
@@ -468,8 +468,8 @@ JS;
 		wp_add_inline_script( 'one', 'console.log("before one");', 'before' );
 		wp_add_inline_script( 'two', 'console.log("before two");', 'before' );
 
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
-		$expected = "<script type='text/javascript'>\nconsole.log(\"before one\");\n</script>\n";
+		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$expected  = "<script type='text/javascript'>\nconsole.log(\"before one\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/one.js?ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"before two\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/two.js?ver={$ver}'></script>\n";
@@ -484,7 +484,7 @@ JS;
 	public function test_wp_add_inline_script_before_with_concat2() {
 		global $wp_scripts;
 
-		$wp_scripts->do_concat = true;
+		$wp_scripts->do_concat    = true;
 		$wp_scripts->default_dirs = array( '/directory/' );
 
 		wp_enqueue_script( 'one', '/directory/one.js' );
@@ -493,8 +493,8 @@ JS;
 
 		wp_add_inline_script( 'one', 'console.log("before one");', 'before' );
 
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
-		$expected = "<script type='text/javascript'>\nconsole.log(\"before one\");\n</script>\n";
+		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$expected  = "<script type='text/javascript'>\nconsole.log(\"before one\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/one.js?ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/two.js?ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/three.js?ver={$ver}'></script>\n";
@@ -508,7 +508,7 @@ JS;
 	public function test_wp_add_inline_script_after_with_concat() {
 		global $wp_scripts;
 
-		$wp_scripts->do_concat = true;
+		$wp_scripts->do_concat    = true;
 		$wp_scripts->default_dirs = array( '/directory/' );
 
 		wp_enqueue_script( 'one', '/directory/one.js' );
@@ -519,7 +519,7 @@ JS;
 		wp_add_inline_script( 'two', 'console.log("after two");' );
 		wp_add_inline_script( 'three', 'console.log("after three");' );
 
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=one&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/two.js?ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"after two\");\n</script>\n";
@@ -541,7 +541,7 @@ JS;
 		$wp_scripts->base_url  = '';
 		$wp_scripts->do_concat = true;
 
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=jquery-core,jquery-migrate&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"after\");\n</script>\n";
@@ -566,7 +566,7 @@ JS;
 		$wp_scripts->base_url  = '';
 		$wp_scripts->do_concat = true;
 
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=jquery-core,jquery-migrate&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"before\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
@@ -591,7 +591,7 @@ JS;
 		$wp_scripts->base_url  = '';
 		$wp_scripts->do_concat = true;
 
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=jquery-core,jquery-migrate,wp-a11y&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"before\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
@@ -624,7 +624,7 @@ JS;
 		wp_enqueue_script( 'three', '/wp-includes/js/script3.js' );
 		wp_enqueue_script( 'four', '/wp-includes/js/script4.js' );
 
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
 		$expected  = "<script type='text/javascript' src='/wp-includes/js/script.js?ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"after one\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/script2.js?ver={$ver}'></script>\n";
@@ -649,7 +649,7 @@ JS;
 		wp_add_inline_script( 'three', 'console.log("before three");', 'before' );
 		wp_enqueue_script( 'four', '/wp-includes/js/script4.js' );
 
-		$ver = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=one,two&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"before three\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/script3.js?ver={$ver}'></script>\n";
@@ -664,7 +664,7 @@ JS;
 	public function test_wp_set_script_translations() {
 		wp_register_script( 'wp-i18n', '/wp-includes/js/dist/wp-i18n.js', array(), null );
 		wp_enqueue_script( 'test-example', '/wp-includes/js/script.js', array(), null );
-		wp_set_script_translations( 'test-example', 'default',  DIR_TESTDATA . '/languages' );
+		wp_set_script_translations( 'test-example', 'default', DIR_TESTDATA . '/languages' );
 
 		$expected  = "<script type='text/javascript' src='/wp-includes/js/dist/wp-i18n.js'></script>\n";
 		$expected .= str_replace(
@@ -689,7 +689,7 @@ JS;
 	public function test_wp_set_script_translations_for_plugin() {
 		wp_register_script( 'wp-i18n', '/wp-includes/js/dist/wp-i18n.js', array(), null );
 		wp_enqueue_script( 'plugin-example', '/wp-content/plugins/my-plugin/js/script.js', array(), null );
-		wp_set_script_translations( 'plugin-example', 'internationalized-plugin',  DIR_TESTDATA . '/languages/plugins' );
+		wp_set_script_translations( 'plugin-example', 'internationalized-plugin', DIR_TESTDATA . '/languages/plugins' );
 
 		$expected  = "<script type='text/javascript' src='/wp-includes/js/dist/wp-i18n.js'></script>\n";
 		$expected .= str_replace(
@@ -714,7 +714,7 @@ JS;
 	public function test_wp_set_script_translations_for_theme() {
 		wp_register_script( 'wp-i18n', '/wp-includes/js/dist/wp-i18n.js', array(), null );
 		wp_enqueue_script( 'theme-example', '/wp-content/themes/my-theme/js/script.js', array(), null );
-		wp_set_script_translations( 'theme-example', 'internationalized-theme',  DIR_TESTDATA . '/languages/themes' );
+		wp_set_script_translations( 'theme-example', 'internationalized-theme', DIR_TESTDATA . '/languages/themes' );
 
 		$expected  = "<script type='text/javascript' src='/wp-includes/js/dist/wp-i18n.js'></script>\n";
 		$expected .= str_replace(
@@ -739,7 +739,7 @@ JS;
 	public function test_wp_set_script_translations_with_handle_file() {
 		wp_register_script( 'wp-i18n', '/wp-includes/js/dist/wp-i18n.js', array(), null );
 		wp_enqueue_script( 'script-handle', '/wp-admin/js/script.js', array(), null );
-		wp_set_script_translations( 'script-handle', 'admin',  DIR_TESTDATA . '/languages/' );
+		wp_set_script_translations( 'script-handle', 'admin', DIR_TESTDATA . '/languages/' );
 
 		$expected  = "<script type='text/javascript' src='/wp-includes/js/dist/wp-i18n.js'></script>\n";
 		$expected .= str_replace(
@@ -766,9 +766,9 @@ JS;
 
 		wp_register_script( 'wp-i18n', '/wp-includes/js/dist/wp-i18n.js', array(), null );
 		wp_enqueue_script( 'test-example', '/wp-includes/js/script.js', array(), null );
-		wp_set_script_translations( 'test-example', 'default',  DIR_TESTDATA . '/languages/' );
+		wp_set_script_translations( 'test-example', 'default', DIR_TESTDATA . '/languages/' );
 
-		$script = $wp_scripts->registered[ 'test-example' ];
+		$script = $wp_scripts->registered['test-example'];
 
 		$this->assertContains( 'wp-i18n', $script->deps );
 	}
@@ -779,7 +779,7 @@ JS;
 	public function test_wp_set_script_translations_when_translation_file_does_not_exist() {
 		wp_register_script( 'wp-i18n', '/wp-includes/js/dist/wp-i18n.js', array(), null );
 		wp_enqueue_script( 'test-example', '/wp-admin/js/script.js', array(), null );
-		wp_set_script_translations( 'test-example', 'admin',  DIR_TESTDATA . '/languages/' );
+		wp_set_script_translations( 'test-example', 'admin', DIR_TESTDATA . '/languages/' );
 
 		$expected  = "<script type='text/javascript' src='/wp-includes/js/dist/wp-i18n.js'></script>\n";
 		$expected .= str_replace(
@@ -857,10 +857,10 @@ JS;
 	 * Testing `wp_enqueue_code_editor` with file path.
 	 *
 	 * @ticket 41871
-	 * @covers wp_enqueue_code_editor()
+	 * @covers ::wp_enqueue_code_editor()
 	 */
 	public function test_wp_enqueue_code_editor_when_php_file_will_be_passed() {
-		$real_file = WP_PLUGIN_DIR . '/hello.php';
+		$real_file              = WP_PLUGIN_DIR . '/hello.php';
 		$wp_enqueue_code_editor = wp_enqueue_code_editor( array( 'file' => $real_file ) );
 		$this->assertNonEmptyMultidimensionalArray( $wp_enqueue_code_editor );
 
@@ -944,7 +944,7 @@ JS;
 	 * Testing `wp_enqueue_code_editor` with `compact`.
 	 *
 	 * @ticket 41871
-	 * @covers wp_enqueue_code_editor()
+	 * @covers ::wp_enqueue_code_editor()
 	 */
 	public function test_wp_enqueue_code_editor_when_generated_array_by_compact_will_be_passed() {
 		$file                   = '';
@@ -1027,16 +1027,16 @@ JS;
 	 * Testing `wp_enqueue_code_editor` with `array_merge`.
 	 *
 	 * @ticket 41871
-	 * @covers wp_enqueue_code_editor()
+	 * @covers ::wp_enqueue_code_editor()
 	 */
 	public function test_wp_enqueue_code_editor_when_generated_array_by_array_merge_will_be_passed() {
 		$wp_enqueue_code_editor = wp_enqueue_code_editor(
 			array_merge(
 				array(
-					'type' => 'text/css',
+					'type'       => 'text/css',
 					'codemirror' => array(
 						'indentUnit' => 2,
-						'tabSize' => 2,
+						'tabSize'    => 2,
 					),
 				),
 				array()
@@ -1124,15 +1124,15 @@ JS;
 	 * Testing `wp_enqueue_code_editor` with `array`.
 	 *
 	 * @ticket 41871
-	 * @covers wp_enqueue_code_editor()
+	 * @covers ::wp_enqueue_code_editor()
 	 */
 	public function test_wp_enqueue_code_editor_when_simple_array_will_be_passed() {
 		$wp_enqueue_code_editor = wp_enqueue_code_editor(
 			array(
-				'type' => 'text/css',
+				'type'       => 'text/css',
 				'codemirror' => array(
 					'indentUnit' => 2,
-					'tabSize' => 2,
+					'tabSize'    => 2,
 				),
 			)
 		);
@@ -1212,5 +1212,17 @@ JS;
 			),
 			array_keys( $wp_enqueue_code_editor['htmlhint'] )
 		);
+	}
+
+	function test_no_source_mapping() {
+		$all_files = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( dirname( ABSPATH ) . '/build/' ) );
+		$js_files  = new RegexIterator( $all_files, '/\.js$/' );
+		foreach ( $js_files as $js_file ) {
+			$contents = trim( file_get_contents( $js_file ) );
+
+			// We allow data: URLs.
+			$found = preg_match( '/sourceMappingURL=((?!data:).)/', $contents );
+			$this->assertSame( $found, 0, "sourceMappingURL found in $js_file" );
+		}
 	}
 }

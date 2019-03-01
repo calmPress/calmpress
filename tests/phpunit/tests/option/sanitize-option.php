@@ -9,8 +9,8 @@ class Tests_Sanitize_Option extends WP_UnitTestCase {
 	 * Data provider to test all of the sanitize_option() case
 	 *
 	 * Inner array params: $option_name, $sanitized, $original
-	 * @return array
 	 *
+	 * @return array
 	 */
 	public function sanitize_option_provider() {
 		return array(
@@ -50,7 +50,7 @@ class Tests_Sanitize_Option extends WP_UnitTestCase {
 			array(
 				'illegal_names',
 				array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
-				"www     web root admin main invite administrator files",
+				'www     web root admin main invite administrator files',
 			),
 			array(
 				'banned_email_domains',
@@ -80,7 +80,7 @@ class Tests_Sanitize_Option extends WP_UnitTestCase {
 		$this->assertSame( $sanitized, sanitize_option( $option_name, $original ) );
 	}
 
-	public function upload_path_provider()  {
+	public function upload_path_provider() {
 		return array(
 			array( '<a href="http://www.example.com">Link</a>', 'Link' ),
 			array( '<scr' . 'ipt>url</scr' . 'ipt>', 'url' ),
@@ -122,7 +122,7 @@ class Tests_Sanitize_Option extends WP_UnitTestCase {
 
 		$old_wp_settings_errors = (array) $wp_settings_errors;
 
-		$actual = sanitize_option( 'permalink_structure', $provided);
+		$actual = sanitize_option( 'permalink_structure', $provided );
 		$errors = get_settings_errors( 'permalink_structure' );
 
 		// Clear errors.
@@ -156,13 +156,13 @@ class Tests_Sanitize_Option extends WP_UnitTestCase {
 	 * Test calling get_settings_errors() with variations on where it gets errors from.
 	 *
 	 * @ticket 42498
-	 * @covers get_settings_errors()
+	 * @covers ::get_settings_errors()
 	 * @global array $wp_settings_errors
 	 */
 	public function test_get_settings_errors_sources() {
 		global $wp_settings_errors;
 
-		$blogname_error = array(
+		$blogname_error        = array(
 			'setting' => 'blogname',
 			'code'    => 'blogname',
 			'message' => 'Capital P dangit!',

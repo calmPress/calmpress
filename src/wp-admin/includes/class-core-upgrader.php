@@ -26,15 +26,15 @@ class Core_Upgrader extends WP_Upgrader {
 	 * @since 2.8.0
 	 */
 	public function upgrade_strings() {
-		$this->strings['up_to_date'] = __('calmPress is at the latest version.');
-		$this->strings['locked'] = __('Another update is currently in progress.');
-		$this->strings['no_package'] = __('Update package not available.');
+		$this->strings['up_to_date'] = __( 'calmPress is at the latest version.' );
+		$this->strings['locked']     = __( 'Another update is currently in progress.' );
+		$this->strings['no_package'] = __( 'Update package not available.' );
 		/* translators: %s: package URL */
-		$this->strings['downloading_package'] = sprintf( __( 'Downloading update from %s&#8230;' ), '<span class="code">%s</span>' );
-		$this->strings['unpack_package'] = __('Unpacking the update&#8230;');
-		$this->strings['copy_failed'] = __('Could not copy files.');
-		$this->strings['copy_failed_space'] = __('Could not copy files. You may have run out of disk space.' );
-		$this->strings['start_rollback'] = __( 'Attempting to roll back to previous version.' );
+		$this->strings['downloading_package']   = sprintf( __( 'Downloading update from %s&#8230;' ), '<span class="code">%s</span>' );
+		$this->strings['unpack_package']        = __( 'Unpacking the update&#8230;' );
+		$this->strings['copy_failed']           = __( 'Could not copy files.' );
+		$this->strings['copy_failed_space']     = __( 'Could not copy files. You may have run out of disk space.' );
+		$this->strings['start_rollback']        = __( 'Attempting to roll back to previous version.' );
 		$this->strings['rollback_was_required'] = __( 'Due to an error during updating, WordPress has rolled back to your previous version.' );
 	}
 
@@ -43,7 +43,7 @@ class Core_Upgrader extends WP_Upgrader {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @global WP_Filesystem_Base $wp_filesystem Subclass
+	 * @global WP_Filesystem_Base $wp_filesystem                WordPress filesystem subclass.
 	 * @global callable           $_wp_filesystem_direct_method
 	 *
 	 * @param object $current Response object for whether WordPress is current.
@@ -66,10 +66,10 @@ class Core_Upgrader extends WP_Upgrader {
 
 		$start_time = time();
 
-		$defaults = array(
-			'pre_check_md5'    => true,
-			'attempt_rollback' => false,
-			'do_rollback'      => false,
+		$defaults    = array(
+			'pre_check_md5'                => true,
+			'attempt_rollback'             => false,
+			'do_rollback'                  => false,
 			'allow_relaxed_file_ownership' => false,
 		);
 		$parsed_args = wp_parse_args( $args, $defaults );
@@ -82,7 +82,7 @@ class Core_Upgrader extends WP_Upgrader {
 			return $res;
 		}
 
-		$wp_dir = trailingslashit($wp_filesystem->abspath());
+		$wp_dir = trailingslashit( $wp_filesystem->abspath() );
 
 		// Might need to revisit this in the future, especially to support CLI,
 		// but at first we are going to support only core upgrades.
@@ -107,12 +107,12 @@ class Core_Upgrader extends WP_Upgrader {
 		}
 
 		// Copy update-core.php from the new version into place.
-		if ( !$wp_filesystem->copy($working_dir . '/wp-admin/includes/update-core.php', $wp_dir . 'wp-admin/includes/update-core.php', true) ) {
-			$wp_filesystem->delete($working_dir, true);
+		if ( ! $wp_filesystem->copy( $working_dir . '/wp-admin/includes/update-core.php', $wp_dir . 'wp-admin/includes/update-core.php', true ) ) {
+			$wp_filesystem->delete( $working_dir, true );
 			WP_Upgrader::release_lock( 'core_updater' );
 			return new WP_Error( 'copy_failed_for_update_core_file', __( 'The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions.' ), 'wp-admin/includes/update-core.php' );
 		}
-		$wp_filesystem->chmod($wp_dir . 'wp-admin/includes/update-core.php', FS_CHMOD_FILE);
+		$wp_filesystem->chmod( $wp_dir . 'wp-admin/includes/update-core.php', FS_CHMOD_FILE );
 
 		require_once( ABSPATH . 'wp-admin/includes/update-core.php' );
 
@@ -133,12 +133,13 @@ class Core_Upgrader extends WP_Upgrader {
 				 * mkdir_failed__copy_dir, copy_failed__copy_dir_retry, and disk_full.
 				 * do_rollback allows for update_core() to trigger a rollback if needed.
 				 */
-				if ( false !== strpos( $error_code, 'do_rollback' ) )
+				if ( false !== strpos( $error_code, 'do_rollback' ) ) {
 					$try_rollback = true;
-				elseif ( false !== strpos( $error_code, '__copy_dir' ) )
+				} elseif ( false !== strpos( $error_code, '__copy_dir' ) ) {
 					$try_rollback = true;
-				elseif ( 'disk_full' === $error_code )
+				} elseif ( 'disk_full' === $error_code ) {
 					$try_rollback = true;
+				}
 			}
 
 			if ( $try_rollback ) {
@@ -151,12 +152,26 @@ class Core_Upgrader extends WP_Upgrader {
 				$rollback_result = $this->upgrade( $current, array_merge( $parsed_args, array( 'do_rollback' => true ) ) );
 
 				$original_result = $result;
-				$result = new WP_Error( 'rollback_was_required', $this->strings['rollback_was_required'], (object) array( 'update' => $original_result, 'rollback' => $rollback_result ) );
+				$result          = new WP_Error(
+					'rollback_was_required',
+					$this->strings['rollback_was_required'],
+					(object) array(
+						'update'   => $original_result,
+						'rollback' => $rollback_result,
+					)
+				);
 			}
 		}
 
 		/** This action is documented in wp-admin/includes/class-wp-upgrader.php */
-		do_action( 'upgrader_process_complete', $this, array( 'action' => 'update', 'type' => 'core' ) );
+		do_action(
+			'upgrader_process_complete',
+			$this,
+			array(
+				'action' => 'update',
+				'type'   => 'core',
+			)
+		);
 
 		// Clear the current updates
 		delete_site_transient( 'update_core' );
@@ -171,16 +186,14 @@ class Core_Upgrader extends WP_Upgrader {
 	 *
 	 * @since 3.7.0
 	 *
-	 * @static
-	 *
 	 * @param string $offered_ver The offered version, of the format x.y.z.
 	 * @return bool True if we should update to the offered version, otherwise false.
 	 */
 	public static function should_update_to_version( $offered_ver ) {
 		include( ABSPATH . WPINC . '/version.php' ); // $wp_version; // x.y.z
 
-		$current_branch = implode( '.', array_slice( preg_split( '/[.-]/', $wp_version  ), 0, 2 ) ); // x.y
-		$new_branch     = implode( '.', array_slice( preg_split( '/[.-]/', $offered_ver ), 0, 2 ) ); // x.y
+		$current_branch                 = implode( '.', array_slice( preg_split( '/[.-]/', $wp_version ), 0, 2 ) ); // x.y
+		$new_branch                     = implode( '.', array_slice( preg_split( '/[.-]/', $offered_ver ), 0, 2 ) ); // x.y
 		$current_is_development_version = (bool) strpos( $wp_version, '-' );
 
 		// Defaults:
@@ -198,34 +211,39 @@ class Core_Upgrader extends WP_Upgrader {
 				$upgrade_dev = $upgrade_minor = $upgrade_major = true;
 			} elseif ( 'minor' === WP_AUTO_UPDATE_CORE ) {
 				// Only minor updates for core
-				$upgrade_dev = $upgrade_major = false;
+				$upgrade_dev   = $upgrade_major = false;
 				$upgrade_minor = true;
 			}
 		}
 
 		// 1: If we're already on that version, not much point in updating?
-		if ( $offered_ver == $wp_version )
+		if ( $offered_ver == $wp_version ) {
 			return false;
+		}
 
 		// 2: If we're running a newer version, that's a nope
-		if ( version_compare( $wp_version, $offered_ver, '>' ) )
+		if ( version_compare( $wp_version, $offered_ver, '>' ) ) {
 			return false;
+		}
 
 		$failure_data = get_site_option( 'auto_core_update_failed' );
 		if ( $failure_data ) {
 			// If this was a critical update failure, cannot update.
-			if ( ! empty( $failure_data['critical'] ) )
+			if ( ! empty( $failure_data['critical'] ) ) {
 				return false;
+			}
 
 			// Don't claim we can update on update-core.php if we have a non-critical failure logged.
-			if ( $wp_version == $failure_data['current'] && false !== strpos( $offered_ver, '.1.next.minor' ) )
+			if ( $wp_version == $failure_data['current'] && false !== strpos( $offered_ver, '.1.next.minor' ) ) {
 				return false;
+			}
 
 			// Cannot update if we're retrying the same A to B update that caused a non-critical failure.
 			// Some non-critical failures do allow retries, like download_failed.
 			// 3.7.1 => 3.7.2 resulted in files_not_writable, if we are still on 3.7.1 and still trying to update to 3.7.2.
-			if ( empty( $failure_data['retry'] ) && $wp_version == $failure_data['current'] && $offered_ver == $failure_data['attempted'] )
+			if ( empty( $failure_data['retry'] ) && $wp_version == $failure_data['current'] && $offered_ver == $failure_data['attempted'] ) {
 				return false;
+			}
 		}
 
 		// 3: 3.7-alpha-25000 -> 3.7-alpha-25678 -> 3.7-beta1 -> 3.7-beta2
@@ -239,8 +257,9 @@ class Core_Upgrader extends WP_Upgrader {
 			 * @param bool $upgrade_dev Whether to enable automatic updates for
 			 *                          development versions.
 			 */
-			if ( ! apply_filters( 'allow_dev_auto_core_updates', $upgrade_dev ) )
+			if ( ! apply_filters( 'allow_dev_auto_core_updates', $upgrade_dev ) ) {
 				return false;
+			}
 			// Else fall through to minor + major branches below.
 		}
 

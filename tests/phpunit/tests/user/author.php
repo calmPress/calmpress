@@ -8,24 +8,28 @@
  */
 class Tests_User_Author_Template extends WP_UnitTestCase {
 	protected static $author_id = 0;
-	protected static $post_id = 0;
+	protected static $post_id   = 0;
 
 	private $permalink_structure;
 
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
-		self::$author_id = $factory->user->create( array(
-			'role' => 'author',
-			'user_login' => 'test_author',
-			'description' => 'test_author',
-		) );
+		self::$author_id = $factory->user->create(
+			array(
+				'role'        => 'author',
+				'user_login'  => 'test_author',
+				'description' => 'test_author',
+			)
+		);
 
-		self::$post_id = $factory->post->create( array(
-			'post_author' => self::$author_id,
-			'post_status' => 'publish',
-			'post_content' => rand_str(),
-			'post_title' => rand_str(),
-			'post_type' => 'post'
-		) );
+		self::$post_id = $factory->post->create(
+			array(
+				'post_author'  => self::$author_id,
+				'post_status'  => 'publish',
+				'post_content' => rand_str(),
+				'post_title'   => rand_str(),
+				'post_type'    => 'post',
+			)
+		);
 	}
 
 	function setUp() {
@@ -41,7 +45,7 @@ class Tests_User_Author_Template extends WP_UnitTestCase {
 
 	function test_get_the_author() {
 		$author_name = get_the_author();
-		$user = new WP_User( self::$author_id );
+		$user        = new WP_User( self::$author_id );
 
 		$this->assertEquals( $user->display_name, 'Anonymous' );
 		$this->assertEquals( '', $author_name );
