@@ -583,7 +583,6 @@ function map_meta_cap( $cap, $user_id ) {
 			if ( in_array( $cap, $block_caps, true ) ) {
 				$cap = str_replace( '_blocks', '_posts', $cap );
 			}
->>>>>>> upstream/5.1
 
 			// If no meta caps match, return the original cap.
 			$caps[] = $cap;
