@@ -67,7 +67,7 @@ foreach ( array( 'pre_comment_author_url',
 
 // Display URL
 foreach ( array( 'comment_url', 'post_guid' ) as $filter ) {
-	if ( is_admin() )
+	if ( is_admin() ) {
 		add_filter( $filter, 'wp_strip_all_tags' );
 	}
 	add_filter( $filter, 'esc_url' );
