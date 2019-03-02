@@ -185,18 +185,9 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 	 * @return true|WP_Error True if the request has read access, otherwise WP_Error object.
 	 */
 	public function get_items_permissions_check( $request ) {
-		// Check if roles is specified in GET request and if user can list users.
+		// Check if user can list users at all.
 		if ( ! current_user_can( 'list_users' ) ) {
 			return new WP_Error( 'rest_user_cannot_view', __( 'Sorry, you are not allowed to view users.' ), array( 'status' => rest_authorization_required_code() ) );
-		}
-
-		// Check if roles is specified in GET request and if user can list users.
-		if ( ! empty( $request['roles'] ) ) {
-			return new WP_Error( 'rest_user_cannot_view', __( 'Sorry, you are not allowed to filter users by role.' ), array( 'status' => rest_authorization_required_code() ) );
-		}
-
-		if ( 'edit' === $request['context'] ) {
-			return new WP_Error( 'rest_forbidden_context', __( 'Sorry, you are not allowed to list users.' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
 		if ( in_array( $request['orderby'], array( 'email', 'registered_date' ), true ) ) {

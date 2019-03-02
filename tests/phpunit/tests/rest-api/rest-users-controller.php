@@ -720,7 +720,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
 		$request->set_param( 'who', 'authors' );
 		$response = rest_get_server()->dispatch( $request );
-		$this->assertErrorResponse( 'rest_forbidden_who', $response, 403 );
+		$this->assertErrorResponse( 'rest_user_cannot_view', $response, 403 );
 	}
 
 	public function test_get_item() {
@@ -1748,18 +1748,12 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			// Compare expected API output to actual API output
 			$this->assertEquals( $expected_output['username'], $actual_output['username'] );
 			$this->assertEquals( $expected_output['name'], $actual_output['name'] );
-			$this->assertEquals( $expected_output['first_name'], $actual_output['first_name'] );
-			$this->assertEquals( $expected_output['last_name'], $actual_output['last_name'] );
-			$this->assertEquals( $expected_output['url'], $actual_output['url'] );
 			$this->assertEquals( $expected_output['description'], $actual_output['description'] );
 
 			// Compare expected API output to WP internal values
 			$user = get_userdata( $actual_output['id'] );
 			$this->assertEquals( $expected_output['username'], $user->user_login );
 			$this->assertEquals( $expected_output['name'], $user->display_name );
-			$this->assertEquals( $expected_output['first_name'], $user->first_name );
-			$this->assertEquals( $expected_output['last_name'], $user->last_name );
-			$this->assertEquals( $expected_output['url'], $user->user_url );
 			$this->assertEquals( $expected_output['description'], $user->description );
 			$this->assertTrue( wp_check_password( addslashes( $expected_output['password'] ), $user->user_pass ) );
 
@@ -1801,20 +1795,12 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			array(
 				'id'          => self::$editor,
 				'name'        => '\o/ ¯\_(ツ)_/¯',
-				'first_name'  => '\o/ ¯\_(ツ)_/¯',
-				'last_name'   => '\o/ ¯\_(ツ)_/¯',
-				'url'         => '\o/ ¯\_(ツ)_/¯',
 				'description' => '\o/ ¯\_(ツ)_/¯',
-				'nickname'    => '\o/ ¯\_(ツ)_/¯',
 				'password'    => 'o/ ¯_(ツ)_/¯ \'"',
 			),
 			array(
 				'name'        => '\o/ ¯\_(ツ)_/¯',
-				'first_name'  => '\o/ ¯\_(ツ)_/¯',
-				'last_name'   => '\o/ ¯\_(ツ)_/¯',
-				'url'         => 'http://o/%20¯_(ツ)_/¯',
 				'description' => '\o/ ¯\_(ツ)_/¯',
-				'nickname'    => '\o/ ¯\_(ツ)_/¯',
 				'password'    => 'o/ ¯_(ツ)_/¯ \'"',
 			)
 		);
@@ -1828,20 +1814,12 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 				array(
 					'id'          => self::$editor,
 					'name'        => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-					'first_name'  => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-					'last_name'   => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-					'url'         => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 					'description' => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-					'nickname'    => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 					'password'    => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 				),
 				array(
 					'name'        => 'div strong',
-					'first_name'  => 'div strong',
-					'last_name'   => 'div strong',
-					'url'         => 'http://divdiv/div%20strongstrong/strong%20scriptoh%20noes/script',
 					'description' => 'div <strong>strong</strong> oh noes',
-					'nickname'    => 'div strong',
 					'password'    => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 				)
 			);
@@ -1851,20 +1829,12 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 				array(
 					'id'          => self::$editor,
 					'name'        => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-					'first_name'  => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-					'last_name'   => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-					'url'         => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 					'description' => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-					'nickname'    => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 					'password'    => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 				),
 				array(
 					'name'        => 'div strong',
-					'first_name'  => 'div strong',
-					'last_name'   => 'div strong',
-					'url'         => 'http://divdiv/div%20strongstrong/strong%20scriptoh%20noes/script',
 					'description' => 'div <strong>strong</strong> oh noes',
-					'nickname'    => 'div strong',
 					'password'    => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 				)
 			);
@@ -1879,21 +1849,13 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			array(
 				'username'    => $valid_username,
 				'name'        => '\\\&\\\ &amp; &invalid; < &lt; &amp;lt;',
-				'first_name'  => '\\\&\\\ &amp; &invalid; < &lt; &amp;lt;',
-				'last_name'   => '\\\&\\\ &amp; &invalid; < &lt; &amp;lt;',
-				'url'         => '\\\&\\\ &amp; &invalid; < &lt; &amp;lt;',
 				'description' => '\\\&\\\ &amp; &invalid; < &lt; &amp;lt;',
-				'nickname'    => '\\\&\\\ &amp; &invalid; < &lt; &amp;lt;',
 				'password'    => '& &amp; &invalid; < &lt; &amp;lt;',
 			),
 			array(
 				'username'    => $valid_username,
 				'name'        => '\\\&amp;\\\ &amp; &amp;invalid; &lt; &lt; &amp;lt;',
-				'first_name'  => '\\\&amp;\\\ &amp; &amp;invalid; &lt; &lt; &amp;lt;',
-				'last_name'   => '\\\&amp;\\\ &amp; &amp;invalid; &lt; &lt; &amp;lt;',
-				'url'         => 'http://&amp;%20&amp;%20&amp;invalid;%20%20&lt;%20&amp;lt;',
 				'description' => '\\\&amp;\\\ &amp; &amp;invalid; &lt; &lt; &amp;lt;',
-				'nickname'    => '\\\&amp;\\\ &amp; &amp;invalid; &lt; &lt; &amp;lt;',
 				'password'    => '& &amp; &invalid; < &lt; &amp;lt;',
 			)
 		);
@@ -1907,21 +1869,13 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			array(
 				'username'    => $valid_username,
 				'name'        => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-				'first_name'  => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-				'last_name'   => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-				'url'         => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 				'description' => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
-				'nickname'    => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 				'password'    => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 			),
 			array(
 				'username'    => $valid_username,
 				'name'        => 'div strong',
-				'first_name'  => 'div strong',
-				'last_name'   => 'div strong',
-				'url'         => 'http://divdiv/div%20strongstrong/strong%20scriptoh%20noes/script',
 				'description' => 'div <strong>strong</strong> oh noes',
-				'nickname'    => 'div strong',
 				'password'    => '<div>div</div> <strong>strong</strong> <script>oh noes</script>',
 			)
 		);
