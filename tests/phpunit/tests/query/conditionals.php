@@ -971,8 +971,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	}
 
 	function test_is_attachment() {
-		$post_id = self::factory()->post->create( array( 'post_type' => 'attachment' ) );
-		$this->go_to( "/?attachment_id=$post_id" );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'attachment', 'post_name' => 'test' ) );
+		$this->go_to( '/test' );
 
 		$post = get_queried_object();
 		$q    = $GLOBALS['wp_query'];
@@ -992,7 +992,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	 * @ticket 24674
 	 */
 	public function test_is_attachment_with_slug_that_begins_with_a_number_that_clashes_with_a_page_ID() {
-		$p1 = self::factory()->post->create( array( 'post_type' => 'attachment' ) );
+		$p1 = self::factory()->post->create( array( 'post_type' => 'attachment', 'post_name' => 'test' ) );
 
 		$p2_name = $p1 . '-attachment';
 		$p2      = self::factory()->post->create(
@@ -1002,7 +1002,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			)
 		);
 
-		$this->go_to( "/?attachment_id=$p1" );
+		$this->go_to( '/test' );
 
 		$q = $GLOBALS['wp_query'];
 
