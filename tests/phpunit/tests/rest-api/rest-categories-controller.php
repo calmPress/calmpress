@@ -830,14 +830,6 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 		$this->assertErrorResponse( 'rest_cannot_create', $response, 403 );
 	}
 
-	public function test_create_item_incorrect_permissions_contributor() {
-		wp_set_current_user( self::$contributor );
-		$request = new WP_REST_Request( 'POST', '/wp/v2/categories' );
-		$request->set_param( 'name', 'Incorrect permissions' );
-		$response = rest_get_server()->dispatch( $request );
-		$this->assertErrorResponse( 'rest_cannot_create', $response, 403 );
-	}
-
 	public function test_create_item_missing_arguments() {
 		wp_set_current_user( self::$administrator );
 		$request  = new WP_REST_Request( 'POST', '/wp/v2/categories' );
