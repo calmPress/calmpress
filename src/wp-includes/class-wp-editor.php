@@ -83,7 +83,7 @@ class _WP_Editors {
 			$settings,
 			array(
 				// Disable autop if the current post has blocks in it.
-				'wpautop'             => ! has_blocks(),
+				'wpautop'             => true,
 				'media_buttons'       => true,
 				'default_editor'      => '',
 				'drag_drop_upload'    => false,
@@ -826,43 +826,40 @@ class _WP_Editors {
 
 		$settings = self::default_settings();
 
-			$settings['toolbar1']    = 'bold,italic,bullist,numlist,link';
-			$settings['wpautop']     = false;
-			$settings['indent']      = true;
-			$settings['elementpath'] = false;
+		$settings['toolbar1']    = 'bold,italic,bullist,numlist,link';
+		$settings['wpautop']     = false;
+		$settings['indent']      = true;
+		$settings['elementpath'] = false;
 
-			if ( is_rtl() ) {
-				$settings['directionality'] = 'rtl';
-			}
-
-			// In production all plugins are loaded (they are in wp-editor.js.gz).
-			// The 'wpview', 'wpdialogs', and 'media' TinyMCE plugins are not initialized by default.
-			// Can be added from js by using the 'wp-before-tinymce-init' event.
-			$settings['plugins'] = implode(
-				',',
-				array(
-					'charmap',
-					'colorpicker',
-					'hr',
-					'lists',
-					'paste',
-					'tabfocus',
-					'textcolor',
-					'fullscreen',
-					'wordpress',
-					'wpautoresize',
-					'wpeditimage',
-					'wpemoji',
-					'wpgallery',
-					'wplink',
-					'wptextpattern',
-				)
-			);
-
-			$settings = self::_parse_init( $settings );
-		} else {
-			$settings = '{}';
+		if ( is_rtl() ) {
+			$settings['directionality'] = 'rtl';
 		}
+
+		// In production all plugins are loaded (they are in wp-editor.js.gz).
+		// The 'wpview', 'wpdialogs', and 'media' TinyMCE plugins are not initialized by default.
+		// Can be added from js by using the 'wp-before-tinymce-init' event.
+		$settings['plugins'] = implode(
+			',',
+			array(
+				'charmap',
+				'colorpicker',
+				'hr',
+				'lists',
+				'paste',
+				'tabfocus',
+				'textcolor',
+				'fullscreen',
+				'wordpress',
+				'wpautoresize',
+				'wpeditimage',
+				'wpemoji',
+				'wpgallery',
+				'wplink',
+				'wptextpattern',
+			)
+		);
+
+		$settings = self::_parse_init( $settings );
 
 		// In production all plugins are loaded (they are in wp-editor.js.gz).
 		// The 'wpview', 'wpdialogs', and 'media' TinyMCE plugins are not initialized by default.

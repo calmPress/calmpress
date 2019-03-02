@@ -1671,6 +1671,7 @@ function wp_ajax_inline_save() {
 
 	if ( empty( $data['comment_status'] ) ) {
 		$data['comment_status'] = 'closed';
+	}
 	$data['ping_status'] = 'closed';
 
 	// Exclude terms from taxonomies that are not supposed to appear in Quick Edit.
