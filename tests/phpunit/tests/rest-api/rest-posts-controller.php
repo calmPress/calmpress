@@ -2612,9 +2612,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		wp_set_current_user( self::$editor_id );
 		$category = wp_insert_term( 'Test Category', 'category' );
-
-		wp_set_current_user( self::$editor_id );
-		$category = wp_insert_term( 'Test Category', 'category' );
 		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$params  = $this->set_post_data(
 			array(
