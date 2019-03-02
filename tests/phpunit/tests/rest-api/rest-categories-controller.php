@@ -136,6 +136,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_items() {
+		$id       = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/categories' );
 		$response = rest_get_server()->dispatch( $request );
 		$this->check_get_taxonomy_terms_response( $response );
@@ -683,7 +684,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	public function test_get_item() {
 		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 		$this->check_get_taxonomy_term_response( $response, $id );
 	}
 
