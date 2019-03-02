@@ -117,9 +117,6 @@ class Tests_Admin_Includes_Schema extends WP_UnitTestCase {
 					// Random options to check.
 					'posts_per_rss'    => 10,
 					'rss_use_excerpt'  => 0,
-					'mailserver_url'   => 'mail.example.com',
-					'mailserver_login' => 'login@example.com',
-					'mailserver_pass'  => 'password',
 				),
 			),
 			array(
@@ -131,9 +128,6 @@ class Tests_Admin_Includes_Schema extends WP_UnitTestCase {
 					// Random options to check.
 					'posts_per_rss'    => 7,
 					'rss_use_excerpt'  => 1,
-					'mailserver_url'   => 'mail.example.com',
-					'mailserver_login' => 'login@example.com',
-					'mailserver_pass'  => 'password',
 				),
 			),
 			array(
@@ -145,9 +139,6 @@ class Tests_Admin_Includes_Schema extends WP_UnitTestCase {
 					'custom_option'    => '1',
 					'posts_per_rss'    => 10,
 					'rss_use_excerpt'  => 0,
-					'mailserver_url'   => 'mail.example.com',
-					'mailserver_login' => 'login@example.com',
-					'mailserver_pass'  => 'password',
 				),
 			),
 			array(
