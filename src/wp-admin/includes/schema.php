@@ -1128,7 +1128,7 @@ We hope you enjoy your new site. Thanks!
 	$upload_filetypes = array_unique( array_merge( $misc_exts, $audio_exts, $video_exts ) );
 
 	$sitemeta = array(
-		'site_name' => $site_name,
+		'site_name' => __( 'My Network' ),
 		'admin_email' => $email,
 		'admin_user_id' => $site_user->ID,
 		'registration' => 'none',

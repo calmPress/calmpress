@@ -37,40 +37,6 @@ class Tests_Admin_includesTheme extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 10959
-	 * @ticket 11216
-	 */
-	function test_page_templates() {
-		$theme = get_theme( 'Page Template Theme' );
-		$this->assertNotEmpty( $theme );
-
-		switch_theme( $theme['Template'], $theme['Stylesheet'] );
-
-		$this->assertEqualSetsWithIndex(
-			array(
-				'Top Level'                           => 'template-top-level.php',
-				'Sub Dir'                             => 'subdir/template-sub-dir.php',
-				'This Template Header Is On One Line' => 'template-header.php',
-			),
-			get_page_templates()
-		);
-
-		$theme = wp_get_theme( 'page-templates' );
-		$this->assertNotEmpty( $theme );
-
-		switch_theme( $theme['Template'], $theme['Stylesheet'] );
-
-		$this->assertEqualSetsWithIndex(
-			array(
-				'Top Level'                           => 'template-top-level.php',
-				'Sub Dir'                             => 'subdir/template-sub-dir.php',
-				'This Template Header Is On One Line' => 'template-header.php',
-			),
-			get_page_templates()
-		);
-	}
-
-	/**
 	 * @ticket 18375
 	 */
 	function test_page_templates_different_post_types() {
