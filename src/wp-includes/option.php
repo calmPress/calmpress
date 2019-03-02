@@ -1995,36 +1995,6 @@ function register_initial_settings() {
 	);
 
 	register_setting(
-		'writing',
-		'use_smilies',
-		array(
-			'show_in_rest' => true,
-			'type'         => 'boolean',
-			'description'  => __( 'Convert emoticons like :-) and :-P to graphics on display.' ),
-			'default'      => true,
-		)
-	);
-
-	register_setting(
-		'writing',
-		array(
-			'show_in_rest' => true,
-			'type'         => 'integer',
-			'description'  => __( 'Default post category.' ),
-		)
-	);
-
-	register_setting(
-		'writing',
-		'default_post_format',
-		array(
-			'show_in_rest' => true,
-			'type'         => 'string',
-			'description'  => __( 'Default post format.' ),
-		)
-	);
-
-	register_setting(
 		'reading',
 		'posts_per_page',
 		array(
@@ -2032,20 +2002,6 @@ function register_initial_settings() {
 			'type'         => 'integer',
 			'description'  => __( 'Blog pages show at most.' ),
 			'default'      => 10,
-		)
-	);
-
-	register_setting(
-		'discussion',
-		'default_ping_status',
-		array(
-			'show_in_rest' => array(
-				'schema' => array(
-					'enum' => array( 'open', 'closed' ),
-				),
-			),
-			'type'         => 'string',
-			'description'  => __( 'Allow link notifications from other blogs (pingbacks and trackbacks) on new articles.' ),
 		)
 	);
 
