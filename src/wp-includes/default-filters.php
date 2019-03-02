@@ -101,14 +101,6 @@ add_action( 'deleted_post_meta', 'wp_cache_set_posts_last_changed' );
 add_action( 'added_term_meta', 'wp_cache_set_terms_last_changed' );
 add_action( 'updated_term_meta', 'wp_cache_set_terms_last_changed' );
 add_action( 'deleted_term_meta', 'wp_cache_set_terms_last_changed' );
-add_filter( 'get_term_metadata', 'wp_check_term_meta_support_prefilter' );
-add_filter( 'add_term_metadata', 'wp_check_term_meta_support_prefilter' );
-add_filter( 'update_term_metadata', 'wp_check_term_meta_support_prefilter' );
-add_filter( 'delete_term_metadata', 'wp_check_term_meta_support_prefilter' );
-add_filter( 'get_term_metadata_by_mid', 'wp_check_term_meta_support_prefilter' );
-add_filter( 'update_term_metadata_by_mid', 'wp_check_term_meta_support_prefilter' );
-add_filter( 'delete_term_metadata_by_mid', 'wp_check_term_meta_support_prefilter' );
-add_filter( 'update_term_metadata_cache', 'wp_check_term_meta_support_prefilter' );
 
 // Comment meta
 add_action( 'added_comment_meta', 'wp_cache_set_comments_last_changed' );
