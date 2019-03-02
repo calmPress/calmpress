@@ -250,7 +250,7 @@ if ( current_user_can( $tax->cap->edit_terms ) ) {
 if ( 'category' == $taxonomy || 'post_tag' == $taxonomy ) {
 	$help = '';
 	if ( 'category' == $taxonomy ) {
-		$help = '<p>' . sprintf( __( 'You can use categories to define sections of your site and group related posts. The default category is &#8220;Uncategorized&#8221; until you change it in your <a href="%s">writing settings</a>.' ), 'options-writing.php' ) . '</p>';
+		$help = '<p>' . sprintf( __( 'You can use categories to define sections of your site and group related posts.' ), 'options-writing.php' ) . '</p>';
 	} else {
 		$help = '<p>' . __( 'You can assign keywords to your posts using <strong>tags</strong>. Unlike categories, tags have no hierarchy, meaning there&#8217;s no relationship from one tag to another.' ) . '</p>';
 	}

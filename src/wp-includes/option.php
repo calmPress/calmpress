@@ -2007,7 +2007,6 @@ function register_initial_settings() {
 
 	register_setting(
 		'writing',
-		'default_category',
 		array(
 			'show_in_rest' => true,
 			'type'         => 'integer',
