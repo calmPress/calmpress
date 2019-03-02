@@ -567,7 +567,7 @@ function wp_get_update_data() {
 
 	if ( ( $core = current_user_can( 'update_core' ) ) && function_exists( 'get_core_updates' ) ) {
 		$update_wordpress = get_core_updates( array('dismissed' => false) );
-		if ( ! empty( $update_wordpress ) && current_user_can('update_core') )
+		if ( ! empty( $update_wordpress ) && current_user_can('update_core') ) {
 			$counts['wordpress'] = 1;
 		}
 	}

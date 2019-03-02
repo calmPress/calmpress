@@ -427,6 +427,7 @@ function get_attachment_link( $post = null, $leavename = false ) {
 
 		if ( ! $leavename ) {
 			$link = str_replace( '%postname%', $name, $link );
+		}
 	} elseif ( ! $leavename ) {
 		$link = home_url( user_trailingslashit( $post->post_name ) );
 	}
@@ -662,15 +663,17 @@ function get_post_comments_feed_link( $post_id = 0, $feed = '' ) {
 
 	$post = get_post( $post_id );
 
-	if ( 'page' == get_option('show_on_front') && $post_id == get_option('page_on_front') )
+	if ( 'page' == get_option('show_on_front') && $post_id == get_option('page_on_front') ) {
 		$url = _get_page_link( $post_id );
-	else
-		$url = get_permalink($post_id);
+	} else {
+		$url = get_permalink( $post_id );
+	}
 
 	$url = trailingslashit($url) . 'feed';
-	if ( $feed != get_default_feed() )
+	if ( $feed != get_default_feed() ) {
 		$url .= "/$feed";
-	$url = user_trailingslashit($url, 'single_feed');
+	}
+	$url = user_trailingslashit( $url, 'single_feed' );
 
 	/**
 	 * Filters the post comments feed permalink.
@@ -757,10 +760,11 @@ function get_term_feed_link( $term_id, $taxonomy = 'category', $feed = '' ) {
 	}
 
 	$link = get_term_link( $term_id, $term->taxonomy );
-	if ( $feed == get_default_feed() )
+	if ( $feed == get_default_feed() ) {
 		$feed_link = 'feed';
-	else
+	} else {
 		$feed_link = "feed/$feed";
+	}
 
 	$link = trailingslashit( $link ) . user_trailingslashit( $feed_link, 'feed' );
 
@@ -3678,7 +3682,6 @@ function is_avatar_comment_type( $comment_type ) {
 
 	return in_array( $comment_type, (array) $allowed_comment_types, true );
 }
-
 
 /**
  * Retrieves default data about the avatar.

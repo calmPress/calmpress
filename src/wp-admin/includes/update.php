@@ -193,7 +193,6 @@ function core_update_footer( $msg = '' ) {
 		case 'latest':
 		default:
 			return sprintf( __( 'Version %s' ), get_bloginfo( 'version', 'display' ) );
->>>>>>> upstream/5.1
 	}
 
 	// If there is possible upgrade show the link to the page which will do the upgrade.

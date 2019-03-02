@@ -45,8 +45,8 @@ if ( get_option( 'db_upgraded' ) ) {
 	 * @since 2.8.0
 	 */
 	do_action( 'after_db_upgrade' );
-} elseif ( version_compare( get_option( 'calmpress_db_version' ), calmpress_db_version_compatibility(), '<' ) && empty($_POST) ) {
-	if ( !is_multisite() ) {
+} elseif ( version_compare( get_option( 'calmpress_db_version' ), calmpress_db_version_compatibility(), '<' ) && empty( $_POST ) ) {
+	if ( ! is_multisite() ) {
 		wp_redirect( admin_url( 'upgrade.php?_wp_http_referer=' . urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) );
 		exit;
 
@@ -92,7 +92,7 @@ require_once( ABSPATH . 'wp-admin/includes/admin.php' );
 
 auth_redirect();
 
-// Schedule trash collection
+// Schedule trash collection.
 if ( ! wp_next_scheduled( 'wp_scheduled_delete' ) && ! wp_installing() ) {
 	wp_schedule_event( time(), 'daily', 'wp_scheduled_delete' );
 }
@@ -384,6 +384,7 @@ if ( isset( $plugin_page ) ) {
 	} elseif ( $pagenow == 'edit-tags.php' ) {
 		if ( $taxnow == 'category' ) {
 			do_action( 'load-categories.php' );
+		}
 	} elseif ( 'term.php' === $pagenow ) {
 		do_action( 'load-edit-tags.php' );
 	}

@@ -805,7 +805,7 @@ switch ( $action ) {
 			if ( isset( $_POST['user_email'] ) && is_string( $_POST['user_email'] ) ) {
 				$user_email = wp_unslash( $_POST['user_email'] );
 			}
-
+		}
 		$errors = register_new_user( md5( $user_email ), $user_email);
 		if ( !is_wp_error($errors) ) {
 			$redirect_to = !empty( $_POST['redirect_to'] ) ? $_POST['redirect_to'] : 'wp-login.php?checkemail=registered';

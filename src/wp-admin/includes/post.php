@@ -1791,13 +1791,14 @@ function redirect_post( $post_id = '' ) {
 	exit;
 }
 
-* Sanitizes POST values from a checkbox taxonomy metabox.
-*
-* @since 5.1.0
-*
-* @param mixed $terms Raw term data from the 'tax_input' field.
-* @return array
-*/
+/**
+ * Sanitizes POST values from a checkbox taxonomy metabox.
+ *
+ * @since 5.1.0
+ *
+ * @param mixed $terms Raw term data from the 'tax_input' field.
+ * @return array
+ */
 function taxonomy_meta_box_sanitize_cb_checkboxes( $taxonomy, $terms ) {
    return array_map( 'intval', $terms );
 }
