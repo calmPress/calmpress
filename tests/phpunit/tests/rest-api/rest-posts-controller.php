@@ -613,20 +613,6 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
 	}
 
-	/**
-	 * @ticket 43701
-	 */
-	public function test_get_items_multiple_statuses_custom_role_one_invalid_query() {
-		$private_post_id = $this->factory->post->create( array( 'post_status' => 'private' ) );
-
-		wp_set_current_user( self::$private_reader_id );
-		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
-		$request->set_param( 'status', array( 'private', 'future' ) );
-
-		$response = rest_get_server()->dispatch( $request );
-		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
-	}
-
 	public function test_get_items_invalid_status_query() {
 		wp_set_current_user( 0 );
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
