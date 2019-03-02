@@ -22,10 +22,8 @@ module.exports = function(grunt) {
 			'wp-admin/**', // Include everything in wp-admin.
 			'wp-content/index.php',
 			'wp-content/themes/index.php',
-			'wp-content/themes/twenty*/**',
+			'wp-content/themes/calm*/**',
 			'wp-content/plugins/index.php',
-			'wp-content/plugins/hello.php',
-			'wp-content/plugins/akismet/**'
 		],
 		changedFiles = {
 			php: []
@@ -145,7 +143,6 @@ module.exports = function(grunt) {
 						src: buildFiles.concat( [
 							'!js/**', // JavaScript is extracted into separate copy tasks.
 							'!.{svn,git}', // Exclude version control folders.
-							'!wp-includes/version.php', // Exclude version.php
 							'!**/*.map', // The build doesn't need .map files.
 							'!index.php', '!wp-admin/index.php',
 							'!_index.php', '!wp-admin/_index.php'
