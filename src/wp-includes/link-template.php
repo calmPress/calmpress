@@ -1516,12 +1516,8 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
 	$where    = '';
 	$adjacent = $previous ? 'previous' : 'next';
 
-	if ( $in_same_term || ! empty( $excluded_terms ) ) {
-		if ( ! empty( $excluded_terms ) && ! is_array( $excluded_terms ) ) {
-			$excluded_terms = explode( ',', $excluded_terms );
-			$excluded_terms = array_map( 'intval', $excluded_terms );
-		}
-
+	if ( ! empty( $excluded_terms ) && ! is_array( $excluded_terms ) ) {
+		$excluded_terms = explode( ',', $excluded_terms );
 		$excluded_terms = array_map( 'intval', $excluded_terms );
 	}
 
