@@ -1933,7 +1933,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->assertEquals( 201, $response->get_status() );
 	}
 
->>>>>>> upstream/5.1
 	public function test_update_item() {
 		$post_id = $this->factory->post->create();
 
