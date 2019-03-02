@@ -17,6 +17,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	protected static $author_id;
 
 	protected static $post_id;
+	protected static $password_id;
 	protected static $private_id;
 	protected static $draft_id;
 	protected static $trash_id;
