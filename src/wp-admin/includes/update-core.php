@@ -136,17 +136,6 @@ $_old_files = array(
 global $_new_bundled_files;
 
 $_new_bundled_files = array(
-	'plugins/akismet/'        => '2.0',
-	'themes/twentyten/'       => '3.0',
-	'themes/twentyeleven/'    => '3.2',
-	'themes/twentytwelve/'    => '3.5',
-	'themes/twentythirteen/'  => '3.6',
-	'themes/twentyfourteen/'  => '3.8',
-	'themes/twentyfifteen/'   => '4.1',
-	'themes/twentysixteen/'   => '4.4',
-	'themes/twentyseventeen/' => '4.7',
-	'themes/twentynineteen/'  => '5.0',
->>>>>>> upstream/5.1
 );
 
 /**
