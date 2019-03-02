@@ -382,13 +382,6 @@ add_filter( 'authenticate', 'wp_authenticate_spam_check', 99 );
 add_filter( 'determine_current_user', 'wp_validate_auth_cookie' );
 add_filter( 'determine_current_user', 'wp_validate_logged_in_cookie', 20 );
 
-// Split term updates.
-add_action( 'admin_init', '_wp_check_for_scheduled_split_terms' );
-add_action( 'split_shared_term', '_wp_check_split_default_terms', 10, 4 );
-add_action( 'split_shared_term', '_wp_check_split_terms_in_menus', 10, 4 );
-add_action( 'split_shared_term', '_wp_check_split_nav_menu_terms', 10, 4 );
-add_action( 'wp_split_shared_term_batch', '_wp_batch_split_terms' );
-
 // Email notifications.
 add_action( 'comment_post', 'wp_new_comment_notify_moderator' );
 add_action( 'comment_post', 'wp_new_comment_notify_postauthor' );
