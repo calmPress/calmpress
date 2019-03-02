@@ -321,12 +321,3 @@ class CountableFake implements Countable {
 		return 16;
 	}
 }
-
-class ArrayIteratorFake extends ArrayIterator {
-}
-
-class CountableFake implements Countable {
-	public function count() {
-		return 16;
-	}
-}
