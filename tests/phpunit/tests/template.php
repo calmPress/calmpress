@@ -374,7 +374,6 @@ class Tests_Template extends WP_UnitTestCase {
 		$this->assertTemplateHierarchy(
 			get_post_embed_url( self::$post ),
 			array(
-				'embed-post-quote.php',
 				'embed-post.php',
 				'embed.php',
 				'templates/post.php',

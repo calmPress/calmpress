@@ -73,7 +73,7 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 		$this->expectOutputString(
 			sprintf(
 				'Categories: <a href="%s">Uncategorized</a>.',
-				get_category_link( 1 )
+				get_category_link( $id )
 			)
 		);
 		the_taxonomies( array( 'post' => $post_id ) );
