@@ -17,28 +17,6 @@ class Tests_Basic extends WP_UnitTestCase {
 		$this->assertEquals( $this_year, trim( $matches[1] ), "license.txt's year needs to be updated to $this_year." );
 	}
 
-	function test_package_json() {
-		$package_json    = file_get_contents( dirname( ABSPATH ) . '/package.json' );
-		$package_json    = json_decode( $package_json, true );
-		list( $version ) = explode( '-', $GLOBALS['wp_version'] );
-		// package.json uses x.y.z, so fill cleaned $wp_version for .0 releases
-		if ( 1 == substr_count( $version, '.' ) ) {
-			$version .= '.0';
-		}
-		$this->assertEquals( $version, $package_json['version'], "package.json's version needs to be updated to $version." );
-		return $package_json;
-	}
-
-	/**
-	 * @depends test_package_json
-	 */
-	function test_package_json_node_engine( $package_json ) {
-		$this->assertArrayHasKey( 'engines', $package_json );
-		$this->assertArrayHasKey( 'node', $package_json['engines'] );
-		$node = $package_json['engines']['node'];
-		$this->assertRegExp( '~^=?\d+\.\d+\.\d+$~', $node, "package.json's node version cannot be a range." );
-	}
-
 	// test some helper utility functions
 
 	function test_strip_ws() {
