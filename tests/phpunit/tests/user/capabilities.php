@@ -463,7 +463,10 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			$expected['delete_user'],
 			$expected['edit_user_meta'],
 			$expected['delete_user_meta'],
-			$expected['add_user_meta']
+			$expected['add_user_meta'],
+			$expected['edit_files'],
+			$expected['edit_plugins'],
+			$expected['edit_themes']
 		);
 
 		$expected = array_keys( $expected );
