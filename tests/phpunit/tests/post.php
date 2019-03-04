@@ -973,43 +973,6 @@ class Tests_Post extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 21212
-	 */
-	function test_utf8mb3_post_saves_with_emoji() {
-		global $wpdb;
-		$_wpdb = new wpdb_exposed_methods_for_testing();
-
-		if ( 'utf8' !== $_wpdb->get_col_charset( $wpdb->posts, 'post_title' ) ) {
-			$this->markTestSkipped( 'This test is only useful with the utf8 character set' );
-		}
-
-		require_once( ABSPATH . '/wp-admin/includes/post.php' );
-
-		$post_id = self::factory()->post->create();
-
-		$data = array(
-			'post_ID'      => $post_id,
-			'post_title'   => "foo\xf0\x9f\x98\x88bar",
-			'post_content' => "foo\xf0\x9f\x98\x8ebaz",
-			'post_excerpt' => "foo\xf0\x9f\x98\x90bat",
-		);
-
-		$expected = array(
-			'post_title'   => 'foo&#x1f608;bar',
-			'post_content' => 'foo&#x1f60e;baz',
-			'post_excerpt' => 'foo&#x1f610;bat',
-		);
-
-		edit_post( $data );
-
-		$post = get_post( $post_id );
-
-		foreach ( $expected as $field => $value ) {
-			$this->assertEquals( $value, $post->$field );
-		}
-	}
-
-	/**
 	 * @ticket 31168
 	 */
 	function test_wp_insert_post_default_comment_ping_status_open() {
