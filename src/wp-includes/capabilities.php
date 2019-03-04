@@ -407,16 +407,7 @@ function map_meta_cap( $cap, $user_id ) {
 		case 'edit_files':
 		case 'edit_plugins':
 		case 'edit_themes':
-			// Disallow the file editors.
-			if ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) {
-				$caps[] = 'do_not_allow';
-			} elseif ( ! wp_is_file_mod_allowed( 'capability_edit_themes' ) ) {
-				$caps[] = 'do_not_allow';
-			} elseif ( is_multisite() && ! is_super_admin( $user_id ) ) {
-				$caps[] = 'do_not_allow';
-			} else {
-				$caps[] = $cap;
-			}
+			$caps[] = 'do_not_allow';
 			break;
 		case 'update_plugins':
 		case 'delete_plugins':
