@@ -542,10 +542,6 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	function test_spatial_indices() {
 		global $wpdb;
 
-		if ( version_compare( $wpdb->db_version(), '5.4', '<' ) ) {
-			$this->markTestSkipped( 'Spatial indices require MySQL 5.4 and above.' );
-		}
-
 		$schema =
 			"
 			CREATE TABLE {$wpdb->prefix}spatial_index_test (
