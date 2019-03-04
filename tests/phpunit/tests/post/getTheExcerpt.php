@@ -16,15 +16,6 @@ class Tests_Post_GetTheExcerpt extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 27246
-	 * @expectedDeprecated get_the_excerpt
-	 */
-	public function test_the_excerpt_deprecated() {
-		$this->assertSame( '', get_the_excerpt( true ) );
-		$this->assertSame( '', get_the_excerpt( false ) );
-	}
-
-	/**
-	 * @ticket 27246
 	 */
 	public function test_the_excerpt() {
 		$GLOBALS['post'] = self::factory()->post->create_and_get( array( 'post_excerpt' => 'Post excerpt' ) );
