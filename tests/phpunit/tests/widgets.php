@@ -749,7 +749,6 @@ class Tests_Widgets extends WP_UnitTestCase {
 		$sidebars_widgets = array(
 			'sidebar-1'           => array( 'tag_cloud-1' ),
 			'sidebar-2'           => array( 'text-1' ),
-			'fantasy'             => array( 'archives-2' ),
 			'wp_inactive_widgets' => array(),
 		);
 
@@ -770,11 +769,10 @@ class Tests_Widgets extends WP_UnitTestCase {
 		// Unregistered widget should be filtered out.
 		$this->assertNotContains( 'unregistered_widget-1', $sidebars_widgets['sidebar-3'] );
 
-		// 4 default widgets - 1 active text widget + 1 orphaned widget = 6.
-		$this->assertCount( 4, $sidebars_widgets['wp_inactive_widgets'] );
+		// 3 default widgets - 1 active text widget + 1 orphaned widget = 6.
+		$this->assertCount( 3, $sidebars_widgets['wp_inactive_widgets'] );
 
 		$this->assertContains( 'search-2', $sidebars_widgets['wp_inactive_widgets'] );
-		$this->assertContains( 'categories-2', $sidebars_widgets['wp_inactive_widgets'] );
 		$this->assertContains( 'recent-posts-2', $sidebars_widgets['wp_inactive_widgets'] );
 		$this->assertContains( 'recent-comments-2', $sidebars_widgets['wp_inactive_widgets'] );
 
