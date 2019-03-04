@@ -51,7 +51,6 @@ $iis7_permalinks     = iis7_supports_permalinks();
 $permalink_structure = get_option( 'permalink_structure' );
 
 $prefix = $blog_prefix = '';
-}
 
 /**
  * In a subdirectory configuration of multisite, the `/blog` prefix is used by
