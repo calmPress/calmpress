@@ -97,7 +97,6 @@
 		"imagesloaded": "3.2.0",
 		"jquery": "1.12.4",
 		"jquery-color": "github:jquery/jquery-color#2.1.1",
-		"jquery-form": "4.2.1",
 		"jquery-hoverintent": "1.8.3",
 		"jquery-ui": "github:jquery/jquery-ui#1.11.4",
 		"lodash": "4.17.11",
@@ -106,7 +105,6 @@
 		"polyfill-library": "3.27.4",
 		"react": "16.6.3",
 		"react-dom": "16.6.3",
-		"twemoji": "11.2.0",
 		"underscore": "1.8.3",
 		"whatwg-fetch": "3.0.0"
 	},

@@ -168,10 +168,8 @@ module.exports = function(grunt) {
 						[ WORKING_DIR + 'wp-includes/js/imagesloaded.min.js' ]: [ './node_modules/imagesloaded/imagesloaded.pkgd.min.js' ],
 						[ WORKING_DIR + 'wp-includes/js/jquery/jquery-migrate.js' ]: [ './node_modules/jquery-migrate/dist/jquery-migrate.js' ],
 						[ WORKING_DIR + 'wp-includes/js/jquery/jquery-migrate.min.js' ]: [ './node_modules/jquery-migrate/dist/jquery-migrate.min.js' ],
-						[ WORKING_DIR + 'wp-includes/js/jquery/jquery.form.js' ]: [ './node_modules/jquery-form/src/jquery.form.js' ],
 						[ WORKING_DIR + 'wp-includes/js/jquery/jquery.js' ]: [ './node_modules/jquery/dist/jquery.min.js' ],
 						[ WORKING_DIR + 'wp-includes/js/masonry.min.js' ]: [ './node_modules/masonry-layout/dist/masonry.pkgd.min.js' ],
-						[ WORKING_DIR + 'wp-includes/js/twemoji.js' ]: [ './node_modules/twemoji/2/twemoji.js' ],
 						[ WORKING_DIR + 'wp-includes/js/underscore.js' ]: [ './node_modules/underscore/underscore.js' ],
 					},
 					{
@@ -307,8 +305,6 @@ module.exports = function(grunt) {
 					[ WORKING_DIR + 'wp-includes/js/wp-custom-header.js' ]: [ './src/js/_enqueues/wp/custom-header.js' ],
 					[ WORKING_DIR + 'wp-includes/js/wp-embed-template.js' ]: [ './src/js/_enqueues/lib/embed-template.js' ],
 					[ WORKING_DIR + 'wp-includes/js/wp-embed.js' ]: [ './src/js/_enqueues/wp/embed.js' ],
-					[ WORKING_DIR + 'wp-includes/js/wp-emoji-loader.js' ]: [ './src/js/_enqueues/lib/emoji-loader.js' ],
-					[ WORKING_DIR + 'wp-includes/js/wp-emoji.js' ]: [ './src/js/_enqueues/wp/emoji.js' ],
 					[ WORKING_DIR + 'wp-includes/js/wp-list-revisions.js' ]: [ './src/js/_enqueues/lib/list-revisions.js' ],
 					[ WORKING_DIR + 'wp-includes/js/wp-lists.js' ]: [ './src/js/_enqueues/lib/lists.js' ],
 					[ WORKING_DIR + 'wp-includes/js/wp-pointer.js' ]: [ './src/js/_enqueues/lib/pointer.js' ],
@@ -707,10 +703,6 @@ module.exports = function(grunt) {
 				src: WORKING_DIR + 'wp-includes/js/imgareaselect/jquery.imgareaselect.js',
 				dest: WORKING_DIR + 'wp-includes/js/imgareaselect/jquery.imgareaselect.min.js'
 			},
-			jqueryform: {
-				src: WORKING_DIR + 'wp-includes/js/jquery/jquery.form.js',
-				dest: WORKING_DIR + 'wp-includes/js/jquery/jquery.form.min.js'
-			},
 			dynamic: {
 				expand: true,
 				cwd: WORKING_DIR,
@@ -739,19 +731,6 @@ module.exports = function(grunt) {
 				],
 				dest: WORKING_DIR + 'wp-includes/js/tinymce/wp-tinymce.js'
 			},
-			emoji: {
-				options: {
-					separator: '\n',
-					process: function( src, filepath ) {
-						return '// Source: ' + filepath.replace( WORKING_DIR, '' ) + '\n' + src;
-					}
-				},
-				src: [
-					WORKING_DIR + 'wp-includes/js/twemoji.min.js',
-					WORKING_DIR + 'wp-includes/js/wp-emoji.min.js'
-				],
-				dest: WORKING_DIR + 'wp-includes/js/wp-emoji-release.min.js'
-			}
 		},
 		patch:{
 			options: {
@@ -832,8 +811,6 @@ module.exports = function(grunt) {
 					'src/wp-includes/js/wp-custom-header.js': 'src/js/_enqueues/wp/custom-header.js',
 					'src/wp-includes/js/wp-embed-template.js': 'src/js/_enqueues/lib/embed-template.js',
 					'src/wp-includes/js/wp-embed.js': 'src/js/_enqueues/wp/embed.js',
-					'src/wp-includes/js/wp-emoji-loader.js': 'src/js/_enqueues/lib/emoji-loader.js',
-					'src/wp-includes/js/wp-emoji.js': 'src/js/_enqueues/wp/emoji.js',
 					'src/wp-includes/js/wp-list-revisions.js': 'src/js/_enqueues/lib/list-revisions.js',
 					'src/wp-includes/js/wp-lists.js': 'src/js/_enqueues/lib/lists.js',
 					'src/wp-includes/js/wp-pointer.js': 'src/js/_enqueues/lib/pointer.js',
@@ -1184,7 +1161,6 @@ module.exports = function(grunt) {
 		'webpack:prod',
 		'jshint:corejs',
 		'uglify:imgareaselect',
-		'uglify:jqueryform',
 		'qunit:compiled'
 	] );
 
@@ -1278,11 +1254,6 @@ module.exports = function(grunt) {
 							}
 						} );
 
-						if ( [ 'twemoji.js' ].some( testPath ) ) {
-							grunt.log.writeln( 'twemoji.js has updated. Running `precommit:emoji.' );
-							taskList.push( 'precommit:emoji' );
-						}
-
 						if ( testExtension( 'php' ) ) {
 							grunt.log.writeln( 'PHP files modified. Code formatting will be run.' );
 							var PHPfiles = result.stdout.split( '\n' );
@@ -1325,7 +1296,6 @@ module.exports = function(grunt) {
 		'uglify:embed',
 		'uglify:jqueryui',
 		'uglify:imgareaselect',
-		'uglify:jqueryform'
 	] );
 
 	grunt.registerTask( 'build:js', [
@@ -1336,7 +1306,6 @@ module.exports = function(grunt) {
 		'file_append',
 		'uglify:all',
 		'concat:tinymce',
-		'concat:emoji',
 		'jsvalidate:build'
 	] );
 
