@@ -18,6 +18,7 @@ module.exports = function(grunt) {
 			'*.php',
 			'*.txt',
 			'*.html',
+			'.htaccess',
 			'wp-includes/**', // Include everything in wp-includes.
 			'wp-admin/**', // Include everything in wp-admin.
 			'wp-content/index.php',
