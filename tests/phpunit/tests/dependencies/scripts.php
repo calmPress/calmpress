@@ -35,24 +35,6 @@ JS;
 	}
 
 	/**
-	 * Test versioning
-	 *
-	 * @ticket 11315
-	 */
-	function test_wp_enqueue_script() {
-		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
-		$expected  = "<script type='text/javascript' src='http://example.com?ver=$ver'></script>\n";
-		$expected .= "<script type='text/javascript' src='http://example.com?ver=$ver'></script>\n";
-		$expected .= "<script type='text/javascript' src='http://example.com?ver=1.2'></script>\n";
-		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
-
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
-
-		// No scripts left to print
-		$this->assertEquals( '', get_echo( 'wp_print_scripts' ) );
-	}
-
-	/**
 	 * Test the different protocol references in wp_enqueue_script
 	 *
 	 * @global WP_Scripts $wp_scripts
