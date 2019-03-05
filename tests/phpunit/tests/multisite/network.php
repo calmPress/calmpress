@@ -357,24 +357,6 @@ if ( is_multisite() ) :
 		}
 
 		/**
-		 * @expectedDeprecated get_dashboard_blog
-		 */
-		function test_get_dashboard_blog() {
-			// if there is no dashboard blog set, current blog is used
-			$dashboard_blog = get_dashboard_blog();
-			$this->assertEquals( 1, $dashboard_blog->blog_id );
-
-			$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-			$blog_id = self::factory()->blog->create( array( 'user_id' => $user_id ) );
-			$this->assertInternalType( 'int', $blog_id );
-
-			// set the dashboard blog to another one
-			update_site_option( 'dashboard_blog', $blog_id );
-			$dashboard_blog = get_dashboard_blog();
-			$this->assertEquals( $blog_id, $dashboard_blog->blog_id );
-		}
-
-		/**
 		 * @ticket 37528
 		 */
 		function test_wp_update_network_site_counts() {
