@@ -361,6 +361,28 @@ function wp_unschedule_event( $timestamp, $hook, $args = array() ) {
  *                  unscheduling one or more events fail.
  */
 function wp_clear_scheduled_hook( $hook, $args = array() ) {
+
+	/**
+	 * Filter to preflight or hijack clearing a scheduled hook.
+	 *
+	 * Returning a non-null value will short-circuit the normal unscheduling
+	 * process, causing the function to return the filtered value instead.
+	 *
+	 * For plugins replacing wp-cron, return the number of events successfully
+	 * unscheduled (zero if no events were registered with the hook) or false
+	 * if unscheduling one or more events fails.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @param null|array $pre  Value to return instead. Default null to continue unscheduling the event.
+	 * @param string     $hook Action hook, the execution of which will be unscheduled.
+	 * @param array      $args Arguments to pass to the hook's callback function.
+	 */
+	$pre = apply_filters( 'pre_clear_scheduled_hook', null, $hook, $args );
+	if ( null !== $pre ) {
+		return $pre;
+	}
+
 	// This logic duplicates wp_next_scheduled()
 	// It's required due to a scenario where wp_unschedule_event() fails due to update_option() failing,
 	// and, wp_next_scheduled() returns the same schedule in an infinite loop.
