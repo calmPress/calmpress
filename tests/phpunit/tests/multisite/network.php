@@ -263,6 +263,7 @@ if ( is_multisite() ) :
 		}
 
 		function test_active_network_plugins() {
+			copy( DIR_TESTDATA . '/plugins/hello.php', WP_PLUGIN_DIR . '/hello.php' );
 			$path = 'hello.php';
 
 			// local activate, should be invisible for the network
