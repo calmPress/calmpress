@@ -3105,8 +3105,6 @@ function wp_init_targeted_link_rel_filters() {
 		'content_filtered_save_pre',
 		'pre_comment_content',
 		'pre_term_description',
-		'pre_link_description',
-		'pre_link_notes',
 		'pre_user_description',
 	);
 
@@ -3128,8 +3126,6 @@ function wp_remove_targeted_link_rel_filters() {
 		'content_filtered_save_pre',
 		'pre_comment_content',
 		'pre_term_description',
-		'pre_link_description',
-		'pre_link_notes',
 		'pre_user_description',
 	);
 
