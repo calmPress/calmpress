@@ -172,12 +172,17 @@ if ( is_multisite() ) :
 				// The table should exist.
 				$this->assertNotEmpty( $table_fields );
 
-				// And the table should not be empty, unless commentmeta, termmeta, or links.
+				// And the table should not be empty, unless commentmeta or term related tables.
 				$result = $wpdb->get_results( "SELECT * FROM $prefix$table LIMIT 1" );
-				if ( 'commentmeta' == $table || 'termmeta' == $table || 'links' == $table ) {
-					$this->assertEmpty( $result );
+				if ( 'commentmeta' == $table
+					|| 'termmeta' == $table
+					|| 'terms' == $table
+					|| 'term_taxonomy' == $table
+					|| 'term_relationships' == $table
+				 ) {
+					$this->assertEmpty( $result, 'Table: ' . $table );
 				} else {
-					$this->assertNotEmpty( $result );
+					$this->assertNotEmpty( $result, 'Table: ' . $table  );
 				}
 			}
 
