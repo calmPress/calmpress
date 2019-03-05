@@ -213,24 +213,12 @@ if ( is_multisite() ) :
 			switch_to_blog( $first );
 			$wp_rewrite->init();
 
-			$this->go_to( get_author_posts_url( $user_id ) );
-			$this->assertQueryTrue( 'is_404' );
-
 			switch_to_blog( $second );
 			$wp_rewrite->init();
-
-			$this->go_to( get_author_posts_url( $user_id ) );
-			$this->assertQueryTrue( 'is_author', 'is_archive' );
 
 			add_user_to_blog( $first, $user_id, 'administrator' );
 			$blogs = get_blogs_of_user( $user_id );
 			$this->assertCount( 2, $blogs );
-
-			switch_to_blog( $first );
-			$wp_rewrite->init();
-
-			$this->go_to( get_author_posts_url( $user_id ) );
-			$this->assertQueryTrue( 'is_author', 'is_archive' );
 		}
 
 		function test_revoked_super_admin_can_be_deleted() {
