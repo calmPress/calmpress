@@ -1015,10 +1015,6 @@ function do_meta_boxes( $screen, $context, $object ) {
 					echo '<span class="toggle-indicator" aria-hidden="true"></span>';
 					echo '</button>';
 					echo '<h2 class="hndle">';
-					if ( 'dashboard_php_nag' === $box['id'] ) {
-						echo '<span aria-hidden="true" class="dashicons dashicons-warning"></span>';
-						echo '<span class="screen-reader-text">' . __( 'Warning:' ) . ' </span>';
-					}
 					echo "<span>{$box['title']}</span>";
 					echo "</h2>\n";
 					echo '<div class="inside">' . "\n";

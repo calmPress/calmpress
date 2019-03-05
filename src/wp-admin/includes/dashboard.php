@@ -24,13 +24,6 @@ function wp_dashboard_setup() {
 
 	/* Register Widgets and Controls */
 
-	// PHP Version.
-	$response = wp_check_php_version();
-	if ( $response && isset( $response['is_acceptable'] ) && ! $response['is_acceptable'] && current_user_can( 'update_php' ) ) {
-		add_filter( 'postbox_classes_dashboard_dashboard_php_nag', 'dashboard_php_nag_class' );
-		wp_add_dashboard_widget( 'dashboard_php_nag', __( 'PHP Update Required' ), 'wp_dashboard_php_nag' );
-	}
-
 	// Right Now
 	if ( is_blog_admin() && current_user_can( 'edit_posts' ) ) {
 		wp_add_dashboard_widget( 'dashboard_right_now', __( 'At a Glance' ), 'wp_dashboard_right_now' );
@@ -171,7 +164,7 @@ function wp_add_dashboard_widget( $widget_id, $widget_name, $callback, $control_
 		$location = 'side';
 	}
 
-	$high_priority_widgets = array( 'dashboard_php_nag' );
+	$high_priority_widgets = array();
 
 	$priority = 'core';
 	if ( in_array( $widget_id, $high_priority_widgets, true ) ) {
@@ -1150,64 +1143,6 @@ function wp_dashboard_quota() {
 	</ul>
 	</div>
 	<?php
-}
-
-/**
- * Displays the PHP update nag.
- *
- * @since 5.1.0
- */
-function wp_dashboard_php_nag() {
-	$response = wp_check_php_version();
-
-	if ( ! $response ) {
-		return;
-	}
-
-	if ( isset( $response['is_secure'] ) && ! $response['is_secure'] ) {
-		$msg = __( 'WordPress has detected that your site is running on an insecure version of PHP.' );
-	} else {
-		$msg = __( 'WordPress has detected that your site is running on an outdated version of PHP.' );
-	}
-
-	?>
-	<p><?php echo $msg; ?></p>
-
-	<h3><?php _e( 'What is PHP and how does it affect my site?' ); ?></h3>
-	<p><?php _e( 'PHP is the programming language we use to build and maintain WordPress. Newer versions of PHP are both faster and more secure, so updating will have a positive effect on your site’s performance.' ); ?></p>
-
-	<p class="button-container">
-		<?php
-		printf(
-			'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
-			esc_url( wp_get_update_php_url() ),
-			__( 'Learn more about updating PHP' ),
-			/* translators: accessibility text */
-			__( '(opens in a new tab)' )
-		);
-		?>
-	</p>
-	<?php
-
-	wp_update_php_annotation();
-}
-
-/**
- * Adds an additional class to the PHP nag if the current version is insecure.
- *
- * @since 5.1.0
- *
- * @param array $classes Metabox classes.
- * @return array Modified metabox classes.
- */
-function dashboard_php_nag_class( $classes ) {
-	$response = wp_check_php_version();
-
-	if ( $response && isset( $response['is_secure'] ) && ! $response['is_secure'] ) {
-		$classes[] = 'php-insecure';
-	}
-
-	return $classes;
 }
 
 /**
