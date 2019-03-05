@@ -852,34 +852,11 @@ class _WP_Editors {
 				'wordpress',
 				'wpautoresize',
 				'wpeditimage',
-				'wpemoji',
 				'wpgallery',
 				'wplink',
 				'wptextpattern',
 			)
 		);
-
-		$settings = self::_parse_init( $settings );
-
-		// In production all plugins are loaded (they are in wp-editor.js.gz).
-		// The 'wpview', 'wpdialogs', and 'media' TinyMCE plugins are not initialized by default.
-		// Can be added from js by using the 'wp-before-tinymce-init' event.
-		$settings['plugins'] = implode( ',', array(
-			'charmap',
-			'colorpicker',
-			'hr',
-			'lists',
-			'paste',
-			'tabfocus',
-			'textcolor',
-			'fullscreen',
-			'wordpress',
-			'wpautoresize',
-			'wpeditimage',
-			'wpgallery',
-			'wplink',
-			'wptextpattern',
-		) );
 
 		$settings = self::_parse_init( $settings );
 
