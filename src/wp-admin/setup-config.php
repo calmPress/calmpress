@@ -113,9 +113,6 @@ switch ( $step ) {
 	case 0:
 		setup_config_display_header();
 		$step_1 = 'setup-config.php?step=1';
-		if ( isset( $_REQUEST['noapi'] ) ) {
-			$step_1 .= '&amp;noapi';
-		}
 		if ( ! empty( $loaded_language ) ) {
 			$step_1 .= '&amp;language=' . $loaded_language;
 		}
@@ -126,8 +123,11 @@ switch ( $step ) {
 	<li><?php _e( 'Database name' ); ?></li>
 	<li><?php _e( 'Database username' ); ?></li>
 	<li><?php _e( 'Database password' ); ?></li>
+</ol>
+<p><?php _e( 'If your database is not hosted on the same server on which calmPress will run (most likely it is hosted on it), or you need advanced control, You will also need the following information :' ) ?></p>
+<ol>
 	<li><?php _e( 'Database host' ); ?></li>
-	<li><?php _e( 'Table prefix (if you want to run more than one calmPress in a single database)' ); ?></li>
+	<li><?php _e( 'Table prefix (if you want to customize table names)' ); ?></li>
 </ol>
 <p><?php
 	/* translators: %s: wp-config.php */
@@ -156,17 +156,17 @@ switch ( $step ) {
 	<table class="form-table">
 		<tr>
 			<th scope="row"><label for="dbname"><?php _e( 'Database Name' ); ?></label></th>
-			<td><input name="dbname" id="dbname" type="text" size="25" value="calmpress" /></td>
+			<td><input name="dbname" id="dbname" type="text" size="25" value="" /></td>
 			<td><?php _e( 'The name of the database you want to use with calmPress.' ); ?></td>
 		</tr>
 		<tr>
 			<th scope="row"><label for="uname"><?php _e( 'Username' ); ?></label></th>
-			<td><input name="uname" id="uname" type="text" size="25" value="<?php echo htmlspecialchars( _x( 'username', 'example username' ), ENT_QUOTES ); ?>" /></td>
+			<td><input name="uname" id="uname" type="text" size="25" value="" /></td>
 			<td><?php _e( 'Your database username.' ); ?></td>
 		</tr>
 		<tr>
 			<th scope="row"><label for="pwd"><?php _e( 'Password' ); ?></label></th>
-			<td><input name="pwd" id="pwd" type="text" size="25" value="<?php echo htmlspecialchars( _x( 'password', 'example password' ), ENT_QUOTES ); ?>" autocomplete="off" /></td>
+			<td><input name="pwd" id="pwd" type="text" size="25" value="" autocomplete="off" /></td>
 			<td><?php _e( 'Your database password.' ); ?></td>
 		</tr>
 		<tr>
@@ -182,14 +182,9 @@ switch ( $step ) {
 		<tr>
 			<th scope="row"><label for="prefix"><?php _e( 'Table Prefix' ); ?></label></th>
 			<td><input name="prefix" id="prefix" type="text" value="cp_" size="25" /></td>
-			<td><?php _e( 'If you want to run multiple calmPress installations in a single database, change this.' ); ?></td>
+			<td><?php _e( 'if you want to customize table names, change this.' ); ?></td>
 		</tr>
 	</table>
-		<?php
-		if ( isset( $_GET['noapi'] ) ) {
-			?>
-<input name="noapi" type="hidden" value="1" /><?php } ?>
-	<input type="hidden" name="language" value="<?php echo esc_attr( $language ); ?>" />
 	<p class="step"><input name="submit" type="submit" value="<?php echo htmlspecialchars( __( 'Submit' ), ENT_QUOTES ); ?>" class="button button-large" /></p>
 </form>
 		<?php
@@ -250,7 +245,7 @@ switch ( $step ) {
 			wp_die( __( '<strong>ERROR</strong>: "Table Prefix" is invalid.' ) );
 		}
 
-		// Generate keys and salts using secure CSPRNG; fallback to API if enabled; further fallback to original wp_generate_password().
+		// Generate keys and salts using secure CSPRNG.
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_ []{}<>~`+=,.;:/?|';
 		$max   = strlen( $chars ) - 1;
 		for ( $i = 0; $i < 8; $i++ ) {
