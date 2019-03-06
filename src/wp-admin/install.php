@@ -78,11 +78,10 @@ function display_setup_form( $error = null ) {
 
 	$sql        = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->users ) );
 	$user_table = ( $wpdb->get_var( $sql ) != null );
-
-	// Ensure that Blogs appear in search engines by default.
-	$blog_public = 1;
+	// Ensure that Blogs appear in search engines by default, unless this is a local install.
+	$blog_public = in_array( $_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1'], true ) ? 0 : 1;
 	if ( isset( $_POST['weblog_title'] ) ) {
-		$blog_public = isset( $_POST['blog_public'] );
+		$blog_public = isset( $_POST['blog_public'] ) ? 0 : 1;
 	}
 
 	$weblog_title = isset( $_POST['weblog_title'] ) ? trim( wp_unslash( $_POST['weblog_title'] ) ) : '';
