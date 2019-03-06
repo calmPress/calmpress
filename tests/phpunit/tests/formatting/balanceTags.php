@@ -44,7 +44,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 	 * @dataProvider single_tags
 	 */
 	function test_selfcloses_unclosed_known_single_tags( $tag ) {
-		$this->assertEquals( "<$tag />", balanceTags( "<$tag>", true ) );
+		$this->assertEquals( "<$tag />", force_balance_tags( "<$tag>" ) );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 	 * @dataProvider single_tags
 	 */
 	function test_selfcloses_known_single_tags_having_closing_tag( $tag ) {
-		$this->assertEquals( "<$tag />", balanceTags( "<$tag></$tag>", true ) );
+		$this->assertEquals( "<$tag />", force_balance_tags( "<$tag></$tag>" ) );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 		);
 
 		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $expected[ $key ], balanceTags( $inputs[ $key ], true ) );
+			$this->assertEquals( $expected[ $key ], force_balance_tags( $inputs[ $key ] ) );
 		}
 	}
 
@@ -92,7 +92,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 		);
 
 		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $expected[ $key ], balanceTags( $inputs[ $key ], true ) );
+			$this->assertEquals( $expected[ $key ], force_balance_tags( $inputs[ $key ] ) );
 		}
 	}
 
@@ -105,7 +105,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 		);
 
 		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $inputs[ $key ], balanceTags( $inputs[ $key ], true ) );
+			$this->assertEquals( $inputs[ $key ], force_balance_tags( $inputs[ $key ] ) );
 		}
 	}
 
@@ -125,7 +125,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 		);
 
 		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $expected[ $key ], balanceTags( $inputs[ $key ], true ) );
+			$this->assertEquals( $expected[ $key ], force_balance_tags( $inputs[ $key ] ) );
 		}
 	}
 
@@ -139,7 +139,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 		);
 
 		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $inputs[ $key ], balanceTags( $inputs[ $key ], true ) );
+			$this->assertEquals( $inputs[ $key ], force_balance_tags( $inputs[ $key ] ) );
 		}
 	}
 
@@ -148,7 +148,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 	 */
 	function test_allows_immediately_nested_object_tags() {
 		$object = '<object id="obj1"><param name="param1"/><object id="obj2"><param name="param2"/></object></object>';
-		$this->assertEquals( $object, balanceTags( $object, true ) );
+		$this->assertEquals( $object, force_balance_tags( $object ) );
 	}
 
 	function test_balances_nested_non_nestable_tags() {
@@ -162,7 +162,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 		);
 
 		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $expected[ $key ], balanceTags( $inputs[ $key ], true ) );
+			$this->assertEquals( $expected[ $key ], force_balance_tags( $inputs[ $key ] ) );
 		}
 	}
 
@@ -177,7 +177,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 		);
 
 		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $expected[ $key ], balanceTags( $inputs[ $key ], true ) );
+			$this->assertEquals( $expected[ $key ], force_balance_tags( $inputs[ $key ] ) );
 		}
 	}
 
@@ -198,7 +198,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 		);
 
 		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $expected[ $key ], balanceTags( $inputs[ $key ], true ) );
+			$this->assertEquals( $expected[ $key ], force_balance_tags( $inputs[ $key ] ) );
 		}
 	}
 
@@ -217,7 +217,7 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 		);
 
 		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $expected[ $key ], balanceTags( $inputs[ $key ], true ) );
+			$this->assertEquals( $expected[ $key ], force_balance_tags( $inputs[ $key ] ) );
 		}
 	}
 
