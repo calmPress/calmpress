@@ -207,19 +207,39 @@ switch ( $step ) {
 
 		$step_1  = 'setup-config.php?step=1';
 		$install = 'install.php';
-		if ( isset( $_REQUEST['noapi'] ) ) {
-			$step_1 .= '&amp;noapi';
+
+		$tryagain_link = '</p><p class="step"><a href="' . $step_1 . '" onclick="javascript:history.go(-1);return false;" class="button button-large">' . __( 'Try again' ) . '</a>';
+
+		if ( empty( $prefix ) ) {
+			wp_die( __( '<strong>ERROR</strong>: "Table Prefix" must not be empty.' ) . $tryagain_link );
 		}
 
-		// Generate keys and salts using secure CSPRNG.
-		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_ []{}<>~`+=,.;:/?|';
-		$max = strlen($chars) - 1;
-		for ( $i = 0; $i < 8; $i++ ) {
-			$key = '';
-			for ( $j = 0; $j < 64; $j++ ) {
-				$key .= substr( $chars, random_int( 0, $max ), 1 );
-			}
-			$secret_keys[] = $key;
+		// Validate $prefix: it can only contain letters, numbers and underscores.
+		if ( preg_match( '|[^a-z0-9_]|i', $prefix ) ) {
+			wp_die( __( '<strong>ERROR</strong>: "Table Prefix" can only contain numbers, letters, and underscores.' ) . $tryagain_link );
+		}
+
+		// Test the db connection.
+		/**#@+
+		 *
+		 * @ignore
+		 */
+		define( 'DB_NAME', $dbname );
+		define( 'DB_USER', $uname );
+		define( 'DB_PASSWORD', $pwd );
+		define( 'DB_HOST', $dbhost );
+		/**#@-*/
+		// Re-construct $wpdb with these new values.
+		unset( $wpdb );
+		require_wp_db();
+
+		/*
+		* The wpdb constructor bails when WP_SETUP_CONFIG is set, so we must
+		* fire this manually. We'll fail here if the values are no good.
+		*/
+		$wpdb->db_connect();
+		if ( ! empty( $wpdb->error ) ) {
+			wp_die( $wpdb->error->get_error_message() . $tryagain_link );
 		}
 
 		$errors = $wpdb->hide_errors();
@@ -231,34 +251,14 @@ switch ( $step ) {
 		}
 
 		// Generate keys and salts using secure CSPRNG; fallback to API if enabled; further fallback to original wp_generate_password().
-		try {
-			$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_ []{}<>~`+=,.;:/?|';
-			$max   = strlen( $chars ) - 1;
-			for ( $i = 0; $i < 8; $i++ ) {
-				$key = '';
-				for ( $j = 0; $j < 64; $j++ ) {
-					$key .= substr( $chars, random_int( 0, $max ), 1 );
-				}
-				$secret_keys[] = $key;
+		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_ []{}<>~`+=,.;:/?|';
+		$max   = strlen( $chars ) - 1;
+		for ( $i = 0; $i < 8; $i++ ) {
+			$key = '';
+			for ( $j = 0; $j < 64; $j++ ) {
+				$key .= substr( $chars, random_int( 0, $max ), 1 );
 			}
-		} catch ( Exception $ex ) {
-			$no_api = isset( $_POST['noapi'] );
-
-			if ( ! $no_api ) {
-				$secret_keys = wp_remote_get( 'https://api.wordpress.org/secret-key/1.1/salt/' );
-			}
-
-			if ( $no_api || is_wp_error( $secret_keys ) ) {
-				$secret_keys = array();
-				for ( $i = 0; $i < 8; $i++ ) {
-					$secret_keys[] = wp_generate_password( 64, true, true );
-				}
-			} else {
-				$secret_keys = explode( "\n", wp_remote_retrieve_body( $secret_keys ) );
-				foreach ( $secret_keys as $k => $v ) {
-					$secret_keys[ $k ] = substr( $v, 28, 64 );
-				}
-			}
+			$secret_keys[] = $key;
 		}
 
 		$key = 0;
