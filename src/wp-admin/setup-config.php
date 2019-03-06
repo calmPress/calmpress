@@ -181,7 +181,7 @@ switch ( $step ) {
 		</tr>
 		<tr>
 			<th scope="row"><label for="prefix"><?php _e( 'Table Prefix' ); ?></label></th>
-			<td><input name="prefix" id="prefix" type="text" value="cp_" size="25" /></td>
+			<td><input name="prefix" id="prefix" type="text" value="cp_<?php echo esc_attr( md5( time() ) ); ?>_" size="25" /></td>
 			<td><?php _e( 'if you want to customize table names, change this.' ); ?></td>
 		</tr>
 	</table>
