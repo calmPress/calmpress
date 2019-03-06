@@ -30,6 +30,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', dirname( dirname( __FILE__ ) ) . '/' );
 }
 
+ob_start();
+
 require( ABSPATH . 'wp-settings.php' );
 
 /** Load WordPress Administration Upgrade API */
@@ -348,13 +350,10 @@ if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
 		}
 		fclose( $handle );
 		chmod( $path_to_wp_config, 0666 );
-		setup_config_display_header();
 		?>
-<h1 class="screen-reader-text"><?php _e( 'Successful database connection' ); ?></h1>
-<p><?php _e( 'All right, sparky! You&#8217;ve made it through this part of the installation. calmPress can now communicate with your database. If you are ready, time now to&hellip;' ); ?></p>
-
-<p class="step"><a href="<?php echo $install; ?>" class="button button-large"><?php _e( 'Run the installation' ); ?></a></p>
 		<?php
+			wp_redirect( $install );
+			die();
 	endif;
 		break;
 }
@@ -390,3 +389,5 @@ element.addEventListener('click', function () {
 </script>
 </body>
 </html>
+<?php
+	ob_end_flush();
