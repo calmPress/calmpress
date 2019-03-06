@@ -2413,23 +2413,6 @@ function convert_invalid_entities( $content ) {
 }
 
 /**
- * Balances tags if forced to.
- *
- * @since 0.71
- *
- * @param string $text  Text to be balanced
- * @param bool   $force If true, forces balancing. Default false.
- * @return string Balanced text
- */
-function balanceTags( $text, $force = false ) {
-	if ( $force ) {
-		return force_balance_tags( $text );
-	} else {
-		return $text;
-	}
-}
-
-/**
  * Balances tags of string using a modified stack.
  *
  * @since 2.0.4

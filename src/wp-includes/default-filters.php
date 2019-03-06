@@ -107,10 +107,9 @@ add_action( 'added_comment_meta', 'wp_cache_set_comments_last_changed' );
 add_action( 'updated_comment_meta', 'wp_cache_set_comments_last_changed' );
 add_action( 'deleted_comment_meta', 'wp_cache_set_comments_last_changed' );
 
-// Places to balance tags on input
+// Convert invalid entities on input
 foreach ( array( 'content_save_pre', 'excerpt_save_pre', 'comment_save_pre', 'pre_comment_content' ) as $filter ) {
 	add_filter( $filter, 'convert_invalid_entities' );
-	add_filter( $filter, 'balanceTags', 50 );
 }
 
 // Add proper rel values for links with target.
