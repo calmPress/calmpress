@@ -169,7 +169,7 @@ switch ( $step ) {
 			<td><input name="pwd" id="pwd" type="text" size="25" value="" autocomplete="off" /></td>
 			<td><?php _e( 'Your database password.' ); ?></td>
 		</tr>
-		<tr>
+		<tr class="hide-if-js">
 			<th scope="row"><label for="dbhost"><?php _e( 'Database Host' ); ?></label></th>
 			<td><input name="dbhost" id="dbhost" type="text" size="25" value="localhost" /></td>
 			<td>
@@ -179,10 +179,19 @@ switch ( $step ) {
 			?>
 			</td>
 		</tr>
-		<tr>
+		<tr  class="hide-if-js">
 			<th scope="row"><label for="prefix"><?php _e( 'Table Prefix' ); ?></label></th>
 			<td><input name="prefix" id="prefix" type="text" value="cp_<?php echo esc_attr( md5( time() ) ); ?>_" size="25" /></td>
 			<td><?php _e( 'if you want to customize table names, change this.' ); ?></td>
+		</tr>
+		<tr class="hide-if-no-js">
+			<th></th>
+			<td></td>
+			<td>
+				<button type="button" class="toggle-advanced button" data-toggle-text="<?php echo esc_attr( 'Hide Advanced Settings' ); ?>">
+					<?php esc_html_e( 'Show Advanced Settings' ); ?>
+				</button>
+			</td>
 		</tr>
 	</table>
 	<p class="step"><input name="submit" type="submit" value="<?php echo htmlspecialchars( __( 'Submit' ), ENT_QUOTES ); ?>" class="button button-large" /></p>
@@ -351,5 +360,33 @@ if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
 }
 ?>
 <?php wp_print_scripts( 'language-chooser' ); ?>
+<script type="text/javascript">
+var elements = document.querySelectorAll( '.hide-if-no-js' );
+elements.forEach( function( item ) {
+	item.classList.remove( 'hide-if-no-js' );
+});
+
+var elements = document.querySelectorAll( '.hide-if-js' );
+elements.forEach( function( item ) {
+	item.style.display = 'none';
+});
+
+var element = document.querySelector( '.toggle-advanced' );
+element.addEventListener('click', function () {
+	var elements = document.querySelectorAll( '.hide-if-js' );
+	elements.forEach( function( item ) {
+		if ( item.style.display == 'none' ) {
+	  		item.style.display = 'table-row';
+		} else {
+			item.style.display = 'none';
+		}
+	});
+	var currentText = element.innerHTML;
+	var toggleText  = element.getAttribute( 'data-toggle-text' );
+	element.innerHTML = toggleText;
+	element.setAttribute( 'data-toggle-text', currentText );
+});
+
+</script>
 </body>
 </html>
