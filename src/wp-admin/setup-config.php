@@ -358,7 +358,6 @@ if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
 		break;
 }
 ?>
-<?php wp_print_scripts( 'language-chooser' ); ?>
 <script type="text/javascript">
 var elements = document.querySelectorAll( '.hide-if-no-js' );
 elements.forEach( function( item ) {
