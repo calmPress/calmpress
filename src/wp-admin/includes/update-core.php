@@ -186,7 +186,7 @@ $_new_bundled_files = array(
 function update_core( $from, $to ) {
 	global $wp_filesystem, $_old_files, $wpdb;
 
-	$calmpress_version = '1.0.0-alpha9';
+	$calmpress_version = '1.0.0-alpha10';
     $required_php_version = '7.0';
     $required_mysql_version = '5.0';
 
@@ -329,7 +329,7 @@ function update_core( $from, $to ) {
 		if ( ! $wp_filesystem->exists( $old_file ) ) {
 			continue;
 		}
-		
+
 		// If the file isn't deleted, try writing an empty string to the file instead.
 		if ( ! $wp_filesystem->delete( $old_file, true ) && $wp_filesystem->is_file( $old_file ) ) {
 			$wp_filesystem->put_contents( $old_file, '' );
