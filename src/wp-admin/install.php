@@ -243,6 +243,26 @@ if ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) ) {
 	);
 }
 
+// Make sure we have continuation from the wp-config.php generation phase by
+// looking for a cookie that should have been set then. This is done to ensure
+// that the install is not hijacked by someone else.
+if ( ! isset( $_COOKIE['calmpress_install_auth_key'] ) || AUTH_KEY !== $_COOKIE['calmpress_install_auth_key'] ) {
+	display_header();
+	die(
+		'<h1>' . __( 'Permissions Error' ) . '</h1>' .
+		'<p>' . sprintf(
+			/* translators: %s: wp-config.php */
+			__( 'It seems like you are trying to complete the install from a different browser than the one you used to create the %s file, or more than a month passed since then.' ),
+			'<code>wp-config.php</code>'
+		) . '</p>' .
+		'<p>' . sprintf(
+			/* translators: %s: wp-config.php */
+			__( 'You should either continue from the original browser, or delete the %s file and start over.' ),
+			'<code>wp-config.php</code>'
+		) . '</p></body></html>'
+	);
+}
+
 /**
  * @global WP_Locale $wp_locale
  */

@@ -294,6 +294,14 @@ switch ( $step ) {
 					}
 					break;
 				case 'AUTH_KEY':
+					// A cookie is set with the value generated for the AUTH_KEY
+					// constant. It is going to be used in the install phase to
+					// make sure the install is being done by whoever created the
+					// wp-config.php file.
+					setcookie( 'calmpress_install_auth_key', $secret_keys[ $key ], time() + MONTH_IN_SECONDS );
+
+					// Intentional full through to actually set the value to be
+					// stored in wp-config.php.
 				case 'SECURE_AUTH_KEY':
 				case 'LOGGED_IN_KEY':
 				case 'NONCE_KEY':
