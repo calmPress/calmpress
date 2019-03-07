@@ -313,6 +313,7 @@ switch ( $step ) {
 
 		$scripts_to_print[] = 'user-profile';
 
+		ob_start();
 		display_header();
 		// Fill in the data we gathered
 		$weblog_title         = isset( $_POST['weblog_title'] ) ? trim( wp_unslash( $_POST['weblog_title'] ) ) : '';
@@ -340,6 +341,11 @@ switch ( $step ) {
 		if ( $error === false ) {
 			$wpdb->show_errors();
 			$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
+
+			if ( $result['password'] === wp_slash( $admin_password ) ) {
+				wp_redirect( wp_login_url() );
+				die();
+			}
 			?>
 
 <h1><?php _e( 'Success!' ); ?></h1>
@@ -368,6 +374,7 @@ switch ( $step ) {
 
 			<?php
 		}
+		ob_end_flush();
 		break;
 }
 
