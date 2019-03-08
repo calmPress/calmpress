@@ -2919,9 +2919,6 @@ class WP_Customize_Manager {
 		if ( $has_kses ) {
 			kses_init_filters();
 		}
-		if ( $has_targeted_link_rel_filters ) {
-			wp_init_targeted_link_rel_filters();
-		}
 
 		$this->_changeset_data = null; // Reset so WP_Customize_Manager::changeset_data() will re-populate with updated contents.
 
