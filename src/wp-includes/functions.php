@@ -4554,7 +4554,7 @@ function apache_mod_loaded( $mod, $default = false ) {
 			'mod_deflate',
 			'mod_expires',
 			'mod_filter',
-		], true ) {
+		], true ) ) {
 			return true;
 		}
 	}
