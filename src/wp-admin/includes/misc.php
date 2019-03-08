@@ -183,7 +183,7 @@ function save_mod_rewrite_rules() {
 	if ( ( ! file_exists( $htaccess_file ) && is_writable( $home_path ) ) || is_writable( $htaccess_file ) ) {
 		if ( got_mod_rewrite() ) {
 			$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
-			return insert_with_markers( $htaccess_file, 'calmPress', $rules );
+			return insert_with_markers( $htaccess_file, 'WordPress', $rules );
 		}
 	}
 

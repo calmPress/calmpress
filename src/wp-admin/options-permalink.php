@@ -79,7 +79,7 @@ if ( $iis7_permalinks ) {
 		$writable = true;
 	} else {
 		$writable        = false;
-		$existing_rules  = array_filter( extract_from_markers( $home_path . '.htaccess', 'calmPress' ) );
+		$existing_rules  = array_filter( extract_from_markers( $home_path . '.htaccess', 'WordPress' ) );
 		$new_rules       = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );
 		$update_required = ( $new_rules !== $existing_rules );
 	}

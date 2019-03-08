@@ -1,4 +1,4 @@
-# BEGIN calmPress
+# BEGIN wordPress
 <files wp-config.php>
 order allow,deny
 deny from all
@@ -41,4 +41,4 @@ ExpiresByType application/javascript "access 1 month"
 ExpiresByType text/x-javascript "access 1 month"
 </IfModule>
 
-# END calmPress
+# END wordPress
