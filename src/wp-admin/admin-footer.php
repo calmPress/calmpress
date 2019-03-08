@@ -99,6 +99,12 @@ do_action( 'admin_print_footer_scripts' );
  */
 do_action( "admin_footer-{$hook_suffix}" );
 
+/*
+ * Close the buffer that was opened in admin-header.php and add noopener
+ * and norefere rel attributes to links that open in new window.
+ */
+echo wp_targeted_link_rel( ob_get_clean() );
+
 // get_site_option() won't exist when auto upgrading from <= 2.7
 if ( function_exists( 'get_site_option' ) ) {
 	if ( false === get_site_option( 'can_compress_scripts' ) ) {
