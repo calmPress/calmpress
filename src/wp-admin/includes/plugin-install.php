@@ -794,7 +794,7 @@ function install_plugin_information() {
 		$display = ( $section_name === $section ) ? 'block' : 'none';
 
 		echo "\t<div id='section-{$san_section}' class='section' style='display: {$display};'>\n";
-		echo $content;
+		echo wp_targeted_link_rel( $content );
 		echo "\t</div>\n";
 	}
 	echo "</div>\n";
