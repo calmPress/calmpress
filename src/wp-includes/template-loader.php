@@ -70,7 +70,16 @@ if ( wp_using_themes() ) :
 	 * @param string $template The path of the template to include.
 	 */
 	if ( $template = apply_filters( 'template_include', $template ) ) {
+		/*
+		 * The buffering around include( $template ) have two goals
+		 * 1. Buffer the output to be able to add a noopener and noreferer
+		 *    to links that open in new window.
+		 * 2. Make it easier to do redirects or emit any other header
+		 *    at any point during the generation of the HTML
+		 */
+		ob_start();
 		include( $template );
+		echo wp_targeted_link_rel( ob_get_clean() );
 	} elseif ( current_user_can( 'switch_themes' ) ) {
 		$theme = wp_get_theme();
 		if ( $theme->errors() ) {
