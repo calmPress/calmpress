@@ -3077,44 +3077,22 @@ function wp_targeted_link_rel_callback( $matches ) {
 
 /**
  * Adds all filters modifying the rel attribute of targeted links.
+ * Does nothing in calmPress.
  *
  * @since 5.1.0
+ * @since calmPress 1.0.0
  */
 function wp_init_targeted_link_rel_filters() {
-	$filters = array(
-		'title_save_pre',
-		'content_save_pre',
-		'excerpt_save_pre',
-		'content_filtered_save_pre',
-		'pre_comment_content',
-		'pre_term_description',
-		'pre_user_description',
-	);
-
-	foreach ( $filters as $filter ) {
-		add_filter( $filter, 'wp_targeted_link_rel' );
-	};
 }
 
 /**
  * Removes all filters modifying the rel attribute of targeted links.
+ * Does nothing in calmPress.
  *
  * @since 5.1.0
+ * @since calmPress 1.0.0
  */
 function wp_remove_targeted_link_rel_filters() {
-	$filters = array(
-		'title_save_pre',
-		'content_save_pre',
-		'excerpt_save_pre',
-		'content_filtered_save_pre',
-		'pre_comment_content',
-		'pre_term_description',
-		'pre_user_description',
-	);
-
-	foreach ( $filters as $filter ) {
-		remove_filter( $filter, 'wp_targeted_link_rel' );
-	};
 }
 
 /*
