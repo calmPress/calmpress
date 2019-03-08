@@ -2886,10 +2886,6 @@ class WP_Customize_Manager {
 		if ( $has_kses ) {
 			kses_remove_filters();
 		}
-		$has_targeted_link_rel_filters = ( false !== has_filter( 'content_save_pre', 'wp_targeted_link_rel' ) );
-		if ( $has_targeted_link_rel_filters ) {
-			wp_remove_targeted_link_rel_filters();
-		}
 
 		// Note that updating a post with publish status will trigger WP_Customize_Manager::publish_changeset_values().
 		if ( $changeset_post_id ) {
