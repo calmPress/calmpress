@@ -63,6 +63,7 @@ class WP_Widget_Categories extends WP_Widget {
 			'orderby'      => 'name',
 			'show_count'   => $c,
 			'hierarchical' => $h,
+			'echo'         => false,
 		);
 
 		if ( $d ) {
