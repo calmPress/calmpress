@@ -45,7 +45,7 @@ require( ABSPATH . WPINC . '/functions.wp-styles.php' );
  */
 function calm_version_hash( $version ) {
 
-    return hash_hmac('md5', $version, AUTH_SALT );
+    return hash_hmac( 'md5', $version, AUTH_SALT );
 }
 
 /**
