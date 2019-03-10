@@ -176,15 +176,10 @@ function save_mod_rewrite_rules() {
 	$home_path     = get_home_path();
 	$htaccess_file = $home_path . '.htaccess';
 
-	/*
-	 * If the file doesn't already exist check for write access to the directory
-	 * and whether we have some rules. Else check for write access to the file.
-	 */
-	if ( ( ! file_exists( $htaccess_file ) && is_writable( $home_path ) ) || is_writable( $htaccess_file ) ) {
-		if ( got_mod_rewrite() ) {
-			$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
-			return insert_with_markers( $htaccess_file, 'WordPress', $rules );
-		}
+	// Check the webserver is apache before trying to save .htaccess.
+	if ( got_mod_rewrite() ) {
+		$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
+		return insert_with_markers( $htaccess_file, 'WordPress', $rules );
 	}
 
 	return false;

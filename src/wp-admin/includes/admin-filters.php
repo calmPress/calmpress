@@ -147,3 +147,10 @@ add_action( 'post_updated', array( 'WP_Privacy_Policy_Content', '_policy_page_up
 
 // Append '(Draft)' to draft page titles in the privacy page dropdown.
 add_filter( 'list_pages', '_wp_privacy_settings_filter_draft_page_titles', 10, 2 );
+
+/*
+ * calmPress related.
+ */
+
+// .htacees needs update nag.
+add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::htaccess_update_nag' );
