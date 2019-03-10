@@ -39,54 +39,60 @@ class Post_Authors_As_Taxonomy {
 	public static function init() {
 
 		// Create the taxonomy on init action.
-		add_action( 'init', function () {
-			$labels = [
-				'name'                       => __( 'Authors' ),
-				'singular_name'              => __( 'Author' ),
-				'separate_items_with_commas' => __( 'Separate authors with commas' ),
-				'choose_from_most_used'      => __( 'Choose from the most used authors' ),
-				'not_found'                  => __( 'No authors found.' ),
-				'add_new_item'               => __( 'Add New Author' ),
-				'edit_item'                  => __( 'Edit Author' ),
-				'search_items'               => __( 'Search Authors' ),
-				'update_item'                => __( 'Update Author' ),
-				'back_to_items'              => __( '&larr; Back to Authors' ),
-				'view_item'                  => __( 'View Author' ),
-			];
+		add_action(
+			'init', function () {
+				$labels = [
+					'name'                       => __( 'Authors' ),
+					'singular_name'              => __( 'Author' ),
+					'separate_items_with_commas' => __( 'Separate authors with commas' ),
+					'choose_from_most_used'      => __( 'Choose from the most used authors' ),
+					'not_found'                  => __( 'No authors found.' ),
+					'add_new_item'               => __( 'Add New Author' ),
+					'edit_item'                  => __( 'Edit Author' ),
+					'search_items'               => __( 'Search Authors' ),
+					'update_item'                => __( 'Update Author' ),
+					'back_to_items'              => __( '&larr; Back to Authors' ),
+					'view_item'                  => __( 'View Author' ),
+				];
 
-			$args = [
-				'labels'            => $labels,
-				'public'            => true,
-				'hierarchical'      => false,
-				'show_in_rest'      => true,
-				'rewrite'           => [
-					'slug' => self::TAXONOMY_SLUG,
-				],
-				'show_admin_column' => true,
-				'show_in_menu'      => false,
-			];
+				$args = [
+					'labels'            => $labels,
+					'public'            => true,
+					'hierarchical'      => false,
+					'show_in_rest'      => true,
+					'rewrite'           => [
+						'slug' => self::TAXONOMY_SLUG,
+					],
+					'show_admin_column' => true,
+					'show_in_menu'      => false,
+				];
 
-			// Do not associate with any CPT right now as it will be done
-			// on a later hook.
-			register_taxonomy( self::TAXONOMY_NAME, [], $args );
-		} );
+				// Do not associate with any CPT right now as it will be done
+				// on a later hook.
+				register_taxonomy( self::TAXONOMY_NAME, [], $args );
+			}
+		);
 
 		// Associate the taxonomy with CPTs that support authors. Done after
 		// all the post type are supposed to be registered.
-		add_action( 'init', function () {
-			$post_types = get_post_types();
-			foreach ( $post_types as $key => $post_type ) {
-				if ( post_type_supports( $post_type, 'author' ) ) {
-					register_taxonomy_for_object_type( self::TAXONOMY_NAME, $post_type );
+		add_action(
+			'init', function () {
+				$post_types = get_post_types();
+				foreach ( $post_types as $key => $post_type ) {
+					if ( post_type_supports( $post_type, 'author' ) ) {
+						register_taxonomy_for_object_type( self::TAXONOMY_NAME, $post_type );
+					}
 				}
-			}
-		}, PHP_INT_MAX );
+			}, PHP_INT_MAX
+		);
 
 		// Add the admin menu.
-		add_action( 'admin_menu', function () {
-			$tax = get_taxonomy( self::TAXONOMY_NAME );
-			add_menu_page( __( 'Autors' ), __( 'Authors' ), $tax->cap->manage_terms, 'edit-tags.php?taxonomy=' . $tax->name, '', 'dashicons-admin-users', 69 );
-		} );
+		add_action(
+			'admin_menu', function () {
+				$tax = get_taxonomy( self::TAXONOMY_NAME );
+				add_menu_page( __( 'Autors' ), __( 'Authors' ), $tax->cap->manage_terms, 'edit-tags.php?taxonomy=' . $tax->name, '', 'dashicons-admin-users', 69 );
+			}
+		);
 	}
 
 	/**
@@ -127,9 +133,11 @@ class Post_Authors_As_Taxonomy {
 			return [];
 		}
 
-		return array_map( function ( $term ) {
-			return new Taxonomy_Based_Post_Author( $term );
-		}, $authors );
+		return array_map(
+			function ( $term ) {
+					return new Taxonomy_Based_Post_Author( $term );
+			}, $authors
+		);
 	}
 
 	/**
@@ -274,8 +282,10 @@ class Post_Authors_As_Taxonomy {
 
 		$authors = get_terms( self::TAXONOMY_NAME, $args );
 
-		return array_map( function ( $term ) {
-			return new Taxonomy_Based_Post_Author( $term );
-		}, $authors );
+		return array_map(
+			function ( $term ) {
+					return new Taxonomy_Based_Post_Author( $term );
+			}, $authors
+		);
 	}
 }

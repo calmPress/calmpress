@@ -29,11 +29,13 @@ class Post_Authors_As_Taxonomy_Db_Upgrade {
 	 */
 	public static function upgrade() {
 		// get all users with published content.
-		$users = get_users( [
-			'has_published_posts' => true,
-			'count_total'         => false,
-			'number'              => -1,
-		] );
+		$users = get_users(
+			[
+				'has_published_posts' => true,
+				'count_total'         => false,
+				'number'              => -1,
+			]
+		);
 
 		// Per user create a term in the authors taxonomy and associate all his posts with the term.
 		foreach ( $users as $user ) {
@@ -46,14 +48,16 @@ class Post_Authors_As_Taxonomy_Db_Upgrade {
 				$term = get_term( $term['term_id'], Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 			}
 
-			$post_ids = get_posts( [
-				'author'              => $user->ID,
-				'post_type'           => 'any',
-				'posts_per_page'      => -1,
-				'post_status'         => [ 'publish', 'inherit' ],
-				'fields'              => 'ids',
-				'ignore_sticky_posts' => true,
-			] );
+			$post_ids = get_posts(
+				[
+					'author'              => $user->ID,
+					'post_type'           => 'any',
+					'posts_per_page'      => -1,
+					'post_status'         => [ 'publish', 'inherit' ],
+					'fields'              => 'ids',
+					'ignore_sticky_posts' => true,
+				]
+			);
 
 			foreach ( $post_ids as $post_id ) {
 				wp_set_post_terms( $post_id, [ $term->term_id ], Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );

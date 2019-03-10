@@ -16,14 +16,16 @@ namespace calmpress\autoloader;
  * the value is the path to the relevant file.
  */
 const MAP = [
-	'calmpress\post_authors\Post_Author' => __DIR__ . '/class-post-author.php',
-	'calmpress\post_authors\Post_Authors_As_Taxonomy' => __DIR__ . '/class-post-authors-as-taxonomy.php',
+	'calmpress\post_authors\Post_Author'                => __DIR__ . '/class-post-author.php',
+	'calmpress\post_authors\Post_Authors_As_Taxonomy'   => __DIR__ . '/class-post-authors-as-taxonomy.php',
 	'calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade' => __DIR__ . '/class-post-authors-as-taxonomy-db-upgrade.php',
-	'calmpress\post_authors\Taxonomy_Based_Post_Author' => __DIR__ . '/class-post-taxonomy-author.php',
+	'calmpress\post_authors\Taxonomy_Based_Post_Author' => __DIR__ . '/class-taxonomy-based-post-author.php',
 ];
 
-spl_autoload_register( function ( string $classname ) {
-	if ( isset( MAP[ $classname ] ) ) {
-		require MAP[ $classname ];
+spl_autoload_register(
+	function ( string $classname ) {
+		if ( isset( MAP[ $classname ] ) ) {
+			require MAP[ $classname ];
+		}
 	}
-} );
+);

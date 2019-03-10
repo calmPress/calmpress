@@ -77,7 +77,7 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	public function image() {
 		$id = get_term_meta( $this->term->term_id, 'calm_featured_image', true );
 
-		if ( !$id ) {
+		if ( ! $id ) {
 			return null;
 		}
 
