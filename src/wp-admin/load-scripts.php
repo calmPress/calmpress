@@ -54,7 +54,7 @@ foreach ( $load as $handle ) {
 	$out .= get_file( $path ) . "\n";
 }
 
-header( "Etag: " . hash_hmac( 'md5', calmpress_version(), AUTH_SALT );
+header( "Etag: " . hash_hmac( 'md5', calmpress_version(), AUTH_SALT ) );
 header( 'Content-Type: application/javascript; charset=UTF-8' );
 header( 'Expires: ' . gmdate( "D, d M Y H:i:s", time() + $expires_offset ) . ' GMT' );
 header( "Cache-Control: public, max-age=$expires_offset" );
