@@ -93,15 +93,20 @@ if ( isset( $_POST['permalink_structure'] ) || isset( $_POST['category_base'] ) 
 			$permalink_structure = $_POST['selection'];
 		} else {
 			$permalink_structure = $_POST['permalink_structure'];
+
+			// A custom permalink structure have to include the post name. If it doesn't
+			// revert to the current structure.
+			if ( false === strpos( $permalink_structure, '%postname%' ) ) {
+				add_settings_error( 'permalink_structure', 'invalid_permalink_structure', __( 'A %postname% tag is required when using custom permalinks.' ) );
+				$permalink_structure = get_option( 'permalink_structure' );
+			}
 		}
 
-		if ( ! empty( $permalink_structure ) ) {
-			$permalink_structure = preg_replace( '#/+#', '/', '/' . str_replace( '#', '', $permalink_structure ) );
-			if ( $prefix && $blog_prefix ) {
-				$permalink_structure = $prefix . preg_replace( '#^/?index\.php#', '', $permalink_structure );
-			} else {
-				$permalink_structure = $blog_prefix . $permalink_structure;
-			}
+		$permalink_structure = preg_replace( '#/+#', '/', '/' . str_replace( '#', '', $permalink_structure ) );
+		if ( $prefix && $blog_prefix ) {
+			$permalink_structure = $prefix . preg_replace( '#^/?index\.php#', '', $permalink_structure );
+		} else {
+			$permalink_structure = $blog_prefix . $permalink_structure;
 		}
 
 		$permalink_structure = sanitize_option( 'permalink_structure', $permalink_structure );
@@ -128,12 +133,12 @@ if ( isset( $_POST['permalink_structure'] ) || isset( $_POST['category_base'] ) 
 	$message = __( 'Permalink structure updated.' );
 
 	if ( $iis7_permalinks ) {
-		if ( $permalink_structure && ! $writable ) {
+		if ( ! $writable ) {
 			$message = __( 'You should update your web.config now.' );
-		} elseif ( $permalink_structure && $writable ) {
+		} elseif ( $writable ) {
 			$message = __( 'Permalink structure updated. Remove write access on web.config file now!' );
 		}
-	} elseif ( ! $is_nginx && $permalink_structure && ! $writable && $update_required ) {
+	} elseif ( ! $is_nginx && ! $writable && $update_required ) {
 		$message = __( 'You should update your .htaccess now.' );
 	}
 
@@ -292,7 +297,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
   </form>
 <?php if ( !is_multisite() ) { ?>
 <?php if ( $iis7_permalinks ) :
-	if ( isset($_POST['submit']) && $permalink_structure && ! $writable ) :
+	if ( isset($_POST['submit']) && ! $writable ) :
 		if ( file_exists($home_path . 'web.config') ) : ?>
 <p><?php
 	printf(
@@ -341,7 +346,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 		<?php endif; ?>
 	<?php endif; ?>
 <?php else:
-	if ( $permalink_structure && ! $writable && $update_required ) : ?>
+	if ( ! $writable && $update_required ) : ?>
 <p><?php
 	printf(
 		/* translators: 1: .htaccess, 3: CTRL + a */
