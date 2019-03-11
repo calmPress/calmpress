@@ -345,7 +345,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 <p><?php
 	printf(
 		/* translators: 1: .htaccess, 3: CTRL + a */
-		__( 'If your %1$s file was writable, we could do this automatically, but it isn&#8217;t so these are the mod_rewrite rules you should have in your %1$s file. Click in the field and press %2$s to select all.' ),
+		__( 'If your %1$s file was writable, we could do this automatically, but it isn&#8217;t so these are the rules you should have in your %1$s file. Click in the field and press %2$s to select all.' ),
 		'<code>.htaccess</code>',
 		'<kbd>CTRL + a</kbd>'
 	);

@@ -205,7 +205,7 @@ class WP_Rewrite {
 	/**
 	 * Rules that don't redirect to WordPress' index.php.
 	 *
-	 * These rules are written to the mod_rewrite portion of the .htaccess,
+	 * These rules are written to the WordPress portion of the .htaccess,
 	 * and are added by add_external_rule().
 	 *
 	 * @since 2.1.0
@@ -1427,7 +1427,7 @@ class WP_Rewrite {
 	}
 
 	/**
-	 * Retrieves mod_rewrite-formatted rewrite rules to write to .htaccess.
+	 * Retrieves write to .htaccess.
 	 *
 	 * Does not actually write to the .htaccess file, but creates the rules for
 	 * the process that will.
@@ -1436,6 +1436,7 @@ class WP_Rewrite {
 	 * the WordPress rewrite rules one.
 	 *
 	 * @since 1.5.0
+	 * @since calmPress 1.0.0
 	 *
 	 * @return string
 	 */
@@ -1537,21 +1538,24 @@ class WP_Rewrite {
 		"</IfModule>\n";
 
 		/**
-		 * Filters the list of rewrite rules formatted for output to an .htaccess file.
+		 * Filters the list of rules formatted for output to an .htaccess file.
+		 *
+		 * For calmPress, all the rules are being passed, not just the rewrite ones.
 		 *
 		 * @since 1.5.0
+		 * @since calmPress 1.0.0
 		 *
-		 * @param string $rules mod_rewrite Rewrite rules formatted for .htaccess.
+		 * @param string $rules Rules formatted for .htaccess.
 		 */
 		$rules = apply_filters( 'mod_rewrite_rules', $rules );
 
 		/**
-		 * Filters the list of rewrite rules formatted for output to an .htaccess file.
+		 * Filters the list of rules formatted for output to an .htaccess file.
 		 *
 		 * @since 1.5.0
 		 * @deprecated 1.5.0 Use the mod_rewrite_rules filter instead.
 		 *
-		 * @param string $rules mod_rewrite Rewrite rules formatted for .htaccess.
+		 * @param string $rules Rules formatted for .htaccess.
 		 */
 		return apply_filters( 'rewrite_rules', $rules );
 	}
