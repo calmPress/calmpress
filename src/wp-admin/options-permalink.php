@@ -349,15 +349,15 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 	if ( ! $writable && $update_required ) : ?>
 <p><?php
 	printf(
-		/* translators: 1: .htaccess, 3: CTRL + a */
-		__( 'If your %1$s file was writable, we could do this automatically, but it isn&#8217;t so these are the rules you should have in your %1$s file. Click in the field and press %2$s to select all.' ),
+		/* translators: 1: .htaccess, 2: .htaccess section indicator */
+		__( 'If your %1$s file was writable, we could do this automatically, but it isn&#8217;t so these are the rules you should have in your %1$s file. Copy the text from the field below into your %1$s file replacing the %2$s section.' ),
 		'<code>.htaccess</code>',
-		'<kbd>CTRL + a</kbd>'
+		'<code># BEGIN Wordress ... # END WordPress</code>'
 	);
 ?></p>
 <form action="options-permalink.php" method="post">
 		<?php wp_nonce_field( 'update-permalink' ); ?>
-	<p><textarea rows="6" class="large-text readonly" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( $wp_rewrite->mod_rewrite_rules() ); ?></textarea></p>
+	<p><textarea rows="6" class="large-text readonly" onclick="this.focus();this.select()" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>
 </form>
 	<?php endif; ?>
 <?php endif; ?>
