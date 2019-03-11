@@ -40,12 +40,16 @@ class Admin_Notices {
 					__( 'The %1$s file contain different settings in its %2$s section than what it should have.' ),
 					'<code>.htaccess</code>',
 					'<code>WordPress</code>'
-				) . '<br>';
-				$msg .= sprintf(
-					/* translators: 1: The URL of the permalink setting page */
-					__( 'You can fix the .htaccess by going to the <a href="%1$s">Permalink settings page</a> which will automatically try to update the file, and follow additional instructions if it fails.' ),
-					esc_url( admin_url( 'options-permalink.php' ) )
 				);
+				$screen = get_current_screen();
+				if ( $screen && ( 'options-permalink' !== $screen->id ) ) {
+					$msg .= '<br>' . sprintf(
+						/* translators: 1: The file name, 2: The URL of the permalink setting page */
+						__( 'You can fix the %1$s file by going to the <a href="%2$s">Permalink settings page</a> which will automatically try to update the file, and follow additional instructions if it fails.' ),
+						'<code>.htaccess</code>',
+						esc_url( admin_url( 'options-permalink.php' ) )
+					);
+				}
 				echo "<div class='notice notice-error'><p>$msg</p></div>";
 			}
 		}
