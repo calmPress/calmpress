@@ -7,7 +7,6 @@ In this directory you'll find vendor JavaScript packages that cannot be installe
 - codemirror: https://github.com/codemirror/CodeMirror
 - crop: http://www.defusion.org.uk/code/javascript-image-cropper-ui-using-prototype-scriptaculous/download-zip/
 - imgareaselect: https://github.com/odyniec/imgareaselect
-- jcrop: https://github.com/tapmodo/Jcrop
 - mediaelement: https://github.com/mediaelement/mediaelement
 - plupload: https://github.com/moxiecode/plupload
 - swfupload: https://github.com/WordPress/secure-swfupload
