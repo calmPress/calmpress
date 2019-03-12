@@ -58,7 +58,6 @@ In this directory you'll find vendor JavaScript packages that cannot be installe
 ## Single file dependencies
 
 - colorpicker: http://www.mattkruse.com/javascript/colorpicker/
-- farbtastic: https://github.com/mattfarina/farbtastic
 - iris: https://github.com/Automattic/Iris
 - jquery/jquery.color: https://github.com/jquery/jquery-color. Package is on NPM but not published by maintainer.
 - jquery/jquery.hotkeys: https://github.com/tzuryby/jquery.hotkeys
