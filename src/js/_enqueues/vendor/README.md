@@ -58,10 +58,8 @@ In this directory you'll find vendor JavaScript packages that cannot be installe
 ## Single file dependencies
 
 - colorpicker: http://www.mattkruse.com/javascript/colorpicker/
-- deprecated/suggest: Patched by Mark Jaquith with Alexander Dick's "multiple items" patch to allow for auto-suggesting of more than one tag before submitting. See documentation in `suggest.js`.
 - farbtastic: https://github.com/mattfarina/farbtastic
 - iris: https://github.com/Automattic/Iris
-- json2: https://github.com/douglascrockford/JSON-js
 - jquery/jquery.color: https://github.com/jquery/jquery-color. Package is on NPM but not published by maintainer.
 - jquery/jquery.hotkeys: https://github.com/tzuryby/jquery.hotkeys
 - jquery/jquery.masonry: Old version for BC purposes, can't include two versions with NPM. The newer version is included through NPM and built to `wp-includes/js/masonry.min.js`
