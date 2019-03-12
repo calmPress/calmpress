@@ -93,15 +93,10 @@ function wp_default_packages_vendor( &$scripts ) {
 	$suffix = wp_scripts_get_suffix();
 
 	$vendor_scripts = array(
-		'react'     => array( 'wp-polyfill' ),
+		'react'     => array( ),
 		'react-dom' => array( 'react' ),
 		'moment',
 		'lodash',
-		'wp-polyfill-fetch',
-		'wp-polyfill-formdata',
-		'wp-polyfill-node-contains',
-		'wp-polyfill-element-closest',
-		'wp-polyfill',
 	);
 
 	$vendor_scripts_versions = array(
@@ -109,11 +104,6 @@ function wp_default_packages_vendor( &$scripts ) {
 		'react-dom'                   => '16.6.3',
 		'moment'                      => '2.22.2',
 		'lodash'                      => '4.17.11',
-		'wp-polyfill-fetch'           => '3.0.0',
-		'wp-polyfill-formdata'        => '3.0.12',
-		'wp-polyfill-node-contains'   => '3.26.0-0',
-		'wp-polyfill-element-closest' => '2.0.2',
-		'wp-polyfill'                 => '7.0.0',
 	);
 
 	foreach ( $vendor_scripts as $handle => $dependencies ) {
@@ -127,20 +117,6 @@ function wp_default_packages_vendor( &$scripts ) {
 
 		$scripts->add( $handle, $path, $dependencies, $version, 1 );
 	}
-
-	$scripts->add( 'wp-polyfill', null, array( 'wp-polyfill' ) );
-	did_action( 'init' ) && $scripts->add_inline_script(
-		'wp-polyfill',
-		wp_get_script_polyfill(
-			$scripts,
-			array(
-				'\'fetch\' in window' => 'wp-polyfill-fetch',
-				'document.contains'   => 'wp-polyfill-node-contains',
-				'window.FormData && window.FormData.prototype.keys' => 'wp-polyfill-formdata',
-				'Element.prototype.matches && Element.prototype.closest' => 'wp-polyfill-element-closest',
-			)
-		)
-	);
 
 	did_action( 'init' ) && $scripts->add_inline_script( 'lodash', 'window.lodash = _.noConflict();' );
 
@@ -243,8 +219,8 @@ function wp_default_packages_scripts( &$scripts ) {
 	);
 
 	$packages_dependencies = array(
-		'hooks' => array( 'wp-polyfill' ),
-		'i18n'  => array( 'wp-polyfill' ),
+		'hooks' => array( ),
+		'i18n'  => array( ),
 	);
 
 	foreach ( $packages_dependencies as $package => $dependencies ) {
@@ -1925,69 +1901,26 @@ function script_concat_settings() {
  * Handles the enqueueing of block scripts and styles that are common to both
  * the editor and the front-end.
  *
+ * Does nothing in calmPress.
+ *
  * @since 5.0.0
+ * @since calmPress 1.0.0
  *
  * @global WP_Screen $current_screen
  */
 function wp_common_block_scripts_and_styles() {
-	global $current_screen;
-
-	if ( is_admin() && ( $current_screen instanceof WP_Screen ) && ! $current_screen->is_block_editor() ) {
-		return;
-	}
-
-	wp_enqueue_style( 'wp-block-library' );
-
-	if ( current_theme_supports( 'wp-block-styles' ) ) {
-		wp_enqueue_style( 'wp-block-library-theme' );
-	}
-
-	/**
-	 * Fires after enqueuing block assets for both editor and front-end.
-	 *
-	 * Call `add_action` on any hook before 'wp_enqueue_scripts'.
-	 *
-	 * In the function call you supply, simply use `wp_enqueue_script` and
-	 * `wp_enqueue_style` to add your functionality to the Gutenberg editor.
-	 *
-	 * @since 5.0.0
-	 */
-	  do_action( 'enqueue_block_assets' );
 }
 
 /**
  * Enqueues registered block scripts and styles, depending on current rendered
  * context (only enqueuing editor scripts while in context of the editor).
  *
+ * Does nothing in calmPress.
+ *
  * @since 5.0.0
+ * @since calmPress 1.0.0
  *
  * @global WP_Screen $current_screen
  */
 function wp_enqueue_registered_block_scripts_and_styles() {
-	global $current_screen;
-
-	$is_editor = ( ( $current_screen instanceof WP_Screen ) && $current_screen->is_block_editor() );
-
-	$block_registry = WP_Block_Type_Registry::get_instance();
-	foreach ( $block_registry->get_all_registered() as $block_name => $block_type ) {
-		// Front-end styles.
-		if ( ! empty( $block_type->style ) ) {
-			wp_enqueue_style( $block_type->style );
-		}
-
-		// Front-end script.
-		if ( ! empty( $block_type->script ) ) {
-			wp_enqueue_script( $block_type->script );
-		}
-
-		// Editor styles.
-		if ( $is_editor && ! empty( $block_type->editor_style ) ) {
-			wp_enqueue_style( $block_type->editor_style );
-		}
-
-		// Editor script.
-		if ( $is_editor && ! empty( $block_type->editor_script ) ) {
-			wp_enqueue_script( $block_type->editor_script );
-		}
-	}
 }
