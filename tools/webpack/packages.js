@@ -60,30 +60,17 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 	];
 
 	const vendors = {
-		'lodash.js': 'lodash/lodash.js',
-		'moment.js': 'moment/moment.js',
-		'react.js': 'react/umd/react.development.js',
-		'react-dom.js': 'react-dom/umd/react-dom.development.js',
 	};
 
 	const minifiedVendors = {
-		'lodash.min.js': 'lodash/lodash.min.js',
-		'moment.min.js': 'moment/min/moment.min.js',
-		'react.min.js': 'react/umd/react.production.min.js',
-		'react-dom.min.js': 'react-dom/umd/react-dom.production.min.js',
 	};
 
 	const minifyVendors = {
 	};
 
 	const externals = {
-		react: 'React',
-		'react-dom': 'ReactDOM',
 		tinymce: 'tinymce',
-		moment: 'moment',
 		jquery: 'jQuery',
-		lodash: 'lodash',
-		'lodash-es': 'lodash',
 	};
 
 	packages.forEach( ( name ) => {
