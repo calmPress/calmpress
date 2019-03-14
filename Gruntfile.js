@@ -98,7 +98,7 @@ module.exports = function(grunt) {
 							'!wp-includes/js/underscore.js',
 							'!wp-includes/js/jquery/jquery.masonry.js',
 							'!wp-includes/js/jquery/ui/*.js',
-							'!wp-includes/js/tinymce/tinymce.js',
+							'!wp-includes/js/tinymce/tinymce.js'
 						],
 						dest: BUILD_DIR
 					},
@@ -894,7 +894,7 @@ module.exports = function(grunt) {
 	grunt.registerTask( 'copy:all', [
 		'copy:files',
 		'copy:wp-admin-css-compat-rtl',
-		'copy:wp-admin-css-compat-min',
+		'copy:wp-admin-css-compat-min'
 	] );
 
 	grunt.registerTask( 'build', [
