@@ -228,8 +228,6 @@ var postboxes;
 				},
 				opacity: 0.65,
 				stop: function() {
-					var $el = $( this );
-
 					postboxes.save_order(page);
 				},
 				receive: function(e,ui) {

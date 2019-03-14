@@ -1,5 +1,5 @@
 /* global pagenow, ajaxurl, postboxes, wpActiveEditor:true */
-var ajaxWidgets, ajaxPopulateWidgets, quickPressLoad;
+var ajaxPopulateWidgets, quickPressLoad;
 window.wp = window.wp || {};
 
 jQuery(document).ready( function($) {
