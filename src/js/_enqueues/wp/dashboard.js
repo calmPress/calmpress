@@ -3,7 +3,7 @@
  */
 
 /* global pagenow, ajaxurl, postboxes, wpActiveEditor:true, ajaxWidgets */
-/* global ajaxPopulateWidgets, quickPressLoad,  */
+/* global quickPressLoad,  */
 window.wp = window.wp || {};
 
 /**
@@ -52,7 +52,7 @@ jQuery(document).ready( function($) {
 		updateWelcomePanel( this.checked ? 1 : 0 );
 	});
 
-	postboxes.add_postbox_toggles(pagenow, { pbshow: ajaxPopulateWidgets } );
+	postboxes.add_postbox_toggles(pagenow);
 
 	/**
 	 * Control the Quick Press (Quick Draft) widget.
