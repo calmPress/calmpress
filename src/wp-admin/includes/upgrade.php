@@ -648,7 +648,7 @@ function upgrade_all() {
 	}
 
 	if ( version_compare( $calmpress_db_version, '1.0.0-alpha12', '<' ) ) {
-		add_option( 'htaccess_user_section', [], '', 'no' );
+		add_option( 'htaccess_user_section', '', '', 'no' );
 	}
 
 	delete_option( 'db_version' );

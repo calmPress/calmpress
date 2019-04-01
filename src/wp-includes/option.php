@@ -2023,10 +2023,10 @@ function register_initial_settings() {
 		'htaccess',
 		'htaccess_user_section',
 		array(
-			'show_in_rest' => true,
+			'show_in_rest' => false,
 			'type'         => 'string',
 			'description'  => __( 'The user section in the .htaccess file.' ),
-			'default'      => [],
+			'default'      => '',
 		)
 	);
 }
