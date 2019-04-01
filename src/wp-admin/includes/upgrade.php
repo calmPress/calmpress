@@ -642,9 +642,13 @@ function upgrade_all() {
 		maybe_disable_automattic_widgets();
 	}
 
-	if ( version_compare( $calmpress_db_version, '1.0.0-alpha9' , '<') ) {
+	if ( version_compare( $calmpress_db_version, '1.0.0-alpha9', '<' ) ) {
 		calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade::upgrade();
 		flush_rewrite_rules( true );
+	}
+
+	if ( version_compare( $calmpress_db_version, '1.0.0-alpha12', '<' ) ) {
+		add_option( 'htaccess_user_section', [], '', 'no' );
 	}
 
 	delete_option( 'db_version' );
