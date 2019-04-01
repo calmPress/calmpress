@@ -55,6 +55,67 @@ function extract_from_markers( $filename, $marker ) {
 }
 
 /**
+ * Inserts an array of strings into an array of strings, placing it between
+ * htaccess style comments of # BEGIN and # END marker lines in the original array.
+ *
+ * Replaces existing marked info. Retains surrounding data. If the data is empty
+ * removes the markers as well as the data.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @param string[] $lines     Array to alter.
+ * @param string   $marker    The marker.
+ * @param string[] $insertion The new content to insert.
+ *
+ * @return string[] The original array with the relevant "section" replaced.
+ */
+function insert_with_markers_into_array( array $lines, string $marker, array $insertion ) {
+	$start_marker = "# BEGIN {$marker}";
+	$end_marker   = "# END {$marker}";
+
+	// Split out the existing file into the preceding lines, and those that appear after the marker.
+	$pre_lines        = [];
+	$post_lines       = [];
+	$existing_lines   = [];
+	$found_marker     = false;
+	$found_end_marker = false;
+
+	foreach ( $lines as $line ) {
+		if ( ! $found_marker && false !== strpos( $line, $start_marker ) ) {
+			$found_marker = true;
+			continue;
+		} elseif ( ! $found_end_marker && false !== strpos( $line, $end_marker ) ) {
+			$found_end_marker = true;
+			continue;
+		}
+		if ( ! $found_marker ) {
+			$pre_lines[] = $line;
+		} elseif ( $found_marker && $found_end_marker ) {
+			$post_lines[] = $line;
+		} else {
+			$existing_lines[] = $line;
+		}
+	}
+
+	if ( empty( $insertion ) ) {
+		$lines = array_merge(
+			$pre_lines,
+			$post_lines
+		);
+	} else {
+		$lines = array_merge(
+			$pre_lines,
+			array( $start_marker ),
+			$insertion,
+			array( $end_marker ),
+			$post_lines
+		);
+	}
+
+	return $lines;
+}
+
+/**
  * Inserts an array of strings into a file (.htaccess ), placing it between
  * BEGIN and END markers.
  *
@@ -84,9 +145,6 @@ function insert_with_markers( $filename, $marker, $insertion ) {
 		$insertion = explode( "\n", $insertion );
 	}
 
-	$start_marker = "# BEGIN {$marker}";
-	$end_marker   = "# END {$marker}";
-
 	$fp = fopen( $filename, 'r+' );
 	if ( ! $fp ) {
 		return false;
@@ -100,47 +158,19 @@ function insert_with_markers( $filename, $marker, $insertion ) {
 		$lines[] = rtrim( fgets( $fp ), "\r\n" );
 	}
 
-	// Split out the existing file into the preceding lines, and those that appear after the marker
-	$pre_lines    = $post_lines = $existing_lines = array();
-	$found_marker = $found_end_marker = false;
-	foreach ( $lines as $line ) {
-		if ( ! $found_marker && false !== strpos( $line, $start_marker ) ) {
-			$found_marker = true;
-			continue;
-		} elseif ( ! $found_end_marker && false !== strpos( $line, $end_marker ) ) {
-			$found_end_marker = true;
-			continue;
-		}
-		if ( ! $found_marker ) {
-			$pre_lines[] = $line;
-		} elseif ( $found_marker && $found_end_marker ) {
-			$post_lines[] = $line;
-		} else {
-			$existing_lines[] = $line;
-		}
-	}
-
-	// Check to see if there was a change
-	if ( $existing_lines === $insertion ) {
+	$newlines = insert_with_markers_into_array( $lines, $marker, $insertion );
+	// Check to see if there was a change.
+	if ( $lines === $newlines ) {
 		flock( $fp, LOCK_UN );
 		fclose( $fp );
 
 		return true;
 	}
 
-	// Generate the new file data
-	$new_file_data = implode(
-		"\n",
-		array_merge(
-			$pre_lines,
-			array( $start_marker ),
-			$insertion,
-			array( $end_marker ),
-			$post_lines
-		)
-	);
+	// Generate the new file data.
+	$new_file_data = implode( "\n", $newlines );
 
-	// Write to the start of the file, and truncate it to that length
+	// Write to the start of the file, and truncate it to that length.
 	fseek( $fp, 0 );
 	$bytes = fwrite( $fp, $new_file_data );
 	if ( $bytes ) {
