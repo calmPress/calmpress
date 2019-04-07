@@ -87,7 +87,8 @@ class WP_Test_Locked_File_Direct_Access extends WP_UnitTestCase {
 		file_put_contents( $filename, 'test' );
 
 		// Effectively avoid the test when chmod behaving funny (travis, looking at you).
-		if ( chmod( $filename, 0444 ) ) {
+		if ( ! getenv( 'TRAVIS' ) ) {
+			chmod( $filename, 0444 );
 			$t = new calmpress\filesystem\Locked_File_Direct_Access( $filename );
 			$this->expectException( 'calmpress\filesystem\Locked_File_Exception' );
 			$this->expectExceptionCode( calmpress\filesystem\Locked_File_Exception::OPERATION_FAILED );
