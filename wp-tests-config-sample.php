@@ -66,3 +66,11 @@ define( 'WP_TESTS_TITLE', 'Test Blog' );
 define( 'WP_PHP_BINARY', 'php' );
 
 define( 'WPLANG', '' );
+
+// Uncomment and fill the information bellow if you want to run FTP related tests.
+/*
+define( 'FTP_HOST', 'The host:post on which the FTP server listens' );
+define( 'FTP_USER', 'The username that can be authenticated by the FTP server' );
+define( 'FTP_PASS', 'The password related to the username' );
+define( 'FTP_BASE', 'The root directory of the files which the FTP server can manipulate' );
+*/
