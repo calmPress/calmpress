@@ -70,6 +70,19 @@ class abstract_test extends calmpress\filesystem\Locked_File_Access {
 	public function append_contents( string $contents ) {
 		$this->abstract_called = 'append';
 	}
+
+	/**
+	 * Return the file used for locking.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path of the file.
+	 */
+	public function lockfile() {
+		$hash     = md5( $this->file_path );
+		$filename = get_temp_dir() . 'calmpress-filelock-' . $hash;
+		return $filename;
+	}
 }
 
 /**
@@ -207,8 +220,17 @@ class WP_Test_Locked_File_access extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_constructor_creates_lock() {
+		// Check if the file is created.
 		$t = new abstract_test( '/foo/foo' );
 		$this->assertTrue( calmpress\filesystem\Locked_File_Access::locked( '/foo/foo' ) );
+
+		// Check that it is locked.
+		$lockfile = $t->lockfile();
+		$fp = fopen( $lockfile, 'r' );
+		flock( $fp, LOCK_EX | LOCK_NB, $wouldblock );
+		flock( $fp, LOCK_UN );
+		fclose( $fp );
+		$this->assertEquals( 1, $wouldblock );
 	}
 
 	/**

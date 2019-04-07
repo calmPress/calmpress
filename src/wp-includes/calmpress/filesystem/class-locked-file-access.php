@@ -54,6 +54,15 @@ abstract class Locked_File_Access {
 	protected $file_path;
 
 	/**
+	 * The file pointer for the lock file. Need to keep it around for it not to
+	 * be garbage collected.
+	 *
+	 * @since 1.0.0
+	 * @var resource
+	 */
+	private $hash_file_fp;
+
+	/**
 	 * Construct the object.
 	 *
 	 * Creates the file in the temp directory on which locking will be used
@@ -111,12 +120,11 @@ abstract class Locked_File_Access {
 	 * @since 1.0.0
 	 */
 	protected function seize_lock( $file_path ) {
-		$this->file_path = $file_path;
-		$hash            = md5( $this->file_path );
-		$filename        = get_temp_dir() . 'calmpress-filelock-' . $hash;
-		$hash_file_fp = fopen( $filename, 'w+');
-		flock( $hash_file_fp, LOCK_EX );
-		fclose( $hash_file_fp );
+		$this->file_path    = $file_path;
+		$hash               = md5( $this->file_path );
+		$filename           = get_temp_dir() . 'calmpress-filelock-' . $hash;
+		$this->hash_file_fp = fopen( $filename, 'w+');
+		flock( $this->hash_file_fp, LOCK_EX );
 	}
 
 	/**
@@ -126,6 +134,8 @@ abstract class Locked_File_Access {
 	 * @since 1.0.0
 	 */
 	protected function release_lock() {
+		flock( $this->hash_file_fp, LOCK_UN );
+		fclose( $this->hash_file_fp );
 		$hash     = md5( $this->file_path );
 		$filename = get_temp_dir() . 'calmpress-filelock-' . $hash;
 		if ( file_exists( $filename ) ) {
@@ -201,16 +211,12 @@ abstract class Locked_File_Access {
 		// be in the current object.
 		$newfile = clone $this;
 
-		// Size lock for the location of the new file.
+		// Seize lock for the location of the new file.
 		$newfile->seize_lock( $destination );
 
-		// Actually copy the file. If copy fails release the newly created lock.
-		try {
-			$this->file_copy( $destination );
-		} catch ( \Exception $e ) {
-			$newfile->release_lock();
-			throw $e;
-		}
+		// Actually copy the file. If copy fails an exception is raised and the
+		// new lock is garbage collected
+		$this->file_copy( $destination );
 
 		return $newfile;
 	}
@@ -254,14 +260,9 @@ abstract class Locked_File_Access {
 		// Seize lock for the location of the new file.
 		$newfile->seize_lock( $destination );
 
-		// Actually rename the file. If rename fails release the newly created
-		// lock and keep the former one.
-		try {
-			$this->file_rename( $destination );
-		} catch ( \Exception $e ) {
-			$newfile->release_lock();
-			throw $e;
-		}
+		// Actually rename the file. If rename fails an exception is raised and the
+		// new lock is garbage collected
+		$this->file_rename( $destination );
 
 		return $newfile;
 	}
