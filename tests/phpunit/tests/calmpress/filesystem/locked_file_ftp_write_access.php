@@ -142,6 +142,7 @@ class WP_Test_Locked_File_FTP_Write_Access extends WP_UnitTestCase {
 		$filename = $this->create_test_file( 'calmpress-test', 'test' );
 		chmod( $filename, 0400 );
 
+		$t = null; // Clear the lock before acquiring a new one.
 		$t = $this->get_object( $filename );
 		$this->expectException( 'calmpress\filesystem\Locked_File_Exception' );
 		$this->expectExceptionCode( calmpress\filesystem\Locked_File_Exception::OPERATION_FAILED );
