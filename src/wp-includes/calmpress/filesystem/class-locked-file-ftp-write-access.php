@@ -96,6 +96,8 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 		}
 
 		// Make sure the location is accessable under the FTP server.
+		// Using case insensitive here is not great but probably good enough for
+		// real life usage.
 		if ( 0 !== stripos( $path, $this->base_dir ) ) {
 			throw new Locked_File_Exception( '"' . $path . '"' . ' is not accessible as FTP root is ' . '"' . $this->base_dir . '"', Locked_File_Exception::PATH_NOT_ACESSABLE );
 		}
