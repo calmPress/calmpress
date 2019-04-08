@@ -135,6 +135,9 @@ $whitelist_options         = array(
 		'page_for_posts',
 		'blog_public',
 	),
+	'htaccess'   => [
+		'htaccess_user_section',
+	],
 );
 $whitelist_options['misc'] = $whitelist_options['options'] = $whitelist_options['privacy'] = array();
 
