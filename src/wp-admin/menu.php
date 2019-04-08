@@ -249,6 +249,9 @@ $menu[80]                               = array( sprintf( __( 'Settings %s' ), $
 	$submenu['options-general.php'][25] = array( __( 'Discussion' ), 'manage_options', 'options-discussion.php' );
 	$submenu['options-general.php'][30] = array( __( 'Media' ), 'manage_options', 'options-media.php' );
 	$submenu['options-general.php'][40] = array( __( 'Permalinks' ), 'manage_options', 'options-permalink.php' );
+if ( got_mod_rewrite() && is_super_admin() ) {
+	$submenu['options-general.php'][41] = array( __( '.htaccess' ), 'manage_options', 'options-htaccess.php' );
+}
 	// translators: %s is the update notification bubble, if updates are available.
 	$submenu['options-general.php'][45] = array( sprintf( __( 'Privacy %s' ), $change_notice ), 'manage_privacy_options', 'privacy.php' );
 
