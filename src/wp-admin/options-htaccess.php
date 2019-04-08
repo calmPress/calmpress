@@ -44,13 +44,13 @@ $update_required = false;
 if ( ( ! file_exists( $home_path . '.htaccess' ) && is_writable( $home_path ) ) || is_writable( $home_path . '.htaccess' ) ) {
 	$writable = true;
 } else {
-	$writable            = false;
-	$existing_rules      = array_filter( extract_from_markers( $home_path . '.htaccess', 'WordPress' ) );
-	$new_rules           = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );
-	$existing_user_rules = array_filter( extract_from_markers( $home_path . '.htaccess', 'User' ) );
-	$user_rules          = array_filter( explode( "\n", get_option( 'htaccess_user_section' ) ) );
-	$update_required     = ( $new_rules !== $existing_rules ) || ( $user_rules !== $existing_user_rules );
+	$writable = false;
 }
+
+$existing_rules  = array_filter( extract_from_markers( $home_path . '.htaccess', 'WordPress' ) );
+$new_rules       = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );
+$update_required = ( $new_rules !== $existing_rules ) || ( $user_rules !== $existing_user_rules );
+
 
 add_settings_section(
 	'calm-htaccess-user-section',
@@ -88,6 +88,10 @@ function rules_input() {
 	<?php
 }
 
+if ( $writable && $update_required ) {
+	save_mod_rewrite_rules();
+}
+
 require ABSPATH . 'wp-admin/admin-header.php';
 
 ?>
@@ -98,7 +102,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 		<?php
 		settings_fields( 'htaccess' );
 		do_settings_sections( 'htaccess' );
-		if ( true || ! $writable && $update_required ) {
+		if ( ! $writable && $update_required ) {
 			?>
 			<p>
 				<?php
