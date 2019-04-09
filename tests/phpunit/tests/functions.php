@@ -104,6 +104,8 @@ class Tests_Functions extends WP_UnitTestCase {
 			'\\WINDOWS',
 			'C:\\',
 			'C:\\WINDOWS',
+			'C:/',
+			'C:/WINDOWS',
 			'\\\\sambashare\\foo',
 		);
 		foreach ( $absolute_paths as $path ) {

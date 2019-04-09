@@ -1833,8 +1833,9 @@ function path_is_absolute( $path ) {
 		return false;
 	}
 
-	// Windows allows absolute paths like this.
-	if ( preg_match( '#^[a-zA-Z]:\\\\#', $path ) ) {
+	// Windows allows absolute paths like [drive name]:[path separator].
+	// Accept either forward or backward slash as separators here.
+	if ( preg_match( '#^[a-zA-Z]:[\\\\\/]#', $path ) ) {
 		return true;
 	}
 
