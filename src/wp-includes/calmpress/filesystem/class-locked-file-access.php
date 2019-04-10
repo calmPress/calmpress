@@ -106,7 +106,7 @@ abstract class Locked_File_Access {
 	 */
 	public static function locked( $file_path ) {
 		if ( ! path_is_absolute( $file_path ) ) {
-			throw new Locked_File_Exception( '"' . $file_path . '" is not an absolute path', Locked_File_Exception::PATH_NOT_ABSOLUTE );
+			throw new Locked_File_Exception( '"' . $file_path . '" is not an absolute path', Locked_File_Exception::PATH_NOT_ABSOLUTE, $file_path );
 		}
 
 		$hash     = md5( $file_path );

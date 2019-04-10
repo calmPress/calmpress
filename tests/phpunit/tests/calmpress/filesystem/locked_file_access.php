@@ -99,7 +99,7 @@ class abstract_exceptions_test extends calmpress\filesystem\Locked_File_Access {
 	 * @since 1.0.0
 	 */
 	public function file_copy( string $destination ) {
-		throw new calmpress\filesystem\Locked_File_Exception( 'test', calmpress\filesystem\Locked_File_Exception::OPERATION_FAILED );
+		throw new calmpress\filesystem\Locked_File_Exception( 'test', calmpress\filesystem\Locked_File_Exception::OPERATION_FAILED, $destination );
 	}
 
 	/**
@@ -108,7 +108,7 @@ class abstract_exceptions_test extends calmpress\filesystem\Locked_File_Access {
 	 * @since 1.0.0
 	 */
 	public function file_rename( string $destination ) {
-		throw new calmpress\filesystem\Locked_File_Exception( 'test', calmpress\filesystem\Locked_File_Exception::OPERATION_FAILED );
+		throw new calmpress\filesystem\Locked_File_Exception( 'test', calmpress\filesystem\Locked_File_Exception::OPERATION_FAILED, $destination );
 	}
 
 	public function file_unlink() {}
