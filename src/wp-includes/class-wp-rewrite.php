@@ -1454,8 +1454,21 @@ class WP_Rewrite {
 			$home_root = '/';
 		}
 
-		// Add rules to prevent access to wp-config.php
-		$rules = "<files wp-config.php>\n";
+		$rules      = '';
+		// Add user configured rules.
+		$user_rules = (string) get_option( 'htaccess_user_section' );
+		if ( ! empty( $user_rules ) ) {
+			$rules .= "\n# BEGIN User\n";
+			$rules .= "$user_rules\n";
+			$rules .= "# END User\n\n";
+		}
+
+		/*
+		 * Add generic calmPress rules.
+		 */
+
+		// Add rules to prevent access to wp-config.php.
+		$rules .= "<files wp-config.php>\n";
 		$rules .= "order allow,deny\n";
 		$rules .= "deny from all\n";
 		$rules .= "</files>\n";

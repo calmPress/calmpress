@@ -49,7 +49,7 @@ if ( ( ! file_exists( $home_path . '.htaccess' ) && is_writable( $home_path ) ) 
 
 $existing_rules  = array_filter( extract_from_markers( $home_path . '.htaccess', 'WordPress' ) );
 $new_rules       = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );
-$update_required = ( $new_rules !== $existing_rules ) || ( $user_rules !== $existing_user_rules );
+$update_required = ( $new_rules !== $existing_rules );
 
 
 add_settings_section(

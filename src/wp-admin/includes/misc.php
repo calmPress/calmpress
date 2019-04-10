@@ -122,7 +122,11 @@ function insert_with_markers_into_array( array $lines, string $marker, array $in
  * Replaces existing marked info. Retains surrounding
  * data. Creates file if none exists.
  *
+ * If saving of the file fails, an action calm_insert_with_markers_exception
+ * which includes failure information is run.
+ *
  * @since 1.5.0
+ * @since calmPress 1.0.0
  *
  * @param string       $filename  Filename to alter.
  * @param string       $marker    The marker to alter.
@@ -130,57 +134,45 @@ function insert_with_markers_into_array( array $lines, string $marker, array $in
  * @return bool True on write success, false on failure.
  */
 function insert_with_markers( $filename, $marker, $insertion ) {
-	if ( ! file_exists( $filename ) ) {
-		if ( ! is_writable( dirname( $filename ) ) ) {
-			return false;
-		}
-		if ( ! touch( $filename ) ) {
-			return false;
-		}
-	} elseif ( ! is_writeable( $filename ) ) {
-		return false;
-	}
+	$file = new calmpress\filesystem\Locked_File_Direct_Access( $filename );
 
 	if ( ! is_array( $insertion ) ) {
 		$insertion = explode( "\n", $insertion );
 	}
 
-	$fp = fopen( $filename, 'r+' );
-	if ( ! $fp ) {
+	try {
+		$current = $file->get_contents();
+
+		// Spli the content to lines based on all possible line endings.
+		$lines   = preg_split( "/\r\n|\n|\r/", $current );
+
+		$newlines = insert_with_markers_into_array( $lines, $marker, $insertion );
+		// Check to see if there was a change.
+		if ( $lines === $newlines ) {
+			return true;
+		}
+
+		// Generate the new file data.
+		$new_file_data = implode( "\n", $newlines );
+		$file->put_contents( $new_file_data );
+	} catch ( calmpress\filesystem\Locked_File_Exception $e ) {
+		/**
+		 * Notify listeners that the file manipulation failed with the exception
+		 * which was reported by the lower level functions.
+		 *
+		 * @since calmPress 1.0.0
+		 *
+		 * @param calmpress\filesystem\Locked_File_Exceptio $exception The exception raised.
+		 */
+		do_action( 'calm_insert_with_markers_exception', $exception );
+		return false;
+	} finally {
+		// For backward computability, ignore other types of errors as the original
+		// WordPress function did not do more than returning false on failure.
 		return false;
 	}
 
-	// Attempt to get a lock. If the filesystem supports locking, this will block until the lock is acquired.
-	flock( $fp, LOCK_EX );
-
-	$lines = array();
-	while ( ! feof( $fp ) ) {
-		$lines[] = rtrim( fgets( $fp ), "\r\n" );
-	}
-
-	$newlines = insert_with_markers_into_array( $lines, $marker, $insertion );
-	// Check to see if there was a change.
-	if ( $lines === $newlines ) {
-		flock( $fp, LOCK_UN );
-		fclose( $fp );
-
-		return true;
-	}
-
-	// Generate the new file data.
-	$new_file_data = implode( "\n", $newlines );
-
-	// Write to the start of the file, and truncate it to that length.
-	fseek( $fp, 0 );
-	$bytes = fwrite( $fp, $new_file_data );
-	if ( $bytes ) {
-		ftruncate( $fp, ftell( $fp ) );
-	}
-	fflush( $fp );
-	flock( $fp, LOCK_UN );
-	fclose( $fp );
-
-	return (bool) $bytes;
+	return true;
 }
 
 /**
