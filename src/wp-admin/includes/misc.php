@@ -191,7 +191,7 @@ function insert_with_markers( $filename, $marker, $insertion ) {
 		 */
 		do_action( 'calm_insert_with_markers_exception', $exception );
 		return false;
-	} finally {
+	} catch ( \Exception $exception ) {
 		// For backward computability, ignore other types of errors as the original
 		// WordPress function did not do more than returning false on failure.
 		return false;
