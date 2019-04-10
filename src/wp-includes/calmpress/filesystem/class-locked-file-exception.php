@@ -60,4 +60,37 @@ class Locked_File_Exception extends \Exception {
 		parent::__construct( $message, $code );
 		$this->path = $path;
 	}
+
+	/**
+	 * The exception's message.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @retumr string The exception's message.
+	 */
+	public function message() {
+		return $this->message;
+	}
+
+	/**
+	 * The exception's code.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @retumr int The exception's code.
+	 */
+	public function code() {
+		return $this->code;
+	}
+
+	/**
+	 * The file path for which the exception was raised.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @retumr string The file path for which the exception was raised.
+	 */
+	public function path() {
+		return $this->path;
+	}
 }
