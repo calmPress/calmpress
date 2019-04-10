@@ -74,24 +74,24 @@ abstract class Locked_File_Access {
 	 *
 	 * @param string $file_path The path of the file.
 	 */
-	 function __construct( string $file_path ) {
-		 if ( ! path_is_absolute( $file_path ) ) {
-			 throw new Locked_File_Exception( '"' . $file_path . '"' . ' is not an absolute path', Locked_File_Exception::PATH_NOT_ABSOLUTE );
-		 }
+	public function __construct( string $file_path ) {
+		if ( ! path_is_absolute( $file_path ) ) {
+			throw new Locked_File_Exception( '"' . $file_path . '" is not an absolute path', Locked_File_Exception::PATH_NOT_ABSOLUTE, $file_path );
+		}
 
-		 $this->seize_lock( $file_path );
-	 }
+		$this->seize_lock( $file_path );
+	}
 
-	 /**
- 	 * Destruct the object.
- 	 *
- 	 * Unlock and delete the proxy lock file.
- 	 *
- 	 * @since 1.0.0
- 	 */
-	function __destruct( ) {
+	/**
+	 * Destruct the object.
+	 *
+	 * Unlock and delete the proxy lock file.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __destruct() {
 		$this->release_lock();
- 	}
+	}
 
 	/**
 	 * Check if a file path is locked.
@@ -104,9 +104,9 @@ abstract class Locked_File_Access {
 	 *
 	 * @return bool True if the file path is locked, false otherwise.
 	 */
-	static public function locked( $file_path ) {
+	public static function locked( $file_path ) {
 		if ( ! path_is_absolute( $file_path ) ) {
-			throw new Locked_File_Exception( '"' . $file_path . '"' . ' is not an absolute path', Locked_File_Exception::PATH_NOT_ABSOLUTE );
+			throw new Locked_File_Exception( '"' . $file_path . '" is not an absolute path', Locked_File_Exception::PATH_NOT_ABSOLUTE );
 		}
 
 		$hash     = md5( $file_path );
@@ -118,12 +118,14 @@ abstract class Locked_File_Access {
 	 * Utility function to seize the lock by creating a proxy file and locking it.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param string $file_path The file path being seized.
 	 */
-	protected function seize_lock( $file_path ) {
+	protected function seize_lock( string $file_path ) {
 		$this->file_path    = $file_path;
 		$hash               = md5( $this->file_path );
 		$filename           = get_temp_dir() . 'calmpress-filelock-' . $hash;
-		$this->hash_file_fp = fopen( $filename, 'w+');
+		$this->hash_file_fp = fopen( $filename, 'w+' );
 		flock( $this->hash_file_fp, LOCK_EX );
 	}
 
@@ -215,7 +217,7 @@ abstract class Locked_File_Access {
 		$newfile->seize_lock( $destination );
 
 		// Actually copy the file. If copy fails an exception is raised and the
-		// new lock is garbage collected
+		// new lock is garbage collected.
 		$this->file_copy( $destination );
 
 		return $newfile;
@@ -261,7 +263,7 @@ abstract class Locked_File_Access {
 		$newfile->seize_lock( $destination );
 
 		// Actually rename the file. If rename fails an exception is raised and the
-		// new lock is garbage collected
+		// new lock is garbage collected.
 		$this->file_rename( $destination );
 
 		return $newfile;
@@ -322,7 +324,7 @@ abstract class Locked_File_Access {
 	/**
 	 * Create and raise an exception based on file system operation failure.
 	 *
-	 * @throws Locked_File_Exception.
+	 * @throws Locked_File_Exception The exception derive from the last error.
 	 *
 	 * @since 1.0.0
 	 */
@@ -330,9 +332,9 @@ abstract class Locked_File_Access {
 		$error = error_get_last();
 		if ( $error ) {
 			error_clear_last();
-			throw new Locked_File_Exception( $error['message'], Locked_File_Exception::OPERATION_FAILED );
+			throw new Locked_File_Exception( $error['message'], Locked_File_Exception::OPERATION_FAILED, $this->file_path );
 		} else {
-			throw new Locked_File_Exception( 'Unknown error', Locked_File_Exception::OPERATION_FAILED );
+			throw new Locked_File_Exception( 'Unknown error', Locked_File_Exception::OPERATION_FAILED, $this->file_path );
 		}
 	}
 }

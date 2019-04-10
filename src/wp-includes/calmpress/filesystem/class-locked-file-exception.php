@@ -17,20 +17,47 @@ namespace calmpress\filesystem;
  */
 class Locked_File_Exception extends \Exception {
 	/**
-	 * @var int When the exception has this code it indicates that it was raised
-	 *          because the "physical" operation failed.
+	 * When the exception has this code it indicates that it was raised
+	 * because the "physical" operation failed.
+	 *
+	 * @var int
 	 */
 	const OPERATION_FAILED = 1;
 
 	/**
-	 * @var int When the exception has this code it indicates that it was raised
-	 *          because the path supplied is not absolute.
+	 * When the exception has this code it indicates that it was raised
+	 * because the path supplied is not absolute.
+	 *
+	 * @var int
 	 */
 	const PATH_NOT_ABSOLUTE = 2;
 
 	/**
-	 * @var int When the exception has this code it indicates that it was raised
+	 * When the exception has this code it indicates that it was raised
 	 *          because the path supplied is not accessible.
+	 *
+	 * @var int
 	 */
 	const PATH_NOT_ACESSABLE = 3;
+
+	/**
+	 * The path of the file for which the exception was raised.
+	 *
+	 * @var string
+	 */
+	public $path;
+
+	/**
+	 * Create the exception object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $message The textual message associated with the exception.
+	 * @param int    $code The code identifying the type of the exception.
+	 * @param string $path The file path for which the exception was raised.
+	 */
+	public function __construct( string $message, int $code, string $path ) {
+		parent::__construct( $message, $code );
+		$this->path = $path;
+	}
 }

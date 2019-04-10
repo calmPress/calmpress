@@ -56,7 +56,7 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 	 */
 	public function __construct( string $file_path, string $host, int $port, string $username, string $password, string $base_dir ) {
 		if ( ! path_is_absolute( $base_dir ) ) {
-			throw new Locked_File_Exception( '"' . $base_dir . '"' . ' is not an absolute path', Locked_File_Exception::PATH_NOT_ABSOLUTE );
+			throw new Locked_File_Exception( '"' . $base_dir . '" is not an absolute path', Locked_File_Exception::PATH_NOT_ABSOLUTE, $base_dir );
 		}
 
 		parent::__construct( $file_path );
@@ -99,7 +99,7 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 		// Using case insensitive here is not great but probably good enough for
 		// real life usage.
 		if ( 0 !== stripos( $path, $this->base_dir ) ) {
-			throw new Locked_File_Exception( '"' . $path . '"' . ' is not accessible as FTP root is ' . '"' . $this->base_dir . '"', Locked_File_Exception::PATH_NOT_ACESSABLE );
+			throw new Locked_File_Exception( '"' . $path . '" is not accessible as FTP root is ' . '"' . $this->base_dir . '"', Locked_File_Exception::PATH_NOT_ACESSABLE, $path );
 		}
 
 		// Remove the base dir part of the file's path.
