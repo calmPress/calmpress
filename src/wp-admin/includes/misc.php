@@ -143,7 +143,7 @@ function insert_with_markers( $filename, $marker, $insertion ) {
 	try {
 		$current = $file->get_contents();
 
-		// Spli the content to lines based on all possible line endings.
+		// Split the content to lines based on all possible line endings.
 		$lines   = preg_split( "/\r\n|\n|\r/", $current );
 
 		$newlines = insert_with_markers_into_array( $lines, $marker, $insertion );
@@ -155,14 +155,14 @@ function insert_with_markers( $filename, $marker, $insertion ) {
 		// Generate the new file data.
 		$new_file_data = implode( "\n", $newlines );
 		$file->put_contents( $new_file_data );
-	} catch ( calmpress\filesystem\Locked_File_Exception $e ) {
+	} catch ( \calmpress\filesystem\Locked_File_Exception $exception ) {
 		/**
 		 * Notify listeners that the file manipulation failed with the exception
 		 * which was reported by the lower level functions.
 		 *
 		 * @since calmPress 1.0.0
 		 *
-		 * @param calmpress\filesystem\Locked_File_Exceptio $exception The exception raised.
+		 * @param \calmpress\filesystem\Locked_File_Exceptio $exception The exception raised.
 		 */
 		do_action( 'calm_insert_with_markers_exception', $exception );
 		return false;
