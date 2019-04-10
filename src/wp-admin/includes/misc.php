@@ -134,7 +134,32 @@ function insert_with_markers_into_array( array $lines, string $marker, array $in
  * @return bool True on write success, false on failure.
  */
 function insert_with_markers( $filename, $marker, $insertion ) {
-	$file = new calmpress\filesystem\Locked_File_Direct_Access( $filename );
+
+	// Get a callable which will be used to get the relevant locked file object.
+	/**
+	 * Get a function to call (AKA callable) to create a locked file access object
+	 * to be able to lock the file while accessing.
+	 * The default is a function that creates a direct access file lock object.
+	 *
+	 * The function signature should be
+	 * function ( string $filename ) : \calmpress\filesystem\Locked_File_Direct_Access
+	 *
+	 * It will accept a file path and return a locked object for it.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	$getter = apply_filters('calm_insert_with_markers_locked_file_getter', function ( $filename ) {
+		return new \calmpress\filesystem\Locked_File_Direct_Access( $filename );
+	} );
+
+	// Use the callable to get the locked file object.
+	$file = $getter( $filename );
+
+	if ( ! $file instanceof \calmpress\filesystem\Locked_File_Access ) {
+		// Report an error, as the getter returned a bad object.
+		trigger_error( 'Failed in getting a locked file object', E_USER_ERROR );
+		return false;
+	}
 
 	if ( ! is_array( $insertion ) ) {
 		$insertion = explode( "\n", $insertion );
@@ -144,7 +169,7 @@ function insert_with_markers( $filename, $marker, $insertion ) {
 		$current = $file->get_contents();
 
 		// Split the content to lines based on all possible line endings.
-		$lines   = preg_split( "/\r\n|\n|\r/", $current );
+		$lines = preg_split( "/\r\n|\n|\r/", $current );
 
 		$newlines = insert_with_markers_into_array( $lines, $marker, $insertion );
 		// Check to see if there was a change.
