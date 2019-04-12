@@ -5,6 +5,8 @@
  * @package calmPress
  */
 
+declare(strict_types=1);
+
 namespace calmpress\admin\htaccess;
 
 /** WordPress Administration Bootstrap */
@@ -51,6 +53,7 @@ $existing_rules  = array_filter( extract_from_markers( $home_path . '.htaccess',
 $new_rules       = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );
 $update_required = ( $new_rules !== $existing_rules );
 
+$ftp_creds = null;
 
 add_settings_section(
 	'calm-htaccess-user-section',
@@ -88,8 +91,66 @@ function rules_input() {
 	<?php
 }
 
-if ( $writable && $update_required ) {
-	save_mod_rewrite_rules();
+/**
+ * An handler for when saving the rules intothe .htaccess file fails. Responsible
+ * to give the user a proper notification.
+ *
+ * @param \calmpress\filesystem\Locked_File_Exception $e The exception reported
+ *                                                       by insert_with_markers.
+ */
+function save_fail_handler( \calmpress\filesystem\Locked_File_Exception $e ) {
+	// Add admin notice that will report the error to the user.
+	add_action( 'admin_notices', function () use ( $e ) {
+		?>
+		<div class="notice notice-error">
+			<p>
+			<?php
+			/* translators: 1: Name the .htaccess file 2: The exception error message in blockquote */
+			printf( esc_html__( 'Failed writing to the %1$s file. The text of the system error message is: %2$s' ),
+				'<code>.htaccess</code>',
+				'<br><code>' . esc_html( $e->message() ) . '</code>'
+			);
+
+			// If FTP credentials were used, point the user to verify them.
+			$ftp_creds = \calmpress\credentials\FTP_Credentials::credentials_from_request_vars( $_POST );
+			if ( null !== $ftp_creds ) {
+				$error = $ftp_creds->human_readable_state();
+				if ( '' !== $error ) {
+					echo '<br>' . esc_html__( 'Additional information: ' ) . $error;
+				}
+				echo '<br>' . esc_html__( 'Please make sure the FTP credentials you used are correct' );
+			}
+			?>
+			</p>
+		</div>
+		<?php
+	}, 9, 1 );
+}
+
+if ( $update_required ) {
+
+	// Try to save the .htaccess file with the rules as system assume they should be.
+	// Notify the user if the save had failed.
+	add_action( 'calm_insert_with_markers_exception', __NAMESPACE__ . '\save_fail_handler', 10, 1 );
+
+	if ( $writable ) {
+		save_mod_rewrite_rules();
+	} elseif ( isset( $_POST['calm_htacess_ftp_nonce'] )
+		&& wp_verify_nonce( wp_unslash( $_POST['calm_htacess_ftp_nonce'] ), 'calm_htacess_ftp' )
+		) {
+		$ftp_creds = \calmpress\credentials\FTP_Credentials::credentials_from_request_vars( $_POST );
+		if ( null !== $ftp_creds ) {
+			add_filter( 'calm_insert_with_markers_locked_file_getter', function () use ( $ftp_creds ) {
+				return function ( $filename ) use ( $ftp_creds ) {
+					return new \calmpress\filesystem\Locked_File_FTP_Write_Access(
+						$filename,
+						$ftp_creds
+					);
+				};
+			} );
+			save_mod_rewrite_rules();
+		}
+	}
 }
 
 require ABSPATH . 'wp-admin/admin-header.php';
@@ -102,24 +163,40 @@ require ABSPATH . 'wp-admin/admin-header.php';
 		<?php
 		settings_fields( 'htaccess' );
 		do_settings_sections( 'htaccess' );
-		if ( ! $writable && $update_required ) {
-			?>
-			<p>
-				<?php
-				printf(
-					/* translators: 1: .htaccess */
-					esc_html( 'If your %1$s file was writable, we could update it, but it isn&#8217;t (which is a good thing!)' ),
-					'<code>.htaccess</code>'
-				);
-				?>
-			</p>
-			<p><?php esc_html_e( 'You should either update the file with the content below, or supply FTP credentials we would be able to use to save the file for you.' ); ?></p>
-			<p><textarea rows="6" class="large-text readonly" onclick="this.focus();this.select()" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>
-			<?php
-		}
 		submit_button();
 		?>
 	</form>
+	<?php
+	if ( ! $writable && $update_required ) {
+		?>
+		<p>
+			<?php
+			printf(
+				/* translators: 1: .htaccess */
+				esc_html( 'If your %1$s file was writable, we could update it, but it isn&#8217;t (which is a good thing!)' ),
+				'<code>.htaccess</code>'
+			);
+			?>
+		</p>
+		<p><?php esc_html_e( 'You should either supply FTP credentials which can be used to save the file for you, or update the file with the content below the FTP form.' ); ?></p>
+		<form action="" method="post">
+			<h2><?php esc_html_e( 'FTP credentials' ); ?></h2>
+			<?php wp_nonce_field( 'calm_htacess_ftp', 'calm_htacess_ftp_nonce' ); ?>
+			<table class="form-table">
+				<?php
+				if ( null === $ftp_creds ) {
+					$ftp_creds = new \calmpress\credentials\FTP_Credentials( 'localhost', 21, '', '', '/' );
+				}
+				echo $ftp_creds->form();
+				?>
+			</table>
+			<?php submit_button( __( 'Update .htaccess using FTP' ) ); ?>
+		</form>
+		<h2><?php esc_html_e( '.htaccess content to save' ); ?></h2>
+		<p><textarea rows="6" class="large-text readonly" onclick="this.focus();this.select()" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>
+		<?php
+	}
+	?>
 </div>
 
 <?php
