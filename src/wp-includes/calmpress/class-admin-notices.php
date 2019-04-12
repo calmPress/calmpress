@@ -42,12 +42,12 @@ class Admin_Notices {
 					'<code>WordPress</code>'
 				);
 				$screen = get_current_screen();
-				if ( $screen && ( 'options-permalink' !== $screen->id ) ) {
+				if ( $screen && ( 'options-htaccess' !== $screen->id ) ) {
 					$msg .= '<br>' . sprintf(
 						/* translators: 1: The file name, 2: The URL of the permalink setting page */
-						__( 'You can fix the %1$s file by going to the <a href="%2$s">Permalink settings page</a> which will automatically try to update the file, and follow additional instructions if it fails.' ),
+						__( 'You can fix the %1$s file by going to the <a href="%2$s">htaccess settings page</a> which will automatically try to update the file, and follow additional instructions if it fails.' ),
 						'<code>.htaccess</code>',
-						esc_url( admin_url( 'options-permalink.php' ) )
+						esc_url( admin_url( 'options-htaccess.php' ) )
 					);
 				}
 				echo "<div class='notice notice-error'><p>$msg</p></div>";
