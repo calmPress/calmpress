@@ -27,6 +27,7 @@ const MAP = [
 	'calmpress\filesystem\Locked_File_Exception'        => __DIR__ . '/filesystem/class-locked-file-exception.php',
 	'calmpress\filesystem\Locked_File_Direct_Access'    => __DIR__ . '/filesystem/class-locked-file-direct-access.php',
 	'calmpress\filesystem\Locked_File_FTP_Write_Access' => __DIR__ . '/filesystem/class-locked-file-ftp-write-access.php',
+	'calmpress\credentials\FTP_Credentials'             => __DIR__ . '/class-ftp-credentials.php',
 ];
 
 spl_autoload_register(

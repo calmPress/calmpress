@@ -44,17 +44,17 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 	 *
 	 * @throws Locked_File_Exception If the $file_path or $base_dir are not an absolute paths.
 	 *
-	 * @param string $file_path The absolute path of the file.
-	 * @param string $host      The host (DNS or IP address) of the FTP server.
-	 * @param int    $port      The port on which the FTP server listens.
-	 * @param string $username  The user name to use in the authentication to the FTP server.
-	 *                          Leading and trailing spaces are treated as significant characters.
-	 * @param string $password  The password to use in the authentication to the FTP server.
-	 *                          Leading and trailing spaces are treated as significant characters.
-	 * @param string $base_dir  The absolute path to the directory to which the
-	 *                          root directory is mapped in the FTP server.
+	 * @param string                                 $file_path   The absolute path of the file.
+	 * @param \calmpress\credentials\FTP_Credentials $credentials The credentials needed to be able to
+	 *                                                            do the writing.
 	 */
-	public function __construct( string $file_path, string $host, int $port, string $username, string $password, string $base_dir ) {
+	public function __construct( string $file_path, \calmpress\credentials\FTP_Credentials $credentials ) {
+		$host     = $credentials->host();
+		$port     = $credentials->port();
+		$username = $credentials->username();
+		$password = $credentials->password();
+		$base_dir = $credentials->base_dir();
+
 		if ( ! path_is_absolute( $base_dir ) ) {
 			throw new Locked_File_Exception( '"' . $base_dir . '" is not an absolute path', Locked_File_Exception::PATH_NOT_ABSOLUTE, $base_dir );
 		}
@@ -71,7 +71,7 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 		}
 
 		$this->protocol_prefix .= $host . '/';
-		$this->base_dir = $base_dir;
+		$this->base_dir         = $base_dir;
 	}
 
 	/**
@@ -95,7 +95,7 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 			return $path;
 		}
 
-		// Make sure the location is accessable under the FTP server.
+		// Make sure the location is accessible under the FTP server.
 		// Using case insensitive here is not great but probably good enough for
 		// real life usage.
 		if ( 0 !== stripos( $path, $this->base_dir ) ) {

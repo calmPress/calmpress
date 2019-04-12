@@ -75,12 +75,14 @@ class WP_Test_Locked_File_FTP_Write_Access extends WP_UnitTestCase {
 		if ( 2 === count( $host_parts ) ) {
 			$port = (int) $host_parts[1];
 		}
-		return new calmpress\filesystem\Locked_File_FTP_Write_Access( $file_path,
-			$host,
-			$port,
-			FTP_USER,
-			FTP_PASS,
-			FTP_BASE
+		return new \calmpress\filesystem\Locked_File_FTP_Write_Access( $file_path,
+			new \calmpress\credentials\FTP_Credentials(
+				$host,
+				$port,
+				FTP_USER,
+				FTP_PASS,
+				FTP_BASE
+			)
 		);
 	}
 
