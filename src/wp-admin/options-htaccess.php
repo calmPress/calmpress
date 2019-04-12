@@ -133,8 +133,9 @@ if ( $update_required ) {
 	// Notify the user if the save had failed.
 	add_action( 'calm_insert_with_markers_exception', __NAMESPACE__ . '\save_fail_handler', 10, 1 );
 
+	$saved = false;
 	if ( $writable ) {
-		save_mod_rewrite_rules();
+		$saved = save_mod_rewrite_rules();
 	} elseif ( isset( $_POST['calm_htacess_ftp_nonce'] )
 		&& wp_verify_nonce( wp_unslash( $_POST['calm_htacess_ftp_nonce'] ), 'calm_htacess_ftp' )
 		) {
@@ -148,8 +149,25 @@ if ( $update_required ) {
 					);
 				};
 			} );
-			save_mod_rewrite_rules();
+			$saved = save_mod_rewrite_rules();
 		}
+	}
+
+	if ( $saved ) {
+		add_action( 'admin_notices', function () {
+			?>
+			<div class='updated notice is-dismissible'>
+				<p>
+				<?php
+				/* translators: 1: The file name */
+				printf( esc_html( 'The %1$s file was updated.' ),
+					'<code>.htaccess</code>'
+				);
+				?>
+				</p>
+			</div>
+			<?php
+		});
 	}
 }
 
