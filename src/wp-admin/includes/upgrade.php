@@ -185,7 +185,7 @@ if ( ! function_exists( 'wp_install_defaults' ) ) :
 			$first_comment        = get_site_option( 'first_comment' );
 		}
 
-		$first_comment_author = ! empty( $first_comment_author ) ? $first_comment_author : __( 'A WordPress Commenter' );
+		$first_comment_author = ! empty( $first_comment_author ) ? $first_comment_author : __( 'A calmPress Commenter' );
 		$first_comment_email  = ! empty( $first_comment_email ) ? $first_comment_email : 'wapuu@wordpress.example';
 		$first_comment_url    = ! empty( $first_comment_url ) ? $first_comment_url : 'https://wordpress.org/';
 		$first_comment        = ! empty( $first_comment ) ? $first_comment : __(
@@ -231,7 +231,7 @@ Commenter avatars come from <a href="https://gravatar.com">Gravatar</a>.'
 
 			$first_page .= sprintf(
 				/* translators: first page content, %s: site admin URL */
-				__( 'As a new WordPress user, you should go to <a href="%s">your dashboard</a> to delete this page and create new pages for your content. Have fun!' ),
+				__( 'As a new calmPress user, you should go to <a href="%s">your dashboard</a> to delete this page and create new pages for your content. Have fun!' ),
 				admin_url()
 			);
 		}
