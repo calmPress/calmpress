@@ -1,13 +1,13 @@
 {
-	"name": "wordpress/wordpress",
+	"name": "calmpress/calmpress",
 	"license": "GPL-2.0-or-later",
-	"description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
-	"homepage": "https://wordpress.org",
+	"description": "A modern CMS based on WordPress.",
+	"homepage": "https://calmpress.org",
 	"keywords": [
-		"blog", "cms", "wordpress", "wp"
+		"blog", "cms", "wordpress", "wp", "calmpress"
 	],
 	"support": {
-		"issues": "https://core.trac.wordpress.org/"
+		"issues": "https://github.com/calmPress/calmpress"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "~0.5.0",
