@@ -101,9 +101,17 @@ do_action( "admin_footer-{$hook_suffix}" );
 
 /*
  * Close the buffer that was opened in admin-header.php and add noopener
- * and norefere rel attributes to links that open in new window.
+ * and noreferer rel attributes to links that open in new window.
+ *
+ * The detection if the wp_targeted_link_rel function exists is require since
+ * the admin footer is called during upgrade and the upgrade might be done from
+ * an older release that do not contain the function.
  */
-echo wp_targeted_link_rel( ob_get_clean() );
+ $buffer = ob_get_clean();
+ if ( function_exists( 'wp_targeted_link_rel' ) ) {
+	 $buffer = wp_targeted_link_rel( $buffer );
+ }
+echo $buffer;
 
 // get_site_option() won't exist when auto upgrading from <= 2.7
 if ( function_exists( 'get_site_option' ) ) {
