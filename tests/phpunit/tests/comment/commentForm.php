@@ -5,7 +5,7 @@
  */
 class Tests_Comment_CommentForm extends WP_UnitTestCase {
 	public function test_default_markup_for_submit_button_and_wrapper() {
-		$p = self::factory()->post->create();
+		$p = self::factory()->post->create( ['comment_status' => 'open'] );
 
 		$args = array(
 			'name_submit'  => 'foo-name',
@@ -21,7 +21,7 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 	}
 
 	public function test_custom_submit_button() {
-		$p = self::factory()->post->create();
+		$p = self::factory()->post->create( ['comment_status' => 'open'] );
 
 		$args = array(
 			'name_submit'   => 'foo-name',
@@ -37,7 +37,7 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 	}
 
 	public function test_custom_submit_field() {
-		$p = self::factory()->post->create();
+		$p = self::factory()->post->create( ['comment_status' => 'open'] );
 
 		$args = array(
 			'name_submit'  => 'foo-name',
@@ -57,7 +57,7 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 	 * @ticket 32312
 	 */
 	public function test_submit_button_and_submit_field_should_fall_back_on_defaults_when_filtered_defaults_do_not_contain_the_keys() {
-		$p = self::factory()->post->create();
+		$p = self::factory()->post->create( ['comment_status' => 'open'] );
 
 		$args = array(
 			'name_submit'  => 'foo-name',
@@ -85,7 +85,7 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 	 * @ticket 44126
 	 */
 	public function test_fields_should_include_cookies_consent() {
-		$p = self::factory()->post->create();
+		$p = self::factory()->post->create( ['comment_status' => 'open'] );
 
 		add_filter( 'option_show_comments_cookies_opt_in', '__return_true' );
 

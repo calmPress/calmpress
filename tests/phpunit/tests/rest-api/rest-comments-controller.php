@@ -59,7 +59,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			)
 		);
 
-		self::$post_id     = $factory->post->create();
+		self::$post_id     = $factory->post->create( ['comment_status' => 'open'] );
 		self::$private_id  = $factory->post->create(
 			array(
 				'post_status' => 'private',
@@ -68,6 +68,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		self::$password_id = $factory->post->create(
 			array(
 				'post_password' => 'toomanysecrets',
+				'comment_status' => 'open',
 			)
 		);
 		self::$draft_id    = $factory->post->create(
@@ -434,7 +435,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 
 	public function test_get_items_private_post_no_permissions() {
 		wp_set_current_user( 0 );
-		$post_id = $this->factory->post->create( array( 'post_status' => 'private' ) );
+		$post_id = $this->factory->post->create( array( 'post_status' => 'private',  'comment_status' => 'open' ) );
 		$request = new WP_REST_Request( 'GET', '/wp/v2/comments' );
 		$request->set_param( 'post', $post_id );
 		$response = rest_get_server()->dispatch( $request );
@@ -1214,7 +1215,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	}
 
 	public function test_create_comment_without_type() {
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create( ['comment_status' => 'open'] );
 		wp_set_current_user( self::$admin_id );
 
 		$params = array(
@@ -1251,7 +1252,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	 * @ticket 38820
 	 */
 	public function test_create_comment_with_invalid_type() {
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create( ['comment_status' => 'open'] );
 		wp_set_current_user( self::$admin_id );
 
 		$params = array(
@@ -1274,7 +1275,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	}
 
 	public function test_create_comment_invalid_email() {
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create( ['comment_status' => 'open'] );
 		wp_set_current_user( self::$admin_id );
 
 		$params = array(
@@ -1418,7 +1419,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	}
 
 	public function test_create_comment_with_status_IP_and_user_agent() {
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create( ['comment_status' => 'open'] );
 		wp_set_current_user( self::$admin_id );
 
 		$params = array(
@@ -1935,7 +1936,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	}
 
 	public function test_update_item() {
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create( ['comment_status' => 'open'] );
 
 		wp_set_current_user( self::$admin_id );
 
@@ -2004,7 +2005,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	}
 
 	public function test_update_item_no_content() {
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create( ['comment_status' => 'open'] );
 
 		wp_set_current_user( self::$admin_id );
 

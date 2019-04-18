@@ -986,7 +986,7 @@ class Tests_Post extends WP_UnitTestCase {
 		);
 		$post    = get_post( $post_id );
 
-		$this->assertEquals( 'open', $post->comment_status );
+		$this->assertEquals( 'closed', $post->comment_status );
 	}
 
 	/**
@@ -1025,7 +1025,7 @@ class Tests_Post extends WP_UnitTestCase {
 		);
 		$post    = get_post( $post_id );
 
-		$this->assertEquals( 'open', $post->comment_status );
+		$this->assertEquals( 'closed', $post->comment_status );
 		_unregister_post_type( $post_type );
 	}
 

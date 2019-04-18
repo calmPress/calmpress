@@ -56,7 +56,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 		$this->assertSame( 0, did_action( $error ) );
 
-		$post = self::factory()->post->create_and_get();
+		$post = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		wp_trash_post( $post->ID );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
@@ -77,6 +77,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$post    = self::factory()->post->create_and_get(
 			array(
 				'post_status' => 'draft',
+				'comment_status' => 'open',
 			)
 		);
 		$data    = array(
@@ -111,6 +112,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			array(
 				'post_status' => 'draft',
 				'post_author' => $user->ID,
+				'comment_status' => 'open',
 			)
 		);
 		$data    = array(
@@ -134,6 +136,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$post = self::factory()->post->create_and_get(
 			array(
 				'post_date' => date( 'Y-m-d H:i:s', strtotime( '+1 day' ) ),
+				'comment_status' => 'open',
 			)
 		);
 
@@ -155,12 +158,13 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$user = self::factory()->user->create_and_get(
 			array(
 				'user_url' => 'http://user.example.org',
+				'comment_status' => 'open',
 			)
 		);
 
 		wp_set_current_user( $user->ID );
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment',
@@ -180,7 +184,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 	public function test_submitting_valid_comment_anonymously_succeeds() {
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment',
@@ -208,7 +212,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 	 */
 	public function test_submitting_comment_handles_slashes_correctly_handles_slashes() {
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open']);
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment with 1 slash: \\',
@@ -233,6 +237,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$post    = self::factory()->post->create_and_get(
 			array(
 				'post_status' => 'private',
+				'comment_status' => 'open',
 			)
 		);
 		$data    = array(
@@ -267,6 +272,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			array(
 				'post_status' => 'private',
 				'post_author' => $author->ID,
+				'comment_status' => 'open',
 			)
 		);
 		$data    = array(
@@ -325,6 +331,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			array(
 				'post_status' => 'private',
 				'post_author' => $user->ID,
+				'comment_status' => 'open',
 			)
 		);
 		$data    = array(
@@ -358,6 +365,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			array(
 				'post_status' => 'private',
 				'post_author' => $author->ID,
+				'comment_status' => 'open',
 			)
 		);
 		$data    = array(
@@ -374,7 +382,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 	public function test_anonymous_user_cannot_comment_unfiltered_html() {
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment <script>alert(document.cookie);</script>',
@@ -400,7 +408,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 		$this->assertFalse( current_user_can( 'unfiltered_html' ) );
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment <script>alert(document.cookie);</script>',
@@ -424,7 +432,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 		$this->assertFalse( current_user_can( 'unfiltered_html' ) );
 
-		$post   = self::factory()->post->create_and_get();
+		$post   = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$action = 'unfiltered-html-comment_' . $post->ID;
 		$nonce  = wp_create_nonce( $action );
 
@@ -463,7 +471,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 		$this->assertTrue( current_user_can( 'unfiltered_html' ) );
 
-		$post   = self::factory()->post->create_and_get();
+		$post   = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$action = 'unfiltered-html-comment_' . $post->ID;
 		$nonce  = wp_create_nonce( $action );
 
@@ -500,7 +508,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 		$this->assertTrue( current_user_can( 'unfiltered_html' ) );
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment <script>alert(document.cookie);</script>',
@@ -520,7 +528,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$_comment_registration = get_option( 'comment_registration' );
 		update_option( 'comment_registration', '1' );
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 		);
@@ -540,7 +548,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$_require_name_email = get_option( 'require_name_email' );
 		update_option( 'require_name_email', '1' );
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment',
@@ -562,7 +570,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$_require_name_email = get_option( 'require_name_email' );
 		update_option( 'require_name_email', '1' );
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment',
@@ -584,7 +592,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$_require_name_email = get_option( 'require_name_email' );
 		update_option( 'require_name_email', '1' );
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment',
@@ -604,7 +612,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 		$error = 'require_valid_comment';
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => '',
@@ -624,7 +632,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 	public function test_submitting_comment_with_content_too_long_returns_error() {
 		$error = 'comment_content_column_length';
 
-		$post = self::factory()->post->create_and_get();
+		$post = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 
 		$data    = array(
 			'comment_post_ID' => $post->ID,
@@ -644,7 +652,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 	public function test_submitting_comment_with_author_too_long_returns_error() {
 		$error = 'comment_author_column_length';
 
-		$post = self::factory()->post->create_and_get();
+		$post = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 
 		$data    = array(
 			'comment_post_ID' => $post->ID,
@@ -664,7 +672,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 	public function test_submitting_comment_with_email_too_long_returns_error() {
 		$error = 'comment_author_email_column_length';
 
-		$post = self::factory()->post->create_and_get();
+		$post = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 
 		$data    = array(
 			'comment_post_ID' => $post->ID,
@@ -684,7 +692,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 	public function test_submitting_comment_with_url_too_long_returns_error() {
 		$error = 'comment_author_url_column_length';
 
-		$post    = self::factory()->post->create_and_get();
+		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment',
@@ -710,7 +718,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		);
 		wp_set_current_user( $user->ID );
 
-		$post = self::factory()->post->create_and_get();
+		$post = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
 		$data = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment',
@@ -752,6 +760,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$post           = self::factory()->post->create_and_get(
 			array(
 				'post_status' => 'publish',
+				'comment_status' => 'open',
 			)
 		);
 		$data           = array(
@@ -773,6 +782,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$post          = self::factory()->post->create_and_get(
 			array(
 				'post_status' => 'publish',
+				'comment_status' => 'open',
 			)
 		);
 		$data          = array(
@@ -804,6 +814,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$post          = self::factory()->post->create_and_get(
 			array(
 				'post_status' => 'publish',
+				'comment_status' => 'open',
 			)
 		);
 		$data          = array(
