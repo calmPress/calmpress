@@ -171,6 +171,7 @@ if ( ! function_exists( 'wp_install_defaults' ) ) :
 				'post_modified_gmt'     => $now_gmt,
 				'guid'                  => $first_post_guid,
 				'comment_count'         => 1,
+				'comment_status'        => 'closed',
 				'to_ping'               => '',
 				'pinged'                => '',
 				'post_content_filtered' => '',
@@ -251,6 +252,7 @@ Commenter avatars come from <a href="https://gravatar.com">Gravatar</a>.'
 			'post_modified_gmt' => $now_gmt,
 			'guid' => $first_post_guid,
 			'post_type' => 'page',
+			'comment_status' => 'closed',
 			'to_ping' => '',
 			'pinged' => '',
 			'post_content_filtered' => ''

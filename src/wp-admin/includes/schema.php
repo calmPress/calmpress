@@ -406,7 +406,7 @@ function populate_options( array $options = array() ) {
 	'comments_notify' => 1,
 	'posts_per_rss' => 10,
 	'rss_use_excerpt' => 0,
-	'default_comment_status' => 'open',
+	'default_comment_status' => 'closed',
 	'posts_per_page' => 10,
 	/* translators: default date format, see https://secure.php.net/date */
 	'date_format' => __('F j, Y'),
