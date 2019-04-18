@@ -6,7 +6,7 @@ You can read more about the "why" on the project's site at https://calmpress.org
 ## Getting a "ready to use" code
 
 It might come as a surprise to some, but GitHub has bandwidth limits and in order to avoid running into such a corner, all of the
-distributions will be done from our site. Right now you can get them from the downloads page at https://calmpress.org/downloads/
+distributions will be done from our site. Right now you can get them from the downloads page at https://calmpress.org/download/
 
 ## Installation instructions
 Same as the WordPress "5 minutes" installations. 
