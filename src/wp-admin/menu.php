@@ -69,16 +69,18 @@ foreach ( get_taxonomies_for_attachments( 'objects' ) as $tax ) {
 // Avoid the comment count query for users who cannot edit_posts.
 if ( current_user_can( 'edit_posts' ) ) {
 	$awaiting_mod = wp_count_comments();
-	$awaiting_mod = $awaiting_mod->moderated;
-	$menu[25]     = array(
-		sprintf( __( 'Comments %s' ), '<span class="awaiting-mod count-' . absint( $awaiting_mod ) . '"><span class="pending-count">' . number_format_i18n( $awaiting_mod ) . '</span></span>' ),
-		'edit_posts',
-		'edit-comments.php',
-		'',
-		'menu-top menu-icon-comments',
-		'menu-comments',
-		'dashicons-admin-comments',
-	);
+	if ( 0 < $awaiting_mod->total_comments ) {
+		$awaiting_mod = $awaiting_mod->moderated;
+		$menu[25]     = array(
+			sprintf( __( 'Comments %s' ), '<span class="awaiting-mod count-' . absint( $awaiting_mod ) . '"><span class="pending-count">' . number_format_i18n( $awaiting_mod ) . '</span></span>' ),
+			'edit_posts',
+			'edit-comments.php',
+			'',
+			'menu-top menu-icon-comments',
+			'menu-comments',
+			'dashicons-admin-comments',
+		);
+	}
 	unset( $awaiting_mod );
 }
 

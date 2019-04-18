@@ -839,20 +839,22 @@ function wp_admin_bar_comments_menu( $wp_admin_bar ) {
 	}
 
 	$awaiting_mod  = wp_count_comments();
-	$awaiting_mod  = $awaiting_mod->moderated;
-	$awaiting_text = sprintf( _n( '%s comment awaiting moderation', '%s comments awaiting moderation', $awaiting_mod ), number_format_i18n( $awaiting_mod ) );
+	if ( 0 < $awaiting_mod->total_comments ) {
+		$awaiting_mod  = $awaiting_mod->moderated;
+		$awaiting_text = sprintf( _n( '%s comment awaiting moderation', '%s comments awaiting moderation', $awaiting_mod ), number_format_i18n( $awaiting_mod ) );
 
-	$icon   = '<span class="ab-icon"></span>';
-	$title  = '<span class="ab-label awaiting-mod pending-count count-' . $awaiting_mod . '" aria-hidden="true">' . number_format_i18n( $awaiting_mod ) . '</span>';
-	$title .= '<span class="screen-reader-text">' . $awaiting_text . '</span>';
+		$icon   = '<span class="ab-icon"></span>';
+		$title  = '<span class="ab-label awaiting-mod pending-count count-' . $awaiting_mod . '" aria-hidden="true">' . number_format_i18n( $awaiting_mod ) . '</span>';
+		$title .= '<span class="screen-reader-text">' . $awaiting_text . '</span>';
 
-	$wp_admin_bar->add_menu(
-		array(
-			'id'    => 'comments',
-			'title' => $icon . $title,
-			'href'  => admin_url( 'edit-comments.php' ),
-		)
-	);
+		$wp_admin_bar->add_menu(
+			array(
+				'id'    => 'comments',
+				'title' => $icon . $title,
+				'href'  => admin_url( 'edit-comments.php' ),
+			)
+		);
+	}
 }
 
 /**
