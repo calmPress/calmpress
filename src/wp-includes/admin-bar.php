@@ -839,7 +839,7 @@ function wp_admin_bar_comments_menu( $wp_admin_bar ) {
 	}
 
 	$awaiting_mod  = wp_count_comments();
-	if ( 0 < $awaiting_mod->total_comments ) {
+	if ( 0 < $awaiting_mod->total_comments + $awaiting_mod->trash ) {
 		$awaiting_mod  = $awaiting_mod->moderated;
 		$awaiting_text = sprintf( _n( '%s comment awaiting moderation', '%s comments awaiting moderation', $awaiting_mod ), number_format_i18n( $awaiting_mod ) );
 

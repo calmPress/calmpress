@@ -69,7 +69,7 @@ foreach ( get_taxonomies_for_attachments( 'objects' ) as $tax ) {
 // Avoid the comment count query for users who cannot edit_posts.
 if ( current_user_can( 'edit_posts' ) ) {
 	$awaiting_mod = wp_count_comments();
-	if ( 0 < $awaiting_mod->total_comments ) {
+	if ( 0 < $awaiting_mod->total_comments + $awaiting_mod->trash ) {
 		$awaiting_mod = $awaiting_mod->moderated;
 		$menu[25]     = array(
 			sprintf( __( 'Comments %s' ), '<span class="awaiting-mod count-' . absint( $awaiting_mod ) . '"><span class="pending-count">' . number_format_i18n( $awaiting_mod ) . '</span></span>' ),
