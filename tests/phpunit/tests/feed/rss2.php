@@ -48,6 +48,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 				'post_date'    => self::$post_date,
 				'post_content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec velit massa, ultrices eu est suscipit, mattis posuere est. Donec vitae purus lacus. Cras vitae odio odio.',
 				'post_excerpt' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+				'comment_status' => 'open',
 			)
 		);
 
