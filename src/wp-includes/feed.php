@@ -85,7 +85,7 @@ function get_default_feed() {
 	 *                          Default 'rss2'.
 	 */
 	$default_feed = apply_filters( 'default_feed', 'rss2' );
-	return 'rss' == $default_feed ? 'rss2' : $default_feed;
+	return $default_feed;
 }
 
 /**
@@ -623,7 +623,7 @@ function self_link() {
  *
  * @since 2.8.0
  *
- * @param string $type Type of feed. Possible values include 'rss', rss2' and 'atom'.
+ * @param string $type Type of feed. Possible values include rss2' and 'atom'.
  */
 function feed_content_type( $type = '' ) {
 	if ( empty( $type ) ) {
@@ -631,9 +631,7 @@ function feed_content_type( $type = '' ) {
 	}
 
 	$types = array(
-		'rss'      => 'application/rss+xml',
 		'rss2'     => 'application/rss+xml',
-		'rss-http' => 'text/xml',
 		'atom'     => 'application/atom+xml',
 	);
 
@@ -645,7 +643,7 @@ function feed_content_type( $type = '' ) {
 	 * @since 2.8.0
 	 *
 	 * @param string $content_type Content type indicating the type of data that a feed contains.
-	 * @param string $type         Type of feed. Possible values include 'rss', rss2', and 'atom'.
+	 * @param string $type         Type of feed. Possible values include rss2', and 'atom'.
 	 */
 	return apply_filters( 'feed_content_type', $content_type, $type );
 }

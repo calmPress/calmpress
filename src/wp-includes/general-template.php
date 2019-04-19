@@ -618,7 +618,7 @@ function bloginfo( $show = '' ) {
  *   child theme will NOT take precedence over this value
  * - 'atom_url' - The Atom feed URL (/feed/atom)
  * - 'rdf_url' - Deprecated in calmPress, returns the rss2 feed for backward compatibility.
- * - 'rss_url' - The RSS 0.92 feed URL (/feed/rss)
+ * - 'rss_url' - Deprecated in calmPress, returns the rss2 feed for backward compatibility.
  * - 'rss2_url' - The RSS 2.0 feed URL (/feed)
  * - 'comments_atom_url' - The comments Atom feed URL (/comments/feed)
  * - 'comments_rss2_url' - The comments RSS 2.0 feed URL (/comments/feed)
@@ -642,8 +642,6 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			$output = get_option( 'blogdescription' );
 			break;
 		case 'rss_url':
-			$output = get_feed_link( 'rss' );
-			break;
 		case 'rdf_url':
 		case 'rss2_url':
 			$output = get_feed_link( 'rss2' );

@@ -279,11 +279,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 				if ( ! is_singular() && get_query_var( 'withcomments' ) ) {
 					$addl_path .= 'comments/';
 				}
-				if ( ( 'rss' == get_default_feed() && 'feed' == get_query_var( 'feed' ) ) || 'rss' == get_query_var( 'feed' ) ) {
-					$addl_path .= user_trailingslashit( 'feed/' . ( ( get_default_feed() == 'rss2' ) ? '' : 'rss2' ), 'feed' );
-				} else {
-					$addl_path .= user_trailingslashit( 'feed/' . ( ( get_default_feed() == get_query_var( 'feed' ) || 'feed' == get_query_var( 'feed' ) ) ? '' : get_query_var( 'feed' ) ), 'feed' );
-				}
+				$addl_path .= user_trailingslashit( 'feed/' . ( ( get_default_feed() == get_query_var( 'feed' ) || 'feed' == get_query_var( 'feed' ) ) ? '' : get_query_var( 'feed' ) ), 'feed' );
 				$redirect['query'] = remove_query_arg( 'feed', $redirect['query'] );
 			} elseif ( is_feed() && 'old' == get_query_var( 'feed' ) ) {
 				$old_feed_files = array(

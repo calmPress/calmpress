@@ -1379,7 +1379,7 @@ function do_feed() {
 	 * Fires once the given feed is loaded.
 	 *
 	 * The dynamic portion of the hook name, `$feed`, refers to the feed template name.
-	 * Possible values include: 'rss', 'rss2', and 'atom'.
+	 * Possible values include: 'rss2' and 'atom'.
 	 *
 	 * @since 2.1.0
 	 * @since 4.4.0 The `$feed` parameter was added.

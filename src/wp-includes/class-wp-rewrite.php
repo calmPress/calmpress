@@ -327,7 +327,7 @@ class WP_Rewrite {
 	 * @since 1.5.0
 	 * @var array
 	 */
-	public $feeds = array( 'feed', 'rss', 'rss2', 'atom' );
+	public $feeds = array( 'feed', 'rss2', 'atom' );
 
 	/**
 	 * Determines whether permalinks are being used.
