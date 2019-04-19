@@ -401,7 +401,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_feed', 'is_single', 'is_singular', 'is_comment_feed' );
 
 		// check the long form
-		$types = array( 'feed' 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/comments/feed/{$type}" );
 				$this->assertQueryTrue( 'is_feed', 'is_comment_feed' );
