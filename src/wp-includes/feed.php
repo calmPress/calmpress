@@ -168,7 +168,7 @@ function the_title_rss() {
  * @since 2.9.0
  * @see get_the_content()
  *
- * @param string $feed_type The type of feed. rss2 | atom | rss | rdf
+ * @param string $feed_type The type of feed. rss2 | atom | rss
  * @return string The filtered content.
  */
 function get_the_content_feed( $feed_type = null ) {
@@ -196,7 +196,7 @@ function get_the_content_feed( $feed_type = null ) {
  *
  * @since 2.9.0
  *
- * @param string $feed_type The type of feed. rss2 | atom | rss | rdf
+ * @param string $feed_type The type of feed. rss2 | atom | rss
  */
 function the_content_feed( $feed_type = null ) {
 	echo get_the_content_feed( $feed_type );
@@ -355,7 +355,7 @@ function comment_text_rss() {
  *
  * All of the categories for the current post in the feed loop, will be
  * retrieved and have feed markup added, so that they can easily be added to the
- * RSS2, Atom, or RSS1 and RSS0.91 RDF feeds.
+ * RSS2, Atom, or RSS1 feeds.
  *
  * @since 2.1.0
  *
@@ -391,9 +391,7 @@ function get_the_category_rss( $type = null ) {
 	$cat_names = array_unique( $cat_names );
 
 	foreach ( $cat_names as $cat_name ) {
-		if ( 'rdf' == $type ) {
-			$the_list .= "\t\t<dc:subject><![CDATA[$cat_name]]></dc:subject>\n";
-		} elseif ( 'atom' == $type ) {
+		if ( 'atom' == $type ) {
 			$the_list .= sprintf( '<category scheme="%1$s" term="%2$s" />', esc_attr( get_bloginfo_rss( 'url' ) ), esc_attr( $cat_name ) );
 		} else {
 			$the_list .= "\t\t<category><![CDATA[" . @html_entity_decode( $cat_name, ENT_COMPAT, get_option( 'blog_charset' ) ) . "]]></category>\n";
@@ -625,7 +623,7 @@ function self_link() {
  *
  * @since 2.8.0
  *
- * @param string $type Type of feed. Possible values include 'rss', rss2', 'atom', and 'rdf'.
+ * @param string $type Type of feed. Possible values include 'rss', rss2' and 'atom'.
  */
 function feed_content_type( $type = '' ) {
 	if ( empty( $type ) ) {
@@ -637,7 +635,6 @@ function feed_content_type( $type = '' ) {
 		'rss2'     => 'application/rss+xml',
 		'rss-http' => 'text/xml',
 		'atom'     => 'application/atom+xml',
-		'rdf'      => 'application/rdf+xml',
 	);
 
 	$content_type = ( ! empty( $types[ $type ] ) ) ? $types[ $type ] : 'application/octet-stream';
@@ -648,7 +645,7 @@ function feed_content_type( $type = '' ) {
 	 * @since 2.8.0
 	 *
 	 * @param string $content_type Content type indicating the type of data that a feed contains.
-	 * @param string $type         Type of feed. Possible values include 'rss', rss2', 'atom', and 'rdf'.
+	 * @param string $type         Type of feed. Possible values include 'rss', rss2', and 'atom'.
 	 */
 	return apply_filters( 'feed_content_type', $content_type, $type );
 }

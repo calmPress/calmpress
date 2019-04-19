@@ -1379,7 +1379,7 @@ function do_feed() {
 	 * Fires once the given feed is loaded.
 	 *
 	 * The dynamic portion of the hook name, `$feed`, refers to the feed template name.
-	 * Possible values include: 'rdf', 'rss', 'rss2', and 'atom'.
+	 * Possible values include: 'rss', 'rss2', and 'atom'.
 	 *
 	 * @since 2.1.0
 	 * @since 4.4.0 The `$feed` parameter was added.
@@ -1388,17 +1388,6 @@ function do_feed() {
 	 * @param string $feed            The feed name.
 	 */
 	do_action( "do_feed_{$feed}", $wp_query->is_comment_feed, $feed );
-}
-
-/**
- * Load the RDF RSS 0.91 Feed template.
- *
- * @since 2.1.0
- *
- * @see load_template()
- */
-function do_feed_rdf() {
-	load_template( ABSPATH . WPINC . '/feed-rdf.php' );
 }
 
 /**

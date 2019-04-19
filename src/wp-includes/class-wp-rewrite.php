@@ -327,7 +327,7 @@ class WP_Rewrite {
 	 * @since 1.5.0
 	 * @var array
 	 */
-	public $feeds = array( 'feed', 'rdf', 'rss', 'rss2', 'atom' );
+	public $feeds = array( 'feed', 'rss', 'rss2', 'atom' );
 
 	/**
 	 * Determines whether permalinks are being used.
@@ -962,11 +962,11 @@ class WP_Rewrite {
 				$rootcommentquery = $index . '?' . $query . '&page_id=' . get_option( 'page_on_front' ) . '&cpage=' . $this->preg_index( $num_toks + 1 );
 			}
 
-			// Create query for /feed/(feed|atom|rss|rss2|rdf).
+			// Create query for /feed/(feed|atom|rss|rss2).
 			$feedmatch = $match . $feedregex;
 			$feedquery = $feedindex . '?' . $query . '&feed=' . $this->preg_index( $num_toks + 1 );
 
-			// Create query for /(feed|atom|rss|rss2|rdf) (see comment near creation of $feedregex).
+			// Create query for /(feed|atom|rss|rss2) (see comment near creation of $feedregex).
 			$feedmatch2 = $match . $feedregex2;
 			$feedquery2 = $feedindex . '?' . $query . '&feed=' . $this->preg_index( $num_toks + 1 );
 
@@ -1219,7 +1219,7 @@ class WP_Rewrite {
 
 		// Old feed and service files.
 		$deprecated_files = array(
-			'.*wp-(atom|rdf|rss|rss2|feed|commentsrss2)\.php$' => $this->index . '?feed=old',
+			'.*wp-(atom|rss|rss2|feed|commentsrss2)\.php$' => $this->index . '?feed=old',
 			'.*wp-app\.php(/.*)?$' => $this->index . '?error=403',
 		);
 

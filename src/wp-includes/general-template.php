@@ -617,7 +617,7 @@ function bloginfo( $show = '' ) {
  * - 'template_url' / 'template_directory' - URL of the active theme's directory. An active
  *   child theme will NOT take precedence over this value
  * - 'atom_url' - The Atom feed URL (/feed/atom)
- * - 'rdf_url' - The RDF/RSS 1.0 feed URL (/feed/rdf)
+ * - 'rdf_url' - Deprecated in calmPress, returns the rss2 feed for backward compatibility.
  * - 'rss_url' - The RSS 0.92 feed URL (/feed/rss)
  * - 'rss2_url' - The RSS 2.0 feed URL (/feed)
  * - 'comments_atom_url' - The comments Atom feed URL (/comments/feed)
@@ -641,12 +641,10 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 		case 'description':
 			$output = get_option( 'blogdescription' );
 			break;
-		case 'rdf_url':
-			$output = get_feed_link( 'rdf' );
-			break;
 		case 'rss_url':
 			$output = get_feed_link( 'rss' );
 			break;
+		case 'rdf_url':
 		case 'rss2_url':
 			$output = get_feed_link( 'rss2' );
 			break;
@@ -3835,7 +3833,7 @@ function add_thickbox() {
  *
  * @since 2.5.0
  *
- * @param string $type The type of generator to output - (html|xhtml|atom|rss2|rdf|comment|export).
+ * @param string $type The type of generator to output - (html|xhtml|atom|rss2|comment|export).
  */
 function the_generator( $type ) {
 	/**
