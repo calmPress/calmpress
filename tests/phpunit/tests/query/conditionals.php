@@ -170,7 +170,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_page', 'is_singular' );
 	}
 
-	//'(about)/feed/(feed|rss|rss2|atom)/?$' => 'index.php?pagename=$matches[1]&feed=$matches[2]'
+	//'(about)/feed/(feed|rss2|atom)/?$' => 'index.php?pagename=$matches[1]&feed=$matches[2]'
 	function test_page_feed() {
 		$page_ids   = array();
 		$page_ids[] = $page_id = self::factory()->post->create(
@@ -242,7 +242,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		}
 	}
 
-	// '(about)/feed/(feed|rss|rss2|atom)/?$' => 'index.php?pagename=$matches[1]&feed=$matches[2]'
+	// '(about)/feed/(feed|rss2|atom)/?$' => 'index.php?pagename=$matches[1]&feed=$matches[2]'
 	function test_page_feed_atom() {
 		$page_ids   = array();
 		$page_ids[] = $page_id = self::factory()->post->create(
@@ -344,14 +344,14 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 	// FIXME: no tests for these yet
 	// 'about/attachment/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
-	// 'about/attachment/([^/]+)/feed/(feed|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
-	// 'about/attachment/([^/]+)/(feed|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
+	// 'about/attachment/([^/]+)/feed/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
+	// 'about/attachment/([^/]+)/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 
-	// 'feed/(feed|rss|rss2|atom)/?$' => 'index.php?&feed=$matches[1]',
-	// '(feed|rss|rss2|atom)/?$' => 'index.php?&feed=$matches[1]',
+	// 'feed/(feed|rss2|atom)/?$' => 'index.php?&feed=$matches[1]',
+	// '(feed|rss2|atom)/?$' => 'index.php?&feed=$matches[1]',
 	function test_main_feed_2() {
 		self::factory()->post->create(); // @test_404
-		$feeds = array( 'feed', 'rss', 'rss2', 'atom' );
+		$feeds = array( 'feed', 'rss2', 'atom' );
 
 		// long version
 		foreach ( $feeds as $feed ) {
@@ -369,7 +369,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 	function test_main_feed() {
 		self::factory()->post->create(); // @test_404
-		$types = array( 'rss2', 'rss', 'atom' );
+		$types = array( 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 			$this->go_to( get_feed_link( $type ) );
 			$this->assertQueryTrue( 'is_feed' );
@@ -386,8 +386,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		}
 	}
 
-	// 'comments/feed/(feed|rss|rss2|atom)/?$' => 'index.php?&feed=$matches[1]&withcomments=1',
-	// 'comments/(feed|rss|rss2|atom)/?$' => 'index.php?&feed=$matches[1]&withcomments=1',
+	// 'comments/feed/(feed|rss2|atom)/?$' => 'index.php?&feed=$matches[1]&withcomments=1',
+	// 'comments/(feed|rss2|atom)/?$' => 'index.php?&feed=$matches[1]&withcomments=1',
 	function test_main_comments_feed() {
 		$post_id = self::factory()->post->create( array( 'post_title' => 'hello-world' ) );
 		// A category is required for the verbose test that runs the same test
@@ -401,14 +401,14 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_feed', 'is_single', 'is_singular', 'is_comment_feed' );
 
 		// check the long form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed' 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/comments/feed/{$type}" );
 				$this->assertQueryTrue( 'is_feed', 'is_comment_feed' );
 		}
 
 		// check the short form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/comments/{$type}" );
 				$this->assertQueryTrue( 'is_feed', 'is_comment_feed' );
@@ -416,18 +416,18 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 	}
 
-	// 'search/(.+)/feed/(feed|rss|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
-	// 'search/(.+)/(feed|rss|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
+	// 'search/(.+)/feed/(feed|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
+	// 'search/(.+)/(feed|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
 	function test_search_feed() {
 		// check the long form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/search/test/feed/{$type}" );
 				$this->assertQueryTrue( 'is_feed', 'is_search' );
 		}
 
 		// check the short form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/search/test/{$type}" );
 				$this->assertQueryTrue( 'is_feed', 'is_search' );
@@ -456,8 +456,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertEquals( get_query_var( 's' ), 'Fünf+bar' );
 	}
 
-	// 'category/(.+?)/feed/(feed|rss|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
-	// 'category/(.+?)/(feed|rss|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
+	// 'category/(.+?)/feed/(feed|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
+	// 'category/(.+?)/(feed|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
 	function test_category_feed() {
 		self::factory()->term->create(
 			array(
@@ -467,14 +467,14 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		);
 
 		// check the long form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 			$this->go_to( "/category/cat-a/feed/{$type}" );
 			$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_category' );
 		}
 
 		// check the short form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 			$this->go_to( "/category/cat-a/{$type}" );
 			$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_category' );
@@ -505,8 +505,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_archive', 'is_category' );
 	}
 
-	// 'tag/(.+?)/feed/(feed|rss|rss2|atom)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
-	// 'tag/(.+?)/(feed|rss|rss2|atom)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
+	// 'tag/(.+?)/feed/(feed|rss2|atom)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
+	// 'tag/(.+?)/(feed|rss2|atom)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
 	function test_tag_feed() {
 		self::factory()->term->create(
 			array(
@@ -515,14 +515,14 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			)
 		);
 		// check the long form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/tag/tag-a/feed/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_tag' );
 		}
 
 		// check the short form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/tag/tag-a/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_tag' );
@@ -564,19 +564,19 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertTrue( is_tag( array( $tag->term_id ) ) );
 	}
 
-	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/feed/(feed|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
-	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/(feed|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
+	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/feed/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
+	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
 	function test_ymd_feed() {
 		self::factory()->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		// check the long form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/2007/09/04/feed/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_day', 'is_date' );
 		}
 
 		// check the short form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/2007/09/04/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_day', 'is_date' );
@@ -598,19 +598,19 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_archive', 'is_day', 'is_date' );
 	}
 
-	// '([0-9]{4})/([0-9]{1,2})/feed/(feed|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]',
-	// '([0-9]{4})/([0-9]{1,2})/(feed|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]',
+	// '([0-9]{4})/([0-9]{1,2})/feed/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]',
+	// '([0-9]{4})/([0-9]{1,2})/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]',
 	function test_ym_feed() {
 		self::factory()->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		// check the long form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/2007/09/feed/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_month', 'is_date' );
 		}
 
 		// check the short form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/2007/09/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_month', 'is_date' );
@@ -632,19 +632,19 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_archive', 'is_date', 'is_month' );
 	}
 
-	// '([0-9]{4})/feed/(feed|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&feed=$matches[2]',
-	// '([0-9]{4})/(feed|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&feed=$matches[2]',
+	// '([0-9]{4})/feed/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&feed=$matches[2]',
+	// '([0-9]{4})/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&feed=$matches[2]',
 	function test_y_feed() {
 		self::factory()->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		// check the long form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/2007/feed/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_year', 'is_date' );
 		}
 
 		// check the short form
-		$types = array( 'feed', 'rss', 'rss2', 'atom' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/2007/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_year', 'is_date' );
@@ -693,11 +693,11 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_single', 'is_attachment', 'is_singular' );
 	}
 
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/feed/(feed|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/(feed|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
+	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/feed/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
+	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/feed/(feed|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/(feed|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
+	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/feed/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
+	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 
 	/**
 	 * @expectedIncorrectUsage WP_Date_Query
