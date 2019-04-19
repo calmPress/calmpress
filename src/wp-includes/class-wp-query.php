@@ -545,7 +545,6 @@ class WP_Query {
 			, 'author'
 			, 'author_name'
 			, 'feed'
-			, 'tb'
 			, 'paged'
 			, 'meta_key'
 			, 'meta_value'
