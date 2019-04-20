@@ -14,7 +14,7 @@ class WP {
 	 * @since 2.0.0
 	 * @var string[]
 	 */
-	public $public_query_vars = array('m', 'p', 'page_id', 'w', 'withcomments', 'withoutcomments', 's', 'search', 'exact', 'sentence', 'page', 'paged', 'more', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'feed', 'static', 'pagename', 'error', 'attachment', 'preview', 'robots', 'cpage', 'embed' );
+	public $public_query_vars = array('m', 'p', 'page_id', 'w', 's', 'search', 'exact', 'sentence', 'page', 'paged', 'more', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'feed', 'static', 'pagename', 'error', 'attachment', 'preview', 'robots', 'cpage', 'embed' );
 
 	/**
 	 * Private query variables.
@@ -423,20 +423,7 @@ class WP {
 			}
 			$headers['Content-Type'] = feed_content_type( $type ) . '; charset=' . get_option( 'blog_charset' );
 
-			// We're showing a feed, so WP is indeed the only thing that last changed.
-			if ( ! empty( $this->query_vars['withcomments'] )
-			     || false !== strpos( $this->query_vars['feed'], 'comments-' )
-			     || ( empty( $this->query_vars['withoutcomments'] )
-			          && ( ! empty( $this->query_vars['name'] )
-			               || ! empty( $this->query_vars['pagename'] )
-			               || ! empty( $this->query_vars['attachment'] )
-			          )
-			     )
-			) {
-				$wp_last_modified = mysql2date( 'D, d M Y H:i:s', get_lastcommentmodified( 'GMT' ), false );
-			} else {
-				$wp_last_modified = mysql2date( 'D, d M Y H:i:s', get_lastpostmodified( 'GMT' ), false );
-			}
+			$wp_last_modified = mysql2date( 'D, d M Y H:i:s', get_lastpostmodified( 'GMT' ), false );
 
 			if ( ! $wp_last_modified ) {
 				$wp_last_modified = date( 'D, d M Y H:i:s' );

@@ -832,6 +832,7 @@ class WP_Rewrite {
 	 *                                    Default true.
 	 * @param bool   $forcomments         Optional. Whether the feed rules should be a query for a comments feed.
 	 *                                    Default false.
+	 *                                    Ignored in calmPress.
 	 * @param bool   $walk_dirs           Optional. Whether the 'directories' making up the structure should be walked
 	 *                                    over and rewrite rules built for each in-turn. Default true.
 	 * @param bool   $endpoints           Optional. Whether endpoints should be applied to the generated rewrite rules.
@@ -973,12 +974,6 @@ class WP_Rewrite {
 			// Create query and regex for embeds.
 			$embedmatch = $match . $embedregex;
 			$embedquery = $embedindex . '?' . $query . '&embed=true';
-
-			// If asked to, turn the feed queries into comment feed ones.
-			if ( $forcomments ) {
-				$feedquery  .= '&withcomments=1';
-				$feedquery2 .= '&withcomments=1';
-			}
 
 			// Start creating the array of rewrites for this dir.
 			$rewrite = array();
@@ -1337,7 +1332,7 @@ class WP_Rewrite {
 				if ( count( $struct ) == 2 ) {
 					$rules = $this->generate_rewrite_rules( $struct[0], $struct[1] );
 				} else {
-					$rules = $this->generate_rewrite_rules( $struct['struct'], $struct['ep_mask'], $struct['paged'], $struct['feed'], $struct['forcomments'], $struct['walk_dirs'], $struct['endpoints'] );
+					$rules = $this->generate_rewrite_rules( $struct['struct'], $struct['ep_mask'], $struct['paged'], $struct['feed'], false, $struct['walk_dirs'], $struct['endpoints'] );
 				}
 			} else {
 				$rules = $this->generate_rewrite_rules( $struct );
@@ -1733,7 +1728,6 @@ class WP_Rewrite {
 	 *     @type bool $paged       Whether archive pagination rules should be added for the structure.
 	 *                             Default true.
 	 *     @type bool $feed        Whether feed rewrite rules should be added for the structure. Default true.
-	 *     @type bool $forcomments Whether the feed rules should be a query for a comments feed. Default false.
 	 *     @type bool $walk_dirs   Whether the 'directories' making up the structure should be walked over
 	 *                             and rewrite rules built for each in-turn. Default true.
 	 *     @type bool $endpoints   Whether endpoints should be applied to the generated rules. Default true.
@@ -1753,7 +1747,6 @@ class WP_Rewrite {
 			'ep_mask'     => EP_NONE,
 			'paged'       => true,
 			'feed'        => true,
-			'forcomments' => false,
 			'walk_dirs'   => true,
 			'endpoints'   => true,
 		);

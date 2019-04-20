@@ -594,7 +594,11 @@ function the_feed_link( $anchor, $feed = '' ) {
 /**
  * Retrieves the permalink for the feed type.
  *
+ * For calmPress, while still accepting comment feed parameters, the URLs returned
+ * will probably lead to 404 pages.
+ *
  * @since 1.5.0
+ * @since calmPress 1.0.0
  *
  * @global WP_Rewrite $wp_rewrite
  *
@@ -644,7 +648,11 @@ function get_feed_link( $feed = '' ) {
 /**
  * Retrieves the permalink for the post comments feed.
  *
+ * For calmPress this function exists just for backward compatibility, and the
+ * URLs it returns might lead to 404 pages.
+ *
  * @since 2.2.0
+ * @since calmPress 1.0.0
  *
  * @param int    $post_id Optional. Post ID. Default is the ID of the global `$post`.
  * @param string $feed    Optional. Feed type. Default empty.
@@ -1044,38 +1052,6 @@ function get_search_feed_link( $search_query = '', $feed = '' ) {
 	 * @param string $type The search type. One of 'posts' or 'comments'.
 	 */
 	return apply_filters( 'search_feed_link', $link, $feed, 'posts' );
-}
-
-/**
- * Retrieves the permalink for the search results comments feed.
- *
- * @since 2.5.0
- *
- * @global WP_Rewrite $wp_rewrite
- *
- * @param string $search_query Optional. Search query. Default empty.
- * @param string $feed         Optional. Feed type. Default empty.
- * @return string The comments feed search results permalink.
- */
-function get_search_comments_feed_link( $search_query = '', $feed = '' ) {
-	global $wp_rewrite;
-
-	if ( empty( $feed ) ) {
-		$feed = get_default_feed();
-	}
-
-	$link = get_search_feed_link( $search_query, $feed );
-
-	$permastruct = $wp_rewrite->get_search_permastruct();
-
-	if ( empty( $permastruct ) ) {
-		$link = add_query_arg( 'feed', 'comments-' . $feed, $link );
-	} else {
-		$link = add_query_arg( 'withcomments', 1, $link );
-	}
-
-	/** This filter is documented in wp-includes/link-template.php */
-	return apply_filters( 'search_feed_link', $link, $feed, 'comments' );
 }
 
 /**

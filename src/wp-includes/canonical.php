@@ -93,13 +93,6 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		$redirect['query'] = remove_query_arg( 'preview', $redirect['query'] );
 	}
 
-	if ( is_feed() && ( $id = get_query_var( 'p' ) ) ) {
-		if ( $redirect_url = get_post_comments_feed_link( $id, get_query_var( 'feed' ) ) ) {
-			$redirect['query'] = _remove_qs_args_if_not_in_url( $redirect['query'], array( 'p', 'page_id', 'attachment_id', 'pagename', 'name', 'post_type', 'feed' ), $redirect_url );
-			$redirect['path']  = parse_url( $redirect_url, PHP_URL_PATH );
-		}
-	}
-
 	if ( is_singular() && 1 > $wp_query->post_count && ( $id = get_query_var( 'p' ) ) ) {
 
 		$vars = $wpdb->get_results( $wpdb->prepare( "SELECT post_type, post_parent FROM $wpdb->posts WHERE ID = %d", $id ) );
@@ -276,24 +269,8 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			$addl_path = '';
 			if ( is_feed() && in_array( get_query_var( 'feed' ), $wp_rewrite->feeds ) ) {
 				$addl_path = ! empty( $addl_path ) ? trailingslashit( $addl_path ) : '';
-				if ( ! is_singular() && get_query_var( 'withcomments' ) ) {
-					$addl_path .= 'comments/';
-				}
 				$addl_path .= user_trailingslashit( 'feed/' . ( ( get_default_feed() == get_query_var( 'feed' ) || 'feed' == get_query_var( 'feed' ) ) ? '' : get_query_var( 'feed' ) ), 'feed' );
 				$redirect['query'] = remove_query_arg( 'feed', $redirect['query'] );
-			} elseif ( is_feed() && 'old' == get_query_var( 'feed' ) ) {
-				$old_feed_files = array(
-					'wp-atom.php'         => 'atom',
-					'wp-commentsrss2.php' => 'comments_rss2',
-					'wp-feed.php'         => get_default_feed(),
-					'wp-rss.php'          => 'rss2',
-					'wp-rss2.php'         => 'rss2',
-				);
-				if ( isset( $old_feed_files[ basename( $redirect['path'] ) ] ) ) {
-					$redirect_url = get_feed_link( $old_feed_files[ basename( $redirect['path'] ) ] );
-					wp_redirect( $redirect_url, 301 );
-					die();
-				}
 			}
 
 			if ( get_query_var( 'paged' ) > 0 ) {
@@ -641,9 +618,7 @@ function redirect_guess_404_permalink() {
 		if ( ! $post_id ) {
 			return false;
 		}
-		if ( get_query_var( 'feed' ) ) {
-			return get_post_comments_feed_link( $post_id, get_query_var( 'feed' ) );
-		} elseif ( get_query_var( 'page' ) && 1 < get_query_var( 'page' ) ) {
+		if ( get_query_var( 'page' ) && 1 < get_query_var( 'page' ) ) {
 			return trailingslashit( get_permalink( $post_id ) ) . user_trailingslashit( get_query_var( 'page' ), 'single_paged' );
 		} else {
 			return get_permalink( $post_id );

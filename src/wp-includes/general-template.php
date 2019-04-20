@@ -2350,8 +2350,6 @@ function feed_links( $args = array() ) {
 		'separator' => _x( '&raquo;', 'feed link' ),
 		/* translators: 1: blog title, 2: separator (raquo) */
 		'feedtitle' => __( '%1$s %2$s Feed' ),
-		/* translators: 1: blog title, 2: separator (raquo) */
-		'comstitle' => __( '%1$s %2$s Comments Feed' ),
 	);
 
 	$args = wp_parse_args( $args, $defaults );
@@ -2365,17 +2363,6 @@ function feed_links( $args = array() ) {
 	 */
 	if ( apply_filters( 'feed_links_show_posts_feed', true ) ) {
 		echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( sprintf( $args['feedtitle'], get_bloginfo( 'name' ), $args['separator'] ) ) . '" href="' . esc_url( get_feed_link() ) . "\" />\n";
-	}
-
-	/**
-	 * Filters whether to display the comments feed link.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @param bool $show Whether to display the comments feed link. Default true.
-	 */
-	if ( apply_filters( 'feed_links_show_comments_feed', true ) ) {
-		echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( sprintf( $args['comstitle'], get_bloginfo( 'name' ), $args['separator'] ) ) . '" href="' . esc_url( get_feed_link( 'comments_' . get_default_feed() ) ) . "\" />\n";
 	}
 }
 
@@ -2411,11 +2398,6 @@ function feed_links_extra( $args = array() ) {
 	if ( is_singular() ) {
 		$id   = 0;
 		$post = get_post( $id );
-
-		if ( comments_open() || $post->comment_count > 0 ) {
-			$title = sprintf( $args['singletitle'], get_bloginfo('name'), $args['separator'], the_title_attribute( array( 'echo' => false ) ) );
-			$href = get_post_comments_feed_link( $post->ID );
-		}
 	} elseif ( is_post_type_archive() ) {
 		$post_type = get_query_var( 'post_type' );
 		if ( is_array( $post_type ) ) {
