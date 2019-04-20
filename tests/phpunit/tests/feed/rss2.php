@@ -350,34 +350,6 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	}
 
 	/*
-	 * Check to make sure we are rendering feed templates for the date archive feeds.
-	 * e.g. https://example.com/2003/05/27/feed/
-	 *
-	 * @ticket 30210
-	 */
-	function test_valid_archive_feed_endpoint() {
-		// An example of an valid date archive feed endpoint.
-		$this->go_to( '2003/05/27/feed/' );
-
-		// Verify the query object is a feed.
-		$this->assertQueryTrue( 'is_feed', 'is_archive', 'is_day', 'is_date' );
-
-		// Queries performed on valid feed endpoints should contain posts.
-		$this->assertTrue( have_posts() );
-
-		// Check to see if we have the expected XML output from the feed template.
-		$feed = $this->do_rss2();
-
-		$xml = xml_to_array( $feed );
-
-		// Get the <rss> child element of <xml>.
-		$rss = xml_find( $xml, 'rss' );
-
-		// There should only be one <rss> child element.
-		$this->assertEquals( 1, count( $rss ) );
-	}
-
-	/*
 	 * Check to make sure we are rendering feed templates for the search archive feeds.
 	 * e.g. https://example.com/?s=Lorem&feed=rss
 	 *

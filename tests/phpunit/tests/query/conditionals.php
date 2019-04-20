@@ -395,25 +395,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertTrue( is_tag( array( $tag->term_id ) ) );
 	}
 
-	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/feed/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
-	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
-	function test_ymd_feed() {
-		self::factory()->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
-		// check the long form
-		$types = array( 'feed', 'rss2', 'atom' );
-		foreach ( $types as $type ) {
-				$this->go_to( "/2007/09/04/feed/{$type}" );
-				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_day', 'is_date' );
-		}
-
-		// check the short form
-		$types = array( 'feed', 'rss2', 'atom' );
-		foreach ( $types as $type ) {
-				$this->go_to( "/2007/09/04/{$type}" );
-				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_day', 'is_date' );
-		}
-	}
-
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/page/?([0-9]{1,})/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]',
 	function test_ymd_paged() {
 		update_option( 'posts_per_page', 2 );
@@ -429,25 +410,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_archive', 'is_day', 'is_date' );
 	}
 
-	// '([0-9]{4})/([0-9]{1,2})/feed/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]',
-	// '([0-9]{4})/([0-9]{1,2})/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]',
-	function test_ym_feed() {
-		self::factory()->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
-		// check the long form
-		$types = array( 'feed', 'rss2', 'atom' );
-		foreach ( $types as $type ) {
-				$this->go_to( "/2007/09/feed/{$type}" );
-				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_month', 'is_date' );
-		}
-
-		// check the short form
-		$types = array( 'feed', 'rss2', 'atom' );
-		foreach ( $types as $type ) {
-				$this->go_to( "/2007/09/{$type}" );
-				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_month', 'is_date' );
-		}
-	}
-
 	// '([0-9]{4})/([0-9]{1,2})/page/?([0-9]{1,})/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]',
 	function test_ym_paged() {
 		update_option( 'posts_per_page', 2 );
@@ -461,25 +423,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		self::factory()->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		$this->go_to( '/2007/09/' );
 		$this->assertQueryTrue( 'is_archive', 'is_date', 'is_month' );
-	}
-
-	// '([0-9]{4})/feed/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&feed=$matches[2]',
-	// '([0-9]{4})/(feed|rss2|atom)/?$' => 'index.php?year=$matches[1]&feed=$matches[2]',
-	function test_y_feed() {
-		self::factory()->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
-		// check the long form
-		$types = array( 'feed', 'rss2', 'atom' );
-		foreach ( $types as $type ) {
-				$this->go_to( "/2007/feed/{$type}" );
-				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_year', 'is_date' );
-		}
-
-		// check the short form
-		$types = array( 'feed', 'rss2', 'atom' );
-		foreach ( $types as $type ) {
-				$this->go_to( "/2007/{$type}" );
-				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_year', 'is_date' );
-		}
 	}
 
 	// '([0-9]{4})/page/?([0-9]{1,})/?$' => 'index.php?year=$matches[1]&paged=$matches[2]',
