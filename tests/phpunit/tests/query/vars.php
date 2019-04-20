@@ -22,8 +22,6 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 			'm',
 			'p',
 			'w',
-			'withcomments',
-			'withoutcomments',
 			's',
 			'search',
 			'exact',

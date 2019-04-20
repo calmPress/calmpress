@@ -264,10 +264,6 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 				$content = xml_find( $items[ $key ]['child'], 'content:encoded' );
 				$this->assertEquals( trim( apply_filters( 'the_content', $post->post_content ) ), trim( $content[0]['content'] ) );
 			}
-
-			// Comment rss
-			$comment_rss = xml_find( $items[ $key ]['child'], 'wfw:commentRss' );
-			$this->assertEquals( html_entity_decode( get_post_comments_feed_link( $post->ID ) ), $comment_rss[0]['content'] );
 		}
 	}
 
