@@ -304,53 +304,6 @@ function comment_link( $comment = null ) {
 }
 
 /**
- * Retrieve the current comment author for use in the feeds.
- *
- * @since 2.0.0
- *
- * @return string Comment Author
- */
-function get_comment_author_rss() {
-	/**
-	 * Filters the current comment author for use in a feed.
-	 *
-	 * @since 1.5.0
-	 *
-	 * @see get_comment_author()
-	 *
-	 * @param string $comment_author The current comment author.
-	 */
-	return apply_filters( 'comment_author_rss', get_comment_author() );
-}
-
-/**
- * Display the current comment author in the feed.
- *
- * @since 1.0.0
- */
-function comment_author_rss() {
-	echo get_comment_author_rss();
-}
-
-/**
- * Display the current comment content for use in the feeds.
- *
- * @since 1.0.0
- */
-function comment_text_rss() {
-	$comment_text = get_comment_text();
-	/**
-	 * Filters the current comment content for use in a feed.
-	 *
-	 * @since 1.5.0
-	 *
-	 * @param string $comment_text The content of the current comment.
-	 */
-	$comment_text = apply_filters( 'comment_text_rss', $comment_text );
-	echo $comment_text;
-}
-
-/**
  * Retrieve all of the post categories, formatted for use in feeds.
  *
  * All of the categories for the current post in the feed loop, will be

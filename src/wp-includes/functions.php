@@ -1391,17 +1391,6 @@ function do_feed() {
 }
 
 /**
- * Load the RSS 1.0 Feed Template.
- *
- * @since 2.1.0
- *
- * @see load_template()
- */
-function do_feed_rss() {
-	load_template( ABSPATH . WPINC . '/feed-rss.php' );
-}
-
-/**
  * Load either the RSS2 comment feed or the RSS2 posts feed.
  *
  * In calmPress do not support comment feeds.

@@ -840,7 +840,7 @@ class WP_Rewrite {
 	 * @return array Rewrite rule list.
 	 */
 	public function generate_rewrite_rules( $permalink_structure, $ep_mask = EP_NONE, $paged = true, $feed = true, $forcomments = false, $walk_dirs = true, $endpoints = true ) {
-		// Build a regex to match the feed section of URLs, something like (feed|atom|rss|rss2)/?
+		// Build a regex to match the feed section of URLs, something like (feed|atom|rss2)/?
 		$feedregex2 = '';
 		foreach ( (array) $this->feeds as $feed_name ) {
 			$feedregex2 .= $feed_name . '|';
@@ -963,11 +963,11 @@ class WP_Rewrite {
 				$rootcommentquery = $index . '?' . $query . '&page_id=' . get_option( 'page_on_front' ) . '&cpage=' . $this->preg_index( $num_toks + 1 );
 			}
 
-			// Create query for /feed/(feed|atom|rss|rss2).
+			// Create query for /feed/(feed|atom|rss2).
 			$feedmatch = $match . $feedregex;
 			$feedquery = $feedindex . '?' . $query . '&feed=' . $this->preg_index( $num_toks + 1 );
 
-			// Create query for /(feed|atom|rss|rss2) (see comment near creation of $feedregex).
+			// Create query for /(feed|atom|rss2) (see comment near creation of $feedregex).
 			$feedmatch2 = $match . $feedregex2;
 			$feedquery2 = $feedindex . '?' . $query . '&feed=' . $this->preg_index( $num_toks + 1 );
 
@@ -1211,12 +1211,6 @@ class WP_Rewrite {
 		// robots.txt -only if installed at the root
 		$home_path      = parse_url( home_url() );
 		$robots_rewrite = ( empty( $home_path['path'] ) || '/' == $home_path['path'] ) ? array( 'robots\.txt$' => $this->index . '?robots=1' ) : array();
-
-		// Old feed and service files.
-		$deprecated_files = array(
-			'.*wp-(atom|rss|rss2|feed|commentsrss2)\.php$' => $this->index . '?feed=old',
-			'.*wp-app\.php(/.*)?$' => $this->index . '?error=403',
-		);
 
 		// Registration rules.
 		$registration_pages = array();

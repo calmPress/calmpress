@@ -190,9 +190,6 @@ add_filter( 'the_content_rss',    'ent2ncr',                    8 );
 add_filter( 'the_content_feed',   '_oembed_filter_feed_content'   );
 add_filter( 'the_excerpt_rss',    'convert_chars'                 );
 add_filter( 'the_excerpt_rss',    'ent2ncr',                    8 );
-add_filter( 'comment_author_rss', 'ent2ncr',                    8 );
-add_filter( 'comment_text_rss',   'ent2ncr',                    8 );
-add_filter( 'comment_text_rss',   'esc_html'                      );
 add_filter( 'bloginfo_rss',       'ent2ncr',                    8 );
 add_filter( 'the_author',         'ent2ncr',                    8 );
 add_filter( 'the_guid',           'esc_url'                       );
@@ -281,7 +278,6 @@ if ( ! defined( 'DOING_CRON' ) ) {
 }
 
 // 2 Actions 2 Furious
-add_action( 'do_feed_rss',                'do_feed_rss',                             10, 1 );
 add_action( 'do_feed_rss2',               'do_feed_rss2',                            10, 1 );
 add_action( 'do_feed_atom',               'do_feed_atom',                            10, 1 );
 add_action( 'do_robots',                  'do_robots'                                      );
