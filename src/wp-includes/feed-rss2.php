@@ -15,18 +15,15 @@ echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>
  *
  * @since 4.0.0
  *
- * @param string $context Type of feed. Possible values include 'rss2', 'rss2-comments',
- *                        'atom', and 'atom-comments'.
+ * @param string $context Type of feed. Possible values include 'rss2' and 'atom'.
  */
 do_action( 'rss_tag_pre', 'rss2' );
 ?>
 <rss version="2.0"
 	xmlns:content="http://purl.org/rss/1.0/modules/content/"
-	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:atom="http://www.w3.org/2005/Atom"
 	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
-	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
 	<?php
 	/**
 	 * Fires at the end of the RSS root to add namespaces.

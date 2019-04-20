@@ -1404,35 +1404,35 @@ function do_feed_rss() {
 /**
  * Load either the RSS2 comment feed or the RSS2 posts feed.
  *
+ * In calmPress do not support comment feeds.
+ *
  * @since 2.1.0
+ * @since calmPress 1.0.0
  *
  * @see load_template()
  *
  * @param bool $for_comments True for the comment feed, false for normal feed.
+ *                           Ignored in calmPress.
  */
 function do_feed_rss2( $for_comments ) {
-	if ( $for_comments ) {
-		load_template( ABSPATH . WPINC . '/feed-rss2-comments.php' );
-	} else {
-		load_template( ABSPATH . WPINC . '/feed-rss2.php' );
-	}
+	load_template( ABSPATH . WPINC . '/feed-rss2.php' );
 }
 
 /**
  * Load either Atom comment feed or Atom posts feed.
  *
+ * In calmPress do not support comment feeds.
+ *
  * @since 2.1.0
+ * @since calmPress 1.0.0
  *
  * @see load_template()
  *
  * @param bool $for_comments True for the comment feed, false for normal feed.
+ *                           Ignored in calmPress.
  */
 function do_feed_atom( $for_comments ) {
-	if ( $for_comments ) {
-		load_template( ABSPATH . WPINC . '/feed-atom-comments.php' );
-	} else {
-		load_template( ABSPATH . WPINC . '/feed-atom.php' );
-	}
+	load_template( ABSPATH . WPINC . '/feed-atom.php' );
 }
 
 /**
