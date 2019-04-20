@@ -818,7 +818,6 @@ abstract class WP_UnitTestCase_Base extends PHPUnit_Framework_TestCase {
 			'is_attachment',
 			'is_author',
 			'is_category',
-			'is_comment_feed',
 			'is_date',
 			'is_day',
 			'is_embed',

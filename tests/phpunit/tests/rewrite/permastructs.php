@@ -23,7 +23,6 @@ class Tests_Rewrite_Permastructs extends WP_UnitTestCase {
 				'feed'        => true,
 				'walk_dirs'   => true,
 				'endpoints'   => true,
-				'forcomments' => false,
 				'struct'      => '/bar/%foo%',
 			),
 			$wp_rewrite->extra_permastructs['foo']

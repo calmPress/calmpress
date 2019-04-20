@@ -355,39 +355,6 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	}
 
 	/*
-	 * Check to make sure we are rendering feed templates for the main comment feed.
-	 * e.g. https://example.com/comments/feed/
-	 *
-	 * @ticket 30210
-	 */
-	function test_valid_main_comment_feed_endpoint() {
-		// Generate a bunch of comments
-		foreach ( self::$posts as $post ) {
-			self::factory()->comment->create_post_comments( $post, 3 );
-		}
-
-		// An example of an valid main comment feed endpoint.
-		$this->go_to( 'comments/feed/' );
-
-		// Verify the query object is a feed.
-		$this->assertQueryTrue( 'is_feed', 'is_comment_feed' );
-
-		// Queries performed on valid feed endpoints should contain comments.
-		$this->assertTrue( have_comments() );
-
-		// Check to see if we have the expected XML output from the feed template.
-		$feed = $this->do_rss2();
-
-		$xml = xml_to_array( $feed );
-
-		// Get the <rss> child element of <xml>.
-		$rss = xml_find( $xml, 'rss' );
-
-		// There should only be one <rss> child element.
-		$this->assertEquals( 1, count( $rss ) );
-	}
-
-	/*
 	 * Check to make sure we are rendering feed templates for the date archive feeds.
 	 * e.g. https://example.com/2003/05/27/feed/
 	 *
@@ -399,34 +366,6 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 		// Verify the query object is a feed.
 		$this->assertQueryTrue( 'is_feed', 'is_archive', 'is_day', 'is_date' );
-
-		// Queries performed on valid feed endpoints should contain posts.
-		$this->assertTrue( have_posts() );
-
-		// Check to see if we have the expected XML output from the feed template.
-		$feed = $this->do_rss2();
-
-		$xml = xml_to_array( $feed );
-
-		// Get the <rss> child element of <xml>.
-		$rss = xml_find( $xml, 'rss' );
-
-		// There should only be one <rss> child element.
-		$this->assertEquals( 1, count( $rss ) );
-	}
-
-	/*
-	 * Check to make sure we are rendering feed templates for single post comment feeds.
-	 * e.g. https://example.com/2003/05/27/post-name/feed/
-	 *
-	 * @ticket 30210
-	 */
-	function test_valid_single_post_comment_feed_endpoint() {
-		// An example of an valid date archive feed endpoint.
-		$this->go_to( get_post_comments_feed_link( self::$posts[0] ) );
-
-		// Verify the query object is a feed.
-		$this->assertQueryTrue( 'is_feed', 'is_comment_feed', 'is_single', 'is_singular' );
 
 		// Queries performed on valid feed endpoints should contain posts.
 		$this->assertTrue( have_posts() );
