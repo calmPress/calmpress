@@ -1264,7 +1264,7 @@ class WP_Rewrite {
 		$root_rewrite = apply_filters( 'root_rewrite_rules', $root_rewrite );
 
 		// Comments rewrite rules.
-		$comments_rewrite = $this->generate_rewrite_rules( $this->root . $this->comments_base, EP_COMMENTS, false, true, true, false );
+		$comments_rewrite = $this->generate_rewrite_rules( $this->root . $this->comments_base, EP_COMMENTS, false, false, true, false );
 
 		/**
 		 * Filters rewrite rules used for comment feed archives.
