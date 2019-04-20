@@ -114,7 +114,6 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 		$this->assertEquals( '2.0', $rss[0]['attributes']['version'] );
 		$this->assertEquals( 'http://purl.org/rss/1.0/modules/content/', $rss[0]['attributes']['xmlns:content'] );
-		$this->assertEquals( 'http://wellformedweb.org/CommentAPI/', $rss[0]['attributes']['xmlns:wfw'] );
 		$this->assertEquals( 'http://purl.org/dc/elements/1.1/', $rss[0]['attributes']['xmlns:dc'] );
 
 		// rss should have exactly one child element (channel)
@@ -289,10 +288,6 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 			// comment link
 			$comments_link = xml_find( $items[ $key ]['child'], 'comments' );
 			$this->assertEmpty( $comments_link );
-
-			// comment rss
-			$comment_rss = xml_find( $items[ $key ]['child'], 'wfw:commentRss' );
-			$this->assertEmpty( $comment_rss );
 		}
 
 		remove_filter( 'comments_open', '__return_false' );
