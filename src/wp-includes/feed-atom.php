@@ -83,6 +83,7 @@ do_action( 'rss_tag_pre', 'atom' );
 		 */
 		do_action( 'atom_entry' );
 
+		?>
 	</entry>
 	<?php endwhile; ?>
 </feed>
