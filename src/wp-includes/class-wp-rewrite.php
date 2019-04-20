@@ -455,7 +455,7 @@ class WP_Rewrite {
 		// The extra .? at the beginning prevents clashes with other regular expressions in the rules array.
 		$this->add_rewrite_tag( '%pagename%', '(.?.+?)', 'pagename=' );
 
-		return $this->generate_rewrite_rules( $this->get_page_permastruct(), EP_PAGES, true, true, false, false );
+		return $this->generate_rewrite_rules( $this->get_page_permastruct(), EP_PAGES, true, false, false, false );
 	}
 
 	/**
@@ -1059,12 +1059,6 @@ class WP_Rewrite {
 					// Add a rule for at attachments, which take the form of <permalink>/some-text.
 					$sub1 = $submatchbase . '/([^/]+)/';
 
-					// And <permalink>/feed/(atom|...)
-					$sub1feed = $sub1 . $feedregex;
-
-					// And <permalink>/(feed|atom...)
-					$sub1feed2 = $sub1 . $feedregex2;
-
 					// And <permalink>/comment-page-xx
 					$sub1comment = $sub1 . $commentregex;
 
@@ -1076,12 +1070,6 @@ class WP_Rewrite {
 					 * <permalink>/attachment/some-text
 					 */
 					$sub2 = $submatchbase . '/attachment/([^/]+)/';
-
-					// Feeds, <permalink>/attachment/feed/(atom|...)
-					$sub2feed = $sub2 . $feedregex;
-
-					// And feeds again on to this <permalink>/attachment/(feed|atom...)
-					$sub2feed2 = $sub2 . $feedregex2;
 
 					// And <permalink>/comment-page-xx
 					$sub2comment = $sub2 . $commentregex;
@@ -1147,14 +1135,12 @@ class WP_Rewrite {
 						// Require <permalink>/attachment/stuff form for pages because of confusion with subpages.
 						$rewrite = array_merge( $rewrite, array(
 							$sub1        => $subquery,
-							$sub1feed    => $subfeedquery,
-							$sub1feed2   => $subfeedquery,
 							$sub1comment => $subcommentquery,
 							$sub1embed   => $subembedquery
 						) );
 					}
 
-					$rewrite = array_merge( array( $sub2 => $subquery, $sub2feed => $subfeedquery, $sub2feed2 => $subfeedquery, $sub2comment => $subcommentquery, $sub2embed => $subembedquery ), $rewrite );
+					$rewrite = array_merge( array( $sub2 => $subquery, $sub2comment => $subcommentquery, $sub2embed => $subembedquery ), $rewrite );
 				}
 			}
 			// Add the rules for this dir to the accumulating $post_rewrite.
@@ -1223,7 +1209,7 @@ class WP_Rewrite {
 		$registration_pages['.*wp-register.php$'] = $this->index . '?register=true';
 
 		// Post rewrite rules.
-		$post_rewrite = $this->generate_rewrite_rules( $this->permalink_structure, EP_PERMALINK );
+		$post_rewrite = $this->generate_rewrite_rules( $this->permalink_structure, EP_PERMALINK, true, false );
 
 		/**
 		 * Filters rewrite rules used for "post" archives.
@@ -1235,7 +1221,7 @@ class WP_Rewrite {
 		$post_rewrite = apply_filters( 'post_rewrite_rules', $post_rewrite );
 
 		// Date rewrite rules.
-		$date_rewrite = $this->generate_rewrite_rules( $this->get_date_permastruct(), EP_DATE );
+		$date_rewrite = $this->generate_rewrite_rules( $this->get_date_permastruct(), EP_DATE, true, false );
 
 		/**
 		 * Filters rewrite rules used for date archives.
