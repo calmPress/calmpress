@@ -1293,21 +1293,6 @@ class WP_Rewrite {
 		 */
 		$search_rewrite = apply_filters( 'search_rewrite_rules', $search_rewrite );
 
-		// Author rewrite rules.
-		$author_rewrite = $this->generate_rewrite_rules( $this->get_author_permastruct(), EP_AUTHORS );
-
-		/**
-		 * Filters rewrite rules used for author archives.
-		 *
-		 * Likely author archives would include /author/author-name/, as well as
-		 * pagination and feed paths for author archives.
-		 *
-		 * @since 1.5.0
-		 *
-		 * @param array $author_rewrite The rewrite rules for author archives.
-		 */
-		$author_rewrite = apply_filters( 'author_rewrite_rules', $author_rewrite );
-
 		// Pages rewrite rules.
 		$page_rewrite = $this->page_rewrite_rules();
 
@@ -1362,9 +1347,9 @@ class WP_Rewrite {
 
 		// Put them together.
 		if ( $this->use_verbose_page_rules ) {
-			$this->rules = array_merge( $this->extra_rules_top, $robots_rewrite, $registration_pages, $root_rewrite, $comments_rewrite, $search_rewrite, $author_rewrite, $date_rewrite, $page_rewrite, $post_rewrite, $this->extra_rules );
+			$this->rules = array_merge( $this->extra_rules_top, $robots_rewrite, $registration_pages, $root_rewrite, $comments_rewrite, $search_rewrite, $date_rewrite, $page_rewrite, $post_rewrite, $this->extra_rules );
 		} else {
-			$this->rules = array_merge( $this->extra_rules_top, $robots_rewrite, $registration_pages, $root_rewrite, $comments_rewrite, $search_rewrite, $author_rewrite, $date_rewrite, $post_rewrite, $page_rewrite, $this->extra_rules );
+			$this->rules = array_merge( $this->extra_rules_top, $robots_rewrite, $registration_pages, $root_rewrite, $comments_rewrite, $search_rewrite, $date_rewrite, $post_rewrite, $page_rewrite, $this->extra_rules );
 		}
 
 		/**
