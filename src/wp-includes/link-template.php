@@ -605,7 +605,7 @@ function the_feed_link( $anchor, $feed = '' ) {
  * @param string $feed Optional. Feed type. Default empty.
  * @return string The feed permalink.
  */
-function get_feed_link( $feed = '' ) {
+function get_feed_link( $feed = 'feed' ) {
 	global $wp_rewrite;
 
 	$permalink = $wp_rewrite->get_feed_permastruct();
