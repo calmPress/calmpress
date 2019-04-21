@@ -269,7 +269,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			$addl_path = '';
 			if ( is_feed() && in_array( get_query_var( 'feed' ), $wp_rewrite->feeds ) ) {
 				$addl_path = ! empty( $addl_path ) ? trailingslashit( $addl_path ) : '';
-				$addl_path .= user_trailingslashit( 'feed/' . ( ( get_default_feed() == get_query_var( 'feed' ) || 'feed' == get_query_var( 'feed' ) ) ? '' : get_query_var( 'feed' ) ), 'feed' );
+				$addl_path .= user_trailingslashit( ( ( get_default_feed() == get_query_var( 'feed' ) || 'feed' == get_query_var( 'feed' ) ) ? 'feed' : get_query_var( 'feed' ) ), 'feed' );
 				$redirect['query'] = remove_query_arg( 'feed', $redirect['query'] );
 			}
 

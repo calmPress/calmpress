@@ -771,7 +771,7 @@ function get_term_feed_link( $term_id, $taxonomy = 'category', $feed = '' ) {
 	if ( $feed == get_default_feed() ) {
 		$feed_link = 'feed';
 	} else {
-		$feed_link = "feed/$feed";
+		$feed_link = "$feed";
 	}
 
 	$link = trailingslashit( $link ) . user_trailingslashit( $feed_link, 'feed' );
@@ -1039,7 +1039,7 @@ function get_search_feed_link( $search_query = '', $feed = '' ) {
 		$link = add_query_arg( 'feed', $feed, $link );
 	} else {
 		$link  = trailingslashit( $link );
-		$link .= "feed/$feed/";
+		$link .= "$feed/";
 	}
 
 	/**

@@ -554,7 +554,6 @@ class WP_Post_Type {
 				add_rewrite_rule( "{$archive_slug}/?$", "index.php?post_type=$this->name", 'top' );
 				if ( $this->rewrite['feeds'] && $wp_rewrite->feeds ) {
 					$feeds = '(' . trim( implode( '|', $wp_rewrite->feeds ) ) . ')';
-					add_rewrite_rule( "{$archive_slug}/feed/$feeds/?$", "index.php?post_type=$this->name" . '&feed=$matches[1]', 'top' );
 					add_rewrite_rule( "{$archive_slug}/$feeds/?$", "index.php?post_type=$this->name" . '&feed=$matches[1]', 'top' );
 				}
 				if ( $this->rewrite['pages'] ) {

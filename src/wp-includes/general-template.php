@@ -616,7 +616,7 @@ function bloginfo( $show = '' ) {
  *   will take precedence over this value
  * - 'template_url' / 'template_directory' - URL of the active theme's directory. An active
  *   child theme will NOT take precedence over this value
- * - 'atom_url' - The Atom feed URL (/feed/atom)
+ * - 'atom_url' - The Atom feed URL (/atom)
  * - 'rdf_url' - Deprecated in calmPress, returns the rss2 feed for backward compatibility.
  * - 'rss_url' - Deprecated in calmPress, returns the rss2 feed for backward compatibility.
  * - 'rss2_url' - The RSS 2.0 feed URL (/feed)

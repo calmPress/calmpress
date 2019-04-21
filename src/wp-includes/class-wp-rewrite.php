@@ -847,12 +847,6 @@ class WP_Rewrite {
 		}
 		$feedregex2 = '(' . trim( $feedregex2, '|' ) . ')/?$';
 
-		/*
-		 * $feedregex is identical but with /feed/ added on as well, so URLs like <permalink>/feed/atom
-		 * and <permalink>/atom are both possible
-		 */
-		$feedregex = $this->feed_base . '/' . $feedregex2;
-
 		// Build a regex to match the page/xx part of URLs.
 		$pageregex    = $this->pagination_base . '/?([0-9]{1,})/?$';
 		$commentregex = $this->comments_pagination_base . '-([0-9]{1,})/?$';
@@ -963,13 +957,9 @@ class WP_Rewrite {
 				$rootcommentquery = $index . '?' . $query . '&page_id=' . get_option( 'page_on_front' ) . '&cpage=' . $this->preg_index( $num_toks + 1 );
 			}
 
-			// Create query for /feed/(feed|atom|rss2).
-			$feedmatch = $match . $feedregex;
-			$feedquery = $feedindex . '?' . $query . '&feed=' . $this->preg_index( $num_toks + 1 );
-
-			// Create query for /(feed|atom|rss2) (see comment near creation of $feedregex).
+			// Create query for /(feed|atom|rss|rss2|rdf) (see comment near creation of $feedregex).
 			$feedmatch2 = $match . $feedregex2;
-			$feedquery2 = $feedindex . '?' . $query . '&feed=' . $this->preg_index( $num_toks + 1 );
+			$feedquery2 = $feedindex . '?' . $query . '&feed=' . $this->preg_index($num_toks + 1);
 
 			// Create query and regex for embeds.
 			$embedmatch = $match . $embedregex;
@@ -978,10 +968,9 @@ class WP_Rewrite {
 			// Start creating the array of rewrites for this dir.
 			$rewrite = array();
 
-			// ...adding on /feed/ regexes => queries
+			// ...adding on feed regexes => queries
 			if ( $feed ) {
 				$rewrite = array(
-					$feedmatch  => $feedquery,
 					$feedmatch2 => $feedquery2,
 					$embedmatch => $embedquery,
 				);
@@ -1241,7 +1230,7 @@ class WP_Rewrite {
 		 * Filters rewrite rules used for root-level archives.
 		 *
 		 * Likely root-level archives would include pagination rules for the homepage
-		 * as well as site-wide post feeds (e.g. /feed/, and /feed/atom/).
+		 * as well as site-wide post feeds (e.g. /feed/).
 		 *
 		 * @since 1.5.0
 		 *
@@ -1253,7 +1242,7 @@ class WP_Rewrite {
 		$comments_rewrite = $this->generate_rewrite_rules( $this->root . $this->comments_base, EP_COMMENTS, false, false, true, false );
 
 		/**
-		 * Filters rewrite rules used for comment feed archives.
+		 * Filters rewrite rules used for comment archives.
 		 *
 		 * Likely comments feed archives include /comments/feed/, and /comments/feed/atom/.
 		 *
