@@ -214,13 +214,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		self::factory()->post->create(); // @test_404
 		$feeds = array( 'feed', 'rss2', 'atom' );
 
-		// long version
-		foreach ( $feeds as $feed ) {
-			$this->go_to( "/feed/{$feed}/" );
-			$this->assertQueryTrue( 'is_feed' );
-		}
-
-		// short version
 		foreach ( $feeds as $feed ) {
 			$this->go_to( "/{$feed}/" );
 			$this->assertQueryTrue( 'is_feed' );
@@ -250,14 +243,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	// 'search/(.+)/feed/(feed|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
 	// 'search/(.+)/(feed|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
 	function test_search_feed() {
-		// check the long form
-		$types = array( 'feed', 'rss2', 'atom' );
-		foreach ( $types as $type ) {
-				$this->go_to( "/search/test/feed/{$type}" );
-				$this->assertQueryTrue( 'is_feed', 'is_search' );
-		}
-
-		// check the short form
 		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/search/test/{$type}" );
@@ -345,14 +330,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 				'taxonomy' => 'post_tag',
 			)
 		);
-		// check the long form
-		$types = array( 'feed', 'rss2', 'atom' );
-		foreach ( $types as $type ) {
-				$this->go_to( "/tag/tag-a/feed/{$type}" );
-				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_tag' );
-		}
 
-		// check the short form
 		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 				$this->go_to( "/tag/tag-a/{$type}" );

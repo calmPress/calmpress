@@ -113,7 +113,7 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 			array( '/2012/11/51/', '/2012/11/', 0, array( 'WP_Date_Query' ) ),
 
 			// Feeds
-			array( '/?feed=atom', '/feed/atom/' ),
+			array( '/?feed=atom', '/atom/' ),
 			array( '/?feed=rss2', '/feed/' ),
 
 			// Index

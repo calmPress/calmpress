@@ -92,7 +92,7 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 	 * with the expected child elements and attributes.
 	 */
 	function test_feed_element() {
-		$this->go_to( '/feed/atom' );
+		$this->go_to( '/atom' );
 		$feed = $this->do_atom();
 		$xml  = xml_to_array( $feed );
 
@@ -129,7 +129,7 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 
 		// Verify the <feed> element is present and contains a <link rel="href"> child element.
 		$this->assertEquals( 'self', $link[1]['attributes']['rel'] );
-		$this->assertEquals( home_url( '/feed/atom' ), $link[1]['attributes']['href'] );
+		$this->assertEquals( home_url( '/atom' ), $link[1]['attributes']['href'] );
 	}
 
 	/**
@@ -138,7 +138,7 @@ class Tests_Feeds_Atom extends WP_UnitTestCase {
 	function test_entry_elements() {
 		global $post;
 
-		$this->go_to( '/feed/atom' );
+		$this->go_to( '/atom' );
 		$feed = $this->do_atom();
 		$xml  = xml_to_array( $feed );
 
