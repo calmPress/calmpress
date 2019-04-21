@@ -616,7 +616,7 @@ function get_feed_link( $feed = '' ) {
 		}
 
 		if ( get_default_feed() == $feed ) {
-			$feed = '';
+			$feed = 'feed';
 		}
 
 		$permalink = str_replace( '%feed%', $feed, $permalink );
