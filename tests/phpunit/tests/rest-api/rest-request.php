@@ -581,10 +581,6 @@ class Tests_REST_Request extends WP_UnitTestCase {
 				'permalink_structure' => '/%post_name%/',
 				'original_url'        => 'http://' . WP_TESTS_DOMAIN . '/wp-json/wp/v2/posts/1?foo=bar',
 			),
-			array(
-				'permalink_structure' => '',
-				'original_url'        => 'http://' . WP_TESTS_DOMAIN . '/index.php?rest_route=%2Fwp%2Fv2%2Fposts%2F1&foo=bar',
-			),
 		);
 	}
 
