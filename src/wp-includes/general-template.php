@@ -620,8 +620,8 @@ function bloginfo( $show = '' ) {
  * - 'rdf_url' - Deprecated in calmPress, returns the rss2 feed for backward compatibility.
  * - 'rss_url' - Deprecated in calmPress, returns the rss2 feed for backward compatibility.
  * - 'rss2_url' - The RSS 2.0 feed URL (/feed)
- * - 'comments_atom_url' - The comments Atom feed URL (/comments/feed)
- * - 'comments_rss2_url' - The comments RSS 2.0 feed URL (/comments/feed)
+ * - 'comments_atom_url' - The comments Atom feed URL (/comments/feed). Deprecated in calmPress.
+ * - 'comments_rss2_url' - The comments RSS 2.0 feed URL (/comments/feed). Deprecated in calmPress.
  *
  * @since 0.71
  *
@@ -650,8 +650,6 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			$output = get_feed_link( 'atom' );
 			break;
 		case 'comments_atom_url':
-			$output = get_feed_link( 'comments_atom' );
-			break;
 		case 'comments_rss2_url':
 			$output = get_feed_link( 'comments_rss2' );
 			break;

@@ -739,11 +739,12 @@ class WP_Rewrite {
 	/**
 	 * Retrieves the comment feed permalink structure.
 	 *
-	 * The permalink structure is root property, comment base property, feed
-	 * base and finally '/%feed%'. Will set the comment_feed_structure property
-	 * and then return it without attempting to set the value again.
+	 * calmPress do not support comment feeds and this function remains just
+	 * for backward compatibility, and the URLs generated are likely to end serving
+	 * a 404.
 	 *
 	 * @since 1.5.0
+	 * @since calmPress 1.0.0
 	 *
 	 * @return string|false False if not found. Permalink structure string.
 	 */
