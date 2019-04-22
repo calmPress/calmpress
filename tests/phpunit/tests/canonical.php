@@ -11,14 +11,15 @@
 class Tests_Canonical extends WP_Canonical_UnitTestCase {
 
 	public function setUp() {
-		parent::setUp();
-		wp_set_current_user( self::$author_id );
 
 		// Tests the results of adding feeds using the filter as well.
 		add_filter( 'calm_feed_types', function ( array $feeds ) {
-			$feeds[] = 'atom';
+			$feeds['atom'] = 'atom';
 			return $feeds;
 		}, 10, 1 );
+
+		parent::setUp();
+		wp_set_current_user( self::$author_id );
 	}
 
 	/**
