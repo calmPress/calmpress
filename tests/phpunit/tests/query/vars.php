@@ -39,7 +39,6 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 			'second',
 			'name',
 			'tag',
-			'feed',
 			'static',
 			'pagename',
 			'page_id',

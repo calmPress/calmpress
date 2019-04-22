@@ -351,13 +351,12 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 	/*
 	 * Check to make sure we are rendering feed templates for the search archive feeds.
-	 * e.g. https://example.com/?s=Lorem&feed=rss
 	 *
 	 * @ticket 30210
 	 */
 	function test_valid_search_feed_endpoint() {
 		// An example of an valid search feed endpoint
-		$this->go_to( '?s=Lorem&feed=rss' );
+		$this->go_to( '?s=Lorem/rss2' );
 
 		// Verify the query object is a feed.
 		$this->assertQueryTrue( 'is_feed', 'is_search' );

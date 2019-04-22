@@ -119,8 +119,9 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 			array( '/2012/11/51/', '/2012/11/', 0, array( 'WP_Date_Query' ) ),
 
 			// Feeds
-			array( '/?feed=atom', '/atom/' ),
-			array( '/?feed=rss2', '/feed/' ),
+			array( '/feed', '/feed/' ),
+			array( '/rss2', '/feed/' ),
+			array( '/atom', '/atom/' ),
 
 			// Index
 			array( '/?paged=1', '/' ),
@@ -132,8 +133,6 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 			// Misc
 			array( '/2008%20', '/2008' ),
 			array( '//2008////', '/2008/' ),
-
-			// Todo: Endpoints (feeds, trackbacks, etc), More fuzzed mixed query variables, comment paging, Home page (Static)
 		);
 	}
 }
