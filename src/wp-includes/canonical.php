@@ -257,13 +257,22 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 				$redirect['query'] = remove_query_arg( 'page', $redirect['query'] );
 		}
 
-			// paging and feeds
+		// paging and feeds.
 		if ( get_query_var( 'paged' ) || is_feed() || get_query_var( 'cpage' ) ) {
-			while ( preg_match( "#/$wp_rewrite->pagination_base/?[0-9]+?(/+)?$#", $redirect['path'] ) || preg_match( '#/(feed|atom|rss2)(/+)?$#', $redirect['path'] ) || preg_match( "#/{$wp_rewrite->comments_pagination_base}-[0-9]+(/+)?$#", $redirect['path'] ) ) {
-				// Strip off paging and feed
-				$redirect['path'] = preg_replace( "#/$wp_rewrite->pagination_base/?[0-9]+?(/+)?$#", '/', $redirect['path'] ); // strip off any existing paging
-				$redirect['path'] = preg_replace( '#/(feed|rss2?|atom)(/+|$)#', '/', $redirect['path'] ); // strip off feed endings
-				$redirect['path'] = preg_replace( "#/{$wp_rewrite->comments_pagination_base}-[0-9]+?(/+)?$#", '/', $redirect['path'] ); // strip off any existing comment paging
+			/**
+			 * Filters the supported feed names array.
+			 *
+			 * @since calmPress 1.0.0
+			 *
+			 * @param string[] $feeds Array with feed names which are URL endpoints as well.
+			 */
+			$feed_types   = (array) apply_filters( 'calm_feed_types', [ 'feed', 'rss2' ] );
+			$feeds_string = join( '|', $feed_types ); // Joing into a format that can be use in regex.
+			while ( preg_match( "#/$wp_rewrite->pagination_base/?[0-9]+?(/+)?$#", $redirect['path'] ) || preg_match( '#/(' . $feeds_string . ')(/+)?$#', $redirect['path'] ) || preg_match( "#/{$wp_rewrite->comments_pagination_base}-[0-9]+(/+)?$#", $redirect['path'] ) ) {
+				// Strip off paging and feed.
+				$redirect['path'] = preg_replace( "#/$wp_rewrite->pagination_base/?[0-9]+?(/+)?$#", '/', $redirect['path'] ); // strip off any existing paging.
+				$redirect['path'] = preg_replace( '#/(' . $feeds_string . ')(/+|$)#', '/', $redirect['path'] ); // strip off feed endings.
+				$redirect['path'] = preg_replace( "#/{$wp_rewrite->comments_pagination_base}-[0-9]+?(/+)?$#", '/', $redirect['path'] ); // strip off any existing comment paging.
 			}
 
 			$addl_path = '';

@@ -73,7 +73,7 @@ function bloginfo_rss( $show = '' ) {
  *
  * @since 2.5.0
  *
- * @return string Default feed, or for example 'rss2', 'atom', etc.
+ * @return string Default feed, or for example 'rss2', etc.
  */
 function get_default_feed() {
 	/**
@@ -81,8 +81,7 @@ function get_default_feed() {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @param string $feed_type Type of default feed. Possible values include 'rss2', 'atom'.
-	 *                          Default 'rss2'.
+	 * @param string $feed_type Type of default feed.
 	 */
 	$default_feed = apply_filters( 'default_feed', 'rss2' );
 	return $default_feed;
@@ -168,7 +167,7 @@ function the_title_rss() {
  * @since 2.9.0
  * @see get_the_content()
  *
- * @param string $feed_type The type of feed. rss2 | atom | rss
+ * @param string $feed_type The type of feed.
  * @return string The filtered content.
  */
 function get_the_content_feed( $feed_type = null ) {
@@ -185,8 +184,7 @@ function get_the_content_feed( $feed_type = null ) {
 	 * @since 2.9.0
 	 *
 	 * @param string $content   The current post content.
-	 * @param string $feed_type Type of feed. Possible values include 'rss2', 'atom'.
-	 *                          Default 'rss2'.
+	 * @param string $feed_type Type of feed.
 	 */
 	return apply_filters( 'the_content_feed', $content, $feed_type );
 }
@@ -196,7 +194,7 @@ function get_the_content_feed( $feed_type = null ) {
  *
  * @since 2.9.0
  *
- * @param string $feed_type The type of feed. rss2 | atom | rss
+ * @param string $feed_type The type of feed.
  */
 function the_content_feed( $feed_type = null ) {
 	echo get_the_content_feed( $feed_type );
@@ -308,7 +306,7 @@ function comment_link( $comment = null ) {
  *
  * All of the categories for the current post in the feed loop, will be
  * retrieved and have feed markup added, so that they can easily be added to the
- * RSS2, Atom, or RSS1 feeds.
+ * feeds.
  *
  * @since 2.1.0
  *
@@ -324,10 +322,15 @@ function get_the_category_rss( $type = null ) {
 	$the_list   = '';
 	$cat_names  = array();
 
-	$filter = 'rss';
-	if ( 'atom' == $type ) {
-		$filter = 'raw';
-	}
+	/**
+	 * Filters the type of sanitization to be done to a category name.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $sanitization Type of sanitization.
+	 * @param string $type         Type of feed.
+	 */
+	$filter = apply_filter( 'calm_feed_category_name_sanitization_type', 'rss', $type );
 
 	if ( ! empty( $categories ) ) {
 		foreach ( (array) $categories as $category ) {
@@ -344,11 +347,19 @@ function get_the_category_rss( $type = null ) {
 	$cat_names = array_unique( $cat_names );
 
 	foreach ( $cat_names as $cat_name ) {
-		if ( 'atom' == $type ) {
-			$the_list .= sprintf( '<category scheme="%1$s" term="%2$s" />', esc_attr( get_bloginfo_rss( 'url' ) ), esc_attr( $cat_name ) );
-		} else {
-			$the_list .= "\t\t<category><![CDATA[" . @html_entity_decode( $cat_name, ENT_COMPAT, get_option( 'blog_charset' ) ) . "]]></category>\n";
-		}
+
+		$element = "\t\t<category><![CDATA[" . @html_entity_decode( $cat_name, ENT_COMPAT, get_option( 'blog_charset' ) ) . "]]></category>\n";
+
+		/**
+		 * Filters the content of the category name element.
+		 *
+		 * @since calmPress 1.0.0
+		 *
+		 * @param string $element  The element.
+		 * @param string $cat_name The category name.
+		 * @param string $type     Type of feed.
+		 */
+		$the_list .= apply_filter( 'calm_feed_category_name_element', $element, $cat_name, $type );
 	}
 
 	/**
@@ -357,8 +368,7 @@ function get_the_category_rss( $type = null ) {
 	 * @since 1.2.0
 	 *
 	 * @param string $the_list All of the RSS post categories.
-	 * @param string $type     Type of feed. Possible values include 'rss2', 'atom'.
-	 *                         Default 'rss2'.
+	 * @param string $type     Type of feed.
 	 */
 	return apply_filters( 'the_category_rss', $the_list, $type );
 }
@@ -376,7 +386,7 @@ function the_category_rss( $type = null ) {
 }
 
 /**
- * Display the HTML type based on the blog setting.
+* Display the HTML type based on the blog setting.
  *
  * The two possible values are either 'xhtml' or 'html'.
  *
@@ -427,101 +437,6 @@ function rss_enclosure() {
 				echo apply_filters( 'rss_enclosure', '<enclosure url="' . esc_url( trim( $enclosure[0] ) ) . '" length="' . absint( trim( $enclosure[1] ) ) . '" type="' . esc_attr( $type ) . '" />' . "\n" );
 			}
 		}
-	}
-}
-
-/**
- * Display the atom enclosure for the current post.
- *
- * Uses the global $post to check whether the post requires a password and if
- * the user has the password for the post. If not then it will return before
- * displaying.
- *
- * Also uses the function get_post_custom() to get the post's 'enclosure'
- * metadata field and parses the value to display the enclosure(s). The
- * enclosure(s) consist of link HTML tag(s) with a URI and other attributes.
- *
- * @since 2.2.0
- */
-function atom_enclosure() {
-
-	foreach ( (array) get_post_custom() as $key => $val ) {
-		if ( $key == 'enclosure' ) {
-			foreach ( (array) $val as $enc ) {
-				$enclosure = explode( "\n", $enc );
-				/**
-				 * Filters the atom enclosure HTML link tag for the current post.
-				 *
-				 * @since 2.2.0
-				 *
-				 * @param string $html_link_tag The HTML link tag with a URI and other attributes.
-				 */
-				echo apply_filters( 'atom_enclosure', '<link href="' . esc_url( trim( $enclosure[0] ) ) . '" rel="enclosure" length="' . absint( trim( $enclosure[1] ) ) . '" type="' . esc_attr( trim( $enclosure[2] ) ) . '" />' . "\n" );
-			}
-		}
-	}
-}
-
-/**
- * Determine the type of a string of data with the data formatted.
- *
- * Tell whether the type is text, html, or xhtml, per RFC 4287 section 3.1.
- *
- * In the case of WordPress, text is defined as containing no markup,
- * xhtml is defined as "well formed", and html as tag soup (i.e., the rest).
- *
- * Container div tags are added to xhtml values, per section 3.1.1.3.
- *
- * @link http://www.atomenabled.org/developers/syndication/atom-format-spec.php#rfc.section.3.1
- *
- * @since 2.5.0
- *
- * @param string $data Input string
- * @return array array(type, value)
- */
-function prep_atom_text_construct( $data ) {
-	if ( strpos( $data, '<' ) === false && strpos( $data, '&' ) === false ) {
-		return array( 'text', $data );
-	}
-
-	if ( ! function_exists( 'xml_parser_create' ) ) {
-		trigger_error( __( "PHP's XML extension is not available. Please contact your hosting provider to enable PHP's XML extension." ) );
-
-		return array( 'html', "<![CDATA[$data]]>" );
-	}
-
-	$parser = xml_parser_create();
-	xml_parse( $parser, '<div>' . $data . '</div>', true );
-	$code = xml_get_error_code( $parser );
-	xml_parser_free( $parser );
-
-	if ( ! $code ) {
-		if ( strpos( $data, '<' ) === false ) {
-			return array( 'text', $data );
-		} else {
-			$data = "<div xmlns='http://www.w3.org/1999/xhtml'>$data</div>";
-			return array( 'xhtml', $data );
-		}
-	}
-
-	if ( strpos( $data, ']]>' ) === false ) {
-		return array( 'html', "<![CDATA[$data]]>" );
-	} else {
-		return array( 'html', htmlspecialchars( $data ) );
-	}
-}
-
-/**
- * Displays Site Icon in atom feeds.
- *
- * @since 4.3.0
- *
- * @see get_site_icon_url()
- */
-function atom_site_icon() {
-	$url = get_site_icon_url( 32 );
-	if ( $url ) {
-		echo "<icon>$url</icon>\n";
 	}
 }
 
@@ -583,12 +498,7 @@ function feed_content_type( $type = '' ) {
 		$type = get_default_feed();
 	}
 
-	$types = array(
-		'rss2'     => 'application/rss+xml',
-		'atom'     => 'application/atom+xml',
-	);
-
-	$content_type = ( ! empty( $types[ $type ] ) ) ? $types[ $type ] : 'application/octet-stream';
+	$content_type = ( 'rss' === $type ) ? 'application/rss+xml' : 'application/octet-stream';
 
 	/**
 	 * Filters the content type for a specific feed type.
@@ -596,7 +506,7 @@ function feed_content_type( $type = '' ) {
 	 * @since 2.8.0
 	 *
 	 * @param string $content_type Content type indicating the type of data that a feed contains.
-	 * @param string $type         Type of feed. Possible values include rss2', and 'atom'.
+	 * @param string $type         Type of feed.
 	 */
 	return apply_filters( 'feed_content_type', $content_type, $type );
 }

@@ -327,7 +327,7 @@ class WP_Rewrite {
 	 * @since 1.5.0
 	 * @var array
 	 */
-	public $feeds = array( 'feed', 'rss2', 'atom' );
+	public $feeds = array( 'feed', 'rss2' );
 
 	/**
 	 * Determines whether permalinks are being used.
@@ -841,9 +841,19 @@ class WP_Rewrite {
 	 * @return array Rewrite rule list.
 	 */
 	public function generate_rewrite_rules( $permalink_structure, $ep_mask = EP_NONE, $paged = true, $feed = true, $forcomments = false, $walk_dirs = true, $endpoints = true ) {
-		// Build a regex to match the feed section of URLs, something like (feed|atom|rss2)/?
+		// Build a regex to match the feed section of URLs, something like (feed|rss2)/?
 		$feedregex2 = '';
-		foreach ( (array) $this->feeds as $feed_name ) {
+
+		/**
+		 * Filters the supported feed names array.
+		 *
+		 * @since calmPress 1.0.0
+		 *
+		 * @param string[] $feeds Array with feed names which are URL endpoints as well.
+		 */
+		$feed_types = (array) apply_filters( 'calm_feed_types', $this->feeds );
+
+		foreach ( $feed_types as $feed_name ) {
 			$feedregex2 .= $feed_name . '|';
 		}
 		$feedregex2 = '(' . trim( $feedregex2, '|' ) . ')/?$';
@@ -958,7 +968,7 @@ class WP_Rewrite {
 				$rootcommentquery = $index . '?' . $query . '&page_id=' . get_option( 'page_on_front' ) . '&cpage=' . $this->preg_index( $num_toks + 1 );
 			}
 
-			// Create query for /(feed|atom|rss|rss2|rdf) (see comment near creation of $feedregex).
+			// Create query for /(feed|rss2) (see comment near creation of $feedregex).
 			$feedmatch2 = $match . $feedregex2;
 			$feedquery2 = $feedindex . '?' . $query . '&feed=' . $this->preg_index($num_toks + 1);
 
@@ -1245,7 +1255,7 @@ class WP_Rewrite {
 		/**
 		 * Filters rewrite rules used for comment archives.
 		 *
-		 * Likely comments feed archives include /comments/feed/, and /comments/feed/atom/.
+		 * Likely comments feed archives include /comments/feed/, and /comments/feed/rss2/.
 		 *
 		 * @since 1.5.0
 		 *

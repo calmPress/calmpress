@@ -234,34 +234,6 @@ function remove_permastruct( $name ) {
 }
 
 /**
- * Add a new feed type like /atom1/.
- *
- * @since 2.1.0
- *
- * @global WP_Rewrite $wp_rewrite
- *
- * @param string   $feedname Feed name.
- * @param callable $function Callback to run on feed display.
- * @return string Feed action name.
- */
-function add_feed( $feedname, $function ) {
-	global $wp_rewrite;
-
-	if ( ! in_array( $feedname, $wp_rewrite->feeds ) ) {
-		$wp_rewrite->feeds[] = $feedname;
-	}
-
-	$hook = 'do_feed_' . $feedname;
-
-	// Remove default function hook
-	remove_action( $hook, $hook );
-
-	add_action( $hook, $function, 10, 2 );
-
-	return $hook;
-}
-
-/**
  * Remove rewrite rules and then recreate rewrite rules.
  *
  * @since 3.0.0

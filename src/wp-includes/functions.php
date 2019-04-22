@@ -1379,7 +1379,6 @@ function do_feed() {
 	 * Fires once the given feed is loaded.
 	 *
 	 * The dynamic portion of the hook name, `$feed`, refers to the feed template name.
-	 * Possible values include: 'rss2' and 'atom'.
 	 *
 	 * @since 2.1.0
 	 * @since 4.4.0 The `$feed` parameter was added.
@@ -1405,23 +1404,6 @@ function do_feed() {
  */
 function do_feed_rss2( $for_comments ) {
 	load_template( ABSPATH . WPINC . '/feed-rss2.php' );
-}
-
-/**
- * Load either Atom comment feed or Atom posts feed.
- *
- * In calmPress do not support comment feeds.
- *
- * @since 2.1.0
- * @since calmPress 1.0.0
- *
- * @see load_template()
- *
- * @param bool $for_comments True for the comment feed, false for normal feed.
- *                           Ignored in calmPress.
- */
-function do_feed_atom( $for_comments ) {
-	load_template( ABSPATH . WPINC . '/feed-atom.php' );
 }
 
 /**
