@@ -844,16 +844,7 @@ class WP_Rewrite {
 		// Build a regex to match the feed section of URLs, something like (feed|rss2)/?
 		$feedregex2 = '';
 
-		/**
-		 * Filters the supported feed names array.
-		 *
-		 * @since calmPress 1.0.0
-		 *
-		 * @param string[] $feeds Array with feed names which are URL endpoints as well.
-		 */
-		$feed_types = (array) apply_filters( 'calm_feed_types', $this->feeds );
-
-		foreach ( $feed_types as $feed_name ) {
+		foreach ( $this->feeds as $feed_name ) {
 			$feedregex2 .= $feed_name . '|';
 		}
 		$feedregex2 = '(' . trim( $feedregex2, '|' ) . ')/?$';
@@ -1803,6 +1794,15 @@ class WP_Rewrite {
 		$this->permalink_structure = get_option( 'permalink_structure' );
 		$this->front               = substr( $this->permalink_structure, 0, strpos( $this->permalink_structure, '%' ) );
 		$this->root                = '';
+
+		/**
+		 * Filters the supported feed names array.
+		 *
+		 * @since calmPress 1.0.0
+		 *
+		 * @param string[] $feeds Array with feed names which are URL endpoints as well.
+		 */
+		$this->feeds = (array) apply_filters( 'calm_feed_types', $this->feeds );
 
 		unset( $this->author_structure );
 		unset( $this->date_structure );

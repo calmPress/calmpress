@@ -259,15 +259,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 
 		// paging and feeds.
 		if ( get_query_var( 'paged' ) || is_feed() || get_query_var( 'cpage' ) ) {
-			/**
-			 * Filters the supported feed names array.
-			 *
-			 * @since calmPress 1.0.0
-			 *
-			 * @param string[] $feeds Array with feed names which are URL endpoints as well.
-			 */
-			$feed_types   = (array) apply_filters( 'calm_feed_types', [ 'feed', 'rss2' ] );
-			$feeds_string = join( '|', $feed_types ); // Joining into a format that can be use in regex.
+			$feeds_string = join( '|', $wp_rewrite->feeds ); // Joining into a format that can be use in regex.
 			while ( preg_match( "#/$wp_rewrite->pagination_base/?[0-9]+?(/+)?$#", $redirect['path'] ) || preg_match( '#/(' . $feeds_string . ')(/+)?$#', $redirect['path'] ) || preg_match( "#/{$wp_rewrite->comments_pagination_base}-[0-9]+(/+)?$#", $redirect['path'] ) ) {
 				// Strip off paging and feed.
 				$redirect['path'] = preg_replace( "#/$wp_rewrite->pagination_base/?[0-9]+?(/+)?$#", '/', $redirect['path'] ); // strip off any existing paging.
@@ -276,7 +268,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			}
 
 			$addl_path = '';
-			if ( is_feed() && in_array( get_query_var( 'feed' ), $feed_types ) ) {
+			if ( is_feed() && in_array( get_query_var( 'feed' ), $wp_rewrite->feeds ) ) {
 				$addl_path = ! empty( $addl_path ) ? trailingslashit( $addl_path ) : '';
 				$addl_path .= user_trailingslashit( ( ( get_default_feed() == get_query_var( 'feed' ) || 'feed' == get_query_var( 'feed' ) ) ? 'feed' : get_query_var( 'feed' ) ), 'feed' );
 				$redirect['query'] = remove_query_arg( 'feed', $redirect['query'] );
