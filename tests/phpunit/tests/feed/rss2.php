@@ -356,7 +356,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 */
 	function test_valid_search_feed_endpoint() {
 		// An example of an valid search feed endpoint
-		$this->go_to( '?s=Lorem/rss2' );
+		$this->go_to( '/search/Lorem/rss2' );
 
 		// Verify the query object is a feed.
 		$this->assertQueryTrue( 'is_feed', 'is_search' );
