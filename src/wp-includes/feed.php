@@ -330,7 +330,7 @@ function get_the_category_rss( $type = null ) {
 	 * @param string $sanitization Type of sanitization.
 	 * @param string $type         Type of feed.
 	 */
-	$filter = apply_filter( 'calm_feed_category_name_sanitization_type', 'rss', $type );
+	$filter = apply_filters( 'calm_feed_category_name_sanitization_type', 'rss', $type );
 
 	if ( ! empty( $categories ) ) {
 		foreach ( (array) $categories as $category ) {
@@ -359,7 +359,7 @@ function get_the_category_rss( $type = null ) {
 		 * @param string $cat_name The category name.
 		 * @param string $type     Type of feed.
 		 */
-		$the_list .= apply_filter( 'calm_feed_category_name_element', $element, $cat_name, $type );
+		$the_list .= apply_filters( 'calm_feed_category_name_element', $element, $cat_name, $type );
 	}
 
 	/**
