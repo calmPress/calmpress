@@ -110,6 +110,8 @@ $_old_files = array(
 	'wp-includes/js/codemirror/jshint.js',
 	'wp-includes/random_compat/random_bytes_openssl.php',
 	'wp-includes/js/tinymce/wp-tinymce.js.gz',
+	'wp-includes/feed-atom.php',
+	'wp-includes/atomlib.php',
 );
 
 /**
