@@ -285,7 +285,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			)
 		);
 
-		// check the short form
 		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 			$this->go_to( "/category/cat-a/{$type}" );

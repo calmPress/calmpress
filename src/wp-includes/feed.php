@@ -493,8 +493,8 @@ function self_link() {
  *
  * @param string $type Type of feed. Possible values include rss2' and 'atom'.
  */
-function feed_content_type( $type = '' ) {
-	if ( empty( $type ) ) {
+function feed_content_type( $type = 'feed' ) {
+	if ( 'feed' === $type ) {
 		$type = get_default_feed();
 	}
 
