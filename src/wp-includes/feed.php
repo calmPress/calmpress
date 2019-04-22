@@ -498,7 +498,7 @@ function feed_content_type( $type = 'feed' ) {
 		$type = get_default_feed();
 	}
 
-	$content_type = ( 'rss' === $type ) ? 'application/rss+xml' : 'application/octet-stream';
+	$content_type = ( 'rss2' === $type ) ? 'application/rss+xml' : 'application/octet-stream';
 
 	/**
 	 * Filters the content type for a specific feed type.
