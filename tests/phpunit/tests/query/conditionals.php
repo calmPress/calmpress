@@ -25,6 +25,13 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
 		create_initial_taxonomies();
+
+		// Tests the results of adding feeds using the filter as well.
+		add_filter( 'calm_feed_types', function ( array $feeds ) {
+			$feeds[] = 'atom';
+			return $feeds;
+		}, 10, 1 );
+
 	}
 
 	function test_home() {
@@ -205,11 +212,11 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 	// FIXME: no tests for these yet
 	// 'about/attachment/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
-	// 'about/attachment/([^/]+)/feed/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
-	// 'about/attachment/([^/]+)/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
+	// 'about/attachment/([^/]+)/feed/(feed|rss2)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
+	// 'about/attachment/([^/]+)/(feed|rss2)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 
-	// 'feed/(feed|rss2|atom)/?$' => 'index.php?&feed=$matches[1]',
-	// '(feed|rss2|atom)/?$' => 'index.php?&feed=$matches[1]',
+	// 'feed/(feed|rss2)/?$' => 'index.php?&feed=$matches[1]',
+	// '(feed|rss2)/?$' => 'index.php?&feed=$matches[1]',
 	function test_main_feed_2() {
 		self::factory()->post->create(); // @test_404
 		$feeds = array( 'feed', 'rss2', 'atom' );
@@ -240,8 +247,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		}
 	}
 
-	// 'search/(.+)/feed/(feed|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
-	// 'search/(.+)/(feed|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
+	// 'search/(.+)/feed/(feed|rss2)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
+	// 'search/(.+)/(feed|rss2)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
 	function test_search_feed() {
 		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
@@ -272,8 +279,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertEquals( get_query_var( 's' ), 'Fünf+bar' );
 	}
 
-	// 'category/(.+?)/feed/(feed|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
-	// 'category/(.+?)/(feed|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
+	// 'category/(.+?)/feed/(feed|rss2)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
+	// 'category/(.+?)/(feed|rss2)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
 	function test_category_feed() {
 		self::factory()->term->create(
 			array(
@@ -321,8 +328,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_archive', 'is_category' );
 	}
 
-	// 'tag/(.+?)/feed/(feed|rss2|atom)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
-	// 'tag/(.+?)/(feed|rss2|atom)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
+	// 'tag/(.+?)/feed/(feed|rss2)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
+	// 'tag/(.+?)/(feed|rss2)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
 	function test_tag_feed() {
 		self::factory()->term->create(
 			array(
@@ -444,12 +451,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->go_to( $permalink );
 		$this->assertQueryTrue( 'is_single', 'is_attachment', 'is_singular' );
 	}
-
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/feed/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/feed/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/(feed|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 
 	/**
 	 * @expectedIncorrectUsage WP_Date_Query
