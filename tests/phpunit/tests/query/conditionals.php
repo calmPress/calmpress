@@ -226,6 +226,12 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			$this->assertQueryTrue( 'is_feed' );
 		}
 
+		// Test for 404 when feeds are disabled.
+		update_option( 'posts_per_rss', 0 );
+		foreach ( $feeds as $feed ) {
+			$this->go_to( "/{$feed}/" );
+			$this->assertQueryTrue( 'is_404' );
+		}
 	}
 
 	function test_main_feed() {
@@ -234,6 +240,13 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		foreach ( $types as $type ) {
 			$this->go_to( get_feed_link( $type ) );
 			$this->assertQueryTrue( 'is_feed' );
+		}
+
+		// Test for 404 when feeds are disabled.
+		update_option( 'posts_per_rss', 0 );
+		foreach ( $types as $type ) {
+			$this->go_to( get_feed_link( $type ) );
+			$this->assertQueryTrue( 'is_404' );
 		}
 	}
 
@@ -253,6 +266,13 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		foreach ( $types as $type ) {
 				$this->go_to( "/search/test/{$type}" );
 				$this->assertQueryTrue( 'is_feed', 'is_search' );
+		}
+
+		// Test for 404 when feeds are disabled.
+		update_option( 'posts_per_rss', 0 );
+		foreach ( $types as $type ) {
+			$this->go_to( "/search/test/{$type}" );
+			$this->assertQueryTrue( 'is_404' );
 		}
 	}
 
@@ -293,6 +313,17 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			$this->go_to( "/category/cat-a/{$type}" );
 			$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_category' );
 		}
+
+		// Yeh ugly hack, but there is no sane way to reinitialize the object.
+		global $wp_rewrite;
+		$wp_rewrite->extra_rules_top = [];
+
+		// Test for 404 when feeds are disabled.
+		update_option( 'posts_per_rss', 0 );
+		foreach ( $types as $type ) {
+			$this->go_to( "/category/cat-a/{$type}" );
+			$this->assertQueryTrue( 'is_404' );
+		}
 	}
 
 	// 'category/(.+?)/page/?([0-9]{1,})/?$' => 'index.php?category_name=$matches[1]&paged=$matches[2]',
@@ -332,6 +363,17 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		foreach ( $types as $type ) {
 				$this->go_to( "/tag/tag-a/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_tag' );
+		}
+
+		// Yeh ugly hack, but there is no sane way to reinitialize the object.
+		global $wp_rewrite;
+		$wp_rewrite->extra_rules_top = [];
+
+		// Test a 404 when feeds are disabled.
+		update_option( 'posts_per_rss', 0 );
+		foreach ( $types as $type ) {
+			$this->go_to( "/tag/tag-a/{$type}" );
+			$this->assertQueryTrue( 'is_404' );
 		}
 	}
 
