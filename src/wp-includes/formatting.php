@@ -4361,10 +4361,12 @@ function sanitize_option( $option, $value ) {
 
 			// We need to flush the rewrite rules every time the value is set to 0
 			// or from zero to positive integer. This code is less specific than
-			// that as the performance impact is almozt zero and it is easier to
+			// that as the performance impact is almost zero and it is easier to
 			// understand this way.
 			if ( $old_value != $value ) {
-				flush_rewrite_rules( false );
+				add_action( 'update_option_posts_per_rss', function () {
+					flush_rewrite_rules( false );
+				}, 10, 3 );
 			}
 			break;
 
