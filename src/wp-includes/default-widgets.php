@@ -40,9 +40,6 @@ require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-recent-posts.php' );
 /** WP_Widget_Recent_Comments class */
 require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-recent-comments.php' );
 
-/** WP_Widget_RSS class */
-require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-rss.php' );
-
 /** WP_Widget_Tag_Cloud class */
 require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-tag-cloud.php' );
 
