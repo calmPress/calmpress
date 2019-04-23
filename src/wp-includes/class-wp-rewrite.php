@@ -1285,6 +1285,7 @@ class WP_Rewrite {
 		$page_rewrite = apply_filters( 'page_rewrite_rules', $page_rewrite );
 
 		// Extra permastructs.
+		$this->extra_rules_top = [];
 		foreach ( $this->extra_permastructs as $permastructname => $struct ) {
 			if ( is_array( $struct ) ) {
 				if ( count( $struct ) == 2 ) {
