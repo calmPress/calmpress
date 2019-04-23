@@ -972,10 +972,12 @@ class WP_Rewrite {
 
 			// ...adding on feed regexes => queries
 			if ( $feed ) {
-				$rewrite = array(
-					$feedmatch2 => $feedquery2,
-					$embedmatch => $embedquery,
-				);
+				$rewrite[ $embedmatch ] = $embedquery;
+
+				// In case feeds are off (number of items is 0), do not generate feed rules.
+				if ( 0 != get_option( 'posts_per_rss' ) ) {
+					$rewrite[ $feedmatch2 ] = $feedquery2;
+				}
 			}
 
 			//...and /page/xx ones

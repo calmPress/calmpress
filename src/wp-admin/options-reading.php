@@ -128,7 +128,9 @@ else :
 </tr>
 <tr>
 <th scope="row"><label for="posts_per_rss"><?php _e( 'Syndication feeds show the most recent' ); ?></label></th>
-<td><input name="posts_per_rss" type="number" step="1" min="1" id="posts_per_rss" value="<?php form_option( 'posts_per_rss' ); ?>" class="small-text" /> <?php _e( 'items' ); ?></td>
+<td><input name="posts_per_rss" type="number" step="1" min="0" id="posts_per_rss" value="<?php form_option( 'posts_per_rss' ); ?>" class="small-text" /> <?php _e( 'items' ); ?>
+<p class="description"><?php esc_html_e( 'A value of zero can be used to turn off the feeds.' ); ?></p>
+</td>
 </tr>
 <tr>
 <th scope="row"><?php _e( 'For each article in a feed, show' ); ?> </th>

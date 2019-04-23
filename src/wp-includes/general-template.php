@@ -2352,15 +2352,19 @@ function feed_links( $args = array() ) {
 
 	$args = wp_parse_args( $args, $defaults );
 
-	/**
-	 * Filters whether to display the posts feed link.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @param bool $show Whether to display the posts feed link. Default true.
-	 */
-	if ( apply_filters( 'feed_links_show_posts_feed', true ) ) {
-		echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( sprintf( $args['feedtitle'], get_bloginfo( 'name' ), $args['separator'] ) ) . '" href="' . esc_url( get_feed_link() ) . "\" />\n";
+	// In case feeds are off (number of items is 0), do not generate feed links.
+	if ( 0 != get_option( 'posts_per_rss' ) ) {
+
+		/**
+		 * Filters whether to display the posts feed link.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool $show Whether to display the posts feed link. Default true.
+		 */
+		if ( apply_filters( 'feed_links_show_posts_feed', true ) ) {
+			echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( sprintf( $args['feedtitle'], get_bloginfo( 'name' ), $args['separator'] ) ) . '" href="' . esc_url( get_feed_link() ) . "\" />\n";
+		}
 	}
 }
 
@@ -2435,8 +2439,11 @@ function feed_links_extra( $args = array() ) {
 		}
 	}
 
-	if ( isset( $title ) && isset( $href ) ) {
-		echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( $title ) . '" href="' . esc_url( $href ) . '" />' . "\n";
+	// In case feeds are off (number of items is 0), do not generate feed rules.
+	if ( 0 != get_option( 'posts_per_rss' ) ) {
+		if ( isset( $title ) && isset( $href ) ) {
+			echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( $title ) . '" href="' . esc_url( $href ) . '" />' . "\n";
+		}
 	}
 }
 
