@@ -115,7 +115,7 @@ class Tests_Admin_Includes_Schema extends WP_UnitTestCase {
 				array(),
 				array(
 					// Random options to check.
-					'posts_per_rss'    => 10,
+					'posts_per_rss'    => 0,
 					'rss_use_excerpt'  => 0,
 				),
 			),
@@ -137,7 +137,7 @@ class Tests_Admin_Includes_Schema extends WP_UnitTestCase {
 				array(
 					// Random options to check.
 					'custom_option'    => '1',
-					'posts_per_rss'    => 10,
+					'posts_per_rss'    => 0,
 					'rss_use_excerpt'  => 0,
 				),
 			),

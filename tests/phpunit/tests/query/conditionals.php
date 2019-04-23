@@ -29,7 +29,9 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		update_option( 'comments_per_page', 5 );
 		update_option( 'posts_per_page', 5 );
 
-		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+		// By default the option is 0 and rewrite rules for feeds to not work.
+		// Setting it to non zero for the tests to make sense.
+		update_option( 'posts_per_rss', 5 );
 
 		create_initial_taxonomies();
 
@@ -278,6 +280,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 	// 'category/(.+?)/(feed|rss2)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
 	function test_category_feed() {
+
 		self::factory()->term->create(
 			array(
 				'name'     => 'cat-a',
@@ -285,7 +288,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			)
 		);
 
-		$types = array( 'feed', 'rss2' );
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 			$this->go_to( "/category/cat-a/{$type}" );
 			$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_category' );

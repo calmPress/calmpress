@@ -38,6 +38,10 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		// Set a predictable time for testing date archives.
 		self::$post_date = '2003-05-27 10:07:53';
 
+		// By default the option is 0 and rewrite rules for feeds to not work.
+		// Setting it to non zero for the test to make sense.
+		update_option( 'posts_per_rss', 5 );
+
 		$count = get_option( 'posts_per_rss' ) + 1;
 
 		// Create a few posts

@@ -27,6 +27,10 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 	 */
 	function test_canonical( $test_url, $expected, $ticket = 0, $expected_doing_it_wrong = array() ) {
 
+		// By default the option is 0 and rewrite rules for feeds to not work.
+		// Setting it to non zero for the test to make sense.
+		update_option( 'posts_per_rss', 5 );
+
 		if ( false !== strpos( $test_url, '%d' ) ) {
 			if ( false !== strpos( $test_url, '/?author=%d' ) ) {
 				$test_url = sprintf( $test_url, self::$author_id );
