@@ -14,7 +14,7 @@ class WP {
 	 * @since 2.0.0
 	 * @var string[]
 	 */
-	public $public_query_vars = array('m', 'p', 'page_id', 'w', 's', 'search', 'exact', 'sentence', 'page', 'paged', 'more', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'feed', 'static', 'pagename', 'error', 'attachment', 'preview', 'robots', 'cpage', 'embed' );
+	public $public_query_vars = array('m', 'p', 'page_id', 'w', 's', 'search', 'exact', 'sentence', 'page', 'paged', 'more', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'static', 'pagename', 'error', 'attachment', 'preview', 'robots', 'cpage', 'embed' );
 
 	/**
 	 * Private query variables.
@@ -271,6 +271,11 @@ class WP {
 
 				$this->did_permalink = false;
 			}
+		}
+
+		// Add feed query var if feeds are enabled.
+		if ( 0 != get_option( 'posts_per_rss' ) ) {
+			$this->public_query_vars[] = 'feed';
 		}
 
 		/**
