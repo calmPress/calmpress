@@ -939,71 +939,6 @@ function wp_dashboard_recent_comments( $total_items = 5 ) {
 	return true;
 }
 
-/**
- * Display generic dashboard RSS widget feed.
- *
- * @since 2.5.0
- *
- * @param string $widget_id
- */
-function wp_dashboard_rss_output( $widget_id ) {
-	$widgets = get_option( 'dashboard_widget_options' );
-	echo '<div class="rss-widget">';
-	wp_widget_rss_output( $widgets[ $widget_id ] );
-	echo '</div>';
-}
-
-/**
- * Checks to see if all of the feed url in $check_urls are cached.
- *
- * If $check_urls is empty, look for the rss feed url found in the dashboard
- * widget options of $widget_id. If cached, call $callback, a function that
- * echoes out output for this widget. If not cache, echo a "Loading..." stub
- * which is later replaced by Ajax call (see top of /wp-admin/index.php)
- *
- * @since 2.5.0
- *
- * @param string $widget_id
- * @param callable $callback
- * @param array $check_urls RSS feeds
- * @return bool False on failure. True on success.
- */
-function wp_dashboard_cached_rss_widget( $widget_id, $callback, $check_urls = array() ) {
-	$loading    = '<p class="widget-loading hide-if-no-js">' . __( 'Loading&#8230;' ) . '</p><div class="hide-if-js notice notice-error inline"><p>' . __( 'This widget requires JavaScript.' ) . '</p></div>';
-	$doing_ajax = wp_doing_ajax();
-
-	if ( empty( $check_urls ) ) {
-		$widgets = get_option( 'dashboard_widget_options' );
-		if ( empty( $widgets[ $widget_id ]['url'] ) && ! $doing_ajax ) {
-			echo $loading;
-			return false;
-		}
-		$check_urls = array( $widgets[ $widget_id ]['url'] );
-	}
-
-	$locale    = get_user_locale();
-	$cache_key = 'dash_v2_' . md5( $widget_id . '_' . $locale );
-	if ( false !== ( $output = get_transient( $cache_key ) ) ) {
-		echo $output;
-		return true;
-	}
-
-	if ( ! $doing_ajax ) {
-		echo $loading;
-		return false;
-	}
-
-	if ( $callback && is_callable( $callback ) ) {
-		$args = array_slice( func_get_args(), 3 );
-		array_unshift( $args, $widget_id, $check_urls );
-		ob_start();
-		call_user_func_array( $callback, $args );
-		set_transient( $cache_key, ob_get_flush(), 12 * HOUR_IN_SECONDS ); // Default lifetime in cache of 12 hours (same as the feeds)
-	}
-
-	return true;
-}
-
 //
 // Dashboard Widgets Controls
 //
@@ -1030,54 +965,6 @@ function wp_dashboard_trigger_widget_control( $widget_control_id = false ) {
 			)
 		);
 	}
-}
-
-/**
- * The RSS dashboard widget control.
- *
- * Sets up $args to be used as input to wp_widget_rss_form(). Handles POST data
- * from RSS-type widgets.
- *
- * @since 2.5.0
- *
- * @param string $widget_id
- * @param array $form_inputs
- */
-function wp_dashboard_rss_control( $widget_id, $form_inputs = array() ) {
-	if ( ! $widget_options = get_option( 'dashboard_widget_options' ) ) {
-		$widget_options = array();
-	}
-
-	if ( ! isset( $widget_options[ $widget_id ] ) ) {
-		$widget_options[ $widget_id ] = array();
-	}
-
-	$number                                 = 1; // Hack to use wp_widget_rss_form()
-	$widget_options[ $widget_id ]['number'] = $number;
-
-	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && isset( $_POST['widget-rss'][ $number ] ) ) {
-		$_POST['widget-rss'][ $number ]         = wp_unslash( $_POST['widget-rss'][ $number ] );
-		$widget_options[ $widget_id ]           = wp_widget_rss_process( $_POST['widget-rss'][ $number ] );
-		$widget_options[ $widget_id ]['number'] = $number;
-
-		// Title is optional. If black, fill it if possible.
-		if ( ! $widget_options[ $widget_id ]['title'] && isset( $_POST['widget-rss'][ $number ]['title'] ) ) {
-			$rss = fetch_feed( $widget_options[ $widget_id ]['url'] );
-			if ( is_wp_error( $rss ) ) {
-				$widget_options[ $widget_id ]['title'] = htmlentities( __( 'Unknown Feed' ) );
-			} else {
-				$widget_options[ $widget_id ]['title'] = htmlentities( strip_tags( $rss->get_title() ) );
-				$rss->__destruct();
-				unset( $rss );
-			}
-		}
-		update_option( 'dashboard_widget_options', $widget_options );
-		$locale    = get_user_locale();
-		$cache_key = 'dash_v2_' . md5( $widget_id . '_' . $locale );
-		delete_transient( $cache_key );
-	}
-
-	wp_widget_rss_form( $widget_options[ $widget_id ], $form_inputs );
 }
 
 /**
