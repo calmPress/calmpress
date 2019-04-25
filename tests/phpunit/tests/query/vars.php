@@ -39,7 +39,6 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 			'second',
 			'name',
 			'tag',
-			'feed',
 			'static',
 			'pagename',
 			'page_id',
@@ -56,6 +55,15 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 			'calm_authors',
 
 		);
+		sort( $expected );
+		$actual = $wp->public_query_vars;
+		sort( $actual );
+		$this->assertEquals( $expected, $actual, 'Care should be taken when introducing new public query vars. See https://core.trac.wordpress.org/ticket/35115' );
+
+		// Test that when feeds are enabled, "feed" is a valid public variable.
+		update_option( 'posts_per_rss', 5 );
+		$this->go_to( '/' );
+		$expected[] = 'feed';
 		sort( $expected );
 		$actual = $wp->public_query_vars;
 		sort( $actual );
