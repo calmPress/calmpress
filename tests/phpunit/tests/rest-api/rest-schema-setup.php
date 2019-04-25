@@ -81,9 +81,6 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 
 		$expected_routes = array(
 			'/',
-			'/oembed/1.0',
-			'/oembed/1.0/embed',
-			'/oembed/1.0/proxy',
 			'/wp/v2',
 			'/wp/v2/posts',
 			'/wp/v2/posts/(?P<id>[\\d]+)',
@@ -122,6 +119,16 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 		);
 
 		$this->assertEquals( $expected_routes, $routes );
+
+		update_option( 'calm_embedding_on', 1 );
+		$expected_routes = array_merge( $expected_routes, [
+			'/oembed/1.0',
+			'/oembed/1.0/embed',
+			'/oembed/1.0/proxy',
+		] );
+		$routes = rest_get_server()->get_routes();
+		$routes = array_filter( array_keys( $routes ), array( $this, 'is_builtin_route' ) );
+		$this->assertEquals( sort( $expected_routes ), sort( $routes ) );
 	}
 
 	private function is_builtin_route( $route ) {
@@ -133,6 +140,12 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 	}
 
 	public function test_build_wp_api_client_fixtures() {
+		update_option( 'calm_embedding_on', 1 );
+
+		// Have to reinitialize the server to take into account the new setting.
+		global $wp_rest_server;
+		do_action( 'rest_api_init', $wp_rest_server );
+
 		// Set up data for individual endpoint responses.  We need to specify
 		// lots of different fields on these objects, otherwise the generated
 		// fixture file will be different between runs of PHPUnit tests, which
