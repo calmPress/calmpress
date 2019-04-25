@@ -4,6 +4,12 @@
  * @group oembed
  */
 class Tests_oEmbed_Response_Data extends WP_UnitTestCase {
+
+	function setUp() {
+		update_option( 'calm_embedding_on', 1 );
+		parent::setUp();
+	}
+
 	function test_get_oembed_response_data_non_existent_post() {
 		$this->assertFalse( get_oembed_response_data( 0, 100 ) );
 	}

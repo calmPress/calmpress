@@ -34,6 +34,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 				'user_email' => 'administrator@example.com',
 			)
 		);
+		update_option( 'calm_embedding_on', 1 );
 	}
 
 	public static function wpTearDownAfterClass() {
