@@ -5,6 +5,7 @@
  */
 class Tests_Embed_Template extends WP_UnitTestCase {
 	function test_oembed_output_post() {
+		update_option( 'calm_embedding_on', 1 );
 		$user = self::factory()->user->create_and_get(
 			array(
 				'display_name' => 'John Doe',
@@ -34,6 +35,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_oembed_output_post_with_thumbnail() {
+		update_option( 'calm_embedding_on', 1 );
 		$post_id       = self::factory()->post->create(
 			array(
 				'post_title'   => 'Hello World',
@@ -67,6 +69,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_oembed_output_404() {
+		update_option( 'calm_embedding_on', 1 );
 		$this->go_to( home_url( '/?p=123&embed=true' ) );
 		$GLOBALS['wp_query']->query_vars['embed'] = true;
 
@@ -82,6 +85,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_oembed_output_attachment() {
+		update_option( 'calm_embedding_on', 1 );
 		$post          = self::factory()->post->create_and_get();
 		$file          = DIR_TESTDATA . '/images/canola.jpg';
 		$attachment_id = self::factory()->attachment->create_object(
@@ -111,6 +115,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_oembed_output_draft_post() {
+		update_option( 'calm_embedding_on', 1 );
 		$post_id = self::factory()->post->create(
 			array(
 				'post_title'   => 'Hello World',
@@ -134,6 +139,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_oembed_output_scheduled_post() {
+		update_option( 'calm_embedding_on', 1 );
 		$post_id = self::factory()->post->create(
 			array(
 				'post_title'   => 'Hello World',
@@ -158,6 +164,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_oembed_output_private_post() {
+		update_option( 'calm_embedding_on', 1 );
 		$post_id = self::factory()->post->create(
 			array(
 				'post_title'   => 'Hello World',
@@ -181,6 +188,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_oembed_output_private_post_with_permissions() {
+		update_option( 'calm_embedding_on', 1 );
 		$user_id = self::factory()->user->create( array( 'role' => 'editor' ) );
 		wp_set_current_user( $user_id );
 
@@ -209,12 +217,14 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_wp_embed_excerpt_more_no_embed() {
+		update_option( 'calm_embedding_on', 1 );
 		$GLOBALS['wp_query'] = new WP_Query();
 
 		$this->assertEquals( 'foo bar', wp_embed_excerpt_more( 'foo bar' ) );
 	}
 
 	function test_wp_embed_excerpt_more() {
+		update_option( 'calm_embedding_on', 1 );
 		$post_id = self::factory()->post->create(
 			array(
 				'post_title'   => 'Foo Bar',
@@ -237,6 +247,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_is_embed_post() {
+		update_option( 'calm_embedding_on', 1 );
 		$this->assertFalse( is_embed() );
 
 		$post_id = self::factory()->post->create();
@@ -245,6 +256,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_is_embed_attachment() {
+		update_option( 'calm_embedding_on', 1 );
 		$post_id       = self::factory()->post->create();
 		$file          = DIR_TESTDATA . '/images/canola.jpg';
 		$attachment_id = self::factory()->attachment->create_object(
@@ -259,16 +271,19 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_is_embed_404() {
+		update_option( 'calm_embedding_on', 1 );
 		$this->go_to( home_url( '/?p=12345&embed=true' ) );
 		$this->assertTrue( is_embed() );
 	}
 
 	function test_get_post_embed_html_non_existent_post() {
+		update_option( 'calm_embedding_on', 1 );
 		$this->assertFalse( get_post_embed_html( 200, 200, 0 ) );
 		$this->assertFalse( get_post_embed_html( 200, 200 ) );
 	}
 
 	function test_get_post_embed_html() {
+		update_option( 'calm_embedding_on', 1 );
 		$post_id = self::factory()->post->create();
 		$title   = esc_attr(
 			sprintf(
@@ -284,6 +299,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_add_host_js() {
+		update_option( 'calm_embedding_on', 1 );
 		wp_oembed_add_host_js();
 
 		$this->assertTrue( wp_script_is( 'wp-embed' ) );
@@ -293,6 +309,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	 * @ticket 34698
 	 */
 	function test_js_no_ampersands() {
+		update_option( 'calm_embedding_on', 1 );
 		$this->assertNotContains( '&', file_get_contents( ABSPATH . WPINC . '/js/wp-embed.js' ) );
 	}
 
@@ -323,6 +340,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	 * that is always skipped, and thus useless.
 	 */
 	function test_js_no_ampersands_in_compiled() {
+		update_option( 'calm_embedding_on', 1 );
 		$gruntfile = file_get_contents( dirname( ABSPATH ) . '/Gruntfile.js' );
 
 		// Confirm this file *should* exist, otherwise this test will always be skipped.

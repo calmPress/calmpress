@@ -371,6 +371,7 @@ class Tests_Template extends WP_UnitTestCase {
 	}
 
 	public function test_embed_template_hierarchy_for_post() {
+		update_option( 'calm_embedding_on', 1 );
 		$this->assertTemplateHierarchy(
 			get_post_embed_url( self::$post ),
 			array(
@@ -387,6 +388,7 @@ class Tests_Template extends WP_UnitTestCase {
 	}
 
 	public function test_embed_template_hierarchy_for_page() {
+		update_option( 'calm_embedding_on', 1 );
 		$this->assertTemplateHierarchy(
 			get_post_embed_url( self::$page ),
 			array(
