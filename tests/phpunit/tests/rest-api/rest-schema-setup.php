@@ -74,7 +74,9 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 	public function test_expected_routes_in_schema() {
 		update_option( 'calm_embedding_on', 0 );
 
-		do_action( 'init' );
+		global $wp_rest_server;
+		$wp_rest_server = new Spy_REST_Server;
+		do_action( 'rest_api_init', $wp_rest_server );
 
 		$routes = rest_get_server()->get_routes();
 
