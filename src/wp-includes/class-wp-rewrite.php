@@ -971,13 +971,9 @@ class WP_Rewrite {
 			$rewrite = array();
 
 			// ...adding on feed regexes => queries
-			if ( $feed ) {
-				$rewrite[ $embedmatch ] = $embedquery;
-
-				// In case feeds are off (number of items is 0), do not generate feed rules.
-				if ( 0 != get_option( 'posts_per_rss' ) ) {
-					$rewrite[ $feedmatch2 ] = $feedquery2;
-				}
+			// In case feeds are off (number of items is 0), do not generate feed rules.
+			if ( $feed && ( 0 != get_option( 'posts_per_rss' ) ) ) {
+				$rewrite[ $feedmatch2 ] = $feedquery2;
 			}
 
 			//...and /page/xx ones
@@ -1327,7 +1323,7 @@ class WP_Rewrite {
 			foreach( $rules as $k => $v ) {
 				unset( $this->extra_rules_top[ $k ] );
 			}
-			
+
 			$this->extra_rules_top = array_merge( $this->extra_rules_top, $rules );
 		}
 
