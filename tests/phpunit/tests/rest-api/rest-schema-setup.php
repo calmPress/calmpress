@@ -72,6 +72,12 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 	}
 
 	public function test_expected_routes_in_schema() {
+		update_option( 'calm_embedding_on', 0 );
+
+		// Have to reinitialize the server to take into account the new setting.
+		global $wp_rest_server;
+		do_action( 'rest_api_init', $wp_rest_server );
+
 		$routes = rest_get_server()->get_routes();
 
 		$this->assertTrue( is_array( $routes ), '`get_routes` should return an array.' );
