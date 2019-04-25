@@ -1115,9 +1115,10 @@ class WP_Rewrite {
 
 				// If we're matching a permalink, add those extras (attachments etc) on.
 				if ( $post ) {
-
-					// Add embed.
-					$rewrite = array_merge( array( $embedmatch => $embedquery ), $rewrite );
+					// Add embed if they are enabled.
+					if ( 0 != get_option( 'calm_embedding_on') ) {
+						$rewrite = array_merge( array( $embedmatch => $embedquery ), $rewrite );
+					}
 
 					// Add regexes/queries for attachments and so on.
 					if ( ! $page ) {
@@ -1125,11 +1126,22 @@ class WP_Rewrite {
 						$rewrite = array_merge( $rewrite, array(
 							$sub1        => $subquery,
 							$sub1comment => $subcommentquery,
-							$sub1embed   => $subembedquery
 						) );
+
+						// Add the embed related rules only if embedding is on.
+						if ( 0 != get_option( 'calm_embedding_on' ) ) {
+							$rewrite[ $sub1embed ] = $subembedquery;
+						}
 					}
 
-					$rewrite = array_merge( array( $sub2 => $subquery, $sub2comment => $subcommentquery, $sub2embed => $subembedquery ), $rewrite );
+					$rewrite = array_merge( array(
+						$sub2        => $subquery,
+						$sub2comment => $subcommentquery,
+					), $rewrite );
+
+					if ( 0 != get_option( 'calm_embedding_on' ) ) {
+						$rewrite[ $sub1embed ] = $subembedquery;
+					}
 				}
 			}
 			// Add the rules for this dir to the accumulating $post_rewrite.

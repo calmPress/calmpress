@@ -139,6 +139,12 @@ else :
 <label><input name="rss_use_excerpt" type="radio" value="1" <?php checked( 1, get_option( 'rss_use_excerpt' ) ); ?> /> <?php _e( 'Summary' ); ?></label></p>
 </fieldset></td>
 </tr>
+<tr>
+<th scope="row"><?php esc_html_e( 'Embedding' ); ?></th>
+<td><fieldset><legend class="screen-reader-text"><span><?php _e( 'Embedding' ); ?> </span></legend>
+<label><input name="calm_embedding_on" type="checkbox" value="1" <?php checked( 1, get_option( 'calm_embedding_on' ) ); ?>	/> <?php _e( 'Allow other sites to embed content from this one.' ); ?></label>
+</fieldset></td>
+</tr>
 
 <tr class="option-site-visibility">
 <th scope="row"><?php has_action( 'blog_privacy_selector' ) ? _e( 'Site Visibility' ) : _e( 'Search Engine Visibility' ); ?> </th>

@@ -653,6 +653,12 @@ function upgrade_all() {
 		add_option( 'htaccess_user_section', '', '', 'no' );
 	}
 
+	if ( version_compare( $calmpress_db_version, '1.0.0-alpha14', '<' ) ) {
+		add_option( 'calm_embedding_on', 1, '', 'yes' );
+	}
+
+
+
 	delete_option( 'db_version' );
 	update_option( 'calmpress_db_version', calmpress_version() );
 	update_option( 'db_upgraded', true );

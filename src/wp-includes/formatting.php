@@ -4515,6 +4515,23 @@ function sanitize_option( $option, $value ) {
 				$value = 'subscriber';
 			}
 			break;
+
+		case 'calm_embedding_on':
+			$old_value = get_option( 'calm_embedding_on' );
+			// This is the value if the settings checkbox is not checked on POST. Don't rely on this.
+			if ( null === $value ) {
+				$value = 0;
+			} else {
+				$value = intval( $value );
+			}
+
+			// We need to flush the rewrite rules every time the value changes.
+			if ( $old_value != $value ) {
+				add_action( 'update_option_calm_embedding_on', function () {
+					flush_rewrite_rules( false );
+				}, 10, 3 );
+			}
+			break;
 	}
 
 	if ( ! empty( $error ) ) {

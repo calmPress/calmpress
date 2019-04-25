@@ -502,6 +502,9 @@ function populate_options( array $options = array() ) {
 
 		// calmPress 0.9.9.
 		'calmpress_db_version' => calmpress_version(),
+
+	// calmPress 1.0.0
+	'calm_embedding_on' => 0,
 	);
 
 	// 3.0 multisite

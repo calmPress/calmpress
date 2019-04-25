@@ -134,6 +134,7 @@ $whitelist_options         = array(
 		'page_on_front',
 		'page_for_posts',
 		'blog_public',
+		'calm_embedding_on',
 	),
 	'htaccess'   => [
 		'htaccess_user_section',
