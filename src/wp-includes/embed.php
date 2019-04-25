@@ -310,6 +310,9 @@ function wp_embed_handler_video( $matches, $attr, $url, $rawattr ) {
  * @since 4.4.0
  */
 function wp_oembed_register_route() {
+	if ( 0 == get_option( 'calm_embedding_on') ) {
+		return;
+	}
 	$controller = new WP_oEmbed_Controller();
 	$controller->register_routes();
 }
@@ -322,7 +325,7 @@ function wp_oembed_register_route() {
 function wp_oembed_add_discovery_links() {
 	$output = '';
 
-	if ( is_singular() ) {
+	if ( is_singular() && 0 != get_option( 'calm_embedding_on' ) ) {
 		$output .= '<link rel="alternate" type="application/json+oembed" href="' . esc_url( get_oembed_endpoint_url( get_permalink() ) ) . '" />' . "\n";
 
 		if ( class_exists( 'SimpleXMLElement' ) ) {
@@ -346,7 +349,9 @@ function wp_oembed_add_discovery_links() {
  * @since 4.4.0
  */
 function wp_oembed_add_host_js() {
-	wp_enqueue_script( 'wp-embed' );
+	if ( 0 != get_option( 'calm_embedding_on') ) {
+		wp_enqueue_script( 'wp-embed' );
+	}
 }
 
 /**
