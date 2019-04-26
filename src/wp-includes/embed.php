@@ -349,7 +349,7 @@ function wp_oembed_add_discovery_links() {
  * @since 4.4.0
  */
 function wp_oembed_add_host_js() {
-	if ( 0 != get_option( 'calm_embedding_on') ) {
+	if ( is_singular() && 0 != get_option( 'calm_embedding_on') ) {
 		wp_enqueue_script( 'wp-embed' );
 	}
 }
