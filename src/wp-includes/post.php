@@ -34,7 +34,7 @@ function create_initial_post_types() {
 			'rewrite'               => false,
 			'query_var'             => false,
 			'delete_with_user'      => true,
-			'supports'              => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions', 'post-formats' ),
+			'supports'              => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'revisions', 'post-formats' ),
 			'show_in_rest'          => true,
 			'rest_base'             => 'posts',
 			'rest_controller_class' => 'WP_REST_Posts_Controller',
@@ -1214,7 +1214,7 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
  * are used.
  *
  * Post types can support any number of built-in core features such
- * as meta boxes, custom fields, post thumbnails, post statuses,
+ * as meta boxes, post thumbnails, post statuses,
  * comments, and more. See the `$supports` argument for a complete
  * list of supported features.
  *
@@ -1968,8 +1968,6 @@ function get_posts( $args = null ) {
 
 /**
  * Adds a meta field to the given post.
- *
- * Post meta data is called "Custom Fields" on the Administration Screen.
  *
  * @since 1.5.0
  *

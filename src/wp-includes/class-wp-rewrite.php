@@ -1068,7 +1068,6 @@ class WP_Rewrite {
 
 					// Create queries for these extra tag-ons we've just dealt with.
 					$subquery        = $index . '?attachment=' . $this->preg_index( 1 );
-					$subtbquery      = $subquery . '&tb=1';
 					$subfeedquery    = $subquery . '&feed=' . $this->preg_index( 2 );
 					$subcommentquery = $subquery . '&cpage=' . $this->preg_index( 2 );
 					$subembedquery   = $subquery . '&embed=true';
