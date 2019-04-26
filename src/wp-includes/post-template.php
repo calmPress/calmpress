@@ -695,7 +695,7 @@ function get_body_class( $class = '' ) {
 		$classes[] = 'wp-custom-logo';
 	}
 
-	if ( 0 != get_option( 'calm_embedding_on' ) && current_theme_supports( 'responsive-embeds' ) ) {
+	if ( current_theme_supports( 'responsive-embeds' ) ) {
 		$classes[] = 'wp-embed-responsive';
 	}
 
