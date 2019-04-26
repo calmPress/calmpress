@@ -137,10 +137,9 @@ class WP_Posts_List_Table extends WP_List_Table {
 	 * @global array    $avail_post_stati
 	 * @global WP_Query $wp_query
 	 * @global int      $per_page
-	 * @global string   $mode
 	 */
 	public function prepare_items() {
-		global $avail_post_stati, $wp_query, $per_page, $mode;
+		global $avail_post_stati, $wp_query, $per_page;
 
 		// is going to call wp()
 		$avail_post_stati = wp_edit_posts_query();
@@ -174,13 +173,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 					$total_items -= $post_counts[ $state ];
 				}
 			}
-		}
-
-		if ( ! empty( $_REQUEST['mode'] ) ) {
-			$mode = $_REQUEST['mode'] === 'excerpt' ? 'excerpt' : 'list';
-			set_user_setting( 'posts_list_mode', $mode );
-		} else {
-			$mode = get_user_setting( 'posts_list_mode', 'list' );
 		}
 
 		$this->is_trash = isset( $_REQUEST['post_status'] ) && $_REQUEST['post_status'] === 'trash';
@@ -895,12 +887,9 @@ class WP_Posts_List_Table extends WP_List_Table {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @global string $mode List table view mode.
-	 *
 	 * @param WP_Post $post The current WP_Post object.
 	 */
 	public function column_title( $post ) {
-		global $mode;
 
 		if ( $this->hierarchical_display ) {
 			if ( 0 === $this->current_level && (int) $post->post_parent > 0 ) {
@@ -965,10 +954,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 		}
 		echo "</strong>\n";
 
-		if ( ! is_post_type_hierarchical( $this->screen->post_type ) && 'excerpt' === $mode && current_user_can( 'read_post', $post->ID ) ) {
-			echo esc_html( get_the_excerpt() );
-		}
-
 		get_inline_data( $post );
 	}
 
@@ -977,12 +962,9 @@ class WP_Posts_List_Table extends WP_List_Table {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @global string $mode List table view mode.
-	 *
 	 * @param WP_Post $post The current WP_Post object.
 	 */
 	public function column_date( $post ) {
-		global $mode;
 
 		if ( '0000-00-00 00:00:00' === $post->post_date ) {
 			$t_time    = $h_time = __( 'Unpublished' );
@@ -1016,40 +998,24 @@ class WP_Posts_List_Table extends WP_List_Table {
 		/**
 		 * Filters the status text of the post.
 		 *
+		 * The only mode calmPress suports is "list".
+		 *
 		 * @since 4.8.0
+		 * @since calmPress 1.0.0
 		 *
 		 * @param string  $status      The status text.
 		 * @param WP_Post $post        Post object.
 		 * @param string  $column_name The column name.
-		 * @param string  $mode        The list display mode ('excerpt' or 'list').
+		 * @param string  $mode        The list display mode 'list'.
 		 */
-		$status = apply_filters( 'post_date_column_status', $status, $post, 'date', $mode );
+		$status = apply_filters( 'post_date_column_status', $status, $post, 'date', 'list' );
 
 		if ( $status ) {
 			echo $status . '<br />';
 		}
 
-		if ( 'excerpt' === $mode ) {
-			/**
-			 * Filters the published time of the post.
-			 *
-			 * If `$mode` equals 'excerpt', the published time and date are both displayed.
-			 * If `$mode` equals 'list' (default), the publish date is displayed, with the
-			 * time and date together available as an abbreviation definition.
-			 *
-			 * @since 2.5.1
-			 *
-			 * @param string  $t_time      The published time.
-			 * @param WP_Post $post        Post object.
-			 * @param string  $column_name The column name.
-			 * @param string  $mode        The list display mode ('excerpt' or 'list').
-			 */
-			echo apply_filters( 'post_date_column_time', $t_time, $post, 'date', $mode );
-		} else {
-
-			/** This filter is documented in wp-admin/includes/class-wp-posts-list-table.php */
-			echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, 'date', $mode ) . '</abbr>';
-		}
+		/** This filter is documented in wp-admin/includes/class-wp-posts-list-table.php */
+		echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, 'date', 'list' ) . '</abbr>';
 	}
 
 	/**
@@ -1360,11 +1326,8 @@ class WP_Posts_List_Table extends WP_List_Table {
 	 * Outputs the hidden row displayed when inline editing
 	 *
 	 * @since 3.1.0
-	 *
-	 * @global string $mode List table view mode.
 	 */
 	public function inline_edit() {
-		global $mode;
 
 		$screen = $this->screen;
 
@@ -1400,7 +1363,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 			}
 		}
 
-		$m            = ( isset( $mode ) && 'excerpt' === $mode ) ? 'excerpt' : 'list';
+		$m            = 'list';
 		$can_publish  = current_user_can( $post_type_object->cap->publish_posts );
 		$core_columns = array(
 			'cb'         => true,

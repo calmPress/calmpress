@@ -1018,7 +1018,6 @@ class WP_Screen {
 		$this->render_list_table_columns_preferences();
 		$this->render_screen_layout();
 		$this->render_per_page_options();
-		$this->render_view_mode();
 		echo $this->_screen_settings;
 
 		/**
@@ -1219,61 +1218,6 @@ class WP_Screen {
 					value="<?php echo esc_attr( $per_page ); ?>" />
 			<?php endif; ?>
 				<input type="hidden" name="wp_screen_options[option]" value="<?php echo esc_attr( $option ); ?>" />
-		</fieldset>
-		<?php
-	}
-
-	/**
-	 * Render the list table view mode preferences.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @global string $mode List table view mode.
-	 */
-	public function render_view_mode() {
-		$screen = get_current_screen();
-
-		// Currently only enabled for posts lists
-		if ( 'edit' !== $screen->base ) {
-			return;
-		}
-
-		$view_mode_post_types = get_post_types(
-			array(
-				'hierarchical' => false,
-				'show_ui'      => true,
-			)
-		);
-
-		/**
-		 * Filters the post types that have different view mode options.
-		 *
-		 * @since 4.4.0
-		 *
-		 * @param string[] $view_mode_post_types Array of post types that can change view modes.
-		 *                                       Default non-hierarchical post types with show_ui on.
-		 */
-		$view_mode_post_types = apply_filters( 'view_mode_post_types', $view_mode_post_types );
-
-		if ( ! in_array( $this->post_type, $view_mode_post_types ) ) {
-			return;
-		}
-
-		global $mode;
-
-		// This needs a submit button
-		add_filter( 'screen_options_show_submit', '__return_true' );
-		?>
-		<fieldset class="metabox-prefs view-mode">
-		<legend><?php _e( 'View Mode' ); ?></legend>
-				<label for="list-view-mode">
-					<input id="list-view-mode" type="radio" name="mode" value="list" <?php checked( 'list', $mode ); ?> />
-					<?php _e( 'List View' ); ?>
-				</label>
-				<label for="excerpt-view-mode">
-					<input id="excerpt-view-mode" type="radio" name="mode" value="excerpt" <?php checked( 'excerpt', $mode ); ?> />
-					<?php _e( 'Excerpt View' ); ?>
-				</label>
 		</fieldset>
 		<?php
 	}

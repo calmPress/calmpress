@@ -1609,11 +1609,8 @@ function wp_ajax_sample_permalink() {
  * Ajax handler for Quick Edit saving a post from a list table.
  *
  * @since 3.1.0
- *
- * @global string $mode List table view mode.
  */
 function wp_ajax_inline_save() {
-	global $mode;
 
 	check_ajax_referer( 'inlineeditnonce', '_inline_edit' );
 
@@ -1697,8 +1694,6 @@ function wp_ajax_inline_save() {
 	edit_post();
 
 	$wp_list_table = _get_list_table( 'WP_Posts_List_Table', array( 'screen' => $_POST['screen'] ) );
-
-	$mode = $_POST['post_view'] === 'excerpt' ? 'excerpt' : 'list';
 
 	$level = 0;
 	if ( is_post_type_hierarchical( $wp_list_table->screen->post_type ) ) {
