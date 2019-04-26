@@ -225,7 +225,6 @@ if ( 'post' == $post_type ) {
 					 '<ul>' .
 						 '<li>' . __( 'You can hide/display columns based on your needs and decide how many posts to list per screen using the Screen Options tab.' ) . '</li>' .
 						 '<li>' . __( 'You can filter the list of posts by post status using the text links above the posts list to only show posts with that status. The default view is to show all posts.' ) . '</li>' .
-						 '<li>' . __( 'You can view posts in a simple title list or with an excerpt using the Screen Options tab.' ) . '</li>' .
 						 '<li>' . __( 'You can refine the list to show only posts in a specific category or from a specific month by using the dropdown menus above the posts list. Click the Filter button after making your selection. You also can refine the list by clicking on the post author, category or tag in the posts list.' ) . '</li>' .
 					 '</ul>',
 		)
