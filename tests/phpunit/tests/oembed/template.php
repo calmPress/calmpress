@@ -299,7 +299,18 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 	}
 
 	function test_add_host_js() {
+		$post_id = self::factory()->post->create();
+
 		update_option( 'calm_embedding_on', 1 );
+
+		// Is not included on home page (a proxy for achieve pages).
+		$this->go_to( '/' );
+		wp_oembed_add_host_js();
+
+		$this->assertFalse( wp_script_is( 'wp-embed' ) );
+
+		// Is  included on singular pages.
+		$this->go_to( get_the_permalink( $post_id ) );
 		wp_oembed_add_host_js();
 
 		$this->assertTrue( wp_script_is( 'wp-embed' ) );
