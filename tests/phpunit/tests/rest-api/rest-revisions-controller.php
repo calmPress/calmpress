@@ -362,9 +362,6 @@ class WP_Test_REST_Revisions_Controller extends WP_Test_REST_Controller_Testcase
 		$this->assertEquals( mysql_to_rfc3339( $revision->post_date ), $response['date'] );
 		$this->assertEquals( mysql_to_rfc3339( $revision->post_date_gmt ), $response['date_gmt'] );
 
-		$rendered_excerpt = apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', $revision->post_excerpt, $revision ) );
-		$this->assertEquals( $rendered_excerpt, $response['excerpt']['rendered'] );
-
 		$rendered_guid = apply_filters( 'get_the_guid', $revision->guid, $revision->ID );
 		$this->assertEquals( $rendered_guid, $response['guid']['rendered'] );
 
