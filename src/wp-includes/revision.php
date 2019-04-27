@@ -33,14 +33,13 @@ function _wp_post_revision_fields( $post = array(), $deprecated = false ) {
 		$fields = array(
 			'post_title'   => __( 'Title' ),
 			'post_content' => __( 'Content' ),
-			'post_excerpt' => __( 'Excerpt' ),
 		);
 	}
 
 	/**
 	 * Filters the list of fields saved in post revisions.
 	 *
-	 * Included by default: 'post_title', 'post_content' and 'post_excerpt'.
+	 * Included by default: 'post_title' and 'post_content'.
 	 *
 	 * Disallowed fields: 'ID', 'post_name', 'post_parent', 'post_date',
 	 * 'post_date_gmt', 'post_status', 'post_type', 'comment_count',
@@ -49,8 +48,8 @@ function _wp_post_revision_fields( $post = array(), $deprecated = false ) {
 	 * @since 2.6.0
 	 * @since 4.5.0 The `$post` parameter was added.
 	 *
-	 * @param array $fields List of fields to revision. Contains 'post_title',
-	 *                      'post_content', and 'post_excerpt' by default.
+	 * @param array $fields List of fields to revision. Contains 'post_title' and
+	 *                      'post_content' by default.
 	 * @param array $post   A post array being processed for insertion as a post revision.
 	 */
 	$fields = apply_filters( '_wp_post_revision_fields', $fields, $post );
@@ -563,7 +562,6 @@ function _set_preview( $post ) {
 
 	$post->post_content = $preview->post_content;
 	$post->post_title   = $preview->post_title;
-	$post->post_excerpt = $preview->post_excerpt;
 
 	add_filter( 'get_post_metadata', '_wp_preview_post_thumbnail_filter', 10, 3 );
 
