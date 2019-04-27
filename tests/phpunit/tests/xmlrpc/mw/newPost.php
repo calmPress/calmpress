@@ -28,7 +28,7 @@ class Tests_XMLRPC_mw_newPost extends WP_XMLRPC_UnitTestCase {
 		$result = $this->myxmlrpcserver->mw_newPost( array( 1, 'author', 'author', $post ) );
 		$this->assertIXRError( $result );
 		$this->assertEquals( 500, $result->code );
-		$this->assertEquals( 'Content, title, and excerpt are empty.', $result->message );
+		$this->assertEquals( 'Content and title are empty.', $result->message );
 	}
 
 	function test_basic_content() {
