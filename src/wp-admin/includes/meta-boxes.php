@@ -600,17 +600,19 @@ function post_categories_meta_box( $post, $box ) {
 /**
  * Display post excerpt form fields.
  *
- * @since 2.6.0
+ * For calmPress it is a backward compatibility shim that does noting unless
+ * the manual excerpt plugin is installed, in which case it calls the relevant function.
  *
- * @param object $post
+ * @since 2.6.0
+ * @since calmPress 1.0.0
+ *
+ * @param \WP_Post $post The post for which the excerpt is being modified.
  */
-function post_excerpt_meta_box($post) {
-?>
-<label class="screen-reader-text" for="excerpt"><?php _e('Excerpt') ?></label><textarea rows="1" cols="40" name="excerpt" id="excerpt"><?php echo $post->post_excerpt; // textarea_escaped ?></textarea>
-<p><?php
-	_e( 'Excerpts are optional hand-crafted summaries of your content that can be used in your theme.' );
-?></p>
-<?php
+function post_excerpt_meta_box( \WP_Post $post ) {
+	if ( function_exists( '\calmpress\manualexcerpt\post_excerpt_meta_box' ) ) {
+		// If the manual excerpt core plugin is installed, just pass control to it.
+		\calmpress\manualexcerpt\post_excerpt_meta_box( $post );
+	}
 }
 
 /**
@@ -962,10 +964,6 @@ function register_and_do_post_meta_boxes( $post ) {
 
 	if ( $thumbnail_support && current_user_can( 'upload_files' ) ) {
 		add_meta_box( 'postimagediv', esc_html( $post_type_object->labels->featured_image ), 'post_thumbnail_meta_box', null, 'side', 'low', array( '__back_compat_meta_box' => true ) );
-	}
-
-	if ( post_type_supports( $post_type, 'excerpt' ) ) {
-		add_meta_box( 'postexcerpt', __( 'Excerpt' ), 'post_excerpt_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
 	}
 
 	/**

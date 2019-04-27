@@ -1291,7 +1291,7 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
  *                                              Default false.
  *     @type array       $supports              Core feature(s) the post type supports. Serves as an alias for calling
  *                                              add_post_type_support() directly. Core features include 'title',
- *                                              'editor', 'comments', 'revisions', 'author', 'excerpt',
+ *                                              'editor', 'comments', 'revisions', 'author',
  *                                              'page-attributes', 'thumbnail'.
  *                                              Additionally, the 'revisions' feature dictates whether the post type
  *                                              will store revisions, and the 'comments' feature dictates whether the
@@ -1746,7 +1746,7 @@ function _add_post_type_submenus() {
  *
  * All core features are directly associated with a functional area of the edit
  * screen, such as the editor or a meta box. Features include: 'title', 'editor',
- * 'comments', 'revisions', 'author', 'excerpt', 'page-attributes',
+ * 'comments', 'revisions', 'author', 'page-attributes',
  * 'thumbnail', 'custom-fields'.
  *
  * Additionally, the 'revisions' feature dictates whether the post type will
@@ -3441,15 +3441,14 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 	$maybe_empty = 'attachment' !== $post_type
 		&& ! $post_content && ! $post_title && ! $post_excerpt
 		&& post_type_supports( $post_type, 'editor' )
-		&& post_type_supports( $post_type, 'title' )
-		&& post_type_supports( $post_type, 'excerpt' );
+		&& post_type_supports( $post_type, 'title' );
 
 	/**
 	 * Filters whether the post should be considered "empty".
 	 *
 	 * The post is considered "empty" if both:
-	 * 1. The post type supports the title, editor, and excerpt fields
-	 * 2. The title, editor, and excerpt fields are all empty
+	 * 1. The post type supports the title and editor fields
+	 * 2. The title and editor fields are empty
 	 *
 	 * Returning a truthy value to the filter will effectively short-circuit
 	 * the new post being inserted, returning 0. If $wp_error is true, a WP_Error
@@ -3462,7 +3461,7 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 	 */
 	if ( apply_filters( 'wp_insert_post_empty_content', $maybe_empty, $postarr ) ) {
 		if ( $wp_error ) {
-			return new WP_Error( 'empty_content', __( 'Content, title, and excerpt are empty.' ) );
+			return new WP_Error( 'empty_content', __( 'Content and title are empty.' ) );
 		} else {
 			return 0;
 		}
