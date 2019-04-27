@@ -368,7 +368,6 @@ class WP_Test_REST_Autosaves_Controller extends WP_Test_REST_Post_Type_Controlle
 			array(
 				'id'      => self::$post_id,
 				'content' => 'Updated post \ content',
-				'excerpt' => $current_post->post_excerpt,
 				'title'   => $current_post->post_title,
 			)
 		);
@@ -379,7 +378,6 @@ class WP_Test_REST_Autosaves_Controller extends WP_Test_REST_Post_Type_Controlle
 
 		$this->assertEquals( $current_post->ID, $new_data['parent'] );
 		$this->assertEquals( $current_post->post_title, $new_data['title']['raw'] );
-		$this->assertEquals( $current_post->post_excerpt, $new_data['excerpt']['raw'] );
 
 		// Updated post_content.
 		$this->assertNotEquals( $current_post->post_content, $new_data['content']['raw'] );
@@ -387,7 +385,6 @@ class WP_Test_REST_Autosaves_Controller extends WP_Test_REST_Post_Type_Controlle
 		$autosave_post = wp_get_post_autosave( self::$post_id );
 		$this->assertEquals( $autosave_data['title'], $autosave_post->post_title );
 		$this->assertEquals( $autosave_data['content'], $autosave_post->post_content );
-		$this->assertEquals( $autosave_data['excerpt'], $autosave_post->post_excerpt );
 	}
 
 	public function test_rest_autosave_draft_post_same_author() {
@@ -396,7 +393,6 @@ class WP_Test_REST_Autosaves_Controller extends WP_Test_REST_Post_Type_Controlle
 		$post_data = array(
 			'post_content' => 'Test post content',
 			'post_title'   => 'Test post title',
-			'post_excerpt' => 'Test post excerpt',
 		);
 		$post_id   = wp_insert_post( $post_data );
 
@@ -421,9 +417,6 @@ class WP_Test_REST_Autosaves_Controller extends WP_Test_REST_Post_Type_Controlle
 		$this->assertEquals( $autosave_data['content'], $post->post_content );
 		$this->assertEquals( $autosave_data['title'], $post->post_title );
 
-		// Not updated.
-		$this->assertEquals( $post_data['post_excerpt'], $post->post_excerpt );
-
 		wp_delete_post( $post_id );
 	}
 
@@ -433,7 +426,6 @@ class WP_Test_REST_Autosaves_Controller extends WP_Test_REST_Post_Type_Controlle
 		$post_data = array(
 			'post_content' => 'Test post content',
 			'post_title'   => 'Test post title',
-			'post_excerpt' => 'Test post excerpt',
 			'post_author'  => self::$editor_id + 1,
 		);
 		$post_id   = wp_insert_post( $post_data );
@@ -441,7 +433,6 @@ class WP_Test_REST_Autosaves_Controller extends WP_Test_REST_Post_Type_Controlle
 		$autosave_data = array(
 			'id'      => $post_id,
 			'content' => 'Updated post content',
-			'excerpt' => $post_data['post_excerpt'],
 			'title'   => $post_data['post_title'],
 		);
 
@@ -458,13 +449,11 @@ class WP_Test_REST_Autosaves_Controller extends WP_Test_REST_Post_Type_Controlle
 		// The draft post shouldn't change.
 		$this->assertEquals( $current_post->post_title, $post_data['post_title'] );
 		$this->assertEquals( $current_post->post_content, $post_data['post_content'] );
-		$this->assertEquals( $current_post->post_excerpt, $post_data['post_excerpt'] );
 
 		$autosave_post = wp_get_post_autosave( $post_id );
 
 		// No changes.
 		$this->assertEquals( $current_post->post_title, $autosave_post->post_title );
-		$this->assertEquals( $current_post->post_excerpt, $autosave_post->post_excerpt );
 
 		// Has changes.
 		$this->assertEquals( $autosave_data['content'], $autosave_post->post_content );
