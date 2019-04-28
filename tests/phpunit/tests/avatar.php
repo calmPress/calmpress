@@ -29,35 +29,6 @@ class Tests_Avatar extends WP_UnitTestCase {
 	/**
 	 * @ticket 21195
 	 */
-	public function test_get_avatar_url_default() {
-		$url = get_avatar_url( 1 );
-		$this->assertEquals( preg_match( '|\?.*d=mm|', $url ), 1 );
-
-		$args = array( 'default' => 'wavatar' );
-		$url  = get_avatar_url( 1, $args );
-		$this->assertEquals( preg_match( '|\?.*d=wavatar|', $url ), 1 );
-
-		$this->assertEquals( preg_match( '|\?.*f=y|', $url ), 0 );
-		$args = array( 'force_default' => true );
-		$url  = get_avatar_url( 1, $args );
-		$this->assertEquals( preg_match( '|\?.*f=y|', $url ), 1 );
-	}
-
-	/**
-	 * @ticket 21195
-	 */
-	public function test_get_avatar_url_rating() {
-		$url = get_avatar_url( 1 );
-		$this->assertEquals( preg_match( '|\?.*r=g|', $url ), 1 );
-
-		$args = array( 'rating' => 'M' );
-		$url  = get_avatar_url( 1, $args );
-		$this->assertEquals( preg_match( '|\?.*r=m|', $url ), 1 );
-	}
-
-	/**
-	 * @ticket 21195
-	 */
 	public function test_get_avatar_url_scheme() {
 		$url = get_avatar_url( 1 );
 		$this->assertEquals( preg_match( '|^http://|', $url ), 1 );
@@ -188,11 +159,6 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$class = 'first';
 		$img   = get_avatar( 1, 96, '', '', array( 'class' => $class ) );
 		$this->assertEquals( preg_match( "|^<img .*class='[^']*{$class}[^']*'|", $img ), 1 );
-	}
-
-	public function test_get_avatar_default_class() {
-		$img = get_avatar( 1, 96, '', '', array( 'force_default' => true ) );
-		$this->assertEquals( preg_match( "|^<img .*class='[^']*avatar-default[^']*'|", $img ), 1 );
 	}
 
 	public function test_get_avatar_force_display() {
