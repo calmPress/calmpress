@@ -3612,8 +3612,6 @@ function wp_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
  *     Optional. Arguments to return instead of the default arguments.
  *
  *     @type int    $size           Height and width of the avatar in pixels. Default 96.
- *     @type string $scheme         URL scheme to use. See set_url_scheme() for accepted values.
- *                                  Default null.
  *     @type array  $processed_args When the function returns, the value will be the processed/sanitized $args
  *                                  plus a "found_avatar" guess. Pass as a reference. Default null.
  * }
@@ -3659,8 +3657,6 @@ function is_avatar_comment_type( $comment_type ) {
  *     @type int    $size           Height and width of the avatar image file in pixels. Default 96.
  *     @type int    $height         Display height of the avatar in pixels. Defaults to $size.
  *     @type int    $width          Display width of the avatar in pixels. Defaults to $size.
- *     @type string $scheme         URL scheme to use. See set_url_scheme() for accepted values.
- *                                  Default null.
  *     @type array  $processed_args When the function returns, the value will be the processed/sanitized $args
  *                                  plus a "found_avatar" guess. Pass as a reference. Default null.
  *     @type string $extra_attr     HTML attributes to insert in the IMG element. Is not sanitized. Default empty.
@@ -3680,7 +3676,6 @@ function get_avatar_data( $id_or_email, $args = null ) {
 			'size'           => 96,
 			'height'         => null,
 			'width'          => null,
-			'scheme'         => null,
 			'processed_args' => null, // if used, should be a reference
 			'extra_attr'     => '',
 		)
@@ -3803,7 +3798,7 @@ function get_avatar_data( $id_or_email, $args = null ) {
 
 	$url = add_query_arg(
 		rawurlencode_deep( array_filter( $url_args ) ),
-		set_url_scheme( $url, $args['scheme'] )
+		$url
 	);
 
 	/**

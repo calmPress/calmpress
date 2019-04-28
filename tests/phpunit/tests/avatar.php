@@ -29,22 +29,6 @@ class Tests_Avatar extends WP_UnitTestCase {
 	/**
 	 * @ticket 21195
 	 */
-	public function test_get_avatar_url_scheme() {
-		$url = get_avatar_url( 1 );
-		$this->assertEquals( preg_match( '|^http://|', $url ), 1 );
-
-		$args = array( 'scheme' => 'https' );
-		$url  = get_avatar_url( 1, $args );
-		$this->assertEquals( preg_match( '|^https://|', $url ), 1 );
-
-		$args = array( 'scheme' => 'lolcat' );
-		$url  = get_avatar_url( 1, $args );
-		$this->assertEquals( preg_match( '|^lolcat://|', $url ), 0 );
-	}
-
-	/**
-	 * @ticket 21195
-	 */
 	public function test_get_avatar_url_user() {
 		$url = get_avatar_url( 1 );
 

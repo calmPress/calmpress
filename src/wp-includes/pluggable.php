@@ -2397,7 +2397,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 			'size'          => 96,
 			'height'        => null,
 			'width'         => null,
-			'scheme'        => null,
 			'alt'           => '',
 			'class'         => null,
 			'force_display' => false,
