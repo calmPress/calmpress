@@ -187,7 +187,7 @@ function get_pending_comments_num( $post_id ) {
  * @return string Avatar with Admin name.
  */
 function floated_admin_avatar( $name ) {
-	$avatar = get_avatar( get_comment(), 32, 'mystery' );
+	$avatar = get_avatar( get_comment(), 32 );
 	return "$avatar $name";
 }
 
