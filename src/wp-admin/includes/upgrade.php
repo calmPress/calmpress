@@ -191,7 +191,7 @@ if ( ! function_exists( 'wp_install_defaults' ) ) :
 		$first_comment_url    = ! empty( $first_comment_url ) ? $first_comment_url : 'https://wordpress.org/';
 		$first_comment        = ! empty( $first_comment ) ? $first_comment : __(
 			'Hi, this is a comment.
-To get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard.
+To get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard.'
 		);
 		$wpdb->insert(
 			$wpdb->comments,
