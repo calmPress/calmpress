@@ -101,8 +101,6 @@ $whitelist_options         = array(
 		'comment_whitelist',
 		'comment_max_links',
 		'show_avatars',
-		'avatar_rating',
-		'avatar_default',
 		'close_comments_for_old_posts',
 		'close_comments_days_old',
 		'thread_comments',

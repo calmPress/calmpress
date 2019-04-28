@@ -2375,21 +2375,12 @@ if ( ! function_exists( 'get_avatar' ) ) :
 	 * @param mixed $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash,
 	 *                           user email, WP_User object, WP_Post object, or WP_Comment object.
 	 * @param int    $size       Optional. Height and width of the avatar image file in pixels. Default 96.
-	 * @param string $default    Optional. URL for the default image or a default type. Accepts '404'
-	 *                           (return a 404 instead of a default image), 'retro' (8bit), 'monsterid'
-	 *                           (monster), 'wavatar' (cartoon face), 'indenticon' (the "quilt"),
-	 *                           'mystery', 'mm', or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF),
-	 *                           or 'gravatar_default' (the Gravatar logo). Default is the value of the
-	 *                           'avatar_default' option, with a fallback of 'mystery'.
 	 * @param string $alt        Optional. Alternative text to use in &lt;img&gt; tag. Default empty.
 	 * @param array  $args       {
 	 *     Optional. Extra arguments to retrieve the avatar.
 	 *
 	 *     @type int          $height        Display height of the avatar in pixels. Defaults to $size.
 	 *     @type int          $width         Display width of the avatar in pixels. Defaults to $size.
-	 *     @type bool         $force_default Whether to always show the default image, never the Gravatar. Default false.
-	 *     @type string       $rating        What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are
-	 *                                       judged in that order. Default is the value of the 'avatar_rating' option.
 	 *     @type string       $scheme        URL scheme to use. See set_url_scheme() for accepted values.
 	 *                                       Default null.
 	 *     @type array|string $class         Array or string of additional classes to add to the &lt;img&gt; element.
@@ -2406,9 +2397,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 			'size'          => 96,
 			'height'        => null,
 			'width'         => null,
-			'default'       => get_option( 'avatar_default', 'mystery' ),
-			'force_default' => false,
-			'rating'        => get_option( 'avatar_rating' ),
 			'scheme'        => null,
 			'alt'           => '',
 			'class'         => null,
@@ -2420,9 +2408,8 @@ if ( ! function_exists( 'get_avatar' ) ) :
 			$args = array();
 		}
 
-		$args['size']    = (int) $size;
-		$args['default'] = $default;
-		$args['alt']     = $alt;
+		$args['size'] = (int) $size;
+		$args['alt']  = $alt;
 
 		$args = wp_parse_args( $args, $defaults );
 
@@ -2454,7 +2441,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 
 		if ( ! is_null( $avatar ) ) {
 			/** This filter is documented in wp-includes/pluggable.php */
-			return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], $args['default'], $args['alt'], $args );
+			return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], '', $args['alt'], $args );
 		}
 
 		if ( ! $args['force_display'] && ! get_option( 'show_avatars' ) ) {
@@ -2472,10 +2459,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		}
 
 		$class = array( 'avatar', 'avatar-' . (int) $args['size'], 'photo' );
-
-		if ( ! $args['found_avatar'] || $args['force_default'] ) {
-			$class[] = 'avatar-default';
-		}
 
 		if ( $args['class'] ) {
 			if ( is_array( $args['class'] ) ) {
@@ -2501,18 +2484,17 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		 *
 		 * @since 2.5.0
 		 * @since 4.2.0 The `$args` parameter was added.
+		 * @since clamPress 1.0.0
 		 *
 		 * @param string $avatar      &lt;img&gt; tag for the user's avatar.
 		 * @param mixed  $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash,
 		 *                            user email, WP_User object, WP_Post object, or WP_Comment object.
 		 * @param int    $size        Square avatar width and height in pixels to retrieve.
-		 * @param string $default     URL for the default image or a default type. Accepts '404', 'retro', 'monsterid',
-		 *                            'wavatar', 'indenticon','mystery' (or 'mm', or 'mysteryman'), 'blank', or 'gravatar_default'.
-		 *                            Default is the value of the 'avatar_default' option, with a fallback of 'mystery'.
+		 * @param string $default     Not used in calmPress.
 		 * @param string $alt         Alternative text to use in the avatar image tag. Default empty.
 		 * @param array  $args        Arguments passed to get_avatar_data(), after processing.
 		 */
-		return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], $args['default'], $args['alt'], $args );
+		return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], '', $args['alt'], $args );
 	}
 endif;
 

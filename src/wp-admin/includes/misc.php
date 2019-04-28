@@ -1558,8 +1558,6 @@ class WP_Privacy_Policy_Content {
 
 		/* translators: default privacy policy text. */
 		$strings[] = '<p>' . $suggested_text . __( 'When visitors leave comments on the site we collect the data shown in the comments form, and also the visitor&#8217;s IP address and browser user agent string to help spam detection.' ) . '</p>';
-		/* translators: default privacy policy text. */
-		$strings[] = '<p>' . __( 'An anonymized string created from your email address (also called a hash) may be provided to the Gravatar service to see if you are using it. The Gravatar service privacy policy is available here: https://automattic.com/privacy/. After approval of your comment, your profile picture is visible to the public in the context of your comment.' ) . '</p>';
 
 		/* translators: default privacy policy heading. */
 		$strings[] = '<h3>' . __( 'Media' ) . '</h3>';

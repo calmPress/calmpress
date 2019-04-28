@@ -448,16 +448,12 @@ function populate_options( array $options = array() ) {
 
 	// 2.5
 	'show_avatars' => '1',
-	'avatar_rating' => 'G',
 	'upload_url_path' => '',
 	'thumbnail_size_w' => 150,
 	'thumbnail_size_h' => 150,
 	'thumbnail_crop' => 1,
 	'medium_size_w' => 300,
 	'medium_size_h' => 300,
-
-	// 2.6
-	'avatar_default' => 'mystery',
 
 	// 2.7
 	'large_size_w' => 1024,

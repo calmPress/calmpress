@@ -178,10 +178,9 @@ printf( __( 'Comments should be displayed with the %s comments at the top of eac
 
 <h2 class="title"><?php _e( 'Avatars' ); ?></h2>
 
-<p><?php _e( 'An avatar is an image that follows you from weblog to weblog appearing beside your name when you comment on avatar enabled sites. Here you can enable the display of avatars for people who comment on your site.' ); ?></p>
+<p><?php _e( 'An avatar is an image that appears beside your name when you comment. It is used a visual identification of the comment author for all comments on the site.' ); ?></p>
 
 <?php
-// the above would be a good place to link to codex documentation on the gravatar functions, for putting it in themes. anything like that?
 
 $show_avatars       = get_option( 'show_avatars' );
 $show_avatars_class = '';
@@ -198,84 +197,6 @@ if ( ! $show_avatars ) {
 		<input type="checkbox" id="show_avatars" name="show_avatars" value="1" <?php checked( $show_avatars, 1 ); ?> />
 		<?php _e( 'Show Avatars' ); ?>
 	</label>
-</fieldset></td>
-</tr>
-<tr class="avatar-settings<?php echo $show_avatars_class; ?>">
-<th scope="row"><?php _e( 'Maximum Rating' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( 'Maximum Rating' ); ?></span></legend>
-
-<?php
-$ratings = array(
-	/* translators: Content suitability rating: https://en.wikipedia.org/wiki/Motion_Picture_Association_of_America_film_rating_system */
-	'G'  => __( 'G &#8212; Suitable for all audiences' ),
-	/* translators: Content suitability rating: https://en.wikipedia.org/wiki/Motion_Picture_Association_of_America_film_rating_system */
-	'PG' => __( 'PG &#8212; Possibly offensive, usually for audiences 13 and above' ),
-	/* translators: Content suitability rating: https://en.wikipedia.org/wiki/Motion_Picture_Association_of_America_film_rating_system */
-	'R'  => __( 'R &#8212; Intended for adult audiences above 17' ),
-	/* translators: Content suitability rating: https://en.wikipedia.org/wiki/Motion_Picture_Association_of_America_film_rating_system */
-	'X'  => __( 'X &#8212; Even more mature than above' ),
-);
-foreach ( $ratings as $key => $rating ) :
-	$selected = ( get_option( 'avatar_rating' ) == $key ) ? 'checked="checked"' : '';
-	echo "\n\t<label><input type='radio' name='avatar_rating' value='" . esc_attr( $key ) . "' $selected/> $rating</label><br />";
-endforeach;
-?>
-
-</fieldset></td>
-</tr>
-<tr class="avatar-settings<?php echo $show_avatars_class; ?>">
-<th scope="row"><?php _e( 'Default Avatar' ); ?></th>
-<td class="defaultavatarpicker"><fieldset><legend class="screen-reader-text"><span><?php _e( 'Default Avatar' ); ?></span></legend>
-
-<?php _e( 'For users without a custom avatar of their own, you can either display a generic logo or a generated one based on their email address.' ); ?><br />
-
-<?php
-$avatar_defaults = array(
-	'mystery'          => __( 'Mystery Person' ),
-	'blank'            => __( 'Blank' ),
-	'gravatar_default' => __( 'Gravatar Logo' ),
-	'identicon'        => __( 'Identicon (Generated)' ),
-	'wavatar'          => __( 'Wavatar (Generated)' ),
-	'monsterid'        => __( 'MonsterID (Generated)' ),
-	'retro'            => __( 'Retro (Generated)' ),
-);
-/**
- * Filters the default avatars.
- *
- * Avatars are stored in key/value pairs, where the key is option value,
- * and the name is the displayed avatar name.
- *
- * @since 2.6.0
- *
- * @param string[] $avatar_defaults Associative array of default avatars.
- */
-$avatar_defaults = apply_filters( 'avatar_defaults', $avatar_defaults );
-$default         = get_option( 'avatar_default', 'mystery' );
-$avatar_list     = '';
-
-// Force avatars on to display these choices
-add_filter( 'pre_option_show_avatars', '__return_true', 100 );
-
-foreach ( $avatar_defaults as $default_key => $default_name ) {
-	$selected     = ( $default == $default_key ) ? 'checked="checked" ' : '';
-	$avatar_list .= "\n\t<label><input type='radio' name='avatar_default' id='avatar_{$default_key}' value='" . esc_attr( $default_key ) . "' {$selected}/> ";
-	$avatar_list .= get_avatar( $user_email, 32, $default_key, '', array( 'force_default' => true ) );
-	$avatar_list .= ' ' . $default_name . '</label>';
-	$avatar_list .= '<br />';
-}
-
-remove_filter( 'pre_option_show_avatars', '__return_true', 100 );
-
-/**
- * Filters the HTML output of the default avatar list.
- *
- * @since 2.6.0
- *
- * @param string $avatar_list HTML markup of the avatar list.
- */
-echo apply_filters( 'default_avatar_select', $avatar_list );
-?>
-
 </fieldset></td>
 </tr>
 <?php do_settings_fields( 'discussion', 'avatars' ); ?>

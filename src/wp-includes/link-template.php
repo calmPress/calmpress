@@ -3612,15 +3612,6 @@ function wp_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
  *     Optional. Arguments to return instead of the default arguments.
  *
  *     @type int    $size           Height and width of the avatar in pixels. Default 96.
- *     @type string $default        URL for the default image or a default type. Accepts '404' (return
- *                                  a 404 instead of a default image), 'retro' (8bit), 'monsterid' (monster),
- *                                  'wavatar' (cartoon face), 'indenticon' (the "quilt"), 'mystery', 'mm',
- *                                  or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF), or
- *                                  'gravatar_default' (the Gravatar logo). Default is the value of the
- *                                  'avatar_default' option, with a fallback of 'mystery'.
- *     @type bool   $force_default  Whether to always show the default image, never the Gravatar. Default false.
- *     @type string $rating         What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are
- *                                  judged in that order. Default is the value of the 'avatar_rating' option.
  *     @type string $scheme         URL scheme to use. See set_url_scheme() for accepted values.
  *                                  Default null.
  *     @type array  $processed_args When the function returns, the value will be the processed/sanitized $args
@@ -3668,15 +3659,6 @@ function is_avatar_comment_type( $comment_type ) {
  *     @type int    $size           Height and width of the avatar image file in pixels. Default 96.
  *     @type int    $height         Display height of the avatar in pixels. Defaults to $size.
  *     @type int    $width          Display width of the avatar in pixels. Defaults to $size.
- *     @type string $default        URL for the default image or a default type. Accepts '404' (return
- *                                  a 404 instead of a default image), 'retro' (8bit), 'monsterid' (monster),
- *                                  'wavatar' (cartoon face), 'indenticon' (the "quilt"), 'mystery', 'mm',
- *                                  or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF), or
- *                                  'gravatar_default' (the Gravatar logo). Default is the value of the
- *                                  'avatar_default' option, with a fallback of 'mystery'.
- *     @type bool   $force_default  Whether to always show the default image, never the Gravatar. Default false.
- *     @type string $rating         What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are
- *                                  judged in that order. Default is the value of the 'avatar_rating' option.
  *     @type string $scheme         URL scheme to use. See set_url_scheme() for accepted values.
  *                                  Default null.
  *     @type array  $processed_args When the function returns, the value will be the processed/sanitized $args
@@ -3698,9 +3680,6 @@ function get_avatar_data( $id_or_email, $args = null ) {
 			'size'           => 96,
 			'height'         => null,
 			'width'          => null,
-			'default'        => get_option( 'avatar_default', 'mystery' ),
-			'force_default'  => false,
-			'rating'         => get_option( 'avatar_rating' ),
 			'scheme'         => null,
 			'processed_args' => null, // if used, should be a reference
 			'extra_attr'     => '',
@@ -3733,25 +3712,6 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	} else {
 		$args['width'] = $args['size'];
 	}
-
-	if ( empty( $args['default'] ) ) {
-		$args['default'] = get_option( 'avatar_default', 'mystery' );
-	}
-
-	switch ( $args['default'] ) {
-		case 'mm':
-		case 'mystery':
-		case 'mysteryman':
-			$args['default'] = 'mm';
-			break;
-		case 'gravatar_default':
-			$args['default'] = false;
-			break;
-	}
-
-	$args['force_default'] = (bool) $args['force_default'];
-
-	$args['rating'] = strtolower( $args['rating'] );
 
 	$args['found_avatar'] = false;
 
@@ -3833,9 +3793,6 @@ function get_avatar_data( $id_or_email, $args = null ) {
 
 	$url_args = array(
 		's' => $args['size'],
-		'd' => $args['default'],
-		'f' => $args['force_default'] ? 'y' : false,
-		'r' => $args['rating'],
 	);
 
 	if ( is_ssl() ) {
