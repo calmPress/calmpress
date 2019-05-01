@@ -3622,28 +3622,6 @@ function get_avatar_url( $id_or_email, $args = null ) {
 	return $args['url'];
 }
 
-
-/**
- * Check if this comment type allows avatars to be retrieved.
- *
- * @since 5.1.0
- *
- * @param string $comment_type Comment type to check.
- * @return bool Whether the comment type is allowed for retrieving avatars.
- */
-function is_avatar_comment_type( $comment_type ) {
-	/**
-	 * Filters the list of allowed comment types for retrieving avatars.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param array $types An array of content types. Default only contains 'comment'.
-	 */
-	$allowed_comment_types = apply_filters( 'get_avatar_comment_types', array( 'comment' ) );
-
-	return in_array( $comment_type, (array) $allowed_comment_types, true );
-}
-
 /**
  * Retrieves default data about the avatar.
  *
@@ -3755,11 +3733,6 @@ function get_avatar_data( $id_or_email, $args = null ) {
 		// Post Object
 		$user = get_user_by( 'id', (int) $id_or_email->post_author );
 	} elseif ( $id_or_email instanceof WP_Comment ) {
-		if ( ! is_avatar_comment_type( get_comment_type( $id_or_email ) ) ) {
-			$args['url'] = false;
-			/** This filter is documented in wp-includes/link-template.php */
-			return apply_filters( 'get_avatar_data', $args, $id_or_email );
-		}
 
 		if ( ! empty( $id_or_email->user_id ) ) {
 			$user = get_user_by( 'id', (int) $id_or_email->user_id );
