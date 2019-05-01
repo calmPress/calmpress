@@ -1,6 +1,6 @@
 <?php
 /**
- * Implementation of a blan avatar.
+ * Implementation of a blank avatar.
  *
  * @package calmPress
  * @since 1.0.0
@@ -21,7 +21,7 @@ interface Blank_Avatar {
 
 	/**
 	 * Implementation of the html method of the Avatar interface which returns
-	 * an empty HTML inorder for an echo of it to have no real impact.
+	 * an empty HTML in order for an echo of it to have no real impact.
 	 *
 	 * @since 1.0.0
 	 *
