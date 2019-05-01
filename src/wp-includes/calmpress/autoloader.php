@@ -28,6 +28,9 @@ const MAP = [
 	'calmpress\filesystem\Locked_File_Direct_Access'    => __DIR__ . '/filesystem/class-locked-file-direct-access.php',
 	'calmpress\filesystem\Locked_File_FTP_Write_Access' => __DIR__ . '/filesystem/class-locked-file-ftp-write-access.php',
 	'calmpress\credentials\FTP_Credentials'             => __DIR__ . '/class-ftp-credentials.php',
+	'calmpress\avatar\Avatar'                           => __DIR__ . '/avatar/class-avatar.php',
+	'calmpress\avatar\Blank_Avatar'                     => __DIR__ . '/avatar/class-blank-avatar.php',
+	'calmpress\avatar\Initials_Based_Avatar'            => __DIR__ . '/avatar/class-initials-based-avatar.php',
 ];
 
 spl_autoload_register(
