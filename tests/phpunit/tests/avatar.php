@@ -92,36 +92,6 @@ class Tests_Avatar extends WP_UnitTestCase {
 		return $this->fake_url;
 	}
 
-	/**
-	 * @ticket 21195
-	 */
-	public function test_get_avatar_comment_types_filter() {
-		$url = get_avatar_url( 1 );
-
-		$post_id    = self::factory()->post->create( array( 'post_author' => 1 ) );
-		$comment_id = self::factory()->comment->create(
-			array(
-				'comment_post_ID' => $post_id,
-				'user_id'         => 1,
-				'comment_type'    => 'pingback',
-			)
-		);
-		$comment    = get_comment( $comment_id );
-
-		$url2 = get_avatar_url( $comment );
-		$this->assertFalse( $url2 );
-
-		add_filter( 'get_avatar_comment_types', array( $this, 'get_avatar_comment_types_filter' ), 10, 1 );
-		$url2 = get_avatar_url( $comment );
-		remove_filter( 'get_avatar_comment_types', array( $this, 'get_avatar_comment_types_filter' ), 10 );
-
-		$this->assertEquals( $url, $url2 );
-	}
-	public function get_avatar_comment_types_filter( $comment_types ) {
-		$comment_types[] = 'pingback';
-		return $comment_types;
-	}
-
 	public function test_get_avatar() {
 		$img = get_avatar( 1 );
 		$this->assertEquals( preg_match( "|^<img alt='[^']*' src='[^']*' srcset='[^']*' class='[^']*' height='[^']*' width='[^']*' />$|", $img ), 1 );
