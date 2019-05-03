@@ -17,7 +17,7 @@ namespace calmpress\avatar;
  *
  * @since 1.0.0
  */
-interface Blank_Avatar {
+class Blank_Avatar implements Avatar {
 
 	/**
 	 * Implementation of the html method of the Avatar interface which returns
