@@ -143,6 +143,9 @@ require_once( ABSPATH . WPINC . '/class-wp-locale-switcher.php' );
 // Run the installer if WordPress is not installed.
 wp_not_installed();
 
+// calmPress autoloader.
+require( ABSPATH . WPINC . '/calmpress/autoloader.php' );
+
 // Load most of WordPress.
 require( ABSPATH . WPINC . '/class-wp-walker.php' );
 require( ABSPATH . WPINC . '/class-wp-ajax-response.php' );
@@ -244,9 +247,6 @@ require( ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-user-meta-fields.php'
 require( ABSPATH . WPINC . '/rest-api/search/class-wp-rest-search-handler.php' );
 require( ABSPATH . WPINC . '/rest-api/search/class-wp-rest-post-search-handler.php' );
 require( ABSPATH . WPINC . '/blocks.php' );
-
-// load calmPress related files
-require( ABSPATH . WPINC . '/calmpress/autoloader.php' );
 
 $GLOBALS['wp_embed'] = new WP_Embed();
 
