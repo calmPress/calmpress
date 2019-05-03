@@ -2439,7 +2439,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 
 		if ( ! is_null( $avatar ) ) {
 			/** This filter is documented in wp-includes/pluggable.php */
-			return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], '', $args['alt'], $args );
+			return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], '', '', $args );
 		}
 
 		$url2x = get_avatar_url( $id_or_email, array_merge( $args, array( 'size' => $args['size'] * 2 ) ) );
@@ -2485,10 +2485,10 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		 *                            user email, WP_User object, WP_Post object, or WP_Comment object.
 		 * @param int    $size        Square avatar width and height in pixels to retrieve.
 		 * @param string $default     Not used in calmPress.
-		 * @param string $alt         Alternative text to use in the avatar image tag. Default empty.
+		 * @param string $alt         Not used in calmPress.
 		 * @param array  $args        Arguments passed to get_avatar_data(), after processing.
 		 */
-		return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], '', $args['alt'], $args );
+		return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], '', '', $args );
 	}
 endif;
 
