@@ -201,7 +201,7 @@ function wp_admin_bar_my_account_item( $wp_admin_bar ) {
 		$profile_url = false;
 	}
 
-	$avatar = get_avatar( $user_id, 26 );
+	$avatar = get_avatar( $current_user, 26 );
 	/* translators: %s: current user's display name */
 	$howdy = sprintf( __( 'Howdy, %s' ), '<span class="display-name">' . $current_user->display_name . '</span>' );
 	$class = empty( $avatar ) ? '' : 'with-avatar';
@@ -249,7 +249,7 @@ function wp_admin_bar_my_account_menu( $wp_admin_bar ) {
 		)
 	);
 
-	$user_info  = get_avatar( $user_id, 64 );
+	$user_info  = get_avatar( $current_user, 64 );
 	$user_info .= "<span class='display-name'>" . esc_html( $current_user->display_name ) . '</span>';
 
 	$user_info .= "<span class='username'>" . esc_html( $current_user->user_email ) . '</span>';

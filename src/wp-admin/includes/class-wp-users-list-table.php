@@ -455,7 +455,7 @@ class WP_Users_List_Table extends WP_List_Table {
 		} else {
 			$edit = '<strong>' . esc_html( $user_object->display_name . $super_admin ) . '</strong>';
 		}
-		$avatar = get_avatar( $user_object->ID, 32 );
+		$avatar = get_avatar( $user_object, 32 );
 
 		// Comma-separated list of user roles.
 		$roles_list = implode( ', ', $user_roles );

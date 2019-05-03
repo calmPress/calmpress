@@ -368,4 +368,26 @@ class WP_Post {
 
 		return $post;
 	}
+
+	/**
+	 * The avatar associated with the post.
+	 *
+	 * For post with no author, the avatar will be blank.
+	 * For post with one author The avatar will be the image associated with the
+	 * author if one exist or one based on the author's name and email.
+	 * For a post with more then one author the avatar will be an image associated
+	 * with one of the authors or if non found be based on one of the authors names.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return \calmpress\avatar\Avatar
+	 */
+	public avatar() : \calmpress\avatar\Avatar {
+		$attachment_id = get_user_meta( $this->ID, 'calm_avatar', true );
+		if ( $attachment_id ) {
+			return new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
+		} else {
+			return new \calmpress\avatar\Text_Based_Avatar( $this->display_name, $this->user_email );
+		}
+	}
 }

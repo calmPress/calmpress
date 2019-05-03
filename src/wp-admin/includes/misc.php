@@ -720,7 +720,7 @@ function wp_check_locked_posts( $response, $data, $screen_id ) {
 			if ( ( $user_id = wp_check_post_lock( $post_id ) ) && ( $user = get_userdata( $user_id ) ) && current_user_can( 'edit_post', $post_id ) ) {
 				$send = array( 'text' => sprintf( __( '%s is currently editing' ), $user->display_name ) );
 
-				if ( ( $avatar = get_avatar( $user->ID, 18 ) ) && preg_match( "|src='([^']+)'|", $avatar, $matches ) ) {
+				if ( ( $avatar = get_avatar( $user, 18 ) ) && preg_match( "|src='([^']+)'|", $avatar, $matches ) ) {
 					$send['avatar_src'] = $matches[1];
 				}
 
@@ -764,7 +764,7 @@ function wp_refresh_post_lock( $response, $data, $screen_id ) {
 				'text' => sprintf( __( '%s has taken over and is currently editing.' ), $user->display_name ),
 			);
 
-			if ( $avatar = get_avatar( $user->ID, 64 ) ) {
+			if ( $avatar = get_avatar( $user, 64 ) ) {
 				if ( preg_match( "|src='([^']+)'|", $avatar, $matches ) ) {
 					$error['avatar_src'] = $matches[1];
 				}

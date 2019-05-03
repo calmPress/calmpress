@@ -2367,15 +2367,17 @@ endif;
 
 if ( ! function_exists( 'get_avatar' ) ) :
 	/**
-	 * Retrieve the avatar `<img>` tag for a user, email address, MD5 hash, comment, or post.
+	 * Retrieve the HTML of an avatar for a user, email address, comment, or post.
 	 *
 	 * @since 2.5.0
 	 * @since 4.2.0 Optional `$args` parameter added.
+	 * @since calmPress 1.0.0 Any valid HTML which has inline blocking might be returned.
+	 *                        The $alt parameter is ignored.
 	 *
-	 * @param mixed $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash,
+	 * @param mixed $id_or_email The item to get an avatar for. Accepts a user_id,
 	 *                           user email, WP_User object, WP_Post object, or WP_Comment object.
 	 * @param int    $size       Optional. Height and width of the avatar image file in pixels. Default 96.
-	 * @param string $alt        Optional. Alternative text to use in &lt;img&gt; tag. Default empty.
+	 * @param string $alt        Ignored, kept for backward compatibility.
 	 * @param array  $args       {
 	 *     Optional. Extra arguments to retrieve the avatar.
 	 *
@@ -2385,8 +2387,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 	 *                                       Default null.
 	 *     @type array|string $class         Array or string of additional classes to add to the &lt;img&gt; element.
 	 *                                       Default null.
-	 *     @type bool         $force_display Whether to always show the avatar - ignores the show_avatars option.
-	 *                                       Default false.
 	 *     @type string       $extra_attr    HTML attributes to insert in the IMG element. Is not sanitized. Default empty.
 	 * }
 	 * @return false|string `<img>` tag for the user's avatar. False on failure.
@@ -2399,7 +2399,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 			'width'         => null,
 			'alt'           => '',
 			'class'         => null,
-			'force_display' => false,
 			'extra_attr'    => '',
 		);
 
@@ -2441,10 +2440,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		if ( ! is_null( $avatar ) ) {
 			/** This filter is documented in wp-includes/pluggable.php */
 			return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], '', $args['alt'], $args );
-		}
-
-		if ( ! $args['force_display'] && ! get_option( 'show_avatars' ) ) {
-			return false;
 		}
 
 		$url2x = get_avatar_url( $id_or_email, array_merge( $args, array( 'size' => $args['size'] * 2 ) ) );

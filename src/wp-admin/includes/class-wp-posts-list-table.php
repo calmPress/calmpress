@@ -920,7 +920,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 
 			if ( $lock_holder ) {
 				$lock_holder   = get_userdata( $lock_holder );
-				$locked_avatar = get_avatar( $lock_holder->ID, 18 );
+				$locked_avatar = get_avatar( $lock_holder, 18 );
 				$locked_text   = esc_html( sprintf( __( '%s is currently editing' ), $lock_holder->display_name ) );
 			} else {
 				$locked_avatar = $locked_text = '';

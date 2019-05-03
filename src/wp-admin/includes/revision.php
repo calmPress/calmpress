@@ -213,7 +213,7 @@ function wp_prepare_revisions_for_js( $post, $selected_revision_id, $from = null
 		if ( ! isset( $authors[ $revision->post_author ] ) ) {
 			$authors[ $revision->post_author ] = array(
 				'id'     => (int) $revision->post_author,
-				'avatar' => $show_avatars ? get_avatar( $revision->post_author, 32 ) : '',
+				'avatar' => $show_avatars ? get_avatar( get_userdata( $revision->post_author ), 32 ) : '',
 				'name' => _get_the_editor_meta( 'display_name', $revision->post_author ),
 			);
 		}

@@ -1701,7 +1701,7 @@ function wp_post_revision_title_expanded( $revision, $link = true ) {
 	/* translators: revision date format, see https://secure.php.net/date */
 	$datef = _x( 'F j, Y @ H:i:s', 'revision date format' );
 
-	$gravatar = get_avatar( $revision->post_author, 24 );
+	$gravatar = get_avatar( get_userdata( $revision->post_author ), 24 );
 
 	$date = date_i18n( $datef, strtotime( $revision->post_modified ) );
 	if ( $link && current_user_can( 'edit_post', $revision->ID ) && $link = get_edit_post_link( $revision->ID ) ) {
