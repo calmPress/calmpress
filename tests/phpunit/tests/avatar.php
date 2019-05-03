@@ -115,18 +115,6 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$this->assertEquals( preg_match( "|^<img .*class='[^']*{$class}[^']*'|", $img ), 1 );
 	}
 
-	public function test_get_avatar_force_display() {
-		$old = get_option( 'show_avatars' );
-		update_option( 'show_avatars', false );
-
-		$this->assertFalse( get_avatar( 1 ) );
-
-		$this->assertNotEmpty( get_avatar( 1, 96, '', '', array( 'force_display' => true ) ) );
-
-		update_option( 'show_avatars', $old );
-	}
-
-
 	protected $fake_img;
 	/**
 	 * @ticket 21195
