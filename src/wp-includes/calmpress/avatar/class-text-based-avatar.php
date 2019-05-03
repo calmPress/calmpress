@@ -44,7 +44,7 @@ class Text_Based_Avatar implements Avatar {
 	 *
 	 * @since 1.0.0
 	 */
-	private const COLORS = [
+	const COLORS = [
 		0 => '#f44336', // Red.
 		1 => '#e91e63', // Pink.
 		2 => '#9c27b0', // Purple.
@@ -55,7 +55,7 @@ class Text_Based_Avatar implements Avatar {
 		7 => '#ff5722', // Deep Orange.
 		8 => '#795548', // Brown.
 		9 => '#607d8b', // Blue gray.
-	]
+	];
 
 	/**
 	 * Construct the avatar object based on an attachment.
@@ -93,11 +93,12 @@ class Text_Based_Avatar implements Avatar {
 		$font_size = $height / 2;
 
 		// crc32 is not optimal but it is easy to use.
-		$color = self::COLORS[ crc32( $this->text_source . $this->color_factor ) % count( self::COLORS ) ];
+		$color = self::COLORS[ absint( crc32( $this->text_source . $this->color_factor ) ) % count( self::COLORS ) ];
 
 		$text = trim( $this->text_source );
 		if ( '' === $text ) {
-			return new Blank_Avatar()->html( $width, $height );
+			$o = new Blank_Avatar();
+			return $o->html( $width, $height );
 		}
 
 		$text_parts = explode( ' ', $text );
