@@ -385,6 +385,6 @@ class WP_Comment implements \calmpress\avatar\Has_Avatar {
 			}
 		}
 
-	   	return new \calmpress\avatar\Text_Based_Avatar( $this->comment_author, $this->comment_author_email );
+		return new \calmpress\avatar\Text_Based_Avatar( $this->comment_author, $this->comment_author_email );
 	}
 }

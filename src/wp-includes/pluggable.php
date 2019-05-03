@@ -2389,7 +2389,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 	 *                                       Default null.
 	 *     @type string       $extra_attr    HTML attributes to insert in the IMG element. Is not sanitized. Default empty.
 	 * }
-	 * @return false|string `<img>` tag for the user's avatar. False on failure.
+	 * @return string HTML for the user's avatar.
 	 */
 	function get_avatar( $id_or_email, $size = 96, $default = '', $alt = '', $args = null ) {
 		$defaults = array(
@@ -2428,7 +2428,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		 *
 		 * @since 4.2.0
 		 *
-		 * @param string $avatar      HTML for the user's avatar. Default null.
+		 * @param string|null $avatar HTML for the user's avatar. Default null.
 		 * @param mixed  $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash,
 		 *                            user email, WP_User object, WP_Post object, or WP_Comment object.
 		 * @param array  $args        Arguments passed to get_avatar_url(), after processing.
@@ -2447,7 +2447,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		$url = $args['url'];
 
 		if ( ! $url || is_wp_error( $url ) ) {
-			return false;
+			return '';
 		}
 
 		$class = array( 'avatar', 'avatar-' . (int) $args['size'], 'photo' );
@@ -2477,7 +2477,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		 * @since 4.2.0 The `$args` parameter was added.
 		 * @since clamPress 1.0.0
 		 *
-		 * @param string $avatar      &lt;img&gt; tag for the user's avatar.
+		 * @param string $avatar      HTML for the user's avatar.
 		 * @param mixed  $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash,
 		 *                            user email, WP_User object, WP_Post object, or WP_Comment object.
 		 * @param int    $size        Square avatar width and height in pixels to retrieve.
