@@ -2397,7 +2397,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 			'size'          => 96,
 			'height'        => null,
 			'width'         => null,
-			'alt'           => '',
 			'class'         => null,
 			'extra_attr'    => '',
 		);
@@ -2407,7 +2406,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		}
 
 		$args['size'] = (int) $size;
-		$args['alt']  = $alt;
 
 		$args = wp_parse_args( $args, $defaults );
 
@@ -2463,8 +2461,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		}
 
 		$avatar = sprintf(
-			"<img alt='%s' src='%s' srcset='%s' class='%s' height='%d' width='%d' %s/>",
-			esc_attr( $args['alt'] ),
+			"<img alt='' src='%s' srcset='%s' class='%s' height='%d' width='%d' %s/>",
 			esc_url( $url ),
 			esc_url( $url2x ) . ' 2x',
 			esc_attr( join( ' ', $class ) ),
