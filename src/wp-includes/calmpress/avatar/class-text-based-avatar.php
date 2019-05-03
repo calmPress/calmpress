@@ -69,7 +69,7 @@ class Text_Based_Avatar implements Avatar {
 	 *                             between avatars with the same text that should
 	 *                             represent different people.
 	 */
-	public function __construc( string $text_source, string $color_factor ) {
+	public function __construct( string $text_source, string $color_factor ) {
 		$this->text_source  = $text_source;
 		$this->color_factor = $color_factor;
 	}
