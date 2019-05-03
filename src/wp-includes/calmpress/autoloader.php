@@ -30,6 +30,7 @@ const MAP = [
 	'calmpress\credentials\FTP_Credentials'             => __DIR__ . '/class-ftp-credentials.php',
 	'calmpress\avatar\Avatar'                           => __DIR__ . '/avatar/class-avatar.php',
 	'calmpress\avatar\Blank_Avatar'                     => __DIR__ . '/avatar/class-blank-avatar.php',
+	'calmpress\avatar\Has_Avatar'                       => __DIR__ . '/avatar/class-has-avatar.php',
 	'calmpress\avatar\Text_Based_Avatar'                => __DIR__ . '/avatar/class-text-based-avatar.php',
 ];
 

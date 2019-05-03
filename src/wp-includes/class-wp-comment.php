@@ -12,7 +12,7 @@
  *
  * @since 4.4.0
  */
-class WP_Comment {
+class WP_Comment implements \calmpress\avatar\Has_Avatar {
 
 	/**
 	 * Comment ID.

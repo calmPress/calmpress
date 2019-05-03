@@ -18,7 +18,7 @@
  * @property-read int    $post_category
  * @property-read string $tag_input
  */
-class WP_Post {
+class WP_Post implements \calmpress\avatar\Has_Avatar {
 
 	/**
 	 * Post ID.

@@ -34,7 +34,7 @@
  * @property string $locale
  * @property string $syntax_highlighting
  */
-class WP_User {
+class WP_User implements \calmpress\avatar\Has_Avatar {
 	/**
 	 * User data container.
 	 *
