@@ -365,4 +365,26 @@ class WP_Comment {
 			return $post->$name;
 		}
 	}
+
+	/**
+	 * The avatar associated with the comment.
+	 *
+	 * If the comment was left by a registered user, the user's avatar will be returned,
+	 * Otherwise an avatar will be generated based on the comment's author name and email.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return \calmpress\avatar\Avatar
+	 */
+	public avatar() : \calmpress\avatar\Avatar {
+		if ( 0 !== $this->user_id ) {
+			$user = get_user_by( 'id', $this->user_id );
+			// Check user id still refers to a user in the system.
+			if ( null !== $user ) {
+				return $user->avatar();
+			}
+		}
+
+	   	return new \calmpress\avatar\Text_Based_Avatar( $this->comment_author, $this->comment_author_email );
+	}
 }

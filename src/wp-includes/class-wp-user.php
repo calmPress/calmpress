@@ -808,4 +808,24 @@ class WP_User {
 
 		return $caps;
 	}
+
+	/**
+	 * The avatar associated with the user.
+	 *
+	 * A user might have an avatar image associated with it, in which case an
+	 * avatar that will generate the HTML to display the image is returned, otherwise
+	 * one based on the display name and the email address of the user is returned.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return \calmpress\avatar\Avatar
+	 */
+	public avatar() : \calmpress\avatar\Avatar {
+		$attachment_id = get_user_meta( $this->ID, 'calm_avatar', true );
+		if ( $attachment_id ) {
+			return new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
+		} else {
+			return new \calmpress\avatar\Text_Based_Avatar( $this->display_name, $this->user_email );
+		}
+	}
 }
