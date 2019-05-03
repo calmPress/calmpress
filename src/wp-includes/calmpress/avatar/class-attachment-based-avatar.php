@@ -15,7 +15,7 @@ namespace calmpress\avatar;
  *
  * @since 1.0.0
  */
-interface Image_Based_Avatar {
+class Image_Based_Avatar implements Avatar {
 
 	/**
 	 * The attachment storing information on the avatar image.
