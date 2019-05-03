@@ -3626,6 +3626,7 @@ function get_avatar_url( $id_or_email, $args = null ) {
  * Retrieves default data about the avatar.
  *
  * @since 4.2.0
+ * @since calmPress 1.0.0 Might return also the avatar's HTML.
  *
  * @param mixed $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash,
  *                            user email, WP_User object, WP_Post object, or WP_Comment object.
@@ -3645,6 +3646,7 @@ function get_avatar_url( $id_or_email, $args = null ) {
  *     @type bool   $found_avatar True if we were able to find an avatar for this user,
  *                                false or not set if we couldn't.
  *     @type string $url          The URL of the avatar we found.
+ *     @type string $html         The HTML of the avatar we found.
  * }
  */
 function get_avatar_data( $id_or_email, $args = null ) {
@@ -3660,8 +3662,8 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	);
 
 	if ( is_numeric( $args['size'] ) ) {
-		$args['size'] = absint( $args['size'] );
-		if ( ! $args['size'] ) {
+		$args['size'] = (int) $args['size'];
+		if ( $args['size'] < 1 ) {
 			$args['size'] = 96;
 		}
 	} else {
@@ -3669,8 +3671,8 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	}
 
 	if ( is_numeric( $args['height'] ) ) {
-		$args['height'] = absint( $args['height'] );
-		if ( ! $args['height'] ) {
+		$args['height'] = (int) $args['height'];
+		if ( $args['height'] < 1 ) {
 			$args['height'] = $args['size'];
 		}
 	} else {
@@ -3678,15 +3680,13 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	}
 
 	if ( is_numeric( $args['width'] ) ) {
-		$args['width'] = absint( $args['width'] );
-		if ( ! $args['width'] ) {
+		$args['width'] = (int) $args['width'];
+		if ( $args['width'] < 1 ) {
 			$args['width'] = $args['size'];
 		}
 	} else {
 		$args['width'] = $args['size'];
 	}
-
-	$args['found_avatar'] = false;
 
 	/**
 	 * Filters whether to retrieve the avatar URL early.
@@ -3708,71 +3708,30 @@ function get_avatar_data( $id_or_email, $args = null ) {
 		return apply_filters( 'get_avatar_data', $args, $id_or_email );
 	}
 
-	$email_hash = '';
-	$user       = $email = false;
-
-	if ( is_object( $id_or_email ) && isset( $id_or_email->comment_ID ) ) {
-		$id_or_email = get_comment( $id_or_email );
-	}
-
 	// Process the user identifier.
 	if ( is_numeric( $id_or_email ) ) {
-		$user = get_user_by( 'id', absint( $id_or_email ) );
-	} elseif ( is_string( $id_or_email ) ) {
-		if ( strpos( $id_or_email, '@md5.gravatar.com' ) ) {
-			// md5 hash
-			list( $email_hash ) = explode( '@', $id_or_email );
-		} else {
-			// email address
-			$email = $id_or_email;
-		}
-	} elseif ( $id_or_email instanceof WP_User ) {
-		// User Object
-		$user = $id_or_email;
-	} elseif ( $id_or_email instanceof WP_Post ) {
-		// Post Object
-		$user = get_user_by( 'id', (int) $id_or_email->post_author );
-	} elseif ( $id_or_email instanceof WP_Comment ) {
-
-		if ( ! empty( $id_or_email->user_id ) ) {
-			$user = get_user_by( 'id', (int) $id_or_email->user_id );
-		}
-		if ( ( ! $user || is_wp_error( $user ) ) && ! empty( $id_or_email->comment_author_email ) ) {
-			$email = $id_or_email->comment_author_email;
-		}
+		$id_or_email = get_user_by( 'id', $id_or_email );
 	}
 
-	if ( ! $email_hash ) {
-		if ( $user ) {
-			$email = $user->user_email;
-		}
-
-		if ( $email ) {
-			$email_hash = md5( strtolower( trim( $email ) ) );
-		}
-	}
-
-	if ( $email_hash ) {
-		$args['found_avatar'] = true;
-		$gravatar_server      = hexdec( $email_hash[0] ) % 3;
+	if ( is_string( $id_or_email ) ) {
+		$avatar = new \calmpress\avatar\Text_Based_Avatar( $id_or_email, '' );
+	} elseif ( $id_or_email instanceof \calmpress\avatar\Has_Avatar ) {
+		$avatar = $id_or_email->avatar();
 	} else {
-		$gravatar_server = rand( 0, 2 );
+		trigger_error( '$id_or_email parameter is not a user ID, nor string, nor an object implementing the Has_Avatar interface', E_USER_NOTICE );
+		$avatar = new \calmpress\avatar\Blank_Avatar();
 	}
 
-	$url_args = array(
-		's' => $args['size'],
-	);
-
-	if ( is_ssl() ) {
-		$url = 'https://secure.gravatar.com/avatar/' . $email_hash;
-	} else {
-		$url = sprintf( 'http://%d.gravatar.com/avatar/%s', $gravatar_server, $email_hash );
+	$url = '';
+	$attachment = $avatar->attachment();
+	if ( $attachment ) {
+		$url = wp_get_attachment_image_src( $attachment->ID, [ 'width' => $args['width'], 'height' => $args['height'] ] );
+		if ( ! $url ) {
+			trigger_error( 'Failed to get image source for the attachment ' . $attachment->ID, E_USER_NOTICE );
+			$url = '';
+			$avatar = new \calmpress\avatar\Blank_Avatar();
+		}
 	}
-
-	$url = add_query_arg(
-		rawurlencode_deep( array_filter( $url_args ) ),
-		$url
-	);
 
 	/**
 	 * Filters the avatar URL.
@@ -3785,6 +3744,11 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	 * @param array  $args        Arguments passed to get_avatar_data(), after processing.
 	 */
 	$args['url'] = apply_filters( 'get_avatar_url', $url, $id_or_email, $args );
+	if ( $url === $args['url'] ) {
+		// If $url has not changed we can assume the HTML should be the one derived
+		// from the core avatar code.
+		$args[ 'html' ] = $avatar->html( $args['width'], $args['height'] );
+	}
 
 	/**
 	 * Filters the avatar data.
