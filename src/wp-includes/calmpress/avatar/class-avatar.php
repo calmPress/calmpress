@@ -24,9 +24,12 @@ interface Avatar {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param int $width  The width of the avatar image.
+	 * @param int $hieght The height of the avatar image.
+	 *
 	 * @return string The escaped HTML needed to display the avatar.
 	 */
-	public function html() : string;
+	public function html( int $width, int $height ) : string;
 
 	/**
 	 * Provide the attachment image associated with the avatar if one exists.

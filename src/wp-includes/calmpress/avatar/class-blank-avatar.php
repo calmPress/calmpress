@@ -25,10 +25,26 @@ interface Blank_Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string An empty string.
+	 * @param int $width  The width of the avatar image.
+	 * @param int $hieght The height of the avatar image.
+	 *
+	 * @return string An HTML which will be rendered as a blank rectangle of the
+	 *                requested dimensions.
 	 */
-	public function html() : string {
-		return '';
+	public function html( int $width, int $height ) : string {
+
+		$html = "<span style='display:inline-block;width:${width}px;height:${height}px'></span>";
+
+		/**
+		 * Filters the generated blank avatar.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string The HTML of the avatar.
+		 * @param int    The width of the avatar.
+		 * @param int    The height of the avatar.
+		 */
+		return apply_filters( 'calm_blank_avatar_html', $html, $width, $height );
 	}
 
 	/**
