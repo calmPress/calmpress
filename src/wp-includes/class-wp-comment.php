@@ -376,7 +376,7 @@ class WP_Comment {
 	 *
 	 * @return \calmpress\avatar\Avatar
 	 */
-	public avatar() : \calmpress\avatar\Avatar {
+	public function avatar() : \calmpress\avatar\Avatar {
 		if ( 0 !== $this->user_id ) {
 			$user = get_user_by( 'id', $this->user_id );
 			// Check user id still refers to a user in the system.

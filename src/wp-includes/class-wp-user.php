@@ -820,7 +820,7 @@ class WP_User {
 	 *
 	 * @return \calmpress\avatar\Avatar
 	 */
-	public avatar() : \calmpress\avatar\Avatar {
+	public function avatar() : \calmpress\avatar\Avatar {
 		$attachment_id = get_user_meta( $this->ID, 'calm_avatar', true );
 		if ( $attachment_id ) {
 			return new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
