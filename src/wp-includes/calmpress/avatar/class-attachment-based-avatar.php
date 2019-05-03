@@ -33,7 +33,7 @@ interface Image_Based_Avatar {
 	 *
 	 * @param \WP_Post $attachment The attachment.
 	 */
-	public function __construc( \WP_Post $attachment ) {
+	public function __construct( \WP_Post $attachment ) {
 		$this->attachment = $attachment;
 	}
 
