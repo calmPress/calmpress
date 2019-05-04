@@ -6,13 +6,6 @@
  * @group avatar
  */
 class Tests_Avatar extends WP_UnitTestCase {
-	/**
-	 * @ticket 21195
-	 */
-	public function test_get_avatar_url_gravatar_url() {
-		$url = get_avatar_url( 1 );
-		$this->assertEquals( preg_match( '|^http?://[0-9]+.gravatar.com/avatar/[0-9a-f]{32}\?|', $url ), 1 );
-	}
 
 	/**
 	 * @ticket 21195
@@ -33,9 +26,6 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$url = get_avatar_url( 1 );
 
 		$url2 = get_avatar_url( WP_TESTS_EMAIL );
-		$this->assertEquals( $url, $url2 );
-
-		$url2 = get_avatar_url( md5( WP_TESTS_EMAIL ) . '@md5.gravatar.com' );
 		$this->assertEquals( $url, $url2 );
 
 		$user = get_user_by( 'id', 1 );
