@@ -2450,7 +2450,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 
 		if ( $args['html'] ) {
 			$avatar = $args['html'];
-			$avatar = str_replace( '>', 'class="' . esc_attr( join( ' ', $class ) ) . '">', $avatar );
+			$avatar = str_replace( '>', ' class="' . esc_attr( join( ' ', $class ) ) . '">', $avatar );
 		} else {
 			$url = $args['url'];
 			$avatar = sprintf(
