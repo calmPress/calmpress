@@ -2416,10 +2416,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 			$args['width'] = $args['size'];
 		}
 
-		if ( is_object( $id_or_email ) && isset( $id_or_email->comment_ID ) ) {
-			$id_or_email = get_comment( $id_or_email );
-		}
-
 		/**
 		 * Filters whether to retrieve the avatar URL early.
 		 *
@@ -2440,15 +2436,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 			return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], '', '', $args );
 		}
 
-		$url2x = get_avatar_url( $id_or_email, array_merge( $args, array( 'size' => $args['size'] * 2 ) ) );
-
 		$args = get_avatar_data( $id_or_email, $args );
-
-		$url = $args['url'];
-
-		if ( ! $url || is_wp_error( $url ) ) {
-			return '';
-		}
 
 		$class = array( 'avatar', 'avatar-' . (int) $args['size'], 'photo' );
 
@@ -2460,15 +2448,20 @@ if ( ! function_exists( 'get_avatar' ) ) :
 			}
 		}
 
-		$avatar = sprintf(
-			"<img alt='' src='%s' srcset='%s' class='%s' height='%d' width='%d' %s/>",
-			esc_url( $url ),
-			esc_url( $url2x ) . ' 2x',
-			esc_attr( join( ' ', $class ) ),
-			(int) $args['height'],
-			(int) $args['width'],
-			$args['extra_attr']
-		);
+		if ( $args['html'] ) {
+			$avatar = $args['html'];
+			$avatar = str_replace( '>', 'class="' . esc_attr( join( ' ', $class ) ) . '">', $avatar );
+		} else {
+			$url = $args['url'];
+			$avatar = sprintf(
+				"<img alt='' src='%s' class='%s' height='%d' width='%d' %s/>",
+				esc_url( $url ),
+				esc_attr( join( ' ', $class ) ),
+				(int) $args['height'],
+				(int) $args['width'],
+				$args['extra_attr']
+			);
+		}
 
 		/**
 		 * Filters the avatar to retrieve.
