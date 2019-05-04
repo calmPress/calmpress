@@ -10,23 +10,8 @@ class Tests_Avatar extends WP_UnitTestCase {
 	/**
 	 * @ticket 21195
 	 */
-	public function test_get_avatar_url_size() {
-		$url = get_avatar_url( 1 );
-		$this->assertEquals( preg_match( '|\?.*s=96|', $url ), 1 );
-
-		$args = array( 'size' => 100 );
-		$url  = get_avatar_url( 1, $args );
-		$this->assertEquals( preg_match( '|\?.*s=100|', $url ), 1 );
-	}
-
-	/**
-	 * @ticket 21195
-	 */
 	public function test_get_avatar_url_user() {
 		$url = get_avatar_url( 1 );
-
-		$url2 = get_avatar_url( WP_TESTS_EMAIL );
-		$this->assertEquals( $url, $url2 );
 
 		$user = get_user_by( 'id', 1 );
 		$url2 = get_avatar_url( $user );
