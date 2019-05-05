@@ -484,38 +484,35 @@ endif; //!IS_PROFILE_PAGE
 	<p class="description"><?php _e( 'Share a little biographical information to fill out your profile. This may be shown publicly.' ); ?></p></td>
 </tr>
 
-		<?php if ( get_option( 'show_avatars' ) ) : ?>
 <tr class="user-profile-picture">
 	<th><?php _e( 'Profile Picture' ); ?></th>
 	<td>
-			<?php echo get_avatar( $user_id ); ?>
-		<p class="description">
+		<?php
+			$avatar = $profileuser->avatar();
+			$attachment = $avatar->attachment();
+			$attachment_id = $attachment ? $attachment->ID : 0;
+		?>
+		<input type="hidden" id="calm_avatar_image_attachement_id" name="calm_avatar_image_attachement_id" value="<?php echo esc_attr( $attachment_id ); ?>">
+		<div id='calm_avatar_container'>
 			<?php
-			if ( IS_PROFILE_PAGE ) {
-				/* translators: %s: Gravatar URL */
-				$description = sprintf(
-					__( 'You can change your profile picture on <a href="%s">Gravatar</a>.' ),
-					__( 'https://en.gravatar.com/' )
-				);
-			} else {
-				$description = '';
-			}
-
-			/**
-			 * Filters the user profile picture description displayed under the Gravatar.
-			 *
-			 * @since 4.4.0
-			 * @since 4.7.0 Added the `$profileuser` parameter.
-			 *
-			 * @param string  $description The description that will be printed.
-			 * @param WP_User $profileuser The current WP_User object.
-			 */
-			echo apply_filters( 'user_profile_picture_description', $description, $profileuser );
+				echo $avatar->html( 50, 50 );
 			?>
-		</p>
+			<p class="description">
+				<?php esc_html_e( 'This image is being displayed next to the profile name on the admin side, and might be displayed next to comments and other contexts.' ); ?>
+			</p>
+		</div>
+		<div>
+			<?php
+				if ( current_user_can( 'upload_files' ) ) {
+					if ( $avatar->attachment() ) {
+						echo '<button>' . esc_html__( 'Revert to the site`s default' ) . '</button>';
+					}
+					echo '<button>' . esc_html__( 'Use a different Image' ) . '</button>';
+				}
+			?>
+		</div>
 	</td>
 </tr>
-<?php endif; ?>
 
 		<?php
 		/**
