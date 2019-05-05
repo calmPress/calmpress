@@ -58,9 +58,10 @@ class Image_Based_Avatar implements Avatar {
 
 		$image = wp_get_attachment_image_src( $attachment_id, [ $width, $height ], false );
 
-		// If it is impossible to get the image URL return empty string.
+		// If it is impossible to get the image URL return empty avatar.
 		if ( ! $image ) {
-			return new Blank_Avatar()->html();
+			$avatar = new Blank_Avatar();
+			return $avatar->html( $width, $height );
 		}
 
 		list($src, $w, $h) = $image;
