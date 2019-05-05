@@ -1038,7 +1038,7 @@ function rest_is_boolean( $maybe_bool ) {
  * @see get_avatar_url()
  *
  * @param string $email Email address.
- * @return array $urls Gravatar url for each size.
+ * @return array $urls Avatar url for each size.
  */
 function rest_get_avatar_urls( $email ) {
 	$avatar_sizes = rest_get_avatar_sizes();

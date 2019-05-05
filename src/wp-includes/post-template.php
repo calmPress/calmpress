@@ -1686,7 +1686,7 @@ function wp_post_revision_title( $revision, $link = true ) {
  *
  * @param int|object $revision Revision ID or revision object.
  * @param bool       $link     Optional, default is true. Link to revisions's page?
- * @return string|false gravatar, user, i18n formatted datetimestamp or localized 'Current Revision'.
+ * @return string|false avatar, user, i18n formatted datetimestamp or localized 'Current Revision'.
  */
 function wp_post_revision_title_expanded( $revision, $link = true ) {
 	if ( ! $revision = get_post( $revision ) ) {
@@ -1701,7 +1701,7 @@ function wp_post_revision_title_expanded( $revision, $link = true ) {
 	/* translators: revision date format, see https://secure.php.net/date */
 	$datef = _x( 'F j, Y @ H:i:s', 'revision date format' );
 
-	$gravatar = get_avatar( get_userdata( $revision->post_author ), 24 );
+	$avatar = get_avatar( get_userdata( $revision->post_author ), 24 );
 
 	$date = date_i18n( $datef, strtotime( $revision->post_modified ) );
 	if ( $link && current_user_can( 'edit_post', $revision->ID ) && $link = get_edit_post_link( $revision->ID ) ) {
@@ -1711,7 +1711,7 @@ function wp_post_revision_title_expanded( $revision, $link = true ) {
 	$revision_date_author = sprintf(
 		/* translators: post revision title: 1: author avatar, 2: author name, 3: time ago, 4: date */
 		__( '%1$s %2$s, %3$s ago (%4$s)' ),
-		$gravatar,
+		$avatar,
 		$author,
 		human_time_diff( strtotime( $revision->post_modified ), current_time( 'timestamp' ) ),
 		$date

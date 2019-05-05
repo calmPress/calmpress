@@ -2713,14 +2713,6 @@ h2.widget-title {
 	margin-bottom: 0.5em;
 }
 
-/* Gravatar */
-
-.widget-grofile h4 {
-	font-size: 16px;
-	font-size: 1rem;
-	margin-bottom: 0;
-}
-
 /* Recent Comments */
 
 .widget_recent_comments table,

@@ -755,7 +755,7 @@ form.initial-form.quickpress-open input#title {
 
 #activity-widget #latest-comments #the-comment-list .comment-item {
 	/* the row-actions paragraph is output only for users with 'edit_comment' capabilities,
-	   for other users this needs a min height equal to the gravatar image */
+	   for other users this needs a min height equal to the avatar size */
 	min-height: 50px;
 	margin: 0;
 	padding: 12px;
