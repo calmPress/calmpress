@@ -76,9 +76,7 @@ class Text_Based_Avatar implements Avatar {
 	}
 
 	/**
-	 * Provides the HTML required to display the avatar. The HTML assumed to be
-	 * with an inline display property, either by using inline elements like IMG
-	 * and SPAN or adding relevant CSS styling.
+	 * Provides the HTML required to display the avatar.
 	 *
 	 * @since 1.0.0
 	 *
@@ -86,7 +84,7 @@ class Text_Based_Avatar implements Avatar {
 	 * @param int $hieght The height of the avatar image.
 	 *
 	 * @return string An HTML which will be rendered as a rectangle of the
-	 *                requested dimensions which will contain letters based
+	 *                requested dimensions which will contain capital letters based
 	 *                on the initials of the name and background color based on
 	 *                the email address.
 	 */
@@ -109,9 +107,9 @@ class Text_Based_Avatar implements Avatar {
 		if ( 40 < $width && 1 < count( $text_parts ) ) {
 			$text .= substr( $text_parts[ count( $text_parts ) - 1 ], 0, 1 );
 		}
-		$text = esc_html( $text );
+		$text = esc_html( strtoupper( $text ) );
 
-		$html = "<span style='display:inline-block;border-radius:50%;color:white;line-height:${height}px;width:${width}px;height:${height}px;font-size:${font_size}px;background:${color}'>$text</span>";
+		$html = "<span style='display:inline-block;border-radius:50%;text-align:center;color:white;line-height:${height}px;width:${width}px;height:${height}px;font-size:${font_size}px;background:${color}'>$text</span>";
 
 		/**
 		 * Filters the generated image avatar.
