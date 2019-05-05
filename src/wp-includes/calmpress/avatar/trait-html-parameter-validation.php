@@ -36,12 +36,12 @@ trait Html_Parameter_Validation {
 	public function html( int $width, int $height ) : string {
 
 		if ( $width < 1 ) {
-			trigger_error( 'width has to have a positive value ' . $width . ' was given', E_USER_NOTICE );
+			trigger_error( 'width has to have a positive value ' . $width . ' was given', E_USER_WARNING );
 			return '';
 		}
 
 		if ( $height < 1 ) {
-			trigger_error( 'height has to have a positive value ' . $height . ' was given', E_USER_NOTICE );
+			trigger_error( 'height has to have a positive value ' . $height . ' was given', E_USER_WARNING );
 			return '';
 		}
 
