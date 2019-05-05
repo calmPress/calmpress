@@ -107,6 +107,12 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	private static $back_compat_keys;
 
 	/**
+	 * The user meta key in which the avatar attachment ID is stored.
+	 * @since calmPress 1.0.0
+	 */
+	const AVATAR_ATTACHMENT_ID = 'calm_avatar_id';
+
+	/**
 	 * Constructor.
 	 *
 	 * Retrieves the userdata and passes it to WP_User::init().
@@ -810,6 +816,19 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * Set the image to be used as the avatar associated with the user. This
+	 * information is being stored in the DB.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param \WP_Post $attachment The attachment in which the avatar image data
+	 *                             is stored.
+	 */
+	public function set_avatar( \WP_Post $attachment ) {
+		update_user_meta( $this->ID, self::AVATAR_ATTACHMENT_ID, $attachment->ID );
+	}
+
+	/**
 	 * The avatar associated with the user.
 	 *
 	 * A user might have an avatar image associated with it, in which case an
@@ -821,7 +840,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @return \calmpress\avatar\Avatar
 	 */
 	public function avatar() : \calmpress\avatar\Avatar {
-		$attachment_id = get_user_meta( $this->ID, 'calm_avatar', true );
+		$attachment_id = get_user_meta( $this->ID, self::AVATAR_ATTACHMENT_ID, true );
 		if ( $attachment_id ) {
 			return new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
 		} else {
