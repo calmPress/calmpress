@@ -66,7 +66,7 @@ class Image_Based_Avatar implements Avatar {
 		}
 
 		list($src, $w, $h) = $image;
-
+		$attr[ 'src' ] = $src;
 		// get srcset related attributes.
 		$image_meta = wp_get_attachment_metadata( $attachment_id );
 		if ( is_array( $image_meta ) ) {
