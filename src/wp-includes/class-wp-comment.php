@@ -377,10 +377,10 @@ class WP_Comment implements \calmpress\avatar\Has_Avatar {
 	 * @return \calmpress\avatar\Avatar
 	 */
 	public function avatar() : \calmpress\avatar\Avatar {
-		if ( 0 !== $this->user_id ) {
+		if ( $this->user_id ) {
 			$user = get_user_by( 'id', $this->user_id );
 			// Check user id still refers to a user in the system.
-			if ( null !== $user ) {
+			if ( $user ) {
 				return $user->avatar();
 			}
 		}
