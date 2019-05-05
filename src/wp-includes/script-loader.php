@@ -206,8 +206,8 @@ function wp_default_packages_scripts( &$scripts ) {
 	$suffix = wp_scripts_get_suffix();
 
 	$packages_versions = array(
-		'hooks' => '2.0.5',
-		'i18n'  => '3.1.1',
+		'hooks' => '2.2.0',
+		'i18n'  => '3.3.0',
 	);
 
 	$packages_dependencies = array(
@@ -370,6 +370,8 @@ function wp_default_scripts( &$scripts ) {
 
 	$scripts->add( 'editor', "/wp-admin/js/editor$suffix.js", array( 'utils', 'jquery' ), false, 1 );
 
+	$scripts->add( 'clipboard', "/wp-includes/js/clipboard$suffix.js", array(), false, 1 );
+
 	$scripts->add( 'wp-ajax-response', "/wp-includes/js/wp-ajax-response$suffix.js", array( 'jquery' ), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'wp-ajax-response',
@@ -507,7 +509,7 @@ function wp_default_scripts( &$scripts ) {
 	$scripts->add( 'jquery-table-hotkeys', "/wp-includes/js/jquery/jquery.table-hotkeys$suffix.js", array( 'jquery', 'jquery-hotkeys' ), false, 1 );
 	$scripts->add( 'jquery-touch-punch', '/wp-includes/js/jquery/jquery.ui.touch-punch.js', array( 'jquery-ui-widget', 'jquery-ui-mouse' ), '0.2.2', 1 );
 
-	// Not used any more, registered for backwards compatibility.
+	// Not used any more, registered for backward compatibility.
 	$scripts->add( 'suggest', "/wp-includes/js/jquery/suggest$suffix.js", array( 'jquery' ), '1.1-20110113', 1 );
 
 	// Masonry v2 depended on jQuery. v3 does not. The older jquery-masonry handle is a shiv.
@@ -1082,6 +1084,9 @@ function wp_default_scripts( &$scripts ) {
 			)
 		);
 
+		$scripts->add( 'site-health', "/wp-admin/js/site-health$suffix.js", array( 'clipboard', 'jquery', 'wp-util', 'wp-a11y', 'wp-i18n' ), false, 1 );
+		$scripts->set_translations( 'site-health' );
+
 		$scripts->add( 'updates', "/wp-admin/js/updates$suffix.js", array( 'jquery', 'wp-util', 'wp-a11y' ), false, 1 );
 		did_action( 'init' ) && $scripts->localize(
 			'updates',
@@ -1303,6 +1308,7 @@ function wp_default_styles( &$styles ) {
 	$styles->add( 'site-icon', "/wp-admin/css/site-icon$suffix.css" );
 	$styles->add( 'l10n', "/wp-admin/css/l10n$suffix.css" );
 	$styles->add( 'code-editor', "/wp-admin/css/code-editor$suffix.css", array( 'wp-codemirror' ) );
+	$styles->add( 'site-health', "/wp-admin/css/site-health$suffix.css" );
 
 	$styles->add( 'wp-admin', false, array( 'dashicons', 'common', 'forms', 'admin-menu', 'dashboard', 'list-tables', 'edit', 'revisions', 'media', 'themes', 'about', 'nav-menus', 'widgets', 'site-icon', 'l10n' ) );
 
@@ -1356,6 +1362,7 @@ function wp_default_styles( &$styles ) {
 		'customize-nav-menus',
 		'customize-preview',
 		'login',
+		'site-health',
 		// Includes CSS
 		'buttons',
 		'admin-bar',

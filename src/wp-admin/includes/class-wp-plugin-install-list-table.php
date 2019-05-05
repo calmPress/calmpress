@@ -487,11 +487,12 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 				$author = ' <cite>' . sprintf( __( 'By %s' ), $author ) . '</cite>';
 			}
 
-			global $wp_version;
+			$requires_php = isset( $plugin['requires_php'] ) ? $plugin['requires_php'] : null;
+			$requires_wp  = isset( $plugin['requires'] ) ? $plugin['requires'] : null;
 
-			$compatible_php = ( empty( $plugin['requires_php'] ) || version_compare( phpversion(), $plugin['requires_php'], '>=' ) );
-			$tested_wp      = ( empty( $plugin['tested'] ) || version_compare( $wp_version, $plugin['tested'], '<=' ) );
-			$compatible_wp  = ( empty( $plugin['requires'] ) || version_compare( $wp_version, $plugin['requires'], '>=' ) );
+			$compatible_php = is_php_version_compatible( $requires_php );
+			$compatible_wp  = is_wp_version_compatible( $requires_wp );
+			$tested_wp      = ( empty( $plugin['tested'] ) || version_compare( get_bloginfo( 'version' ), $plugin['tested'], '<=' ) );
 
 			$action_links = array();
 
@@ -522,16 +523,23 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 					case 'update_available':
 						if ( $status['url'] ) {
-							$action_links[] = sprintf(
-								'<a class="update-now button aria-button-if-js" data-plugin="%s" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
-								esc_attr( $status['file'] ),
-								esc_attr( $plugin['slug'] ),
-								esc_url( $status['url'] ),
-								/* translators: %s: plugin name and version */
-								esc_attr( sprintf( __( 'Update %s now' ), $name ) ),
-								esc_attr( $name ),
-								__( 'Update Now' )
-							);
+							if ( $compatible_php && $compatible_wp ) {
+								$action_links[] = sprintf(
+									'<a class="update-now button aria-button-if-js" data-plugin="%s" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
+									esc_attr( $status['file'] ),
+									esc_attr( $plugin['slug'] ),
+									esc_url( $status['url'] ),
+									/* translators: %s: plugin name and version */
+									esc_attr( sprintf( __( 'Update %s now' ), $name ) ),
+									esc_attr( $name ),
+									__( 'Update Now' )
+								);
+							} else {
+								$action_links[] = sprintf(
+									'<button type="button" class="button button-disabled" disabled="disabled">%s</button>',
+									_x( 'Cannot Update', 'plugin' )
+								);
+							}
 						}
 						break;
 
@@ -627,7 +635,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 							self_admin_url( 'update-core.php' ),
 							esc_url( wp_get_update_php_url() )
 						);
-						wp_update_php_annotation();
+						wp_update_php_annotation( '</p><p><em>', '</em>' );
 					} elseif ( current_user_can( 'update_core' ) ) {
 						printf(
 							/* translators: %s: "Update calmPress" screen URL */
@@ -640,7 +648,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 							' ' . __( '<a href="%s">Learn more about updating PHP</a>.' ),
 							esc_url( wp_get_update_php_url() )
 						);
-						wp_update_php_annotation();
+						wp_update_php_annotation( '</p><p><em>', '</em>' );
 					}
 				} elseif ( ! $compatible_wp ) {
 					_e( 'This plugin doesn&#8217;t work with your version of calmPress.' );
@@ -659,7 +667,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 							' ' . __( '<a href="%s">Learn more about updating PHP</a>.' ),
 							esc_url( wp_get_update_php_url() )
 						);
-						wp_update_php_annotation();
+						wp_update_php_annotation( '</p><p><em>', '</em>' );
 					}
 				}
 				echo '</p></div>';

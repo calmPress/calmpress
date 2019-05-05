@@ -328,6 +328,11 @@ if ( ! function_exists( 'is_countable' ) ) {
 	}
 }
 
+// sodium_crypto_box was introduced in PHP 7.2
+if ( ! function_exists( 'sodium_crypto_box' ) ) {
+	require ABSPATH . WPINC . '/sodium_compat/autoload.php';
+}
+
 if ( ! function_exists( 'is_iterable' ) ) {
 	/**
 	 * Polyfill for is_iterable() function added in PHP 7.1.

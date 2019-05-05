@@ -69,17 +69,19 @@ get_current_screen()->add_help_tab(
 );
 unset( $help );
 
-get_current_screen()->set_screen_reader_content( array(
-	'heading_views'      => __( 'Filter users list' ),
-	'heading_pagination' => __( 'Users list navigation' ),
-	'heading_list'       => __( 'Users list' ),
-) );
+get_current_screen()->set_screen_reader_content(
+	array(
+		'heading_views'      => __( 'Filter users list' ),
+		'heading_pagination' => __( 'Users list navigation' ),
+		'heading_list'       => __( 'Users list' ),
+	)
+);
 
-if ( empty($_REQUEST) ) {
-	$referer = '<input type="hidden" name="wp_http_referer" value="'. esc_attr( wp_unslash( $_SERVER['REQUEST_URI'] ) ) . '" />';
-} elseif ( isset($_REQUEST['wp_http_referer']) ) {
-	$redirect = remove_query_arg(array('wp_http_referer', 'updated', 'delete_count'), wp_unslash( $_REQUEST['wp_http_referer'] ) );
-	$referer = '<input type="hidden" name="wp_http_referer" value="' . esc_attr($redirect) . '" />';
+if ( empty( $_REQUEST ) ) {
+	$referer = '<input type="hidden" name="wp_http_referer" value="' . esc_attr( wp_unslash( $_SERVER['REQUEST_URI'] ) ) . '" />';
+} elseif ( isset( $_REQUEST['wp_http_referer'] ) ) {
+	$redirect = remove_query_arg( array( 'wp_http_referer', 'updated', 'delete_count' ), wp_unslash( $_REQUEST['wp_http_referer'] ) );
+	$referer  = '<input type="hidden" name="wp_http_referer" value="' . esc_attr( $redirect ) . '" />';
 } else {
 	$redirect = 'users.php';
 	$referer  = '';
@@ -225,11 +227,23 @@ switch ( $wp_list_table->current_action() ) {
 			$userids = array_map( 'intval', (array) $_REQUEST['users'] );
 		}
 
-		$users_have_content = false;
-		if ( $wpdb->get_var( "SELECT ID FROM {$wpdb->posts} WHERE post_author IN( " . implode( ',', $userids ) . ' ) LIMIT 1' ) ) {
-			$users_have_content = true;
-		} elseif ( $wpdb->get_var( "SELECT link_id FROM {$wpdb->links} WHERE link_owner IN( " . implode( ',', $userids ) . ' ) LIMIT 1' ) ) {
-			$users_have_content = true;
+		/**
+		 * Filters whether the users being deleted have additional content
+		 * associated with them outside of the `post_author` and `link_owner` relationships.
+		 *
+		 * @since 5.2.0
+		 *
+		 * @param boolean $users_have_additional_content Whether the users have additional content. Default false.
+		 * @param int[]   $userids                       Array of IDs for users being deleted.
+		 */
+		$users_have_content = (bool) apply_filters( 'users_have_additional_content', false, $userids );
+
+		if ( ! $users_have_content ) {
+			if ( $wpdb->get_var( "SELECT ID FROM {$wpdb->posts} WHERE post_author IN( " . implode( ',', $userids ) . ' ) LIMIT 1' ) ) {
+				$users_have_content = true;
+			} elseif ( $wpdb->get_var( "SELECT link_id FROM {$wpdb->links} WHERE link_owner IN( " . implode( ',', $userids ) . ' ) LIMIT 1' ) ) {
+				$users_have_content = true;
+			}
 		}
 
 		if ( $users_have_content ) {

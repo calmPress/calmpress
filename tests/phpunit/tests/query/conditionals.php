@@ -1050,4 +1050,74 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertTrue( is_page( $p2 ) );
 		$this->assertFalse( is_page( $p1 ) );
 	}
+
+	/**
+	 * @ticket 35902
+	 */
+	public function test_is_single_should_not_match_numeric_id_to_post_title_beginning_with_id() {
+		$p1 = self::factory()->post->create(
+			array(
+				'post_type'  => 'post',
+				'post_title' => 'Foo',
+				'post_name'  => 'foo',
+			)
+		);
+		$p2 = self::factory()->post->create(
+			array(
+				'post_type'  => 'post',
+				'post_title' => "$p1 Foo",
+				'post_name'  => 'foo-2',
+			)
+		);
+
+		$this->go_to( get_permalink( $p2 ) );
+
+		$this->assertTrue( is_single( $p2 ) );
+		$this->assertFalse( is_single( $p1 ) );
+	}
+
+	/**
+	 * @ticket 35902
+	 */
+	public function test_is_single_should_not_match_numeric_id_to_post_name_beginning_with_id() {
+		$p1 = self::factory()->post->create(
+			array(
+				'post_type'  => 'post',
+				'post_title' => 'Foo',
+				'post_name'  => 'foo',
+			)
+		);
+		$p2 = self::factory()->post->create(
+			array(
+				'post_type'  => 'post',
+				'post_title' => 'Foo',
+				'post_name'  => "$p1-foo",
+			)
+		);
+
+		$this->go_to( get_permalink( $p2 ) );
+
+		$this->assertTrue( is_single( $p2 ) );
+		$this->assertFalse( is_single( $p1 ) );
+	}
+
+	/**
+	 * @ticket 44005
+	 * @group privacy
+	 */
+	public function test_is_privacy_policy() {
+		$page_id = self::factory()->post->create(
+			array(
+				'post_type'  => 'page',
+				'post_title' => 'Privacy Policy',
+			)
+		);
+
+		update_option( 'wp_page_for_privacy_policy', $page_id );
+
+		$this->go_to( get_permalink( $page_id ) );
+
+		$this->assertQueryTrue( 'is_page', 'is_singular', 'is_privacy_policy' );
+	}
+
 }

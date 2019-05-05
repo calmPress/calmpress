@@ -61,6 +61,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		 */
 		this.createToolbar();
 
+		// Add a heading before the attachments list.
+		this.createAttachmentsHeading();
+
 		// Create the list of attachments.
 		this.createAttachments();
 
@@ -184,7 +187,7 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 				filters: Filters,
 				style: 'primary',
 				disabled: true,
-				text: mediaTrash ? l10n.trashSelected : l10n.deleteSelected,
+				text: mediaTrash ? l10n.trashSelected : l10n.deletePermanently,
 				controller: this.controller,
 				priority: -60,
 				click: function() {
@@ -244,7 +247,7 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 					filters: Filters,
 					style: 'primary',
 					disabled: true,
-					text: l10n.deleteSelected,
+					text: l10n.deletePermanently,
 					controller: this.controller,
 					priority: -55,
 					click: function() {
@@ -405,6 +408,15 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 
 			this.views.add( this.attachmentsNoResults );
 		}
+	},
+
+	createAttachmentsHeading: function() {
+		this.attachmentsHeading = new wp.media.view.Heading( {
+			text: l10n.attachmentsList,
+			level: 'h2',
+			className: 'media-views-heading screen-reader-text'
+		} );
+		this.views.add( this.attachmentsHeading );
 	},
 
 	createSidebar: function() {

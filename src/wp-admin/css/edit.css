@@ -154,7 +154,7 @@ body.post-new-php .submitbox .submitdelete {
 	position: relative;
 	min-width: 255px;
 	border: 1px solid #e5e5e5;
-	box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 	background: #fff;
 }
 
@@ -304,7 +304,7 @@ form#tags-filter {
 	border: 1px solid #e5e5e5;
 	border-top: none;
 	background-color: #f7f7f7;
-	box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 	z-index: 999;
 }
 
@@ -488,6 +488,7 @@ span.wp-media-buttons-icon:before {
 #timestampdiv input {
 	border-width: 1px;
 	border-style: solid;
+	text-align: center;
 }
 
 .notification-dialog {
@@ -498,7 +499,7 @@ span.wp-media-buttons-icon:before {
 	width: 450px;
 	margin-left: -225px;
 	background: #fff;
-	box-shadow: 0 3px 6px rgba( 0, 0, 0, 0.3 );
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 	line-height: 1.5;
 	z-index: 1000005;
 	overflow-y: auto;
@@ -868,21 +869,15 @@ span.wp-media-buttons-icon:before {
   11.4 - Post formats
 ------------------------------------------------------------------------------*/
 
-.post-state-format {
-	overflow: hidden;
+.post-format-icon::before {
 	display: inline-block;
 	vertical-align: middle;
 	height: 20px;
 	width: 20px;
-	margin-right: 5px;
 	margin-top: -4px;
-}
-
-.post-state-format:before {
-	display: block;
-	height: 20px;
-	width: 20px;
-	font: normal 20px/1 dashicons !important;
+	margin-right: 7px;
+	color: #ddd;
+	font: normal 20px/1 dashicons;
 	speak: none;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -1199,12 +1194,10 @@ p.popular-tags a {
 /* DFW 2
 -------------------------------------------------------------- */
 
-#wp-content-wrap .mce-wp-dfw,
 #qt_content_dfw {
 	display: none;
 }
 
-.wp-editor-expand #wp-content-wrap .mce-wp-dfw,
 .wp-editor-expand #qt_content_dfw {
 	display: inline-block;
 }

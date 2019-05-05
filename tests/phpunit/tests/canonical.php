@@ -140,4 +140,24 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 			array( '//2008////', '/2008/' ),
 		);
 	}
+
+	/**
+	 * @ticket 43745
+	 */
+	public function test_utf8_query_keys_canonical() {
+		$p = self::factory()->post->create(
+			array(
+				'post_type' => 'page',
+			)
+		);
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $p );
+
+		$this->go_to( get_permalink( $p ) );
+
+		$url = redirect_canonical( add_query_arg( '%D0%BA%D0%BE%D0%BA%D0%BE%D0%BA%D0%BE', 1, site_url( '/' ) ), false );
+		$this->assertNull( $url );
+
+		delete_option( 'page_on_front' );
+	}
 }

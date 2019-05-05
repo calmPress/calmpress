@@ -18,6 +18,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 global $post_type, $post_type_object, $post;
 
+// Flag that we're not loading the block editor.
+$current_screen = get_current_screen();
+$current_screen->is_block_editor( false );
+
 if ( is_multisite() ) {
 	add_action( 'admin_footer', '_admin_notice_post_locked' );
 } else {
@@ -452,10 +456,10 @@ do_action( 'edit_form_top', $post );
 	 *
 	 * @since 3.1.0
 	 *
-	 * @param string  $text Placeholder text. Default 'Enter title here'.
+	 * @param string  $text Placeholder text. Default 'Add title'.
 	 * @param WP_Post $post Post object.
 	 */
-	$title_placeholder = apply_filters( 'enter_title_here', __( 'Enter title here' ), $post );
+	$title_placeholder = apply_filters( 'enter_title_here', __( 'Add title' ), $post );
 	?>
 	<label class="screen-reader-text" id="title-prompt-text" for="title"><?php echo $title_placeholder; ?></label>
 	<input type="text" name="post_title" size="30" value="<?php echo esc_attr( $post->post_title ); ?>" id="title" spellcheck="true" autocomplete="off" />

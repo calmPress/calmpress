@@ -260,19 +260,19 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 	 * @return bool
 	 */
 	public function __isset( $key ) {
-		if ( 'ancestors' == $key ) {
+		if ( 'ancestors' === $key ) {
 			return true;
 		}
 
-		if ( 'page_template' == $key ) {
+		if ( 'page_template' === $key ) {
 			return true;
 		}
 
-		if ( 'post_category' == $key ) {
+		if ( 'post_category' === $key ) {
 			return true;
 		}
 
-		if ( 'tags_input' == $key ) {
+		if ( 'tags_input' === $key ) {
 			return true;
 		}
 
@@ -288,11 +288,11 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 	 * @return mixed
 	 */
 	public function __get( $key ) {
-		if ( 'page_template' == $key && $this->__isset( $key ) ) {
+		if ( 'page_template' === $key && $this->__isset( $key ) ) {
 			return get_post_meta( $this->ID, '_wp_page_template', true );
 		}
 
-		if ( 'post_category' == $key ) {
+		if ( 'post_category' === $key ) {
 			if ( is_object_in_taxonomy( $this->post_type, 'category' ) ) {
 				$terms = get_the_terms( $this, 'category' );
 			}
@@ -304,7 +304,7 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 			return wp_list_pluck( $terms, 'term_id' );
 		}
 
-		if ( 'tags_input' == $key ) {
+		if ( 'tags_input' === $key ) {
 			if ( is_object_in_taxonomy( $this->post_type, 'post_tag' ) ) {
 				$terms = get_the_terms( $this, 'post_tag' );
 			}
@@ -317,7 +317,7 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 		}
 
 		// Rest of the values need filtering.
-		if ( 'ancestors' == $key ) {
+		if ( 'ancestors' === $key ) {
 			$value = get_post_ancestors( $this );
 		} else {
 			$value = get_post_meta( $this->ID, $key, true );
@@ -339,11 +339,11 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 	 * @return array|bool|object|WP_Post
 	 */
 	public function filter( $filter ) {
-		if ( $this->filter == $filter ) {
+		if ( $this->filter === $filter ) {
 			return $this;
 		}
 
-		if ( $filter == 'raw' ) {
+		if ( 'raw' === $filter ) {
 			return self::get_instance( $this->ID );
 		}
 

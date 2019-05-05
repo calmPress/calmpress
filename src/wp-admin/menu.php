@@ -42,6 +42,7 @@ if ( ! is_multisite() ) {
 	} else {
 		$cap = 'update_languages';
 	}
+	/* translators: %s: number of pending updates */
 	$submenu['index.php'][10] = array( sprintf( __( 'Updates %s' ), "<span class='update-plugins count-{$update_data['counts']['total']}'><span class='update-count'>" . number_format_i18n( $update_data['counts']['total'] ) . '</span></span>' ), $cap, 'update-core.php' );
 	unset( $cap );
 }
@@ -68,11 +69,16 @@ foreach ( get_taxonomies_for_attachments( 'objects' ) as $tax ) {
 
 // Avoid the comment count query for users who cannot edit_posts.
 if ( current_user_can( 'edit_posts' ) ) {
-	$awaiting_mod = wp_count_comments();
+	$awaiting_mod      = wp_count_comments();
 	if ( 0 < $awaiting_mod->total_comments + $awaiting_mod->trash ) {
-		$awaiting_mod = $awaiting_mod->moderated;
-		$menu[25]     = array(
-			sprintf( __( 'Comments %s' ), '<span class="awaiting-mod count-' . absint( $awaiting_mod ) . '"><span class="pending-count">' . number_format_i18n( $awaiting_mod ) . '</span></span>' ),
+		$awaiting_mod      = $awaiting_mod->moderated;
+		$awaiting_mod_i18n = number_format_i18n( $awaiting_mod );
+		/* translators: %s: number of comments in moderation */
+		$awaiting_mod_text = sprintf( _n( '%s Comment in moderation', '%s Comments in moderation', $awaiting_mod ), $awaiting_mod_i18n );
+
+		$menu[25] = array(
+			/* translators: %s: number of comments in moderation */
+			sprintf( __( 'Comments %s' ), '<span class="awaiting-mod count-' . absint( $awaiting_mod ) . '"><span class="pending-count" aria-hidden="true">' . $awaiting_mod_i18n . '</span><span class="comments-in-moderation-text screen-reader-text">' . $awaiting_mod_text . '</span></span>' ),
 			'edit_posts',
 			'edit-comments.php',
 			'',
@@ -195,6 +201,7 @@ if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
 	$count = "<span class='update-plugins count-{$update_data['counts']['plugins']}'><span class='plugin-count'>" . number_format_i18n( $update_data['counts']['plugins'] ) . '</span></span>';
 }
 
+/* translators: %s: number of pending plugin updates */
 $menu[65] = array( sprintf( __( 'Plugins %s' ), $count ), 'activate_plugins', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' );
 
 $submenu['plugins.php'][5] = array( __( 'Installed Plugins' ), 'activate_plugins', 'plugins.php' );
@@ -231,6 +238,7 @@ $menu[75]                     = array( __( 'Tools' ), 'edit_posts', 'tools.php',
 	$submenu['tools.php'][5]  = array( __( 'Available Tools' ), 'edit_posts', 'tools.php' );
 	$submenu['tools.php'][10] = array( __( 'Import' ), 'import', 'import.php' );
 	$submenu['tools.php'][15] = array( __( 'Export' ), 'export', 'export.php' );
+	$submenu['tools.php'][20] = array( __( 'Site Health' ), 'install_plugins', 'site-health.php' );
 if ( is_multisite() && ! is_main_site() ) {
 	$submenu['tools.php'][25] = array( __( 'Delete Site' ), 'delete_site', 'ms-delete-site.php' );
 }
@@ -238,13 +246,7 @@ if ( ! is_multisite() && defined( 'WP_ALLOW_MULTISITE' ) && WP_ALLOW_MULTISITE )
 	$submenu['tools.php'][50] = array( __( 'Network Setup' ), 'setup_network', 'network.php' );
 }
 
-$change_notice = '';
-if ( current_user_can( 'manage_privacy_options' ) && WP_Privacy_Policy_Content::text_change_check() ) {
-	$change_notice = ' <span class="update-plugins 1"><span class="plugin-count">' . number_format_i18n( 1 ) . '</span></span>';
-}
-
-// translators: %s is the update notification bubble, if updates are available.
-$menu[80]                               = array( sprintf( __( 'Settings %s' ), $change_notice ), 'manage_options', 'options-general.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-admin-settings' );
+$menu[80]                               = array( __( 'Settings' ), 'manage_options', 'options-general.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-admin-settings' );
 	$submenu['options-general.php'][10] = array( _x( 'General', 'settings screen' ), 'manage_options', 'options-general.php' );
 	$submenu['options-general.php'][15] = array( __( 'Writing' ), 'manage_options', 'options-writing.php' );
 	$submenu['options-general.php'][20] = array( __( 'Reading' ), 'manage_options', 'options-reading.php' );
@@ -255,7 +257,7 @@ if ( got_mod_rewrite() && is_super_admin() ) {
 	$submenu['options-general.php'][41] = array( __( '.htaccess' ), 'manage_options', 'options-htaccess.php' );
 }
 	// translators: %s is the update notification bubble, if updates are available.
-	$submenu['options-general.php'][45] = array( sprintf( __( 'Privacy %s' ), $change_notice ), 'manage_privacy_options', 'privacy.php' );
+	$submenu['options-general.php'][45] = array( __( 'Privacy' ), 'manage_privacy_options', 'privacy.php' );
 
 $_wp_last_utility_menu = 80; // The index of the last top-level menu in the utility menu group
 

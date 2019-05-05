@@ -46,4 +46,4 @@
 		</div><!-- .wrap -->
 	</div><!-- .panel-content -->
 
-</article><!-- #post-## -->
+</article><!-- #post-<?php the_ID(); ?> -->

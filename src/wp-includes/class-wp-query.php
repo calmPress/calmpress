@@ -327,6 +327,14 @@ class WP_Query {
 	public $is_home = false;
 
 	/**
+	 * Signifies whether the current query is for the Privacy Policy page.
+	 *
+	 * @since 5.2.0
+	 * @var bool
+	 */
+	public $is_privacy_policy = false;
+
+	/**
 	 * Signifies whether the current query couldn't find anything.
 	 *
 	 * @since 1.5.0
@@ -464,6 +472,7 @@ class WP_Query {
 		$this->is_comment_feed      = false;
 		$this->is_trackback         = false;
 		$this->is_home              = false;
+		$this->is_privacy_policy    = false;
 		$this->is_404               = false;
 		$this->is_paged             = false;
 		$this->is_admin             = false;
@@ -965,6 +974,10 @@ class WP_Query {
 				$this->is_home       = true;
 				$this->is_posts_page = true;
 			}
+
+			if ( isset( $this->queried_object_id ) && $this->queried_object_id == get_option( 'wp_page_for_privacy_policy' ) ) {
+				$this->is_privacy_policy = true;
+			}
 		}
 
 		if ( $qv['page_id'] ) {
@@ -972,6 +985,10 @@ class WP_Query {
 				$this->is_page       = false;
 				$this->is_home       = true;
 				$this->is_posts_page = true;
+			}
+
+			if ( $qv['page_id'] == get_option( 'wp_page_for_privacy_policy' ) ) {
+				$this->is_privacy_policy = true;
 			}
 		}
 
@@ -3678,6 +3695,27 @@ class WP_Query {
 	}
 
 	/**
+	 * Is the query for the Privacy Policy page?
+	 *
+	 * This is the page which shows the Privacy Policy content of your site.
+	 *
+	 * Depends on the site's "Change your Privacy Policy page" Privacy Settings 'wp_page_for_privacy_policy'.
+	 *
+	 * This function will return true only on the page you set as the "Privacy Policy page".
+	 *
+	 * @since 5.2.0
+	 *
+	 * @return bool True, if Privacy Policy page.
+	 */
+	public function is_privacy_policy() {
+		if ( get_option( 'wp_page_for_privacy_policy' ) && $this->is_page( get_option( 'wp_page_for_privacy_policy' ) ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Is the query for an existing month archive?
 	 *
 	 * @since 3.1.0
@@ -3958,6 +3996,53 @@ class WP_Query {
 			return;
 		}
 
+		$elements = $this->generate_postdata( $post );
+		if ( false === $elements ) {
+			return;
+		}
+
+		$id           = $elements['id'];
+		$authordata   = $elements['authordata'];
+		$currentday   = $elements['currentday'];
+		$currentmonth = $elements['currentmonth'];
+		$page         = $elements['page'];
+		$pages        = $elements['pages'];
+		$multipage    = $elements['multipage'];
+		$more         = $elements['more'];
+		$numpages     = $elements['numpages'];
+
+		/**
+		 * Fires once the post data has been setup.
+		 *
+		 * @since 2.8.0
+		 * @since 4.1.0 Introduced `$this` parameter.
+		 *
+		 * @param WP_Post  $post The Post object (passed by reference).
+		 * @param WP_Query $this The current Query object (passed by reference).
+		 */
+		do_action_ref_array( 'the_post', array( &$post, &$this ) );
+
+		return true;
+	}
+
+	/**
+	 * Generate post data.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @param WP_Post|object|int $post WP_Post instance or Post ID/object.
+	 * @return array|bool $elements Elements of post or false on failure.
+	 */
+	public function generate_postdata( $post ) {
+
+		if ( ! ( $post instanceof WP_Post ) ) {
+			$post = get_post( $post );
+		}
+
+		if ( ! $post ) {
+			return false;
+		}
+
 		$id = (int) $post->ID;
 
 		$authordata = get_userdata( $post->post_author );
@@ -4027,18 +4112,9 @@ class WP_Query {
 			$multipage = 0;
 		}
 
-		/**
-		 * Fires once the post data has been setup.
-		 *
-		 * @since 2.8.0
-		 * @since 4.1.0 Introduced `$this` parameter.
-		 *
-		 * @param WP_Post  $post The Post object (passed by reference).
-		 * @param WP_Query $this The current Query object (passed by reference).
-		 */
-		do_action_ref_array( 'the_post', array( &$post, &$this ) );
+		$elements = compact( 'id', 'authordata', 'currentday', 'currentmonth', 'page', 'pages', 'multipage', 'more', 'numpages' );
 
-		return true;
+		return $elements;
 	}
 	/**
 	 * After looping through a nested query, this function

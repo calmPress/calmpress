@@ -159,6 +159,7 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 				'deprecated',
 				'dom-ready',
 				'redux-routine',
+				'shortcode',
 				'token-list',
 			].map( camelCaseDash ) ),
 			new CustomTemplatedPathPlugin( {
