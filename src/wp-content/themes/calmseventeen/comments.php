@@ -45,7 +45,7 @@
 		<ol class="comment-list">
 			<?php
 				wp_list_comments( array(
-					'avatar_size' => 100,
+					'avatar_size' => 50,
 					'style'       => 'ol',
 					'short_ping'  => true,
 					'reply_text'  => calmseventeen_get_svg( array( 'icon' => 'mail-reply' ) ) . __( 'Reply', 'calmseventeen' ),
