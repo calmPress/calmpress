@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests covering Locked_File_Access functionality
+ * Unit tests covering Blank_Avatar functionality
  *
  * @package calmPress
  * @since 1.0.0
