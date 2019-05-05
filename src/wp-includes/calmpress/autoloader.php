@@ -33,6 +33,7 @@ const MAP = [
 	'calmpress\avatar\Has_Avatar'                       => __DIR__ . '/avatar/class-has-avatar.php',
 	'calmpress\avatar\Text_Based_Avatar'                => __DIR__ . '/avatar/class-text-based-avatar.php',
 	'calmpress\avatar\Image_Based_Avatar'               => __DIR__ . '/avatar/class-image-based-avatar.php',
+	'calmpress\avatar\Html_Parameter_Validation'        => __DIR__ . '/avatar/trait-html-parameter-validation.php',
 ];
 
 spl_autoload_register(

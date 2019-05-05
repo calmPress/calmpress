@@ -16,6 +16,7 @@ namespace calmpress\avatar;
  * @since 1.0.0
  */
 class Text_Based_Avatar implements Avatar {
+	use Html_Parameter_Validation;
 
 	/**
 	 * The text from which the avatar's text will be derived.
@@ -89,7 +90,7 @@ class Text_Based_Avatar implements Avatar {
 	 *                on the initials of the name and background color based on
 	 *                the email address.
 	 */
-	public function html( int $width, int $height ) : string {
+	protected function _html( int $width, int $height ) : string {
 		$font_size = $height / 2;
 
 		// crc32 is not optimal but it is easy to use.

@@ -16,6 +16,7 @@ namespace calmpress\avatar;
  * @since 1.0.0
  */
 class Image_Based_Avatar implements Avatar {
+	use Html_Parameter_Validation;
 
 	/**
 	 * The attachment storing information on the avatar image.
@@ -47,7 +48,7 @@ class Image_Based_Avatar implements Avatar {
 	 *
 	 * @return string The IMG element.
 	 */
-	public function html( int $width, int $height ) : string {
+	protected function _html( int $width, int $height ) : string {
 		$attr          = [ 'style' => 'border-radius:50%' ];
 		$attachment_id = $this->attachment->ID;
 

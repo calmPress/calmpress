@@ -18,6 +18,7 @@ namespace calmpress\avatar;
  * @since 1.0.0
  */
 class Blank_Avatar implements Avatar {
+	use Html_Parameter_Validation;
 
 	/**
 	 * Implementation of the html method of the Avatar interface which returns
@@ -31,7 +32,7 @@ class Blank_Avatar implements Avatar {
 	 * @return string An HTML which will be rendered as a blank rectangle of the
 	 *                requested dimensions.
 	 */
-	public function html( int $width, int $height ) : string {
+	protected function _html( int $width, int $height ) : string {
 
 		$html = "<span style='display:inline-block;width:${width}px;height:${height}px'></span>";
 
