@@ -6,7 +6,7 @@
  * @since 1.0.0
  */
 
-require __DIR__ . '/html_parameter_validation.php';
+require_once __DIR__ . '/html_parameter_validation.php';
 
 class Text_Based_Avatar_Test extends WP_UnitTestCase {
 	use Html_Parameter_Validation_Test;
