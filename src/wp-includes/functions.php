@@ -2970,8 +2970,7 @@ function wp_die( $message = '', $title = '', $args = array() ) {
 	} elseif ( wp_is_xml_request()
 		|| isset( $wp_query ) &&
 			( function_exists( 'is_feed' ) && is_feed()
-			|| function_exists( 'is_comment_feed' ) && is_comment_feed()
-			|| function_exists( 'is_trackback' ) && is_trackback() ) ) {
+			|| function_exists( 'is_comment_feed' ) && is_comment_feed() ) ) {
 		/**
 		 * Filters the callback for killing WordPress execution for XML requests.
 		 *
@@ -6875,7 +6874,7 @@ function recurse_dirsize( $directory, $exclude = null, $max_execution_time = nul
 * @return bool True if required version is compatible or empty, false if not.
 */
 function is_wp_version_compatible( $required ) {
-	return empty( $required ) || version_compare( get_bloginfo( 'version' ), $required, '>=' );
+	return empty( $required ) || version_compare( wordpress_core_version(), $required, '>=' );
 }
 
 /**

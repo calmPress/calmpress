@@ -1430,7 +1430,7 @@ endif;
 
 if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 	/**
-	 * Notify an author (and/or others) of a comment/trackback/pingback on a post.
+	 * Notify an author (and/or others) of a comment on a post.
 	 *
 	 * @since 1.0.0
 	 *
@@ -1439,9 +1439,6 @@ if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 	 * @return bool True on completion. False if no email addresses were specified.
 	 */
 	function wp_notify_postauthor( $comment_id, $deprecated = null ) {
-		if ( null !== $deprecated ) {
-			_deprecated_argument( __FUNCTION__, '3.8.0' );
-		}
 
 		$comment = get_comment( $comment_id );
 		if ( empty( $comment ) || empty( $comment->comment_post_ID ) ) {
@@ -1532,7 +1529,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 				$notify_message .= sprintf( __( 'Author: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 				/* translators: %s: comment author email */
 				$notify_message .= sprintf( __( 'Email: %s' ), $comment->comment_author_email ) . "\r\n";
-				/* translators: %s: trackback/pingback/comment author URL */
+				/* translators: %s: comment author URL */
 				$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
 				/* translators: %s: comment text */
 				$notify_message .= sprintf( __( 'Comment: %s' ), "\r\n" . $comment_content ) . "\r\n\r\n";
@@ -1674,26 +1671,6 @@ if ( ! function_exists( 'wp_notify_moderator' ) ) :
 		$comment_content = wp_specialchars_decode( $comment->comment_content );
 
 		switch ( $comment->comment_type ) {
-			case 'trackback':
-				/* translators: %s: post title */
-				$notify_message  = sprintf( __( 'A new trackback on the post "%s" is waiting for your approval' ), $post->post_title ) . "\r\n";
-				$notify_message .= get_permalink( $comment->comment_post_ID ) . "\r\n\r\n";
-				/* translators: 1: trackback/pingback website name, 2: website IP address, 3: website hostname */
-				$notify_message .= sprintf( __( 'Website: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
-				/* translators: %s: trackback/pingback/comment author URL */
-				$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
-				$notify_message .= __( 'Trackback excerpt: ' ) . "\r\n" . $comment_content . "\r\n\r\n";
-				break;
-			case 'pingback':
-				/* translators: %s: post title */
-				$notify_message  = sprintf( __( 'A new pingback on the post "%s" is waiting for your approval' ), $post->post_title ) . "\r\n";
-				$notify_message .= get_permalink( $comment->comment_post_ID ) . "\r\n\r\n";
-				/* translators: 1: trackback/pingback website name, 2: website IP address, 3: website hostname */
-				$notify_message .= sprintf( __( 'Website: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
-				/* translators: %s: trackback/pingback/comment author URL */
-				$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
-				$notify_message .= __( 'Pingback excerpt: ' ) . "\r\n" . $comment_content . "\r\n\r\n";
-				break;
 			default: // Comments
 				/* translators: %s: post title */
 				$notify_message  = sprintf( __( 'A new comment on the post "%s" is waiting for your approval' ), $post->post_title ) . "\r\n";
@@ -1702,7 +1679,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) ) :
 				$notify_message .= sprintf( __( 'Author: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 				/* translators: %s: comment author email */
 				$notify_message .= sprintf( __( 'Email: %s' ), $comment->comment_author_email ) . "\r\n";
-				/* translators: %s: trackback/pingback/comment author URL */
+				/* translators: %s: comment author URL */
 				$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
 				/* translators: %s: comment text */
 				$notify_message .= sprintf( __( 'Comment: %s' ), "\r\n" . $comment_content ) . "\r\n\r\n";
