@@ -316,6 +316,7 @@ class Tests_Privacy_WpPrivacySendErasureFulfillmentNotification extends WP_UnitT
 	 * @group l10n
 	 */
 	public function test_should_send_fulfillment_email_in_user_locale() {
+		$this->markTestSkipped( 'Delay till we have better translations.' );
 		update_user_meta( self::$request_user->ID, 'locale', 'es_ES' );
 
 		_wp_privacy_send_erasure_fulfillment_notification( self::$request_id );
@@ -333,6 +334,7 @@ class Tests_Privacy_WpPrivacySendErasureFulfillmentNotification extends WP_UnitT
 	 * @group l10n
 	 */
 	public function test_should_send_fulfillment_email_in_user_locale_when_site_is_not_en_us() {
+		$this->markTestSkipped( 'Delay till we have better translations.' );
 		update_option( 'WPLANG', 'es_ES' );
 		switch_to_locale( 'es_ES' );
 
@@ -354,6 +356,7 @@ class Tests_Privacy_WpPrivacySendErasureFulfillmentNotification extends WP_UnitT
 	 * @group l10n
 	 */
 	public function test_should_send_fulfillment_email_in_user_locale_when_admin_and_site_have_different_locales() {
+		$this->markTestSkipped( 'Delay till we have better translations.' );
 		update_option( 'WPLANG', 'es_ES' );
 		switch_to_locale( 'es_ES' );
 
@@ -375,6 +378,7 @@ class Tests_Privacy_WpPrivacySendErasureFulfillmentNotification extends WP_UnitT
 	 * @group l10n
 	 */
 	public function test_should_send_fulfillment_email_in_user_locale_when_both_have_different_locales_than_site() {
+		$this->markTestSkipped( 'Delay till we have better translations.' );
 		update_option( 'WPLANG', 'es_ES' );
 		switch_to_locale( 'es_ES' );
 
