@@ -67,27 +67,18 @@ class Tests_Avatar extends WP_UnitTestCase {
 		return $this->fake_url;
 	}
 
-	public function test_get_avatar() {
-		$img = get_avatar( 1 );
-		$this->assertEquals( preg_match( "|^<img alt='[^']*' src='[^']*' srcset='[^']*' class='[^']*' height='[^']*' width='[^']*' />$|", $img ), 1 );
-	}
-
 	public function test_get_avatar_size() {
 		$size = '100';
 		$img  = get_avatar( 1, $size );
-		$this->assertEquals( preg_match( "|^<img .*height='$size'.*width='$size'|", $img ), 1 );
-	}
-
-	public function test_get_avatar_alt() {
-		$alt = 'Mr Hyde';
-		$img = get_avatar( 1, 96, '', $alt );
-		$this->assertEquals( preg_match( "|^<img alt='$alt'|", $img ), 1 );
+		// User do not have an image avatar and should generate a text one.
+		$this->assertContains( 'height:100px', $img );
+		$this->assertContains( 'width:100px', $img );
 	}
 
 	public function test_get_avatar_class() {
 		$class = 'first';
 		$img   = get_avatar( 1, 96, '', '', array( 'class' => $class ) );
-		$this->assertEquals( preg_match( "|^<img .*class='[^']*{$class}[^']*'|", $img ), 1 );
+		$this->assertContains( $class, $img );
 	}
 
 	protected $fake_img;
