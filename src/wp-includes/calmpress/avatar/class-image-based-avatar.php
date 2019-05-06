@@ -1,6 +1,6 @@
 <?php
 /**
- * Implementation of a blan avatar.
+ * Implementation of an image based avatar.
  *
  * @package calmPress
  * @since 1.0.0
@@ -39,14 +39,18 @@ class Image_Based_Avatar implements Avatar {
 	}
 
 	/**
-	 * An IMG element pointing to the image in the attachment.
+	 * Generate an HTML for avatar based on IMG element pointing to the image in
+	 * the attachment.
+	 *
+	 * In case the attachment do not correspond to an actual image, an HTML of a
+	 * blank avatar is retrieved.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param int $width  The width of the avatar image.
 	 * @param int $hieght The height of the avatar image.
 	 *
-	 * @return string The IMG element.
+	 * @return string The HTML.
 	 */
 	protected function _html( int $width, int $height ) : string {
 		$attr          = [ 'style' => 'border-radius:50%' ];
@@ -107,7 +111,7 @@ class Image_Based_Avatar implements Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return null Indicates no attachment is associated with the avatar.
+	 * @return \WP_Post The attachment which is associated with the avatar.
 	 */
 	public function attachment() {
 		return $this->attachment;

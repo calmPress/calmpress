@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace calmpress\avatar;
 
 /**
- * A representation of a blank avatar which can be used where avatar should not
+ * A representation of a blank avatar which can be used where "proper" avatar could not
  * be displayed. A nicer alternative to returning empty values when an avatar is
  * requested.
  *

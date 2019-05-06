@@ -1,6 +1,6 @@
 <?php
 /**
- * Interface specification of the avatar class
+ * Implementation of an avatar class based on textual information.
  *
  * @package calmPress
  * @since 1.0.0
@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace calmpress\avatar;
 
 /**
- * A representation of an avatar which is based on a string.
+ * A representation of an avatar which is based on textual information.
  *
  * @since 1.0.0
  */
