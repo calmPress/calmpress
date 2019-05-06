@@ -54,6 +54,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 					'post_date'    => gmdate( 'Y-m-d H:i:s', self::$post_date + ( 5 * $i ) ),
 					'post_content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec velit massa, ultrices eu est suscipit, mattis posuere est. Donec vitae purus lacus. Cras vitae odio odio.',
 					'post_excerpt' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+					'comment_status' => ( $i === 1) ? 'open' : '',
 				)
 			);
 		}
@@ -214,9 +215,14 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 			$link = xml_find( $items[ $key ]['child'], 'link' );
 			$this->assertEquals( get_permalink( $post ), $link[0]['content'] );
 
-			// Comment link
+			// Comment link.
 			$comments_link = xml_find( $items[ $key ]['child'], 'comments' );
-			$this->assertEquals( get_permalink( $post ) . '#respond', $comments_link[0]['content'] );
+			// It is there only if comments are open.
+			if ( 'open' === $post->comment_open ) {
+				$this->assertEquals( get_permalink( $post ) . '#respond', $comments_link[0]['content'] );
+			} else {
+				$this->assertEquals( 0, count( $comments_link ) );
+			}
 
 			// Pub date
 			$pubdate = xml_find( $items[ $key ]['child'], 'pubDate' );
