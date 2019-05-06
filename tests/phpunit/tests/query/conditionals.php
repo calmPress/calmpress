@@ -1056,7 +1056,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	 */
 	public function test_is_single_should_not_match_numeric_id_to_post_title_beginning_with_id() {
 		if ( getenv( 'TRAVIS' ) ) {
-			$this->markTestSkipped( 'fails on travis pass locally wtf.')
+			$this->markTestSkipped( 'fails on travis pass locally wtf.');
 			return;
 		}
 
@@ -1086,7 +1086,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	 */
 	public function test_is_single_should_not_match_numeric_id_to_post_name_beginning_with_id() {
 		if ( getenv( 'TRAVIS' ) ) {
-			$this->markTestSkipped( 'fails on travis pass locally wtf.')
+			$this->markTestSkipped( 'fails on travis pass locally wtf.');
 			return;
 		}
 		$p1 = self::factory()->post->create(
