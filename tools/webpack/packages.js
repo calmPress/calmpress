@@ -57,6 +57,7 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 
 	const packages = [
 		'hooks',
+		'i18n',
 	];
 
 	const vendors = {
