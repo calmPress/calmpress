@@ -1404,82 +1404,6 @@ class WP_Site_Health {
 	}
 
 	/**
-	 * Test if WordPress can run automated background updates.
-	 *
-	 * Background updates in WordPress are primarily used for minor releases and security updates. It's important
-	 * to either have these working, or be aware that they are intentionally disabled for whatever reason.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @return array The test results.
-	 */
-	public function get_test_background_updates() {
-		$result = array(
-			'label'       => __( 'Background updates are working' ),
-			'status'      => 'good',
-			'badge'       => array(
-				'label' => __( 'Security' ),
-				'color' => 'blue',
-			),
-			'description' => sprintf(
-				'<p>%s</p>',
-				__( 'Background updates ensure that WordPress can auto-update if a security update is released for the version you are currently using.' )
-			),
-			'actions'     => '',
-			'test'        => 'background_updates',
-		);
-
-		if ( ! class_exists( 'WP_Site_Health_Auto_Updates' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/class-wp-site-health-auto-updates.php' );
-		}
-
-		// Run the auto-update tests in a separate class,
-		// as there are many considerations to be made.
-		$automatic_updates = new WP_Site_Health_Auto_Updates();
-		$tests             = $automatic_updates->run_tests();
-
-		$output = '<ul>';
-
-		foreach ( $tests as $test ) {
-			$severity_string = __( 'Passed' );
-
-			if ( 'fail' === $test->severity ) {
-				$result['label'] = __( 'Background updates are not working as expected' );
-
-				$result['status'] = 'critical';
-
-				$severity_string = __( 'Error' );
-			}
-
-			if ( 'warning' === $test->severity && 'good' === $result['status'] ) {
-				$result['label'] = __( 'Background updates may not be working properly' );
-
-				$result['status'] = 'recommended';
-
-				$severity_string = __( 'Warning' );
-			}
-
-			$output .= sprintf(
-				'<li><span class="%s"><span class="screen-reader-text">%s</span></span> %s</li>',
-				esc_attr( $test->severity ),
-				$severity_string,
-				$test->description
-			);
-		}
-
-		$output .= '</ul>';
-
-		if ( 'good' !== $result['status'] ) {
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				$output
-			);
-		}
-
-		return $result;
-	}
-
-	/**
 	 * Test if loopbacks work as expected.
 	 *
 	 * A loopback is when WordPress queries itself, for example to start a new WP_Cron instance, or when editing a
@@ -1763,10 +1687,6 @@ class WP_Site_Health {
 				'dotorg_communication' => array(
 					'label' => __( 'Communication with WordPress.org' ),
 					'test'  => 'dotorg_communication',
-				),
-				'background_updates'   => array(
-					'label' => __( 'Background updates' ),
-					'test'  => 'background_updates',
 				),
 				'loopback_requests'    => array(
 					'label' => __( 'Loopback request' ),
