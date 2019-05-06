@@ -634,7 +634,6 @@ class WP_Site_Health {
 	 * @return array The test results.
 	 */
 	public function get_test_php_version() {
-		$response = wp_check_php_version();
 
 		$result = array(
 			'label'       => sprintf(
@@ -660,32 +659,6 @@ class WP_Site_Health {
 			),
 			'test'        => 'php_version',
 		);
-
-		// PHP is up to date.
-		if ( ! $response || version_compare( PHP_VERSION, $response['recommended_version'], '>=' ) ) {
-			return $result;
-		}
-
-		// The PHP version is older than the recommended version, but still acceptable.
-		if ( $response['is_supported'] ) {
-			$result['label']  = __( 'We recommend that you update PHP' );
-			$result['status'] = 'recommended';
-
-			return $result;
-		}
-
-		// The PHP version is only receiving security fixes.
-		if ( $response['is_secure'] ) {
-			$result['label']  = __( 'Your PHP version should be updated' );
-			$result['status'] = 'recommended';
-
-			return $result;
-		}
-
-		// Anything no longer secure must be updated.
-		$result['label']          = __( 'Your PHP version requires an update' );
-		$result['status']         = 'critical';
-		$result['badge']['label'] = __( 'Security' );
 
 		return $result;
 	}
