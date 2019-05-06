@@ -52,6 +52,33 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 		$avatar2 = new \calmpress\avatar\Text_Based_Avatar( '', 't@testi.com' );
 		$blank = new \calmpress\avatar\Blank_Avatar();
 		$this->assertEquals( $blank->html( 50, 50 ), $avatar2->html( 50, 50 ) );
+	}
 
+	/**
+	 * Test that the filter is executed as part of text avatar generation.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_filter() {
+		$ret_array = [];
+		$html = $this->avatar->html( 50, 60 );
+
+		add_filter( 'calm_text_based_avatar_html', function ( $html, $text, $color_factor, $width, $height ) use ( &$ret_array ) {
+			$ret_array['html']         = $html;
+			$ret_array['text']         = $text;
+			$ret_array['color_factor'] = $color_factor;
+			$ret_array['width']        = $width;
+			$ret_array['height']       = $height;
+			return 'tost';
+		}, 10, 5 );
+
+		$ret = $this->avatar->html( 50, 60 );
+
+		$this->assertEquals( 'tost', $ret );
+		$this->assertEquals( $html, $ret_array['html'] );
+		$this->assertEquals( 'test for best', $ret_array['text'] );
+		$this->assertEquals( 't@test.com', $ret_array['color_factor'] );
+		$this->assertEquals( 50, $ret_array['width'] );
+		$this->assertEquals( 60, $ret_array['height'] );
 	}
 }
