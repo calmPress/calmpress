@@ -41,7 +41,7 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 		$this->assertContains( '>TB<', $html );
 
 		// Test different color factor result with different color (indirectly via html).
-		$avatar2 = new \calmpress\avatar\Text_Based_Avatar( 'test for best', 't@testi.com' );
+		$avatar2 = new \calmpress\avatar\Text_Based_Avatar( 'test for best', 't@calm.com' );
 		$this->assertNotEquals( $this->avatar->html( 50, 50 ), $avatar2->html( 50, 50 ) );
 
 		// Test text on width smaller than 40 px.
