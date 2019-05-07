@@ -2425,11 +2425,11 @@ if ( ! function_exists( 'get_avatar' ) ) :
 			}
 		}
 
-		if ( $args['html'] ) {
+		if ( isset( $args['html'] ) && $args['html'] ) {
 			$avatar = $args['html'];
 			$avatar = str_replace( '>', ' class="' . esc_attr( join( ' ', $class ) ) . '">', $avatar );
 		} else {
-			$url = $args['url'];
+			$url    = $args['url'];
 			$avatar = sprintf(
 				"<img alt='' src='%s' class='%s' height='%d' width='%d' %s/>",
 				esc_url( $url ),
