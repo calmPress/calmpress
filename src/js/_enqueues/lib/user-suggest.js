@@ -45,7 +45,7 @@
 		$( '.wp-suggest-user' ).each( function(){
 			var $this = $( this ),
 				autocompleteType = ( typeof $this.data( 'autocompleteType' ) !== 'undefined' ) ? $this.data( 'autocompleteType' ) : 'add',
-				autocompleteField = ( typeof $this.data( 'autocompleteField' ) !== 'undefined' ) ? $this.data( 'autocompleteField' ) : 'user_login';
+				autocompleteField = ( typeof $this.data( 'autocompleteField' ) !== 'undefined' ) ? $this.data( 'autocompleteField' ) : 'user_email';
 
 			$this.autocomplete({
 				source:    ajaxurl + '?action=autocomplete-user&autocomplete_type=' + autocompleteType + '&autocomplete_field=' + autocompleteField + id,
