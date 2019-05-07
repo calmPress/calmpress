@@ -39,6 +39,16 @@ $messages['post_tag'] = array(
 	6 => __( 'Tags deleted.' ),
 );
 
+$messages['calm_authors'] = array(
+	0 => '',
+	1 => __( 'Author added.' ),
+	2 => __( 'Author deleted.' ),
+	3 => __( 'Author updated.' ),
+	4 => __( 'Author not added.' ),
+	5 => __( 'Author not updated.' ),
+	6 => __( 'Author deleted.' ),
+);
+
 /**
  * Filters the messages displayed when a tag is updated.
  *

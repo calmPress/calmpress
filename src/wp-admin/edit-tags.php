@@ -462,7 +462,7 @@ if ( $can_edit_terms ) {
 	<textarea name="description" id="tag-description" rows="5" cols="40"></textarea>
 	<p><?php _e( 'The description is not prominent by default; however, some themes may show it.' ); ?></p>
 </div>
-<?php if ( 'calm_authors' === $taxonomy ) {	?>
+	<?php if ( 'calm_authors' === $taxonomy ) { ?>
 	<style>
 	#featured-image {
 		max-height: 150px;
@@ -478,16 +478,16 @@ if ( $can_edit_terms ) {
 			<img id="featured-image" style="display:none" src="" />
 			<input type="hidden" name="featured-image-id" id="featured-image-id" value="0" />
 		</div>
-		<a class="button-secondary featured-image-choose">
+		<button type="button" class="button featured-image-choose">
 			<?php esc_html_e( 'Select Image' ); ?>
-		</a>
-		<a class="button featured-image-remove" style="display:none">
+		</button>
+		<button type="button" class="button featured-image-remove" style="display:none">
 			<?php esc_html_e( 'Deselect The Image' ); ?>
-		</a>
+		</button>
 		<p class="description"><?php esc_html_e( 'An image that can be used to identify the author where appropriate.' ); ?></p></td>
 	</div>
-<?php
-}
+	<?php
+	}
 
 	if ( ! is_taxonomy_hierarchical( $taxonomy ) ) {
 		/**
