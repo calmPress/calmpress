@@ -227,6 +227,7 @@ module.exports = function(grunt) {
 			'admin-js': {
 				files: {
 					[ WORKING_DIR + 'wp-admin/js/accordion.js' ]: [ './src/js/_enqueues/lib/accordion.js' ],
+					[ WORKING_DIR + 'wp-admin/js/author.js' ]: [ './src/js/_enqueues/admin/author.js' ],
 					[ WORKING_DIR + 'wp-admin/js/code-editor.js' ]: [ './src/js/_enqueues/wp/code-editor.js' ],
 					[ WORKING_DIR + 'wp-admin/js/color-picker.js' ]: [ './src/js/_enqueues/lib/color-picker.js' ],
 					[ WORKING_DIR + 'wp-admin/js/comment.js' ]: [ './src/js/_enqueues/admin/comment.js' ],
