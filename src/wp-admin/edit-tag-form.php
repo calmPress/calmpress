@@ -215,12 +215,12 @@ if ( isset( $tag->name ) ) {
 						<img id="featured-image" <?php echo $deselect_style; ?> src="<?php echo esc_url( $img_url ); ?>" />
 						<input type="hidden" name="featured-image-id" id="featured-image-id" value="<?php echo esc_attr( $attachment_id ); ?>" />
 					</div>
-					<a class="button-secondary featured-image-choose">
+					<button type="button" class="button featured-image-choose">
 						<?php esc_html_e( 'Select Image' ); ?>
-					</a>
-					<a class="button featured-image-remove"<?php echo $deselect_style; ?>>
+					</button>
+					<button type="button" class="button featured-image-remove"<?php echo $deselect_style; ?>>
 						<?php esc_html_e( 'Deselect The Image' ); ?>
-					</a>
+					</button>
 				</td>
 				<p class="description"><?php esc_html_e( 'An image that can be used to identify the author where appropriate.' ); ?></p></td>
 			</tr>
