@@ -374,20 +374,30 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 	 *
 	 * For post with no author, the avatar will be blank.
 	 * For post with one author The avatar will be the image associated with the
-	 * author if one exist or one based on the author's name and email.
+	 * author if one exist or one based on the author's name.
 	 * For a post with more then one author the avatar will be an image associated
-	 * with one of the authors or if non found be based on one of the authors names.
+	 * with one of the authors or if non found be based on the name of one of the authors.
 	 *
 	 * @since calmPress 1.0.0
 	 *
 	 * @return \calmpress\avatar\Avatar
 	 */
 	public function avatar() : \calmpress\avatar\Avatar {
-		$attachment_id = get_user_meta( $this->ID, 'calm_avatar', true );
-		if ( $attachment_id ) {
-			return new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
-		} else {
-			return new \calmpress\avatar\Text_Based_Avatar( $this->display_name, $this->user_email );
+		$authors = \calmpress\post_authors\Post_Authors_As_Taxonomy::post_authors( $this );
+
+		if ( 0 === count( $authors ) ) {
+			// No authors, return a blank avatar.
+			return new \calmpress\avatar\Blank_Avatar();
 		}
+
+		// One or multi author... return an avatar based on the image of one of the authors.
+		// If no author has one, return an avatar based on the name of one of them.
+		foreach ( $authors as $author ) {
+			$image = $author->image();
+			if ( $image ) {
+				return new \calmpress\avatar\Image_Based_Avatar( $image );
+			}
+		}
+		return new \calmpress\avatar\Text_Based_Avatar( $authors[0]->name(), '' );
 	}
 }
