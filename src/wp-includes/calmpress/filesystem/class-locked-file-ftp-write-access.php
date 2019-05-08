@@ -75,7 +75,7 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 	}
 
 	/**
-	 * Check if a path can be accesseable on the FTP server based on the base dir
+	 * Check if a path can be accessible on the FTP server based on the base dir
 	 * configuration.
 	 *
 	 * If the path is outside, raise an exception.
@@ -84,7 +84,7 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 	 *
 	 * @throws Locked_File_Exception If $path is not in base_dir.
 	 *
-	 * @param string $path The path to check
+	 * @param string $path The path to check.
 	 *
 	 * @return string The path relative to the FTP server root (base_dir).
 	 */
@@ -99,7 +99,7 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 		// Using case insensitive here is not great but probably good enough for
 		// real life usage.
 		if ( 0 !== stripos( $path, $this->base_dir ) ) {
-			throw new Locked_File_Exception( '"' . $path . '" is not accessible as FTP root is ' . '"' . $this->base_dir . '"', Locked_File_Exception::PATH_NOT_ACESSABLE, $path );
+			throw new Locked_File_Exception( '"' . $path . '" is not accessible as FTP root is "' . $this->base_dir . '"', Locked_File_Exception::PATH_NOT_ACESSABLE, $path );
 		}
 
 		// Remove the base dir part of the file's path.
@@ -129,11 +129,11 @@ class Locked_File_FTP_Write_Access extends Locked_File_Access {
 	 * @return resource stream context allowing file overwrite.
 	 */
 	private function stream_context() {
-		// Allows overwriting of existing files on the remote FTP server
-		$stream_options = array('ftp' => array('overwrite' => true));
+		// Allows overwriting of existing files on the remote FTP server.
+		$stream_options = [ 'ftp' => [ 'overwrite' => true ] ];
 
-		// Creates a stream context resource with the defined options
-		$stream_context = stream_context_create($stream_options);
+		// Creates a stream context resource with the defined options.
+		$stream_context = stream_context_create( $stream_options );
 
 		return $stream_context;
 	}

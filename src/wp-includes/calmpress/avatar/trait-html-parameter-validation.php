@@ -27,7 +27,7 @@ trait Html_Parameter_Validation {
 	 * @since 1.0.0
 	 *
 	 * @param int $width  The width of the avatar image.
-	 * @param int $hieght The height of the avatar image.
+	 * @param int $height The height of the avatar image.
 	 *
 	 * @return string An HTML which will be rendered as a blank rectangle of the
 	 *                requested dimensions. In case of a validation error an empty
@@ -55,7 +55,7 @@ trait Html_Parameter_Validation {
 	 * @since 1.0.0
 	 *
 	 * @param int $width  The width of the avatar image.
-	 * @param int $hieght The height of the avatar image.
+	 * @param int $height The height of the avatar image.
 	 *
 	 * @return string The escaped HTML needed to display the avatar.
 	 */

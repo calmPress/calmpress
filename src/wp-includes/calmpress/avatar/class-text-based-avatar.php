@@ -41,7 +41,7 @@ class Text_Based_Avatar implements Avatar {
 	 * https://material-ui.com/style/color/ which have a good contrast for white
 	 * text.
 	 *
-	 * var string[]
+	 * @var string[]
 	 *
 	 * @since 1.0.0
 	 */
@@ -81,7 +81,7 @@ class Text_Based_Avatar implements Avatar {
 	 * @since 1.0.0
 	 *
 	 * @param int $width  The width of the avatar image.
-	 * @param int $hieght The height of the avatar image.
+	 * @param int $height The height of the avatar image.
 	 *
 	 * @return string An HTML which will be rendered as a rectangle of the
 	 *                requested dimensions which will contain capital letters based

@@ -48,7 +48,7 @@ class Image_Based_Avatar implements Avatar {
 	 * @since 1.0.0
 	 *
 	 * @param int $width  The width of the avatar image.
-	 * @param int $hieght The height of the avatar image.
+	 * @param int $height The height of the avatar image.
 	 *
 	 * @return string The HTML.
 	 */
@@ -70,27 +70,27 @@ class Image_Based_Avatar implements Avatar {
 		}
 
 		list($src, $w, $h) = $image;
-		$attr[ 'src' ] = $src;
+		$attr['src']       = $src;
 		// get srcset related attributes.
 		$image_meta = wp_get_attachment_metadata( $attachment_id );
 		if ( is_array( $image_meta ) ) {
-			$size_array = [ $w, $h ] ;
-        	$srcset     = wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id );
+			$size_array = [ $w, $h ];
+			$srcset     = wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id );
 			if ( $srcset ) {
-        		$sizes = wp_calculate_image_sizes( $size_array, $src, $image_meta, $attachment_id );
+				$sizes = wp_calculate_image_sizes( $size_array, $src, $image_meta, $attachment_id );
 				if ( $sizes ) {
 					$attr['srcset'] = $srcset;
-					$attr['sizes'] = $sizes;
+					$attr['sizes']  = $sizes;
 				}
 			}
 		}
 
 		$attr_str = array_map( 'esc_attr', $attr );
-		$html = rtrim( "<img alt='' width='$width' height='$height'" );
-        foreach ( $attr as $name => $value ) {
-            $html .= " $name=" . '"' . $value . '"';
-        }
-        $html .= '>';
+		$html     = "<img alt='' width='$width' height='$height'";
+		foreach ( $attr as $name => $value ) {
+			$html .= " $name=" . '"' . $value . '"';
+		}
+		$html .= '>';
 
 		/**
 		 * Filters the generated image avatar.

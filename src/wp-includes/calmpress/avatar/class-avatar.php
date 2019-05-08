@@ -25,7 +25,7 @@ interface Avatar {
 	 * @since 1.0.0
 	 *
 	 * @param int $width  The width of the avatar image.
-	 * @param int $hieght The height of the avatar image.
+	 * @param int $height The height of the avatar image.
 	 *
 	 * @return string The escaped HTML needed to display the avatar.
 	 */

@@ -27,7 +27,7 @@ class Blank_Avatar implements Avatar {
 	 * @since 1.0.0
 	 *
 	 * @param int $width  The width of the avatar image.
-	 * @param int $hieght The height of the avatar image.
+	 * @param int $height The height of the avatar image.
 	 *
 	 * @return string An HTML which will be rendered as a blank rectangle of the
 	 *                requested dimensions.
