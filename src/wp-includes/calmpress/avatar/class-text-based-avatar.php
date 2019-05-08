@@ -109,7 +109,7 @@ class Text_Based_Avatar implements Avatar {
 		}
 		$text = esc_html( strtoupper( $text ) );
 
-		$html = "<span style='display:inline-block;border-radius:50%;text-align:center;color:white;line-height:${height}px;width:${width}px;height:${height}px;font-size:${font_size}px;background:${color}'>$text</span>";
+		$html = "<span aria-hidden="true" style='display:inline-block;border-radius:50%;text-align:center;color:white;line-height:${height}px;width:${width}px;height:${height}px;font-size:${font_size}px;background:${color}'>$text</span>";
 
 		/**
 		 * Filters the generated image avatar.
