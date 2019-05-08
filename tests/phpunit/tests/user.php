@@ -1502,4 +1502,74 @@ class Tests_User extends WP_UnitTestCase {
 		// Number of exported user properties.
 		$this->assertSame( 11, count( $actual['data'][0]['data'] ) );
 	}
+
+	/**
+	 * Test avatar image association.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	 function test_avatar() {
+		$file = DIR_TESTDATA . '/images/canola.jpg';
+		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
+
+		// No avatar on user creation.
+		$id1 = wp_insert_user(
+			[
+				'user_login' => rand_str(),
+				'user_pass'  => 'password',
+				'user_email' => 'taco@burrito.com',
+			]
+		);
+		$user = get_user_by( 'id', $id1 );
+		$this->assertNull( $user->avatar()->attachment() );
+
+		// No avatar on user creation.
+		$id2 = wp_insert_user(
+			[
+				'user_login' => rand_str(),
+				'user_pass'  => 'password',
+				'user_email' => 'taco2@burrito.com',
+				'avatar_attachment_id' => $attachment_id,
+		   ]
+		);
+		$user2 = get_user_by( 'id', $id2 );
+		$this->assertEquals( $attachment_id, $user2->avatar()->attachment()->ID );
+
+		// Updating user with no avatar specified still have no avatar associated.
+		wp_update_user(
+			[
+				'ID'         => $id1,
+				'user_email' => 'david@battlefield4.com',
+			]
+		);
+		$this->assertNull( $user->avatar()->attachment() );
+
+		// Updating user with an avatar specified will associate the attachment.
+		wp_update_user(
+			[
+				'ID'         => $id1,
+				'user_email' => 'david2@battlefield4.com',
+				'avatar_attachment_id' => $attachment_id,
+			]
+		);
+		$this->assertEquals( $attachment_id, $user->avatar()->attachment()->ID );
+
+		// Updating user with no avatar specified will keep avatar associated if there is one.
+		wp_update_user(
+			[
+				'ID'         => $id1,
+				'user_email' => 'david3@battlefield4.com',
+			]
+		);
+		$this->assertEquals( $attachment_id, $user->avatar()->attachment()->ID );
+
+		// Updating user avatar with the value 0 will remove the avatar.
+		wp_update_user(
+			[
+				'ID'         => $id1,
+				'avatar_attachment_id' => 0,
+			]
+		);
+		$this->assertNull( $user->avatar()->attachment() );
+	 }
 }

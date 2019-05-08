@@ -41,5 +41,10 @@ class Tests_User_Avatar extends WP_UnitTestCase {
 		// avatar directly with the name and email.
 		$image_avatar = new \calmpress\avatar\Image_Based_Avatar( $attachment );
 		$this->assertEquals( $image_avatar->html(50,50), $avatar->html( 50, 50 ) );
+
+		// Test avatar removal.
+		$user->remove_avatar();
+		$avatar = $user->avatar();
+		$this->assertEquals( $text_avatar->html(50,50), $avatar->html( 50, 50 ) );		
 	}
 }
