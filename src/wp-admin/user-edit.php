@@ -25,6 +25,7 @@ if ( ! $user_id && IS_PROFILE_PAGE ) {
 	wp_die( __( 'Invalid user ID.' ) );
 }
 
+wp_enqueue_media();
 wp_enqueue_script( 'user-profile' );
 
 if ( IS_PROFILE_PAGE ) {
@@ -483,32 +484,59 @@ endif; //!IS_PROFILE_PAGE
 	<p class="description"><?php _e( 'Share a little biographical information to fill out your profile. This may be shown publicly.' ); ?></p></td>
 </tr>
 
-<tr class="user-profile-picture">
-	<th><?php _e( 'Profile Picture' ); ?></th>
+<tr class="user-avatar-image">
+	<th><?php esc_html_e( 'Avatar image' ); ?></th>
 	<td>
 		<?php
-			$avatar = $profileuser->avatar();
-			$attachment = $avatar->attachment();
-			$attachment_id = $attachment ? $attachment->ID : 0;
+		$avatar     = $profileuser->avatar();
+		$attachment = $avatar->attachment();
+		if ( $attachment ) {
+			$attachment_id = $attachment->ID;
+			$text_avatar   = new \calmpress\avatar\Text_Based_Avatar( $profileuser->display_name, $profileuser->user_email );
+			$image_display = '';
+			$text_display  = ' style="display:none"';
+		} else {
+			$attachment_id = 0;
+			$text_avatar   = $avatar;
+			$text_display  = '';
+			$image_display = ';display:none';
+		}
 		?>
 		<input type="hidden" id="calm_avatar_image_attachement_id" name="calm_avatar_image_attachement_id" value="<?php echo esc_attr( $attachment_id ); ?>">
 		<div id='calm_avatar_container'>
-			<?php
-				echo $avatar->html( 50, 50 );
-			?>
-			<p class="description">
-				<?php esc_html_e( 'This image is being displayed next to the profile name on the admin side, and might be displayed next to comments and other contexts.' ); ?>
-			</p>
-		</div>
-		<div>
-			<?php
-				if ( current_user_can( 'upload_files' ) ) {
-					if ( $avatar->attachment() ) {
-						echo '<button>' . esc_html__( 'Revert to the site`s default' ) . '</button>';
+			<div style="margin-bottom:4px">
+				<span id="avatar_image_preview" style="vertical-align:top<?php echo $image_display?>">
+					<?php
+					if ( $attachment_id ) {
+						echo $avatar->html( 50, 50 );
+					} else {
+						echo "<img style='border-radius:50%' src='' alt='' width=50 height=50>";
 					}
-					echo '<button>' . esc_html__( 'Use a different Image' ) . '</button>';
+					?>
+				</span>
+				<span id="avatar_text_preview"<?php echo $text_display; ?>>
+					<?php
+					echo $text_avatar->html( 50, 50 );
+					?>
+				</span>
+			</div>
+			<div>
+				<?php
+				if ( current_user_can( 'upload_files' ) ) {
+					$disabled = '';
+					if ( ! $avatar->attachment() ) {
+						$disabled = ' disabled=""';
+					}
+					echo '<button type="button" class="button" id="select_avatar_image" style="margin:0 5px">' . esc_html__( 'Use a Different Image' ) . '</button>';
+					echo '<button type="button" class="button" id="revert_avatar_image"' . $disabled . '>' . esc_html__( 'Revert to the Site`s Default' ) . '</button>';
+				} else {
+					esc_html_e( 'You do not have the permissions required to change it.' );
 				}
-			?>
+				?>
+			</div>
+			<p class="description">
+				<?php esc_html_e( 'This image is being displayed next to your profile name on the admin side, and might be displayed next to comments you leave and in other contexts.' ); ?>
+			</p>
 		</div>
 	</td>
 </tr>
