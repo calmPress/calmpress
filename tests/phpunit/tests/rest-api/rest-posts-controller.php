@@ -153,7 +153,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			'author',
 			'author_exclude',
 			'before',
-			'calm_authors',
+			\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
 			'calm_authors_exclude',
 			'categories',
 			'categories_exclude',
@@ -3114,7 +3114,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		$expected_keys = array(
 			'author',
-			'calm_authors',
+			\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
 			'categories',
 			'comment_status',
 			'content',
@@ -3152,7 +3152,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		$expected_keys = array(
 			'author',
-			'calm_authors',
+			\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
 			'categories',
 			'comment_status',
 			'content',

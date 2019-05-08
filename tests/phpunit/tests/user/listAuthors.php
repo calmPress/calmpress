@@ -20,26 +20,26 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		'html'          => true );
 		*/
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$author_ids[] = $factory->term->create( array( 'taxonomy' => 'calm_authors', 'name' => 'zack' ) );
-		self::$author_ids[] = $factory->term->create( array( 'taxonomy' => 'calm_authors', 'name' => 'bob' ) );
-		self::$author_ids[] = $factory->term->create( array( 'taxonomy' => 'calm_authors', 'name' => 'paul' ) );
-		self::$fred_id = $factory->term->create( array( 'taxonomy' => 'calm_authors', 'name' => 'fred' ) );
+		self::$author_ids[] = $factory->term->create( array( 'taxonomy' => \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, 'name' => 'zack' ) );
+		self::$author_ids[] = $factory->term->create( array( 'taxonomy' => \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, 'name' => 'bob' ) );
+		self::$author_ids[] = $factory->term->create( array( 'taxonomy' => \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, 'name' => 'paul' ) );
+		self::$fred_id = $factory->term->create( array( 'taxonomy' => \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, 'name' => 'fred' ) );
 
 		$count = 0;
 		foreach ( self::$author_ids as $authorid ) {
 			$count = $count + 1;
 			for ( $i = 0; $i < $count; $i++ ) {
 				$pid = $factory->post->create( array( 'post_type' => 'post' ) );
-				wp_set_object_terms( $pid, $authorid, 'calm_authors' );
+				wp_set_object_terms( $pid, $authorid, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 				self::$posts[] = $pid;
 			}
 
-			$author_term = get_term( $authorid, 'calm_authors' );
+			$author_term = get_term( $authorid, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 			$post_author = new calmpress\post_authors\Taxonomy_Based_Post_Author( $author_term );
 			self::$user_urls[] = $post_author->posts_url();
 		}
 
-		$author_term = get_term( self::$fred_id, 'calm_authors' );
+		$author_term = get_term( self::$fred_id, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$post_author = new calmpress\post_authors\Taxonomy_Based_Post_Author( $author_term );
 		self::$fred_url = $post_author->posts_url();
 	}

@@ -5,7 +5,7 @@
  */
 class Tests_Taxonomy extends WP_UnitTestCase {
 	function test_get_post_taxonomies() {
-		$this->assertEquals(array('category', 'post_tag', 'post_format', 'calm_authors' ), get_object_taxonomies('post'));
+		$this->assertEquals(array('category', 'post_tag', 'post_format', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ), get_object_taxonomies('post'));
 	}
 
 	/**

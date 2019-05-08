@@ -181,7 +181,7 @@ if ( isset( $tag->name ) ) {
 			<p class="description"><?php _e( 'The description is not prominent by default; however, some themes may show it.' ); ?></p></td>
 		</tr>
 		<?php
-		if ( 'calm_authors' === $taxonomy ) {
+		if ( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME === $taxonomy ) {
 			$attachment_id = (int) get_term_meta( $tag->term_id, 'calm_featured_image', true );
 			$img_url       = '';
 			if ( 0 !== $attachment_id ) {

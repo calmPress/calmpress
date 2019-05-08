@@ -71,7 +71,7 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			'author',
 			'author_exclude',
 			'before',
-			'calm_authors',
+			\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
 			'calm_authors_exclude',
 			'context',
 			'exclude',
@@ -605,7 +605,7 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$properties = $data['schema']['properties'];
 		$this->assertEquals( 25, count( $properties ) );
 		$this->assertArrayHasKey( 'author', $properties );
-		$this->assertArrayHasKey( 'calm_authors', $properties );
+		$this->assertArrayHasKey( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, $properties );
 		$this->assertArrayHasKey( 'comment_status', $properties );
 		$this->assertArrayHasKey( 'content', $properties );
 		$this->assertArrayHasKey( 'date', $properties );

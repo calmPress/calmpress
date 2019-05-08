@@ -43,16 +43,16 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 	function test_taxonomy_available_after_init() {
 
 		// Test that the taxonomy is registered.
-		$this->assertTrue( taxonomy_exists( 'calm_authors' ) );
+		$this->assertTrue( taxonomy_exists( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
 
 		// Test if it is associated with post, page, and attachment post types.
-		$this->assertTrue( is_object_in_taxonomy( 'post', 'calm_authors' ) );
-		$this->assertTrue( is_object_in_taxonomy( 'page', 'calm_authors' ) );
-		$this->assertTrue( is_object_in_taxonomy( 'attachment', 'calm_authors' ) );
+		$this->assertTrue( is_object_in_taxonomy( 'post', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
+		$this->assertTrue( is_object_in_taxonomy( 'page', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
+		$this->assertTrue( is_object_in_taxonomy( 'attachment', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
 
 		// Test with custom post types
-		$this->assertTrue( is_object_in_taxonomy( 'with_author', 'calm_authors' ) );
-		$this->assertFalse( is_object_in_taxonomy( 'no_author', 'calm_authors' ) );
+		$this->assertTrue( is_object_in_taxonomy( 'with_author', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
+		$this->assertFalse( is_object_in_taxonomy( 'no_author', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
 	}
 
 	/**
@@ -75,15 +75,15 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 		$this->assertCount( 0, post_authors\Post_Authors_As_Taxonomy::post_authors( $post ) );
 
 		// Test one author.
-		$author1 = wp_insert_term( 'author1', 'calm_authors' );
-		wp_set_object_terms( $post1, $author1['term_id'], 'calm_authors', true );
+		$author1 = wp_insert_term( 'author1', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( $post1, $author1['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$authors = post_authors\Post_Authors_As_Taxonomy::post_authors( $post );
 		$this->assertCount( 1, $authors );
 		$this->assertEquals( $author1['term_id'], $authors[0]->term_id() );
 
 		// Two authors.
-		$author2 = wp_insert_term( 'author2', 'calm_authors' );
-		wp_set_object_terms( $post1, $author2['term_id'], 'calm_authors', true );
+		$author2 = wp_insert_term( 'author2', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( $post1, $author2['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$authors = post_authors\Post_Authors_As_Taxonomy::post_authors( $post );
 		$this->assertCount( 2, $authors );
 		$this->assertEquals( $author1['term_id'], $authors[0]->term_id() );
@@ -116,17 +116,17 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 		$this->assertEquals( 0, post_authors\Post_Authors_As_Taxonomy::authors_post_count( $post ) );
 
 		// Test one author, one post.
-		$author1 = wp_insert_term( 'author1', 'calm_authors' );
-		wp_set_object_terms( $post1, $author1['term_id'], 'calm_authors', true );
+		$author1 = wp_insert_term( 'author1', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( $post1, $author1['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$this->assertEquals( 1, post_authors\Post_Authors_As_Taxonomy::authors_post_count( $post ) );
 
 		// Two authors, one post. Make sure the overlap is taken into account.
-		$author2 = wp_insert_term( 'author2', 'calm_authors' );
-		wp_set_object_terms( $post1, $author2['term_id'], 'calm_authors', true );
+		$author2 = wp_insert_term( 'author2', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( $post1, $author2['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$this->assertEquals( 1, post_authors\Post_Authors_As_Taxonomy::authors_post_count( $post ) );
 
 		// Two authors, two posts.
-		wp_set_object_terms( $post2, $author2['term_id'], 'calm_authors', true );
+		wp_set_object_terms( $post2, $author2['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$this->assertEquals( 2, post_authors\Post_Authors_As_Taxonomy::authors_post_count( $post ) );
 	}
 
@@ -150,14 +150,14 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 		$this->assertEquals( '', post_authors\Post_Authors_As_Taxonomy::combined_authors_url( $post ) );
 
 		// Test one author.
-		$author1 = wp_insert_term( 'author1', 'calm_authors' );
-		wp_set_object_terms( $post1, $author1['term_id'], 'calm_authors', true );
+		$author1 = wp_insert_term( 'author1', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( $post1, $author1['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$url = post_authors\Post_Authors_As_Taxonomy::combined_authors_url( $post );
 		$this->assertContains( 'author1', $url );
 
 		// Two authors.
-		$author2 = wp_insert_term( 'author2', 'calm_authors' );
-		wp_set_object_terms( $post1, $author2['term_id'], 'calm_authors', true );
+		$author2 = wp_insert_term( 'author2', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( $post1, $author2['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$url = post_authors\Post_Authors_As_Taxonomy::combined_authors_url( $post );
 		$this->assertContains( 'author1', $url );
 		$this->assertContains( 'author2', $url );
@@ -199,26 +199,26 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 			) );
 
 		// Create authors and associate with posts.
-		$author1 = wp_insert_term( 'author1', 'calm_authors' );
+		$author1 = wp_insert_term( 'author1', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author1 = $author1['term_id'];
 
-		wp_set_object_terms( $post1, $author1, 'calm_authors', true );
-		wp_set_object_terms( $post2, $author1, 'calm_authors', true );
+		wp_set_object_terms( $post1, $author1, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
+		wp_set_object_terms( $post2, $author1, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 
-		$author2 = wp_insert_term( 'author2', 'calm_authors' );
+		$author2 = wp_insert_term( 'author2', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author2 = $author2['term_id'];
 
-		wp_set_object_terms( $post1, $author2, 'calm_authors', true );
-		wp_set_object_terms( $post2, $author2, 'calm_authors', true );
-		wp_set_object_terms( $post3, $author2, 'calm_authors', true );
+		wp_set_object_terms( $post1, $author2, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
+		wp_set_object_terms( $post2, $author2, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
+		wp_set_object_terms( $post3, $author2, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 
-		$author3 = wp_insert_term( 'author3', 'calm_authors' );
+		$author3 = wp_insert_term( 'author3', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author3 = $author3['term_id'];
 
-		$author4 = wp_insert_term( 'author4', 'calm_authors' );
+		$author4 = wp_insert_term( 'author4', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author4 = $author4['term_id'];
 
-		wp_set_object_terms( $post3, $author4, 'calm_authors', true );
+		wp_set_object_terms( $post3, $author4, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 
 		// Get all, no specific order.
 		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(

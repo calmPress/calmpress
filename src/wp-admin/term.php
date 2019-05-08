@@ -63,7 +63,7 @@ get_current_screen()->set_screen_reader_content(
 );
 wp_enqueue_script( 'admin-tags' );
 
-if ( 'calm_authors' === $taxonomy ) {
+if ( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME === $taxonomy ) {
 	wp_enqueue_media();
 	wp_enqueue_script( 'calm-author' );
 }

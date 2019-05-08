@@ -39,7 +39,7 @@ $messages['post_tag'] = array(
 	6 => __( 'Tags deleted.' ),
 );
 
-$messages['calm_authors'] = array(
+$messages[ \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ] = array(
 	0 => '',
 	1 => __( 'Author added.' ),
 	2 => __( 'Author deleted.' ),

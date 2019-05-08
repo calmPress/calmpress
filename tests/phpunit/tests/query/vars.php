@@ -51,7 +51,7 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 
 			// Dynamically added public query vars:
 			'rest_route',
-			'calm_authors',
+			\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
 
 		);
 		sort( $expected );

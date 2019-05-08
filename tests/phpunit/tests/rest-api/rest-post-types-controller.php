@@ -59,7 +59,7 @@ class WP_Test_REST_Post_Types_Controller extends WP_Test_REST_Controller_Testcas
 		$response = rest_get_server()->dispatch( $request );
 		$this->check_post_type_object_response( 'view', $response );
 		$data = $response->get_data();
-		$this->assertEquals( array( 'category', 'post_tag', 'calm_authors' ), $data['taxonomies'] );
+		$this->assertEquals( array( 'category', 'post_tag', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ), $data['taxonomies'] );
 	}
 
 	public function test_get_item_page() {
@@ -67,7 +67,7 @@ class WP_Test_REST_Post_Types_Controller extends WP_Test_REST_Controller_Testcas
 		$response = rest_get_server()->dispatch( $request );
 		$this->check_post_type_object_response( 'view', $response, 'page' );
 		$data = $response->get_data();
-		$this->assertEquals( array( 'calm_authors' ), $data['taxonomies'] );
+		$this->assertEquals( array( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ), $data['taxonomies'] );
 	}
 
 	public function test_get_item_invalid_type() {

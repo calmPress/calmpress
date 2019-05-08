@@ -238,7 +238,7 @@ if ( $pagenum > $total_pages && $total_pages > 0 ) {
 
 wp_enqueue_script( 'admin-tags' );
 
-if ( 'calm_authors' === $taxonomy ) {
+if ( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME === $taxonomy ) {
 	wp_enqueue_media();
 	wp_enqueue_script( 'calm-author' );
 }
@@ -462,7 +462,7 @@ if ( $can_edit_terms ) {
 	<textarea name="description" id="tag-description" rows="5" cols="40"></textarea>
 	<p><?php _e( 'The description is not prominent by default; however, some themes may show it.' ); ?></p>
 </div>
-	<?php if ( 'calm_authors' === $taxonomy ) { ?>
+	<?php if ( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME === $taxonomy ) { ?>
 	<style>
 	#featured-image {
 		max-height: 150px;

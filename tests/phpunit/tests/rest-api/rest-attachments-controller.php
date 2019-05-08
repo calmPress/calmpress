@@ -160,7 +160,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 			'author',
 			'author_exclude',
 			'before',
-			'calm_authors',
+			\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
 			'calm_authors_exclude',
 			'context',
 			'exclude',
@@ -1305,7 +1305,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$properties = $data['schema']['properties'];
 		$this->assertEquals( 27, count( $properties ) );
 		$this->assertArrayHasKey( 'author', $properties );
-		$this->assertArrayHasKey( 'calm_authors', $properties );
+		$this->assertArrayHasKey( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, $properties );
 		$this->assertArrayHasKey( 'alt_text', $properties );
 		$this->assertArrayHasKey( 'caption', $properties );
 		$this->assertArrayHasKey( 'raw', $properties['caption']['properties'] );

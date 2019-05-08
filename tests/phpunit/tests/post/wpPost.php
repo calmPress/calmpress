@@ -81,8 +81,8 @@ class Tests_Post_WpPost extends WP_UnitTestCase {
 
 		// One author, avatar is text based.
 		// Test one author.
-		$author1 = wp_insert_term( 'author1', 'calm_authors' );
-		wp_set_object_terms( $pid, $author1['term_id'], 'calm_authors', true );
+		$author1 = wp_insert_term( 'author1', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( $pid, $author1['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$text_avatar = new \calmpress\avatar\Text_Based_Avatar( 'author1', '' );
 		$this->assertEquals( $text_avatar->html( 50, 50 ), $post->avatar()->html( 50, 50 ) );
 
