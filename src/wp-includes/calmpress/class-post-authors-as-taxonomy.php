@@ -90,7 +90,7 @@ class Post_Authors_As_Taxonomy {
 		add_action(
 			'admin_menu', function () {
 				$tax = get_taxonomy( self::TAXONOMY_NAME );
-				add_menu_page( __( 'Autors' ), __( 'Authors' ), $tax->cap->manage_terms, 'edit-tags.php?taxonomy=' . $tax->name, '', 'dashicons-admin-users', 69 );
+				add_menu_page( __( 'Authors' ), __( 'Authors' ), $tax->cap->manage_terms, 'edit-tags.php?taxonomy=' . $tax->name, '', 'dashicons-admin-users', 69 );
 			}
 		);
 	}
