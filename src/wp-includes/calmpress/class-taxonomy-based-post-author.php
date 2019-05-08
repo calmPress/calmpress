@@ -20,6 +20,15 @@ namespace calmpress\post_authors;
 class Taxonomy_Based_Post_Author implements Post_Author {
 
 	/**
+	 * The term meta key holding the attachment id of the "featured image".
+	 *
+	 * @var string
+	 *
+	 * @since 1.0.0
+	 */
+	const IMAGE_META_KEY = 'calm_featured_image';
+
+	/**
 	 * The term holding the author information.
 	 *
 	 * @var \WP_Term
@@ -75,7 +84,7 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	 *                       no image is associated with the author.
 	 */
 	public function image() {
-		$id = get_term_meta( $this->term->term_id, 'calm_featured_image', true );
+		$id = get_term_meta( $this->term->term_id, self::IMAGE_META_KEY, true );
 
 		if ( ! $id ) {
 			return null;

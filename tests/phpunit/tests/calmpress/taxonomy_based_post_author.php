@@ -101,13 +101,13 @@ class WP_Test_Taxonomy_Based_Post_Author extends WP_UnitTestCase {
 		$this->assertNull( $author->image() );
 
 		// Test when a junk value.
-		update_term_meta( $author1, 'calm_featured_image', 999999);
+		update_term_meta( $author1, post_authors\Taxonomy_Based_Post_Author::IMAGE_META_KEY, 999999);
 		$this->assertNull( $author->image() );
 
 		// Test with actually existing image.
 		$file = DIR_TESTDATA . '/images/canola.jpg';
 		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
-		update_term_meta( $author1, 'calm_featured_image', $attachment_id);
+		update_term_meta( $author1, post_authors\Taxonomy_Based_Post_Author::IMAGE_META_KEY, $attachment_id);
 		$this->assertEquals( $attachment_id, $author->image()->ID );
 
 	}

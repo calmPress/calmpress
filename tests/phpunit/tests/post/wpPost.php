@@ -89,7 +89,7 @@ class Tests_Post_WpPost extends WP_UnitTestCase {
 		// Add an image to the author.
 		$file = DIR_TESTDATA . '/images/canola.jpg';
 		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
-		update_term_meta( $author1['term_id'], 'calm_featured_image', $attachment_id);
+		update_term_meta( $author1['term_id'], \calmpress\post_authors\Taxonomy_Based_Post_Author::IMAGE_META_KEY, $attachment_id);
 		$image_avatar = new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
 		$this->assertEquals( $image_avatar->html( 50, 50 ), $post->avatar()->html( 50, 50 ) );
 	}

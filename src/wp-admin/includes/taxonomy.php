@@ -325,5 +325,5 @@ function calm_save_author( $term_id, $taxonomy ) {
 
 	$attachment_id = (int) $_POST[ 'featured-image-id' ];
 
-	update_term_meta( $term_id, 'calm_featured_image', $attachment_id );
+	update_term_meta( $term_id, \calmpress\post_authors\Taxonomy_Based_Post_Author::IMAGE_META_KEY, $attachment_id );
 }

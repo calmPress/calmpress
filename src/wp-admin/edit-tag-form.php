@@ -182,7 +182,7 @@ if ( isset( $tag->name ) ) {
 		</tr>
 		<?php
 		if ( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME === $taxonomy ) {
-			$attachment_id = (int) get_term_meta( $tag->term_id, 'calm_featured_image', true );
+			$attachment_id = (int) get_term_meta( $tag->term_id, \calmpress\post_authors\Taxonomy_Based_Post_Author::IMAGE_META_KEY, true );
 			$img_url       = '';
 			if ( 0 !== $attachment_id ) {
 				$img_url = wp_get_attachment_image_url( $attachment_id, array( 150, 150 ) );
