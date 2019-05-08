@@ -759,13 +759,15 @@ function wp_default_scripts( &$scripts ) {
 		'user-profile',
 		'userProfileL10n',
 		array(
-			'warn'     => __( 'Your new password has not been saved.' ),
-			'warnWeak' => __( 'Confirm use of weak password' ),
-			'show'     => __( 'Show' ),
-			'hide'     => __( 'Hide' ),
-			'cancel'   => __( 'Cancel' ),
-			'ariaShow' => esc_attr__( 'Show password' ),
-			'ariaHide' => esc_attr__( 'Hide password' ),
+			'warn'             => __( 'Your new password has not been saved.' ),
+			'warnWeak'         => __( 'Confirm use of weak password' ),
+			'show'             => __( 'Show' ),
+			'hide'             => __( 'Hide' ),
+			'cancel'           => __( 'Cancel' ),
+			'ariaShow'         => esc_attr__( 'Show password' ),
+			'ariaHide'         => esc_attr__( 'Hide password' ),
+			'avatarMediaTitle' => esc_html__( 'Choose an Avatar Image' ),
+			'avatarSelectText' => esc_html__( "Set as the avatar's image" ),
 		)
 	);
 

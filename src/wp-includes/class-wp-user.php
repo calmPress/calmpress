@@ -829,6 +829,16 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * Removes the association of the user with any image used as its avatar,
+	 * if one was defined.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function remove_avatar() {
+		delete_user_meta( $this->ID, self::AVATAR_ATTACHMENT_ID );
+	}
+
+	/**
 	 * The avatar associated with the user.
 	 *
 	 * A user might have an avatar image associated with it, in which case an

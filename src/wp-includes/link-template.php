@@ -3724,13 +3724,13 @@ function get_avatar_data( $id_or_email, $args = null ) {
 		$avatar = new \calmpress\avatar\Blank_Avatar();
 	}
 
-	$url = '';
+	$url        = '';
 	$attachment = $avatar->attachment();
 	if ( $attachment ) {
-		$url = wp_get_attachment_image_src( $attachment->ID, [ 'width' => $args['width'], 'height' => $args['height'] ] );
+		$url = wp_get_attachment_image_src( $attachment->ID, [ $args['width'], $args['height'] ] );
 		if ( ! $url ) {
 			trigger_error( 'Failed to get image source for the attachment ' . $attachment->ID, E_USER_NOTICE );
-			$url = '';
+			$url    = '';
 			$avatar = new \calmpress\avatar\Blank_Avatar();
 		}
 	}

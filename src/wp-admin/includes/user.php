@@ -125,6 +125,10 @@ function edit_user( $user_id = 0 ) {
 		$user->use_ssl = 1;
 	}
 
+	if ( isset( $_POST['calm_avatar_image_attachement_id'] ) ) {
+		$user->avatar_attachment_id = wp_unslash( $_POST['calm_avatar_image_attachement_id'] );
+	}
+
 	$errors = new WP_Error();
 
 	/**

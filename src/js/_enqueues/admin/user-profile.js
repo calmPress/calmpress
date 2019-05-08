@@ -17,7 +17,8 @@
 		$toggleButton,
 		$submitButtons,
 		$submitButton,
-		currentPass;
+		currentPass,
+		avatar_images_modal;
 
 	function generatePassword() {
 		if ( typeof zxcvbn !== 'function' ) {
@@ -425,5 +426,59 @@
 			return userProfileL10n.warn;
 		}
 	} );
+
+	$( '#select_avatar_image' )
+
+		/**
+		 * Invoke the media modal
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			event.preventDefault();
+
+			// Initialize the modal the first time.
+			if ( ! avatar_images_modal ) {
+				avatar_images_modal = wp.media.frames.author_images_modal || wp.media( {
+					title:    userProfileL10n.avatarMediaTitle,
+					button:   { text: userProfileL10n.avatarSelectText },
+					library:  { type: 'image' },
+					multiple: false
+				} );
+
+				// Picking an image
+				avatar_images_modal.on( 'select', function () {
+
+					// Get the image URL
+					var image = avatar_images_modal.state().get( 'selection' ).first().toJSON();
+
+					if ( '' !== image ) {
+						$( '#calm_avatar_image_attachement_id' ).val( image.id );
+						$( '#avatar_image_preview img' ).attr( 'src', image.url );
+						$( '#avatar_image_preview img' ).attr( 'srcset', '' );
+						$( '#avatar_image_preview img' ).attr( 'sizes', '' );
+						$( '#revert_avatar_image' ).removeAttr( 'disabled' );
+						$( '#avatar_image_preview' ).show();
+						$( '#avatar_text_preview' ).hide();
+					}
+				} );
+			}
+
+			// Open the modal
+			avatar_images_modal.open();
+		} );
+
+	$( '#revert_avatar_image' )
+		/**
+		 * Revert avatar to textual form
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			$( '#calm_avatar_image_attachement_id' ).val( 0 );
+			$( '#revert_avatar_image' ).attr( 'disabled', '' );
+			$( '#avatar_image_preview' ).hide();
+			$( '#avatar_text_preview' ).show();
+		} );
 
 })(jQuery);

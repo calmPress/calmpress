@@ -1480,6 +1480,7 @@ function validate_username( $username ) {
  *
  * @since 2.0.0
  * @since 4.7.0 The user's locale can be passed to `$userdata`.
+ * @since calmPress 1.0.0 Can set the user's avatar.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
@@ -1515,6 +1516,9 @@ function validate_username( $username ) {
  *                                             site's front end. Default true.
  *     @type string      $role                 User's role.
  *     @type string      $locale               User's locale. Default empty.
+ *     @type int         $avatar_atachment_id  Optional, the ID of the attachment
+ *                                             to be used as avatar or 0 if user has
+ *                                             no image based avatar.
  * }
  * @return int|WP_Error The newly created user's ID or a WP_Error object if the user could not
  *                      be created.
@@ -1805,6 +1809,20 @@ function wp_insert_user( $userdata ) {
 	} elseif ( ! $update ) {
 		$user->set_role( get_option( 'default_role' ) );
 	}
+
+	if ( isset( $userdata['avatar_attachment_id'] ) ) {
+		if ( ! $userdata['avatar_attachment_id'] ) {
+			$user->remove_avatar();
+		} else {
+			$image = get_post( $userdata['avatar_attachment_id'] );
+			if ( $image ) {
+				$user->set_avatar( $image );
+			} else {
+				trigger_error( 'No such attachment ' . $userdata['avatar_attachment_id'], E_USER_WARNING );
+			}
+		}
+	}
+
 	wp_cache_delete( $user_id, 'users' );
 	wp_cache_delete( $user_login, 'userlogins' );
 
