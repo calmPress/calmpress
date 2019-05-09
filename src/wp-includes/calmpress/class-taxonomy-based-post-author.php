@@ -80,7 +80,7 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	 *
 	 * @since 1.0.0
 	 */
-	public function remove_image( \WP_Post $image ) {
+	public function remove_image() {
 		delete_term_meta( $this->term->term_id, self::IMAGE_META_KEY );
 	}
 
