@@ -17,11 +17,9 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$url2 = get_avatar_url( $user );
 		$this->assertEquals( $url, $url2 );
 
+		// no URL when user  do not have image avatar.
 		$post_id = self::factory()->post->create( array( 'post_author' => 1 ) );
-		$post    = get_post( $post_id );
-		$url2    = get_avatar_url( $post );
-		$this->assertEquals( $url, $url2 );
-
+		$post = get_post( $post_id );
 		$comment_id = self::factory()->comment->create(
 			array(
 				'comment_post_ID' => $post_id,
@@ -31,6 +29,41 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$comment    = get_comment( $comment_id );
 		$url2       = get_avatar_url( $comment );
 		$this->assertEquals( $url, $url2 );
+
+		$file = DIR_TESTDATA . '/images/canola.jpg';
+		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
+		$user->set_avatar( get_post( $attachment_id ) );
+		$url2 = get_avatar_url( $user, [ 'size' => 50 ] );
+		$avatar_url = wp_get_attachment_image_url( $attachment_id, [50, 50] );
+		$this->assertContains( $url2, $avatar_url );
+
+		// No authors, no url
+		$url2 = get_avatar_url( $post );
+		$this->assertEquals( '', $url2 );
+
+		// Author but no image, no url.
+		$author1 = wp_insert_term( 'author1', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		$author = new \calmpress\post_authors\Taxonomy_Based_Post_Author( get_term( $author1['term_id'] ) );
+		wp_set_object_terms( $post_id, $author1, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
+		$url2 = get_avatar_url( $post );
+		$this->assertEquals( '', $url2 );
+
+		// author with image need to give the image url.
+		$author->set_image( get_post( $attachment_id ) );
+		$url2 = get_avatar_url( $post );
+		$avatar_url = wp_get_attachment_image_url( $attachment_id, [50, 50] );
+		$this->assertContains( $url2, $avatar_url );
+
+		$comment_id = self::factory()->comment->create(
+			array(
+				'comment_post_ID' => $post_id,
+				'user_id'         => 1,
+			)
+		);
+		$comment    = get_comment( $comment_id );
+		$url2       = get_avatar_url( $comment );
+		$avatar_url = wp_get_attachment_image_url( $attachment_id, [50, 50] );
+		$this->assertContains( $url2, $avatar_url );
 	}
 
 	protected $fake_url;
