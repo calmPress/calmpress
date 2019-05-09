@@ -182,20 +182,21 @@ if ( isset( $tag->name ) ) {
 		</tr>
 		<?php
 		if ( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME === $taxonomy ) {
-			$attachment_id = (int) get_term_meta( $tag->term_id, \calmpress\post_authors\Taxonomy_Based_Post_Author::IMAGE_META_KEY, true );
+			$author = new \calmpress\post_authors\Taxonomy_Based_Post_Author( $tag );
+			$image  = $author->image();
+
 			$img_url       = '';
-			if ( 0 !== $attachment_id ) {
-				$img_url = wp_get_attachment_image_url( $attachment_id, array( 150, 150 ) );
+			if ( $image ) {
+				$img_url = wp_get_attachment_image_url( $image->ID, array( 150, 150 ) );
 				// In case the attachment was deleted for whatever reason pretend
 				// was never set.
 				if ( ! $img_url ) {
-					$attachment_id = 0;
-					$img_url       = '';
+					$img_url = '';
 				}
 			}
 
 			$deselect_style = '';
-			if ( 0 === $attachment_id ) {
+			if ( ! $img_url ) {
 				$deselect_style = ' style="display:none"';
 			}
 			?>
@@ -213,7 +214,7 @@ if ( isset( $tag->name ) ) {
 				<td>
 					<div>
 						<img id="featured-image" <?php echo $deselect_style; ?> src="<?php echo esc_url( $img_url ); ?>" />
-						<input type="hidden" name="featured-image-id" id="featured-image-id" value="<?php echo esc_attr( $attachment_id ); ?>" />
+						<input type="hidden" name="featured-image-id" id="featured-image-id" value="<?php echo esc_attr( $image->ID ); ?>" />
 					</div>
 					<button type="button" class="button featured-image-choose">
 						<?php esc_html_e( 'Select Image' ); ?>

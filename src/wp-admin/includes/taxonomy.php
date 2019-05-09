@@ -323,7 +323,20 @@ function calm_save_author( $term_id, $taxonomy ) {
 		return;
 	}
 
-	$attachment_id = (int) $_POST[ 'featured-image-id' ];
+	$tag = get_term( $term_id, $taxonomy );
+	if ( wp_is_error( $tag ) ) {
+		// Bail if there is no such term.
+		return;
+	}
 
-	update_term_meta( $term_id, \calmpress\post_authors\Taxonomy_Based_Post_Author::IMAGE_META_KEY, $attachment_id );
+	$author        = new \calmpress\post_authors\Taxonomy_Based_Post_Author( $tag );
+	$attachment_id = (int) $_POST[ 'featured-image-id' ];
+	if ( $attachment_id > 0 ) {
+		$image = get_post( $attachment_id );
+		if ( $image ) {
+			$author->set_image( $image );
+		}
+	} else if ( 0 === $attachment_id ) {
+		$author->remove_image( $image );
+	}
 }

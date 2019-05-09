@@ -76,6 +76,27 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	}
 
 	/**
+	 * Remove the association of the featured image (if one is associated) with the author.
+	 *
+	 * @since 1.0.0
+	 */
+	public function remove_image( \WP_Post $image ) {
+		delete_term_meta( $this->term->term_id, self::IMAGE_META_KEY );
+	}
+
+	/**
+	 * Set an image attachment to be the featured image of the author.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $image The WP_Post object for the image attachment or null if
+	 *                        no image is associated with the author.
+	 */
+	public function set_image( \WP_Post $image ) {
+		update_term_meta( $this->term->term_id, self::IMAGE_META_KEY, $image->ID );
+	}
+
+	/**
 	 * Provide the attachment image associated with the author.
 	 *
 	 * @since 1.0.0
