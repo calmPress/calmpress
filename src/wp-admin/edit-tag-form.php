@@ -186,12 +186,15 @@ if ( isset( $tag->name ) ) {
 			$image  = $author->image();
 
 			$img_url       = '';
+			$attachment_id = 0;
 			if ( $image ) {
 				$img_url = wp_get_attachment_image_url( $image->ID, array( 150, 150 ) );
 				// In case the attachment was deleted for whatever reason pretend
 				// was never set.
 				if ( ! $img_url ) {
 					$img_url = '';
+				} else {
+					$attachment_id = $image->ID;
 				}
 			}
 
@@ -213,8 +216,8 @@ if ( isset( $tag->name ) ) {
 				<th scope="row"><label for="featured-image"><?php esc_html_e( 'Image' ); ?></label></th>
 				<td>
 					<div>
-						<img id="featured-image" <?php echo $deselect_style; ?> src="<?php echo esc_url( $img_url ); ?>" />
-						<input type="hidden" name="featured-image-id" id="featured-image-id" value="<?php echo esc_attr( $image->ID ); ?>" />
+						<img id="featured-image" <?php echo $deselect_style; ?> src="<?php echo esc_url( $img_url ); ?>">
+						<input type="hidden" name="featured-image-id" id="featured-image-id" value="<?php echo esc_attr( $attachment_id ); ?>">
 					</div>
 					<button type="button" class="button featured-image-choose">
 						<?php esc_html_e( 'Select Image' ); ?>
@@ -222,8 +225,8 @@ if ( isset( $tag->name ) ) {
 					<button type="button" class="button featured-image-remove"<?php echo $deselect_style; ?>>
 						<?php esc_html_e( 'Deselect The Image' ); ?>
 					</button>
+					<p class="description"><?php esc_html_e( 'An image that can be used to identify the author where appropriate.' ); ?></p>
 				</td>
-				<p class="description"><?php esc_html_e( 'An image that can be used to identify the author where appropriate.' ); ?></p></td>
 			</tr>
 			<?php
 		}

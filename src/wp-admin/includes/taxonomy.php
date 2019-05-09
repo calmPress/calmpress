@@ -319,24 +319,25 @@ function wp_create_term( $tag_name, $taxonomy = 'post_tag' ) {
 function calm_save_author( $term_id, $taxonomy ) {
 
 	// Should not happen, but better be safe.
-	if ( ! isset( $_POST[ 'featured-image-id' ] ) ) {
+	if ( ! isset( $_POST['featured-image-id'] ) ) {
 		return;
 	}
 
-	$tag = get_term( $term_id, $taxonomy );
-	if ( wp_is_error( $tag ) ) {
+	$tag = get_term( $term_id );
+
+	if ( is_wp_error( $tag ) ) {
 		// Bail if there is no such term.
 		return;
 	}
 
 	$author        = new \calmpress\post_authors\Taxonomy_Based_Post_Author( $tag );
-	$attachment_id = (int) $_POST[ 'featured-image-id' ];
+	$attachment_id = (int) $_POST['featured-image-id'];
 	if ( $attachment_id > 0 ) {
 		$image = get_post( $attachment_id );
 		if ( $image ) {
 			$author->set_image( $image );
 		}
-	} else if ( 0 === $attachment_id ) {
+	} elseif ( 0 === $attachment_id ) {
 		$author->remove_image( $image );
 	}
 }
