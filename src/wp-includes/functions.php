@@ -3482,7 +3482,7 @@ function _scalar_wp_die_handler( $message = '', $title = '', $args = array() ) {
  		$args['response'] = 500;
  	}
  	if ( empty( $title ) ) {
- 		$title = $have_gettext ? __( 'WordPress &rsaquo; Error' ) : 'WordPress &rsaquo; Error';
+ 		$title = $have_gettext ? __( 'calmPress &rsaquo; Error' ) : 'calmPress &rsaquo; Error';
  	}
  	if ( empty( $args['text_direction'] ) || ! in_array( $args['text_direction'], array( 'ltr', 'rtl' ), true ) ) {
  		$args['text_direction'] = 'ltr';

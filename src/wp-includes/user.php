@@ -2838,7 +2838,7 @@ function _wp_privacy_action_request_types() {
  */
 function wp_register_user_personal_data_exporter( $exporters ) {
 	$exporters['wordpress-user'] = array(
-		'exporter_friendly_name' => __( 'WordPress User' ),
+		'exporter_friendly_name' => __( 'calmPress User' ),
 		'callback'               => 'wp_user_personal_data_exporter',
 	);
 
