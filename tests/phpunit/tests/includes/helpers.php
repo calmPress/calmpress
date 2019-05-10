@@ -323,7 +323,7 @@ class Tests_TestHelpers extends WP_UnitTestCase {
 				),
 				array(
 					'message' => 'Broken.',
-					'title'   => 'WordPress &rsaquo; Error',
+					'title'   => 'calmPress &rsaquo; Error',
 					'args'    => array(
 						'response'       => 500,
 						'code'           => 'wp_die',
@@ -358,7 +358,7 @@ class Tests_TestHelpers extends WP_UnitTestCase {
 				),
 				array(
 					'message' => 'More breakage.',
-					'title'   => 'WordPress &rsaquo; Error',
+					'title'   => 'calmPress &rsaquo; Error',
 					'args'    => array(
 						'response'       => 400,
 						'code'           => 'custom_code',
