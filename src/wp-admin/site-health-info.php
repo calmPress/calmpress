@@ -34,15 +34,6 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 		<h1>
 			<?php _e( 'Site Health' ); ?>
 		</h1>
-
-		<div class="site-health-progress hide-if-no-js loading">
-			<svg role="img" aria-hidden="true" focusable="false" width="100%" height="100%" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
-				<circle r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
-				<circle id="bar" r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
-			</svg>
-			<span class="screen-reader-text"><?php _e( 'Current health score:' ); ?></span>
-			<span class="site-health-progress-count"></span>
-		</div>
 	</div>
 
 	<nav class="health-check-tabs-wrapper hide-if-no-js" aria-label="<?php esc_attr_e( 'Secondary menu' ); ?>">

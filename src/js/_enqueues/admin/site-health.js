@@ -85,23 +85,9 @@ jQuery( document ).ready( function( $ ) {
 	 * @since 5.2.0
 	 */
 	function RecalculateProgression() {
-		var r, c, pct;
-		var $progress = $( '.site-health-progress' );
-		var $progressCount = $progress.find( '.site-health-progress-count' );
-		var $circle = $( '.site-health-progress svg #bar' );
 		var totalTests = parseInt( SiteHealth.site_status.issues.good, 0 ) + parseInt( SiteHealth.site_status.issues.recommended, 0 ) + ( parseInt( SiteHealth.site_status.issues.critical, 0 ) * 1.5 );
 		var failedTests = parseInt( SiteHealth.site_status.issues.recommended, 0 ) + ( parseInt( SiteHealth.site_status.issues.critical, 0 ) * 1.5 );
 		var val = 100 - Math.ceil( ( failedTests / totalTests ) * 100 );
-
-		if ( 0 === totalTests ) {
-			$progress.addClass( 'hidden' );
-			return;
-		}
-
-		$progress.removeClass( 'loading' );
-
-		r = $circle.attr( 'r' );
-		c = Math.PI * ( r * 2 );
 
 		if ( 0 > val ) {
 			val = 0;
@@ -110,24 +96,12 @@ jQuery( document ).ready( function( $ ) {
 			val = 100;
 		}
 
-		pct = ( ( 100 - val ) / 100 ) * c;
-
-		$circle.css( { strokeDashoffset: pct } );
-
 		if ( 1 > parseInt( SiteHealth.site_status.issues.critical, 0 ) ) {
 			$( '#health-check-issues-critical' ).addClass( 'hidden' );
 		}
 
 		if ( 1 > parseInt( SiteHealth.site_status.issues.recommended, 0 ) ) {
 			$( '#health-check-issues-recommended' ).addClass( 'hidden' );
-		}
-
-		if ( 50 <= val ) {
-			$circle.addClass( 'orange' ).removeClass( 'red' );
-		}
-
-		if ( 90 <= val ) {
-			$circle.addClass( 'green' ).removeClass( 'orange' );
 		}
 
 		if ( 100 === val ) {
