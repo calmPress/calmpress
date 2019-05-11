@@ -56,7 +56,7 @@ class WP_Debug_Data {
 		$info = array();
 
 		$info['wp-core'] = array(
-			'label'  => __( 'WordPress' ),
+			'label'  => __( 'calmPress' ),
 			'fields' => array(
 				'version'                => array(
 					'label' => __( 'Version' ),
@@ -119,7 +119,7 @@ class WP_Debug_Data {
 		$info['wp-dropins'] = array(
 			'label'       => __( 'Drop-ins' ),
 			'show_count'  => true,
-			'description' => __( 'Drop-ins are single files that replace or enhance WordPress features in ways that are not possible for traditional plugins.' ),
+			'description' => __( 'Drop-ins are single files that replace or enhance calmPress features in ways that are not possible for traditional plugins.' ),
 			'fields'      => array(),
 		);
 
@@ -214,8 +214,8 @@ class WP_Debug_Data {
 		}
 
 		$info['wp-constants'] = array(
-			'label'       => __( 'WordPress Constants' ),
-			'description' => __( 'These settings alter where and how parts of WordPress are loaded.' ),
+			'label'       => __( 'calmPress Constants' ),
+			'description' => __( 'These settings alter where and how parts of calmPress are loaded.' ),
 			'fields'      => array(
 				'ABSPATH'             => array(
 					'label'   => 'ABSPATH',
@@ -300,10 +300,10 @@ class WP_Debug_Data {
 
 		$info['wp-filesystem'] = array(
 			'label'       => __( 'Filesystem Permissions' ),
-			'description' => __( 'Shows whether WordPress is able to write to the directories it needs access to.' ),
+			'description' => __( 'Shows whether calmPress is able to write to the directories it needs access to.' ),
 			'fields'      => array(
 				'wordpress'  => array(
-					'label' => __( 'The main WordPress directory' ),
+					'label' => __( 'The main calmPress directory' ),
 					'value' => ( $is_writable_abspath ? __( 'Writable' ) : __( 'Not writable' ) ),
 					'debug' => ( $is_writable_abspath ? 'writable' : 'not writable' ),
 				),
@@ -397,7 +397,7 @@ class WP_Debug_Data {
 
 			$info['wp-paths']['fields'] = array(
 				'wordpress_path' => array(
-					'label' => __( 'WordPress directory location' ),
+					'label' => __( 'calmPress directory location' ),
 					'value' => untrailingslashit( ABSPATH ),
 				),
 				'uploads_path'   => array(

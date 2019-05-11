@@ -74,7 +74,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 			<?php _e( 'Site Health Status' ); ?>
 		</h2>
 
-		<p><?php _e( 'The site health check shows critical information about your WordPress configuration and items that require your attention.' ); ?></p>
+		<p><?php _e( 'The site health check shows critical information about your calmPress configuration and items that require your attention.' ); ?></p>
 
 		<div class="site-health-issues-wrapper" id="health-check-issues-critical">
 			<h3 class="site-health-issue-count-title">
