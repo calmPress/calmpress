@@ -108,8 +108,6 @@ jQuery( document ).ready( function( $ ) {
 			$( '.site-status-has-issues' ).addClass( 'hide' );
 		}
 
-		$progressCount.text( val + '%' );
-
 		if ( ! isDebugTab ) {
 			$.post(
 				ajaxurl,
