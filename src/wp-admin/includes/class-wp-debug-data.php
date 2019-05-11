@@ -110,8 +110,8 @@ class WP_Debug_Data {
 		);
 
 		if ( ! $is_multisite ) {
-			$info['wp-paths-sizes'] = array(
-				'label'  => __( 'Directories and Sizes' ),
+			$info['wp-paths'] = array(
+				'label'  => __( 'Directories' ),
 				'fields' => array(),
 			);
 		}
@@ -395,52 +395,22 @@ class WP_Debug_Data {
 		if ( ! $is_multisite ) {
 			$loading = __( 'Loading&hellip;' );
 
-			$info['wp-paths-sizes']['fields'] = array(
+			$info['wp-paths']['fields'] = array(
 				'wordpress_path' => array(
 					'label' => __( 'WordPress directory location' ),
 					'value' => untrailingslashit( ABSPATH ),
-				),
-				'wordpress_size' => array(
-					'label' => __( 'WordPress directory size' ),
-					'value' => $loading,
-					'debug' => 'loading...',
 				),
 				'uploads_path'   => array(
 					'label' => __( 'Uploads directory location' ),
 					'value' => $upload_dir['basedir'],
 				),
-				'uploads_size'   => array(
-					'label' => __( 'Uploads directory size' ),
-					'value' => $loading,
-					'debug' => 'loading...',
-				),
 				'themes_path'    => array(
 					'label' => __( 'Themes directory location' ),
 					'value' => get_theme_root(),
 				),
-				'themes_size'    => array(
-					'label' => __( 'Themes directory size' ),
-					'value' => $loading,
-					'debug' => 'loading...',
-				),
 				'plugins_path'   => array(
 					'label' => __( 'Plugins directory location' ),
 					'value' => WP_PLUGIN_DIR,
-				),
-				'plugins_size'   => array(
-					'label' => __( 'Plugins directory size' ),
-					'value' => $loading,
-					'debug' => 'loading...',
-				),
-				'database_size'  => array(
-					'label' => __( 'Database size' ),
-					'value' => $loading,
-					'debug' => 'loading...',
-				),
-				'total_size'     => array(
-					'label' => __( 'Total installation size' ),
-					'value' => $loading,
-					'debug' => 'loading...',
 				),
 			);
 		}
@@ -1087,152 +1057,5 @@ class WP_Debug_Data {
 		$return .= '`';
 
 		return $return;
-	}
-
-	/**
-	 * Fetch the total size of all the database tables for the active database user.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @return int The size of the database, in bytes.
-	 */
-	public static function get_database_size() {
-		global $wpdb;
-		$size = 0;
-		$rows = $wpdb->get_results( 'SHOW TABLE STATUS', ARRAY_A );
-
-		if ( $wpdb->num_rows > 0 ) {
-			foreach ( $rows as $row ) {
-				$size += $row['Data_length'] + $row['Index_length'];
-			}
-		}
-
-		return (int) $size;
-	}
-
-	/**
-	 * Fetch the sizes of the WordPress directories: `wordpress` (ABSPATH), `plugins`, `themes`, and `uploads`.
-	 * Intended to supplement the array returned by `WP_Debug_Data::debug_data()`.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @return array The sizes of the directories, also the database size and total installation size.
-	 */
-	public static function get_sizes() {
-		$size_db    = self::get_database_size();
-		$upload_dir = wp_get_upload_dir();
-
-		/*
-		 * We will be using the PHP max execution time to prevent the size calculations
-		 * from causing a timeout. The default value is 30 seconds, and some
-		 * hosts do not allow you to read configuration values.
-		 */
-		if ( function_exists( 'ini_get' ) ) {
-			$max_execution_time = ini_get( 'max_execution_time' );
-		}
-
-		// The max_execution_time defaults to 0 when PHP runs from cli.
-		// We still want to limit it below.
-		if ( empty( $max_execution_time ) ) {
-			$max_execution_time = 30;
-		}
-
-		if ( $max_execution_time > 20 ) {
-			// If the max_execution_time is set to lower than 20 seconds, reduce it a bit to prevent
-			// edge-case timeouts that may happen after the size loop has finished running.
-			$max_execution_time -= 2;
-		}
-
-		// Go through the various installation directories and calculate their sizes.
-		// No trailing slashes.
-		$paths = array(
-			'wordpress_size' => untrailingslashit( ABSPATH ),
-			'themes_size'    => get_theme_root(),
-			'plugins_size'   => WP_PLUGIN_DIR,
-			'uploads_size'   => $upload_dir['basedir'],
-		);
-
-		$exclude = $paths;
-		unset( $exclude['wordpress_size'] );
-		$exclude = array_values( $exclude );
-
-		$size_total = 0;
-		$all_sizes  = array();
-
-		// Loop over all the directories we want to gather the sizes for.
-		foreach ( $paths as $name => $path ) {
-			$dir_size = null; // Default to timeout.
-			$results  = array(
-				'path' => $path,
-				'raw'  => 0,
-			);
-
-			if ( microtime( true ) - WP_START_TIMESTAMP < $max_execution_time ) {
-				if ( 'wordpress_size' === $name ) {
-					$dir_size = recurse_dirsize( $path, $exclude, $max_execution_time );
-				} else {
-					$dir_size = recurse_dirsize( $path, null, $max_execution_time );
-				}
-			}
-
-			if ( false === $dir_size ) {
-				// Error reading.
-				$results['size']  = __( 'The size cannot be calculated. The directory is not accessible. Usually caused by invalid permissions.' );
-				$results['debug'] = 'not accessible';
-
-				// Stop total size calculation.
-				$size_total = null;
-			} elseif ( null === $dir_size ) {
-				// Timeout.
-				$results['size']  = __( 'The directory size calculation has timed out. Usually caused by a very large number of sub-directories and files.' );
-				$results['debug'] = 'timeout while calculating size';
-
-				// Stop total size calculation.
-				$size_total = null;
-			} else {
-				if ( null !== $size_total ) {
-					$size_total += $dir_size;
-				}
-
-				$results['raw']   = $dir_size;
-				$results['size']  = size_format( $dir_size, 2 );
-				$results['debug'] = $results['size'] . " ({$dir_size} bytes)";
-			}
-
-			$all_sizes[ $name ] = $results;
-		}
-
-		if ( $size_db > 0 ) {
-			$database_size = size_format( $size_db, 2 );
-
-			$all_sizes['database_size'] = array(
-				'raw'   => $size_db,
-				'size'  => $database_size,
-				'debug' => $database_size . " ({$size_db} bytes)",
-			);
-		} else {
-			$all_sizes['database_size'] = array(
-				'size'  => __( 'Not available' ),
-				'debug' => 'not available',
-			);
-		}
-
-		if ( null !== $size_total && $size_db > 0 ) {
-			$total_size    = $size_total + $size_db;
-			$total_size_mb = size_format( $total_size, 2 );
-
-			$all_sizes['total_size'] = array(
-				'raw'   => $total_size,
-				'size'  => $total_size_mb,
-				'debug' => $total_size_mb . " ({$total_size} bytes)",
-			);
-		} else {
-			$all_sizes['total_size'] = array(
-				'size'  => __( 'Total size is not available. Some errors were encountered when determining the size of your installation.' ),
-				'debug' => 'not available',
-			);
-		}
-
-		return $all_sizes;
 	}
 }

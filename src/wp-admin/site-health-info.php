@@ -92,8 +92,6 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 
 		<?php
 
-		$sizes_fields = array( 'uploads_size', 'themes_size', 'plugins_size', 'wordpress_size', 'database_size', 'total_size' );
-
 		foreach ( $info as $section => $details ) {
 			if ( ! isset( $details['fields'] ) || empty( $details['fields'] ) ) {
 				continue;
@@ -112,15 +110,6 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 
 						?>
 					</span>
-					<?php
-
-					if ( 'wp-paths-sizes' === $section ) {
-						?>
-						<span class="health-check-wp-paths-sizes spinner"></span>
-						<?php
-					}
-
-					?>
 					<span class="icon"></span>
 				</button>
 			</h3>
@@ -150,11 +139,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 							$values = esc_html( $field['value'] );
 						}
 
-						if ( in_array( $field_name, $sizes_fields, true ) ) {
-							printf( '<tr><td>%s</td><td class="%s">%s</td></tr>', esc_html( $field['label'] ), esc_attr( $field_name ), $values );
-						} else {
-							printf( '<tr><td>%s</td><td>%s</td></tr>', esc_html( $field['label'] ), $values );
-						}
+						printf( '<tr><td>%s</td><td>%s</td></tr>', esc_html( $field['label'] ), $values );
 					}
 
 					?>
