@@ -8,13 +8,6 @@
  */
 
 class WP_Site_Health {
-	private $mysql_min_version_check;
-	private $mysql_rec_version_check;
-
-	public  $is_mariadb                          = false;
-	private $mysql_server_version                = '';
-	private $health_check_mysql_required_version = '5.5';
-	private $health_check_mysql_rec_version      = '';
 
 	public $schedules;
 	public $crons;
@@ -26,7 +19,6 @@ class WP_Site_Health {
 	 * @since 5.2.0
 	 */
 	public function __construct() {
-		$this->prepare_sql_data();
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
@@ -106,42 +98,6 @@ class WP_Site_Health {
 		}
 
 		wp_localize_script( 'site-health', 'SiteHealth', $health_check_js_variables );
-	}
-
-	/**
-	 * Run the SQL version checks.
-	 *
-	 * These values are used in later tests, but the part of preparing them is more easily managed early
-	 * in the class for ease of access and discovery.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @global wpdb $wpdb WordPress database abstraction object.
-	 */
-	private function prepare_sql_data() {
-		global $wpdb;
-
-		if ( method_exists( $wpdb, 'db_version' ) ) {
-			if ( $wpdb->use_mysqli ) {
-				// phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_get_server_info
-				$mysql_server_type = mysqli_get_server_info( $wpdb->dbh );
-			} else {
-				// phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysql_get_server_info
-				$mysql_server_type = mysql_get_server_info( $wpdb->dbh );
-			}
-
-			$this->mysql_server_version = $wpdb->get_var( 'SELECT VERSION()' );
-		}
-
-		$this->health_check_mysql_rec_version = '5.6';
-
-		if ( stristr( $mysql_server_type, 'mariadb' ) ) {
-			$this->is_mariadb                     = true;
-			$this->health_check_mysql_rec_version = '10.0';
-		}
-
-		$this->mysql_min_version_check = version_compare( '5.5', $this->mysql_server_version, '<=' );
-		$this->mysql_rec_version_check = version_compare( $this->health_check_mysql_rec_version, $this->mysql_server_version, '<=' );
 	}
 
 	/**
@@ -627,43 +583,6 @@ class WP_Site_Health {
 	}
 
 	/**
-	 * Test if the supplied PHP version is supported.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @return array The test results.
-	 */
-	public function get_test_php_version() {
-
-		$result = array(
-			'label'       => sprintf(
-				// translators: %s: The current PHP version.
-				__( 'PHP is up to date (%s)' ),
-				PHP_VERSION
-			),
-			'status'      => 'good',
-			'badge'       => array(
-				'label' => __( 'Performance' ),
-				'color' => 'blue',
-			),
-			'description' => sprintf(
-				'<p>%s</p>',
-				__( 'PHP is the programming language we use to build and maintain WordPress. Newer versions of PHP are both faster and more secure, so updating will have a positive effect on your site&#8217;s performance.' )
-			),
-			'actions'     => sprintf(
-				'<p><a href="%s" target="_blank" rel="noopener noreferrer">%s <span class="screen-reader-text">%s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a></p>',
-				esc_url( wp_get_update_php_url() ),
-				__( 'Learn more about updating PHP' ),
-				/* translators: accessibility text */
-				__( '(opens in a new tab)' )
-			),
-			'test'        => 'php_version',
-		);
-
-		return $result;
-	}
-
-	/**
 	 * Check if the passed extension or function are available.
 	 *
 	 * Make the check for available PHP modules into a simple boolean operator for a cleaner test runner.
@@ -890,91 +809,6 @@ class WP_Site_Health {
 			$result['description'] .= sprintf(
 				'<p>%s</p>',
 				$output
-			);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Test if the SQL server is up to date.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @return array The test results.
-	 */
-	public function get_test_sql_server() {
-		$result = array(
-			'label'       => __( 'SQL server is up to date' ),
-			'status'      => 'good',
-			'badge'       => array(
-				'label' => __( 'Performance' ),
-				'color' => 'blue',
-			),
-			'description' => sprintf(
-				'<p>%s</p>',
-				__( 'The SQL server is a required piece of software for the database WordPress uses to store all your site&#8217;s content and settings.' )
-			),
-			'actions'     => sprintf(
-				'<p><a href="%s" target="_blank" rel="noopener noreferrer">%s <span class="screen-reader-text">%s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a></p>',
-				/* translators: Localized version of WordPress requirements if one exists. */
-				esc_url( __( 'https://wordpress.org/about/requirements/' ) ),
-				__( 'Read more about what WordPress requires to run.' ),
-				/* translators: accessibility text */
-				__( '(opens in a new tab)' )
-			),
-			'test'        => 'sql_server',
-		);
-
-		$db_dropin = file_exists( WP_CONTENT_DIR . '/db.php' );
-
-		if ( ! $this->mysql_rec_version_check ) {
-			$result['status'] = 'recommended';
-
-			$result['label'] = __( 'Outdated SQL server' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				sprintf(
-					/* translators: 1: The database engine in use (MySQL or MariaDB). 2: Database server recommended version number. */
-					__( 'For optimal performance and security reasons, we recommend running %1$s version %2$s or higher. Contact your web hosting company to correct this.' ),
-					( $this->is_mariadb ? 'MariaDB' : 'MySQL' ),
-					$this->health_check_mysql_rec_version
-				)
-			);
-		}
-
-		if ( ! $this->mysql_min_version_check ) {
-			$result['status'] = 'critical';
-
-			$result['label']          = __( 'Severely outdated SQL server' );
-			$result['badge']['label'] = __( 'Security' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				sprintf(
-					/* translators: 1: The database engine in use (MySQL or MariaDB). 2: Database server minimum version number. */
-					__( 'WordPress requires %1$s version %2$s or higher. Contact your web hosting company to correct this.' ),
-					( $this->is_mariadb ? 'MariaDB' : 'MySQL' ),
-					$this->health_check_mysql_required_version
-				)
-			);
-		}
-
-		if ( $db_dropin ) {
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				wp_kses(
-					sprintf(
-						/* translators: 1: The name of the drop-in. 2: The name of the database engine. */
-						__( 'You are using a %1$s drop-in which might mean that a %2$s database is not being used.' ),
-						'<code>wp-content/db.php</code>',
-						( $this->is_mariadb ? 'MariaDB' : 'MySQL' )
-					),
-					array(
-						'code' => true,
-					)
-				)
 			);
 		}
 
@@ -1518,7 +1352,7 @@ class WP_Site_Health {
 		$tests = array(
 			'direct' => array(
 				'wordpress_version' => array(
-					'label' => __( 'WordPress Version' ),
+					'label' => __( 'calmPress Version' ),
 					'test'  => 'wordpress_version',
 				),
 				'plugin_version'    => array(
@@ -1528,14 +1362,6 @@ class WP_Site_Health {
 				'theme_version'     => array(
 					'label' => __( 'Theme Versions' ),
 					'test'  => 'theme_version',
-				),
-				'php_version'       => array(
-					'label' => __( 'PHP Version' ),
-					'test'  => 'php_version',
-				),
-				'sql_server'        => array(
-					'label' => __( 'Database Server version' ),
-					'test'  => 'sql_server',
 				),
 				'php_extensions'    => array(
 					'label' => __( 'PHP Extensions' ),
