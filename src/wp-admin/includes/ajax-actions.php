@@ -1070,18 +1070,6 @@ function wp_ajax_replyto_comment( $action ) {
 		$comment_author_url   = wp_slash( $user->user_url );
 		$comment_content      = trim( $_POST['content'] );
 		$comment_type         = isset( $_POST['comment_type'] ) ? trim( $_POST['comment_type'] ) : '';
-		if ( current_user_can( 'unfiltered_html' ) ) {
-			if ( ! isset( $_POST['_wp_unfiltered_html_comment'] ) ) {
-				$_POST['_wp_unfiltered_html_comment'] = '';
-			}
-
-			if ( wp_create_nonce( 'unfiltered-html-comment' ) != $_POST['_wp_unfiltered_html_comment'] ) {
-				kses_remove_filters(); // start with a clean slate
-				kses_init_filters(); // set up the filters
-				remove_filter( 'pre_comment_content', 'wp_filter_post_kses' );
-				add_filter( 'pre_comment_content', 'wp_filter_kses' );
-			}
-		}
 	} else {
 		wp_die( __( 'Sorry, you must be logged in to reply to a comment.' ) );
 	}

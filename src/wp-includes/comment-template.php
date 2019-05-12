@@ -1126,25 +1126,13 @@ function pings_open( $post_id = null ) {
 /**
  * Display form token for unfiltered comments.
  *
- * Will only display nonce token if the current user has permissions for
- * unfiltered html. Won't display the token for other users.
- *
- * The function was backported to 2.0.10 and was added to versions 2.1.3 and
- * above. Does not exist in versions prior to 2.0.10 in the 2.0 branch and in
- * the 2.1 branch, prior to 2.1.3. Technically added in 2.2.0.
- *
- * Backported to 2.0.10.
+ * As calmPress do not support unfiltered comments, it does nothing and it is here
+ * just prevent plugins and themes that might use it from failing.
  *
  * @since 2.1.3
+ * @since calmPress 1.0.0 Does nothing.
  */
 function wp_comment_form_unfiltered_html_nonce() {
-	$post    = get_post();
-	$post_id = $post ? $post->ID : 0;
-
-	if ( current_user_can( 'unfiltered_html' ) ) {
-		wp_nonce_field( 'unfiltered-html-comment_' . $post_id, '_wp_unfiltered_html_comment_disabled', false );
-		echo "<script>(function(){if(window===window.parent){document.getElementById('_wp_unfiltered_html_comment_disabled').name='_wp_unfiltered_html_comment';}})();</script>\n";
-	}
 }
 
 /**
