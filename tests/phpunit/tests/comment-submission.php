@@ -490,37 +490,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 	}
 
-	public function test_privileged_user_cannot_comment_unfiltered_html_without_valid_nonce() {
-
-		$user = self::factory()->user->create_and_get(
-			array(
-				'role' => 'editor',
-			)
-		);
-
-		if ( is_multisite() ) {
-			// In multisite, only Super Admins can post unfiltered HTML
-			$this->assertFalse( user_can( $user->ID, 'unfiltered_html' ) );
-			grant_super_admin( $user->ID );
-		}
-
-		wp_set_current_user( $user->ID );
-
-		$this->assertTrue( current_user_can( 'unfiltered_html' ) );
-
-		$post    = self::factory()->post->create_and_get( ['comment_status' => 'open'] );
-		$data    = array(
-			'comment_post_ID' => $post->ID,
-			'comment'         => 'Comment <script>alert(document.cookie);</script>',
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		$this->assertNotWPError( $comment );
-		$this->assertInstanceOf( 'WP_Comment', $comment );
-		$this->assertNotContains( '<script', $comment->comment_content );
-
-	}
-
 	public function test_submitting_comment_as_anonymous_user_when_registration_required_returns_error() {
 
 		$error = 'not_logged_in';
