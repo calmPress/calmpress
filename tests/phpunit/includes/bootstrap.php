@@ -142,7 +142,6 @@ if ( version_compare( tests_get_phpunit_version(), '7.0', '>=' ) ) {
 require dirname( __FILE__ ) . '/testcase-rest-api.php';
 require dirname( __FILE__ ) . '/testcase-rest-controller.php';
 require dirname( __FILE__ ) . '/testcase-rest-post-type-controller.php';
-require dirname( __FILE__ ) . '/testcase-xmlrpc.php';
 require dirname( __FILE__ ) . '/testcase-ajax.php';
 require dirname( __FILE__ ) . '/testcase-canonical.php';
 require dirname( __FILE__ ) . '/exceptions.php';
