@@ -474,10 +474,6 @@ class Tests_Rewrite extends WP_UnitTestCase {
 	 * @ticket 29107
 	 */
 	public function test_flush_rules_does_not_delete_option() {
-		$this->set_permalink_structure( '' );
-
-		$rewrite_rules = get_option( 'rewrite_rules' );
-		$this->assertSame( '', $rewrite_rules );
 
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
