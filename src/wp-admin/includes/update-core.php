@@ -151,17 +151,17 @@ $_old_files = array(
 	'wp-includes/widgets/class-wp-widget-rss.php',
 	'xmlrpc.php',
 	'wp-includes/class-IXR.php',
-	'wp-includes/class-wp-http-ixr-client.php'
-	'wp-includes/IXR/class-IXR-base64.php'
-	'wp-includes/IXR/class-IXR-client.php'
-	'wp-includes/IXR/class-IXR-clientmulticall.php'
-	'wp-includes/IXR/class-IXR-date.php'
-	'wp-includes/IXR/class-IXR-error.php'
-	'wp-includes/IXR/class-IXR-introspectionserver.php'
-	'wp-includes/IXR/class-IXR-message.php'
-	'wp-includes/IXR/class-IXR-request.php'
-	'wp-includes/IXR/class-IXR-server.php'
-	'wp-includes/IXR/class-IXR-value.php'
+	'wp-includes/class-wp-http-ixr-client.php',
+	'wp-includes/IXR/class-IXR-base64.php',
+	'wp-includes/IXR/class-IXR-client.php',
+	'wp-includes/IXR/class-IXR-clientmulticall.php',
+	'wp-includes/IXR/class-IXR-date.php',
+	'wp-includes/IXR/class-IXR-error.php',
+	'wp-includes/IXR/class-IXR-introspectionserver.php',
+	'wp-includes/IXR/class-IXR-message.php',
+	'wp-includes/IXR/class-IXR-request.php',
+	'wp-includes/IXR/class-IXR-server.php',
+	'wp-includes/IXR/class-IXR-value.php',
 	'wp-includes/class-wp-xmlrpc-server.php',
 );
 
