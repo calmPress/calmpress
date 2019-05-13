@@ -600,30 +600,6 @@ abstract class WP_UnitTestCase_Base extends PHPUnit_Framework_TestCase {
 		$this->assertNotInstanceOf( 'WP_Error', $actual, $message );
 	}
 
-
-	/**
-	 * Asserts that the given value is an instance of IXR_Error.
-	 *
-	 * @param mixed  $actual  The value to check.
-	 * @param string $message Optional. Message to display when the assertion fails.
-	 */
-	public function assertIXRError( $actual, $message = '' ) {
-		$this->assertInstanceOf( 'IXR_Error', $actual, $message );
-	}
-
-	/**
-	 * Asserts that the given value is not an instance of IXR_Error.
-	 *
-	 * @param mixed  $actual  The value to check.
-	 * @param string $message Optional. Message to display when the assertion fails.
-	 */
-	public function assertNotIXRError( $actual, $message = '' ) {
-		if ( $actual instanceof IXR_Error && '' === $message ) {
-			$message = $actual->message;
-		}
-		$this->assertNotInstanceOf( 'IXR_Error', $actual, $message );
-	}
-
 	/**
 	 * Asserts that the given fields are present in the given object.
 	 *
