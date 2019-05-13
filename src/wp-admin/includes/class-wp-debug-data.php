@@ -83,7 +83,7 @@ class WP_Debug_Data {
 				),
 				'permalink'              => array(
 					'label' => __( 'Permalink structure' ),
-					'value' => $permalink_structure ?: __( 'No permalink structure set' ),
+					'value' => $permalink_structure,
 					'debug' => $permalink_structure,
 				),
 				'https_status'           => array(

@@ -339,7 +339,7 @@ class WP_Rewrite {
 	 * @return bool True, if permalinks are enabled.
 	 */
 	public function using_permalinks() {
-		return ! empty( $this->permalink_structure );
+		return true;
 	}
 
 	/**
@@ -482,11 +482,6 @@ class WP_Rewrite {
 			return $this->date_structure;
 		}
 
-		if ( empty( $this->permalink_structure ) ) {
-			$this->date_structure = '';
-			return false;
-		}
-
 		// The date permalink must have year, month, and day separated by slashes.
 		$endians = array( '%year%/%monthnum%/%day%', '%day%/%monthnum%/%year%', '%monthnum%/%day%/%year%' );
 
@@ -621,9 +616,6 @@ class WP_Rewrite {
 	 * @return string|false False if not found. Permalink structure string.
 	 */
 	public function get_extra_permastruct( $name ) {
-		if ( empty( $this->permalink_structure ) ) {
-			return false;
-		}
 
 		if ( isset( $this->extra_permastructs[ $name ] ) ) {
 			return $this->extra_permastructs[ $name ]['struct'];
@@ -648,11 +640,6 @@ class WP_Rewrite {
 			return $this->author_structure;
 		}
 
-		if ( empty( $this->permalink_structure ) ) {
-			$this->author_structure = '';
-			return false;
-		}
-
 		$this->author_structure = $this->front . $this->author_base . '/%author%';
 
 		return $this->author_structure;
@@ -672,11 +659,6 @@ class WP_Rewrite {
 	public function get_search_permastruct() {
 		if ( isset( $this->search_structure ) ) {
 			return $this->search_structure;
-		}
-
-		if ( empty( $this->permalink_structure ) ) {
-			$this->search_structure = '';
-			return false;
 		}
 
 		$this->search_structure = $this->root . $this->search_base . '/%search%';
@@ -700,11 +682,6 @@ class WP_Rewrite {
 			return $this->page_structure;
 		}
 
-		if ( empty( $this->permalink_structure ) ) {
-			$this->page_structure = '';
-			return false;
-		}
-
 		$this->page_structure = $this->root . '%pagename%';
 
 		return $this->page_structure;
@@ -724,11 +701,6 @@ class WP_Rewrite {
 	public function get_feed_permastruct() {
 		if ( isset( $this->feed_structure ) ) {
 			return $this->feed_structure;
-		}
-
-		if ( empty( $this->permalink_structure ) ) {
-			$this->feed_structure = '';
-			return false;
 		}
 
 		$this->feed_structure = $this->root . $this->feed_base . '/%feed%';
@@ -751,11 +723,6 @@ class WP_Rewrite {
 	public function get_comment_feed_permastruct() {
 		if ( isset( $this->comment_feed_structure ) ) {
 			return $this->comment_feed_structure;
-		}
-
-		if ( empty( $this->permalink_structure ) ) {
-			$this->comment_feed_structure = '';
-			return false;
 		}
 
 		$this->comment_feed_structure = $this->root . $this->comments_base . '/' . $this->feed_base . '/%feed%';
@@ -1189,10 +1156,6 @@ class WP_Rewrite {
 	 */
 	public function rewrite_rules() {
 		$rewrite = array();
-
-		if ( empty( $this->permalink_structure ) ) {
-			return $rewrite;
-		}
 
 		// robots.txt -only if installed at the root
 		$home_path      = parse_url( home_url() );
