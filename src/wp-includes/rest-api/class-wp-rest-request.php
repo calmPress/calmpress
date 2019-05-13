@@ -972,14 +972,10 @@ class WP_REST_Request implements ArrayAccess {
 		}
 
 		$api_root = rest_url();
-		if ( get_option( 'permalink_structure' ) && 0 === strpos( $url, $api_root ) ) {
+		if ( 0 === strpos( $url, $api_root ) ) {
 			// Pretty permalinks on, and URL is under the API root.
 			$api_url_part = substr( $url, strlen( untrailingslashit( $api_root ) ) );
 			$route        = parse_url( $api_url_part, PHP_URL_PATH );
-		} elseif ( ! empty( $query_params['rest_route'] ) ) {
-			// ?rest_route=... set directly
-			$route = $query_params['rest_route'];
-			unset( $query_params['rest_route'] );
 		}
 
 		$request = false;
