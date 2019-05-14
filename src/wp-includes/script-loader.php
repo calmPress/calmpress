@@ -1205,15 +1205,6 @@ function wp_default_scripts( &$scripts ) {
 			)
 		);
 
-		$scripts->add( 'image-edit', "/wp-admin/js/image-edit$suffix.js", array( 'jquery', 'imgareaselect' ), false, 1 );
-		did_action( 'init' ) && $scripts->localize(
-			'image-edit',
-			'imageEditL10n',
-			array(
-				'error' => __( 'Could not load the preview image. Please reload the page and try again.' ),
-			)
-		);
-
 		$scripts->add( 'set-post-thumbnail', "/wp-admin/js/set-post-thumbnail$suffix.js", array( 'jquery' ), false, 1 );
 		did_action( 'init' ) && $scripts->localize(
 			'set-post-thumbnail',

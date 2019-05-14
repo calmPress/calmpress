@@ -48,7 +48,6 @@ $core_actions_get = array(
 	'fetch-list',
 	'ajax-tag-search',
 	'wp-compression-test',
-	'imgedit-preview',
 	'oembed-cache',
 	'autocomplete-user',
 	'dashboard-widgets',
@@ -56,7 +55,7 @@ $core_actions_get = array(
 );
 
 $core_actions_post = array(
-	'oembed-cache', 'image-editor', 'delete-comment', 'delete-tag',
+	'oembed-cache', 'delete-comment', 'delete-tag',
 	'delete-post', 'trash-post', 'untrash-post', 'delete-page', 'dim-comment',
 	'add-tag', 'get-tagcloud', 'get-comments', 'replyto-comment',
 	'edit-comment', 'add-menu-item', 'add-user', 'closed-postboxes',

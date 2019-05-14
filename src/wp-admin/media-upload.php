@@ -21,7 +21,6 @@ if ( ! current_user_can( 'upload_files' ) ) {
 }
 
 wp_enqueue_script( 'plupload-handlers' );
-wp_enqueue_script( 'image-edit' );
 wp_enqueue_script( 'set-post-thumbnail' );
 wp_enqueue_style( 'imgareaselect' );
 wp_enqueue_script( 'media-gallery' );
@@ -110,4 +109,3 @@ if ( $tab == 'type' || $tab == 'type_url' || ! array_key_exists( $tab, media_upl
 	 */
 	do_action( "media_upload_{$tab}" );
 }
-

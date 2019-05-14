@@ -1543,12 +1543,6 @@ function get_media_item( $attachment_id, $args = null ) {
 	 */
 	$media_dims = apply_filters( 'media_meta', $media_dims, $post );
 
-	$image_edit_button = '';
-	if ( wp_attachment_is_image( $post->ID ) && wp_image_editor_supports( array( 'mime_type' => $post->post_mime_type ) ) ) {
-		$nonce             = wp_create_nonce( "image_editor-$post->ID" );
-		$image_edit_button = "<input type='button' id='imgedit-open-btn-$post->ID' onclick='imageEdit.open( $post->ID, \"$nonce\" )' class='button' value='" . esc_attr__( 'Edit Image' ) . "' /> <span class='spinner'></span>";
-	}
-
 	$attachment_url = get_permalink( $attachment_id );
 
 	$item = "
@@ -1561,7 +1555,6 @@ function get_media_item( $attachment_id, $args = null ) {
 		<tr>
 			<td class='A1B1' id='thumbnail-head-$post->ID'>
 			<p><a href='$attachment_url' target='_blank'><img class='thumbnail' src='$thumb_url' alt='' /></a></p>
-			<p>$image_edit_button</p>
 			</td>
 			<td>
 			<p><strong>" . __( 'File name:' ) . "</strong> $filename</p>
@@ -1576,8 +1569,6 @@ function get_media_item( $attachment_id, $args = null ) {
 	$item .= "
 		</thead>
 		<tbody>
-		<tr><td colspan='2' class='imgedit-response' id='imgedit-response-$post->ID'></td></tr>\n
-		<tr><td style='display:none' colspan='2' class='image-editor' id='image-editor-$post->ID'></td></tr>\n
 		<tr><td colspan='2'><p class='media-types media-types-required-info'>" . sprintf( __( 'Required fields are marked %s' ), '<span class="required">*</span>' ) . "</p></td></tr>\n";
 
 	$defaults = array(
@@ -2907,11 +2898,6 @@ function multisite_over_quota_message() {
  * @param WP_Post $post A post object.
  */
 function edit_form_image_editor( $post ) {
-	$open = isset( $_GET['image-editor'] );
-	if ( $open ) {
-		require_once ABSPATH . 'wp-admin/includes/image-edit.php';
-	}
-
 	$thumb_url = false;
 	if ( $attachment_id = intval( $post->ID ) ) {
 		$thumb_url = wp_get_attachment_image_src( $attachment_id, array( 900, 450 ), true );
@@ -2924,31 +2910,12 @@ function edit_form_image_editor( $post ) {
 	<div class="wp_attachment_holder wp-clearfix">
 	<?php
 	if ( wp_attachment_is_image( $post->ID ) ) :
-		$image_edit_button = '';
-		if ( wp_image_editor_supports( array( 'mime_type' => $post->post_mime_type ) ) ) {
-			$nonce             = wp_create_nonce( "image_editor-$post->ID" );
-			$image_edit_button = "<input type='button' id='imgedit-open-btn-$post->ID' onclick='imageEdit.open( $post->ID, \"$nonce\" )' class='button' value='" . esc_attr__( 'Edit Image' ) . "' /> <span class='spinner'></span>";
-		}
-
-		$open_style = $not_open_style = '';
-		if ( $open ) {
-			$open_style = ' style="display:none"';
-		} else {
-			$not_open_style = ' style="display:none"';
-		}
+		$open_style     = '';
+		$not_open_style = ' style="display:none"';
 		?>
-
-		<div class="imgedit-response" id="imgedit-response-<?php echo $attachment_id; ?>"></div>
 
 		<div<?php echo $open_style; ?> class="wp_attachment_image wp-clearfix" id="media-head-<?php echo $attachment_id; ?>">
 			<p id="thumbnail-head-<?php echo $attachment_id; ?>"><img class="thumbnail" src="<?php echo set_url_scheme( $thumb_url[0] ); ?>" style="max-width:100%" alt="" /></p>
-			<p><?php echo $image_edit_button; ?></p>
-		</div>
-		<div<?php echo $not_open_style; ?> class="image-editor" id="image-editor-<?php echo $attachment_id; ?>">
-			<?php
-			if ( $open ) {
-				wp_image_editor( $attachment_id );}
-			?>
 		</div>
 		<?php
 	elseif ( $attachment_id && wp_attachment_is( 'audio', $post ) ) :

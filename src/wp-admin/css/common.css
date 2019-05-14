@@ -188,7 +188,6 @@ p.popular-tags,
 .wp-editor-container,
 .popular-tags,
 .feature-filter,
-.imgedit-group,
 .comment-ays {
 	border: 1px solid #e5e5e5;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
@@ -201,7 +200,6 @@ p.popular-tags,
 .widgets-holder-wrap,
 .popular-tags,
 .feature-filter,
-.imgedit-group,
 .comment-ays {
 	background: #fff;
 }
@@ -1577,7 +1575,6 @@ form.upgrade .hint {
 #ajax-loading,
 .ajax-loading,
 .ajax-feedback,
-.imgedit-wait-spin,
 .list-ajax-loading { /* deprecated */
 	visibility: hidden;
 }

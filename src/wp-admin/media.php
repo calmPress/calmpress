@@ -75,7 +75,6 @@ switch ( $action ) {
 		add_filter( 'attachment_fields_to_edit', 'media_single_attachment_fields_to_edit', 10, 2 );
 
 		wp_enqueue_script( 'wp-ajax-response' );
-		wp_enqueue_script( 'image-edit' );
 		wp_enqueue_style( 'imgareaselect' );
 
 		get_current_screen()->add_help_tab(
@@ -84,8 +83,6 @@ switch ( $action ) {
 				'title'   => __( 'Overview' ),
 				'content' =>
 					  '<p>' . __( 'This screen allows you to edit five fields for metadata in a file within the media library.' ) . '</p>' .
-					  '<p>' . __( 'For images only, you can click on Edit Image under the thumbnail to expand out an inline image editor with icons for cropping, rotating, or flipping the image as well as for undoing and redoing. The boxes on the right give you more options for scaling the image, for cropping it, and for cropping the thumbnail in a different way than you crop the original image. You can click on Help in those boxes to get more information.' ) . '</p>' .
-					  '<p>' . __( 'Note that you crop the image by clicking on it (the Crop icon is already selected) and dragging the cropping frame to select the desired part. Then click Save to retain the cropping.' ) . '</p>' .
 					  '<p>' . __( 'Remember to click Update Media to save metadata entered or changed.' ) . '</p>',
 			)
 		);

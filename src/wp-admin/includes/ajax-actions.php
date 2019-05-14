@@ -217,27 +217,6 @@ function wp_ajax_wp_compression_test() {
 }
 
 /**
- * Ajax handler for image editor previews.
- *
- * @since 3.1.0
- */
-function wp_ajax_imgedit_preview() {
-	$post_id = intval( $_GET['postid'] );
-	if ( empty( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
-		wp_die( -1 );
-	}
-
-	check_ajax_referer( "image_editor-$post_id" );
-
-	include_once( ABSPATH . 'wp-admin/includes/image-edit.php' );
-	if ( ! stream_preview_image( $post_id ) ) {
-		wp_die( -1 );
-	}
-
-	wp_die();
-}
-
-/**
  * Ajax handler for oEmbed caching.
  *
  * @since 3.1.0
@@ -2142,39 +2121,6 @@ function wp_ajax_upload_attachment() {
 		)
 	);
 
-	wp_die();
-}
-
-/**
- * Ajax handler for image editing.
- *
- * @since 3.1.0
- */
-function wp_ajax_image_editor() {
-	$attachment_id = intval( $_POST['postid'] );
-	if ( empty( $attachment_id ) || ! current_user_can( 'edit_post', $attachment_id ) ) {
-		wp_die( -1 );
-	}
-
-	check_ajax_referer( "image_editor-$attachment_id" );
-	include_once( ABSPATH . 'wp-admin/includes/image-edit.php' );
-
-	$msg = false;
-	switch ( $_POST['do'] ) {
-		case 'save':
-			$msg = wp_save_image( $attachment_id );
-			$msg = wp_json_encode( $msg );
-			wp_die( $msg );
-			break;
-		case 'scale':
-			$msg = wp_save_image( $attachment_id );
-			break;
-		case 'restore':
-			$msg = wp_restore_image( $attachment_id );
-			break;
-	}
-
-	wp_image_editor( $attachment_id, $msg );
 	wp_die();
 }
 
