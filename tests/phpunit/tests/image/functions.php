@@ -13,6 +13,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
 		require_once( ABSPATH . WPINC . '/class-wp-image-editor.php' );
 		require_once( ABSPATH . WPINC . '/class-wp-image-editor-gd.php' );
 		require_once( ABSPATH . WPINC . '/class-wp-image-editor-imagick.php' );
@@ -120,59 +121,6 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 
 		foreach ( $files as $file ) {
 			$this->assertFalse( file_is_displayable_image( DIR_TESTDATA . '/images/' . $file ), "file_is_valid_image($file) should return false" );
-		}
-	}
-
-	/**
-	 * Test save image file and mime_types
-	 *
-	 * @ticket 6821
-	 */
-	public function test_wp_save_image_file() {
-		if ( ! extension_loaded( 'fileinfo' ) ) {
-			$this->markTestSkipped( 'The fileinfo PHP extension is not loaded.' );
-		}
-
-		include_once( ABSPATH . 'wp-admin/includes/image-edit.php' );
-
-		// Mime types
-		$mime_types = array(
-			'image/jpeg',
-			'image/gif',
-			'image/png',
-		);
-
-		// Test each image editor engine
-		$classes = array( 'WP_Image_Editor_GD', 'WP_Image_Editor_Imagick' );
-		foreach ( $classes as $class ) {
-
-			// If the image editor isn't available, skip it
-			if ( ! call_user_func( array( $class, 'test' ) ) ) {
-				continue;
-			}
-
-			$img    = new $class( DIR_TESTDATA . '/images/canola.jpg' );
-			$loaded = $img->load();
-
-			// Save a file as each mime type, assert it works
-			foreach ( $mime_types as $mime_type ) {
-				if ( ! $img->supports_mime_type( $mime_type ) ) {
-					continue;
-				}
-
-				$file = wp_tempnam();
-				$ret  = wp_save_image_file( $file, $img, $mime_type, 1 );
-				$this->assertNotEmpty( $ret );
-				$this->assertNotWPError( $ret );
-				$this->assertEquals( $mime_type, $this->get_mime_type( $ret['path'] ) );
-
-				// Clean up
-				unlink( $file );
-				unlink( $ret['path'] );
-			}
-
-			// Clean up
-			unset( $img );
 		}
 	}
 
@@ -295,7 +243,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 
 	public function test_wp_crop_image_file() {
 		if ( ! function_exists( 'imagejpeg' ) ) {
-			$this->fail( 'jpeg support unavailable' );
+			$this->markTestSkipped( 'jpeg support unavailable' );
 		}
 
 		$file = wp_crop_image(
@@ -319,7 +267,7 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 
 	public function test_wp_crop_image_url() {
 		if ( ! function_exists( 'imagejpeg' ) ) {
-			$this->fail( 'jpeg support unavailable' );
+			$this->markTestSkipped( 'jpeg support unavailable' );
 		}
 
 		if ( ! extension_loaded( 'openssl' ) ) {
