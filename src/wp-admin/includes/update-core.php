@@ -163,6 +163,9 @@ $_old_files = array(
 	'wp-includes/IXR/class-IXR-server.php',
 	'wp-includes/IXR/class-IXR-value.php',
 	'wp-includes/class-wp-xmlrpc-server.php',
+	'wp-admin/includes/image-edit.php',
+	'wp-admin/js/image-edit.js',
+	'wp-admin/js/image-edit.min.js',
 );
 
 /**
