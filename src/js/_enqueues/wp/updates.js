@@ -2223,7 +2223,6 @@
 					.prepend( $searchTab );
 
 				$pluginFilter.prev( 'p' ).remove();
-				$( '.plugins-popular-tags-wrapper' ).remove();
 			}
 
 			if ( 'undefined' !== typeof wp.updates.searchRequest ) {

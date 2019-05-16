@@ -99,10 +99,11 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 		$tabs = array();
 
 		if ( 'search' === $tab ) {
-			$tabs['search'] = __( 'Search Results' );
+			$tabs['search'] = __( 'WordPress.org Search Results' );
 		}
-		$tabs['popular']     = _x( 'Popular', 'Plugin Installer' );
-		$tabs['favorites']   = _x( 'Favorites', 'Plugin Installer' );
+		$tabs['core']      = _x( 'Core', 'Plugin Installer' );
+		$tabs['popular']   = _x( 'Popular on WordPress.org', 'Plugin Installer' );
+		$tabs['favorites'] = _x( 'WordPress.org Favorites', 'Plugin Installer' );
 		if ( current_user_can( 'upload_plugins' ) ) {
 			// No longer a real tab. Here for filter compatibility.
 			// Gets skipped in get_views().
@@ -304,6 +305,14 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 		$this->screen->render_screen_reader_content( 'heading_views' );
 		?>
+
+		<p>
+		<?php
+		/* translators: %s: URL of WordPress.org plugin directory. */
+		printf( __( 'Plugins extend and expand the functionality of calmPress. You may automatically install plugins from the <a href="%s">WordPress Plugin Directory</a> or upload a plugin in .zip format by clicking the button at the top of this page.' ), __( 'https://wordpress.org/plugins/' ) );
+		?>
+		</p>
+
 <div class="wp-filter">
 	<ul class="filter-links">
 		<?php

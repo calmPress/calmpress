@@ -183,10 +183,8 @@
 .manage-menus,
 table.widefat,
 .stuffbox,
-p.popular-tags,
 .widgets-holder-wrap,
 .wp-editor-container,
-.popular-tags,
 .feature-filter,
 .comment-ays {
 	border: 1px solid #e5e5e5;
@@ -196,9 +194,7 @@ p.popular-tags,
 table.widefat,
 .wp-editor-container,
 .stuffbox,
-p.popular-tags,
 .widgets-holder-wrap,
-.popular-tags,
 .feature-filter,
 .comment-ays {
 	background: #fff;

@@ -87,7 +87,8 @@ add_action( 'admin_head-nav-menus.php', '_wp_delete_orphaned_draft_menu_items' )
 add_filter( 'whitelist_options', 'option_update_filter' );
 
 // Plugin Install hooks.
-add_action( 'install_plugins_popular', 'install_dashboard' );
+add_action( 'install_plugins_core', 'install_dashboard' );
+add_action( 'install_plugins_popular', 'display_plugins_table' );
 add_action( 'install_plugins_upload', 'install_plugins_upload' );
 add_action( 'install_plugins_search', 'display_plugins_table' );
 add_action( 'install_plugins_favorites', 'display_plugins_table' );
