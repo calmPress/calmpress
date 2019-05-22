@@ -75,7 +75,8 @@ if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) ) {
 <p><?php _e( 'Your calmPress database is already up-to-date!' ); ?></p>
 <p class="step"><a class="button button-large" href="<?php echo get_option( 'home' ); ?>/"><?php _e( 'Continue' ); ?></a></p>
 
-<?php elseif ( !$php_compat || !$mysql_compat ) :
+	<?php
+elseif ( !$php_compat || !$mysql_compat ) :
 	$version_slug_parts = explode( '.', calmpress_version() );
 	$version_slug = $version_slug_parts[0] . '-' . $version_slug_parts[1];
 
@@ -89,8 +90,7 @@ if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) ) {
 		/* translators: 1: calmpress.org version slug, 2: calmPress version number, 3: Minimum required MySQL version number, 4: Current MySQL version number */
 		printf( __( 'You cannot update because <a href="https://calmpress.org/Version/%1$s">calmPress %2$s</a> requires MySQL version %3$s or higher. You are running version %4$s.' ), $version_slug, calmpress_version(), $required_mysql_version, $mysql_version );
 	}
-?>
-<?php else :
+else :
 switch ( $step ) :
 	case 0:
 		$goback = wp_get_referer();
@@ -98,8 +98,8 @@ switch ( $step ) :
 			$goback = esc_url_raw( $goback );
 			$goback = urlencode( $goback );
 		}
-?>
-<h1><?php _e( 'Database Update Required' ); ?></h1>
+		?>
+		<h1><?php _e( 'Database Update Required' ); ?></h1>
 <p><?php _e( 'calmPress has been updated! Before we send you on your way, we have to update your database to the newest version.' ); ?></p>
 <p><?php _e( 'The database update process may take a little while, so please be patient.' ); ?></p>
 <p class="step"><a class="button button-large button-primary" href="upgrade.php?step=1&amp;backto=<?php echo $goback; ?>"><?php _e( 'Update calmPress Database' ); ?></a></p>

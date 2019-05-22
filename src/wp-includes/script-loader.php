@@ -441,8 +441,8 @@ function wp_default_scripts( &$scripts ) {
 	$scripts->add( 'wp-lists', "/wp-includes/js/wp-lists$suffix.js", array( 'wp-ajax-response', 'jquery-color' ), false, 1 );
 
 	// jQuery
-	$scripts->add( 'jquery', false, array( 'jquery-core', 'jquery-migrate' ), '1.12.4' );
-	$scripts->add( 'jquery-core', '/wp-includes/js/jquery/jquery.js', array(), '1.12.4' );
+	$scripts->add( 'jquery', false, array( 'jquery-core', 'jquery-migrate' ), '1.12.4-wp' );
+	$scripts->add( 'jquery-core', '/wp-includes/js/jquery/jquery.js', array(), '1.12.4-wp' );
 	$scripts->add( 'jquery-migrate', "/wp-includes/js/jquery/jquery-migrate$suffix.js", array(), '1.4.1' );
 
 	// full jQuery UI

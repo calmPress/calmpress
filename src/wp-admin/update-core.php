@@ -66,8 +66,9 @@ function list_core_update( $update ) {
 		$message = 	sprintf(__('You can update to <a href="https://calmpress.org/Version/%1$s">calmPress %2$s</a> automatically:'), $update_version_slug, $update->version);
 	}
 
-	if ( !$mysql_compat || !$php_compat )
+	if ( !$mysql_compat || !$php_compat ) {
 		$show_buttons = false;
+	}
 
 	echo '<p>';
 	echo $message;
