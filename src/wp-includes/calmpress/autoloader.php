@@ -34,6 +34,14 @@ const MAP = [
 	'calmpress\avatar\Text_Based_Avatar'                => __DIR__ . '/avatar/class-text-based-avatar.php',
 	'calmpress\avatar\Image_Based_Avatar'               => __DIR__ . '/avatar/class-image-based-avatar.php',
 	'calmpress\avatar\Html_Parameter_Validation'        => __DIR__ . '/avatar/trait-html-parameter-validation.php',
+	'calmpress\plugin\Activation_Exception'             => __DIR__ . '/plugin/class-activation-exception.php',
+	'calmpress\plugin\INI_Based_Version'                => __DIR__ . '/plugin/class-ini-based-version.php',
+	'calmpress\plugin\Installed_Plugin'                 => __DIR__ . '/plugin/class-installed-plugin.php',
+	'calmpress\plugin\Installed_Plugins'                => __DIR__ . '/plugin/class-installed-plugins.php',
+	'calmpress\plugin\Plugin'                           => __DIR__ . '/plugin/class-plugin.php',
+	'calmpress\plugin\Repository'                       => __DIR__ . '/plugin/class-repository.php',
+	'calmpress\plugin\Trivial_Version'                  => __DIR__ . '/plugin/class-trivial-version.php',
+	'calmpress\plugin\Version'                          => __DIR__ . '/plugin/class-version.php',
 ];
 
 spl_autoload_register(
