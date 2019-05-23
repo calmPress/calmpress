@@ -168,9 +168,9 @@ function get_the_author_meta( $field = '', $user_id = false ) {
 			$authors = calmpress\post_authors\Post_Authors_As_Taxonomy::post_authors( $post );
 
 			if ( 'display_name' === $field ) {
-				$name = join( ', ', array_map( $authors, function( $author ) {
+				$name = join( ', ', array_map( function( $author ) {
 					return $author->name();
-				} ) );
+				}, $authors ) );
 
 				return $name;
 			}
