@@ -736,7 +736,7 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			$output = get_option( 'html_type' );
 			break;
 		case 'version':
-			$output = calmpress_version();
+			$output = wordpress_core_version();
 			break;
 		case 'language':
 			/* translators: Translate this to the correct language tag for your locale,
@@ -3714,11 +3714,6 @@ function register_admin_color_schemes() {
 		)
 	);
 
-	// Other color schemes are not available when running out of src
-	if ( false !== strpos( get_bloginfo( 'version' ), '-src' ) ) {
-		return;
-	}
-
 	wp_admin_css_color(
 		'light',
 		_x( 'Light', 'admin color scheme' ),
@@ -3821,7 +3816,7 @@ function wp_admin_css_uri( $file = 'wp-admin' ) {
 	} else {
 		$_file = admin_url( "$file.css" );
 	}
-	$_file = add_query_arg( 'version', get_bloginfo( 'version' ), $_file );
+	$_file = add_query_arg( 'version', calmpress_version(), $_file );
 
 	/**
 	 * Filters the URI of a WordPress admin CSS file.

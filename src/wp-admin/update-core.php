@@ -34,8 +34,6 @@ function list_core_update( $update ) {
 	global $wpdb;
 	static $first_pass = true;
 
-	$version = get_bloginfo( 'version' );
-
 	$submit = __('Update Now');
 	$form_action = 'update-core.php?action=do-core-upgrade';
 	$php_version    = phpversion();
@@ -135,7 +133,6 @@ function dismissed_updates() {
 function core_upgrade_preamble() {
 	global $required_php_version, $required_mysql_version;
 
-	$version = get_bloginfo( 'version' );
 	$updates = get_core_updates();
 
 	if ( empty( $updates ) ) {

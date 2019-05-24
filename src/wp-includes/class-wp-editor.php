@@ -983,7 +983,7 @@ class _WP_Editors {
 		);
 
 		$suffix  = SCRIPT_DEBUG ? '' : '.min';
-		$version = 'ver=' . get_bloginfo( 'version' );
+		$version = 'ver=' . calmpress_version();
 
 		// Default stylesheets
 		$settings['content_css'] = includes_url( "css/dashicons$suffix.css?$version" ) . ',' .
