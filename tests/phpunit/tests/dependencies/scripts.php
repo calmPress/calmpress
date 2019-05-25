@@ -14,7 +14,7 @@ class Tests_Dependencies_Scripts extends WP_UnitTestCase {
 		remove_action( 'wp_default_scripts', 'wp_default_scripts' );
 		remove_action( 'wp_default_scripts', 'wp_default_packages' );
 		$GLOBALS['wp_scripts']                  = new WP_Scripts();
-		$GLOBALS['wp_scripts']->default_version = calm_version_hash( get_bloginfo( 'version' ) );
+		$GLOBALS['wp_scripts']->default_version = calm_version_hash( calmpress_version() );
 
 		$this->wp_scripts_print_translations_output  = <<<JS
 <script type='text/javascript'>
@@ -46,7 +46,7 @@ JS;
 		$base_url_backup      = $wp_scripts->base_url;
 		$wp_scripts->base_url = 'http://example.com/wordpress';
 		$expected             = '';
-		$ver                  = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver                  = calm_version_hash( calmpress_version());
 
 		// Try with an HTTP reference
 		wp_enqueue_script( 'jquery-http', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' );
@@ -95,7 +95,7 @@ JS;
 		wp_print_scripts();
 		$print_scripts = get_echo( '_print_scripts' );
 
-		$ver      = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver      = calm_version_hash( calmpress_version() );
 		$expected = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=one,two,three&amp;ver={$ver}'></script>\n";
 
 		$this->assertEquals( $expected, $print_scripts );
@@ -450,7 +450,7 @@ JS;
 		wp_add_inline_script( 'one', 'console.log("before one");', 'before' );
 		wp_add_inline_script( 'two', 'console.log("before two");', 'before' );
 
-		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<script type='text/javascript'>\nconsole.log(\"before one\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/one.js?ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"before two\");\n</script>\n";
@@ -475,7 +475,7 @@ JS;
 
 		wp_add_inline_script( 'one', 'console.log("before one");', 'before' );
 
-		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<script type='text/javascript'>\nconsole.log(\"before one\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/one.js?ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/two.js?ver={$ver}'></script>\n";
@@ -501,7 +501,7 @@ JS;
 		wp_add_inline_script( 'two', 'console.log("after two");' );
 		wp_add_inline_script( 'three', 'console.log("after three");' );
 
-		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=one&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript' src='/directory/two.js?ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"after two\");\n</script>\n";
@@ -523,7 +523,7 @@ JS;
 		$wp_scripts->base_url  = '';
 		$wp_scripts->do_concat = true;
 
-		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=jquery-core,jquery-migrate&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"after\");\n</script>\n";
@@ -548,7 +548,7 @@ JS;
 		$wp_scripts->base_url  = '';
 		$wp_scripts->do_concat = true;
 
-		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=jquery-core,jquery-migrate&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"before\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
@@ -573,7 +573,7 @@ JS;
 		$wp_scripts->base_url  = '';
 		$wp_scripts->do_concat = true;
 
-		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=jquery-core,jquery-migrate,wp-a11y&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"before\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
@@ -606,7 +606,7 @@ JS;
 		wp_enqueue_script( 'three', '/wp-includes/js/script3.js' );
 		wp_enqueue_script( 'four', '/wp-includes/js/script4.js' );
 
-		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<script type='text/javascript' src='/wp-includes/js/script.js?ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"after one\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/script2.js?ver={$ver}'></script>\n";
@@ -631,7 +631,7 @@ JS;
 		wp_add_inline_script( 'three', 'console.log("before three");', 'before' );
 		wp_enqueue_script( 'four', '/wp-includes/js/script4.js' );
 
-		$ver       = calm_version_hash( get_bloginfo( 'version' ) );
+		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<script type='text/javascript' src='/wp-admin/load-scripts.php?c=0&amp;load%5B%5D=one,two&amp;ver={$ver}'></script>\n";
 		$expected .= "<script type='text/javascript'>\nconsole.log(\"before three\");\n</script>\n";
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/script3.js?ver={$ver}'></script>\n";
