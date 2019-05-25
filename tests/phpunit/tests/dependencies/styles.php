@@ -26,10 +26,10 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 		remove_action( 'wp_print_styles', 'print_emoji_styles' );
 
 		$GLOBALS['wp_styles']                  = new WP_Styles();
-		$GLOBALS['wp_styles']->default_version = get_bloginfo( 'version' );
+		$GLOBALS['wp_styles']->default_version = calm_version_hash( calmpress_version() );
 
 		$GLOBALS['wp_scripts']                  = new WP_Scripts();
-		$GLOBALS['wp_scripts']->default_version = get_bloginfo( 'version' );
+		$GLOBALS['wp_scripts']->default_version = calm_version_hash( calmpress_version() );
 	}
 
 	function tearDown() {
@@ -56,7 +56,7 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 		wp_enqueue_style( 'no-deps-version', 'example.com', array(), 1.2 );
 		wp_enqueue_style( 'no-deps-null-version', 'example.com', array(), null );
 		wp_enqueue_style( 'no-deps-null-version-print-media', 'example.com', array(), null, 'print' );
-		$ver       = get_bloginfo( 'version' );
+		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<link rel='stylesheet' id='no-deps-no-version-css'  href='http://example.com?ver=$ver' type='text/css' media='all' />\n";
 		$expected .= "<link rel='stylesheet' id='no-deps-version-css'  href='http://example.com?ver=1.2' type='text/css' media='all' />\n";
 		$expected .= "<link rel='stylesheet' id='no-deps-null-version-css'  href='http://example.com' type='text/css' media='all' />\n";
@@ -80,7 +80,7 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 		$base_url_backup     = $wp_styles->base_url;
 		$wp_styles->base_url = 'http://example.com/wordpress';
 		$expected            = '';
-		$ver                 = get_bloginfo( 'version' );
+		$ver                 = calm_version_hash( calmpress_version() );
 
 		// Try with an HTTP reference
 		wp_enqueue_style( 'reset-css-http', 'http://yui.yahooapis.com/2.8.1/build/reset/reset-min.css' );
