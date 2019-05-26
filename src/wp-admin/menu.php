@@ -206,6 +206,11 @@ $menu[65] = array( sprintf( __( 'Plugins %s' ), $count ), 'activate_plugins', 'p
 
 $submenu['plugins.php'][5] = array( __( 'Installed Plugins' ), 'activate_plugins', 'plugins.php' );
 
+if ( ! is_multisite() ) {
+	/* translators: add new plugin */
+	$submenu['plugins.php'][10] = array( _x( 'Add New', 'plugin' ), 'install_plugins', 'plugin-install.php' );
+}
+
 unset( $update_data );
 
 if ( current_user_can( 'list_users' ) ) {
