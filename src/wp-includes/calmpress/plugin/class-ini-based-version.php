@@ -1,6 +1,6 @@
 <?php
 /**
- * Implementation of a plugin verion information based on ini file.
+ * Implementation of a plugin version information based on ini file.
  *
  * @package calmPress
  * @since 1.0.0
