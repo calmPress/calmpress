@@ -40,7 +40,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 		);
 
 		$status = 'all';
-		if ( isset( $_REQUEST['plugin_status'] ) && in_array( $_REQUEST['plugin_status'], array( 'active', 'inactive', 'recently_activated', 'upgrade', 'mustuse', 'dropins', 'search', 'paused' ) ) ) {
+		if ( isset( $_REQUEST['plugin_status'] ) && in_array( $_REQUEST['plugin_status'], array( 'active', 'inactive', 'recently_activated', 'upgrade', 'mustuse', 'dropins', 'search', 'paused', 'core' ) ) ) {
 			$status = $_REQUEST['plugin_status'];
 		}
 
@@ -100,6 +100,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 			'mustuse'            => array(),
 			'dropins'            => array(),
 			'paused'             => array(),
+			'core'               => array(),
 		);
 
 		$screen = $this->screen;
@@ -245,7 +246,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 			$totals[ $type ] = count( $list );
 		}
 
-		if ( empty( $plugins[ $status ] ) && ! in_array( $status, array( 'all', 'search' ) ) ) {
+		if ( empty( $plugins[ $status ] ) && ! in_array( $status, array( 'all', 'search', 'core' ) ) ) {
 			$status = 'all';
 		}
 
@@ -423,7 +424,9 @@ class WP_Plugins_List_Table extends WP_List_Table {
 
 		$status_links = array();
 		foreach ( $totals as $type => $count ) {
-			if ( ! $count ) {
+			// Bail if no plugins for the specific type, except for 'core' for
+			// which we want to expose the specific type of plugins.
+			if ( ! $count && $type != 'core' ) {
 				continue;
 			}
 
@@ -443,6 +446,10 @@ class WP_Plugins_List_Table extends WP_List_Table {
 				case 'inactive':
 					/* translators: %s: plugin count */
 					$text = _n( 'Inactive <span class="count">(%s)</span>', 'Inactive <span class="count">(%s)</span>', $count );
+					break;
+				case 'core':
+					/* translators: %s: plugin count */
+					$text = sprintf( __( 'Core <span class="count">(%s)</span>' ), $count );
 					break;
 				case 'mustuse':
 					/* translators: %s: plugin count */
@@ -525,7 +532,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 	protected function extra_tablenav( $which ) {
 		global $status;
 
-		if ( ! in_array( $status, array( 'recently_activated', 'mustuse', 'dropins' ) ) ) {
+		if ( ! in_array( $status, array( 'recently_activated', 'mustuse', 'dropins', 'core' ) ) ) {
 			return;
 		}
 
@@ -542,9 +549,13 @@ class WP_Plugins_List_Table extends WP_List_Table {
 		} elseif ( 'top' === $which && 'dropins' === $status ) {
 			echo '<p>' . sprintf(
 				/* translators: %s: wp-content directory name */
-				__( 'Drop-ins are advanced plugins in the %s directory that replace WordPress functionality when present.' ),
+				__( 'Drop-ins are advanced plugins in the %s directory that replace calmPress functionality when present.' ),
 				'<code>' . str_replace( ABSPATH, '', WP_CONTENT_DIR ) . '</code>'
 			) . '</p>';
+		} elseif ( 'top' === $which && 'core' === $status ) {
+			echo '<p>' .
+				esc_html__( 'Core plugins are plugins which are developed and maintained by calmPress.' )
+			. '</p>';
 		}
 		echo '</div>';
 	}
@@ -700,7 +711,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 			 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
 			 * @param array    $plugin_data An array of plugin data. See `get_plugin_data()`.
 			 * @param string   $context     The plugin context. By default this can include 'all', 'active', 'inactive',
-			 *                              'recently_activated', 'upgrade', 'mustuse', 'dropins', and 'search'.
+			 *                              'recently_activated', 'upgrade', 'mustuse', 'dropins', 'core', and 'search'.
 			 */
 			$actions = apply_filters( 'network_admin_plugin_action_links', $actions, $plugin_file, $plugin_data, $context );
 
@@ -717,7 +728,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 			 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
 			 * @param array    $plugin_data An array of plugin data. See `get_plugin_data()`.
 			 * @param string   $context     The plugin context. By default this can include 'all', 'active', 'inactive',
-			 *                              'recently_activated', 'upgrade', 'mustuse', 'dropins', and 'search'.
+			 *                              'recently_activated', 'upgrade', 'mustuse', 'dropins', 'core', and 'search'.
 			 */
 			$actions = apply_filters( "network_admin_plugin_action_links_{$plugin_file}", $actions, $plugin_file, $plugin_data, $context );
 
@@ -736,7 +747,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 			 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
 			 * @param array    $plugin_data An array of plugin data. See `get_plugin_data()`.
 			 * @param string   $context     The plugin context. By default this can include 'all', 'active', 'inactive',
-			 *                              'recently_activated', 'upgrade', 'mustuse', 'dropins', and 'search'.
+			 *                              'recently_activated', 'upgrade', 'mustuse', 'dropins', 'core', and 'search'.
 			 */
 			$actions = apply_filters( 'plugin_action_links', $actions, $plugin_file, $plugin_data, $context );
 
@@ -755,7 +766,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 			 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
 			 * @param array    $plugin_data An array of plugin data. See `get_plugin_data()`.
 			 * @param string   $context     The plugin context. By default this can include 'all', 'active', 'inactive',
-			 *                              'recently_activated', 'upgrade', 'mustuse', 'dropins', and 'search'.
+			 *                              'recently_activated', 'upgrade', 'mustuse', 'dropins', 'core', and 'search'.
 			 */
 			$actions = apply_filters( "plugin_action_links_{$plugin_file}", $actions, $plugin_file, $plugin_data, $context );
 

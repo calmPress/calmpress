@@ -238,7 +238,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 		if ( $installed_plugins ) {
 			$js_plugins = array_fill_keys(
-				array( 'all', 'search', 'active', 'inactive', 'recently_activated', 'mustuse', 'dropins' ),
+				array( 'all', 'search', 'active', 'inactive', 'recently_activated', 'mustuse', 'dropins', 'core' ),
 				array()
 			);
 
