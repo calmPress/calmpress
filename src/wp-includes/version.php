@@ -39,7 +39,7 @@ if ( ! function_exists( 'calmpress_version' ) ) {
 	 * @return string The version string.
 	 */
 	function calmpress_version() {
-		return '1.0.0-alpha16';
+		return '1.0.0-alpha17';
 	}
 }
 
@@ -73,7 +73,7 @@ if ( ! function_exists( 'wordpress_core_version' ) ) {
 	 * @return string The version string.
 	 */
 	function wordpress_core_version() {
-		return '5.2.1';
+		return '5.2.2';
 	}
 }
 

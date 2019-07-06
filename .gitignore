@@ -63,3 +63,4 @@ wp-tests-config.php
 *.diff
 .svn
 !/src/js/_enqueues/vendor
+src/wp-admin/about.php

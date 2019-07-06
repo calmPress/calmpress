@@ -4521,7 +4521,7 @@ function wp_ajax_wp_privacy_erase_personal_data() {
 function wp_ajax_health_check_dotorg_communication() {
 	check_ajax_referer( 'health-check-site-status' );
 
-	if ( ! current_user_can( 'install_plugins' ) ) {
+	if ( ! current_user_can( 'view_site_health_checks' ) ) {
 		wp_send_json_error();
 	}
 
@@ -4541,7 +4541,7 @@ function wp_ajax_health_check_dotorg_communication() {
 function wp_ajax_health_check_is_in_debug_mode() {
 	wp_verify_nonce( 'health-check-site-status' );
 
-	if ( ! current_user_can( 'install_plugins' ) ) {
+	if ( ! current_user_can( 'view_site_health_checks' ) ) {
 		wp_send_json_error();
 	}
 
@@ -4561,7 +4561,7 @@ function wp_ajax_health_check_is_in_debug_mode() {
 function wp_ajax_health_check_background_updates() {
 	check_ajax_referer( 'health-check-site-status' );
 
-	if ( ! current_user_can( 'install_plugins' ) ) {
+	if ( ! current_user_can( 'view_site_health_checks' ) ) {
 		wp_send_json_error();
 	}
 
@@ -4582,7 +4582,7 @@ function wp_ajax_health_check_background_updates() {
 function wp_ajax_health_check_loopback_requests() {
 	check_ajax_referer( 'health-check-site-status' );
 
-	if ( ! current_user_can( 'install_plugins' ) ) {
+	if ( ! current_user_can( 'view_site_health_checks' ) ) {
 		wp_send_json_error();
 	}
 
@@ -4602,7 +4602,7 @@ function wp_ajax_health_check_loopback_requests() {
 function wp_ajax_health_check_site_status_result() {
 	check_ajax_referer( 'health-check-site-status-result' );
 
-	if ( ! current_user_can( 'install_plugins' ) ) {
+	if ( ! current_user_can( 'view_site_health_checks' ) ) {
 		wp_send_json_error();
 	}
 
