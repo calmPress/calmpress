@@ -38,6 +38,7 @@ const MAP = [
 	'calmpress\plugin\INI_Based_Version'                => __DIR__ . '/plugin/class-ini-based-version.php',
 	'calmpress\plugin\Installed_Plugin'                 => __DIR__ . '/plugin/class-installed-plugin.php',
 	'calmpress\plugin\Installed_Plugins'                => __DIR__ . '/plugin/class-installed-plugins.php',
+	'calmpress\plugin\Core_Plugins'                     => __DIR__ . '/plugin/class-core-plugins.php',
 	'calmpress\plugin\Plugin'                           => __DIR__ . '/plugin/class-plugin.php',
 	'calmpress\plugin\Repository'                       => __DIR__ . '/plugin/class-repository.php',
 	'calmpress\plugin\Trivial_Version'                  => __DIR__ . '/plugin/class-trivial-version.php',
