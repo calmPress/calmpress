@@ -10,7 +10,7 @@
  *
  * @global string $tinymce_version
  */
-$tinymce_version = '4940-20190515';
+$tinymce_version = '4960-20190918';
 
 /**
  * Holds the required PHP version
@@ -39,7 +39,7 @@ if ( ! function_exists( 'calmpress_version' ) ) {
 	 * @return string The version string.
 	 */
 	function calmpress_version() {
-		return '1.0.0-alpha17';
+		return '1.0.0-alpha18';
 	}
 }
 
@@ -73,7 +73,7 @@ if ( ! function_exists( 'wordpress_core_version' ) ) {
 	 * @return string The version string.
 	 */
 	function wordpress_core_version() {
-		return '5.2.2';
+		return '5.3.2';
 	}
 }
 

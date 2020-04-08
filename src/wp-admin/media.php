@@ -27,7 +27,8 @@ switch ( $action ) {
 
 		if ( empty( $errors ) ) {
 			$location = 'media.php';
-			if ( $referer = wp_get_original_referer() ) {
+			$referer  = wp_get_original_referer();
+			if ( $referer ) {
 				if ( false !== strpos( $referer, 'upload.php' ) || ( url_to_postid( $referer ) == $attachment_id ) ) {
 					$location = $referer;
 				}
@@ -82,7 +83,7 @@ switch ( $action ) {
 				'id'      => 'overview',
 				'title'   => __( 'Overview' ),
 				'content' =>
-					  '<p>' . __( 'This screen allows you to edit five fields for metadata in a file within the media library.' ) . '</p>' .
+					  '<p>' . __( 'This screen allows you to edit fields for metadata in a file within the media library.' ) . '</p>' .
 					  '<p>' . __( 'Remember to click Update Media to save metadata entered or changed.' ) . '</p>',
 			)
 		);

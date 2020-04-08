@@ -1019,7 +1019,10 @@ VIDEO;
 		$this->assertEquals( $attachment_id, attachment_url_to_postid( $image_url ) );
 	}
 
-	function test_attachment_url_to_postid_schemes() {
+	/**
+	 * @ticket 33109
+	 */
+	function test_attachment_url_to_postid_with_different_scheme() {
 		$image_path    = '2014/11/' . $this->img_name;
 		$attachment_id = self::factory()->attachment->create_object(
 			$image_path,
@@ -1030,11 +1033,36 @@ VIDEO;
 			)
 		);
 
-		/**
-		 * @ticket 33109 Testing protocols not matching
-		 */
 		$image_url = 'https://' . WP_TESTS_DOMAIN . '/wp-content/uploads/' . $image_path;
 		$this->assertEquals( $attachment_id, attachment_url_to_postid( $image_url ) );
+	}
+
+	/**
+	 * @ticket 39768
+	 */
+	function test_attachment_url_to_postid_should_be_case_sensitive() {
+		$image_path_lower_case    = '2014/11/' . $this->img_name;
+		$attachment_id_lower_case = self::factory()->attachment->create_object(
+			$image_path_lower_case,
+			0,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
+
+		$image_path_upper_case    = '2014/11/' . ucfirst( $this->img_name );
+		$attachment_id_upper_case = self::factory()->attachment->create_object(
+			$image_path_upper_case,
+			0,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
+
+		$image_url = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/' . $image_path_upper_case;
+		$this->assertEquals( $attachment_id_upper_case, attachment_url_to_postid( $image_url ) );
 	}
 
 	function test_attachment_url_to_postid_filtered() {
@@ -1217,7 +1245,7 @@ EOF;
 	 * @ticket 33016
 	 */
 	function filter_wp_embed_shortcode_custom( $content, $url ) {
-		if ( 'https://www.example.com/?video=1' == $url ) {
+		if ( 'https://www.example.com/?video=1' === $url ) {
 			$content = '@embed URL was replaced@';
 		}
 		return $content;
@@ -1389,7 +1417,7 @@ EOF;
 	function test_wp_calculate_image_srcset() {
 		$_wp_additional_image_sizes = wp_get_additional_image_sizes();
 
-		$year_month      = date( 'Y/m' );
+		$year_month      = gmdate( 'Y/m' );
 		$image_meta      = wp_get_attachment_metadata( self::$large_id );
 		$uploads_dir_url = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/';
 
@@ -1407,7 +1435,7 @@ EOF;
 
 		foreach ( $image_meta['sizes'] as $name => $size ) {
 			// Whitelist the sizes that should be included so we pick up 'medium_large' in 4.4.
-			if ( in_array( $name, $intermediates ) ) {
+			if ( in_array( $name, $intermediates, true ) ) {
 				$expected .= $uploads_dir_url . $year_month . '/' . $size['file'] . ' ' . $size['width'] . 'w, ';
 			}
 		}
@@ -1452,7 +1480,7 @@ EOF;
 
 		foreach ( $image_meta['sizes'] as $name => $size ) {
 			// Whitelist the sizes that should be included so we pick up 'medium_large' in 4.4.
-			if ( in_array( $name, $intermediates ) ) {
+			if ( in_array( $name, $intermediates, true ) ) {
 				$expected .= $uploads_dir_url . $size['file'] . ' ' . $size['width'] . 'w, ';
 			}
 		}
@@ -1511,7 +1539,7 @@ EOF;
 	function test_wp_calculate_image_srcset_with_absolute_path_in_meta() {
 		$_wp_additional_image_sizes = wp_get_additional_image_sizes();
 
-		$year_month      = date( 'Y/m' );
+		$year_month      = gmdate( 'Y/m' );
 		$image_meta      = wp_get_attachment_metadata( self::$large_id );
 		$uploads_dir_url = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/';
 
@@ -1529,7 +1557,7 @@ EOF;
 
 		foreach ( $image_meta['sizes'] as $name => $size ) {
 			// Whitelist the sizes that should be included so we pick up 'medium_large' in 4.4.
-			if ( in_array( $name, $intermediates ) ) {
+			if ( in_array( $name, $intermediates, true ) ) {
 				$expected .= $uploads_dir_url . $year_month . '/' . $size['file'] . ' ' . $size['width'] . 'w, ';
 			}
 		}
@@ -1745,8 +1773,8 @@ EOF;
 		// Mock data for this test.
 		$image_src  = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/2015/12/test image-300x150.png';
 		$image_meta = array(
-			'width'  => 2000,
-			'height' => 1000,
+			'width'  => 3000,
+			'height' => 1500,
 			'file'   => '2015/12/test image.png',
 			'sizes'  => array(
 				'thumbnail'    => array(
@@ -1792,7 +1820,7 @@ EOF;
 
 		$srcset = wp_get_attachment_image_srcset( self::$large_id, $size_array, $image_meta );
 
-		$year_month  = date( 'Y/m' );
+		$year_month  = gmdate( 'Y/m' );
 		$uploads_dir = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/';
 
 		// Set up test cases for all expected size names.
@@ -1808,7 +1836,7 @@ EOF;
 
 		foreach ( $image_meta['sizes'] as $name => $size ) {
 			// Whitelist the sizes that should be included so we pick up 'medium_large' in 4.4.
-			if ( in_array( $name, $intermediates ) ) {
+			if ( in_array( $name, $intermediates, true ) ) {
 				$expected .= $uploads_dir . $year_month . '/' . $size['file'] . ' ' . $size['width'] . 'w, ';
 			}
 		}
@@ -2189,8 +2217,8 @@ EOF;
 		remove_all_filters( 'wp_calculate_image_sizes' );
 
 		$actual = wp_get_attachment_image( self::$large_id, 'testsize' );
-		$year   = date( 'Y' );
-		$month  = date( 'm' );
+		$year   = gmdate( 'Y' );
+		$month  = gmdate( 'm' );
 
 		$expected = '<img width="999" height="999" src="http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/' . $year . '/' . $month . '/test-image-testsize-999x999.png"' .
 			' class="attachment-testsize size-testsize" alt=""' .

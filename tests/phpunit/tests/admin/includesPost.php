@@ -13,11 +13,15 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 	protected static $user_ids = array();
 
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$user_ids = self::$author_ids = $factory->user->create_many( 2, array( 'role' => 'author' ) );
+		self::$user_ids   = $factory->user->create_many( 2, array( 'role' => 'author' ) );
+		self::$author_ids = self::$user_ids;
 
-		self::$user_ids[] = self::$contributor_id = $factory->user->create( array( 'role' => 'contributor' ) );
-		self::$user_ids[] = self::$editor_id = $factory->user->create( array( 'role' => 'editor' ) );
-		self::$user_ids[] = self::$admin_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$contributor_id = $factory->user->create( array( 'role' => 'contributor' ) );
+		self::$user_ids[]     = self::$contributor_id;
+		self::$editor_id      = $factory->user->create( array( 'role' => 'editor' ) );
+		self::$user_ids[]     = self::$editor_id;
+		self::$admin_id       = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$user_ids[]     = self::$admin_id;
 
 		self::$post_id = $factory->post->create();
 	}
@@ -295,7 +299,7 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 		$permalink_structure = '%postname%';
 		$this->set_permalink_structure( "/$permalink_structure/" );
 
-		$future_date = date( 'Y-m-d H:i:s', time() + 100 );
+		$future_date = gmdate( 'Y-m-d H:i:s', time() + 100 );
 		$p           = self::factory()->post->create(
 			array(
 				'post_status' => 'future',
@@ -317,7 +321,7 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 	public function test_get_sample_permalink_html_should_use_default_permalink_for_view_post_link_when_pretty_permalinks_are_disabled() {
 		wp_set_current_user( self::$admin_id );
 
-		$future_date = date( 'Y-m-d H:i:s', time() + 100 );
+		$future_date = gmdate( 'Y-m-d H:i:s', time() + 100 );
 		$p           = self::factory()->post->create(
 			array(
 				'post_status' => 'future',
@@ -339,7 +343,7 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 
 		wp_set_current_user( self::$admin_id );
 
-		$future_date = date( 'Y-m-d H:i:s', time() + 100 );
+		$future_date = gmdate( 'Y-m-d H:i:s', time() + 100 );
 		$p           = self::factory()->post->create(
 			array(
 				'post_status' => 'future',
@@ -403,7 +407,7 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 		$this->assertContains( '>new_slug-صورة<', $found, $message );
 
 		// Scheduled posts should use published permalink
-		$future_date = date( 'Y-m-d H:i:s', time() + 100 );
+		$future_date = gmdate( 'Y-m-d H:i:s', time() + 100 );
 		$p           = self::factory()->post->create(
 			array(
 				'post_status' => 'future',
@@ -446,7 +450,7 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 
 		wp_set_current_user( self::$admin_id );
 
-		$future_date = date( 'Y-m-d H:i:s', time() + 100 );
+		$future_date = gmdate( 'Y-m-d H:i:s', time() + 100 );
 		$p           = self::factory()->post->create(
 			array(
 				'post_status' => 'pending',

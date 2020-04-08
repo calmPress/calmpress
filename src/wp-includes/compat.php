@@ -28,6 +28,7 @@ function _wp_can_use_pcre_u( $set = null ) {
 	}
 
 	if ( 'reset' === $utf8_pcre ) {
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- intentional error generated to detect PCRE/u support.
 		$utf8_pcre = @preg_match( '/^./u', 'a' );
 	}
 
@@ -93,7 +94,7 @@ function _mb_substr( $str, $start, $length = null, $encoding = null ) {
 	}
 
 	$regex = '/(
-		  [\x00-\x7F]                  # single-byte sequences   0xxxxxxx
+		[\x00-\x7F]                  # single-byte sequences   0xxxxxxx
 		| [\xC2-\xDF][\x80-\xBF]       # double-byte sequences   110xxxxx 10xxxxxx
 		| \xE0[\xA0-\xBF][\x80-\xBF]   # triple-byte sequences   1110xxxx 10xxxxxx * 2
 		| [\xE1-\xEC][\x80-\xBF]{2}
@@ -176,7 +177,7 @@ function _mb_strlen( $str, $encoding = null ) {
 	}
 
 	$regex = '/(?:
-		  [\x00-\x7F]                  # single-byte sequences   0xxxxxxx
+		[\x00-\x7F]                  # single-byte sequences   0xxxxxxx
 		| [\xC2-\xDF][\x80-\xBF]       # double-byte sequences   110xxxxx 10xxxxxx
 		| \xE0[\xA0-\xBF][\x80-\xBF]   # triple-byte sequences   1110xxxx 10xxxxxx * 2
 		| [\xE1-\xEC][\x80-\xBF]{2}
@@ -212,6 +213,13 @@ function _mb_strlen( $str, $encoding = null ) {
 if ( ! function_exists( 'hash_hmac' ) ) :
 	/**
 	 * Compat function to mimic hash_hmac().
+	 *
+	 * The Hash extension is bundled with PHP by default since PHP 5.1.2.
+	 * However, the extension may be explicitly disabled on select servers.
+	 * As of PHP 7.4.0, the Hash extension is a core PHP extension and can no
+	 * longer be disabled.
+	 * I.e. when PHP 7.4.0 becomes the minimum requirement, this polyfill
+	 * and the associated `_hash_hmac()` function can be safely removed.
 	 *
 	 * @ignore
 	 * @since 3.2.0
@@ -280,9 +288,14 @@ if ( ! function_exists( 'hash_equals' ) ) :
 	 *
 	 * Compares two strings using the same time whether they're equal or not.
 	 *
-	 * This function was added in PHP 5.6.
-	 *
 	 * Note: It can leak the length of a string when arguments of differing length are supplied.
+	 *
+	 * This function was added in PHP 5.6.
+	 * However, the Hash extension may be explicitly disabled on select servers.
+	 * As of PHP 7.4.0, the Hash extension is a core PHP extension and can no
+	 * longer be disabled.
+	 * I.e. when PHP 7.4.0 becomes the minimum requirement, this polyfill
+	 * can be safely removed.
 	 *
 	 * @since 3.9.2
 	 *
@@ -306,49 +319,9 @@ if ( ! function_exists( 'hash_equals' ) ) :
 	}
 endif;
 
-if ( ! function_exists( 'is_countable' ) ) {
-	/**
-	 * Polyfill for is_countable() function added in PHP 7.3.
-	 *
-	 * Verify that the content of a variable is an array or an object
-	 * implementing the Countable interface.
-	 *
-	 * @since 4.9.6
-	 *
-	 * @param mixed $var The value to check.
-	 *
-	 * @return bool True if `$var` is countable, false otherwise.
-	 */
-	function is_countable( $var ) {
-		return ( is_array( $var )
-			|| $var instanceof Countable
-			|| $var instanceof SimpleXMLElement
-			|| $var instanceof ResourceBundle
-		);
-	}
-}
-
 // sodium_crypto_box was introduced in PHP 7.2
 if ( ! function_exists( 'sodium_crypto_box' ) ) {
 	require ABSPATH . WPINC . '/sodium_compat/autoload.php';
-}
-
-if ( ! function_exists( 'is_iterable' ) ) {
-	/**
-	 * Polyfill for is_iterable() function added in PHP 7.1.
-	 *
-	 * Verify that the content of a variable is an array or an object
-	 * implementing the Traversable interface.
-	 *
-	 * @since 4.9.6
-	 *
-	 * @param mixed $var The value to check.
-	 *
-	 * @return bool True if `$var` is iterable, false otherwise.
-	 */
-	function is_iterable( $var ) {
-		return ( is_array( $var ) || $var instanceof Traversable );
-	}
 }
 
 if ( ! function_exists( 'is_countable' ) ) {

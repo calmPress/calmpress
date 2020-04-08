@@ -39,14 +39,14 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	<nav class="health-check-tabs-wrapper hide-if-no-js" aria-label="<?php esc_attr_e( 'Secondary menu' ); ?>">
 		<a href="<?php echo esc_url( admin_url( 'site-health.php' ) ); ?>" class="health-check-tab">
 			<?php
-			/* translators: tab heading for Site Health Status page */
+			/* translators: Tab heading for Site Health Status page. */
 			_ex( 'Status', 'Site Health' );
 			?>
 		</a>
 
 		<a href="<?php echo esc_url( admin_url( 'site-health.php?tab=debug' ) ); ?>" class="health-check-tab active" aria-current="true">
 			<?php
-			/* translators: tab heading for Site Health Info page */
+			/* translators: Tab heading for Site Health Info page. */
 			_ex( 'Info', 'Site Health' );
 			?>
 		</a>
@@ -73,10 +73,13 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	</h2>
 
 	<p>
-		<?php _e( 'This page shows you details about the configuration of your calmPress website. Anything here that could be improved, will be also listed on the Site Health Status page.' ); ?>
+		<?php
+			/* translators: %s: URL to Site Health Status page. */
+			printf( __( 'This page can show you every detail about the configuration of your calmPress website. For any improvements that could be made, see the <a href="%s">Site Health Status</a> page.' ), esc_url( admin_url( 'site-health.php' ) ) );
+		?>
 	</p>
 	<p>
-		<?php _e( 'If you want to export a handy list of all the information on this page, you can use the button below to copy it to the clipboard. You can then paste it in a text file and save it to your harddrive, or paste it in an email exchange with a support engineer or theme/plugin developer for example.' ); ?>
+		<?php _e( 'If you want to export a handy list of all the information on this page, you can use the button below to copy it to the clipboard. You can then paste it in a text file and save it to your device, or paste it in an email exchange with a support engineer or theme/plugin developer for example.' ); ?>
 	</p>
 
 	<div class="site-health-copy-buttons">

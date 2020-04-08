@@ -44,14 +44,14 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	<nav class="health-check-tabs-wrapper hide-if-no-js" aria-label="<?php esc_attr_e( 'Secondary menu' ); ?>">
 		<a href="<?php echo esc_url( admin_url( 'site-health.php' ) ); ?>" class="health-check-tab active" aria-current="true">
 			<?php
-			/* translators: tab heading for Site Health Status page */
+			/* translators: Tab heading for Site Health Status page. */
 			_ex( 'Status', 'Site Health' );
 			?>
 		</a>
 
 		<a href="<?php echo esc_url( admin_url( 'site-health.php?tab=debug' ) ); ?>" class="health-check-tab">
 			<?php
-			/* translators: tab heading for Site Health Info page */
+			/* translators: Tab heading for Site Health Info page. */
 			_ex( 'Info', 'Site Health' );
 			?>
 		</a>
@@ -85,8 +85,8 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 		<div class="site-health-issues-wrapper" id="health-check-issues-critical">
 			<h3 class="site-health-issue-count-title">
 				<?php
-					/* translators: %s: number of critical issues found */
-					printf( _n( '%s Critical issue', '%s Critical issues', 0 ), '<span class="issue-count">0</span>' );
+					/* translators: %s: Number of critical issues found. */
+					printf( _n( '%s critical issue', '%s critical issues', 0 ), '<span class="issue-count">0</span>' );
 				?>
 			</h3>
 
@@ -96,8 +96,8 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 		<div class="site-health-issues-wrapper" id="health-check-issues-recommended">
 			<h3 class="site-health-issue-count-title">
 				<?php
-					/* translators: %s: number of recommended improvements */
-					printf( _n( '%s Recommended improvement', '%s Recommended improvements', 0 ), '<span class="issue-count">0</span>' );
+					/* translators: %s: Number of recommended improvements. */
+					printf( _n( '%s recommended improvement', '%s recommended improvements', 0 ), '<span class="issue-count">0</span>' );
 				?>
 			</h3>
 
@@ -115,8 +115,8 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	<div class="site-health-issues-wrapper hidden" id="health-check-issues-good">
 		<h3 class="site-health-issue-count-title">
 			<?php
-				/* translators: %s: number of items with no issues */
-				printf( _n( '%s Item with no issues detected', '%s Items with no issues detected', 0 ), '<span class="issue-count">0</span>' );
+				/* translators: %s: Number of items with no issues. */
+				printf( _n( '%s item with no issues detected', '%s items with no issues detected', 0 ), '<span class="issue-count">0</span>' );
 			?>
 		</h3>
 

@@ -65,11 +65,13 @@
 
 		if ( is_single() || ! get_post_gallery() ) {
 
-			/* translators: %s: Name of current post */
-			the_content( sprintf(
-				__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'calmseventeen' ),
-				get_the_title()
-			) );
+			the_content(
+				sprintf(
+					/* translators: %s: Post title. */
+					__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'calmseventeen' ),
+					get_the_title()
+				)
+			);
 
 			wp_link_pages( array(
 				'before'      => '<div class="page-links">' . __( 'Pages:', 'calmseventeen' ),

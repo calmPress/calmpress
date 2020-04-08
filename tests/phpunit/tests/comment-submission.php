@@ -135,8 +135,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 		$post = self::factory()->post->create_and_get(
 			array(
-				'post_date' => date( 'Y-m-d H:i:s', strtotime( '+1 day' ) ),
-				'comment_status' => 'open',
+				'post_date' => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day' ) ),
 			)
 		);
 

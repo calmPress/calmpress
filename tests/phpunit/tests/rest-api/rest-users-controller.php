@@ -2233,6 +2233,13 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 
 	public function test_get_item_schema_show_avatar() {
 		update_option( 'show_avatars', false );
+
+		// Re-initialize the controller to cache-bust schemas from prior test runs.
+		$GLOBALS['wp_rest_server']->override_by_default = true;
+		$controller                                     = new WP_REST_Users_Controller();
+		$controller->register_routes();
+		$GLOBALS['wp_rest_server']->override_by_default = false;
+
 		$request    = new WP_REST_Request( 'OPTIONS', '/wp/v2/users' );
 		$response   = rest_get_server()->dispatch( $request );
 		$data       = $response->get_data();
@@ -2456,7 +2463,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			$this->assertEquals( $user->user_email, $data['email'] );
 			$this->assertEquals( (object) $user->allcaps, $data['capabilities'] );
 			$this->assertEquals( (object) $user->caps, $data['extra_capabilities'] );
-			$this->assertEquals( date( 'c', strtotime( $user->user_registered ) ), $data['registered_date'] );
+			$this->assertEquals( gmdate( 'c', strtotime( $user->user_registered ) ), $data['registered_date'] );
 			$this->assertEquals( $user->user_login, $data['username'] );
 			$this->assertEquals( $user->roles, $data['roles'] );
 			$this->assertEquals( get_user_locale( $user ), $data['locale'] );

@@ -111,7 +111,11 @@ if ( current_user_can( 'install_themes' ) ) {
 	if ( is_multisite() ) {
 		$help_install = '<p>' . __( 'Installing themes on Multisite can only be done from the Network Admin section.' ) . '</p>';
 	} else {
-		$help_install = '<p>' . sprintf( __('If you would like to see more themes to choose from, click on the &#8220;Add New&#8221; button and you will be able to browse or search for additional themes from the <a href="%s">WordPress Theme Directory</a>. Themes in the WordPress Theme Directory are designed and developed by third parties.'), __( 'https://wordpress.org/themes/' ) ) . '</p>';
+		$help_install = '<p>' . sprintf(
+			/* translators: %s: https://wordpress.org/themes/ */
+			__( 'If you would like to see more themes to choose from, click on the &#8220;Add New&#8221; button and you will be able to browse or search for additional themes from the <a href="%s">WordPress Theme Directory</a>. Themes in the WordPress Theme Directory are designed and developed by third parties, and are compatible with the license WordPress uses. Oh, and they&#8217;re free!' ),
+			__( 'https://wordpress.org/themes/' )
+		) . '</p>';
 	}
 
 	get_current_screen()->add_help_tab(
@@ -161,6 +165,7 @@ wp_localize_script(
 			'addNew'            => __( 'Add New Theme' ),
 			'search'            => __( 'Search Installed Themes' ),
 			'searchPlaceholder' => __( 'Search installed themes...' ), // placeholder (no ellipsis)
+			/* translators: %d: Number of themes. */
 			'themesFound'       => __( 'Number of Themes found: %d' ),
 			'noThemesFound'     => __( 'No themes found. Try a different search.' ),
 		),
@@ -262,7 +267,8 @@ if ( is_array( $submenu ) && isset( $submenu['themes.php'] ) ) {
 				}
 			}
 
-			if ( false !== ( $pos = strpos( $menu_file, '?' ) ) ) {
+			$pos = strpos( $menu_file, '?' );
+			if ( false !== $pos ) {
 				$menu_file = substr( $menu_file, 0, $pos );
 			}
 
@@ -320,13 +326,18 @@ foreach ( $themes as $theme ) :
 	<?php endif; ?>
 
 	<span class="more-details" id="<?php echo $aria_action; ?>"><?php _e( 'Theme Details' ); ?></span>
-	<div class="theme-author"><?php printf( __( 'By %s' ), $theme['author'] ); ?></div>
+	<div class="theme-author">
+		<?php
+		/* translators: %s: Theme author name. */
+		printf( __( 'By %s' ), $theme['author'] );
+		?>
+	</div>
 
 	<div class="theme-id-container">
 		<?php if ( $theme['active'] ) { ?>
 			<h2 class="theme-name" id="<?php echo $aria_name; ?>">
 				<?php
-				/* translators: %s: theme name */
+				/* translators: %s: Theme name. */
 				printf( __( '<span>Active:</span> %s' ), $theme['name'] );
 				?>
 			</h2>
@@ -341,7 +352,7 @@ foreach ( $themes as $theme ) :
 			<?php } ?>
 		<?php } else { ?>
 			<?php
-			/* translators: %s: Theme name */
+			/* translators: %s: Theme name. */
 			$aria_label = sprintf( _x( 'Activate %s', 'theme' ), '{{ data.name }}' );
 			?>
 			<a class="button activate" href="<?php echo $theme['actions']['activate']; ?>" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( 'Activate' ); ?></a>
@@ -362,7 +373,8 @@ foreach ( $themes as $theme ) :
 
 <?php
 // List broken themes, if any.
-if ( ! is_multisite() && current_user_can( 'edit_themes' ) && $broken_themes = wp_get_themes( array( 'errors' => true ) ) ) {
+$broken_themes = wp_get_themes( array( 'errors' => true ) );
+if ( ! is_multisite() && current_user_can( 'edit_themes' ) && $broken_themes ) {
 	?>
 
 <div class="broken-themes">
@@ -483,7 +495,7 @@ if ( ! is_multisite() && current_user_can( 'edit_themes' ) && $broken_themes = w
 	<span class="more-details" id="{{ data.id }}-action"><?php _e( 'Theme Details' ); ?></span>
 	<div class="theme-author">
 		<?php
-		/* translators: %s: Theme author name */
+		/* translators: %s: Theme author name. */
 		printf( __( 'By %s' ), '{{{ data.author }}}' );
 		?>
 	</div>
@@ -492,7 +504,7 @@ if ( ! is_multisite() && current_user_can( 'edit_themes' ) && $broken_themes = w
 		<# if ( data.active ) { #>
 			<h2 class="theme-name" id="{{ data.id }}-name">
 				<?php
-				/* translators: %s: Theme name */
+				/* translators: %s: Theme name. */
 				printf( __( '<span>Active:</span> %s' ), '{{{ data.name }}}' );
 				?>
 			</h2>
@@ -507,7 +519,7 @@ if ( ! is_multisite() && current_user_can( 'edit_themes' ) && $broken_themes = w
 				<# } #>
 			<# } else { #>
 				<?php
-				/* translators: %s: Theme name */
+				/* translators: %s: Theme name. */
 				$aria_label = sprintf( _x( 'Activate %s', 'theme' ), '{{ data.name }}' );
 				?>
 				<a class="button activate" href="{{{ data.actions.activate }}}" aria-label="<?php echo $aria_label; ?>"><?php _e( 'Activate' ); ?></a>
@@ -538,8 +550,18 @@ if ( ! is_multisite() && current_user_can( 'edit_themes' ) && $broken_themes = w
 				<# if ( data.active ) { #>
 					<span class="current-label"><?php _e( 'Current Theme' ); ?></span>
 				<# } #>
-				<h2 class="theme-name">{{{ data.name }}}<span class="theme-version"><?php printf( __( 'Version: %s' ), '{{ data.version }}' ); ?></span></h2>
-				<p class="theme-author"><?php printf( __( 'By %s' ), '{{{ data.authorAndUri }}}' ); ?></p>
+				<h2 class="theme-name">{{{ data.name }}}<span class="theme-version">
+					<?php
+					/* translators: %s: Theme version. */
+					printf( __( 'Version: %s' ), '{{ data.version }}' );
+					?>
+				</span></h2>
+				<p class="theme-author">
+					<?php
+					/* translators: %s: Theme author link. */
+					printf( __( 'By %s' ), '{{{ data.authorAndUri }}}' );
+					?>
+				</p>
 
 				<# if ( data.hasUpdate ) { #>
 				<div class="notice notice-warning notice-alt notice-large">
@@ -550,7 +572,12 @@ if ( ! is_multisite() && current_user_can( 'edit_themes' ) && $broken_themes = w
 				<p class="theme-description">{{{ data.description }}}</p>
 
 				<# if ( data.parent ) { #>
-					<p class="parent-theme"><?php printf( __( 'This is a child theme of %s.' ), '<strong>{{{ data.parent }}}</strong>' ); ?></p>
+					<p class="parent-theme">
+						<?php
+						/* translators: %s: Theme name. */
+						printf( __( 'This is a child theme of %s.' ), '<strong>{{{ data.parent }}}</strong>' );
+						?>
+					</p>
 				<# } #>
 
 				<# if ( data.tags ) { #>
@@ -566,7 +593,7 @@ if ( ! is_multisite() && current_user_can( 'edit_themes' ) && $broken_themes = w
 			</div>
 			<div class="inactive-theme">
 				<?php
-				/* translators: %s: Theme name */
+				/* translators: %s: Theme name. */
 				$aria_label = sprintf( _x( 'Activate %s', 'theme' ), '{{ data.name }}' );
 				?>
 				<# if ( data.actions.activate ) { #>

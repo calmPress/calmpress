@@ -106,8 +106,8 @@ function ms_site_check() {
 		} else {
 			$admin_email = str_replace( '@', ' AT ', get_site_option( 'admin_email', 'support@' . get_network()->domain ) );
 			wp_die(
-				/* translators: %s: admin email link */
 				sprintf(
+					/* translators: %s: Admin email link. */
 					__( 'This site has not been activated yet. If you are having problems activating your site, please contact %s.' ),
 					sprintf( '<a href="mailto:%1$s">%1$s</a>', $admin_email )
 				)
@@ -203,12 +203,12 @@ function get_site_by_path( $domain, $path, $segments = null ) {
 	 *
 	 * @since 3.9.0
 	 *
-	 * @param null|bool|WP_Site $site     Site value to return by path.
-	 * @param string            $domain   The requested domain.
-	 * @param string            $path     The requested path, in full.
-	 * @param int|null          $segments The suggested number of paths to consult.
-	 *                                    Default null, meaning the entire path was to be consulted.
-	 * @param array             $paths    The paths to search for, based on $path and $segments.
+	 * @param null|false|WP_Site $site     Site value to return by path.
+	 * @param string             $domain   The requested domain.
+	 * @param string             $path     The requested path, in full.
+	 * @param int|null           $segments The suggested number of paths to consult.
+	 *                                     Default null, meaning the entire path was to be consulted.
+	 * @param array              $paths    The paths to search for, based on $path and $segments.
 	 */
 	$pre = apply_filters( 'pre_get_site_by_path', null, $domain, $path, $segments, $paths );
 	if ( null !== $pre ) {
@@ -324,7 +324,8 @@ function ms_load_current_site_and_network( $domain, $path, $subdomain = false ) 
 		 * If we're not dealing with one of these installations, then the important part is determining
 		 * the network first, because we need the network's path to identify any sites.
 		 */
-		if ( ! $current_site = wp_cache_get( 'current_network', 'site-options' ) ) {
+		$current_site = wp_cache_get( 'current_network', 'site-options' );
+		if ( ! $current_site ) {
 			// Are there even two networks installed?
 			$networks = get_networks( array( 'number' => 2 ) );
 			if ( count( $networks ) === 1 ) {
@@ -388,7 +389,8 @@ function ms_load_current_site_and_network( $domain, $path, $subdomain = false ) 
 	// During activation of a new subdomain, the requested site does not yet exist.
 	if ( empty( $current_blog ) && wp_installing() ) {
 		$current_blog          = new stdClass;
-		$current_blog->blog_id = $blog_id = 1;
+		$current_blog->blog_id = 1;
+		$blog_id               = 1;
 		$current_blog->public  = 1;
 	}
 
@@ -473,13 +475,13 @@ function ms_not_installed( $domain, $path ) {
 	$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->site ) );
 	if ( ! $wpdb->get_var( $query ) ) {
 		$msg .= '<p>' . sprintf(
-			/* translators: %s: table name */
+			/* translators: %s: Table name. */
 			__( '<strong>Database tables are missing.</strong> This means that MySQL is not running, calmPress was not installed properly, or someone deleted %s. You really should look at your database now.' ),
 			'<code>' . $wpdb->site . '</code>'
 		) . '</p>';
 	} else {
 		$msg .= '<p>' . sprintf(
-			/* translators: 1: site url, 2: table name, 3: database name */
+			/* translators: 1: Site URL, 2: Table name, 3: Database name. */
 			__( '<strong>Could not find site %1$s.</strong> Searched for table %2$s in database %3$s. Is that right?' ),
 			'<code>' . rtrim( $domain . $path, '/' ) . '</code>',
 			'<code>' . $wpdb->blogs . '</code>',

@@ -64,11 +64,11 @@ jQuery( document ).ready( function( $ ) {
 		count = SiteHealth.site_status.issues[ issue.status ];
 
 		if ( 'critical' === issue.status ) {
-			heading = sprintf( _n( '%s Critical issue', '%s Critical issues', count ), '<span class="issue-count">' + count + '</span>' );
+			heading = sprintf( _n( '%s critical issue', '%s critical issues', count ), '<span class="issue-count">' + count + '</span>' );
 		} else if ( 'recommended' === issue.status ) {
-			heading = sprintf( _n( '%s Recommended improvement', '%s Recommended improvements', count ), '<span class="issue-count">' + count + '</span>' );
+			heading = sprintf( _n( '%s recommended improvement', '%s recommended improvements', count ), '<span class="issue-count">' + count + '</span>' );
 		} else if ( 'good' === issue.status ) {
-			heading = sprintf( _n( '%s Item with no issues detected', '%s Items with no issues detected', count ), '<span class="issue-count">' + count + '</span>' );
+			heading = sprintf( _n( '%s item with no issues detected', '%s items with no issues detected', count ), '<span class="issue-count">' + count + '</span>' );
 		}
 
 		if ( heading ) {
@@ -85,7 +85,7 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	function RecalculateProgression() {
 		var totalTests = parseInt( SiteHealth.site_status.issues.good, 0 ) + parseInt( SiteHealth.site_status.issues.recommended, 0 ) + ( parseInt( SiteHealth.site_status.issues.critical, 0 ) * 1.5 );
-		var failedTests = parseInt( SiteHealth.site_status.issues.recommended, 0 ) + ( parseInt( SiteHealth.site_status.issues.critical, 0 ) * 1.5 );
+		var failedTests = ( parseInt( SiteHealth.site_status.issues.recommended, 0 ) * 0.5 ) + ( parseInt( SiteHealth.site_status.issues.critical, 0 ) * 1.5 );
 		var val = 100 - Math.ceil( ( failedTests / totalTests ) * 100 );
 
 		if ( 0 > val ) {
@@ -118,11 +118,10 @@ jQuery( document ).ready( function( $ ) {
 				}
 			);
 
-			wp.a11y.speak( sprintf(
-				// translators: %s: The percentage score for the tests.
-				__( 'All site health tests have finished running. Your site scored %s, and the results are now available on the page.' ),
-				val + '%'
-			) );
+			if ( 100 === val ) {
+				$( '.site-status-all-clear' ).removeClass( 'hide' );
+				$( '.site-status-has-issues' ).addClass( 'hide' );
+			}
 		}
 	}
 
@@ -153,7 +152,8 @@ jQuery( document ).ready( function( $ ) {
 					ajaxurl,
 					data,
 					function( response ) {
-						AppendIssue( response.data );
+						/** This filter is documented in wp-admin/includes/class-wp-site-health.php */
+						AppendIssue( wp.hooks.applyFilters( 'site_status_test_result', response.data ) );
 						maybeRunNextAsyncTest();
 					}
 				);

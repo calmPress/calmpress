@@ -47,7 +47,7 @@ if ( empty( $option_page ) ) {
 if ( ! current_user_can( $capability ) ) {
 	wp_die(
 		'<h1>' . __( 'You need a higher level of permission.' ) . '</h1>' .
-		'<p>' . __( 'Sorry, you are not allowed to manage these options.' ) . '</p>',
+		'<p>' . __( 'Sorry, you are not allowed to manage options for this site.' ) . '</p>',
 		403
 	);
 }
@@ -80,7 +80,7 @@ if ( is_multisite() && ! current_user_can( 'manage_network_options' ) && 'update
 	);
 }
 
-$whitelist_options         = array(
+$whitelist_options            = array(
 	'general'    => array(
 		'blogname',
 		'blogdescription',
@@ -138,7 +138,9 @@ $whitelist_options         = array(
 		'htaccess_user_section',
 	],
 );
-$whitelist_options['misc'] = $whitelist_options['options'] = $whitelist_options['privacy'] = array();
+$whitelist_options['misc']    = array();
+$whitelist_options['options'] = array();
+$whitelist_options['privacy'] = array();
 
 if ( ! in_array( get_option( 'blog_charset' ), array( 'utf8', 'utf-8', 'UTF8', 'UTF-8' ) ) ) {
 	$whitelist_options['reading'][] = 'blog_charset';
@@ -248,7 +250,7 @@ if ( 'update' == $action ) {
 	 */
 	// If no settings errors were registered add a general 'updated' message.
 	if ( ! count( get_settings_errors() ) ) {
-		add_settings_error( 'general', 'settings_updated', __( 'Settings saved.' ), 'updated' );
+		add_settings_error( 'general', 'settings_updated', __( 'Settings saved.' ), 'success' );
 	}
 	set_transient( 'settings_errors', get_settings_errors(), 30 );
 
@@ -264,11 +266,16 @@ include( ABSPATH . 'wp-admin/admin-header.php' ); ?>
 
 <div class="wrap">
 	<h1><?php esc_html_e( 'All Settings' ); ?></h1>
+
+	<div class="notice notice-warning">
+		<p><strong><?php _e( 'WARNING!' ); ?></strong> <?php _e( 'This page allows direct access to your site settings. You can break things here. Please be cautious!' ); ?></p>
+	</div>
+
 	<form name="form" action="options.php" method="post" id="all-options">
 		<?php wp_nonce_field( 'options-options' ); ?>
 		<input type="hidden" name="action" value="update" />
 		<input type="hidden" name="option_page" value="options" />
-		<table class="form-table">
+		<table class="form-table" role="presentation">
 <?php
 $options = $wpdb->get_results( "SELECT * FROM $wpdb->options ORDER BY option_name" );
 

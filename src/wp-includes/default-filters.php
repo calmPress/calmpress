@@ -180,8 +180,6 @@ add_filter( 'widget_text_content', 'wpautop'              );
 add_filter( 'widget_text_content', 'shortcode_unautop'    );
 add_filter( 'widget_text_content', 'do_shortcode',     11 ); // Runs after wpautop(); note that $post global will be null when shortcodes run.
 
-add_filter( 'date_i18n', 'wp_maybe_decline_date' );
-
 // RSS filters
 add_filter( 'the_title_rss',      'strip_tags'                    );
 add_filter( 'the_title_rss',      'ent2ncr',                    8 );
@@ -200,26 +198,26 @@ foreach ( array( 'publish_post', 'publish_page', 'wp_ajax_save-widget', 'wp_ajax
 }
 
 // Misc filters
-add_filter( 'option_blog_charset',      '_wp_specialchars'                    ); // IMPORTANT: This must not be wp_specialchars() or esc_html() or it'll cause an infinite loop
-add_filter( 'option_blog_charset',      '_canonical_charset'                  );
-add_filter( 'option_home',              '_config_wp_home'                     );
-add_filter( 'option_siteurl',           '_config_wp_siteurl'                  );
-add_filter( 'tiny_mce_before_init',     '_mce_set_direction'                  );
-add_filter( 'teeny_mce_before_init',    '_mce_set_direction'                  );
-add_filter( 'pre_kses',                 'wp_pre_kses_less_than'               );
-add_filter( 'sanitize_title',           'sanitize_title_with_dashes',   10, 3 );
-add_action( 'check_comment_flood',      'check_comment_flood_db',       10, 4 );
-add_filter( 'comment_flood_filter',     'wp_throttle_comment_flood',    10, 3 );
-add_filter( 'pre_comment_content',      'wp_rel_nofollow',              15    );
-add_filter( 'comment_email',            'antispambot'                         );
-add_filter( 'option_tag_base',          '_wp_filter_taxonomy_base'            );
-add_filter( 'option_category_base',     '_wp_filter_taxonomy_base'            );
-add_filter( 'the_posts',                '_close_comments_for_old_posts', 10, 2);
-add_filter( 'comments_open',            '_close_comments_for_old_post', 10, 2 );
-add_filter( 'editable_slug',            'urldecode'                           );
-add_filter( 'editable_slug',            'esc_textarea'                        );
-add_filter( 'nav_menu_meta_box_object', '_wp_nav_menu_meta_box_object'        );
-add_filter( 'title_save_pre',           'trim'                                );
+add_filter( 'option_blog_charset', '_wp_specialchars' ); // IMPORTANT: This must not be wp_specialchars() or esc_html() or it'll cause an infinite loop
+add_filter( 'option_blog_charset', '_canonical_charset' );
+add_filter( 'option_home', '_config_wp_home' );
+add_filter( 'option_siteurl', '_config_wp_siteurl' );
+add_filter( 'tiny_mce_before_init', '_mce_set_direction' );
+add_filter( 'teeny_mce_before_init', '_mce_set_direction' );
+add_filter( 'pre_kses', 'wp_pre_kses_less_than' );
+add_filter( 'sanitize_title', 'sanitize_title_with_dashes', 10, 3 );
+add_action( 'check_comment_flood', 'check_comment_flood_db', 10, 4 );
+add_filter( 'comment_flood_filter', 'wp_throttle_comment_flood', 10, 3 );
+add_filter( 'pre_comment_content', 'wp_rel_ugc', 15 );
+add_filter( 'comment_email', 'antispambot' );
+add_filter( 'option_tag_base', '_wp_filter_taxonomy_base' );
+add_filter( 'option_category_base', '_wp_filter_taxonomy_base' );
+add_filter( 'the_posts', '_close_comments_for_old_posts', 10, 2 );
+add_filter( 'comments_open', '_close_comments_for_old_post', 10, 2 );
+add_filter( 'editable_slug', 'urldecode' );
+add_filter( 'editable_slug', 'esc_textarea' );
+add_filter( 'nav_menu_meta_box_object', '_wp_nav_menu_meta_box_object' );
+add_filter( 'title_save_pre', 'trim' );
 
 add_action( 'transition_comment_status', '_clear_modified_cache_on_transition_comment_status', 10, 2 );
 
@@ -277,16 +275,17 @@ if ( ! defined( 'DOING_CRON' ) ) {
 }
 
 // 2 Actions 2 Furious
-add_action( 'do_feed_rss2',               'do_feed_rss2',                            10, 1 );
-add_action( 'do_robots',                  'do_robots'                                      );
-add_action( 'set_comment_cookies',        'wp_set_comment_cookies',                  10, 3 );
-add_action( 'sanitize_comment_cookies',   'sanitize_comment_cookies'                       );
-add_action( 'admin_print_scripts',        'print_head_scripts',                      20    );
-add_action( 'admin_print_footer_scripts', '_wp_footer_scripts'                             );
-add_action( 'admin_print_styles',         'print_admin_styles',                      20    );
-add_action( 'plugins_loaded',             'wp_maybe_load_widgets',                    0    );
-add_action( 'plugins_loaded',             'wp_maybe_load_embeds',                     0    );
-add_action( 'shutdown',                   'wp_ob_end_flush_all',                      1    );
+add_action( 'do_feed_rss2', 'do_feed_rss2', 10, 1 );
+add_action( 'do_robots', 'do_robots' );
+add_action( 'set_comment_cookies', 'wp_set_comment_cookies', 10, 3 );
+add_action( 'sanitize_comment_cookies', 'sanitize_comment_cookies' );
+add_action( 'admin_print_scripts', 'print_head_scripts', 20 );
+add_action( 'admin_print_footer_scripts', '_wp_footer_scripts' );
+add_action( 'admin_print_styles', 'print_admin_styles', 20 );
+add_action( 'init', 'smilies_init', 5 );
+add_action( 'plugins_loaded', 'wp_maybe_load_widgets', 0 );
+add_action( 'plugins_loaded', 'wp_maybe_load_embeds', 0 );
+add_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
 // Create a revision whenever a post is updated.
 add_action( 'post_updated', 'wp_save_post_revision', 10, 1 );
 add_action( 'publish_post', '_publish_post_hook', 5, 1 );
@@ -425,6 +424,8 @@ add_action( 'admin_enqueue_scripts', 'wp_localize_jquery_ui_datepicker', 1000 );
 add_filter( 'wp_print_scripts', 'wp_just_in_time_script_localization' );
 add_filter( 'print_scripts_array', 'wp_prototype_before_jquery' );
 add_filter( 'customize_controls_print_styles', 'wp_resource_hints', 1 );
+add_action( 'enqueue_block_assets', 'enqueue_block_styles_assets', 30 );
+add_action( 'enqueue_block_editor_assets', 'enqueue_editor_block_styles_assets' );
 
 add_action( 'wp_default_styles', 'wp_default_styles' );
 add_filter( 'style_loader_src', 'wp_style_loader_src', 10, 2 );
@@ -443,6 +444,7 @@ add_filter( 'the_content', 'do_shortcode', 11 ); // AFTER wpautop()
 // Media
 add_action( 'wp_playlist_scripts', 'wp_playlist_scripts' );
 add_action( 'customize_controls_enqueue_scripts', 'wp_plupload_default_settings' );
+add_action( 'plugins_loaded', '_wp_add_additional_image_sizes', 0 );
 
 // Nav menu
 add_filter( 'nav_menu_item_id', '_nav_menu_item_id_use_once', 10, 2 );

@@ -83,9 +83,42 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		}
 
 		this.collection.on( 'add remove reset', this.updateContent, this );
+
+		// The non-cached or cached attachments query has completed.
+		this.collection.on( 'attachments:received', this.announceSearchResults, this );
 	},
 
+	/**
+	 * Updates the `wp.a11y.speak()` ARIA live region with a message to communicate
+	 * the number of search results to screen reader users. This function is
+	 * debounced because the collection updates multiple times.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @returns {void}
+	 */
+	announceSearchResults: _.debounce( function() {
+		var count;
+
+		if ( this.collection.mirroring.args.s ) {
+			count = this.collection.length;
+
+			if ( 0 === count ) {
+				wp.a11y.speak( l10n.noMediaTryNewSearch );
+				return;
+			}
+
+			if ( this.collection.hasMore() ) {
+				wp.a11y.speak( l10n.mediaFoundHasMoreResults.replace( '%d', count ) );
+				return;
+			}
+
+			wp.a11y.speak( l10n.mediaFound.replace( '%d', count ) );
+		}
+	}, 200 ),
+
 	editSelection: function( modal ) {
+		// When editing a selection, move focus to the "Return to library" button.
 		modal.$( '.media-button-backToLibrary' ).focus();
 	},
 
@@ -99,7 +132,8 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 	},
 
 	createToolbar: function() {
-		var LibraryViewSwitcher, Filters, toolbarOptions;
+		var LibraryViewSwitcher, Filters, toolbarOptions,
+			showFilterByType = -1 !== $.inArray( this.options.filters, [ 'uploaded', 'all' ] );
 
 		toolbarOptions = {
 			controller: this.controller
@@ -117,12 +151,24 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		this.views.add( this.toolbar );
 
 		this.toolbar.set( 'spinner', new wp.media.view.Spinner({
-			priority: -60
+			priority: -20
 		}) );
 
-		if ( -1 !== $.inArray( this.options.filters, [ 'uploaded', 'all' ] ) ) {
-			// "Filters" will return a <select>, need to render
-			// screen reader text before
+		if ( showFilterByType || this.options.date ) {
+			/*
+			 * Create a h2 heading before the select elements that filter attachments.
+			 * This heading is visible in the modal and visually hidden in the grid.
+			 */
+			this.toolbar.set( 'filters-heading', new wp.media.view.Heading( {
+				priority:   -100,
+				text:       l10n.filterAttachments,
+				level:      'h2',
+				className:  'media-attachments-filter-heading'
+			}).render() );
+		}
+
+		if ( showFilterByType ) {
+			// "Filters" is a <select>, a visually hidden label element needs to be rendered before.
 			this.toolbar.set( 'filtersLabel', new wp.media.view.Label({
 				value: l10n.filterByType,
 				attributes: {
@@ -162,7 +208,7 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 				priority: -90
 			}).render() );
 
-			// DateFilter is a <select>, screen reader text needs to be rendered before
+			// DateFilter is a <select>, a visually hidden label element needs to be rendered before.
 			this.toolbar.set( 'dateFilterLabel', new wp.media.view.Label({
 				value: l10n.filterByDate,
 				attributes: {
@@ -189,7 +235,7 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 				disabled: true,
 				text: mediaTrash ? l10n.trashSelected : l10n.deletePermanently,
 				controller: this.controller,
-				priority: -60,
+				priority: -80,
 				click: function() {
 					var changed = [], removed = [],
 						selection = this.controller.state().get( 'selection' ),
@@ -245,7 +291,7 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 			if ( mediaTrash ) {
 				this.toolbar.set( 'deleteSelectedPermanentlyButton', new wp.media.view.DeleteSelectedPermanentlyButton({
 					filters: Filters,
-					style: 'primary',
+					style: 'link button-link-delete',
 					disabled: true,
 					text: l10n.deletePermanently,
 					controller: this.controller,
@@ -284,7 +330,7 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 			}
 
 		} else if ( this.options.date ) {
-			// DateFilter is a <select>, screen reader text needs to be rendered before
+			// DateFilter is a <select>, a visually hidden label element needs to be rendered before.
 			this.toolbar.set( 'dateFilterLabel', new wp.media.view.Label({
 				value: l10n.filterByDate,
 				attributes: {
@@ -300,9 +346,10 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		}
 
 		if ( this.options.search ) {
-			// Search is an input, screen reader text needs to be rendered before
+			// Search is an input, a visually hidden label element needs to be rendered before.
 			this.toolbar.set( 'searchLabel', new wp.media.view.Label({
-				value: l10n.searchMediaLabel,
+				value: l10n.searchLabel,
+				className: 'media-search-input-label',
 				attributes: {
 					'for': 'media-search-input'
 				},

@@ -24,7 +24,7 @@ if ( ! current_user_can( 'update_core' ) && ! current_user_can( 'update_themes' 
 }
 
 /**
- * @global wpdb   $wpdb
+ * @global wpdb   $wpdb WordPress database abstraction object.
  *
  * @staticvar bool $first_pass
  *
@@ -48,23 +48,55 @@ function list_core_update( $update ) {
 	$version_slug_parts = explode( '.', calmpress_version() );
 	$version_slug = $version_slug_parts[0] . '-' . $version_slug_parts[1];
 
-	if ( !$mysql_compat && !$php_compat ) {
-		/* translators: 1: calmpress.org version slug, 2: calmPress version number, 3: Minimum required PHP version number, 4: Minimum required MySQL version number, 5: Current PHP version number, 6: Current MySQL version number */
-		$message = sprintf( __( 'You cannot update because <a href="https://calmpress.org/version/%1$s">calmPress %2$s</a> requires PHP version %3$s or higher and MySQL version %4$s or higher. You are running PHP version %5$s and MySQL version %6$s.' ), $version_slug, calmpress_version(), $required_php_version, $required_mysql_version, $php_version, $mysql_version );
-	} elseif ( !$php_compat ) {
-		/* translators: 1: calmpress.org version slug, 2: calmPress version number, 3: Minimum required PHP version number, 4: Current PHP version number */
-		$message = sprintf( __( 'You cannot update because <a href="https://calmpress.org/Version/%1$s">calmPress %2$s</a> requires PHP version %3$s or higher. You are running version %4$s.' ), $version_slug, calmpress_version(), $required_php_version, $php_version );
-	} elseif ( !$mysql_compat ) {
-		/* translators: 1: calmpress.org version slug, 2: calmPress version number, 3: Minimum required MySQL version number, 4: Current MySQL version number */
-		$message = sprintf( __( 'You cannot update because <a href="https://calmpress.org/Version/%1$s">calmPress %2$s</a> requires MySQL version %3$s or higher. You are running version %4$s.' ), $version_slug, calmpress_version(), $required_mysql_version, $mysql_version );
-	} else {
-		$update_version_slug_parts = explode( '.', $update->version );
-		$update_version_slug = $update_version_slug_parts[0] . '-' . $update_version_slug_parts[1];
-		/* translators: 1: calmpress.org version slug, 2: calmPress version number */
-		$message = 	sprintf(__('You can update to <a href="https://calmpress.org/Version/%1$s">calmPress %2$s</a> automatically:'), $update_version_slug, $update->version);
+	$version_url = sprintf(
+		/* translators: %s: calmPress main version. */
+		esc_url( __( 'https://calmpress.org/version/%s/' ) ),
+		$version_slug
+	);
+
+	$php_update_message = '</p><p>' . sprintf(
+		/* translators: %s: URL to Update PHP page. */
+		__( '<a href="%s">Learn more about updating PHP</a>.' ),
+		esc_url( wp_get_update_php_url() )
+	);
+
+	$annotation = wp_get_update_php_annotation();
+	if ( $annotation ) {
+		$php_update_message .= '</p><p><em>' . $annotation . '</em>';
 	}
 
-	if ( !$mysql_compat || !$php_compat ) {
+	if ( ! $mysql_compat && ! $php_compat ) {
+		$message = sprintf(
+			/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required PHP version number, 4: Minimum required MySQL version number, 5: Current PHP version number, 6: Current MySQL version number. */
+			__( 'You cannot update because <a href="%1$s">calmPress %2$s</a> requires PHP version %3$s or higher and MySQL version %4$s or higher. You are running PHP version %5$s and MySQL version %6$s.' ),
+			$version_url,
+			$update->current,
+			$update->php_version,
+			$update->mysql_version,
+			$php_version,
+			$mysql_version
+		) . $php_update_message;
+	} elseif ( ! $php_compat ) {
+		$message = sprintf(
+			/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required PHP version number, 4: Current PHP version number. */
+			__( 'You cannot update because <a href="%1$s">calmPress %2$s</a> requires PHP version %3$s or higher. You are running version %4$s.' ),
+			$version_url,
+			$update->current,
+			$update->php_version,
+			$php_version
+		) . $php_update_message;
+	} elseif ( ! $mysql_compat ) {
+		$message = sprintf(
+			/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required MySQL version number, 4: Current MySQL version number. */
+			__( 'You cannot update because <a href="%1$s">calmPress %2$s</a> requires MySQL version %3$s or higher. You are running version %4$s.' ),
+			$version_url,
+			$update->current,
+			$update->mysql_version,
+			$mysql_version
+		);
+	}
+	
+	if ( ! $mysql_compat || ! $php_compat ) {
 		$show_buttons = false;
 	}
 
@@ -89,6 +121,8 @@ function list_core_update( $update ) {
 }
 
 /**
+ * Display dismissed updates.
+ *
  * @since 2.7.0
  */
 function dismissed_updates() {
@@ -139,9 +173,11 @@ function core_upgrade_preamble() {
 		echo '<h2>';
 		_e('You have the latest version of calmPress.');
 		echo '</h2>';
-	} else {
+	}
+
+	if ( isset( $updates[0]->version ) && version_compare( $updates[0]->version, $wp_version, '>' ) ) {
 		echo '<div class="notice notice-warning"><p>';
-		_e('<strong>Important:</strong> before updating, please back up your database and files.');
+		_e( '<strong>Important:</strong> before updating, please back up your database and files.' );
 		echo '</p></div>';
 
 		echo '<h2 class="response">';
@@ -163,6 +199,11 @@ function core_upgrade_preamble() {
 	dismissed_updates();
 }
 
+/**
+ * Display the upgrade plugins form.
+ *
+ * @since 2.9.0
+ */
 function list_plugin_updates() {
 	$version     = get_bloginfo( 'version' );
 	$cur_version = preg_replace( '/-.*$/', '', $version );
@@ -211,23 +252,21 @@ function list_plugin_updates() {
 		}
 
 		// Get plugin compat for running version of calmPress.
-		if ( isset($plugin_data->update->tested) && version_compare($plugin_data->update->tested, $cur_version, '>=') ) {
-			$compat = '<br />' . sprintf(__('Compatibility with calmPress %1$s: 100%% (according to its author)'), $cur_version);
-		} elseif ( isset($plugin_data->update->compatibility->{$cur_version}) ) {
-			$compat = $plugin_data->update->compatibility->{$cur_version};
-			$compat = '<br />' . sprintf(__('Compatibility with calmPress %1$s: %2$d%% (%3$d "works" votes out of %4$d total)'), $cur_version, $compat->percent, $compat->votes, $compat->total_votes);
+		if ( isset( $plugin_data->update->tested ) && version_compare( $plugin_data->update->tested, $cur_version, '>=') ) {
+			/* translators: %s: calmPress version. */
+			$compat = '<br />' . sprintf( __(' Compatibility with calmPress %1$s: 100%% (according to its author)' ), $cur_version );
 		} else {
-			$compat = '<br />' . sprintf(__('Compatibility with calmPress %1$s: Unknown'), $cur_version);
+			/* translators: %s: calmPress version. */
+			$compat = '<br />' . sprintf( __('Compatibility with calmPress %1$s: Unknown' ), $cur_version );
 		}
 		// Get plugin compat for updated version of calmPress.
 		if ( $core_update_version ) {
 			if ( isset( $plugin_data->update->tested ) && version_compare( $plugin_data->update->tested, $core_update_version, '>=' ) ) {
-				$compat .= '<br />' . sprintf( __( 'Compatibility with calmPress %1$s: 100%% (according to its author)' ), $core_update_version );
-			} elseif ( isset( $plugin_data->update->compatibility->{$core_update_version} ) ) {
-				$update_compat = $plugin_data->update->compatibility->{$core_update_version};
-				$compat .= '<br />' . sprintf(__('Compatibility with calmPress %1$s: %2$d%% (%3$d "works" votes out of %4$d total)'), $core_update_version, $update_compat->percent, $update_compat->votes, $update_compat->total_votes);
+				/* translators: %s: calmPress version. */
+				$compat .= '<br />' . sprintf( __( 'Compatibility with calmPress %s: 100%% (according to its author)' ), $core_update_version );
 			} else {
-				$compat .= '<br />' . sprintf(__('Compatibility with calmPress %1$s: Unknown'), $core_update_version);
+				/* translators: %s: calmPress version. */
+				$compat .= '<br />' . sprintf( __( 'Compatibility with calmPress %s: Unknown' ), $core_update_version );
 			}
 		}
 
@@ -236,8 +275,8 @@ function list_plugin_updates() {
 
 		if ( ! $compatible_php && current_user_can( 'update_php' ) ) {
 			$compat .= '<br>' . __( 'This update doesn&#8217;t work with your version of PHP.' ) . '&nbsp;';
-			/* translators: %s: Update PHP page URL */
 			$compat .= sprintf(
+				/* translators: %s: URL to Update PHP page. */
 				__( '<a href="%s">Learn more about updating PHP</a>.' ),
 				esc_url( wp_get_update_php_url() )
 			);
@@ -260,9 +299,9 @@ function list_plugin_updates() {
 		$details     = sprintf(
 			'<a href="%1$s" class="thickbox open-plugin-details-modal" aria-label="%2$s">%3$s</a>',
 			esc_url( $details_url ),
-			/* translators: 1: plugin name, 2: version number */
+			/* translators: 1: Plugin name, 2: Version number. */
 			esc_attr( sprintf( __( 'View %1$s version %2$s details' ), $plugin_data->Name, $plugin_data->update->new_version ) ),
-			/* translators: %s: plugin version */
+			/* translators: %s: Plugin version. */
 			sprintf( __( 'View version %s details.' ), $plugin_data->update->new_version )
 		);
 
@@ -273,13 +312,10 @@ function list_plugin_updates() {
 		<?php if ( $compatible_php ) : ?>
 			<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $plugin_file ); ?>" />
 			<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
-			<?php
-				/* translators: %s: plugin name */
-				printf(
-					__( 'Select %s' ),
-					$plugin_data->Name
-				);
-			?>
+				<?php
+				/* translators: %s: Plugin name. */
+				printf( __( 'Select %s' ), $plugin_data->Name );
+				?>
 			</label>
 		<?php endif; ?>
 		</td>
@@ -287,8 +323,8 @@ function list_plugin_updates() {
 			<?php echo $icon; ?>
 			<strong><?php echo $plugin_data->Name; ?></strong>
 			<?php
-			/* translators: 1: plugin version, 2: new version */
 			printf(
+				/* translators: 1: Plugin version, 2: New version. */
 				__( 'You have version %1$s installed. Update to %2$s.' ),
 				$plugin_data->Version,
 				$plugin_data->update->new_version
@@ -315,6 +351,8 @@ function list_plugin_updates() {
 }
 
 /**
+ * Display the upgrade themes form.
+ *
  * @since 2.9.0
  */
 function list_theme_updates() {
@@ -332,7 +370,7 @@ function list_theme_updates() {
 <p>
 	<?php
 	printf(
-		/* translators: %s: link to documentation on child themes */
+		/* translators: %s: Link to documentation on child themes. */
 		__( '<strong>Please Note:</strong> Any customizations you have made to theme files will be lost. Please consider using <a href="%s">child themes</a> for modifications.' ),
 		__( 'https://developer.wordpress.org/themes/advanced-topics/child-themes/' )
 	);
@@ -358,21 +396,18 @@ function list_theme_updates() {
 		<td class="check-column">
 			<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $stylesheet ); ?>" />
 			<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
-			<?php
-				/* translators: %s: theme name */
-				printf(
-					__( 'Select %s' ),
-					$theme->display( 'Name' )
-				);
-			?>
+				<?php
+				/* translators: %s: Theme name. */
+				printf( __( 'Select %s' ), $theme->display( 'Name' ) );
+				?>
 			</label>
 		</td>
 		<td class="plugin-title"><p>
 			<img src="<?php echo esc_url( $theme->get_screenshot() ); ?>" width="85" height="64" class="updates-table-screenshot" alt="" />
 			<strong><?php echo $theme->display( 'Name' ); ?></strong>
 			<?php
-			/* translators: 1: theme version, 2: new version */
 			printf(
+				/* translators: 1: Theme version, 2: New version. */
 				__( 'You have version %1$s installed. Update to %2$s.' ),
 				$theme->display( 'Version' ),
 				$theme->update['new_version']
@@ -398,6 +433,8 @@ function list_theme_updates() {
 }
 
 /**
+ * Display the update translations form.
+ *
  * @since 3.7.0
  */
 function list_translation_updates() {
@@ -458,7 +495,8 @@ function do_core_upgrade( $reinstall = false ) {
 	<h1><?php _e( 'Update calmPress' ); ?></h1>
 	<?php
 
-	if ( false === ( $credentials = request_filesystem_credentials( $url, '', false, ABSPATH, array( 'version', 'locale' ), $allow_relaxed_file_ownership ) ) ) {
+	$credentials = request_filesystem_credentials( $url, '', false, ABSPATH, array( 'version', 'locale' ), $allow_relaxed_file_ownership );
+	if ( false === $credentials ) {
 		echo '</div>';
 		return;
 	}
@@ -508,6 +546,8 @@ function do_core_upgrade( $reinstall = false ) {
 }
 
 /**
+ * Dismiss a core update.
+ *
  * @since 2.7.0
  */
 function do_dismiss_core_update() {
@@ -523,6 +563,8 @@ function do_dismiss_core_update() {
 }
 
 /**
+ * Undismiss a core update.
+ *
  * @since 2.7.0
  */
 function do_undismiss_core_update() {
@@ -603,7 +645,7 @@ if ( 'upgrade-core' == $action ) {
 	}
 
 	echo '<p>';
-	/* translators: 1: date, 2: time */
+	/* translators: 1: Date, 2: Time. */
 	printf( __( 'Last checked on %1$s at %2$s.' ), date_i18n( __( 'F j, Y' ), $last_update_check ), date_i18n( __( 'g:i a' ), $last_update_check ) );
 	echo ' &nbsp; <a class="button" href="' . esc_url( self_admin_url( 'update-core.php?force-check=1' ) ) . '">' . __( 'Check Again' ) . '</a>';
 	echo '</p>';
@@ -792,5 +834,5 @@ if ( 'upgrade-core' == $action ) {
 	 *
 	 * @since 3.2.0
 	 */
-	do_action( "update-core-custom_{$action}" );
+	do_action( "update-core-custom_{$action}" );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 }

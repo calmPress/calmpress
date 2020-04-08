@@ -31,8 +31,17 @@ get_current_screen()->add_help_tab(
 		'id'      => 'permalink-settings',
 		'title'   => __( 'Permalink Settings' ),
 		'content' => '<p>' . __( 'Permalinks can contain useful information, such as the post date, title, or other elements. You can choose from any of the suggested permalink formats, or you can craft your own if you select Custom Structure.' ) . '</p>' .
-			'<p>' . __( 'If you pick an option other than Plain, your general URL path with structure tags (terms surrounded by <code>%</code>) will also appear in the custom structure field and your path can be further modified there.' ) . '</p>' .
-			'<p>' . __( 'When you assign multiple categories or tags to a post, only one can show up in the permalink: the lowest numbered category. This applies if your custom structure includes <code>%category%</code> or <code>%tag%</code>.' ) . '</p>' .
+			'<p>' . sprintf(
+				/* translators: '%' character. */
+				__( 'If you pick an option other than Plain, your general URL path with structure tags (terms surrounded by %s) will also appear in the custom structure field and your path can be further modified there.' ),
+				'<code>%</code>'
+			) . '</p>' .
+			'<p>' . sprintf(
+				/* translators: 1: %category%, 2: %tag% */
+				__( 'When you assign multiple categories or tags to a post, only one can show up in the permalink: the lowest numbered category. This applies if your custom structure includes %1$s or %2$s.' ),
+				'<code>%category%</code>',
+				'<code>%tag%</code>'
+			) . '</p>' .
 			'<p>' . __( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.' ) . '</p>',
 	)
 );
@@ -50,7 +59,8 @@ $home_path           = get_home_path();
 $iis7_permalinks     = iis7_supports_permalinks();
 $permalink_structure = get_option( 'permalink_structure' );
 
-$prefix = $blog_prefix = '';
+$prefix      = '';
+$blog_prefix = '';
 
 /**
  * In a subdirectory configuration of multisite, the `/blog` prefix is used by
@@ -143,7 +153,7 @@ if ( isset( $_POST['permalink_structure'] ) || isset( $_POST['category_base'] ) 
 	}
 
 	if ( ! get_settings_errors() ) {
-		add_settings_error( 'general', 'settings_updated', $message, 'updated' );
+		add_settings_error( 'general', 'settings_updated', $message, 'success' );
 	}
 
 	set_transient( 'settings_errors', get_settings_errors(), 30 );
@@ -162,9 +172,11 @@ require( ABSPATH . 'wp-admin/admin-header.php' );
 <form name="form" action="options-permalink.php" method="post">
 <?php wp_nonce_field( 'update-permalink' ); ?>
 
-	<p><?php
+	<p>
+	<?php
 		_e( 'calmPress offers you the ability to create a custom URL structure for your permalinks and archives. Custom URL structures can improve the aesthetics, usability, and forward-compatibility of your links. A number of tags are available, and here are some examples to get you started.' );
-	?></p>
+	?>
+	</p>
 
 <?php
 if ( is_multisite() && ! is_subdomain_install() && is_main_site() && 0 === strpos( $permalink_structure, '/blog/' ) ) {
@@ -186,19 +198,19 @@ $structures = array(
 <h2 class="title"><?php _e( 'Common Settings' ); ?></h2>
 <table class="form-table permalink-structure">
 	<tr>
-		<th><label><input name="selection" type="radio" value="<?php echo esc_attr($structures[1]); ?>" <?php checked($structures[1], $permalink_structure); ?> /> <?php _e('Day and name'); ?></label></th>
-		<td><code><?php echo get_option('home') . $blog_prefix . $prefix . '/' . date('Y') . '/' . date('m') . '/' . date('d') . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
+		<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[1] ); ?>" <?php checked( $structures[1], $permalink_structure ); ?> /> <?php _e( 'Day and name' ); ?></label></th>
+		<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . gmdate( 'Y' ) . '/' . gmdate( 'm' ) . '/' . gmdate( 'd' ) . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
 	</tr>
 	<tr>
-		<th><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[2] ); ?>" <?php checked( $structures[2], $permalink_structure ); ?> /> <?php _e( 'Month and name' ); ?></label></th>
-		<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . date( 'Y' ) . '/' . date( 'm' ) . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
+		<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[2] ); ?>" <?php checked( $structures[2], $permalink_structure ); ?> /> <?php _e( 'Month and name' ); ?></label></th>
+		<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . gmdate( 'Y' ) . '/' . gmdate( 'm' ) . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
 	</tr>
 	<tr>
-		<th><label><input name="selection" type="radio" value="<?php echo esc_attr($structures[4]); ?>" <?php checked($structures[4], $permalink_structure); ?> /> <?php _e('Post name'); ?></label></th>
-		<td><code><?php echo get_option('home') . $blog_prefix . $prefix . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
+		<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[4] ); ?>" <?php checked( $structures[4], $permalink_structure ); ?> /> <?php _e( 'Post name' ); ?></label></th>
+		<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
 	</tr>
 	<tr>
-		<th>
+		<th scope="row">
 			<label><input name="selection" id="custom_selection" type="radio" value="custom" <?php checked( ! in_array( $permalink_structure, $structures ) ); ?> />
 			<?php _e( 'Custom Structure' ); ?>
 			</label>
@@ -210,23 +222,23 @@ $structures = array(
 				<div id="custom_selection_updated" aria-live="assertive" class="screen-reader-text"></div>
 				<?php
 				$available_tags = array(
-					/* translators: %s: permalink structure tag */
+					/* translators: %s: Permalink structure tag. */
 					'year'     => __( '%s (The year of the post, four digits, for example 2004.)' ),
-					/* translators: %s: permalink structure tag */
+					/* translators: %s: Permalink structure tag. */
 					'monthnum' => __( '%s (Month of the year, for example 05.)' ),
-					/* translators: %s: permalink structure tag */
+					/* translators: %s: Permalink structure tag. */
 					'day'      => __( '%s (Day of the month, for example 28.)' ),
-					/* translators: %s: permalink structure tag */
+					/* translators: %s: Permalink structure tag. */
 					'hour'     => __( '%s (Hour of the day, for example 15.)' ),
-					/* translators: %s: permalink structure tag */
+					/* translators: %s: Permalink structure tag. */
 					'minute'   => __( '%s (Minute of the hour, for example 43.)' ),
-					/* translators: %s: permalink structure tag */
+					/* translators: %s: Permalink structure tag. */
 					'second'   => __( '%s (Second of the minute, for example 33.)' ),
 					/* translators: %s: permalink structure tag */
 					'postname' => __( '%s (The sanitized post title (slug).)' ),
-					/* translators: %s: permalink structure tag */
+					/* translators: %s: Permalink structure tag. */
 					'category' => __( '%s (Category slug. Nested sub-categories appear as nested directories in the URL.)' ),
-					/* translators: %s: permalink structure tag */
+					/* translators: %s: Permalink structure tag. */
 					'author'   => __( '%s (A sanitized version of the author name.)' ),
 				);
 
@@ -239,10 +251,10 @@ $structures = array(
 				 */
 				$available_tags = apply_filters( 'available_permalink_structure_tags', $available_tags );
 
-				/* translators: %s: permalink structure tag */
+				/* translators: %s: Permalink structure tag. */
 				$structure_tag_added = __( '%s added to permalink structure' );
 
-				/* translators: %s: permalink structure tag */
+				/* translators: %s: Permalink structure tag. */
 				$structure_tag_already_used = __( '%s (already used in permalink structure)' );
 
 				if ( ! empty( $available_tags ) ) :
@@ -274,14 +286,14 @@ $structures = array(
 <h2 class="title"><?php _e( 'Optional' ); ?></h2>
 <p>
 <?php
-/* translators: %s: placeholder that must come at the start of the URL */
+/* translators: %s: Placeholder that must come at the start of the URL. */
 printf( __( 'If you like, you may enter custom structures for your category and tag URLs here. For example, using <code>topics</code> as your category base would make your category links like <code>%s/topics/uncategorized/</code>. If you leave these blank the defaults will be used.' ), get_option( 'home' ) . $blog_prefix . $prefix );
 ?>
 </p>
 
-<table class="form-table">
+<table class="form-table" role="presentation">
 	<tr>
-		<th><label for="category_base"><?php /* translators: prefix for category permalinks */ _e( 'Category base' ); ?></label></th>
+		<th><label for="category_base"><?php /* translators: Prefix for category permalinks. */ _e( 'Category base' ); ?></label></th>
 		<td><?php echo $blog_prefix; ?> <input name="category_base" id="category_base" type="text" value="<?php echo esc_attr( $category_base ); ?>" class="regular-text code" /></td>
 	</tr>
 	<tr>
@@ -294,20 +306,25 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 <?php do_settings_sections( 'permalink' ); ?>
 
 <?php submit_button(); ?>
-  </form>
-<?php if ( !is_multisite() ) { ?>
-<?php if ( $iis7_permalinks ) :
-	if ( isset($_POST['submit']) && ! $writable ) :
-		if ( file_exists($home_path . 'web.config') ) : ?>
-<p><?php
-	printf(
-		/* translators: 1: web.config, 2: CTRL + a, 3: element code */
-		__( 'If your %1$s file was writable, we could do this automatically, but it isn&#8217;t so this is the url rewrite rule you should have in your %1$s file. Click in the field and press %2$s to select all. Then insert this rule inside of the %3$s element in %1$s file.' ),
-		'<code>web.config</code>',
-		'<kbd>CTRL + a</kbd>',
-		'<code>/&lt;configuration&gt;/&lt;system.webServer&gt;/&lt;rewrite&gt;/&lt;rules&gt;</code>'
-	);
-?></p>
+</form>
+<?php if ( ! is_multisite() ) { ?>
+	<?php
+	if ( $iis7_permalinks ) :
+		if ( isset( $_POST['submit'] ) && $permalink_structure && ! $using_index_permalinks && ! $writable ) :
+			if ( file_exists( $home_path . 'web.config' ) ) :
+				?>
+<p>
+				<?php
+				printf(
+					/* translators: 1: web.config, 2: Documentation URL, 3: CTRL + a, 4: Element code. */
+					__( 'If your %1$s file was <a href="%2$s">writable</a>, we could do this automatically, but it isn&#8217;t so this is the url rewrite rule you should have in your %1$s file. Click in the field and press %3$s to select all. Then insert this rule inside of the %4$s element in %1$s file.' ),
+					'<code>web.config</code>',
+					__( 'https://wordpress.org/support/article/changing-file-permissions/' ),
+					'<kbd>CTRL + a</kbd>',
+					'<code>/&lt;configuration&gt;/&lt;system.webServer&gt;/&lt;rewrite&gt;/&lt;rules&gt;</code>'
+				);
+				?>
+</p>
 <form action="options-permalink.php" method="post">
 				<?php wp_nonce_field( 'update-permalink' ); ?>
 	<p><textarea rows="9" class="large-text readonly" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( $wp_rewrite->iis7_url_rewrite_rules() ); ?></textarea></p>
@@ -322,14 +339,17 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 				?>
 </p>
 		<?php else : ?>
-<p><?php
-	printf(
-		/* translators: 1: web.config, 2: CTRL + a */
-		__( 'If the root directory of your site was writable, we could do this automatically, but it isn&#8217;t so this is the url rewrite rule you should have in your %1$s file. Create a new file, called %2$s in the root directory of your site. Click in the field and press %2$s to select all. Then insert this code into the %1$s file.' ),
-		'<code>web.config</code>',
-		'<kbd>CTRL + a</kbd>'
-	);
-?></p>
+<p>
+			<?php
+			printf(
+				/* translators: 1: Documentation URL, 2: web.config, 3: CTRL + a */
+				__( 'If the root directory of your site was <a href="%1$s">writable</a>, we could do this automatically, but it isn&#8217;t so this is the url rewrite rule you should have in your %2$s file. Create a new file, called %2$s in the root directory of your site. Click in the field and press %3$s to select all. Then insert this code into the %2$s file.' ),
+				__( 'https://wordpress.org/support/article/changing-file-permissions/' ),
+				'<code>web.config</code>',
+				'<kbd>CTRL + a</kbd>'
+			);
+			?>
+</p>
 <form action="options-permalink.php" method="post">
 			<?php wp_nonce_field( 'update-permalink' ); ?>
 	<p><textarea rows="18" class="large-text readonly" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( $wp_rewrite->iis7_url_rewrite_rules( true ) ); ?></textarea></p>
@@ -345,16 +365,20 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 </p>
 		<?php endif; ?>
 	<?php endif; ?>
-<?php else:
-	if ( ! $writable && $update_required ) : ?>
-<p><?php
-	printf(
-		/* translators: 1: .htaccess, 2: .htaccess section indicator */
-		__( 'If your %1$s file was writable, we could do this automatically, but it isn&#8217;t so these are the rules you should have in your %1$s file. Copy the text from the field below into your %1$s file replacing the %2$s section.' ),
-		'<code>.htaccess</code>',
-		'<code># BEGIN Wordress ... # END WordPress</code>'
-	);
-?></p>
+		<?php
+else :
+	if ( ! $writable && $update_required ) :
+		?>
+<p>
+		<?php
+		printf(
+			/* translators: 1: .htaccess, 2: .htaccess section indicator */
+			__( 'If your %1$s file was writable, we could do this automatically, but it isn&#8217;t so these are the rules you should have in your %1$s file. Copy the text from the field below into your %1$s file replacing the %2$s section.' ),
+			'<code>.htaccess</code>',
+			'<code># BEGIN Wordress ... # END WordPress</code>'
+		);
+		?>
+</p>
 <form action="options-permalink.php" method="post">
 		<?php wp_nonce_field( 'update-permalink' ); ?>
 	<p><textarea rows="6" class="large-text readonly" onclick="this.focus();this.select()" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>

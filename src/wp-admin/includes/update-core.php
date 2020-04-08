@@ -108,7 +108,6 @@ $_old_files = array(
 	'wp-trackback.php',
 	'wp-config-sample.php',
 	'wp-includes/js/codemirror/jshint.js',
-	'wp-includes/random_compat/random_bytes_openssl.php',
 	'wp-includes/js/tinymce/wp-tinymce.js.gz',
 	'wp-includes/feed-atom.php',
 	'wp-includes/atomlib.php',
@@ -166,6 +165,8 @@ $_old_files = array(
 	'wp-admin/includes/image-edit.php',
 	'wp-admin/js/image-edit.js',
 	'wp-admin/js/image-edit.min.js',
+	'wp-includes/js/wp-a11y.js',
+	'wp-includes/js/wp-a11y.min.js',
 );
 
 /**
@@ -233,7 +234,7 @@ $_new_bundled_files = array(
  *
  * @global WP_Filesystem_Base $wp_filesystem          WordPress filesystem subclass.
  * @global array              $_old_files
- * @global wpdb               $wpdb
+ * @global wpdb               $wpdb                   WordPress database abstraction object.
  *
  * @param string $from New release unzipped path.
  * @param string $to   Path to old calmPress installation.
@@ -242,11 +243,11 @@ $_new_bundled_files = array(
 function update_core( $from, $to ) {
 	global $wp_filesystem, $_old_files, $wpdb;
 
-	$calmpress_version = '1.0.0-alpha16';
+	$calmpress_version = '1.0.0-alpha18';
     $required_php_version = '7.0';
-    $required_mysql_version = '5.0';
+    $required_mysql_version = '5.5';
 
-	@set_time_limit( 300 );
+	set_time_limit( 300 );
 
 	/**
 	 * Filters feedback messages displayed during the core update process.
@@ -282,7 +283,7 @@ function update_core( $from, $to ) {
 
 	$php_update_message = '';
 	if ( function_exists( 'wp_get_update_php_url' ) ) {
-		/* translators: %s: Update PHP page URL */
+		/* translators: %s: URL to Update PHP page. */
 		$php_update_message = '</p><p>' . sprintf( __( '<a href="%s">Learn more about updating PHP</a>.' ), esc_url( wp_get_update_php_url() ) );
 
 		if ( function_exists( 'wp_get_update_php_annotation' ) ) {
@@ -294,11 +295,41 @@ function update_core( $from, $to ) {
 	}
 
 	if ( ! $mysql_compat && ! $php_compat ) {
-		return new WP_Error( 'php_mysql_not_compatible', sprintf( __( 'The update cannot be installed because calmPress %1$s requires PHP version %2$s or higher and MySQL version %3$s or higher. You are running PHP version %4$s and MySQL version %5$s.' ), $wp_version, $required_php_version, $required_mysql_version, $php_version, $mysql_version ) . $php_update_message );
+		return new WP_Error(
+			'php_mysql_not_compatible',
+			sprintf(
+				/* translators: 1: calmPress version number, 2: Minimum required PHP version number, 3: Minimum required MySQL version number, 4: Current PHP version number, 5: Current MySQL version number. */
+				__( 'The update cannot be installed because calmPress %1$s requires PHP version %2$s or higher and MySQL version %3$s or higher. You are running PHP version %4$s and MySQL version %5$s.' ),
+				$calmpress_version,
+				$required_php_version,
+				$required_mysql_version,
+				$php_version,
+				$mysql_version
+			) . $php_update_message
+		);
 	} elseif ( ! $php_compat ) {
-		return new WP_Error( 'php_not_compatible', sprintf( __( 'The update cannot be installed because calmPress %1$s requires PHP version %2$s or higher. You are running version %3$s.' ), $wp_version, $required_php_version, $php_version ) . $php_update_message );
+		return new WP_Error(
+			'php_not_compatible',
+			sprintf(
+				/* translators: 1: calmPress version number, 2: Minimum required PHP version number, 3: Current PHP version number. */
+				__( 'The update cannot be installed because calmPress %1$s requires PHP version %2$s or higher. You are running version %3$s.' ),
+				$calmpress_version,
+				$required_php_version,
+				$php_version
+			) . $php_update_message
+		);
 	} elseif ( ! $mysql_compat ) {
-		return new WP_Error( 'mysql_not_compatible', sprintf( __( 'The update cannot be installed because calmPress %1$s requires MySQL version %2$s or higher. You are running version %3$s.' ), $wp_version, $required_mysql_version, $mysql_version ) );
+		return new WP_Error(
+			'mysql_not_compatible',
+			sprintf(
+				/* translators: 1: calmPress version number, 2: Minimum required MySQL version number, 3: Current MySQL version number. */
+				__( 'The update cannot be installed because calmPress %1$s requires MySQL version %2$s or higher. You are running version %3$s.' ),
+				$calmpress_version,
+				$required_mysql_version,
+				$mysql_version
+			)
+		);
+	}
 	}
 
 	/** This filter is documented in wp-admin/includes/update-core.php */
@@ -471,7 +502,7 @@ function _copy_dir( $from, $to, $skip_list = array() ) {
 	$to   = trailingslashit( $to );
 
 	foreach ( (array) $dirlist as $filename => $fileinfo ) {
-		if ( in_array( $filename, $skip_list ) ) {
+		if ( in_array( $filename, $skip_list, true ) ) {
 			continue;
 		}
 

@@ -2631,25 +2631,25 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 		$c1 = self::factory()->comment->create(
 			array(
 				'comment_post_ID'  => self::$post_id,
-				'comment_date_gmt' => date( 'Y-m-d H:i:s', $now - 50 ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', $now - 50 ),
 			)
 		);
 		$c2 = self::factory()->comment->create(
 			array(
 				'comment_post_ID'  => self::$post_id,
-				'comment_date_gmt' => date( 'Y-m-d H:i:s', $now - 40 ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', $now - 40 ),
 			)
 		);
 		$c3 = self::factory()->comment->create(
 			array(
 				'comment_post_ID'  => self::$post_id,
-				'comment_date_gmt' => date( 'Y-m-d H:i:s', $now - 30 ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', $now - 30 ),
 			)
 		);
 		$c4 = self::factory()->comment->create(
 			array(
 				'comment_post_ID'  => self::$post_id,
-				'comment_date_gmt' => date( 'Y-m-d H:i:s', $now - 20 ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', $now - 20 ),
 			)
 		);
 
@@ -2677,25 +2677,25 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 		$c1 = self::factory()->comment->create(
 			array(
 				'comment_post_ID'  => self::$post_id,
-				'comment_date_gmt' => date( 'Y-m-d H:i:s', $now - 50 ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', $now - 50 ),
 			)
 		);
 		$c2 = self::factory()->comment->create(
 			array(
 				'comment_post_ID'  => self::$post_id,
-				'comment_date_gmt' => date( 'Y-m-d H:i:s', $now - 40 ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', $now - 40 ),
 			)
 		);
 		$c3 = self::factory()->comment->create(
 			array(
 				'comment_post_ID'  => self::$post_id,
-				'comment_date_gmt' => date( 'Y-m-d H:i:s', $now - 30 ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', $now - 30 ),
 			)
 		);
 		$c4 = self::factory()->comment->create(
 			array(
 				'comment_post_ID'  => self::$post_id,
-				'comment_date_gmt' => date( 'Y-m-d H:i:s', $now - 20 ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', $now - 20 ),
 			)
 		);
 
@@ -4563,5 +4563,36 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 		);
 
 		$this->assertEqualSets( $c1, $found );
+	}
+
+	/**
+	 * @ticket 45800
+	 */
+	public function test_comments_pre_query_filter_should_bypass_database_query() {
+		global $wpdb;
+
+		add_filter( 'comments_pre_query', array( __CLASS__, 'filter_comments_pre_query' ), 10, 2 );
+
+		$num_queries = $wpdb->num_queries;
+
+		$q       = new WP_Comment_Query();
+		$results = $q->query( array() );
+
+		remove_filter( 'comments_pre_query', array( __CLASS__, 'filter_comments_pre_query' ), 10, 2 );
+
+		// Make sure no queries were executed.
+		$this->assertSame( $num_queries, $wpdb->num_queries );
+
+		// We manually inserted a non-existing site and overrode the results with it.
+		$this->assertSame( array( 555 ), $results );
+
+		// Make sure manually setting total_users doesn't get overwritten.
+		$this->assertEquals( 1, $q->found_comments );
+	}
+
+	public static function filter_comments_pre_query( $comments, $query ) {
+		$query->found_comments = 1;
+
+		return array( 555 );
 	}
 }

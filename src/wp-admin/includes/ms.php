@@ -32,12 +32,12 @@ function check_upload_size( $file ) {
 
 	$file_size = filesize( $file['tmp_name'] );
 	if ( $space_left < $file_size ) {
-		/* translators: %s: required disk space in kilobytes */
+		/* translators: %s: Required disk space in kilobytes. */
 		$file['error'] = sprintf( __( 'Not enough space to upload. %s KB needed.' ), number_format( ( $file_size - $space_left ) / KB_IN_BYTES ) );
 	}
 
 	if ( $file_size > ( KB_IN_BYTES * get_site_option( 'fileupload_maxk', 1500 ) ) ) {
-		/* translators: %s: maximum allowed file size in kilobytes */
+		/* translators: %s: Maximum allowed file size in kilobytes. */
 		$file['error'] = sprintf( __( 'This file is too big. Files must be less than %s KB in size.' ), get_site_option( 'fileupload_maxk', 1500 ) );
 	}
 
@@ -218,7 +218,7 @@ function upload_is_user_over_quota( $echo = true ) {
 	if ( ( $space_allowed - $space_used ) < 0 ) {
 		if ( $echo ) {
 			printf(
-				/* translators: %s: allowed space allocation */
+				/* translators: %s: Allowed space allocation. */
 				__( 'Sorry, you have used your space allocation of %s. Please delete some files to upload more files.' ),
 				size_format( $space_allowed * MB_IN_BYTES )
 			);
@@ -240,19 +240,11 @@ function display_space_usage() {
 
 	$percent_used = ( $space_used / $space_allowed ) * 100;
 
-	if ( $space_allowed > 1000 ) {
-		$space = number_format( $space_allowed / KB_IN_BYTES );
-		/* translators: Gigabytes */
-		$space .= __( 'GB' );
-	} else {
-		$space = number_format( $space_allowed );
-		/* translators: Megabytes */
-		$space .= __( 'MB' );
-	}
+	$space = size_format( $space_allowed * MB_IN_BYTES );
 	?>
 	<strong>
 	<?php
-		/* translators: Storage space that's been used. 1: Percentage of used space, 2: Total space allowed in megabytes or gigabytes */
+		/* translators: Storage space that's been used. 1: Percentage of used space, 2: Total space allowed in megabytes or gigabytes. */
 		printf( __( 'Used: %1$s%% of %2$s' ), number_format( $percent_used ), $space );
 	?>
 	</strong>
@@ -303,54 +295,6 @@ function upload_space_setting( $id ) {
 }
 
 /**
- * Update the status of a user in the database.
- *
- * Used in core to mark a user as spam or "ham" (not spam) in Multisite.
- *
- * @since 3.0.0
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- * @param int    $id         The user ID.
- * @param string $pref       The column in the wp_users table to update the user's status
- *                           in (presumably user_status, spam, or deleted).
- * @param int    $value      The new status for the user.
- * @return int   The initially passed $value.
- */
-function update_user_status( $id, $pref, $value ) {
-	global $wpdb;
-
-	$wpdb->update( $wpdb->users, array( sanitize_key( $pref ) => $value ), array( 'ID' => $id ) );
-
-	$user = new WP_User( $id );
-	clean_user_cache( $user );
-
-	if ( $pref == 'spam' ) {
-		if ( $value == 1 ) {
-			/**
-			 * Fires after the user is marked as a SPAM user.
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param int $id ID of the user marked as SPAM.
-			 */
-			do_action( 'make_spam_user', $id );
-		} else {
-			/**
-			 * Fires after the user is marked as a HAM user. Opposite of SPAM.
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param int $id ID of the user marked as HAM.
-			 */
-			do_action( 'make_ham_user', $id );
-		}
-	}
-
-	return $value;
-}
-
-/**
  * Cleans the user cache for a specific user.
  *
  * @since 3.0.0
@@ -361,7 +305,8 @@ function update_user_status( $id, $pref, $value ) {
 function refresh_user_details( $id ) {
 	$id = (int) $id;
 
-	if ( ! $user = get_userdata( $id ) ) {
+	$user = get_userdata( $id );
+	if ( ! $user ) {
 		return false;
 	}
 
@@ -625,10 +570,21 @@ function _access_denied_splash() {
 	$blog_name = get_bloginfo( 'name' );
 
 	if ( empty( $blogs ) ) {
-		wp_die( sprintf( __( 'You attempted to access the "%1$s" dashboard, but you do not currently have privileges on this site. If you believe you should be able to access the "%1$s" dashboard, please contact your network administrator.' ), $blog_name ), 403 );
+		wp_die(
+			sprintf(
+				/* translators: 1: Site title. */
+				__( 'You attempted to access the "%1$s" dashboard, but you do not currently have privileges on this site. If you believe you should be able to access the "%1$s" dashboard, please contact your network administrator.' ),
+				$blog_name
+			),
+			403
+		);
 	}
 
-	$output  = '<p>' . sprintf( __( 'You attempted to access the "%1$s" dashboard, but you do not currently have privileges on this site. If you believe you should be able to access the "%1$s" dashboard, please contact your network administrator.' ), $blog_name ) . '</p>';
+	$output = '<p>' . sprintf(
+		/* translators: 1: Site title. */
+		__( 'You attempted to access the "%1$s" dashboard, but you do not currently have privileges on this site. If you believe you should be able to access the "%1$s" dashboard, please contact your network administrator.' ),
+		$blog_name
+	) . '</p>';
 	$output .= '<p>' . __( 'If you reached this screen by accident and meant to visit one of your own sites, here are some shortcuts to help you find your way.' ) . '</p>';
 
 	$output .= '<h3>' . __( 'Your Sites' ) . '</h3>';
@@ -734,8 +690,12 @@ function site_admin_notice() {
 		return;
 	}
 
-	if ( get_site_option( 'calmpress_wpmu_upgrade_site' ) != calmpress_version() ) {
-		echo "<div class='update-nag'>" . sprintf( __( 'Thank you for Updating! Please visit the <a href="%s">Upgrade Network</a> page to update all your sites.' ), esc_url( network_admin_url( 'upgrade.php' ) ) ) . "</div>";
+	if ( get_site_option( 'wpmu_upgrade_site' ) != calmpress_version() ) {
+		echo "<div class='update-nag'>" . sprintf(
+			/* translators: %s: URL to Upgrade Network screen. */
+			__( 'Thank you for Updating! Please visit the <a href="%s">Upgrade Network</a> page to update all your sites.' ),
+			esc_url( network_admin_url( 'upgrade.php' ) )
+		) . '</div>';
 	}
 }
 
@@ -787,9 +747,9 @@ function avoid_blog_page_permalink_collision( $data, $postarr ) {
  */
 function choose_primary_blog() {
 	?>
-	<table class="form-table">
+	<table class="form-table" role="presentation">
 	<tr>
-	<?php /* translators: My sites label */ ?>
+	<?php /* translators: My Sites label. */ ?>
 		<th scope="row"><label for="primary_blog"><?php _e( 'Primary Site' ); ?></label></th>
 		<td>
 		<?php
@@ -899,18 +859,31 @@ function confirm_delete_users( $users ) {
 	$site_admins = get_super_admins();
 	$admin_out   = '<option value="' . esc_attr( $current_user->ID ) . '">' . $current_user->user_login . '</option>';
 	?>
-	<table class="form-table">
+	<table class="form-table" role="presentation">
 	<?php
-	foreach ( ( $allusers = (array) $_POST['allusers'] ) as $user_id ) {
+	$allusers = (array) $_POST['allusers'];
+	foreach ( $allusers as $user_id ) {
 		if ( $user_id != '' && $user_id != '0' ) {
 			$delete_user = get_userdata( $user_id );
 
 			if ( ! current_user_can( 'delete_user', $delete_user->ID ) ) {
-				wp_die( sprintf( __( 'Warning! User %s cannot be deleted.' ), $delete_user->user_login ) );
+				wp_die(
+					sprintf(
+						/* translators: %s: User login. */
+						__( 'Warning! User %s cannot be deleted.' ),
+						$delete_user->user_login
+					)
+				);
 			}
 
 			if ( in_array( $delete_user->user_login, $site_admins ) ) {
-				wp_die( sprintf( __( 'Warning! User cannot be deleted. The user %s is a network administrator.' ), '<em>' . $delete_user->user_login . '</em>' ) );
+				wp_die(
+					sprintf(
+						/* translators: %s: User login. */
+						__( 'Warning! User cannot be deleted. The user %s is a network administrator.' ),
+						'<em>' . $delete_user->user_login . '</em>'
+					)
+				);
 			}
 			?>
 			<tr>
@@ -925,7 +898,7 @@ function confirm_delete_users( $users ) {
 				<td><fieldset><p><legend>
 				<?php
 				printf(
-					/* translators: user login */
+					/* translators: User login. */
 					__( 'What should be done with content owned by %s?' ),
 					'<em>' . $delete_user->user_login . '</em>'
 				);
@@ -956,7 +929,12 @@ function confirm_delete_users( $users ) {
 						$user_dropdown .= "</select>\n";
 						?>
 						<ul style="list-style:none;">
-							<li><?php printf( __( 'Site: %s' ), $user_site ); ?></li>
+							<li>
+								<?php
+								/* translators: %s: Link to user's site. */
+								printf( __( 'Site: %s' ), $user_site );
+								?>
+							</li>
 							<li><label><input type="radio" id="delete_option0" name="delete[<?php echo $details->userblog_id . '][' . $delete_user->ID; ?>]" value="delete" checked="checked" />
 							<?php _e( 'Delete all content.' ); ?></label></li>
 							<li><label><input type="radio" id="delete_option1" name="delete[<?php echo $details->userblog_id . '][' . $delete_user->ID; ?>]" value="reassign" />
@@ -969,7 +947,7 @@ function confirm_delete_users( $users ) {
 				echo '</fieldset></td></tr>';
 			} else {
 				?>
-				<td><fieldset><p><legend><?php _e( 'User has no sites or content and will be deleted.' ); ?></legend></p>
+				<td><p><?php _e( 'User has no sites or content and will be deleted.' ); ?></p></td>
 			<?php } ?>
 			</tr>
 			<?php
@@ -1080,7 +1058,7 @@ function network_edit_site_nav( $args = array() ) {
 	);
 
 	// Parse arguments
-	$r = wp_parse_args(
+	$parsed_args = wp_parse_args(
 		$args,
 		array(
 			'blog_id'  => isset( $_GET['blog_id'] ) ? (int) $_GET['blog_id'] : 0,
@@ -1093,10 +1071,10 @@ function network_edit_site_nav( $args = array() ) {
 	$screen_links = array();
 
 	// Loop through tabs
-	foreach ( $r['links'] as $link_id => $link ) {
+	foreach ( $parsed_args['links'] as $link_id => $link ) {
 
 		// Skip link if user can't access
-		if ( ! current_user_can( $link['cap'], $r['blog_id'] ) ) {
+		if ( ! current_user_can( $link['cap'], $parsed_args['blog_id'] ) ) {
 			continue;
 		}
 
@@ -1107,7 +1085,7 @@ function network_edit_site_nav( $args = array() ) {
 		$aria_current = '';
 
 		// Selected is set by the parent OR assumed by the $pagenow global
-		if ( $r['selected'] === $link_id || $link['url'] === $GLOBALS['pagenow'] ) {
+		if ( $parsed_args['selected'] === $link_id || $link['url'] === $GLOBALS['pagenow'] ) {
 			$classes[]    = 'nav-tab-active';
 			$aria_current = ' aria-current="page"';
 		}
@@ -1116,7 +1094,7 @@ function network_edit_site_nav( $args = array() ) {
 		$esc_classes = implode( ' ', $classes );
 
 		// Get the URL for this link
-		$url = add_query_arg( array( 'id' => $r['blog_id'] ), network_admin_url( $link['url'] ) );
+		$url = add_query_arg( array( 'id' => $parsed_args['blog_id'] ), network_admin_url( $link['url'] ) );
 
 		// Add link to nav links
 		$screen_links[ $link_id ] = '<a href="' . esc_url( $url ) . '" id="' . esc_attr( $link_id ) . '" class="' . $esc_classes . '"' . $aria_current . '>' . esc_html( $link['label'] ) . '</a>';
@@ -1143,7 +1121,11 @@ function get_site_screen_help_tab_args() {
 			'<p>' . __( 'The menu is for editing information specific to individual sites, particularly if the admin area of a site is unavailable.' ) . '</p>' .
 			'<p>' . __( '<strong>Info</strong> &mdash; The site URL is rarely edited as this can cause the site to not work properly. The Registered date and Last Updated date are displayed. Network admins can mark a site as archived, spam, deleted and mature, to remove from public listings or disable.' ) . '</p>' .
 			'<p>' . __( '<strong>Users</strong> &mdash; This displays the users associated with this site. You can also change their role, reset their password, or remove them from the site. Removing the user from the site does not remove the user from the network.' ) . '</p>' .
-			'<p>' . sprintf( __( '<strong>Themes</strong> &mdash; This area shows themes that are not already enabled across the network. Enabling a theme in this menu makes it accessible to this site. It does not activate the theme, but allows it to show in the site&#8217;s Appearance menu. To enable a theme for the entire network, see the <a href="%s">Network Themes</a> screen.' ), network_admin_url( 'themes.php' ) ) . '</p>' .
+			'<p>' . sprintf(
+				/* translators: %s: URL to Network Themes screen. */
+				__( '<strong>Themes</strong> &mdash; This area shows themes that are not already enabled across the network. Enabling a theme in this menu makes it accessible to this site. It does not activate the theme, but allows it to show in the site&#8217;s Appearance menu. To enable a theme for the entire network, see the <a href="%s">Network Themes</a> screen.' ),
+				network_admin_url( 'themes.php' )
+			) . '</p>' .
 			'<p>' . __( '<strong>Settings</strong> &mdash; This page shows a list of all settings associated with this site. Some are created by WordPress and others are created by plugins you activate. Note that some fields are grayed out and say Serialized Data. You cannot modify these values due to the way the setting is stored in the database.' ) . '</p>',
 	);
 }

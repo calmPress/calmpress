@@ -75,7 +75,7 @@ $step = isset( $_GET['step'] ) ? (int) $_GET['step'] : 0;
  * @ignore
  * @since 2.3.0
  *
- * @global WP_Locale $wp_locale
+ * @global WP_Locale $wp_locale WordPress date and time locale object.
  *
  * @param string|array $body_classes
  */
@@ -131,13 +131,15 @@ switch ( $step ) {
 	<li><?php _e( 'Database host' ); ?></li>
 	<li><?php _e( 'Table prefix (if you want to customize table names)' ); ?></li>
 </ol>
-<p><?php
-	/* translators: %s: wp-config.php */
-	printf( __( 'We&#8217;re going to use this information to create a %s file.' ),
-		'<code>wp-config.php</code>'
-	);
-	?>
-	</p>
+<p>
+		<?php
+		printf(
+			/* translators: %s: wp-config.php */
+			__( 'We&#8217;re going to use this information to create a %s file.' ),
+			'<code>wp-config.php</code>'
+		);
+		?>
+</p>
 <p><?php _e( 'In all likelihood, these items were supplied to you by your Web Host. If you don&#8217;t have this information, then you will need to contact them before you can continue. If you&#8217;re all ready&hellip;' ); ?></p>
 
 <p class="step"><a href="<?php echo $step_1; ?>" class="button button-large"><?php _e( 'Let&#8217;s go!' ); ?></a></p>
@@ -155,26 +157,26 @@ switch ( $step ) {
 <h1 class="screen-reader-text"><?php _e( 'Set up your database connection' ); ?></h1>
 <form method="post" action="setup-config.php?step=2">
 	<p><?php _e( 'Below you should enter your database connection details. If you&#8217;re not sure about these, contact your host.' ); ?></p>
-	<table class="form-table">
+	<table class="form-table" role="presentation">
 		<tr>
 			<th scope="row"><label for="dbname"><?php _e( 'Database Name' ); ?></label></th>
-			<td><input name="dbname" id="dbname" type="text" size="25" value="" /></td>
-			<td><?php _e( 'The name of the database you want to use with calmPress.' ); ?></td>
+			<td><input name="dbname" id="dbname" type="text" aria-describedby="dbname-desc" size="25" value="" /></td>
+			<td id="dbname-desc"><?php _e( 'The name of the database you want to use with calmPress.' ); ?></td>
 		</tr>
 		<tr>
 			<th scope="row"><label for="uname"><?php _e( 'Username' ); ?></label></th>
-			<td><input name="uname" id="uname" type="text" size="25" value="" /></td>
-			<td><?php _e( 'Your database username.' ); ?></td>
+			<td><input name="uname" id="uname" type="text" aria-describedby="uname-desc" size="25" value="" /></td>
+			<td id="uname-desc"><?php _e( 'Your database username.' ); ?></td>
 		</tr>
 		<tr>
 			<th scope="row"><label for="pwd"><?php _e( 'Password' ); ?></label></th>
-			<td><input name="pwd" id="pwd" type="text" size="25" value="" autocomplete="off" /></td>
-			<td><?php _e( 'Your database password.' ); ?></td>
+			<td><input name="pwd" id="pwd" type="text" aria-describedby="pwd-desc" size="25" value="" autocomplete="off" /></td>
+			<td id="pwd-desc"><?php _e( 'Your database password.' ); ?></td>
 		</tr>
 		<tr class="hide-if-js">
 			<th scope="row"><label for="dbhost"><?php _e( 'Database Host' ); ?></label></th>
-			<td><input name="dbhost" id="dbhost" type="text" size="25" value="localhost" /></td>
-			<td>
+			<td><input name="dbhost" id="dbhost" type="text" aria-describedby="dbhost-desc" size="25" value="localhost" /></td>
+			<td id="dbhost-desc">
 			<?php
 				/* translators: %s: localhost */
 				printf( __( 'You should be able to get this info from your web host, if %s doesn&#8217;t work.' ), '<code>localhost</code>' );
@@ -183,8 +185,8 @@ switch ( $step ) {
 		</tr>
 		<tr  class="hide-if-js">
 			<th scope="row"><label for="prefix"><?php _e( 'Table Prefix' ); ?></label></th>
-			<td><input name="prefix" id="prefix" type="text" value="cp_<?php echo esc_attr( md5( time() ) ); ?>_" size="25" /></td>
-			<td><?php _e( 'if you want to customize table names, change this.' ); ?></td>
+			<td><input name="prefix" id="prefix" type="text" aria-describedby="prefix-desc" value="cp_<?php echo esc_attr( md5( time() ) ); ?>_" size="25" /></td>
+			<td id="prefix-desc"><?php _e( 'if you want to customize table name, or run multiple calmPress installations in a single database, change this.' ); ?></td>
 		</tr>
 		<tr class="hide-if-no-js">
 			<th></th>
@@ -214,7 +216,7 @@ switch ( $step ) {
 		$step_1  = 'setup-config.php?step=1';
 		$install = 'install.php';
 
-		$tryagain_link = '</p><p class="step"><a href="' . $step_1 . '" onclick="javascript:history.go(-1);return false;" class="button button-large">' . __( 'Try again' ) . '</a>';
+		$tryagain_link = '</p><p class="step"><a href="' . $step_1 . '" onclick="javascript:history.go(-1);return false;" class="button button-large">' . __( 'Try Again' ) . '</a>';
 
 		if ( empty( $prefix ) ) {
 			wp_die( __( '<strong>ERROR</strong>: "Table Prefix" must not be empty.' ) . $tryagain_link );
@@ -337,7 +339,7 @@ switch ( $step ) {
 			?>
 </p>
 <textarea id="wp-config" cols="98" rows="15" class="code" readonly="readonly"><?php echo $config_text; ?></textarea>
-<p><?php _e( 'After you&#8217;ve done that, click &#8220;Run the installation.&#8221;' ); ?></p>
+<p><?php _e( 'After you&#8217;ve done that, click &#8220;Run the installation&#8221;.' ); ?></p>
 <p class="step"><a href="<?php echo $install; ?>" class="button button-large"><?php _e( 'Run the installation' ); ?></a></p>
 <script>
 (function(){

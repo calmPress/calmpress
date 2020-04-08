@@ -24,6 +24,9 @@ require_once( dirname( dirname( __FILE__ ) ) . '/wp-load.php' );
 /** Allow for cross-domain requests (from the front end). */
 send_origin_headers();
 
+header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+header( 'X-Robots-Tag: noindex' );
+
 // Require an action parameter
 if ( empty( $_REQUEST['action'] ) ) {
 	wp_die( '0', 400 );
@@ -34,9 +37,6 @@ require_once( ABSPATH . 'wp-admin/includes/admin.php' );
 
 /** Load Ajax Handlers for WordPress Core */
 require_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
-
-@header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
-@header( 'X-Robots-Tag: noindex' );
 
 send_nosniff_header();
 nocache_headers();
@@ -52,24 +52,76 @@ $core_actions_get = array(
 	'autocomplete-user',
 	'dashboard-widgets',
 	'logged-in',
+	'rest-nonce',
 );
 
 $core_actions_post = array(
-	'oembed-cache', 'delete-comment', 'delete-tag',
-	'delete-post', 'trash-post', 'untrash-post', 'delete-page', 'dim-comment',
-	'add-tag', 'get-tagcloud', 'get-comments', 'replyto-comment',
-	'edit-comment', 'add-menu-item', 'add-user', 'closed-postboxes',
-	'hidden-columns', 'update-welcome-panel', 'menu-get-metabox', 'wp-link-ajax',
-	'menu-locations-save', 'menu-quick-search', 'meta-box-order', 'get-permalink',
-	'sample-permalink', 'inline-save', 'inline-save-tax', 'find_posts', 'widgets-order',
-	'save-widget', 'delete-inactive-widgets', 'set-post-thumbnail', 'date_format', 'time_format',
-	'wp-remove-post-lock', 'dismiss-wp-pointer', 'upload-attachment', 'get-attachment',
-	'query-attachments', 'save-attachment', 'save-attachment-compat', 'send-link-to-editor',
-	'send-attachment-to-editor', 'save-attachment-order', 'heartbeat', 'get-revision-diffs',
-	'save-user-color-scheme', 'update-widget', 'query-themes', 'parse-embed', 'set-attachment-thumbnail',
-	'parse-media-shortcode', 'destroy-sessions', 'install-plugin', 'update-plugin', 'crop-image',
-	'generate-password', 'save-wporg-username', 'delete-plugin', 'search-plugins',
-	'search-install-plugins', 'activate-plugin', 'update-theme', 'delete-theme', 'install-theme',
+	'oembed-cache',
+	'delete-comment',
+	'delete-tag',
+	'delete-link',
+	'delete-post',
+	'trash-post',
+	'untrash-post',
+	'delete-page',
+	'dim-comment',
+	'add-tag',
+	'get-tagcloud',
+	'get-comments',
+	'replyto-comment',
+	'edit-comment',
+	'add-menu-item',
+	'add-user',
+	'closed-postboxes',
+	'hidden-columns',
+	'update-welcome-panel',
+	'menu-get-metabox',
+	'wp-link-ajax',
+	'menu-locations-save',
+	'menu-quick-search',
+	'meta-box-order',
+	'get-permalink',
+	'sample-permalink',
+	'inline-save',
+	'inline-save-tax',
+	'find_posts',
+	'widgets-order',
+	'save-widget',
+	'delete-inactive-widgets',
+	'set-post-thumbnail',
+	'date_format',
+	'time_format',
+	'wp-remove-post-lock',
+	'dismiss-wp-pointer',
+	'upload-attachment',
+	'get-attachment',
+	'query-attachments',
+	'save-attachment',
+	'save-attachment-compat',
+	'send-link-to-editor',
+	'send-attachment-to-editor',
+	'save-attachment-order',
+	'heartbeat',
+	'get-revision-diffs',
+	'save-user-color-scheme',
+	'update-widget',
+	'query-themes',
+	'parse-embed',
+	'set-attachment-thumbnail',
+	'parse-media-shortcode',
+	'destroy-sessions',
+	'install-plugin',
+	'update-plugin',
+	'crop-image',
+	'generate-password',
+	'save-wporg-username',
+	'delete-plugin',
+	'search-plugins',
+	'search-install-plugins',
+	'activate-plugin',
+	'update-theme',
+	'delete-theme',
+	'install-theme',
 	'get-post-thumbnail-html',
 	'wp-privacy-export-personal-data',
 	'wp-privacy-erase-personal-data',

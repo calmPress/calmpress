@@ -16,6 +16,9 @@
 	}
 	?>
 	<a href="<?php echo esc_url( __( 'https://calmpress.org/', 'calmseventeen' ) ); ?>" class="imprint">
-		<?php printf( __( 'Proudly powered by %s', 'calmseventeen' ), 'calmPress' ); ?>
+		<?php
+			/* translators: %s: WordPress */
+		printf( __( 'Proudly powered by %s', 'calmseventeen' ), 'calmPress' );
+		?>
 	</a>
 </div><!-- .site-info -->

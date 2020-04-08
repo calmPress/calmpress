@@ -28,7 +28,7 @@ if ( 'HEAD' === $_SERVER['REQUEST_METHOD'] && apply_filters( 'exit_on_http_head'
 }
 
 // Process feeds even if not using themes.
-if ( is_robots() ) :
+if ( is_robots() ) {
 	/**
 	 * Fired when the template loader determines a robots.txt request.
 	 *
@@ -36,33 +36,52 @@ if ( is_robots() ) :
 	 */
 	do_action( 'do_robots' );
 	return;
-elseif ( is_feed() ) :
+} elseif ( is_feed() ) {
 	do_feed();
 	return;
-endif;
+}
 
-if ( wp_using_themes() ) :
-	$template = false;
-	if ( is_embed() && $template = get_embed_template() ) :
-	elseif ( is_404() && $template = get_404_template() ) :
-	elseif ( is_search() && $template = get_search_template() ) :
-	elseif ( is_front_page() && $template = get_front_page_template() ) :
-	elseif ( is_home() && $template = get_home_template() ) :
-	elseif ( is_privacy_policy() && $template = get_privacy_policy_template() ) :
-	elseif ( is_post_type_archive() && $template = get_post_type_archive_template() ) :
-	elseif ( is_tax() && $template = get_taxonomy_template() ) :
-	elseif ( is_attachment() && $template = get_attachment_template() ) :
-		remove_filter( 'the_content', 'prepend_attachment' );
-	elseif ( is_single() && $template = get_single_template() ) :
-	elseif ( is_page() && $template = get_page_template() ) :
-	elseif ( is_singular() && $template = get_singular_template() ) :
-	elseif ( is_category() && $template = get_category_template() ) :
-	elseif ( is_tag() && $template = get_tag_template() ) :
-	elseif ( is_date() && $template = get_date_template() ) :
-	elseif ( is_archive() && $template = get_archive_template() ) :
-	else :
+if ( wp_using_themes() ) {
+
+	$tag_templates = array(
+		'is_embed'             => 'get_embed_template',
+		'is_404'               => 'get_404_template',
+		'is_search'            => 'get_search_template',
+		'is_front_page'        => 'get_front_page_template',
+		'is_home'              => 'get_home_template',
+		'is_privacy_policy'    => 'get_privacy_policy_template',
+		'is_post_type_archive' => 'get_post_type_archive_template',
+		'is_tax'               => 'get_taxonomy_template',
+		'is_attachment'        => 'get_attachment_template',
+		'is_single'            => 'get_single_template',
+		'is_page'              => 'get_page_template',
+		'is_singular'          => 'get_singular_template',
+		'is_category'          => 'get_category_template',
+		'is_tag'               => 'get_tag_template',
+		'is_date'              => 'get_date_template',
+		'is_archive'           => 'get_archive_template',
+	);
+	$template      = false;
+
+	// Loop through each of the template conditionals, and find the appropriate template file.
+	foreach ( $tag_templates as $tag => $template_getter ) {
+		if ( call_user_func( $tag ) ) {
+			$template = call_user_func( $template_getter );
+		}
+
+		if ( $template ) {
+			if ( 'is_attachment' === $tag ) {
+				remove_filter( 'the_content', 'prepend_attachment' );
+			}
+
+			break;
+		}
+	}
+
+	if ( ! $template ) {
 		$template = get_index_template();
-	endif;
+	}
+
 	/**
 	 * Filters the path of the current template before including it.
 	 *
@@ -70,14 +89,15 @@ if ( wp_using_themes() ) :
 	 *
 	 * @param string $template The path of the template to include.
 	 */
-	if ( $template = apply_filters( 'template_include', $template ) ) {
+	$template = apply_filters( 'template_include', $template );
+	if ( $template ) {
 		/*
-		 * The buffering around include( $template ) have two goals
-		 * 1. Buffer the output to be able to add a noopener and noreferer
-		 *    to links that open in new window.
-		 * 2. Make it easier to do redirects or emit any other header
-		 *    at any point during the generation of the HTML
-		 */
+		* The buffering around include( $template ) have two goals
+		* 1. Buffer the output to be able to add a noopener and noreferer
+		*    to links that open in new window.
+		* 2. Make it easier to do redirects or emit any other header
+		*    at any point during the generation of the HTML
+		*/
 		ob_start();
 		include( $template );
 		echo wp_targeted_link_rel( ob_get_clean() );
@@ -88,4 +108,4 @@ if ( wp_using_themes() ) :
 		}
 	}
 	return;
-endif;
+}

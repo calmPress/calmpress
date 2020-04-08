@@ -131,8 +131,12 @@ function show_blog_form( $blogname = '', $blog_title = '', $errors = '' ) {
 			$site = __( 'domain' ) . '.' . $site_domain . $current_network->path;
 		}
 
-		/* translators: %s: site address */
-		echo '<p>(<strong>' . sprintf( __( 'Your address will be %s.' ), $site ) . '</strong>) ' . __( 'Must be at least 4 characters, letters and numbers only. It cannot be changed, so choose carefully!' ) . '</p>';
+		printf(
+			'<p>(<strong>%s</strong>) %s</p>',
+			/* translators: %s: Site address. */
+			sprintf( __( 'Your address will be %s.' ), $site ),
+			__( 'Must be at least 4 characters, letters and numbers only. It cannot be changed, so choose carefully!' )
+		);
 	}
 
 	// Blog Title
@@ -320,7 +324,7 @@ function signup_another_blog( $blogname = '', $blog_title = '', $errors = '' ) {
 	$blog_title = $filtered_results['blog_title'];
 	$errors     = $filtered_results['errors'];
 
-	/* translators: %s: Network's site name. */
+	/* translators: %s: Network title. */
 	echo '<h2>' . sprintf( __( 'Get <em>another</em> %s site in seconds' ), get_network()->site_name ) . '</h2>';
 
 	if ( $errors->has_errors() ) {
@@ -512,13 +516,14 @@ function confirm_another_blog_signup( $domain, $path, $blog_title, $user_name, $
 	?>
 	<h2>
 	<?php
-		/* translators: %s: site name */
+		/* translators: %s: Site title. */
 		printf( __( 'The site %s is yours.' ), $site );
 	?>
 	</h2>
 	<p>
-		<?php printf(
-			/* translators: 1: link to new site, 2: login URL, 3: user email */
+		<?php
+		printf(
+			/* translators: 1: Link to new site, 2: Login URL, 3: user email. */
 			__( '%1$s is your new site. <a href="%2$s">Log in</a> as &#8220;%3$s&#8221; using your existing password.' ),
 			sprintf(
 				'<a href="%s">%s</a>',
@@ -584,7 +589,7 @@ function signup_user( $user_name = '', $user_email = '', $errors = '' ) {
 
 	<h2>
 	<?php
-		/* translators: %s: name of the network */
+		/* translators: %s: Name of the network. */
 		printf( __( 'Get your own %s account in seconds' ), get_network()->site_name );
 	?>
 	</h2>
@@ -676,10 +681,20 @@ function validate_user_signup() {
  */
 function confirm_user_signup( $user_name, $user_email ) {
 	?>
-	<h2><?php /* translators: %s: user email */
-	printf( __( 'One last step %s' ), esc_html( $user_email ) ); ?></h2>
-	<p><?php /* translators: %s: email address */
-	printf( __( 'Check your inbox at %s and follow the instructions included in it.' ), '<strong>' . esc_html( $user_email ) . '</strong>' ); ?></p>
+	<h2>
+	<?php
+	/* translators: %s: User email. */
+	printf( __( 'One last step %s' ), esc_html( $user_email ) )
+	?>
+	</h2>
+	<p><?php _e( 'Before you can start using your new user, <strong>you must activate it</strong>.' ); ?></p>
+	<p>
+	<?php
+	/* translators: %s: Email address. */
+	printf( __( 'Check your inbox at %s and click the link given.' ), '<strong>' . esc_html( $user_email ) . '</strong>' );
+	?>
+	</p>
+	<p><?php _e( 'If you do not activate your user within two days, you will have to sign up again.' ); ?></p>
 	<?php
 	/** This action is documented in wp-signup.php */
 	do_action( 'signup_finished' );
@@ -837,7 +852,7 @@ function confirm_blog_signup( $domain, $path, $blog_title, $user_name = '', $use
 	?>
 	<h2>
 	<?php
-	/* translators: %s: site address */
+	/* translators: %s: Site address. */
 	printf( __( 'Congratulations! Your new site, %s, is almost ready.' ), "<a href='http://{$domain}{$path}'>{$blog_title}</a>" )
 	?>
 	</h2>
@@ -845,7 +860,7 @@ function confirm_blog_signup( $domain, $path, $blog_title, $user_name = '', $use
 	<p><?php _e( 'But, before you can start using your site, <strong>you must activate it</strong>.' ); ?></p>
 	<p>
 	<?php
-	/* translators: %s: email address */
+	/* translators: %s: Email address. */
 	printf( __( 'Check your inbox at %s and click the link given.' ), '<strong>' . $user_email . '</strong>' );
 	?>
 	</p>
@@ -858,7 +873,7 @@ function confirm_blog_signup( $domain, $path, $blog_title, $user_name = '', $use
 			<li><p><?php _e( 'Check the junk or spam folder of your email client. Sometime emails wind up there by mistake.' ); ?></p></li>
 			<li>
 			<?php
-				/* translators: %s: email address */
+				/* translators: %s: Email address. */
 				printf( __( 'Have you entered your email correctly? You have entered %s, if it&#8217;s incorrect, you will not receive your email.' ), $user_email );
 			?>
 			</li>
@@ -968,7 +983,7 @@ if ( current_user_can( 'manage_network' ) ) {
 
 	echo ' ';
 
-	/* translators: %s: network settings URL */
+	/* translators: %s: URL to Network Settings screen. */
 	printf( __( 'To change or disable registration go to your <a href="%s">Options page</a>.' ), esc_url( network_admin_url( 'settings.php' ) ) );
 	echo '</div>';
 }
@@ -980,7 +995,7 @@ if ( 'none' === $active_signup ) {
 	_e( 'Registration has been disabled.' );
 } elseif ( 'blog' === $active_signup && ! is_user_logged_in() ) {
 	$login_url = wp_login_url( network_site_url( 'wp-signup.php' ) );
-	/* translators: %s: login URL */
+	/* translators: %s: Login URL. */
 	printf( __( 'You must first <a href="%s">log in</a>, and then you can create a new site.' ), $login_url );
 } else {
 	$stage = isset( $_POST['stage'] ) ? $_POST['stage'] : 'default';
@@ -1029,13 +1044,13 @@ if ( 'none' === $active_signup ) {
 
 				if ( 'blog' === $active_signup || 'all' === $active_signup ) {
 					printf(
-						/* translators: %s: site address */
+						/* translators: %s: Site address. */
 						'<p><em>' . __( 'The site you were looking for, %s, does not exist, but you can create it now!' ) . '</em></p>',
 						'<strong>' . $newblog . '</strong>'
 					);
 				} else {
 					printf(
-						/* translators: %s: site address */
+						/* translators: %s: Site address. */
 						'<p><em>' . __( 'The site you were looking for, %s, does not exist.' ) . '</em></p>',
 						'<strong>' . $newblog . '</strong>'
 					);

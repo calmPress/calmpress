@@ -66,7 +66,7 @@ function get_the_author() {
  *
  * @since 0.71
  * @see get_the_author()
- * @link https://codex.wordpress.org/Template_Tags/the_author
+ * @link https://developer.wordpress.org/reference/functions/the_author/
  *
  * @return string|null The author's display name, from get_the_author().
  */
@@ -250,7 +250,7 @@ function get_the_author_link() {
 /**
  * Display the author's name.
  *
- * Echo the author's name.
+ * @link https://developer.wordpress.org/reference/functions/the_author_link/
  *
  * @since 2.1.0
  */
@@ -278,7 +278,7 @@ function get_the_author_posts() {
 /**
  * Display the number of posts by the author of the current post.
  *
- * @link https://codex.wordpress.org/Template_Tags/the_author_posts
+ * @link https://developer.wordpress.org/reference/functions/the_author_posts/
  * @since 0.71
  */
 function the_author_posts() {
@@ -370,7 +370,7 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
 /**
  * List all the authors of the site, with several options available.
  *
- * @link https://codex.wordpress.org/Template_Tags/wp_list_authors
+ * @link https://developer.wordpress.org/reference/functions/wp_list_authors/
  *
  * @since 1.2.0
  * @since calmPress 1.0.0
@@ -453,9 +453,10 @@ function wp_list_authors( $args = '' ) {
 			$return .= '<li>';
 		}
 
-		$link = sprintf( '<a href="%1$s" title="%2$s">%3$s</a>',
+		$link = sprintf(
+			'<a href="%1$s" title="%2$s">%3$s</a>',
 			$author->posts_url(),
-			/* translators: %s: author's display name */
+			/* translators: %s: Author's display name. */
 			esc_attr( sprintf( __( 'Posts by %s' ), $name ) ),
 			$name
 		);
@@ -491,12 +492,10 @@ function wp_list_authors( $args = '' ) {
  */
 function is_multi_author() {
 
-	if ( false === ( $is_multi_author = get_transient( 'is_multi_author' ) ) ) {
-		$terms = get_terms( post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, [
-			'number' => 2,
-			'fields' => 'ids',
-		] );
-		$is_multi_author = 1 < count( $terms ) ? 1 : 0;
+	$is_multi_author = get_transient( 'is_multi_author' );
+	if ( false === $is_multi_author ) {
+		$rows            = (array) $wpdb->get_col( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE post_type = 'post' AND post_status = 'publish' LIMIT 2" );
+		$is_multi_author = 1 < count( $rows ) ? 1 : 0;
 		set_transient( 'is_multi_author', $is_multi_author );
 	}
 
@@ -516,7 +515,7 @@ function is_multi_author() {
  * @since 3.2.0
  * @access private
  */
-function __clear_multi_author_cache() {
+function __clear_multi_author_cache() { //phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore,PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.FunctionDoubleUnderscore
 	delete_transient( 'is_multi_author' );
 }
 

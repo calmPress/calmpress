@@ -69,6 +69,23 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 42804
+	 */
+	function test_wp_enqueue_style_with_html5_support_does_not_contain_type_attribute() {
+		add_theme_support( 'html5', array( 'style' ) );
+
+		$GLOBALS['wp_styles']                  = new WP_Styles();
+		$GLOBALS['wp_styles']->default_version = get_bloginfo( 'version' );
+
+		wp_enqueue_style( 'no-deps-no-version', 'example.com' );
+
+		$ver      = get_bloginfo( 'version' );
+		$expected = "<link rel='stylesheet' id='no-deps-no-version-css'  href='http://example.com?ver=$ver' media='all' />\n";
+
+		$this->assertEquals( $expected, get_echo( 'wp_print_styles' ) );
+	}
+
+	/**
 	 * Test the different protocol references in wp_enqueue_style
 	 *
 	 * @global WP_Styles $wp_styles

@@ -45,12 +45,20 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 	}
 
 	function test_wp_list_authors_default() {
-		$expected['default'] = '<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li><li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li><li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
+		$expected['default'] =
+			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
+			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
+			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
+
 		$this->AssertEquals( $expected['default'], wp_list_authors( array( 'echo' => false ) ) );
 	}
 
 	function test_wp_list_authors_orderby() {
-		$expected['post_count'] = '<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li><li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li><li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>';
+		$expected['post_count'] =
+			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>' .
+			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
+			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>';
+
 		$this->AssertEquals(
 			$expected['post_count'],
 			wp_list_authors(
@@ -63,7 +71,11 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 	}
 
 	function test_wp_list_authors_optioncount() {
-		$expected['optioncount'] = '<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a> (2)</li><li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a> (3)</li><li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a> (1)</li>';
+		$expected['optioncount'] =
+			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a> (2)</li>' .
+			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a> (3)</li>' .
+			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a> (1)</li>';
+
 		$this->AssertEquals(
 			$expected['optioncount'],
 			wp_list_authors(
@@ -76,18 +88,41 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 	}
 
 	function test_wp_list_authors_hide_empty() {
-		$expected['hide_empty'] = '<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li><li><a href="' . self::$fred_url . '" title="Posts by fred">fred</a></li><li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li><li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
-		$this->AssertEquals( $expected['hide_empty'], wp_list_authors( array( 'echo' => false, 'hide_empty' => 0 ) ) );
+		$fred_id = self::$fred_id;
+
+		$expected['hide_empty'] =
+			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
+			'<li><a href="' . get_author_posts_url( $fred_id ) . '" title="Posts by fred">fred</a></li>' .
+			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
+			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
+
+		$this->AssertEquals(
+			$expected['hide_empty'],
+			wp_list_authors(
+				array(
+					'echo'       => false,
+					'hide_empty' => 0,
+				)
+			)
+		);
 	}
 
 	function test_wp_list_authors_echo() {
-		$expected['echo'] = '<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li><li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li><li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
+		$expected['echo'] =
+			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
+			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
+			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
+
 		$this->expectOutputString( $expected['echo'] );
 		wp_list_authors( array( 'echo' => true ) );
 	}
 
 	function test_wp_list_authors_style() {
-		$expected['style'] = '<a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a>, <a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a>, <a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a>';
+		$expected['style'] =
+			'<a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a>, ' .
+			'<a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a>, ' .
+			'<a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a>';
+
 		$this->AssertEquals(
 			$expected['style'],
 			wp_list_authors(
@@ -101,6 +136,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 
 	function test_wp_list_authors_html() {
 		$expected['html'] = 'bob, paul, zack';
+
 		$this->AssertEquals(
 			$expected['html'],
 			wp_list_authors(

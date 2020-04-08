@@ -11,7 +11,7 @@
 /**
  * Declare these as global in case schema.php is included from a function.
  *
- * @global wpdb   $wpdb
+ * @global wpdb   $wpdb            WordPress database abstraction object.
  * @global array  $wp_queries
  * @global string $charset_collate
  */
@@ -127,7 +127,8 @@ CREATE TABLE $wpdb->options (
 	option_value longtext NOT NULL,
 	autoload varchar(20) NOT NULL default 'yes',
 	PRIMARY KEY  (option_id),
-	UNIQUE KEY option_name (option_name)
+	UNIQUE KEY option_name (option_name),
+	KEY autoload (autoload)
 ) $charset_collate;
 CREATE TABLE $wpdb->postmeta (
 	meta_id bigint(20) unsigned NOT NULL auto_increment,
@@ -243,13 +244,6 @@ CREATE TABLE $wpdb->posts (
 	KEY domain (domain(50),path(5)),
 	KEY lang_id (lang_id)
 ) $charset_collate;
-CREATE TABLE $wpdb->blog_versions (
-	blog_id bigint(20) NOT NULL default '0',
-	db_version varchar(20) NOT NULL default '',
-	last_updated datetime NOT NULL default '0000-00-00 00:00:00',
-	PRIMARY KEY  (blog_id),
-	KEY db_version (db_version)
-) $charset_collate;
 CREATE TABLE $wpdb->blogmeta (
 	meta_id bigint(20) unsigned NOT NULL auto_increment,
 	blog_id bigint(20) NOT NULL default '0',
@@ -341,8 +335,8 @@ $wp_queries = wp_get_db_schema( 'all' );
  * @since 1.5.0
  * @since 5.1.0 The $options parameter has been added.
  *
- * @global wpdb $wpdb WordPress database abstraction object.
- * @global int  $wp_current_db_version
+ * @global wpdb $wpdb                  WordPress database abstraction object.
+ * @global int  $wp_current_db_version The old (current) database version.
  *
  * @param array $options Optional. Custom option $key => $value pairs to use. Default empty array.
  */
@@ -393,108 +387,112 @@ function populate_options( array $options = array() ) {
 	}
 
 	$defaults = array(
-	'siteurl' => $guessurl,
-	'home' => $guessurl,
-	'blogname' => __('My Site'),
-	/* translators: site tagline */
-	'blogdescription' => __('Just another calmPress site'),
-	'users_can_register' => 0,
-	'admin_email' => 'you@example.com',
-	/* translators: default start of the week. 0 = Sunday, 1 = Monday */
-	'start_of_week' => _x( '1', 'start of week' ),
-	'require_name_email' => 1,
-	'comments_notify' => 1,
-	'posts_per_rss' => 0,
-	'rss_use_excerpt' => 0,
-	'default_comment_status' => 'closed',
-	'posts_per_page' => 10,
-	/* translators: default date format, see https://secure.php.net/date */
-	'date_format' => __('F j, Y'),
-	/* translators: default time format, see https://secure.php.net/date */
-	'time_format' => __('g:i a'),
-	/* translators: links last updated date format, see https://secure.php.net/date */
-	'links_updated_date_format' => __('F j, Y g:i a'),
-	'comment_moderation' => 0,
-	'moderation_notify' => 1,
-	'permalink_structure' => '/%year%/%monthnum%/%day%/%postname%/',
-	'rewrite_rules' => '',
-	'blog_charset' => 'UTF-8',
-	'active_plugins' => array(),
-	'category_base' => '',
-	'comment_max_links' => 2,
-	'gmt_offset' => $gmt_offset,
+		'siteurl'                         => $guessurl,
+		'home'                            => $guessurl,
+		'blogname'                        => __( 'My Site' ),
+		/* translators: Site tagline. */
+		'blogdescription'                 => __( 'Just another WordPress site' ),
+		'users_can_register'              => 0,
+		'admin_email'                     => 'you@example.com',
+		/* translators: Default start of the week. 0 = Sunday, 1 = Monday. */
+		'start_of_week'                   => _x( '1', 'start of week' ),
+		'require_name_email'              => 1,
+		'comments_notify'                 => 1,
+		'posts_per_rss'                   => 10,
+		'rss_use_excerpt'                 => 0,
+		'default_comment_status'          => 'open',
+		'posts_per_page'                  => 10,
+		/* translators: Default date format, see https://secure.php.net/date */
+		'date_format'                     => __( 'F j, Y' ),
+		/* translators: Default time format, see https://secure.php.net/date */
+		'time_format'                     => __( 'g:i a' ),
+		/* translators: Links last updated date format, see https://secure.php.net/date */
+		'links_updated_date_format'       => __( 'F j, Y g:i a' ),
+		'comment_moderation'              => 0,
+		'moderation_notify'               => 1,
+		'permalink_structure'             => '',
+		'rewrite_rules'                   => '',
+		'blog_charset'                    => 'UTF-8',
+		'active_plugins'                  => array(),
+		'category_base'                   => '',
+		'comment_max_links'               => 2,
+		'gmt_offset'                      => $gmt_offset,
 
-	// 1.5
-	'recently_edited' => '',
-	'template' => $template,
-	'stylesheet' => $stylesheet,
-	'comment_whitelist' => 1,
-	'comment_registration' => 0,
-	'html_type' => 'text/html',
+		// 1.5
+		'recently_edited'                 => '',
+		'template'                        => $template,
+		'stylesheet'                      => $stylesheet,
+		'comment_whitelist'               => 1,
+		'comment_registration'            => 0,
+		'html_type'                       => 'text/html',
 
-	// 2.0
-	'default_role' => 'subscriber',
+		// 2.0
+		'default_role'                    => 'subscriber',
 
-	// 2.0.1
-	'uploads_use_yearmonth_folders' => $uploads_use_yearmonth_folders,
-	'upload_path' => '',
+		// 2.0.1
+		'uploads_use_yearmonth_folders'   => $uploads_use_yearmonth_folders,
+		'upload_path'                     => '',
 
-	// 2.1
-	'blog_public' => '1',
-	'show_on_front' => 'posts',
+		// 2.1
+		'blog_public'                     => '1',
+		'show_on_front'                   => 'posts',
 
-	// 2.2
-	'tag_base' => '',
+		// 2.2
+		'tag_base'                        => '',
 
-	// 2.5
-	'show_avatars' => '1',
-	'upload_url_path' => '',
-	'thumbnail_size_w' => 150,
-	'thumbnail_size_h' => 150,
-	'thumbnail_crop' => 1,
-	'medium_size_w' => 300,
-	'medium_size_h' => 300,
+		// 2.5
+		'show_avatars'                    => '1',
+		'upload_url_path'                 => '',
+		'thumbnail_size_w'                => 150,
+		'thumbnail_size_h'                => 150,
+		'thumbnail_crop'                  => 1,
+		'medium_size_w'                   => 300,
+		'medium_size_h'                   => 300,
 
-	// 2.7
-	'large_size_w' => 1024,
-	'large_size_h' => 1024,
-	'image_default_link_type' => 'none',
-	'image_default_size' => '',
-	'image_default_align' => '',
-	'close_comments_for_old_posts' => 0,
-	'close_comments_days_old' => 14,
-	'thread_comments' => 1,
-	'thread_comments_depth' => 5,
-	'page_comments' => 0,
-	'comments_per_page' => 50,
-	'default_comments_page' => 'newest',
-	'comment_order' => 'asc',
-	'sticky_posts' => array(),
-	'widget_categories' => array(),
-	'widget_text' => array(),
-	'widget_rss' => array(),
-	'uninstall_plugins' => array(),
+		// 2.7
+		'large_size_w'                    => 1024,
+		'large_size_h'                    => 1024,
+		'image_default_link_type'         => 'none',
+		'image_default_size'              => '',
+		'image_default_align'             => '',
+		'close_comments_for_old_posts'    => 0,
+		'close_comments_days_old'         => 14,
+		'thread_comments'                 => 1,
+		'thread_comments_depth'           => 5,
+		'page_comments'                   => 0,
+		'comments_per_page'               => 50,
+		'default_comments_page'           => 'newest',
+		'comment_order'                   => 'asc',
+		'sticky_posts'                    => array(),
+		'widget_categories'               => array(),
+		'widget_text'                     => array(),
+		'widget_rss'                      => array(),
+		'uninstall_plugins'               => array(),
 
-	// 2.8
-	'timezone_string' => $timezone_string,
+		// 2.8
+		'timezone_string'                 => $timezone_string,
 
-	// 3.0
-	'page_for_posts' => 0,
-	'page_on_front' => 0,
+		// 3.0
+		'page_for_posts'                  => 0,
+		'page_on_front'                   => 0,
 
-	// 4.3.0
-	'finished_splitting_shared_terms' => 1,
-	'site_icon' => 0,
+		// 4.3.0
+		'finished_splitting_shared_terms' => 1,
+		'site_icon'                       => 0,
 
-	// 4.4.0
-	'medium_large_size_w' => 768,
-	'medium_large_size_h' => 0,
+		// 4.4.0
+		'medium_large_size_w'             => 768,
+		'medium_large_size_h'             => 0,
 
 		// 4.9.6
 		'wp_page_for_privacy_policy'      => 0,
 
 		// 4.9.8
-		'show_comments_cookies_opt_in'    => 0,
+		'show_comments_cookies_opt_in'    => 1,
+
+		// 5.3.0
+		'admin_email_lifespan'            => ( time() + 6 * MONTH_IN_SECONDS ),
+	);
 
 		// calmPress 0.9.9.
 		'calmpress_db_version' => calmpress_version(),
@@ -505,7 +503,7 @@ function populate_options( array $options = array() ) {
 
 	// 3.0 multisite
 	if ( is_multisite() ) {
-		/* translators: site tagline */
+		/* translators: %s: Network title. */
 		$defaults['blogdescription']     = sprintf( __( 'Just another %s site' ), get_network()->site_name );
 		$defaults['permalink_structure'] = '/%year%/%monthnum%/%day%/%postname%/';
 	}
@@ -835,9 +833,9 @@ endif;
  *
  * @since 3.0.0
  *
- * @global wpdb       $wpdb
+ * @global wpdb       $wpdb         WordPress database abstraction object.
  * @global object     $current_site
- * @global WP_Rewrite $wp_rewrite
+ * @global WP_Rewrite $wp_rewrite   WordPress rewrite component.
  *
  * @param int    $network_id        ID of network to populate.
  * @param string $domain            The domain name for the network (eg. "example.com").
@@ -969,18 +967,18 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 			$msg = '<p><strong>' . __( 'Warning! Wildcard DNS may not be configured correctly!' ) . '</strong></p>';
 
 			$msg .= '<p>' . sprintf(
-				/* translators: %s: host name */
+				/* translators: %s: Host name. */
 				__( 'The installer attempted to contact a random hostname (%s) on your domain.' ),
 				'<code>' . $hostname . '</code>'
 			);
 			if ( ! empty( $errstr ) ) {
-				/* translators: %s: error message */
+				/* translators: %s: Error message. */
 				$msg .= ' ' . sprintf( __( 'This resulted in an error message: %s' ), '<code>' . $errstr . '</code>' );
 			}
 			$msg .= '</p>';
 
 			$msg .= '<p>' . sprintf(
-				/* translators: %s: asterisk symbol (*) */
+				/* translators: %s: Asterisk symbol (*). */
 				__( 'To use a subdomain configuration, you must have a wildcard entry in your DNS. This usually means adding a %s hostname record pointing at your web server in your DNS configuration tool.' ),
 				'<code>*</code>'
 			) . '</p>';
@@ -1041,6 +1039,12 @@ function populate_network_meta( $network_id, array $meta = array() ) {
 		if ( $core_default ) {
 			$allowed_themes[ $core_default->get_stylesheet() ] = true;
 		}
+	}
+
+	if ( function_exists( 'clean_network_cache' ) ) {
+		clean_network_cache( $network_id );
+	} else {
+		wp_cache_delete( $network_id, 'networks' );
 	}
 
 	wp_cache_delete( 'networks_have_paths', 'site-options' );
@@ -1115,19 +1119,19 @@ We hope you enjoy your new site. Thanks!
 	$upload_filetypes = array_unique( array_merge( $misc_exts, $audio_exts, $video_exts ) );
 
 	$sitemeta = array(
-		'site_name' => __( 'My Network' ),
-		'admin_email' => $email,
-		'admin_user_id' => $site_user->ID,
-		'registration' => 'none',
-		'upload_filetypes' => implode( ' ', $upload_filetypes ),
-		'blog_upload_space' => 100,
-		'fileupload_maxk' => 1500,
-		'site_admins' => $site_admins,
-		'allowedthemes' => $allowed_themes,
-		'illegal_names' => array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
+		'site_name'                   => __( 'My Network' ),
+		'admin_email'                 => $email,
+		'admin_user_id'               => $site_user->ID,
+		'registration'                => 'none',
+		'upload_filetypes'            => implode( ' ', $upload_filetypes ),
+		'blog_upload_space'           => 100,
+		'fileupload_maxk'             => 1500,
+		'site_admins'                 => $site_admins,
+		'allowedthemes'               => $allowed_themes,
+		'illegal_names'               => array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
 		'calmpress_wpmu_upgrade_site' => calmpress_version(),
-		'welcome_email' => $welcome_email,
-		/* translators: %s: site link */
+		'welcome_email'               => $welcome_email,
+		/* translators: %s: Site link. */
 		'first_post'                  => __( 'Welcome to %s. This is your first post. Edit or delete it, then start writing!' ),
 		// @todo - network admins should have a method of editing the network siteurl (used for cookie hash)
 		'siteurl'                     => get_option( 'siteurl' ) . '/',

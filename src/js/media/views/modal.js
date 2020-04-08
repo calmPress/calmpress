@@ -26,9 +26,10 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 
 	initialize: function() {
 		_.defaults( this.options, {
-			container: document.body,
-			title:     '',
-			propagate: true
+			container:      document.body,
+			title:          '',
+			propagate:      true,
+			hasCloseButton: true
 		});
 
 		this.focusManager = new wp.media.view.FocusManager({
@@ -40,7 +41,8 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 	 */
 	prepare: function() {
 		return {
-			title: this.options.title
+			title:          this.options.title,
+			hasCloseButton: this.options.hasCloseButton
 		};
 	},
 
@@ -115,6 +117,9 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 		// Set initial focus on the content instead of this view element, to avoid page scrolling.
 		this.$( '.media-modal' ).focus();
 
+		// Hide the page content from assistive technologies.
+		this.focusManager.setAriaHiddenOnBodyChildren( $el );
+
 		return this.propagate('open');
 	},
 
@@ -133,10 +138,18 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 		// Hide modal and remove restricted media modal tab focus once it's closed
 		this.$el.hide().undelegate( 'keydown' );
 
-		// Put focus back in useful location once modal is closed.
+		/*
+		 * Make visible again to assistive technologies all body children that
+		 * have been made hidden when the modal opened.
+		 */
+		this.focusManager.removeAriaHiddenFromBodyChildren();
+
+		// Move focus back in useful location once modal is closed.
 		if ( null !== this.clickedOpenerEl ) {
+			// Move focus back to the element that opened the modal.
 			this.clickedOpenerEl.focus();
 		} else {
+			// Fallback to the admin page main element.
 			$( '#wpbody-content' )
 				.attr( 'tabindex', '-1' )
 				.focus();

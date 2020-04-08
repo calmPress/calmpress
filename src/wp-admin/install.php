@@ -53,10 +53,7 @@ function display_header( $body_classes = '' ) {
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="robots" content="noindex,nofollow" />
 	<title><?php _e( 'calmPress &rsaquo; Installation' ); ?></title>
-	<?php
-		wp_admin_css( 'install', true );
-		wp_admin_css( 'dashicons', true );
-	?>
+	<?php wp_admin_css( 'install', true ); ?>
 </head>
 <body class="wp-core-ui<?php echo $body_classes; ?>">
 <p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>"><?php _e( 'calmPress' ); ?></a></p>
@@ -93,7 +90,7 @@ function display_setup_form( $error = null ) {
 <p class="message"><?php echo $error; ?></p>
 <?php } ?>
 <form id="setup" method="post" action="install.php?step=2" novalidate="novalidate">
-	<table class="form-table">
+	<table class="form-table" role="presentation">
 		<tr>
 			<th scope="row"><label for="weblog_title"><?php _e( 'Site Title' ); ?></label></th>
 			<td><input name="weblog_title" type="text" id="weblog_title" size="25" value="<?php echo esc_attr( $weblog_title ); ?>" /></td>
@@ -110,7 +107,7 @@ function display_setup_form( $error = null ) {
 				</label>
 			</th>
 			<td>
-				<div class="">
+				<div class="wp-pwd">
 					<?php $initial_password = isset( $_POST['admin_password'] ) ? stripslashes( $_POST['admin_password'] ) : wp_generate_password( 18 ); ?>
 					<input type="password" name="admin_password" id="pass1" class="regular-text" autocomplete="off" data-reveal="1" data-pw="<?php echo esc_attr( $initial_password ); ?>" aria-describedby="pass-strength-result" />
 					<button type="button" class="button wp-hide-pw hide-if-no-js" data-start-masked="<?php echo (int) isset( $_POST['admin_password'] ); ?>" data-toggle="0" aria-label="<?php esc_attr_e( 'Hide password' ); ?>">
@@ -202,11 +199,12 @@ $version_slug_parts = explode( '.', calmpress_version() );
 $version_slug = $version_slug_parts[0] . '-' . $version_slug_parts[1];
 
 $version_url = sprintf(
+	/* translators: %s: calmPress version. */
 	esc_url( 'https://calmpress.org/Version/%s' ),
 	$version_slug
 );
 
-/* translators: %s: Update PHP page URL */
+/* translators: %s: URL to Update PHP page */
 $php_update_message = '</p><p>' . sprintf( __( '<a href="%s">Learn more about updating PHP</a>.' ), esc_url( wp_get_update_php_url() ) );
 
 $annotation = wp_get_update_php_annotation();
@@ -215,19 +213,19 @@ if ( $annotation ) {
 }
 
 if ( ! $mysql_compat && ! $php_compat ) {
-	/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required PHP version number, 4: Minimum required MySQL version number, 5: Current PHP version number, 6: Current MySQL version number */
+	/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required PHP version number, 4: Minimum required MySQL version number, 5: Current PHP version number, 6: Current MySQL version number. */
 	$compat = sprintf( __( 'You cannot install because <a href="%1$s">calmPress %2$s</a> requires PHP version %3$s or higher and MySQL version %4$s or higher. You are running PHP version %5$s and MySQL version %6$s.' ), $version_url, calmpress_version(), $required_php_version, $required_mysql_version, $php_version, $mysql_version ) . $php_update_message;
 } elseif ( ! $php_compat ) {
-	/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required PHP version number, 4: Current PHP version number */
+	/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required PHP version number, 4: Current PHP version number. */
 	$compat = sprintf( __( 'You cannot install because <a href="%1$s">calmPress %2$s</a> requires PHP version %3$s or higher. You are running version %4$s.' ), $version_url, calmpress_version(), $required_php_version, $php_version ) . $php_update_message;
 } elseif ( ! $mysql_compat ) {
-	/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required MySQL version number, 4: Current MySQL version number */
+	/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required MySQL version number, 4: Current MySQL version number. */
 	$compat = sprintf( __( 'You cannot install because <a href="%1$s">calmPress %2$s</a> requires MySQL version %3$s or higher. You are running version %4$s.' ), $version_url, calmpress_version(), $required_mysql_version, $mysql_version );
 }
 
 if ( ! $mysql_compat || ! $php_compat ) {
 	display_header();
-	die( '<h1>' . __( 'Insufficient Requirements' ) . '</h1><p>' . $compat . '</p></body></html>' );
+	die( '<h1>' . __( 'Requirements Not Met' ) . '</h1><p>' . $compat . '</p></body></html>' );
 }
 
 if ( ! is_string( $wpdb->base_prefix ) || '' === $wpdb->base_prefix ) {
@@ -276,7 +274,7 @@ if ( ! isset( $_COOKIE['calmpress_install_auth_key'] ) || AUTH_KEY !== $_COOKIE[
 }
 
 /**
- * @global WP_Locale $wp_locale
+ * @global WP_Locale $wp_locale WordPress date and time locale object.
  */
 $language = '';
 if ( ! empty( $_REQUEST['language'] ) ) {

@@ -161,7 +161,7 @@ class Tests_Widgets extends WP_UnitTestCase {
 
 		$names = wp_list_pluck( $wp_registered_sidebars, 'name' );
 		for ( $i = 1; $i <= $num; $i++ ) {
-			if ( in_array( "$id_base $i", $names ) ) {
+			if ( in_array( "$id_base $i", $names, true ) ) {
 				$result[] = true;
 			}
 		}
@@ -631,21 +631,20 @@ class Tests_Widgets extends WP_UnitTestCase {
 
 		wp_widgets_init();
 		require_once ABSPATH . '/wp-admin/includes/widgets.php';
-		$widget_id = 'search-2';
-		$widget    = $wp_registered_widgets[ $widget_id ];
-		$params    = array(
+		$widget_id    = 'search-2';
+		$widget       = $wp_registered_widgets[ $widget_id ];
+		$params       = array(
 			'widget_id'   => $widget['id'],
 			'widget_name' => $widget['name'],
 		);
-		$args      = wp_list_widget_controls_dynamic_sidebar(
-			array(
-				0 => $params,
-				1 => $widget['params'][0],
-			)
+		$control_args = array(
+			0 => $params,
+			1 => $widget['params'][0],
 		);
+		$sidebar_args = wp_list_widget_controls_dynamic_sidebar( $control_args );
 
 		ob_start();
-		call_user_func_array( 'wp_widget_control', $args );
+		wp_widget_control( ...$sidebar_args );
 		$control = ob_get_clean();
 		$this->assertNotEmpty( $control );
 
@@ -670,15 +669,14 @@ class Tests_Widgets extends WP_UnitTestCase {
 			'after_widget_content'  => '<!-- after_widget_content -->',
 		);
 		$params          = array_merge( $params, $param_overrides );
-		$args            = wp_list_widget_controls_dynamic_sidebar(
-			array(
-				0 => $params,
-				1 => $widget['params'][0],
-			)
+		$control_args    = array(
+			0 => $params,
+			1 => $widget['params'][0],
 		);
+		$sidebar_args    = wp_list_widget_controls_dynamic_sidebar( $control_args );
 
 		ob_start();
-		call_user_func_array( 'wp_widget_control', $args );
+		wp_widget_control( ...$sidebar_args );
 		$control = ob_get_clean();
 		$this->assertNotEmpty( $control );
 		$this->assertNotContains( '<form method="post">', $control );

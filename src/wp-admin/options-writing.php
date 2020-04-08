@@ -34,7 +34,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 <form method="post" action="options.php">
 <?php settings_fields( 'writing' ); ?>
 
-<table class="form-table">
+<table class="form-table" role="presentation">
 <?php
 do_settings_fields( 'writing', 'default' );
 do_settings_fields( 'writing', 'remote_publishing' ); // A deprecated section.

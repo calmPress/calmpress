@@ -122,7 +122,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 			);
 		}
 
-		if ( $url === self::UNTRUSTED_PROVIDER_URL ) {
+		if ( self::UNTRUSTED_PROVIDER_URL === $url ) {
 			return array(
 				'response' => array(
 					'code' => 200,

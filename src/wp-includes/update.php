@@ -278,8 +278,10 @@ function wp_update_plugins( $extra_stats = array() ) {
 		$options['body']['update_stats'] = wp_json_encode( $extra_stats );
 	}
 
-	$url = $http_url = 'http://api.wordpress.org/plugins/update-check/1.1/';
-	if ( $ssl = wp_http_supports( array( 'ssl' ) ) ) {
+	$url      = 'http://api.wordpress.org/plugins/update-check/1.1/';
+	$http_url = $url;
+	$ssl      = wp_http_supports( array( 'ssl' ) );
+	if ( $ssl ) {
 		$url = set_url_scheme( $url, 'https' );
 	}
 
@@ -287,7 +289,7 @@ function wp_update_plugins( $extra_stats = array() ) {
 	if ( $ssl && is_wp_error( $raw_response ) ) {
 		trigger_error(
 			sprintf(
-				/* translators: %s: support forums URL */
+				/* translators: %s: Support forums URL. */
 				__( 'An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="%s">support forums</a>.' ),
 				__( 'https://wordpress.org/support/' )
 			) . ' ' . __( '(calmPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ),
@@ -354,7 +356,9 @@ function wp_update_themes( $extra_stats = array() ) {
 		$last_update = new stdClass;
 	}
 
-	$themes = $checked = $request = array();
+	$themes  = array();
+	$checked = array();
+	$request = array();
 
 	// Put slug of current theme into request.
 	$request['active'] = get_option( 'stylesheet' );
@@ -460,8 +464,10 @@ function wp_update_themes( $extra_stats = array() ) {
 		$options['body']['update_stats'] = wp_json_encode( $extra_stats );
 	}
 
-	$url = $http_url = 'http://api.wordpress.org/themes/update-check/1.1/';
-	if ( $ssl = wp_http_supports( array( 'ssl' ) ) ) {
+	$url      = 'http://api.wordpress.org/themes/update-check/1.1/';
+	$http_url = $url;
+	$ssl      = wp_http_supports( array( 'ssl' ) );
+	if ( $ssl ) {
 		$url = set_url_scheme( $url, 'https' );
 	}
 
@@ -469,7 +475,7 @@ function wp_update_themes( $extra_stats = array() ) {
 	if ( $ssl && is_wp_error( $raw_response ) ) {
 		trigger_error(
 			sprintf(
-				/* translators: %s: support forums URL */
+				/* translators: %s: Support forums URL. */
 				__( 'An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="%s">support forums</a>.' ),
 				__( 'https://wordpress.org/support/' )
 			) . ' ' . __( '(calmPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ),
@@ -551,14 +557,16 @@ function wp_get_update_data() {
 		'translations' => 0,
 	);
 
-	if ( $plugins = current_user_can( 'update_plugins' ) ) {
+	$plugins = current_user_can( 'update_plugins' );
+	if ( $plugins ) {
 		$update_plugins = get_site_transient( 'update_plugins' );
 		if ( ! empty( $update_plugins->response ) ) {
 			$counts['plugins'] = count( $update_plugins->response );
 		}
 	}
 
-	if ( $themes = current_user_can( 'update_themes' ) ) {
+	$themes = current_user_can( 'update_themes' );
+	if ( $themes ) {
 		$update_themes = get_site_transient( 'update_themes' );
 		if ( ! empty( $update_themes->response ) ) {
 			$counts['themes'] = count( $update_themes->response );
@@ -579,15 +587,15 @@ function wp_get_update_data() {
 	$counts['total'] = $counts['plugins'] + $counts['themes'] + $counts['wordpress'] + $counts['translations'];
 	$titles          = array();
 	if ( $counts['wordpress'] ) {
-		/* translators: 1: Number of updates available to calmPress */
+		/* translators: 1: Number of available calmPress updates. */
 		$titles['wordpress'] = sprintf( __( '%d calmPress Update'), $counts['wordpress'] );
 	}
 	if ( $counts['plugins'] ) {
-		/* translators: %d: number of updates available to plugins */
+		/* translators: %d: Number of available plugin updates. */
 		$titles['plugins'] = sprintf( _n( '%d Plugin Update', '%d Plugin Updates', $counts['plugins'] ), $counts['plugins'] );
 	}
 	if ( $counts['themes'] ) {
-		/* translators: %d: number of updates available to themes */
+		/* translators: %d: Number of available theme updates. */
 		$titles['themes'] = sprintf( _n( '%d Theme Update', '%d Theme Updates', $counts['themes'] ), $counts['themes'] );
 	}
 	if ( $counts['translations'] ) {

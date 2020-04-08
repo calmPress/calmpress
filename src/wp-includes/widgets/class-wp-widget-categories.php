@@ -100,9 +100,11 @@ class WP_Widget_Categories extends WP_Widget {
 			}, $dropdown );
 
 			echo '</form>';
+
+			$type_attr = current_theme_supports( 'html5', 'script' ) ? '' : ' type="text/javascript"';
 			?>
 
-<script type='text/javascript'>
+<script<?php echo $type_attr; ?>>
 /* <![CDATA[ */
 (function() {
 	var dropdown = document.getElementById( "<?php echo esc_js( $dropdown_id ); ?>" );

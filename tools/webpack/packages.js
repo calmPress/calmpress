@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+const { DefinePlugin } = require( 'webpack' );
 const LiveReloadPlugin = require( 'webpack-livereload-plugin' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const postcss = require( 'postcss' );
@@ -14,6 +15,11 @@ const { get } = require( 'lodash' );
  */
 const CustomTemplatedPathPlugin = require( '@wordpress/custom-templated-path-webpack-plugin' );
 const LibraryExportDefaultPlugin = require( '@wordpress/library-export-default-webpack-plugin' );
+
+/**
+ * Internal dependencies
+ */
+const { dependencies } = require( '../../package' );
 
 const baseDir = join( __dirname, '../../' );
 
@@ -55,10 +61,10 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 	let buildTarget = env.buildTarget ? env.buildTarget : ( mode === 'production' ? 'build' : 'src' );
 	buildTarget = buildTarget  + '/wp-includes';
 
-	const packages = [
-		'hooks',
-		'i18n',
-	];
+	const WORDPRESS_NAMESPACE = '@wordpress/';
+	const packages = Object.keys( dependencies )
+		.filter( ( packageName ) => packageName.startsWith( WORDPRESS_NAMESPACE ) )
+		.map( ( packageName ) => packageName.replace( WORDPRESS_NAMESPACE, '' ) );
 
 	const vendors = {
 	};
@@ -128,6 +134,7 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 			return memo;
 		}, {} ),
 		output: {
+			devtoolNamespace: 'wp',
 			filename: `[basename]${ suffix }.js`,
 			path: join( baseDir, `${ buildTarget }/js/dist` ),
 			library: {
@@ -155,13 +162,18 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 			],
 		},
 		plugins: [
+			new DefinePlugin( {
+				// Inject the `GUTENBERG_PHASE` global, used for feature flagging.
+				'process.env.GUTENBERG_PHASE': 1,
+			} ),
 			new LibraryExportDefaultPlugin( [
 				'api-fetch',
 				'deprecated',
 				'dom-ready',
 				'redux-routine',
-				'shortcode',
 				'token-list',
+				'server-side-render',
+				'shortcode',
 			].map( camelCaseDash ) ),
 			new CustomTemplatedPathPlugin( {
 				basename( path, data ) {

@@ -569,6 +569,7 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 
 	/**
 	 * @depends test_link_embedding
+	 * @ticket 47684
 	 */
 	public function test_link_embedding_self() {
 		// Register our testing route.
@@ -582,8 +583,32 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 		);
 		$response = new WP_REST_Response();
 
-		// 'self' should be ignored.
-		$response->add_link( 'self', rest_url( '/test/notembeddable' ), array( 'embeddable' => true ) );
+		// 'self' should not be special-cased, and may be marked embeddable.
+		$response->add_link( 'self', rest_url( '/test/embeddable' ), array( 'embeddable' => true ) );
+
+		$data = rest_get_server()->response_to_data( $response, true );
+
+		$this->assertArrayHasKey( '_embedded', $data );
+	}
+
+	/**
+	 * @depends test_link_embedding
+	 * @ticket 47684
+	 */
+	public function test_link_embedding_self_non_embeddable() {
+		// Register our testing route.
+		rest_get_server()->register_route(
+			'test',
+			'/test/embeddable',
+			array(
+				'methods'  => 'GET',
+				'callback' => array( $this, 'embedded_response_callback' ),
+			)
+		);
+		$response = new WP_REST_Response();
+
+		// 'self' should not be special-cased, and should be ignored if not marked embeddable.
+		$response->add_link( 'self', rest_url( '/test/notembeddable' ) );
 
 		$data = rest_get_server()->response_to_data( $response, true );
 
@@ -1142,6 +1167,48 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * @ticket 43691
+	 */
+	public function test_does_not_echo_body_for_null_responses() {
+		register_rest_route(
+			'test-ns',
+			'/test',
+			array(
+				'methods'  => array( 'GET' ),
+				'callback' => function () {
+					return new WP_REST_Response();
+				},
+			)
+		);
+
+		$result = rest_get_server()->serve_request( '/test-ns/test' );
+
+		$this->assertNull( $result );
+		$this->assertEquals( '', rest_get_server()->sent_body );
+	}
+
+	/**
+	 * @ticket 43691
+	 */
+	public function test_does_not_echo_body_for_responses_with_204_status() {
+		register_rest_route(
+			'test-ns',
+			'/test',
+			array(
+				'methods'  => array( 'GET' ),
+				'callback' => function () {
+					return new WP_REST_Response( 'data', 204 );
+				},
+			)
+		);
+
+		$result = rest_get_server()->serve_request( '/test-ns/test' );
+
+		$this->assertNull( $result );
+		$this->assertEquals( '', rest_get_server()->sent_body );
 	}
 
 	public function _validate_as_integer_123( $value, $request, $key ) {

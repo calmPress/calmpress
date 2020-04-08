@@ -288,12 +288,18 @@ mockedApiResponse.Schema = {
                         "date": {
                             "required": false,
                             "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "date_gmt": {
                             "required": false,
                             "description": "The date the object was published, as GMT.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "slug": {
                             "required": false,
@@ -431,13 +437,19 @@ mockedApiResponse.Schema = {
                         },
                         "search": {
                             "required": false,
-                            "description": "Limit results to those matching a string.",
-                            "type": "string"
+                            "description": "The date the object was published, in the site's timezone.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "after": {
                             "required": false,
-                            "description": "Limit response to posts published after a given ISO8601 compliant date.",
-                            "type": "string"
+                            "description": "The date the object was published, as GMT.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "author": {
                             "required": false,
@@ -964,12 +976,18 @@ mockedApiResponse.Schema = {
                         "date": {
                             "required": false,
                             "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "date_gmt": {
                             "required": false,
                             "description": "The date the object was published, as GMT.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "slug": {
                             "required": false,
@@ -1196,7 +1214,23 @@ mockedApiResponse.Schema = {
                         "GET"
                     ],
                     "args": {
-                        "parent": {
+                        "date": {
+                            "required": false,
+                            "description": "The date the object was published, in the site's timezone.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "date_gmt": {
+                            "required": false,
+                            "description": "The date the object was published, as GMT.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "slug": {
                             "required": false,
                             "description": "The ID for the parent of the object.",
                             "type": "integer"
@@ -1334,21 +1368,19 @@ mockedApiResponse.Schema = {
                         },
                         "force": {
                             "required": false,
-                            "default": false,
-                            "description": "Required to be true, as revisions do not support trashing.",
-                            "type": "boolean"
-                        }
-                    }
-                },
-                {
-                    "methods": [
-                        "GET"
-                    ],
-                    "args": {
-                        "parent": {
+                            "description": "The date the object was published, in the site's timezone.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "date_gmt": {
                             "required": false,
-                            "description": "The ID for the parent of the object.",
-                            "type": "integer"
+                            "description": "The date the object was published, as GMT.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "id": {
                             "required": false,
@@ -1438,12 +1470,18 @@ mockedApiResponse.Schema = {
                         "date": {
                             "required": false,
                             "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "date_gmt": {
                             "required": false,
                             "description": "The date the object was published, as GMT.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "slug": {
                             "required": false,
@@ -1972,12 +2010,18 @@ mockedApiResponse.Schema = {
                         "date": {
                             "required": false,
                             "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "date_gmt": {
                             "required": false,
                             "description": "The date the object was published, as GMT.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "slug": {
                             "required": false,
@@ -2021,7 +2065,40 @@ mockedApiResponse.Schema = {
                             "description": "The ID for the author of the object.",
                             "type": "integer"
                         },
-                        "excerpt": {
+                        "date": {
+                            "required": false,
+                            "description": "The date the object was published, in the site's timezone.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "date_gmt": {
+                            "required": false,
+                            "description": "The date the object was published, as GMT.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "slug": {
+                            "required": false,
+                            "description": "An alphanumeric identifier for the object unique to its type.",
+                            "type": "string"
+                        },
+                        "status": {
+                            "required": false,
+                            "enum": [
+                                "publish",
+                                "future",
+                                "draft",
+                                "pending",
+                                "private"
+                            ],
+                            "description": "A named status for the object.",
+                            "type": "string"
+                        },
+                        "title": {
                             "required": false,
                             "description": "The excerpt for the object.",
                             "type": "object"
@@ -2074,6 +2151,60 @@ mockedApiResponse.Schema = {
                         }
                     }
                 },
+                {
+                    "methods": [
+                        "DELETE"
+                    ],
+                    "args": {
+                        "id": {
+                            "required": false,
+                            "description": "Unique identifier for the object.",
+                            "type": "integer"
+                        },
+                        "force": {
+                            "required": false,
+                            "default": false,
+                            "description": "Whether to bypass trash and force deletion.",
+                            "type": "boolean"
+                        }
+                    }
+                }
+            ]
+        },
+        "/wp/v2/media/(?P<id>[\\d]+)/post-process": {
+            "namespace": "wp/v2",
+            "methods": [
+                "POST"
+            ],
+            "endpoints": [
+                {
+                    "methods": [
+                        "POST"
+                    ],
+                    "args": {
+                        "id": {
+                            "required": false,
+                            "description": "Unique identifier for the object.",
+                            "type": "integer"
+                        },
+                        "action": {
+                            "required": true,
+                            "enum": [
+                                "create-image-subsizes"
+                            ],
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        },
+        "/wp/v2/blocks": {
+            "namespace": "wp/v2",
+            "methods": [
+                "GET",
+                "POST"
+            ],
+            "endpoints": [
                 {
                     "methods": [
                         "GET"
@@ -2270,12 +2401,18 @@ mockedApiResponse.Schema = {
                         "date": {
                             "required": false,
                             "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "date_gmt": {
                             "required": false,
                             "description": "The date the object was published, as GMT.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "slug": {
                             "required": false,
@@ -2435,12 +2572,18 @@ mockedApiResponse.Schema = {
                         "date": {
                             "required": false,
                             "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "date_gmt": {
                             "required": false,
                             "description": "The date the object was published, as GMT.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "slug": {
                             "required": false,
@@ -2598,12 +2741,18 @@ mockedApiResponse.Schema = {
                         "date": {
                             "required": false,
                             "description": "The date the object was published, in the site's timezone.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "date_gmt": {
                             "required": false,
                             "description": "The date the object was published, as GMT.",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "slug": {
                             "required": false,
@@ -7522,10 +7671,37 @@ mockedApiResponse.Schema = {
                         },
                         "author_name": {
                             "required": false,
-                            "description": "Display name for the object author.",
-                            "type": "string"
-                        },
-                        "author_url": {
+                            "default": "any",
+                            "description": "Limit results to items of one or more object subtypes.",
+                            "type": "array",
+                            "items": {
+                                "enum": [
+                                    "post",
+                                    "page",
+                                    "any"
+                                ],
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            ],
+            "_links": {
+                "self": "http://example.org/index.php?rest_route=/wp/v2/search"
+            }
+        },
+        "/wp/v2/block-renderer/(?P<name>core/archives)": {
+            "namespace": "wp/v2",
+            "methods": [
+                "GET"
+            ],
+            "endpoints": [
+                {
+                    "methods": [
+                        "GET"
+                    ],
+                    "args": {
+                        "name": {
                             "required": false,
                             "description": "URL for the object author.",
                             "type": "string"
@@ -7537,10 +7713,31 @@ mockedApiResponse.Schema = {
                         },
                         "content": {
                             "required": false,
-                            "description": "The content for the object.",
+                            "default": [],
+                            "description": "Attributes for core/archives block",
                             "type": "object"
                         },
-                        "date": {
+                        "post_id": {
+                            "required": false,
+                            "description": "ID of the post context.",
+                            "type": "integer"
+                        }
+                    }
+                }
+            ]
+        },
+        "/wp/v2/block-renderer/(?P<name>core/block)": {
+            "namespace": "wp/v2",
+            "methods": [
+                "GET"
+            ],
+            "endpoints": [
+                {
+                    "methods": [
+                        "GET"
+                    ],
+                    "args": {
+                        "name": {
                             "required": false,
                             "description": "The date the object was published, in the site's timezone.",
                             "type": "string"
@@ -7552,13 +7749,34 @@ mockedApiResponse.Schema = {
                         },
                         "parent": {
                             "required": false,
-                            "description": "The ID for the parent of the object.",
-                            "type": "integer"
+                            "default": [],
+                            "description": "Attributes for core/block block",
+                            "type": "object"
                         },
                         "post": {
                             "required": false,
                             "description": "The ID of the associated post object.",
                             "type": "integer"
+                        }
+                    }
+                }
+            ]
+        },
+        "/wp/v2/block-renderer/(?P<name>core/calendar)": {
+            "namespace": "wp/v2",
+            "methods": [
+                "GET"
+            ],
+            "endpoints": [
+                {
+                    "methods": [
+                        "GET"
+                    ],
+                    "args": {
+                        "name": {
+                            "required": false,
+                            "description": "Unique registered name for the block.",
+                            "type": "string"
                         },
                         "status": {
                             "required": false,
@@ -7567,11 +7785,20 @@ mockedApiResponse.Schema = {
                         },
                         "meta": {
                             "required": false,
-                            "description": "Meta fields.",
+                            "default": [],
+                            "description": "Attributes for core/calendar block",
                             "type": "object"
                         }
                     }
-                },
+                }
+            ]
+        },
+        "/wp/v2/block-renderer/(?P<name>core/categories)": {
+            "namespace": "wp/v2",
+            "methods": [
+                "GET"
+            ],
+            "endpoints": [
                 {
                     "methods": [
                         "DELETE"
@@ -7584,9 +7811,9 @@ mockedApiResponse.Schema = {
                         },
                         "force": {
                             "required": false,
-                            "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
-                            "type": "boolean"
+                            "default": [],
+                            "description": "Attributes for core/categories block",
+                            "type": "object"
                         },
                         "password": {
                             "required": false,
@@ -7597,7 +7824,7 @@ mockedApiResponse.Schema = {
                 }
             ]
         },
-        "/wp/v2/search": {
+        "/wp/v2/block-renderer/(?P<name>core/latest-comments)": {
             "namespace": "wp/v2",
             "methods": [
                 "GET",
@@ -7621,9 +7848,9 @@ mockedApiResponse.Schema = {
                         },
                         "page": {
                             "required": false,
-                            "default": 1,
-                            "description": "Current page of the collection.",
-                            "type": "integer"
+                            "default": [],
+                            "description": "Attributes for core/latest-comments block",
+                            "type": "object"
                         },
                         "per_page": {
                             "required": false,
@@ -7879,7 +8106,7 @@ mockedApiResponse.Schema = {
                                 "open",
                                 "closed"
                             ],
-                            "description": "Allow people to post comments on new articles.",
+                            "description": "Allow people to submit comments on new posts.",
                             "type": "string"
                         }
                     }
@@ -9004,6 +9231,7 @@ mockedApiResponse.StatusesCollection = {
         "public": true,
         "queryable": true,
         "slug": "publish",
+        "date_floating": false,
         "_links": {
             "archives": [
                 {
@@ -9017,6 +9245,7 @@ mockedApiResponse.StatusesCollection = {
         "public": false,
         "queryable": false,
         "slug": "future",
+        "date_floating": false,
         "_links": {
             "archives": [
                 {
@@ -9030,6 +9259,7 @@ mockedApiResponse.StatusesCollection = {
         "public": false,
         "queryable": false,
         "slug": "draft",
+        "date_floating": true,
         "_links": {
             "archives": [
                 {
@@ -9043,6 +9273,7 @@ mockedApiResponse.StatusesCollection = {
         "public": false,
         "queryable": false,
         "slug": "pending",
+        "date_floating": true,
         "_links": {
             "archives": [
                 {
@@ -9056,6 +9287,7 @@ mockedApiResponse.StatusesCollection = {
         "public": false,
         "queryable": false,
         "slug": "private",
+        "date_floating": false,
         "_links": {
             "archives": [
                 {
@@ -9069,6 +9301,7 @@ mockedApiResponse.StatusesCollection = {
         "public": false,
         "queryable": false,
         "slug": "trash",
+        "date_floating": false,
         "_links": {
             "archives": [
                 {
@@ -9083,7 +9316,8 @@ mockedApiResponse.StatusModel = {
     "name": "Published",
     "public": true,
     "queryable": true,
-    "slug": "publish"
+    "slug": "publish",
+    "date_floating": false
 };
 
 mockedApiResponse.TaxonomiesCollection = {

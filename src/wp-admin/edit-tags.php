@@ -203,7 +203,7 @@ switch ( $wp_list_table->current_action() ) {
 		check_admin_referer( 'bulk-tags' );
 		$tags = (array) $_REQUEST['delete_tags'];
 		/** This action is documented in wp-admin/edit-comments.php */
-		$location = apply_filters( 'handle_bulk_actions-' . get_current_screen()->id, $location, $wp_list_table->current_action(), $tags );
+		$location = apply_filters( 'handle_bulk_actions-' . get_current_screen()->id, $location, $wp_list_table->current_action(), $tags );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 		break;
 }
 
@@ -250,7 +250,11 @@ if ( current_user_can( $tax->cap->edit_terms ) ) {
 if ( 'category' == $taxonomy || 'post_tag' == $taxonomy ) {
 	$help = '';
 	if ( 'category' == $taxonomy ) {
-		$help = '<p>' . sprintf( __( 'You can use categories to define sections of your site and group related posts.' ), 'options-writing.php' ) . '</p>';
+		$help = '<p>' . sprintf(
+			/* translators: %s: URL to Writing Settings screen. */
+			__( 'You can use categories to define sections of your site and group related posts.' ),
+			'options-writing.php'
+		) . '</p>';
 	} else {
 		$help = '<p>' . __( 'You can assign keywords to your posts using <strong>tags</strong>. Unlike categories, tags have no hierarchy, meaning there&#8217;s no relationship from one tag to another.' ) . '</p>';
 	}
@@ -311,7 +315,7 @@ $class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
 
 <?php
 if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
-	/* translators: %s: search keywords */
+	/* translators: %s: Search query. */
 	printf( '<span class="subtitle">' . __( 'Search results for &#8220;%s&#8221;' ) . '</span>', esc_html( wp_unslash( $_REQUEST['s'] ) ) );
 }
 ?>
@@ -509,9 +513,12 @@ if ( $can_edit_terms ) {
 	 * @param string $taxonomy The taxonomy slug.
 	 */
 	do_action( "{$taxonomy}_add_form_fields", $taxonomy );
-
-	submit_button( $tax->labels->add_new_item );
-
+	?>
+	<p class="submit">
+		<?php submit_button( $tax->labels->add_new_item, 'primary', 'submit', false ); ?>
+		<span class="spinner"></span>
+	</p>
+	<?php
 	if ( 'category' == $taxonomy ) {
 		/**
 		 * Fires at the end of the Edit Category form.
@@ -591,7 +598,7 @@ if ( $can_edit_terms ) {
  *
  * @param string $taxonomy The taxonomy name.
  */
-do_action( "after-{$taxonomy}-table", $taxonomy );
+do_action( "after-{$taxonomy}-table", $taxonomy );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 
 if ( $can_edit_terms ) {
 	?>
