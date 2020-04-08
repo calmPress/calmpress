@@ -492,13 +492,12 @@ function populate_options( array $options = array() ) {
 
 		// 5.3.0
 		'admin_email_lifespan'            => ( time() + 6 * MONTH_IN_SECONDS ),
-	);
 
 		// calmPress 0.9.9.
-		'calmpress_db_version' => calmpress_version(),
+		'calmpress_db_version'            => calmpress_version(),
 
-	// calmPress 1.0.0
-	'calm_embedding_on' => 0,
+		// calmPress 1.0.0
+		'calm_embedding_on'               => 0,
 	);
 
 	// 3.0 multisite

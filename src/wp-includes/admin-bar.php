@@ -868,18 +868,17 @@ function wp_admin_bar_comments_menu( $wp_admin_bar ) {
 		number_format_i18n( $awaiting_mod )
 	);
 
-		$icon   = '<span class="ab-icon"></span>';
-		$title  = '<span class="ab-label awaiting-mod pending-count count-' . $awaiting_mod . '" aria-hidden="true">' . number_format_i18n( $awaiting_mod ) . '</span>';
-		$title .= '<span class="screen-reader-text comments-in-moderation-text">' . $awaiting_text . '</span>';
+	$icon   = '<span class="ab-icon"></span>';
+	$title  = '<span class="ab-label awaiting-mod pending-count count-' . $awaiting_mod . '" aria-hidden="true">' . number_format_i18n( $awaiting_mod ) . '</span>';
+	$title .= '<span class="screen-reader-text comments-in-moderation-text">' . $awaiting_text . '</span>';
 
-		$wp_admin_bar->add_menu(
-			array(
-				'id'    => 'comments',
-				'title' => $icon . $title,
-				'href'  => admin_url( 'edit-comments.php' ),
-			)
-		);
-	}
+	$wp_admin_bar->add_menu(
+		array(
+			'id'    => 'comments',
+			'title' => $icon . $title,
+			'href'  => admin_url( 'edit-comments.php' ),
+		)
+	);
 }
 
 /**
