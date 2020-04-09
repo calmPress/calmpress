@@ -37,7 +37,7 @@ function get_categories( $args = '' ) {
 	 */
 	$args['taxonomy'] = apply_filters( 'get_categories_taxonomy', $args['taxonomy'], $args );
 
-	$categories = get_terms( $taxonomy, $args );
+	$categories = get_terms( $args );
 
 	if ( is_wp_error( $categories ) ) {
 		$categories = array();
