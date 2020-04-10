@@ -3015,9 +3015,9 @@ function _wp_privacy_account_request_confirmed( $request_id ) {
  * @param int $request_id The ID of the request.
  */
 function _wp_privacy_send_request_confirmation_notification( $request_id ) {
-	$request_data = wp_get_user_request_data( $request_id );
+	$request = wp_get_user_request_data( $request_id );
 
-	if ( ! is_a( $request_data, 'WP_User_Request' ) || 'request-confirmed' !== $request_data->status ) {
+	if ( ! is_a( $request, 'WP_User_Request' ) || 'request-confirmed' !== $request->status ) {
 		return;
 	}
 
@@ -3048,11 +3048,11 @@ function _wp_privacy_send_request_confirmation_notification( $request_id ) {
 	 * @param string          $admin_email  The email address of the notification recipient.
 	 * @param WP_User_Request $request_data The request that is initiating the notification.
 	 */
-	$admin_email = apply_filters( 'user_request_confirmed_email_to', get_site_option( 'admin_email' ), $request_data );
+	$admin_email = apply_filters( 'user_request_confirmed_email_to', get_site_option( 'admin_email' ), $request );
 
 	$email_data = array(
-		'request'     => $request_data,
-		'user_email'  => $request_data->email,
+		'request'     => $request,
+		'user_email'  => $request->email,
 		'description' => $action_description,
 		'manage_url'  => $manage_url,
 		'sitename'    => wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
