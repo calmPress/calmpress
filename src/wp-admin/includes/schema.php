@@ -398,9 +398,9 @@ function populate_options( array $options = array() ) {
 		'start_of_week'                   => _x( '1', 'start of week' ),
 		'require_name_email'              => 1,
 		'comments_notify'                 => 1,
-		'posts_per_rss'                   => 10,
+		'posts_per_rss'                   => 0,
 		'rss_use_excerpt'                 => 0,
-		'default_comment_status'          => 'open',
+		'default_comment_status'          => 'closed',
 		'posts_per_page'                  => 10,
 		/* translators: Default date format, see https://secure.php.net/date */
 		'date_format'                     => __( 'F j, Y' ),
