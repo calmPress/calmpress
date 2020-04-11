@@ -34,7 +34,11 @@ class Tests_Comment_GetCommentReplyLink extends WP_UnitTestCase {
 	 */
 	public function test_get_comment_reply_link_should_include_post_permalink() {
 		// Create a sample post.
-		$post_id = self::factory()->post->create();
+		$post_id = self::factory()->post->create(
+			[
+				'comment_status' => 'open',
+			]
+		);
 
 		// Insert comment.
 		$comment_id = self::factory()->comment->create(
@@ -57,10 +61,9 @@ class Tests_Comment_GetCommentReplyLink extends WP_UnitTestCase {
 		$expected_url = esc_url(
 			add_query_arg(
 				array(
-					'p'          => $post_id,
 					'replytocom' => $comment_id,
 				),
-				home_url( '/#respond' )
+				get_permalink( $post_id ) . '#respond'
 			)
 		);
 
