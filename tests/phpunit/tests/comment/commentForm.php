@@ -109,7 +109,11 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 	 * @ticket 47975
 	 */
 	public function test_aria_describedby_email_notes_should_not_be_added_if_no_email_notes() {
-		$p = self::factory()->post->create();
+		$p = self::factory()->post->create(
+			[
+				'comment_status' => 'open',
+			]
+		);
 
 		$form_with_aria = get_echo( 'comment_form', array( array(), $p ) );
 
