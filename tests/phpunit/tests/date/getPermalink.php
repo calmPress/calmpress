@@ -31,9 +31,9 @@ class Tests_Date_Get_Permalink extends WP_UnitTestCase {
 			)
 		);
 
-		$this->assertEquals( 'http://example.org/2018/07/22/21/13/23', get_permalink( $post_id ) );
+		$this->assertEquals( 'http://example.org/2018/07/22/21/13/23/', get_permalink( $post_id ) );
 
 		date_default_timezone_set( $timezone );
-		$this->assertEquals( 'http://example.org/2018/07/22/21/13/23', get_permalink( $post_id ) );
+		$this->assertEquals( 'http://example.org/2018/07/22/21/13/23/', get_permalink( $post_id ) );
 	}
 }
