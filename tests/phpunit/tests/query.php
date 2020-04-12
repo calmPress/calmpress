@@ -43,6 +43,8 @@ class Tests_Query extends WP_UnitTestCase {
 	 * @ticket 25380
 	 */
 	function test_pre_posts_per_page() {
+		update_option( 'posts_per_rss', 10 );
+
 		self::factory()->post->create_many( 10 );
 
 		add_action( 'pre_get_posts', array( $this, 'filter_posts_per_page' ) );
@@ -50,6 +52,8 @@ class Tests_Query extends WP_UnitTestCase {
 		$this->go_to( get_feed_link() );
 
 		$this->assertEquals( 30, get_query_var( 'posts_per_page' ) );
+
+		update_option( 'posts_per_rss', 0 );
 	}
 
 	function filter_posts_per_page( &$query ) {
