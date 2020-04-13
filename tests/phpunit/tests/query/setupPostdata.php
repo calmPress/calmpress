@@ -356,11 +356,15 @@ class Tests_Query_SetupPostdata extends WP_UnitTestCase {
 	 * @ticket 20904
 	 */
 	public function test_more_when_on_feed() {
+		update_option( 'posts_per_rss', 10 );
+
 		$post = self::factory()->post->create_and_get();
 		$this->go_to( '/rss2' );
 		setup_postdata( $post );
 
 		$this->assertSame( 1, $GLOBALS['more'] );
+
+		update_option( 'posts_per_rss', 0 );
 	}
 
 	/**
