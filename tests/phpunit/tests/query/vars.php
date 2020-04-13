@@ -39,7 +39,6 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 				'second',
 				'name',
 				'tag',
-				'static',
 				'pagename',
 				'page_id',
 				'error',
@@ -49,7 +48,7 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 				'category_name',
 				'attachment',
 
-			// Dynamically added public query vars:
+			// Dynamically added public query vars.
 			'rest_route',
 			\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
 
