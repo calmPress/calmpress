@@ -243,9 +243,9 @@ $_new_bundled_files = array(
 function update_core( $from, $to ) {
 	global $wp_filesystem, $_old_files, $wpdb;
 
-	$calmpress_version = '1.0.0-alpha18';
-    $required_php_version = '7.0';
-    $required_mysql_version = '5.5';
+	$calmpress_version      = '1.0.0-alpha18';
+	$required_php_version   = '7.0';
+	$required_mysql_version = '5.5';
 
 	set_time_limit( 300 );
 
@@ -329,7 +329,6 @@ function update_core( $from, $to ) {
 				$mysql_version
 			)
 		);
-	}
 	}
 
 	/** This filter is documented in wp-admin/includes/update-core.php */
