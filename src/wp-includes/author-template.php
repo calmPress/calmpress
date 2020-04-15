@@ -394,13 +394,18 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
  */
 function wp_list_authors( $args = '' ) {
 
-	$defaults = array(
-		'orderby' => 'name', 'order' => 'ASC', 'number' => '',
+	$defaults = [
+		'orderby'     => 'name',
+		'order'       => 'ASC',
+		'number'      => '',
 		'optioncount' => false,
-		'hide_empty' => true,
-		'echo' => true,
-		'style' => 'list', 'html' => true, 'exclude' => '', 'include' => ''
-	);
+		'hide_empty'  => true,
+		'echo'        => true,
+		'style'       => 'list',
+		'html'        => true,
+		'exclude'     => '',
+		'include'     => '',
+	];
 
 	$args = wp_parse_args( $args, $defaults );
 
@@ -425,13 +430,17 @@ function wp_list_authors( $args = '' ) {
 	// Convert the exclude parameter to array of authors.
 	$exclude_arr = [];
 	if ( ! empty( $args['exclude'] ) ) {
-		$exclude_arr = array_map( function ( $term_id ) {
-			$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
-			return new post_authors\Taxonomy_Based_Post_Author( $term );
-			}, wp_parse_id_list( $args['exclude'] ) );
+		$exclude_arr = array_map(
+			function ( $term_id ) {
+				$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+				return new post_authors\Taxonomy_Based_Post_Author( $term );
+				},
+			wp_parse_id_list( $args['exclude'] )
+		);
 	}
 
-	$authors = post_authors\Post_Authors_As_Taxonomy::get_authors( (int) $args['number'],
+	$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+		(int) $args['number'],
 		$order,
 		! $args['hide_empty'],
 		$exclude_arr
