@@ -89,10 +89,13 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 
 	function test_wp_list_authors_hide_empty() {
 		$fred_id = self::$fred_id;
+		$fred_term = get_term( $fred_id, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		$fred_author = new calmpress\post_authors\Taxonomy_Based_Post_Author( $fred_term );
+		$fred_url = $fred_author->posts_url();
 
 		$expected['hide_empty'] =
 			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
-			'<li><a href="' . get_author_posts_url( $fred_id ) . '" title="Posts by fred">fred</a></li>' .
+			'<li><a href="' . $fred_url . '" title="Posts by fred">fred</a></li>' .
 			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
 			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
 

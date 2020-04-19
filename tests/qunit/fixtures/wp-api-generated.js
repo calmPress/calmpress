@@ -9343,7 +9343,7 @@ mockedApiResponse.TaxonomyModel = {
 
 mockedApiResponse.CategoriesCollection = [
     {
-        "id": 428,
+        "id": 430,
         "count": 0,
         "description": "REST API Client Fixture: Category",
         "link": "http://example.org/?cat=1",
