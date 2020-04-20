@@ -1303,7 +1303,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$response   = rest_get_server()->dispatch( $request );
 		$data       = $response->get_data();
 		$properties = $data['schema']['properties'];
-		$this->assertEquals( 27, count( $properties ) );
+		$this->assertEquals( 28, count( $properties ) );
 		$this->assertArrayHasKey( 'author', $properties );
 		$this->assertArrayHasKey( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, $properties );
 		$this->assertArrayHasKey( 'alt_text', $properties );
