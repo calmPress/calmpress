@@ -23,7 +23,7 @@ jQuery(document).ready( function($) {
 	 *
 	 * @param {boolean} visible Should it be visible or not.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	updateWelcomePanel = function( visible ) {
 		$.post( ajaxurl, {
@@ -61,7 +61,7 @@ jQuery(document).ready( function($) {
 	 *
 	 * @global
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	window.quickPressLoad = function() {
 		var act = $('#quickpost-action'), t;
@@ -93,7 +93,7 @@ jQuery(document).ready( function($) {
 			/**
 			 * Highlights the latest post for one second.
 			 *
-			 * @returns {void}
+			 * @return {void}
  			 */
 			function highlightLatestPost () {
 				var latestPost = $('.drafts ul li').first();
@@ -123,7 +123,7 @@ jQuery(document).ready( function($) {
 	 *
 	 * @since 3.6.0
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	function autoResizeTextarea() {
 		// When IE8 or older is used to render this document, exit.

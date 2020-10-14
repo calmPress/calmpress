@@ -53,7 +53,7 @@ JS;
 
 		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
 
-		// No scripts left to print
+		// No scripts left to print.
 		$this->assertEquals( '', get_echo( 'wp_print_scripts' ) );
 	}
 
@@ -81,41 +81,41 @@ JS;
 	 * @ticket 16560
 	 */
 	public function test_protocols() {
-		// Init
+		// Init.
 		global $wp_scripts;
 		$base_url_backup      = $wp_scripts->base_url;
 		$wp_scripts->base_url = 'http://example.com/wordpress';
 		$expected             = '';
 		$ver                  = calm_version_hash( calmpress_version());
 
-		// Try with an HTTP reference
+		// Try with an HTTP reference.
 		wp_enqueue_script( 'jquery-http', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' );
 		$expected .= "<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
 
-		// Try with an HTTPS reference
+		// Try with an HTTPS reference.
 		wp_enqueue_script( 'jquery-https', 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' );
 		$expected .= "<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
 
-		// Try with an automatic protocol reference (//)
+		// Try with an automatic protocol reference (//).
 		wp_enqueue_script( 'jquery-doubleslash', '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' );
 		$expected .= "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
 
-		// Try with a local resource and an automatic protocol reference (//)
+		// Try with a local resource and an automatic protocol reference (//).
 		$url = '//my_plugin/script.js';
 		wp_enqueue_script( 'plugin-script', $url );
 		$expected .= "<script type='text/javascript' src='$url?ver=$ver'></script>\n";
 
-		// Try with a bad protocol
+		// Try with a bad protocol.
 		wp_enqueue_script( 'jquery-ftp', 'ftp://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' );
 		$expected .= "<script type='text/javascript' src='{$wp_scripts->base_url}ftp://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
 
 		// Go!
 		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
 
-		// No scripts left to print
+		// No scripts left to print.
 		$this->assertEquals( '', get_echo( 'wp_print_scripts' ) );
 
-		// Cleanup
+		// Cleanup.
 		$wp_scripts->base_url = $base_url_backup;
 	}
 
@@ -147,7 +147,7 @@ JS;
 	 * @ticket 16024
 	 */
 	function test_wp_script_add_data_with_data_key() {
-		// Enqueue & add data
+		// Enqueue and add data.
 		wp_enqueue_script( 'test-only-data', 'example.com', array(), null );
 		wp_script_add_data( 'test-only-data', 'data', 'testing' );
 		$expected  = "<script type='text/javascript'>\n/* <![CDATA[ */\ntesting\n/* ]]> */\n</script>\n";
@@ -156,7 +156,7 @@ JS;
 		// Go!
 		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
 
-		// No scripts left to print
+		// No scripts left to print.
 		$this->assertEquals( '', get_echo( 'wp_print_scripts' ) );
 	}
 
@@ -166,7 +166,7 @@ JS;
 	 * @ticket 16024
 	 */
 	function test_wp_script_add_data_with_invalid_key() {
-		// Enqueue & add an invalid key
+		// Enqueue and add an invalid key.
 		wp_enqueue_script( 'test-invalid', 'example.com', array(), null );
 		wp_script_add_data( 'test-invalid', 'invalid', 'testing' );
 		$expected = "<script type='text/javascript' src='http://example.com'></script>\n";
@@ -174,7 +174,7 @@ JS;
 		// Go!
 		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
 
-		// No scripts left to print
+		// No scripts left to print.
 		$this->assertEquals( '', get_echo( 'wp_print_scripts' ) );
 	}
 
@@ -272,9 +272,9 @@ JS;
 	 * @ticket 35873
 	 */
 	function test_wp_register_script_with_dependencies_in_head_and_footer() {
-		wp_register_script( 'parent', '/parent.js', array( 'child-head' ), null, true ); // in footer
-		wp_register_script( 'child-head', '/child-head.js', array( 'child-footer' ), null, false ); // in head
-		wp_register_script( 'child-footer', '/child-footer.js', array(), null, true ); // in footer
+		wp_register_script( 'parent', '/parent.js', array( 'child-head' ), null, true );            // In footer.
+		wp_register_script( 'child-head', '/child-head.js', array( 'child-footer' ), null, false ); // In head.
+		wp_register_script( 'child-footer', '/child-footer.js', array(), null, true );              // In footer.
 
 		wp_enqueue_script( 'parent' );
 
@@ -293,9 +293,9 @@ JS;
 	 * @ticket 35956
 	 */
 	function test_wp_register_script_with_dependencies_in_head_and_footer_in_reversed_order() {
-		wp_register_script( 'child-head', '/child-head.js', array(), null, false ); // in head
-		wp_register_script( 'child-footer', '/child-footer.js', array(), null, true ); // in footer
-		wp_register_script( 'parent', '/parent.js', array( 'child-head', 'child-footer' ), null, true ); // in footer
+		wp_register_script( 'child-head', '/child-head.js', array(), null, false );                      // In head.
+		wp_register_script( 'child-footer', '/child-footer.js', array(), null, true );                   // In footer.
+		wp_register_script( 'parent', '/parent.js', array( 'child-head', 'child-footer' ), null, true ); // In footer.
 
 		wp_enqueue_script( 'parent' );
 
@@ -314,13 +314,13 @@ JS;
 	 * @ticket 35956
 	 */
 	function test_wp_register_script_with_dependencies_in_head_and_footer_in_reversed_order_and_two_parent_scripts() {
-		wp_register_script( 'grandchild-head', '/grandchild-head.js', array(), null, false ); // in head
-		wp_register_script( 'child-head', '/child-head.js', array(), null, false ); // in head
-		wp_register_script( 'child-footer', '/child-footer.js', array( 'grandchild-head' ), null, true ); // in footer
-		wp_register_script( 'child2-head', '/child2-head.js', array(), null, false ); // in head
-		wp_register_script( 'child2-footer', '/child2-footer.js', array(), null, true ); // in footer
-		wp_register_script( 'parent-footer', '/parent-footer.js', array( 'child-head', 'child-footer', 'child2-head', 'child2-footer' ), null, true ); // in footer
-		wp_register_script( 'parent-header', '/parent-header.js', array( 'child-head' ), null, false ); // in head
+		wp_register_script( 'grandchild-head', '/grandchild-head.js', array(), null, false );             // In head.
+		wp_register_script( 'child-head', '/child-head.js', array(), null, false );                       // In head.
+		wp_register_script( 'child-footer', '/child-footer.js', array( 'grandchild-head' ), null, true ); // In footer.
+		wp_register_script( 'child2-head', '/child2-head.js', array(), null, false );                     // In head.
+		wp_register_script( 'child2-footer', '/child2-footer.js', array(), null, true );                  // In footer.
+		wp_register_script( 'parent-footer', '/parent-footer.js', array( 'child-head', 'child-footer', 'child2-head', 'child2-footer' ), null, true ); // In footer.
+		wp_register_script( 'parent-header', '/parent-header.js', array( 'child-head' ), null, false );   // In head.
 
 		wp_enqueue_script( 'parent-footer' );
 		wp_enqueue_script( 'parent-header' );
@@ -649,7 +649,7 @@ JS;
 		$expected .= "<script type='text/javascript' src='http://example.com'></script>\n";
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/dist/vendor/wp-polyfill.min.js'></script>\n";
 		$expected .= "<script type='text/javascript'>\n";
-		$expected .= "( 'fetch' in window ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-fetch.min.js\"></scr' + 'ipt>' );( document.contains ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-node-contains.min.js\"></scr' + 'ipt>' );( window.FormData && window.FormData.prototype.keys ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-formdata.min.js\"></scr' + 'ipt>' );( Element.prototype.matches && Element.prototype.closest ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-element-closest.min.js\"></scr' + 'ipt>' );\n";
+		$expected .= "( 'fetch' in window ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-fetch.min.js\"></scr' + 'ipt>' );( document.contains ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-node-contains.min.js\"></scr' + 'ipt>' );( window.DOMRect ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-dom-rect.min.js\"></scr' + 'ipt>' );( window.URL && window.URL.prototype && window.URLSearchParams ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-url.min.js\"></scr' + 'ipt>' );( window.FormData && window.FormData.prototype.keys ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-formdata.min.js\"></scr' + 'ipt>' );( Element.prototype.matches && Element.prototype.closest ) || document.write( '<script src=\"http://example.org/wp-includes/js/dist/vendor/wp-polyfill-element-closest.min.js\"></scr' + 'ipt>' );\n";
 		$expected .= "</script>\n";
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/dist/dom-ready.min.js'></script>\n";
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/dist/a11y.min.js'></script>\n";
@@ -714,7 +714,7 @@ JS;
 		global $wp_scripts;
 
 		$wp_scripts->do_concat    = true;
-		$wp_scripts->default_dirs = array( '/wp-admin/js/', '/wp-includes/js/' ); // Default dirs as in wp-includes/script-loader.php
+		$wp_scripts->default_dirs = array( '/wp-admin/js/', '/wp-includes/js/' ); // Default dirs as in wp-includes/script-loader.php.
 
 		wp_enqueue_script( 'one', '/wp-includes/js/script.js' );
 		wp_enqueue_script( 'two', '/wp-includes/js/script2.js', array( 'one' ) );
@@ -739,7 +739,7 @@ JS;
 		global $wp_scripts;
 
 		$wp_scripts->do_concat    = true;
-		$wp_scripts->default_dirs = array( '/wp-admin/js/', '/wp-includes/js/' ); // Default dirs as in wp-includes/script-loader.php
+		$wp_scripts->default_dirs = array( '/wp-admin/js/', '/wp-includes/js/' ); // Default dirs as in wp-includes/script-loader.php.
 
 		wp_enqueue_script( 'one', '/wp-includes/js/script.js' );
 		wp_enqueue_script( 'two', '/wp-includes/js/script2.js', array( 'one' ) );
@@ -778,7 +778,7 @@ JS;
 		);
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/script.js'></script>\n";
 
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
+		$this->assertEqualsIgnoreEOL( $expected, get_echo( 'wp_print_scripts' ) );
 	}
 
 	/**
@@ -803,7 +803,7 @@ JS;
 		);
 		$expected .= "<script type='text/javascript' src='/wp-content/plugins/my-plugin/js/script.js'></script>\n";
 
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
+		$this->assertEqualsIgnoreEOL( $expected, get_echo( 'wp_print_scripts' ) );
 	}
 
 	/**
@@ -828,7 +828,7 @@ JS;
 		);
 		$expected .= "<script type='text/javascript' src='/wp-content/themes/my-theme/js/script.js'></script>\n";
 
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
+		$this->assertEqualsIgnoreEOL( $expected, get_echo( 'wp_print_scripts' ) );
 	}
 
 	/**
@@ -853,7 +853,7 @@ JS;
 		);
 		$expected .= "<script type='text/javascript' src='/wp-admin/js/script.js'></script>\n";
 
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
+		$this->assertEqualsIgnoreEOL( $expected, get_echo( 'wp_print_scripts' ) );
 	}
 
 	/**
@@ -893,7 +893,7 @@ JS;
 		);
 		$expected .= "<script type='text/javascript' src='/wp-admin/js/script.js'></script>\n";
 
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
+		$this->assertEqualsIgnoreEOL( $expected, get_echo( 'wp_print_scripts' ) );
 	}
 
 	/**
@@ -920,7 +920,7 @@ JS;
 		);
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/script.js'></script>\n";
 
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
+		$this->assertEqualsIgnoreEOL( $expected, get_echo( 'wp_print_scripts' ) );
 	}
 
 	/**
@@ -948,7 +948,7 @@ JS;
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/script.js'></script>\n";
 		$expected .= "<script type='text/javascript' src='/wp-includes/js/script2.js'></script>\n";
 
-		$this->assertEquals( $expected, get_echo( 'wp_print_scripts' ) );
+		$this->assertEqualsIgnoreEOL( $expected, get_echo( 'wp_print_scripts' ) );
 	}
 
 	/**

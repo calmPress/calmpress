@@ -44,13 +44,14 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 				'error',
 				'preview',
 				'robots',
+				'favicon',
 				'cpage',
 				'category_name',
 				'attachment',
 
-			// Dynamically added public query vars.
-			'rest_route',
-			\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
+				// Dynamically added public query vars.
+				'rest_route',
+				\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
 
 		);
 		sort( $expected );

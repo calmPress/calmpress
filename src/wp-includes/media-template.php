@@ -414,6 +414,11 @@ function wp_print_media_templates() {
 							?>
 						</div>
 					<# } #>
+
+					<# if ( data.originalImageURL && data.originalImageName ) { #>
+						<?php _e( 'Original image:' ); ?>
+						<a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
+					<# } #>
 				<# } #>
 
 				<# if ( data.fileLength && data.fileLengthHumanReadable ) { #>

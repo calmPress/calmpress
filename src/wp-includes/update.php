@@ -50,7 +50,7 @@ function best_match_version( $a, $b ) {
  * isn't installing.
  *
  * @since 2.3.0
- * @global wpdb   $wpdb
+ * @global wpdb   $wpdb WordPress database abstraction object.
  *
  * @param array $extra_stats Extra statistics to report to the WordPress.org API.
  * @param bool  $force_check Whether to bypass the transient cache and force a fresh update check. Defaults to false, true if $extra_stats is set.
@@ -73,14 +73,14 @@ function wp_version_check( $extra_stats = array(), $force_check = false ) {
 		$force_check = true;
 	}
 
-	// Wait 60 seconds between multiple version check requests
-	$timeout          = 60;
+	// Wait 1 minute between multiple version check requests.
+	$timeout          = MINUTE_IN_SECONDS;
 	$time_not_changed = isset( $current->last_checked ) && $timeout > ( time() - $current->last_checked );
 	if ( ! $force_check && $time_not_changed ) {
 		return;
 	}
 
-	// Update last_checked for current to prevent multiple blocking requests if request hangs
+	// Update last_checked for current to prevent multiple blocking requests if request hangs.
 	$current->last_checked = time();
 	set_site_transient( 'update_core', $current );
 
@@ -171,9 +171,9 @@ function wp_update_plugins( $extra_stats = array() ) {
 		return;
 	}
 
-	// If running blog-side, bail unless we've not checked in the last 12 hours
+	// If running blog-side, bail unless we've not checked in the last 12 hours.
 	if ( ! function_exists( 'get_plugins' ) ) {
-		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
 
 	$plugins      = get_plugins();
@@ -231,13 +231,13 @@ function wp_update_plugins( $extra_stats = array() ) {
 			}
 		}
 
-		// Bail if we've checked recently and if nothing has changed
+		// Bail if we've checked recently and if nothing has changed.
 		if ( ! $plugin_changed ) {
 			return;
 		}
 	}
 
-	// Update last_checked for current to prevent multiple blocking requests if request hangs
+	// Update last_checked for current to prevent multiple blocking requests if request hangs.
 	$current->last_checked = time();
 	set_site_transient( 'update_plugins', $current );
 
@@ -259,7 +259,7 @@ function wp_update_plugins( $extra_stats = array() ) {
 	if ( $doing_cron ) {
 		$timeout = 30;
 	} else {
-		// Three seconds, plus one extra second for every 10 plugins
+		// Three seconds, plus one extra second for every 10 plugins.
 		$timeout = 3 + (int) ( count( $plugins ) / 10 );
 	}
 
@@ -340,6 +340,7 @@ function wp_update_plugins( $extra_stats = array() ) {
  * installing.
  *
  * @since 2.7.0
+ * @global string $wp_version The WordPress version string.
  *
  * @param array $extra_stats Extra statistics to report to the WordPress.org API.
  */
@@ -418,13 +419,13 @@ function wp_update_themes( $extra_stats = array() ) {
 			}
 		}
 
-		// Bail if we've checked recently and if nothing has changed
+		// Bail if we've checked recently and if nothing has changed.
 		if ( ! $theme_changed ) {
 			return;
 		}
 	}
 
-	// Update last_checked for current to prevent multiple blocking requests if request hangs
+	// Update last_checked for current to prevent multiple blocking requests if request hangs.
 	$last_update->last_checked = time();
 	set_site_transient( 'update_themes', $last_update );
 
@@ -446,7 +447,7 @@ function wp_update_themes( $extra_stats = array() ) {
 	if ( $doing_cron ) {
 		$timeout = 30;
 	} else {
-		// Three seconds, plus one extra second for every 10 themes
+		// Three seconds, plus one extra second for every 10 themes.
 		$timeout = 3 + (int) ( count( $themes ) / 10 );
 	}
 
@@ -508,8 +509,8 @@ function wp_update_themes( $extra_stats = array() ) {
  * @since 3.7.0
  */
 function wp_maybe_auto_update() {
-	include_once( ABSPATH . 'wp-admin/includes/admin.php' );
-	include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	include_once ABSPATH . 'wp-admin/includes/admin.php';
+	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 	$upgrader = new WP_Automatic_Updater;
 	$upgrader->run();

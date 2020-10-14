@@ -104,7 +104,7 @@ class Tests_Privacy_WpPrivacySendPersonalDataExportEmail extends WP_UnitTestCase
 	 * The function should send an export link to the requester when the user request is confirmed.
 	 */
 	public function test_function_should_send_export_link_to_requester() {
-		$archive_url = wp_privacy_exports_url() . 'wp-personal-data-file-requester-at-example-com-Wv0RfMnGIkl4CFEDEEkSeIdfLmaUrLsl.zip';
+		$archive_url = wp_privacy_exports_url() . 'wp-personal-data-file-Wv0RfMnGIkl4CFEDEEkSeIdfLmaUrLsl.zip';
 		update_post_meta( self::$request_id, '_export_file_url', $archive_url );
 
 		$email_sent = wp_privacy_send_personal_data_export_email( self::$request_id );
@@ -250,6 +250,38 @@ class Tests_Privacy_WpPrivacySendPersonalDataExportEmail extends WP_UnitTestCase
 	 */
 	public function modify_email_content( $email_text, $request_id ) {
 		return 'Custom content for request ID: ' . $request_id;
+	}
+
+	/**
+	 * The email headers should be filterable.
+	 *
+	 * @since 5.4.0
+	 *
+	 * @ticket 44501
+	 */
+	public function test_email_headers_should_be_filterable() {
+		add_filter( 'wp_privacy_personal_data_email_headers', array( $this, 'modify_email_headers' ) );
+		wp_privacy_send_personal_data_export_email( self::$request_id );
+
+		$mailer = tests_retrieve_phpmailer_instance();
+
+		$this->assertContains( 'From: Tester <tester@example.com>', $mailer->get_sent()->header );
+	}
+
+	/**
+	 * Filter callback to modify the headers of the email sent with a personal data export file.
+	 *
+	 * @since 5.4.0
+	 *
+	 * @param string|array $headers The email headers.
+	 * @return array       $headers The new email headers.
+	 */
+	public function modify_email_headers( $headers ) {
+		$headers = array(
+			'From: Tester <tester@example.com>',
+		);
+
+		return $headers;
 	}
 
 	/**

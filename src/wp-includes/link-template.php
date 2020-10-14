@@ -141,9 +141,9 @@ function get_permalink( $post = 0, $leavename = false ) {
 		return false;
 	}
 
-	if ( $post->post_type == 'page' ) {
+	if ( 'page' === $post->post_type ) {
 		return get_page_link( $post, $leavename, $sample );
-	} elseif ( $post->post_type == 'attachment' ) {
+	} elseif ( 'attachment' === $post->post_type ) {
 		return get_attachment_link( $post, $leavename );
 	} elseif ( in_array( $post->post_type, get_post_types( array( '_builtin' => false ) ) ) ) {
 		return get_post_permalink( $post, $leavename, $sample );
@@ -222,7 +222,7 @@ function get_permalink( $post = 0, $leavename = false ) {
 		$permalink = home_url( str_replace( $rewritecode, $rewritereplace, $permalink ) );
 		$permalink = user_trailingslashit( $permalink, 'single' );
 
-	} else { // if they're not using the fancy permalink option
+	} else { // If they're not using the fancy permalink option.
 		$permalink = home_url( '?p=' . $post->ID );
 	}
 
@@ -322,7 +322,7 @@ function get_post_permalink( $id = 0, $leavename = false, $sample = false ) {
 function get_page_link( $post = false, $leavename = false, $sample = false ) {
 	$post = get_post( $post );
 
-	if ( 'page' == get_option( 'show_on_front' ) && $post->ID == get_option( 'page_on_front' ) ) {
+	if ( 'page' === get_option( 'show_on_front' ) && get_option( 'page_on_front' ) == $post->ID ) {
 		$link = home_url( '/' );
 	} else {
 		$link = _get_page_link( $post, $leavename, $sample );
@@ -412,14 +412,14 @@ function get_attachment_link( $post = null, $leavename = false ) {
 	}
 
 	if ( $parent ) {
-		if ( 'page' == $parent->post_type ) {
-			$parentlink = _get_page_link( $post->post_parent ); // Ignores page_on_front
+		if ( 'page' === $parent->post_type ) {
+			$parentlink = _get_page_link( $post->post_parent ); // Ignores page_on_front.
 		} else {
 			$parentlink = get_permalink( $post->post_parent );
 		}
 
 		if ( is_numeric( $post->post_name ) || false !== strpos( get_option( 'permalink_structure' ), '%category%' ) ) {
-			$name = 'attachment/' . $post->post_name; // <permalink>/<int>/ is paged so we use the explicit attachment marker
+			$name = 'attachment/' . $post->post_name; // <permalink>/<int>/ is paged so we use the explicit attachment marker.
 		} else {
 			$name = $post->post_name;
 		}
@@ -457,7 +457,7 @@ function get_attachment_link( $post = null, $leavename = false ) {
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
- * @param int|bool $year False for current year or year for permalink.
+ * @param int|false $year Integer of year. False for current year.
  * @return string The permalink for the specified year archive.
  */
 function get_year_link( $year ) {
@@ -491,8 +491,8 @@ function get_year_link( $year ) {
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
- * @param bool|int $year  False for current year. Integer of year.
- * @param bool|int $month False for current month. Integer of month.
+ * @param int|false $year  Integer of year. False for current year.
+ * @param int|false $month Integer of month. False for current month.
  * @return string The permalink for the specified month and year archive.
  */
 function get_month_link( $year, $month ) {
@@ -531,9 +531,9 @@ function get_month_link( $year, $month ) {
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
- * @param bool|int $year  False for current year. Integer of year.
- * @param bool|int $month False for current month. Integer of month.
- * @param bool|int $day   False for current day. Integer of day.
+ * @param int|false $year  Integer of year. False for current year.
+ * @param int|false $month Integer of month. False for current month.
+ * @param int|false $day   Integer of day. False for current day.
  * @return string The permalink for the specified day, month, and year archive.
  */
 function get_day_link( $year, $month, $day ) {
@@ -678,7 +678,7 @@ function get_post_comments_feed_link( $post_id = 0, $feed = '' ) {
 
 	$post = get_post( $post_id );
 
-	if ( 'page' == get_option('show_on_front') && $post_id == get_option('page_on_front') ) {
+	if ( 'page' === get_option('show_on_front') && $post_id == get_option('page_on_front') ) {
 		$url = _get_page_link( $post_id );
 	} else {
 		$url = get_permalink( $post_id );
@@ -941,11 +941,11 @@ function get_edit_term_link( $term_id, $taxonomy = '', $object_type = '' ) {
  *
  * @since 3.1.0
  *
- * @param string $link   Optional. Anchor text. If empty, default is 'Edit This'. Default empty.
- * @param string $before Optional. Display before edit link. Default empty.
- * @param string $after  Optional. Display after edit link. Default empty.
- * @param object $term   Optional. Term object. If null, the queried object will be inspected. Default null.
- * @param bool   $echo   Optional. Whether or not to echo the return. Default true.
+ * @param string  $link   Optional. Anchor text. If empty, default is 'Edit This'. Default empty.
+ * @param string  $before Optional. Display before edit link. Default empty.
+ * @param string  $after  Optional. Display after edit link. Default empty.
+ * @param WP_Term $term   Optional. Term object. If null, the queried object will be inspected. Default null.
+ * @param bool    $echo   Optional. Whether or not to echo the return. Default true.
  * @return string|void HTML content.
  */
 function edit_term_link( $link = '', $before = '', $after = '', $term = null, $echo = true ) {
@@ -988,7 +988,7 @@ function edit_term_link( $link = '', $before = '', $after = '', $term = null, $e
 /**
  * Retrieves the permalink for a search.
  *
- * @since  3.0.0
+ * @since 3.0.0
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
@@ -1090,7 +1090,7 @@ function get_post_type_archive_link( $post_type ) {
 		$show_on_front  = get_option( 'show_on_front' );
 		$page_for_posts = get_option( 'page_for_posts' );
 
-		if ( 'page' == $show_on_front && $page_for_posts ) {
+		if ( 'page' === $show_on_front && $page_for_posts ) {
 			$link = get_permalink( $page_for_posts );
 		} else {
 			$link = get_home_url();
@@ -1316,7 +1316,7 @@ function edit_post_link( $text = null, $before = '', $after = '', $id = 0, $clas
  *
  * @param int|WP_Post $id           Optional. Post ID or post object. Default is the global `$post`.
  * @param string      $deprecated   Not used.
- * @param bool        $force_delete Optional. Whether to bypass trash and force deletion. Default false.
+ * @param bool        $force_delete Optional. Whether to bypass Trash and force deletion. Default false.
  * @return string|void The delete post link URL for the given post.
  */
 function get_delete_post_link( $id = 0, $deprecated = '', $force_delete = false ) {
@@ -1346,7 +1346,7 @@ function get_delete_post_link( $id = 0, $deprecated = '', $force_delete = false 
 	 *
 	 * @param string $link         The delete link.
 	 * @param int    $post_id      Post ID.
-	 * @param bool   $force_delete Whether to bypass the trash and force deletion. Default false.
+	 * @param bool   $force_delete Whether to bypass the Trash and force deletion. Default false.
 	 */
 	return apply_filters( 'get_delete_post_link', wp_nonce_url( $delete_link, "$action-post_{$post->ID}" ), $post->ID, $force_delete );
 }
@@ -1452,7 +1452,9 @@ function get_edit_user_link( $user_id = null ) {
 	return apply_filters( 'get_edit_user_link', $link, $user->ID );
 }
 
-// Navigation links
+//
+// Navigation links.
+//
 
 /**
  * Retrieves the previous post that is adjacent to the current post.
@@ -2297,7 +2299,7 @@ function get_posts_nav_link( $args = array() ) {
 		$max_num_pages = $wp_query->max_num_pages;
 		$paged         = get_query_var( 'paged' );
 
-		//only have sep if there's both prev and next results
+		// Only have sep if there's both prev and next results.
 		if ( $paged < 2 || $paged >= $max_num_pages ) {
 			$args['sep'] = '';
 		}
@@ -2744,7 +2746,10 @@ function previous_comments_link( $label = '' ) {
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
  * @param string|array $args Optional args. See paginate_links(). Default empty array.
- * @return string|array|void Markup for comment page links or array of comment page links.
+ * @return void|string|array Void if 'echo' argument is true and 'type' is not an array,
+ *                           or if the query is not for an existing single post of any post type.
+ *                           Otherwise, markup for comment page links or array of comment page links,
+ *                           depending on 'type' argument.
  */
 function paginate_comments_links( $args = array() ) {
 	global $wp_rewrite;
@@ -3403,9 +3408,9 @@ function set_url_scheme( $url, $scheme = null ) {
 
 	if ( ! $scheme ) {
 		$scheme = is_ssl() ? 'https' : 'http';
-	} elseif ( $scheme === 'admin' || $scheme === 'login' || $scheme === 'login_post' || $scheme === 'rpc' ) {
+	} elseif ( 'admin' === $scheme || 'login' === $scheme || 'login_post' === $scheme || 'rpc' === $scheme ) {
 		$scheme = is_ssl() || force_ssl_admin() ? 'https' : 'http';
-	} elseif ( $scheme !== 'http' && $scheme !== 'https' && $scheme !== 'relative' ) {
+	} elseif ( 'http' !== $scheme && 'https' !== $scheme && 'relative' !== $scheme ) {
 		$scheme = is_ssl() ? 'https' : 'http';
 	}
 
@@ -3416,7 +3421,7 @@ function set_url_scheme( $url, $scheme = null ) {
 
 	if ( 'relative' == $scheme ) {
 		$url = ltrim( preg_replace( '#^\w+://[^/]*#', '', $url ) );
-		if ( $url !== '' && $url[0] === '/' ) {
+		if ( '' !== $url && '/' === $url[0] ) {
 			$url = '/' . ltrim( $url, "/ \t\n\r\0\x0B" );
 		}
 	} else {
@@ -3548,7 +3553,7 @@ function wp_get_canonical_url( $post = null ) {
 	$canonical_url = get_permalink( $post );
 
 	// If a canonical is being generated for the current page, make sure it has pagination if needed.
-	if ( $post->ID === get_queried_object_id() ) {
+	if ( get_queried_object_id() === $post->ID ) {
 		$page = get_query_var( 'page', 0 );
 		if ( $page >= 2 ) {
 			$canonical_url = trailingslashit( $canonical_url ) . user_trailingslashit( $page, 'single_paged' );
@@ -3648,11 +3653,11 @@ function wp_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 
 	$shortlink = '';
 
-	// Return p= link for all public post types.
+	// Return `?p=` link for all public post types.
 	if ( ! empty( $post_id ) ) {
 		$post_type = get_post_type_object( $post->post_type );
 
-		if ( 'page' === $post->post_type && $post->ID == get_option( 'page_on_front' ) && 'page' == get_option( 'show_on_front' ) ) {
+		if ( 'page' === $post->post_type && get_option( 'page_on_front' ) == $post->ID && 'page' === get_option( 'show_on_front' ) ) {
 			$shortlink = home_url( '/' );
 		} elseif ( $post_type->public ) {
 			$shortlink = get_the_permalink( $post_id );
@@ -3686,7 +3691,7 @@ function wp_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
  *     @type array  $processed_args When the function returns, the value will be the processed/sanitized $args
  *                                  plus a "found_avatar" guess. Pass as a reference. Default null.
  * }
- * @return false|string The URL of the avatar we found, or false if we couldn't find an avatar.
+ * @return string|false The URL of the avatar on success, false on failure.
  */
 function get_avatar_url( $id_or_email, $args = null ) {
 	$args = get_avatar_data( $id_or_email, $args );

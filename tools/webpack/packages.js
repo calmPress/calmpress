@@ -2,8 +2,8 @@
  * External dependencies
  */
 const { DefinePlugin } = require( 'webpack' );
-const LiveReloadPlugin = require( 'webpack-livereload-plugin' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
+const LiveReloadPlugin = require( 'webpack-livereload-plugin' );
 const postcss = require( 'postcss' );
 const UglifyJS = require( 'uglify-js' );
 
@@ -14,6 +14,7 @@ const { get } = require( 'lodash' );
  * WordPress dependencies
  */
 const CustomTemplatedPathPlugin = require( '@wordpress/custom-templated-path-webpack-plugin' );
+const DependencyExtractionPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const LibraryExportDefaultPlugin = require( '@wordpress/library-export-default-webpack-plugin' );
 
 /**
@@ -62,8 +63,12 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 	buildTarget = buildTarget  + '/wp-includes';
 
 	const WORDPRESS_NAMESPACE = '@wordpress/';
+	const BUNDLED_PACKAGES = [ '@wordpress/icons' ];
 	const packages = Object.keys( dependencies )
-		.filter( ( packageName ) => packageName.startsWith( WORDPRESS_NAMESPACE ) )
+		.filter( ( packageName ) =>
+ 			! BUNDLED_PACKAGES.includes( packageName ) &&
+ 			packageName.startsWith( WORDPRESS_NAMESPACE )
+ 		)
 		.map( ( packageName ) => packageName.replace( WORDPRESS_NAMESPACE, '' ) );
 
 	const vendors = {
@@ -79,12 +84,6 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 		tinymce: 'tinymce',
 		jquery: 'jQuery',
 	};
-
-	packages.forEach( ( name ) => {
-		externals[ `@wordpress/${ name }` ] = {
-			this: [ 'wp', camelCaseDash( name ) ],
-		};
-	} );
 
 	const developmentCopies = mapVendorCopies( vendors, buildTarget );
 	const minifiedCopies = mapVendorCopies( minifiedVendors, buildTarget );
@@ -142,7 +141,6 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 			},
 			libraryTarget: 'this',
 		},
-		externals,
 		resolve: {
 			modules: [
 				baseDir,
@@ -174,6 +172,7 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 				'token-list',
 				'server-side-render',
 				'shortcode',
+				'warning',
 			].map( camelCaseDash ) ),
 			new CustomTemplatedPathPlugin( {
 				basename( path, data ) {
@@ -196,6 +195,10 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 
 					return path;
 				},
+			} ),
+			new DependencyExtractionPlugin( {
+				injectPolyfill: true,
+				combineAssets: true,
 			} ),
 			new CopyWebpackPlugin(
 				[

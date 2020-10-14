@@ -19,7 +19,7 @@
  */
 
 //
-// Global Variables
+// Global Variables.
 //
 
 /** @ignore */
@@ -61,7 +61,7 @@ $wp_registered_widget_updates = array();
 $_wp_sidebars_widgets = array();
 
 //
-// Template tags & API functions
+// Template tags & API functions.
 //
 
 /**
@@ -156,10 +156,10 @@ function register_sidebars( $number = 1, $args = array() ) {
 		}
 
 		// Custom specified ID's are suffixed if they exist already.
-		// Automatically generated sidebar names need to be suffixed regardless starting at -0
+		// Automatically generated sidebar names need to be suffixed regardless starting at -0.
 		if ( isset( $args['id'] ) ) {
 			$_args['id'] = $args['id'];
-			$n           = 2; // Start at -2 for conflicting custom ID's
+			$n           = 2; // Start at -2 for conflicting custom IDs.
 			while ( is_registered_sidebar( $_args['id'] ) ) {
 				$_args['id'] = $args['id'] . '-' . $n++;
 			}
@@ -485,7 +485,7 @@ function wp_register_widget_control( $id, $name, $control_callback, $options = a
 	$defaults          = array(
 		'width'  => 250,
 		'height' => 200,
-	); // height is never used
+	); // Height is never used.
 	$options           = wp_parse_args( $options, $defaults );
 	$options['width']  = (int) $options['width'];
 	$options['height'] = (int) $options['height'];
@@ -630,7 +630,7 @@ function dynamic_sidebar( $index = 1 ) {
 	} else {
 		$index = sanitize_title( $index );
 		foreach ( (array) $wp_registered_sidebars as $key => $value ) {
-			if ( sanitize_title( $value['name'] ) == $index ) {
+			if ( sanitize_title( $value['name'] ) === $index ) {
 				$index = $key;
 				break;
 			}
@@ -682,7 +682,7 @@ function dynamic_sidebar( $index = 1 ) {
 			(array) $wp_registered_widgets[ $id ]['params']
 		);
 
-		// Substitute HTML id and class attributes into before_widget
+		// Substitute HTML `id` and `class` attributes into `before_widget`.
 		$classname_ = '';
 		foreach ( (array) $wp_registered_widgets[ $id ]['classname'] as $cn ) {
 			if ( is_string( $cn ) ) {
@@ -832,8 +832,8 @@ function is_active_widget( $callback = false, $widget_id = false, $id_base = fal
 
 			if ( is_array( $widgets ) ) {
 				foreach ( $widgets as $widget ) {
-					if ( ( $callback && isset( $wp_registered_widgets[ $widget ]['callback'] ) && $wp_registered_widgets[ $widget ]['callback'] == $callback ) || ( $id_base && _get_widget_id_base( $widget ) == $id_base ) ) {
-						if ( ! $widget_id || $widget_id == $wp_registered_widgets[ $widget ]['id'] ) {
+					if ( ( $callback && isset( $wp_registered_widgets[ $widget ]['callback'] ) && $wp_registered_widgets[ $widget ]['callback'] === $callback ) || ( $id_base && _get_widget_id_base( $widget ) === $id_base ) ) {
+						if ( ! $widget_id || $widget_id === $wp_registered_widgets[ $widget ]['id'] ) {
 							return $sidebar;
 						}
 					}
@@ -903,7 +903,7 @@ function is_active_sidebar( $index ) {
 }
 
 //
-// Internal Functions
+// Internal Functions.
 //
 
 /**
@@ -1013,7 +1013,7 @@ function wp_convert_widget_settings( $base_name, $option_name, $settings ) {
 		$single = true;
 	} else {
 		foreach ( array_keys( $settings ) as $number ) {
-			if ( 'number' == $number ) {
+			if ( 'number' === $number ) {
 				continue;
 			}
 			if ( ! is_numeric( $number ) ) {
@@ -1026,7 +1026,7 @@ function wp_convert_widget_settings( $base_name, $option_name, $settings ) {
 	if ( $single ) {
 		$settings = array( 2 => $settings );
 
-		// If loading from the front page, update sidebar in memory but don't save to options
+		// If loading from the front page, update sidebar in memory but don't save to options.
 		if ( is_admin() ) {
 			$sidebars_widgets = get_option( 'sidebars_widgets' );
 		} else {
@@ -1039,7 +1039,7 @@ function wp_convert_widget_settings( $base_name, $option_name, $settings ) {
 		foreach ( (array) $sidebars_widgets as $index => $sidebar ) {
 			if ( is_array( $sidebar ) ) {
 				foreach ( $sidebar as $i => $name ) {
-					if ( $base_name == $name ) {
+					if ( $base_name === $name ) {
 						$sidebars_widgets[ $index ][ $i ] = "$name-2";
 						$changed                          = true;
 						break 2;
@@ -1327,11 +1327,11 @@ function wp_map_sidebars_widgets( $existing_sidebars_widgets ) {
 								// Go back and check the next new sidebar.
 								continue 3;
 							}
-						} // endforeach ( $slug_group as $slug )
-					} // endforeach ( $existing_sidebars_widgets as $sidebar => $widgets )
-				} // endforeach foreach ( $wp_registered_sidebars as $new_sidebar => $args )
-			} // endforeach ( $slug_group as $slug )
-		} // endforeach ( $common_slug_groups as $slug_group )
+						} // End foreach ( $slug_group as $slug ).
+					} // End foreach ( $existing_sidebars_widgets as $sidebar => $widgets ).
+				} // End foreach ( $wp_registered_sidebars as $new_sidebar => $args ).
+			} // End foreach ( $slug_group as $slug ).
+		} // End foreach ( $common_slug_groups as $slug_group ).
 	}
 
 	// Move any left over widgets to inactive sidebar.
@@ -1391,11 +1391,11 @@ function wp_map_sidebars_widgets( $existing_sidebars_widgets ) {
 								// ...otherwise remove it from the old sidebar and keep it in the new one.
 								unset( $old_sidebars_widgets[ $old_sidebar ][ $key ] );
 							}
-						} // endif ( $active_key )
-					} // endforeach ( $old_widgets as $key => $widget_id )
-				} // endforeach ( $new_sidebars_widgets as $new_sidebar => $new_widgets )
-			} // endforeach ( $old_sidebars_widgets as $old_sidebar => $old_widgets )
-		} // endif ( ! empty( $old_sidebars_widgets ) )
+						} // End if ( $active_key ).
+					} // End foreach ( $old_widgets as $key => $widget_id ).
+				} // End foreach ( $new_sidebars_widgets as $new_sidebar => $new_widgets ).
+			} // End foreach ( $old_sidebars_widgets as $old_sidebar => $old_widgets ).
+		} // End if ( ! empty( $old_sidebars_widgets ) ).
 
 		// Restore widget settings from when theme was previously active.
 		$new_sidebars_widgets = array_merge( $new_sidebars_widgets, $old_sidebars_widgets );

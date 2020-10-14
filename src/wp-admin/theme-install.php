@@ -7,8 +7,8 @@
  */
 
 /** WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
-require( ABSPATH . 'wp-admin/includes/theme-install.php' );
+require_once __DIR__ . '/admin.php';
+require ABSPATH . 'wp-admin/includes/theme-install.php';
 
 wp_reset_vars( array( 'tab' ) );
 
@@ -54,7 +54,7 @@ wp_localize_script(
 		'l10n'            => array(
 			'addNew'              => __( 'Add New Theme' ),
 			'search'              => __( 'Search Themes' ),
-			'searchPlaceholder'   => __( 'Search themes...' ), // placeholder (no ellipsis)
+			'searchPlaceholder'   => __( 'Search themes...' ), // Placeholder (no ellipsis).
 			'upload'              => __( 'Upload Theme' ),
 			'back'                => __( 'Back' ),
 			'error'               => sprintf(
@@ -124,7 +124,17 @@ get_current_screen()->add_help_tab(
 	)
 );
 
+<<<<<<< HEAD
 include( ABSPATH . 'wp-admin/admin-header.php' );
+=======
+get_current_screen()->set_help_sidebar(
+	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
+	'<p>' . __( '<a href="https://wordpress.org/support/article/using-themes/#adding-new-themes">Documentation on Adding New Themes</a>' ) . '</p>' .
+	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
+);
+
+require_once ABSPATH . 'wp-admin/admin-header.php';
+>>>>>>> upstream/5.4
 
 ?>
 <div class="wrap">
@@ -362,4 +372,4 @@ if ( $tab ) {
 wp_print_request_filesystem_credentials_modal();
 wp_print_admin_notice_templates();
 
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';

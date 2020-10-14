@@ -316,9 +316,9 @@ class Tests_REST_API extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The 'methods' arg should a comma seperated string.
+	 * The 'methods' arg should a comma-separated string.
 	 */
-	public function test_route_method_comma_seperated() {
+	public function test_route_method_comma_separated() {
 		register_rest_route(
 			'test-ns',
 			'/test',
@@ -561,6 +561,48 @@ class Tests_REST_API extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensure inclusion of deeply nested fields may be controlled with request['_fields'].
+	 *
+	 * @ticket 49648
+	 */
+	public function test_rest_filter_response_fields_deeply_nested_field_filter() {
+		$response = new WP_REST_Response();
+
+		$response->set_data(
+			array(
+				'field' => array(
+					'a' => array(
+						'i'  => 'value i',
+						'ii' => 'value ii',
+					),
+					'b' => array(
+						'iii' => 'value iii',
+						'iv'  => 'value iv',
+					),
+				),
+			)
+		);
+		$request = array(
+			'_fields' => 'field.a.i,field.b.iv',
+		);
+
+		$response = rest_filter_response_fields( $response, null, $request );
+		$this->assertEquals(
+			array(
+				'field' => array(
+					'a' => array(
+						'i' => 'value i',
+					),
+					'b' => array(
+						'iv' => 'value iv',
+					),
+				),
+			),
+			$response->get_data()
+		);
+	}
+
+	/**
 	 * Ensure that specifying a single top-level key in _fields includes that field and all children.
 	 *
 	 * @ticket 48266
@@ -700,32 +742,32 @@ class Tests_REST_API extends WP_UnitTestCase {
 		set_current_screen( 'edit.php' );
 		$this->assertTrue( is_admin() );
 
-		// Test an HTTP URL
+		// Test an HTTP URL.
 		unset( $_SERVER['HTTPS'] );
 		$url = get_rest_url();
 		$this->assertSame( 'http', parse_url( $url, PHP_URL_SCHEME ) );
 
-		// Test an HTTPS URL
+		// Test an HTTPS URL.
 		$_SERVER['HTTPS'] = 'on';
 		$url              = get_rest_url();
 		$this->assertSame( 'https', parse_url( $url, PHP_URL_SCHEME ) );
 
-		// Switch to an admin request on a different domain name
+		// Switch to an admin request on a different domain name.
 		$_SERVER['SERVER_NAME'] = 'admin.example.org';
 		update_option( 'siteurl', 'http://admin.example.org' );
 		$this->assertNotEquals( $_SERVER['SERVER_NAME'], parse_url( home_url(), PHP_URL_HOST ) );
 
-		// // Test an HTTP URL
+		// Test an HTTP URL.
 		unset( $_SERVER['HTTPS'] );
 		$url = get_rest_url();
 		$this->assertSame( 'http', parse_url( $url, PHP_URL_SCHEME ) );
 
-		// // Test an HTTPS URL
+		// Test an HTTPS URL.
 		$_SERVER['HTTPS'] = 'on';
 		$url              = get_rest_url();
 		$this->assertSame( 'http', parse_url( $url, PHP_URL_SCHEME ) );
 
-		// Reset
+		// Reset.
 		update_option( 'siteurl', $_siteurl );
 		set_current_screen( 'front' );
 
@@ -760,13 +802,13 @@ class Tests_REST_API extends WP_UnitTestCase {
 
 	public function jsonp_callback_provider() {
 		return array(
-			// Standard names
+			// Standard names.
 			array( 'Springfield', true ),
 			array( 'shelby.ville', true ),
 			array( 'cypress_creek', true ),
 			array( 'KampKrusty1', true ),
 
-			// Invalid names
+			// Invalid names.
 			array( 'ogden-ville', false ),
 			array( 'north haverbrook', false ),
 			array( "Terror['Lake']", false ),
@@ -785,7 +827,7 @@ class Tests_REST_API extends WP_UnitTestCase {
 
 	public function rest_date_provider() {
 		return array(
-			// Valid dates with timezones
+			// Valid dates with timezones.
 			array( '2017-01-16T11:30:00-05:00', gmmktime( 11, 30, 0, 1, 16, 2017 ) + 5 * HOUR_IN_SECONDS ),
 			array( '2017-01-16T11:30:00-05:30', gmmktime( 11, 30, 0, 1, 16, 2017 ) + 5.5 * HOUR_IN_SECONDS ),
 			array( '2017-01-16T11:30:00-05', gmmktime( 11, 30, 0, 1, 16, 2017 ) + 5 * HOUR_IN_SECONDS ),
@@ -794,10 +836,10 @@ class Tests_REST_API extends WP_UnitTestCase {
 			array( '2017-01-16T11:30:00+00', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
 			array( '2017-01-16T11:30:00Z', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
 
-			// Valid dates without timezones
+			// Valid dates without timezones.
 			array( '2017-01-16T11:30:00', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
 
-			// Invalid dates (TODO: support parsing partial dates as ranges, see #38641)
+			// Invalid dates (TODO: support parsing partial dates as ranges, see #38641).
 			array( '2017-01-16T11:30:00-5', false ),
 			array( '2017-01-16T11:30', false ),
 			array( '2017-01-16T11', false ),
@@ -817,7 +859,7 @@ class Tests_REST_API extends WP_UnitTestCase {
 
 	public function rest_date_force_utc_provider() {
 		return array(
-			// Valid dates with timezones
+			// Valid dates with timezones.
 			array( '2017-01-16T11:30:00-05:00', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
 			array( '2017-01-16T11:30:00-05:30', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
 			array( '2017-01-16T11:30:00-05', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
@@ -826,10 +868,10 @@ class Tests_REST_API extends WP_UnitTestCase {
 			array( '2017-01-16T11:30:00+00', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
 			array( '2017-01-16T11:30:00Z', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
 
-			// Valid dates without timezones
+			// Valid dates without timezones.
 			array( '2017-01-16T11:30:00', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
 
-			// Invalid dates (TODO: support parsing partial dates as ranges, see #38641)
+			// Invalid dates (TODO: support parsing partial dates as ranges, see #38641).
 			array( '2017-01-16T11:30:00-5', false ),
 			array( '2017-01-16T11:30', false ),
 			array( '2017-01-16T11', false ),
@@ -897,5 +939,32 @@ class Tests_REST_API extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_REST_Request', $request );
 		$this->assertEquals( '/wp/v2/posts', $request->get_route() );
 		$this->assertEquals( 'GET', $request->get_method() );
+	}
+
+	/**
+	 * @dataProvider _dp_rest_parse_embed_param
+	 */
+	public function test_rest_parse_embed_param( $expected, $embed ) {
+		$this->assertEquals( $expected, rest_parse_embed_param( $embed ) );
+	}
+
+	public function _dp_rest_parse_embed_param() {
+		return array(
+			array( true, '' ),
+			array( true, null ),
+			array( true, '1' ),
+			array( true, 'true' ),
+			array( true, array() ),
+			array( array( 'author' ), 'author' ),
+			array( array( 'author', 'replies' ), 'author,replies' ),
+			array( array( 'author', 'replies' ), 'author,replies ' ),
+			array( array( 'wp:term' ), 'wp:term' ),
+			array( array( 'wp:term', 'wp:attachment' ), 'wp:term,wp:attachment' ),
+			array( array( 'author' ), array( 'author' ) ),
+			array( array( 'author', 'replies' ), array( 'author', 'replies' ) ),
+			array( array( 'https://api.w.org/term' ), 'https://api.w.org/term' ),
+			array( array( 'https://api.w.org/term', 'https://api.w.org/attachment' ), 'https://api.w.org/term,https://api.w.org/attachment' ),
+			array( array( 'https://api.w.org/term', 'https://api.w.org/attachment' ), array( 'https://api.w.org/term', 'https://api.w.org/attachment' ) ),
+		);
 	}
 }

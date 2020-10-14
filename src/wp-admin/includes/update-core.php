@@ -185,7 +185,7 @@ $_old_files = array(
  * @since 4.7.0 New themes were not automatically installed for 4.4-4.6 on
  *              upgrade. New themes are now installed again. To disable new
  *              themes from being installed on upgrade, explicitly define
- *              CORE_UPGRADE_SKIP_NEW_BUNDLED as false.
+ *              CORE_UPGRADE_SKIP_NEW_BUNDLED as true.
  * @global array $_new_bundled_files
  * @var array
  * @name $_new_bundled_files
@@ -238,7 +238,7 @@ $_new_bundled_files = array(
  *
  * @param string $from New release unzipped path.
  * @param string $to   Path to old calmPress installation.
- * @return WP_Error|null WP_Error on failure, null on success.
+ * @return string|WP_Error New calmPress version on success, WP_Error on failure.
  */
 function update_core( $from, $to ) {
 	global $wp_filesystem, $_old_files, $wpdb;
@@ -362,7 +362,7 @@ function update_core( $from, $to ) {
 
 	/** This filter is documented in wp-admin/includes/update-core.php */
 	apply_filters( 'update_feedback', __( 'Enabling Maintenance mode&#8230;' ) );
-	// Create maintenance file to signal that we are upgrading
+	// Create maintenance file to signal that we are upgrading.
 	$maintenance_string = '<?php $upgrading = ' . time() . '; ?>';
 	$maintenance_file   = $to . '.maintenance';
 	$wp_filesystem->delete( $maintenance_file );
@@ -376,7 +376,7 @@ function update_core( $from, $to ) {
 		$result = new WP_Error( $result->get_error_code(), $result->get_error_message(), substr( $result->get_error_data(), strlen( $to ) ) );
 	}
 
-	// Since we know the core files have copied over, we can now copy the version file
+	// Since we know the core files have copied over, we can now copy the version file.
 	if ( ! is_wp_error( $result ) ) {
 		if ( ! $wp_filesystem->copy( $from . '/wp-includes/version.php', $to . 'wp-includes/version.php', true /* overwrite */ ) ) {
 			$wp_filesystem->delete( $from, true );
@@ -389,7 +389,7 @@ function update_core( $from, $to ) {
 	$skip   = array( );
 	$failed = array();
 
-	// Some files didn't copy properly
+	// Some files didn't copy properly.
 	if ( ! empty( $failed ) ) {
 		$total_size = 0;
 		foreach ( $failed as $file ) {
@@ -413,16 +413,16 @@ function update_core( $from, $to ) {
 
 	/** This filter is documented in wp-admin/includes/update-core.php */
 	apply_filters( 'update_feedback', __( 'Disabling Maintenance mode&#8230;' ) );
-	// Remove maintenance file, we're done with potential site-breaking changes
+	// Remove maintenance file, we're done with potential site-breaking changes.
 	$wp_filesystem->delete( $maintenance_file );
 
-	// Handle $result error from the above blocks
+	// Handle $result error from the above blocksץ
 	if ( is_wp_error( $result ) ) {
 		$wp_filesystem->delete( $from, true );
 		return $result;
 	}
 
-	// Remove old files
+	// Remove old files.
 	foreach ( $_old_files as $old_file ) {
 		$old_file = $to . $old_file;
 		if ( ! $wp_filesystem->exists( $old_file ) ) {
@@ -435,21 +435,21 @@ function update_core( $from, $to ) {
 		}
 	}
 
-	// Upgrade DB with separate request
+	// Upgrade DB with separate requestץ
 	/** This filter is documented in wp-admin/includes/update-core.php */
 	apply_filters( 'update_feedback', __( 'Upgrading database&#8230;' ) );
 	$db_upgrade_url = admin_url( 'upgrade.php?step=upgrade_db' );
 	wp_remote_post( $db_upgrade_url, array( 'timeout' => 60 ) );
 
-	// Clear the cache to prevent an update_option() from saving a stale db_version to the cache
+	// Clear the cache to prevent an update_option() from saving a stale db_version to the cache.
 	wp_cache_flush();
-	// (Not all cache back ends listen to 'flush')
+	// Not all cache back ends listen to 'flush'.
 	wp_cache_delete( 'alloptions', 'options' );
 
-	// Remove working directory
+	// Remove working directory.
 	$wp_filesystem->delete( $from, true );
 
-	// Force refresh of update information
+	// Force refresh of update information.
 	if ( function_exists( 'delete_site_transient' ) ) {
 		delete_site_transient( 'update_core' );
 	} else {
@@ -487,10 +487,10 @@ function update_core( $from, $to ) {
  *
  * @global WP_Filesystem_Base $wp_filesystem
  *
- * @param string $from     source directory
- * @param string $to       destination directory
- * @param array $skip_list a list of files/folders to skip copying
- * @return mixed WP_Error on failure, True on success.
+ * @param string   $from      Source directory.
+ * @param string   $to        Destination directory.
+ * @param string[] $skip_list Array of files/folders to skip copying.
+ * @return true|WP_Error True on success, WP_Error on failure.
  */
 function _copy_dir( $from, $to, $skip_list = array() ) {
 	global $wp_filesystem;

@@ -31,7 +31,83 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the legacy model function that expects slashed data
+	 * Tests the controller function that expects slashed data.
+	 */
+	function test_edit_post() {
+		$id = self::factory()->post->create();
+		if ( function_exists( 'wp_add_post_meta' ) ) {
+			$meta_1 = wp_add_post_meta( $id, 'slash_test_1', 'foo' );
+			$meta_2 = wp_add_post_meta( $id, 'slash_test_2', 'foo' );
+			$meta_3 = wp_add_post_meta( $id, 'slash_test_3', 'foo' );
+		} else {
+			// Expects slashed data.
+			$meta_1 = add_post_meta( $id, 'slash_test_1', addslashes( 'foo' ) );
+			$meta_2 = add_post_meta( $id, 'slash_test_2', addslashes( 'foo' ) );
+			$meta_3 = add_post_meta( $id, 'slash_test_3', addslashes( 'foo' ) );
+		}
+
+		$_POST                  = array();
+		$_POST['post_ID']       = $id;
+		$_POST['metakeyselect'] = '#NONE#';
+		$_POST['metakeyinput']  = 'slash_test_0';
+		$_POST['metavalue']     = $this->slash_6;
+		$_POST['meta']          = array(
+			$meta_1 => array(
+				'key'   => 'slash_test_1',
+				'value' => $this->slash_1,
+			),
+			$meta_2 => array(
+				'key'   => 'slash_test_2',
+				'value' => $this->slash_3,
+			),
+			$meta_3 => array(
+				'key'   => 'slash_test_3',
+				'value' => $this->slash_4,
+			),
+		);
+
+		$_POST = add_magic_quotes( $_POST ); // The edit_post() function will strip slashes.
+
+		edit_post();
+		$post = get_post( $id );
+
+		$this->assertEquals( $this->slash_6, get_post_meta( $id, 'slash_test_0', true ) );
+		$this->assertEquals( $this->slash_1, get_post_meta( $id, 'slash_test_1', true ) );
+		$this->assertEquals( $this->slash_3, get_post_meta( $id, 'slash_test_2', true ) );
+		$this->assertEquals( $this->slash_4, get_post_meta( $id, 'slash_test_3', true ) );
+
+		$_POST                  = array();
+		$_POST['post_ID']       = $id;
+		$_POST['metakeyselect'] = '#NONE#';
+		$_POST['metakeyinput']  = 'slash_test_0';
+		$_POST['metavalue']     = $this->slash_7;
+		$_POST['meta']          = array(
+			$meta_1 => array(
+				'key'   => 'slash_test_1',
+				'value' => $this->slash_2,
+			),
+			$meta_2 => array(
+				'key'   => 'slash_test_2',
+				'value' => $this->slash_4,
+			),
+			$meta_3 => array(
+				'key'   => 'slash_test_3',
+				'value' => $this->slash_5,
+			),
+		);
+
+		$_POST = add_magic_quotes( $_POST ); // The edit_post() function will strip slashes.
+
+		edit_post();
+		$post = get_post( $id );
+
+		$this->assertEquals( $this->slash_2, get_post_meta( $id, 'slash_test_1', true ) );
+		$this->assertEquals( $this->slash_4, get_post_meta( $id, 'slash_test_2', true ) );
+		$this->assertEquals( $this->slash_5, get_post_meta( $id, 'slash_test_3', true ) );
+	}
+
+	/**
+	 * Tests the legacy model function that expects slashed data.
 	 */
 	function test_add_post_meta() {
 		$id = self::factory()->post->create();
@@ -45,7 +121,7 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the legacy model function that expects slashed data
+	 * Tests the legacy model function that expects slashed data.
 	 */
 	function test_update_post_meta() {
 		$id = self::factory()->post->create();
@@ -59,7 +135,7 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the model function that expects slashed data
+	 * Tests the model function that expects slashed data.
 	 */
 	function test_add_comment_meta() {
 		$id = self::$comment_id;
@@ -82,7 +158,7 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the model function that expects slashed data
+	 * Tests the model function that expects slashed data.
 	 */
 	function test_update_comment_meta() {
 		$id = self::$comment_id;
@@ -109,7 +185,7 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the model function that expects slashed data
+	 * Tests the model function that expects slashed data.
 	 */
 	function test_add_user_meta() {
 		$id = self::factory()->user->create();
@@ -132,7 +208,7 @@ class Tests_Meta_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the model function that expects slashed data
+	 * Tests the model function that expects slashed data.
 	 */
 	function test_update_user_meta() {
 		$id = self::factory()->user->create();

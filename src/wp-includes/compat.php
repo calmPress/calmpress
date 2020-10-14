@@ -6,6 +6,13 @@
  * @access private
  */
 
+// If gettext isn't available.
+if ( ! function_exists( '_' ) ) {
+	function _( $string ) {
+		return $string;
+	}
+}
+
 /**
  * Returns whether PCRE/u (PCRE_UTF8 modifier) is available for use.
  *
@@ -305,7 +312,7 @@ if ( ! function_exists( 'hash_equals' ) ) :
 	 */
 	function hash_equals( $a, $b ) {
 		$a_length = strlen( $a );
-		if ( $a_length !== strlen( $b ) ) {
+		if ( strlen( $b ) !== $a_length ) {
 			return false;
 		}
 		$result = 0;
@@ -315,7 +322,7 @@ if ( ! function_exists( 'hash_equals' ) ) :
 			$result |= ord( $a[ $i ] ) ^ ord( $b[ $i ] );
 		}
 
-		return $result === 0;
+		return 0 === $result;
 	}
 endif;
 

@@ -32,8 +32,9 @@ get_header(); ?>
 
 		<?php
 		if ( have_posts() ) :
-			/* Start the Loop */
-			while ( have_posts() ) : the_post();
+			// Start the Loop.
+			while ( have_posts() ) :
+				the_post();
 
 				/**
 				 * Run the loop for the search to output the results.
@@ -42,7 +43,7 @@ get_header(); ?>
 				 */
 				get_template_part( 'template-parts/post/content', 'excerpt' );
 
-			endwhile; // End of the loop.
+			endwhile; // End the loop.
 
 			the_posts_pagination( array(
 				'prev_text' => calmseventeen_get_svg( array( 'icon' => 'arrow-left' ) ) . '<span class="screen-reader-text">' . __( 'Previous page', 'calmseventeen' ) . '</span>',

@@ -237,7 +237,6 @@ function the_permalink_rss() {
  * Outputs the link to the comments for the current post in an xml safe way
  *
  * @since 3.0.0
- * @return none
  */
 function comments_link_feed() {
 	/**
@@ -268,7 +267,7 @@ function comment_guid( $comment_id = null ) {
  * @since 2.5.0
  *
  * @param int|WP_Comment $comment_id Optional comment object or id. Defaults to global comment object.
- * @return false|string false on failure or guid for comment on success.
+ * @return string|false GUID for comment on success, false on failure.
  */
 function get_comment_guid( $comment_id = null ) {
 	$comment = get_comment( $comment_id );
@@ -419,11 +418,11 @@ function html_type_rss() {
 function rss_enclosure() {
 
 	foreach ( (array) get_post_custom() as $key => $val ) {
-		if ( $key == 'enclosure' ) {
+		if ( 'enclosure' === $key ) {
 			foreach ( (array) $val as $enc ) {
 				$enclosure = explode( "\n", $enc );
 
-				// only get the first element, e.g. audio/mpeg from 'audio/mpeg mpga mp2 mp3'
+				// Only get the first element, e.g. 'audio/mpeg' from 'audio/mpeg mpga mp2 mp3'.
 				$t    = preg_split( '/[ \t]/', trim( $enclosure[2] ) );
 				$type = $t[0];
 

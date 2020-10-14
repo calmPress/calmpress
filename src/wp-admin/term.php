@@ -8,7 +8,7 @@
  */
 
 /** WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( empty( $_REQUEST['tag_ID'] ) ) {
 	$sendback = admin_url( 'edit-tags.php' );
@@ -52,8 +52,8 @@ if ( empty( $post_type ) ) {
 	$post_type = reset( $tax->object_type );
 }
 
-if ( 'post' != $post_type ) {
-	$parent_file  = ( 'attachment' == $post_type ) ? 'upload.php' : "edit.php?post_type=$post_type";
+if ( 'post' !== $post_type ) {
+	$parent_file  = ( 'attachment' === $post_type ) ? 'upload.php' : "edit.php?post_type=$post_type";
 	$submenu_file = "edit-tags.php?taxonomy=$taxonomy&amp;post_type=$post_type";
 } else {
 	$parent_file  = 'edit.php';
@@ -73,6 +73,6 @@ if ( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME === $taxono
 	wp_enqueue_script( 'calm-author' );
 }
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
-include( ABSPATH . 'wp-admin/edit-tag-form.php' );
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
+require ABSPATH . 'wp-admin/edit-tag-form.php';
+require_once ABSPATH . 'wp-admin/admin-footer.php';

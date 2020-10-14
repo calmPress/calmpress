@@ -8,7 +8,7 @@
  */
 
 /** Load WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'manage_sites' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to access this page.' ), 403 );
@@ -102,7 +102,7 @@ if ( isset( $_GET['action'] ) ) {
 		$site_details = get_site( $id );
 		$site_address = untrailingslashit( $site_details->domain . $site_details->path );
 
-		require_once( ABSPATH . 'wp-admin/admin-header.php' );
+		require_once ABSPATH . 'wp-admin/admin-header.php';
 		?>
 			<div class="wrap">
 				<h1><?php _e( 'Confirm your action' ); ?></h1>
@@ -116,7 +116,7 @@ if ( isset( $_GET['action'] ) ) {
 				</form>
 			</div>
 		<?php
-		require_once( ABSPATH . 'wp-admin/admin-footer.php' );
+		require_once ABSPATH . 'wp-admin/admin-footer.php';
 		exit();
 	} elseif ( array_key_exists( $_GET['action'], $manage_actions ) ) {
 		$action = $_GET['action'];
@@ -135,7 +135,7 @@ if ( isset( $_GET['action'] ) ) {
 			}
 
 			$updated_action = 'not_deleted';
-			if ( $id != '0' && $id != get_network()->site_id && current_user_can( 'delete_site', $id ) ) {
+			if ( '0' != $id && get_network()->site_id != $id && current_user_can( 'delete_site', $id ) ) {
 				wpmu_delete_blog( $id, true );
 				$updated_action = 'delete';
 			}
@@ -147,7 +147,7 @@ if ( isset( $_GET['action'] ) ) {
 			foreach ( (array) $_POST['site_ids'] as $site_id ) {
 				$site_id = (int) $site_id;
 
-				if ( $site_id == get_network()->site_id ) {
+				if ( get_network()->site_id == $site_id ) {
 					continue;
 				}
 
@@ -172,13 +172,13 @@ if ( isset( $_GET['action'] ) ) {
 
 		case 'allblogs':
 			if ( ( isset( $_POST['action'] ) || isset( $_POST['action2'] ) ) && isset( $_POST['allblogs'] ) ) {
-				$doaction = $_POST['action'] != -1 ? $_POST['action'] : $_POST['action2'];
+				$doaction = -1 != $_POST['action'] ? $_POST['action'] : $_POST['action2'];
 
 				foreach ( (array) $_POST['allblogs'] as $key => $val ) {
-					if ( $val != '0' && $val != get_network()->site_id ) {
+					if ( '0' != $val && get_network()->site_id != $val ) {
 						switch ( $doaction ) {
 							case 'delete':
-								require_once( ABSPATH . 'wp-admin/admin-header.php' );
+								require_once ABSPATH . 'wp-admin/admin-header.php';
 								?>
 								<div class="wrap">
 									<h1><?php _e( 'Confirm your action' ); ?></h1>
@@ -203,7 +203,7 @@ if ( isset( $_GET['action'] ) ) {
 									</form>
 								</div>
 								<?php
-								require_once( ABSPATH . 'wp-admin/admin-footer.php' );
+								require_once ABSPATH . 'wp-admin/admin-footer.php';
 								exit();
 							break;
 
@@ -348,7 +348,7 @@ if ( isset( $_GET['updated'] ) ) {
 
 $wp_list_table->prepare_items();
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 
 <div class="wrap">
@@ -382,4 +382,4 @@ if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
 </div>
 <?php
 
-require_once( ABSPATH . 'wp-admin/admin-footer.php' ); ?>
+require_once ABSPATH . 'wp-admin/admin-footer.php'; ?>

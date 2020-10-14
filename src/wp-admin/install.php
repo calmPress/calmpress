@@ -15,16 +15,16 @@
 define( 'WP_INSTALLING', true );
 
 /** Load WordPress Bootstrap */
-require_once( dirname( dirname( __FILE__ ) ) . '/wp-load.php' );
+require_once dirname( __DIR__ ) . '/wp-load.php';
 
 /** Load WordPress Administration Upgrade API */
-require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 /** Load WordPress Translation Install API */
-require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 
 /** Load wpdb */
-require_once( ABSPATH . WPINC . '/wp-db.php' );
+require_once ABSPATH . WPINC . '/wp-db.php';
 
 nocache_headers();
 
@@ -59,7 +59,7 @@ function display_header( $body_classes = '' ) {
 <p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>"><?php _e( 'calmPress' ); ?></a></p>
 
 	<?php
-} // end display_header()
+} // End display_header().
 
 /**
  * Display installer setup form.
@@ -171,7 +171,7 @@ function display_setup_form( $error = null ) {
 	<input type="hidden" name="language" value="<?php echo isset( $_REQUEST['language'] ) ? esc_attr( $_REQUEST['language'] ) : ''; ?>" />
 </form>
 	<?php
-} // end display_setup_form()
+} // End display_setup_form().
 
 // Let's check to make sure WP isn't already installed.
 if ( is_blog_installed() ) {
@@ -185,8 +185,8 @@ if ( is_blog_installed() ) {
 }
 
 /**
- * @global string $required_php_version
- * @global string $required_mysql_version
+ * @global string $required_php_version   The required PHP version string.
+ * @global string $required_mysql_version The required MySQL version string.
  */
 global $required_php_version, $required_mysql_version;
 
@@ -274,7 +274,8 @@ if ( ! isset( $_COOKIE['calmpress_install_auth_key'] ) || AUTH_KEY !== $_COOKIE[
 }
 
 /**
- * @global WP_Locale $wp_locale WordPress date and time locale object.
+ * @global string    $wp_local_package Locale code of the package.
+ * @global WP_Locale $wp_locale        WordPress date and time locale object.
  */
 $language = '';
 if ( ! empty( $_REQUEST['language'] ) ) {
@@ -325,7 +326,7 @@ switch ( $step ) {
 
 		ob_start();
 		display_header();
-		// Fill in the data we gathered
+		// Fill in the data we gathered.
 		$weblog_title         = isset( $_POST['weblog_title'] ) ? trim( wp_unslash( $_POST['weblog_title'] ) ) : '';
 		$admin_password       = isset( $_POST['admin_password'] ) ? wp_unslash( $_POST['admin_password'] ) : '';
 		$admin_password_check = isset( $_POST['admin_password2'] ) ? wp_unslash( $_POST['admin_password2'] ) : '';
@@ -339,16 +340,16 @@ switch ( $step ) {
 			display_setup_form( __( 'Your passwords do not match. Please try again.' ) );
 			$error = true;
 		} elseif ( empty( $admin_email ) ) {
-			// TODO: poka-yoke
+			// TODO: Poka-yoke.
 			display_setup_form( __( 'You must provide an email address.' ) );
 			$error = true;
 		} elseif ( ! is_email( $admin_email ) ) {
-			// TODO: poka-yoke
+			// TODO: Poka-yoke.
 			display_setup_form( __( 'Sorry, that isn&#8217;t a valid email address. Email addresses look like <code>username@example.com</code>.' ) );
 			$error = true;
 		}
 
-		if ( $error === false ) {
+		if ( false === $error ) {
 			$wpdb->show_errors();
 			$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
 

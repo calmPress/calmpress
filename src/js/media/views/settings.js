@@ -31,7 +31,7 @@ Settings = View.extend(/** @lends wp.media.view.Settings.prototype */{
 		}, this.options );
 	},
 	/**
-	 * @returns {wp.media.view.Settings} Returns itself to allow chaining
+	 * @return {wp.media.view.Settings} Returns itself to allow chaining.
 	 */
 	render: function() {
 		View.prototype.render.apply( this, arguments );
@@ -110,7 +110,8 @@ Settings = View.extend(/** @lends wp.media.view.Settings.prototype */{
 
 		// If the setting has a corresponding user setting,
 		// update that as well.
-		if ( userSetting = $setting.data('userSetting') ) {
+		userSetting = $setting.data('userSetting');
+		if ( userSetting ) {
 			window.setUserSetting( userSetting, value );
 		}
 	},

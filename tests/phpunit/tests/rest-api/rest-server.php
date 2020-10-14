@@ -13,7 +13,7 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		// Reset REST server to ensure only our routes are registered
+		// Reset REST server to ensure only our routes are registered.
 		$GLOBALS['wp_rest_server'] = null;
 		add_filter( 'wp_rest_server_class', array( $this, 'filter_wp_rest_server_class' ) );
 		$GLOBALS['wp_rest_server'] = rest_get_server();
@@ -21,7 +21,7 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 	}
 
 	public function tearDown() {
-		// Remove our temporary spy server
+		// Remove our temporary spy server.
 		$GLOBALS['wp_rest_server'] = null;
 		unset( $_REQUEST['_wpnonce'] );
 
@@ -678,6 +678,108 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 	}
 
 	/**
+	 * @ticket 48838
+	 */
+	public function test_link_embedding_clears_cache() {
+		$post_id = self::factory()->post->create();
+
+		$response = new WP_REST_Response();
+		$response->add_link( 'post', rest_url( 'wp/v2/posts/' . $post_id ), array( 'embeddable' => true ) );
+
+		$data = rest_get_server()->response_to_data( $response, true );
+		$this->assertArrayHasKey( 'post', $data['_embedded'] );
+		$this->assertCount( 1, $data['_embedded']['post'] );
+
+		wp_update_post(
+			array(
+				'ID'         => $post_id,
+				'post_title' => 'My Awesome Title',
+			)
+		);
+
+		$data = rest_get_server()->response_to_data( $response, true );
+		$this->assertArrayHasKey( 'post', $data['_embedded'] );
+		$this->assertCount( 1, $data['_embedded']['post'] );
+		$this->assertEquals( 'My Awesome Title', $data['_embedded']['post'][0]['title']['rendered'] );
+	}
+
+	/**
+	 * @ticket 48838
+	 */
+	public function test_link_embedding_cache() {
+		$response = new WP_REST_Response(
+			array(
+				'id' => 1,
+			)
+		);
+		$response->add_link(
+			'author',
+			rest_url( 'wp/v2/users/1' ),
+			array( 'embeddable' => true )
+		);
+		$response->add_link(
+			'author',
+			rest_url( 'wp/v2/users/1' ),
+			array( 'embeddable' => true )
+		);
+
+		$mock = new MockAction();
+		add_filter( 'rest_post_dispatch', array( $mock, 'filter' ) );
+
+		$data = rest_get_server()->response_to_data( $response, true );
+
+		$this->assertArrayHasKey( '_embedded', $data );
+		$this->assertArrayHasKey( 'author', $data['_embedded'] );
+		$this->assertCount( 2, $data['_embedded']['author'] );
+
+		$this->assertCount( 1, $mock->get_events() );
+	}
+
+	/**
+	 * @ticket 48838
+	 */
+	public function test_link_embedding_cache_collection() {
+		$response = new WP_REST_Response(
+			array(
+				array(
+					'id'     => 1,
+					'_links' => array(
+						'author' => array(
+							array(
+								'href'       => rest_url( 'wp/v2/users/1' ),
+								'embeddable' => true,
+							),
+						),
+					),
+				),
+				array(
+					'id'     => 2,
+					'_links' => array(
+						'author' => array(
+							array(
+								'href'       => rest_url( 'wp/v2/users/1' ),
+								'embeddable' => true,
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$mock = new MockAction();
+		add_filter( 'rest_post_dispatch', array( $mock, 'filter' ) );
+
+		$data = rest_get_server()->response_to_data( $response, true );
+
+		$embeds = wp_list_pluck( $data, '_embedded' );
+		$this->assertCount( 2, $embeds );
+		$this->assertArrayHasKey( 'author', $embeds[0] );
+		$this->assertArrayHasKey( 'author', $embeds[1] );
+
+		$this->assertCount( 1, $mock->get_events() );
+	}
+
+	/**
 	 * Ensure embedding is a no-op without links in the data.
 	 */
 	public function test_link_embedding_without_links() {
@@ -741,6 +843,66 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 			'href' => 'http://example.com/',
 		);
 		$this->assertEquals( $self_not_filtered, $data['_links']['self'][0] );
+	}
+
+	/**
+	 * @dataProvider _dp_response_to_data_embedding
+	 */
+	public function test_response_to_data_embedding( $expected, $embed ) {
+		$response = new WP_REST_Response();
+		$response->add_link( 'author', rest_url( '404' ), array( 'embeddable' => true ) );
+		$response->add_link( 'https://api.w.org/term', rest_url( '404' ), array( 'embeddable' => true ) );
+		$response->add_link( 'https://wordpress.org', rest_url( '404' ), array( 'embeddable' => true ) );
+		$response->add_link( 'no-embed', rest_url( '404' ) );
+
+		$data = rest_get_server()->response_to_data( $response, $embed );
+
+		if ( false === $expected ) {
+			$this->assertArrayNotHasKey( '_embedded', $data );
+		} else {
+			$this->assertEqualSets( $expected, array_keys( $data['_embedded'] ) );
+		}
+	}
+
+	public function _dp_response_to_data_embedding() {
+		return array(
+			array(
+				array( 'author', 'wp:term', 'https://wordpress.org' ),
+				true,
+			),
+			array(
+				array( 'author', 'wp:term', 'https://wordpress.org' ),
+				array( 'author', 'wp:term', 'https://wordpress.org' ),
+			),
+			array(
+				array( 'author' ),
+				array( 'author' ),
+			),
+			array(
+				array( 'wp:term' ),
+				array( 'wp:term' ),
+			),
+			array(
+				array( 'https://wordpress.org' ),
+				array( 'https://wordpress.org' ),
+			),
+			array(
+				array( 'author', 'wp:term' ),
+				array( 'author', 'wp:term' ),
+			),
+			array(
+				false,
+				false,
+			),
+			array(
+				false,
+				array( 'no-embed' ),
+			),
+			array(
+				array( 'author' ),
+				array( 'author', 'no-embed' ),
+			),
+		);
 	}
 
 	public function test_get_index() {
@@ -858,6 +1020,29 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 		$this->assertContains( 'test/another', $namespaces );
 	}
 
+	/**
+	 * @ticket 49147
+	 */
+	public function test_get_data_for_non_variable_route_includes_links() {
+		$expected = array(
+			'self' => array(
+				array( 'href' => rest_url( 'wp/v2/posts' ) ),
+			),
+		);
+
+		$actual = rest_get_server()->get_data_for_route(
+			'/wp/v2/posts',
+			array(
+				array(
+					'methods'       => array( 'OPTIONS' => 1 ),
+					'show_in_index' => true,
+				),
+			)
+		);
+
+		$this->assertEquals( $expected, $actual['_links'] );
+	}
+
 	public function test_x_robot_tag_header_on_requests() {
 		$request = new WP_REST_Request( 'GET', '/', array() );
 
@@ -909,7 +1094,7 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 			$this->assertEquals( $value, $headers[ $header ] );
 		}
 
-		// Last-Modified should be unset as per #WP23021
+		// Last-Modified should be unset as per #WP23021.
 		$this->assertFalse( isset( $headers['Last-Modified'] ), 'Last-Modified should not be sent.' );
 	}
 
@@ -962,7 +1147,7 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 			)
 		);
 
-		// WordPress internally will slash the superglobals on bootstrap
+		// WordPress internally will slash the superglobals on bootstrap.
 		$_GET = wp_slash(
 			array(
 				'data' => 'data\\with\\slashes',
@@ -990,7 +1175,7 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 			)
 		);
 
-		// WordPress internally will slash the superglobals on bootstrap
+		// WordPress internally will slash the superglobals on bootstrap.
 		$_POST = wp_slash(
 			array(
 				'data' => 'data\\with\\slashes',
@@ -1047,7 +1232,7 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 			)
 		);
 
-		// WordPress internally will slash the superglobals on bootstrap
+		// WordPress internally will slash the superglobals on bootstrap.
 		$_FILES = array(
 			'data' => array(
 				'name' => 'data\\with\\slashes',
@@ -1075,7 +1260,7 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 			)
 		);
 
-		// WordPress internally will slash the superglobals on bootstrap
+		// WordPress internally will slash the superglobals on bootstrap.
 		$_SERVER['HTTP_X_MY_HEADER'] = wp_slash( 'data\\with\\slashes' );
 
 		$result = rest_get_server()->serve_request( '/test/data\\with\\slashes' );
@@ -1209,6 +1394,106 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 
 		$this->assertNull( $result );
 		$this->assertEquals( '', rest_get_server()->sent_body );
+	}
+
+	/**
+	 * @ticket 47077
+	 */
+	public function test_http_authorization_header_substitution() {
+		$headers        = array( 'HTTP_AUTHORIZATION' => 'foo' );
+		$parsed_headers = rest_get_server()->get_headers( $headers );
+
+		$this->assertSame(
+			array( 'AUTHORIZATION' => 'foo' ),
+			$parsed_headers
+		);
+	}
+
+	/**
+	 * @ticket 47077
+	 */
+	public function test_redirect_http_authorization_header_substitution() {
+		$headers        = array( 'REDIRECT_HTTP_AUTHORIZATION' => 'foo' );
+		$parsed_headers = rest_get_server()->get_headers( $headers );
+
+		$this->assertSame(
+			array( 'AUTHORIZATION' => 'foo' ),
+			$parsed_headers
+		);
+	}
+
+	/**
+	 * @ticket 47077
+	 */
+	public function test_redirect_http_authorization_with_http_authorization_header_substitution() {
+		$headers        = array(
+			'HTTP_AUTHORIZATION'          => 'foo',
+			'REDIRECT_HTTP_AUTHORIZATION' => 'bar',
+		);
+		$parsed_headers = rest_get_server()->get_headers( $headers );
+
+		$this->assertSame(
+			array( 'AUTHORIZATION' => 'foo' ),
+			$parsed_headers
+		);
+	}
+
+	/**
+	 * @ticket 47077
+	 */
+	public function test_redirect_http_authorization_with_empty_http_authorization_header_substitution() {
+		$headers        = array(
+			'HTTP_AUTHORIZATION'          => '',
+			'REDIRECT_HTTP_AUTHORIZATION' => 'bar',
+		);
+		$parsed_headers = rest_get_server()->get_headers( $headers );
+
+		$this->assertSame(
+			array( 'AUTHORIZATION' => 'bar' ),
+			$parsed_headers
+		);
+	}
+
+	/**
+	 * @ticket 48530
+	 */
+	public function test_get_routes_respects_namespace_parameter() {
+		$routes = rest_get_server()->get_routes( 'oembed/1.0' );
+
+		foreach ( $routes as $route => $handlers ) {
+			$this->assertStringStartsWith( '/oembed/1.0', $route );
+		}
+	}
+
+	/**
+	 * @ticket 48530
+	 */
+	public function test_get_routes_no_namespace_overriding() {
+		register_rest_route(
+			'test-ns',
+			'/test',
+			array(
+				'methods'  => array( 'GET' ),
+				'callback' => function() {
+					return new WP_REST_Response( 'data', 204 );
+				},
+			)
+		);
+		register_rest_route(
+			'test-ns/v1',
+			'/test',
+			array(
+				'methods'  => array( 'GET' ),
+				'callback' => function() {
+					return new WP_REST_Response( 'data', 204 );
+				},
+			)
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/test-ns/v1/test' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertEquals( 204, $response->get_status(), '/test-ns/v1/test' );
 	}
 
 	public function _validate_as_integer_123( $value, $request, $key ) {

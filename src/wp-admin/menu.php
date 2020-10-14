@@ -60,7 +60,7 @@ if ( ! is_multisite() ) {
 
 $menu[4] = array( '', 'read', 'separator1', '', 'wp-menu-separator' );
 
-// $menu[5] = Posts
+// $menu[5] = Posts.
 
 $menu[10]                     = array( __( 'Media' ), 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' );
 	$submenu['upload.php'][5] = array( __( 'Library' ), 'upload_files', 'upload.php' );
@@ -76,7 +76,7 @@ foreach ( get_taxonomies_for_attachments( 'objects' ) as $tax ) {
 }
 	unset( $tax, $i );
 
-// $menu[20] = Pages
+// $menu[20] = Pages.
 
 // Avoid the comment count query for users who cannot edit_posts.
 if ( current_user_can( 'edit_posts' ) ) {
@@ -101,7 +101,7 @@ if ( current_user_can( 'edit_posts' ) ) {
 
 $submenu['edit-comments.php'][0] = array( __( 'All Comments' ), 'edit_posts', 'edit-comments.php' );
 
-$_wp_last_object_menu = 25; // The index of the last top-level menu in the object menu group
+$_wp_last_object_menu = 25; // The index of the last top-level menu in the object menu group.
 
 $types   = (array) get_post_types(
 	array(
@@ -114,7 +114,7 @@ $builtin = array( 'post', 'page' );
 foreach ( array_merge( $builtin, $types ) as $ptype ) {
 	$ptype_obj = get_post_type_object( $ptype );
 	// Check if it should be a submenu.
-	if ( $ptype_obj->show_in_menu !== true ) {
+	if ( true !== $ptype_obj->show_in_menu ) {
 		continue;
 	}
 	$ptype_menu_position = is_int( $ptype_obj->menu_position ) ? $ptype_obj->menu_position : ++$_wp_last_object_menu; // If we're to use $_wp_last_object_menu, increment it first.
@@ -133,7 +133,7 @@ foreach ( array_merge( $builtin, $types ) as $ptype ) {
 	}
 
 	$menu_class = 'menu-top menu-icon-' . $ptype_for_id;
-	// 'post' special case
+	// 'post' special case.
 	if ( 'post' === $ptype ) {
 		$menu_class    .= ' open-if-no-js';
 		$ptype_file     = 'edit.php';
@@ -279,11 +279,11 @@ $menu[80]                               = array( __( 'Settings' ), 'manage_optio
 
 	$submenu['options-general.php'][45] = array( __( 'Privacy' ), 'manage_privacy_options', 'options-privacy.php' );
 
-$_wp_last_utility_menu = 80; // The index of the last top-level menu in the utility menu group
+$_wp_last_utility_menu = 80; // The index of the last top-level menu in the utility menu group.
 
 $menu[99] = array( '', 'read', 'separator-last', '', 'wp-menu-separator' );
 
-// Back-compat for old top-levels
+// Back-compat for old top-levels.
 $_wp_real_parent_file['post.php']       = 'edit.php';
 $_wp_real_parent_file['post-new.php']   = 'edit.php';
 $_wp_real_parent_file['edit-pages.php'] = 'edit.php?post_type=page';
@@ -304,4 +304,4 @@ $compat = array(
 	'themes'          => 'appearance',
 );
 
-require_once( ABSPATH . 'wp-admin/includes/menu.php' );
+require_once ABSPATH . 'wp-admin/includes/menu.php';

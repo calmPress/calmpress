@@ -53,7 +53,7 @@ class Tests_Theme extends WP_UnitTestCase {
 			$this->assertInstanceOf( 'WP_Theme', $theme );
 			$this->assertFalse( $theme->errors() );
 			$_theme = wp_get_theme( $theme->get_stylesheet() );
-			// This primes internal WP_Theme caches for the next assertion (headers_sanitized, textdomain_loaded)
+			// This primes internal WP_Theme caches for the next assertion (headers_sanitized, textdomain_loaded).
 			$this->assertEquals( $theme->get( 'Name' ), $_theme->get( 'Name' ) );
 			$this->assertEquals( $theme, $_theme );
 		}
@@ -105,7 +105,7 @@ class Tests_Theme extends WP_UnitTestCase {
 	}
 
 	function test_switch_theme_bogus() {
-		// try switching to a theme that doesn't exist
+		// Try switching to a theme that doesn't exist.
 		$template = rand_str();
 		$style    = rand_str();
 		update_option( 'template', $template );
@@ -116,7 +116,7 @@ class Tests_Theme extends WP_UnitTestCase {
 		$this->assertNotFalse( $theme->errors() );
 		$this->assertFalse( $theme->exists() );
 
-		// these return the bogus name - perhaps not ideal behaviour?
+		// These return the bogus name - perhaps not ideal behaviour?
 		$this->assertEquals( $template, get_template() );
 		$this->assertEquals( $style, get_stylesheet() );
 	}
@@ -144,7 +144,8 @@ class Tests_Theme extends WP_UnitTestCase {
 		$wp_customize = new WP_Customize_Manager();
 		do_action( 'customize_register', $wp_customize );
 
-		// The post_date for auto-drafts is bumped to match the changeset post_date whenever it is modified to keep them from from being garbage collected by wp_delete_auto_drafts().
+		// The post_date for auto-drafts is bumped to match the changeset post_date whenever it is modified
+		// to keep them from from being garbage collected by wp_delete_auto_drafts().
 		$wp_customize->save_changeset_post(
 			array(
 				'data' => $data,

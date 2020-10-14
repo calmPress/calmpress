@@ -7,7 +7,7 @@ class Tests_POMO_PO extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 		require_once ABSPATH . '/wp-includes/pomo/po.php';
-		// not so random wordpress.pot string -- multiple lines
+		// Not so random wordpress.pot string -- multiple lines.
 		$this->mail    = 'Your new WordPress blog has been successfully set up at:
 
 %1$s
@@ -22,6 +22,7 @@ We hope you enjoy your new blog. Thanks!
 --The WordPress Team
 http://wordpress.org/
 ';
+		$this->mail    = str_replace( "\r\n", "\n", $this->mail );
 		$this->po_mail = '""
 "Your new WordPress blog has been successfully set up at:\n"
 "\n"
@@ -49,21 +50,21 @@ http://wordpress.org/
 
 	function test_poify() {
 		$po = new PO();
-		//simple
+		// Simple.
 		$this->assertEquals( '"baba"', $po->poify( 'baba' ) );
-		//long word
+		// Long word.
 		$this->assertEquals( $this->po_a90, $po->poify( $this->a90 ) );
-		// tab
+		// Tab.
 		$this->assertEquals( '"ba\tba"', $po->poify( "ba\tba" ) );
-		// do not add leading empty string of one-line string ending on a newline
+		// Do not add leading empty string of one-line string ending on a newline.
 		$this->assertEquals( '"\\\\a\\\\n\\n"', $po->poify( "\a\\n\n" ) );
-		// backslash
+		// Backslash.
 		$this->assertEquals( '"ba\\\\ba"', $po->poify( 'ba\\ba' ) );
-		// random wordpress.pot string
+		// Random wordpress.pot string.
 		$src = 'Categories can be selectively converted to tags using the <a href="%s">category to tag converter</a>.';
 		$this->assertEquals( '"Categories can be selectively converted to tags using the <a href=\\"%s\\">category to tag converter</a>."', $po->poify( $src ) );
 
-		$this->assertEquals( $this->po_mail, $po->poify( $this->mail ) );
+		$this->assertEqualsIgnoreEOL( $this->po_mail, $po->poify( $this->mail ) );
 	}
 
 	function test_unpoify() {
@@ -72,23 +73,23 @@ http://wordpress.org/
 		$this->assertEquals( "baba\ngugu", $po->unpoify( '"baba\n"' . "\t\t\t\n" . '"gugu"' ) );
 		$this->assertEquals( $this->a90, $po->unpoify( $this->po_a90 ) );
 		$this->assertEquals( '\\t\\n', $po->unpoify( '"\\\\t\\\\n"' ) );
-		// wordwrapped
+		// Wordwrapped.
 		$this->assertEquals( 'babadyado', $po->unpoify( "\"\"\n\"baba\"\n\"dyado\"" ) );
-		$this->assertEquals( $this->mail, $po->unpoify( $this->po_mail ) );
+		$this->assertEqualsIgnoreEOL( $this->mail, $po->unpoify( $this->po_mail ) );
 	}
 
 	function test_export_entry() {
 		$po    = new PO();
 		$entry = new Translation_Entry( array( 'singular' => 'baba' ) );
 		$this->assertEquals( "msgid \"baba\"\nmsgstr \"\"", $po->export_entry( $entry ) );
-		// plural
+		// Plural.
 		$entry = new Translation_Entry(
 			array(
 				'singular' => 'baba',
 				'plural'   => 'babas',
 			)
 		);
-		$this->assertEquals(
+		$this->assertEqualsIgnoreEOL(
 			'msgid "baba"
 msgid_plural "babas"
 msgstr[0] ""
@@ -101,7 +102,7 @@ msgstr[1] ""',
 				'translator_comments' => "baba\ndyado",
 			)
 		);
-		$this->assertEquals(
+		$this->assertEqualsIgnoreEOL(
 			'#  baba
 #  dyado
 msgid "baba"
@@ -114,7 +115,7 @@ msgstr ""',
 				'extracted_comments' => 'baba',
 			)
 		);
-		$this->assertEquals(
+		$this->assertEqualsIgnoreEOL(
 			'#. baba
 msgid "baba"
 msgstr ""',
@@ -127,7 +128,7 @@ msgstr ""',
 				'references'         => range( 1, 29 ),
 			)
 		);
-		$this->assertEquals(
+		$this->assertEqualsIgnoreEOL(
 			'#. baba
 #: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28
 #: 29
@@ -158,7 +159,7 @@ msgstr ""',
 				'translations' => array( 'кукубуку' ),
 			)
 		);
-		$this->assertEquals(
+		$this->assertEqualsIgnoreEOL(
 			'msgid "baba"
 msgid_plural "babas"
 msgstr[0] "кукубуку"',
@@ -172,7 +173,7 @@ msgstr[0] "кукубуку"',
 				'translations' => array( 'кукубуку', 'кукуруку', 'бабаяга' ),
 			)
 		);
-		$this->assertEquals(
+		$this->assertEqualsIgnoreEOL(
 			'msgid "baba"
 msgid_plural "babas"
 msgstr[0] "кукубуку"
@@ -180,7 +181,7 @@ msgstr[1] "кукуруку"
 msgstr[2] "бабаяга"',
 			$po->export_entry( $entry )
 		);
-		// context
+		// Context.
 		$entry = new Translation_Entry(
 			array(
 				'context'      => 'ctxt',
@@ -190,7 +191,7 @@ msgstr[2] "бабаяга"',
 				'flags'        => array( 'fuzzy', 'php-format' ),
 			)
 		);
-		$this->assertEquals(
+		$this->assertEqualsIgnoreEOL(
 			'#, fuzzy, php-format
 msgctxt "ctxt"
 msgid "baba"
@@ -319,6 +320,6 @@ msgstr[2] "бабаяга"',
 		$this->assertEquals( 1, count( $po->entries ) );
 	}
 
-	//TODO: add tests for bad files
+	// TODO: Add tests for bad files.
 }
 

@@ -1,9 +1,11 @@
 <?php
 
-// save and fetch posts to make sure content is properly filtered.
-// these tests don't care what code is responsible for filtering or how it is called, just that it happens when a post is saved.
-
 /**
+ * Save and fetch posts to make sure content is properly filtered.
+ *
+ * These tests don't care what code is responsible for filtering
+ * or how it is called, just that it happens when a post is saved.
+ *
  * @group post
  * @group formatting
  */
@@ -19,7 +21,7 @@ class Tests_Post_Filtering extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
-	// a simple test to make sure unclosed tags are fixed
+	// A simple test to make sure unclosed tags are fixed.
 	function test_post_content_unknown_tag() {
 
 		$content = <<<EOF
@@ -36,7 +38,7 @@ EOF;
 		$this->assertEquals( $expected, $post->post_content );
 	}
 
-	// test kses filtering of disallowed attribute
+	// Test KSES filtering of disallowed attribute.
 	function test_post_content_disallowed_attr() {
 
 		$content = <<<EOF
@@ -73,7 +75,7 @@ EOF;
 		$this->assertEquals( $expected, $post->post_content );
 	}
 
-	// make sure unbalanced tags are untouched when the balance option is off
+	// Make sure unbalanced tags are untouched when the balance option is off.
 	function test_post_content_nobalance_nextpage_more() {
 
 		$content = <<<EOF

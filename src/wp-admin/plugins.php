@@ -7,7 +7,7 @@
  */
 
 /** WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'activate_plugins' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to manage plugins for this site.' ) );
@@ -135,7 +135,7 @@ if ( $action ) {
 			$parent_file = 'plugins.php';
 
 			wp_enqueue_script( 'updates' );
-			require_once( ABSPATH . 'wp-admin/admin-header.php' );
+			require_once ABSPATH . 'wp-admin/admin-header.php';
 
 			echo '<div class="wrap">';
 			echo '<h1>' . esc_html( $title ) . '</h1>';
@@ -145,7 +145,7 @@ if ( $action ) {
 
 			echo "<iframe src='$url' style='width: 100%; height:100%; min-height:850px;'></iframe>";
 			echo '</div>';
-			require_once( ABSPATH . 'wp-admin/admin-footer.php' );
+			require_once ABSPATH . 'wp-admin/admin-footer.php';
 			exit;
 
 		case 'error_scrape':
@@ -164,8 +164,8 @@ if ( $action ) {
 				error_reporting( E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_ERROR | E_WARNING | E_PARSE | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR );
 			}
 
-			ini_set( 'display_errors', true ); //Ensure that Fatal errors are displayed.
-			// Go back to "sandbox" scope so we get the same errors as before
+			ini_set( 'display_errors', true ); // Ensure that fatal errors are displayed.
+			// Go back to "sandbox" scope so we get the same errors as before.
 			plugin_sandbox_scrape( $plugin );
 			/** This action is documented in wp-admin/includes/plugin.php */
 			do_action( "activate_{$plugin}" );
@@ -248,34 +248,34 @@ if ( $action ) {
 
 			check_admin_referer( 'bulk-plugins' );
 
-			//$_POST = from the plugin form; $_GET = from the FTP details screen.
+			// $_POST = from the plugin form; $_GET = from the FTP details screen.
 			$plugins = isset( $_REQUEST['checked'] ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array();
 			if ( empty( $plugins ) ) {
 				wp_redirect( self_admin_url( "plugins.php?plugin_status=$status&paged=$page&s=$s" ) );
 				exit;
 			}
 
-			$plugins = array_filter( $plugins, 'is_plugin_inactive' ); // Do not allow to delete Activated plugins.
+			$plugins = array_filter( $plugins, 'is_plugin_inactive' ); // Do not allow to delete activated plugins.
 			if ( empty( $plugins ) ) {
 				wp_redirect( self_admin_url( "plugins.php?error=true&main=true&plugin_status=$status&paged=$page&s=$s" ) );
 				exit;
 			}
 
 			// Bail on all if any paths are invalid.
-			// validate_file() returns truthy for invalid files
+			// validate_file() returns truthy for invalid files.
 			$invalid_plugin_files = array_filter( $plugins, 'validate_file' );
 			if ( $invalid_plugin_files ) {
 				wp_redirect( self_admin_url( "plugins.php?plugin_status=$status&paged=$page&s=$s" ) );
 				exit;
 			}
 
-			include( ABSPATH . 'wp-admin/update.php' );
+			require ABSPATH . 'wp-admin/update.php';
 
 			$parent_file = 'plugins.php';
 
 			if ( ! isset( $_REQUEST['verify-delete'] ) ) {
 				wp_enqueue_script( 'jquery' );
-				require_once( ABSPATH . 'wp-admin/admin-header.php' );
+				require_once ABSPATH . 'wp-admin/admin-header.php';
 				?>
 			<div class="wrap">
 				<?php
@@ -365,15 +365,16 @@ if ( $action ) {
 				</form>
 			</div>
 				<?php
-				require_once( ABSPATH . 'wp-admin/admin-footer.php' );
+				require_once ABSPATH . 'wp-admin/admin-footer.php';
 				exit;
 			} else {
 				$plugins_to_delete = count( $plugins );
-			} // endif verify-delete
+			} // End if verify-delete.
 
 			$delete_result = delete_plugins( $plugins );
 
-			set_transient( 'plugins_delete_result_' . $user_ID, $delete_result ); //Store the result in a cache rather than a URL param due to object type & length
+			// Store the result in a cache rather than a URL param due to object type & length.
+			set_transient( 'plugins_delete_result_' . $user_ID, $delete_result );
 			wp_redirect( self_admin_url( "plugins.php?deleted=$plugins_to_delete&plugin_status=$status&paged=$page&s=$s" ) );
 			exit;
 
@@ -408,11 +409,13 @@ if ( $action ) {
 		default:
 			if ( isset( $_POST['checked'] ) ) {
 				check_admin_referer( 'bulk-plugins' );
-				$plugins  = isset( $_POST['checked'] ) ? (array) wp_unslash( $_POST['checked'] ) : array();
-				$sendback = wp_get_referer();
 
-				/** This action is documented in wp-admin/edit-comments.php */
-				$sendback = apply_filters( 'handle_bulk_actions-' . get_current_screen()->id, $sendback, $action, $plugins );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+				$screen   = get_current_screen()->id;
+				$sendback = wp_get_referer();
+				$plugins  = isset( $_POST['checked'] ) ? (array) wp_unslash( $_POST['checked'] ) : array();
+
+				/** This action is documented in wp-admin/edit.php */
+				$sendback = apply_filters( "handle_bulk_actions-{$screen}", $sendback, $action, $plugins ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 				wp_safe_redirect( $sendback );
 				exit;
 			}
@@ -427,40 +430,47 @@ add_thickbox();
 
 add_screen_option( 'per_page', array( 'default' => 999 ) );
 
-get_current_screen()->add_help_tab( array(
-'id'		=> 'overview',
-'title'		=> __('Overview'),
-'content'	=>
-	'<p>' . __('Plugins extend and expand the functionality of calmPress. Once a plugin is installed, you may activate it or deactivate it here.') . '</p>' .
-	'<p>' . __( 'The search for installed plugins will search for terms in their name, description, or author.' ) . ' <span id="live-search-desc" class="hide-if-no-js">' . __( 'The search results will be updated as you type.' ) . '</span></p>' .
-	'<p>' . sprintf(
-		/* translators: %s: calmPress Plugin Directory URL */
-		__( 'If you would like to see more plugins to choose from, click on the &#8220;Add New&#8221; button and you will be able to browse or search for additional plugins from the <a href="%s">WordPress Plugin Directory</a>. Plugins in the WordPress Plugin Directory are designed and developed by third parties, and are compatible with the license WordPress uses. Oh, and they&#8217;re free!' ),
-		__( 'https://wordpress.org/plugins/' )
-	) . '</p>'
-) );
-get_current_screen()->add_help_tab( array(
-'id'		=> 'compatibility-problems',
-'title'		=> __('Troubleshooting'),
-'content'	=>
-	'<p>' . __('Most of the time, plugins play nicely with the core of calmPress and with other plugins. Sometimes, though, a plugin&#8217;s code will get in the way of another plugin, causing compatibility issues. If your site starts doing strange things, this may be the problem. Try deactivating all your plugins and re-activating them in various combinations until you isolate which one(s) caused the issue.') . '</p>' .
-	'<p>' . sprintf(
-		/* translators: WP_PLUGIN_DIR constant value. */
-		__( 'If something goes wrong with a plugin and you can&#8217;t use calmPress, delete or rename that file in the %s directory and it will be automatically deactivated.' ),
-		'<code>' . WP_PLUGIN_DIR . '</code>'
-	) . '</p>'
-) );
+get_current_screen()->add_help_tab(
+	array(
+		'id'	  => 'overview',
+		'title'	  => __( 'Overview' ),
+		'content' =>
+			'<p>' . __( 'Plugins extend and expand the functionality of calmPress. Once a plugin is installed, you may activate it or deactivate it here.' ) . '</p>' .
+			'<p>' . __( 'The search for installed plugins will search for terms in their name, description, or author.' ) . ' <span id="live-search-desc" class="hide-if-no-js">' . __( 'The search results will be updated as you type.' ) . '</span></p>' .
+			'<p>' . sprintf(
+				/* translators: %s: calmPress Plugin Directory URL */
+				__( 'If you would like to see more plugins to choose from, click on the &#8220;Add New&#8221; button and you will be able to browse or search for additional plugins from the <a href="%s">WordPress Plugin Directory</a>. Plugins in the WordPress Plugin Directory are designed and developed by third parties, and are compatible with the license WordPress uses. Oh, and they&#8217;re free!' ),
+				__( 'https://wordpress.org/plugins/' )
+			) . '</p>',
+	)
+);
 
-get_current_screen()->set_screen_reader_content( array(
-	'heading_views'      => __( 'Filter plugins list' ),
-	'heading_pagination' => __( 'Plugins list navigation' ),
-	'heading_list'       => __( 'Plugins list' ),
-) );
+get_current_screen()->add_help_tab(
+	array(
+		'id'      => 'compatibility-problems',
+		'title'   => __( 'Troubleshooting' ),
+		'content' =>
+			'<p>' . __( 'Most of the time, plugins play nicely with the core of calmPress and with other plugins. Sometimes, though, a plugin&#8217;s code will get in the way of another plugin, causing compatibility issues. If your site starts doing strange things, this may be the problem. Try deactivating all your plugins and re-activating them in various combinations until you isolate which one(s) caused the issue.' ) . '</p>' .
+			'<p>' . sprintf(
+				/* translators: WP_PLUGIN_DIR constant value. */
+				__( 'If something goes wrong with a plugin and you can&#8217;t use calmPress, delete or rename that file in the %s directory and it will be automatically deactivated.' ),
+				'<code>' . WP_PLUGIN_DIR . '</code>'
+			) . '</p>',
+	)
+);
+
+get_current_screen()->set_screen_reader_content(
+	array(
+		'heading_views'      => __( 'Filter plugins list' ),
+		'heading_pagination' => __( 'Plugins list navigation' ),
+		'heading_list'       => __( 'Plugins list' ),
+	)
+);
 
 $title       = __( 'Plugins' );
 $parent_file = 'plugins.php';
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 
 $invalid = validate_active_plugins();
 if ( ! empty( $invalid ) ) {
@@ -622,4 +632,4 @@ wp_print_request_filesystem_credentials_modal();
 wp_print_admin_notice_templates();
 wp_print_update_row_templates();
 
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';

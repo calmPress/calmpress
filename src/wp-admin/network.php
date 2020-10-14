@@ -13,7 +13,7 @@
 define( 'WP_INSTALLING_NETWORK', true );
 
 /** WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'setup_network' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to manage options for this site.' ) );
@@ -30,7 +30,7 @@ if ( is_multisite() ) {
 	}
 }
 
-require_once( dirname( __FILE__ ) . '/includes/network.php' );
+require_once __DIR__ . '/includes/network.php';
 
 // We need to create references to ms global tables to enable Network.
 foreach ( $wpdb->tables( 'ms_global' ) as $table => $prefixed_table ) {
@@ -74,7 +74,7 @@ get_current_screen()->add_help_tab(
 	)
 );
 
-include( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 <div class="wrap">
 <h1><?php echo esc_html( $title ); ?></h1>
@@ -84,7 +84,7 @@ if ( $_POST ) {
 
 	check_admin_referer( 'install-network-1' );
 
-	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	// Create network tables.
 	install_network();
 	$base              = parse_url( trailingslashit( get_option( 'home' ) ), PHP_URL_PATH );
@@ -111,4 +111,4 @@ if ( $_POST ) {
 ?>
 </div>
 
-<?php include( ABSPATH . 'wp-admin/admin-footer.php' ); ?>
+<?php require_once ABSPATH . 'wp-admin/admin-footer.php'; ?>

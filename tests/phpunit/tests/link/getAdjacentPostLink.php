@@ -24,7 +24,7 @@ class Tests_Link_GetAdjacentPostLink extends WP_UnitTestCase {
 		$this->post_ids[] = self::factory()->post->create( array( 'post_type' => 'post', 'post_date' => '2014-10-26 01:32:29' ) );
 		wp_set_object_terms( $this->post_ids[4], $prime_cat_id, 'category', false );
 
-		//set current post (has 2 on each end)
+		// Set current post (has 2 on each end).
 		global $GLOBALS;
 		$GLOBALS['post'] = get_post( $this->post_ids[2] );
 	}

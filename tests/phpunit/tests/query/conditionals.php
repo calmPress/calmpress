@@ -162,10 +162,10 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		);
 		$this->go_to( '/about/page/2/' );
 
-		// make sure the correct wp_query flags are set
+		// Make sure the correct WP_Query flags are set.
 		$this->assertQueryTrue( 'is_page', 'is_singular', 'is_paged' );
 
-		// make sure the correct page was fetched
+		// Make sure the correct page was fetched.
 		global $wp_query;
 		$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
 	}
@@ -181,10 +181,10 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		);
 		$this->go_to( '/about/page2/' );
 
-		// make sure the correct wp_query flags are set
+		// Make sure the correct WP_Query flags are set.
 		$this->assertQueryTrue( 'is_page', 'is_singular', 'is_paged' );
 
-		// make sure the correct page was fetched
+		// Make sure the correct page was fetched.
 		global $wp_query;
 		$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
 	}
@@ -205,7 +205,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 		$this->assertQueryTrue( 'is_home', 'is_posts_page' );
 
-		// make sure the correct page was fetched
+		// Make sure the correct page was fetched.
 		global $wp_query;
 		$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
 
@@ -213,7 +213,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		delete_option( 'page_for_posts' );
 	}
 
-	// FIXME: no tests for these yet
+	// FIXME: no tests for these yet:
 	// 'about/attachment/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
 
 	// '(feed|rss2)/?$' => 'index.php?&feed=$matches[1]',
@@ -221,6 +221,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		self::factory()->post->create(); // @test_404
 		$feeds = array( 'feed', 'rss2', 'atom' );
 
+		// Long version.
 		foreach ( $feeds as $feed ) {
 			$this->go_to( "/{$feed}/" );
 			$this->assertQueryTrue( 'is_feed' );
@@ -320,6 +321,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 		// Test for 404 when feeds are disabled.
 		update_option( 'posts_per_rss', 0 );
+		// Check the short form.
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 			$this->go_to( "/category/cat-a/{$type}" );
 			$this->assertQueryTrue( 'is_404' );
@@ -371,6 +374,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 		// Test a 404 when feeds are disabled.
 		update_option( 'posts_per_rss', 0 );
+		// Check the short form.
+		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
 			$this->go_to( "/tag/tag-a/{$type}" );
 			$this->assertQueryTrue( 'is_404' );
@@ -471,7 +476,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$c1 = self::factory()->category->create( ['name' => 'c1'] );
 		wp_set_object_terms( $post_id, $c1, 'category' );
 		$this->go_to( get_permalink( $post_id ) . '2/' );
-		// should is_paged be true also?
+		// Should is_paged be true also?
 		$this->assertQueryTrue( 'is_single', 'is_singular' );
 
 	}
@@ -595,7 +600,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	 * @ticket 16802
 	 */
 	function test_is_single_with_parent() {
-		// Use custom hierarchical post type
+		// Use custom hierarchical post type.
 		$post_type = 'test_hierarchical';
 
 		register_post_type(
@@ -608,7 +613,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			)
 		);
 
-		// Create parent and child posts
+		// Create parent and child posts.
 		$parent_id = self::factory()->post->create(
 			array(
 				'post_type' => $post_type,
@@ -624,7 +629,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			)
 		);
 
-		// Tests
+		// Tests.
 		$this->go_to( "/?p=$post_id&post_type=$post_type" );
 
 		$post = get_queried_object();

@@ -13,14 +13,14 @@
 $tinymce_version = '4960-20190918';
 
 /**
- * Holds the required PHP version
+ * Holds the required PHP version.
  *
  * @global string $required_php_version
  */
 $required_php_version = '7.0';
 
 /**
- * Holds the required MySQL version
+ * Holds the required MySQL version.
  *
  * @global string $required_mysql_version
  */
@@ -73,7 +73,7 @@ if ( ! function_exists( 'wordpress_core_version' ) ) {
 	 * @return string The version string.
 	 */
 	function wordpress_core_version() {
-		return '5.3.2';
+		return '5.4.0';
 	}
 }
 

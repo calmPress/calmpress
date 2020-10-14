@@ -34,7 +34,7 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 	 * @constructs wp.media.view.Attachment.Details
 	 * @augments wp.media.view.Attachment
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	initialize: function() {
 		this.options = _.defaults( this.options, {
@@ -106,7 +106,7 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 	 *
 	 * @param {MouseEvent} event A click event.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	deleteAttachment: function( event ) {
 		event.preventDefault();
@@ -120,7 +120,7 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 	},
 
 	/**
-	 * Sets the trash state on an attachment, or destroys the model itself.
+	 * Sets the Trash state on an attachment, or destroys the model itself.
 	 *
 	 * If the mediaTrash setting is set to true, trashes the attachment.
 	 * Otherwise, the model itself is destroyed.
@@ -129,7 +129,7 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 	 *
 	 * @param {MouseEvent} event A click event.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	trashAttachment: function( event ) {
 		var library = this.controller.library,
@@ -138,7 +138,7 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 
 		this.getFocusableElements();
 
-		// When in the Media Library and the Media trash is enabled.
+		// When in the Media Library and the Media Trash is enabled.
 		if ( wp.media.view.settings.mediaTrash &&
 			'edit-metadata' === this.controller.content.mode() ) {
 
@@ -146,10 +146,10 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 			this.model.save().done( function() {
 				library._requery( true );
 				/*
-				 * @todo: We need to move focus back to the previous, next, or first
-				 * attachment but the library gets re-queried and refreshed. Thus,
-				 * the references to the previous attachments are lost. We need an
-				 * alternate method.
+				 * @todo We need to move focus back to the previous, next, or first
+				 * attachment but the library gets re-queried and refreshed.
+				 * Thus, the references to the previous attachments are lost.
+				 * We need an alternate method.
 				 */
 				self.moveFocusToLastFallback();
 			} );
@@ -165,7 +165,7 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 	 *
 	 * @param {MouseEvent} event A click event.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	untrashAttachment: function( event ) {
 		var library = this.controller.library;
@@ -184,7 +184,7 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 	 *
 	 * @param {MouseEvent} event A click event.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	editAttachment: function( event ) {
 		var editState = this.controller.states.get( 'edit-image' );
@@ -210,7 +210,7 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 	 *
 	 * @param {KeyboardEvent} event A keyboard event.
 	 *
-	 * @returns {boolean|void} Returns false or undefined.
+	 * @return {boolean|void} Returns false or undefined.
 	 */
 	toggleSelectionHandler: function( event ) {
 		if ( 'keydown' === event.type && 9 === event.keyCode && event.shiftKey && event.target === this.$( ':tabbable' ).get( 0 ) ) {

@@ -36,6 +36,14 @@ if ( is_robots() ) {
 	 */
 	do_action( 'do_robots' );
 	return;
+} elseif ( is_favicon() ) {
+	/**
+	 * Fired when the template loader determines a favicon.ico request.
+	 *
+	 * @since 5.4.0
+	 */
+	do_action( 'do_favicon' );
+	return;
 } elseif ( is_feed() ) {
 	do_feed();
 	return;
@@ -99,7 +107,7 @@ if ( wp_using_themes() ) {
 		*    at any point during the generation of the HTML
 		*/
 		ob_start();
-		include( $template );
+		include $template;
 		echo wp_targeted_link_rel( ob_get_clean() );
 	} elseif ( current_user_can( 'switch_themes' ) ) {
 		$theme = wp_get_theme();

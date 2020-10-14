@@ -219,6 +219,15 @@ mockedApiResponse.Schema = {
                                 "type": "string"
                             }
                         },
+                        "tax_relation": {
+                            "required": false,
+                            "enum": [
+                                "AND",
+                                "OR"
+                            ],
+                            "description": "Limit result set based on relationship between multiple taxonomies.",
+                            "type": "string"
+                        },
                         "categories": {
                             "required": false,
                             "default": [],
@@ -550,6 +559,15 @@ mockedApiResponse.Schema = {
                                 ],
                                 "type": "string"
                             }
+                        },
+                        "tax_relation": {
+                            "required": false,
+                            "enum": [
+                                "AND",
+                                "OR"
+                            ],
+                            "description": "Limit result set based on relationship between multiple taxonomies.",
+                            "type": "string"
                         },
                         "categories": {
                             "required": false,
@@ -934,7 +952,7 @@ mockedApiResponse.Schema = {
                         "force": {
                             "required": false,
                             "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
+                            "description": "Whether to bypass Trash and force deletion.",
                             "type": "boolean"
                         }
                     }
@@ -1114,7 +1132,7 @@ mockedApiResponse.Schema = {
                         "force": {
                             "required": false,
                             "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
+                            "description": "Whether to bypass Trash and force deletion.",
                             "type": "boolean"
                         }
                     }
@@ -1980,6 +1998,15 @@ mockedApiResponse.Schema = {
                                 "type": "string"
                             }
                         },
+                        "tax_relation": {
+                            "required": false,
+                            "enum": [
+                                "AND",
+                                "OR"
+                            ],
+                            "description": "Limit result set based on relationship between multiple taxonomies.",
+                            "type": "string"
+                        },
                         "calm_authors": {
                             "required": false,
                             "default": [],
@@ -2283,6 +2310,15 @@ mockedApiResponse.Schema = {
                                 ],
                                 "type": "string"
                             }
+                        },
+                        "tax_relation": {
+                            "required": false,
+                            "enum": [
+                                "AND",
+                                "OR"
+                            ],
+                            "description": "Limit result set based on relationship between multiple taxonomies.",
+                            "type": "string"
                         },
                         "calm_authors": {
                             "required": false,
@@ -2604,7 +2640,7 @@ mockedApiResponse.Schema = {
                         "force": {
                             "required": false,
                             "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
+                            "description": "Whether to bypass Trash and force deletion.",
                             "type": "boolean"
                         }
                     }
@@ -2773,7 +2809,7 @@ mockedApiResponse.Schema = {
                         "force": {
                             "required": false,
                             "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
+                            "description": "Whether to bypass Trash and force deletion.",
                             "type": "boolean"
                         }
                     }
@@ -3591,6 +3627,15 @@ mockedApiResponse.Schema = {
                                 "type": "string"
                             }
                         },
+                        "tax_relation": {
+                            "required": false,
+                            "enum": [
+                                "AND",
+                                "OR"
+                            ],
+                            "description": "Limit result set based on relationship between multiple taxonomies.",
+                            "type": "string"
+                        },
                         "calm_authors": {
                             "required": false,
                             "default": [],
@@ -3885,6 +3930,15 @@ mockedApiResponse.Schema = {
                                 ],
                                 "type": "string"
                             }
+                        },
+                        "tax_relation": {
+                            "required": false,
+                            "enum": [
+                                "AND",
+                                "OR"
+                            ],
+                            "description": "Limit result set based on relationship between multiple taxonomies.",
+                            "type": "string"
                         },
                         "calm_authors": {
                             "required": false,
@@ -4198,7 +4252,7 @@ mockedApiResponse.Schema = {
                         "force": {
                             "required": false,
                             "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
+                            "description": "Whether to bypass Trash and force deletion.",
                             "type": "boolean"
                         }
                     }
@@ -4352,7 +4406,7 @@ mockedApiResponse.Schema = {
                         "force": {
                             "required": false,
                             "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
+                            "description": "Whether to bypass Trash and force deletion.",
                             "type": "boolean"
                         }
                     }
@@ -5898,7 +5952,11 @@ mockedApiResponse.Schema = {
                 }
             ],
             "_links": {
-                "self": "http://example.org/wp-json/wp/v2/calm_authors"
+                "self": [
+                    {
+                        "href": "http://example.org/wp-json/wp/v2/calm_authors"
+                    }
+                ]
             }
         },
         "/wp/v2/calm_authors/(?P<id>[\\d]+)": {
@@ -7598,7 +7656,7 @@ mockedApiResponse.Schema = {
                         "force": {
                             "required": false,
                             "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
+                            "description": "Whether to bypass Trash and force deletion.",
                             "type": "boolean"
                         },
                         "password": {
@@ -7728,7 +7786,7 @@ mockedApiResponse.Schema = {
                         "force": {
                             "required": false,
                             "default": false,
-                            "description": "Whether to bypass trash and force deletion.",
+                            "description": "Whether to bypass Trash and force deletion.",
                             "type": "boolean"
                         },
                         "password": {
@@ -8461,7 +8519,7 @@ mockedApiResponse.PostsCollection = [
                 {
                     "taxonomy": "calm_authors",
                     "embeddable": true,
-                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=1804"
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=1775"
                 }
             ],
             "curies": [
@@ -8731,7 +8789,7 @@ mockedApiResponse.PagesCollection = [
                 {
                     "taxonomy": "calm_authors",
                     "embeddable": true,
-                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=1807"
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=1778"
                 }
             ],
             "curies": [
@@ -8984,7 +9042,7 @@ mockedApiResponse.MediaCollection = [
                 {
                     "taxonomy": "calm_authors",
                     "embeddable": true,
-                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=1810"
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=1781"
                 }
             ],
             "curies": [
@@ -9343,7 +9401,7 @@ mockedApiResponse.TaxonomyModel = {
 
 mockedApiResponse.CategoriesCollection = [
     {
-        "id": 430,
+        "id": 398,
         "count": 0,
         "description": "REST API Client Fixture: Category",
         "link": "http://example.org/?cat=1",
@@ -9457,7 +9515,7 @@ mockedApiResponse.UsersCollection = [
     {
         "id": 1,
         "name": "Anonymous",
-        "url": "",
+        "url": "http://example.org",
         "description": "",
         "slug": "admin",
         "avatar_urls": {

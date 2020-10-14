@@ -7,7 +7,7 @@
  * @since 3.0.0
  */
 
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! is_multisite() ) {
 	wp_die( __( 'Multisite support is not enabled.' ) );
@@ -46,7 +46,7 @@ get_current_screen()->add_help_tab(
 	)
 );
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 
 if ( $updated ) { ?>
 	<div id="message" class="updated notice is-dismissible"><p><strong><?php _e( 'Settings saved.' ); ?></strong></p></div>
@@ -98,10 +98,10 @@ else :
 	 * @since MU (3.0.0)
 	 *
 	 * @param string $settings_html The settings HTML markup. Default empty.
-	 * @param object $context       Context of the setting (global or site-specific). Default 'global'.
+	 * @param string $context       Context of the setting (global or site-specific). Default 'global'.
 	 */
 	$settings_html = apply_filters( 'myblogs_options', '', 'global' );
-	if ( $settings_html != '' ) {
+	if ( '' != $settings_html ) {
 		echo '<h3>' . __( 'Global Settings' ) . '</h3>';
 		echo $settings_html;
 	}
@@ -151,4 +151,4 @@ else :
 <?php endif; ?>
 	</div>
 <?php
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';

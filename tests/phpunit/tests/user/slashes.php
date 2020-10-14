@@ -12,8 +12,8 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 
 		wp_set_current_user( $this->author_id );
 
-		// it is important to test with both even and odd numbered slashes as
-		// kses does a strip-then-add slashes in some of its function calls
+		// It is important to test with both even and odd numbered slashes,
+		// as KSES does a strip-then-add slashes in some of its function calls.
 		$this->slash_1 = 'String with 1 slash \\';
 		$this->slash_2 = 'String with 2 slashes \\\\';
 		$this->slash_3 = 'String with 3 slashes \\\\\\';
@@ -24,7 +24,7 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the controller function that expects slashed data
+	 * Tests the controller function that expects slashed data.
 	 */
 	function test_add_user() {
 		$_POST                 = array();
@@ -37,7 +37,8 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 		$_POST['email']        = 'user1@example.com';
 		$_POST['display_name'] = $this->slash_7;
 		$_POST['description']  = $this->slash_3;
-		$_POST                 = add_magic_quotes( $_POST ); // the edit_post() function will strip slashes
+
+		$_POST = add_magic_quotes( $_POST ); // The add_user() function will strip slashes.
 
 		$id   = add_user();
 		$user = get_user_to_edit( $id );
@@ -55,7 +56,8 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 		$_POST['email']        = 'user2@example.com';
 		$_POST['display_name'] = $this->slash_2;
 		$_POST['description']  = $this->slash_4;
-		$_POST                 = add_magic_quotes( $_POST ); // the edit_post() function will strip slashes
+
+		$_POST = add_magic_quotes( $_POST ); // The add_user() function will strip slashes.
 
 		$id   = add_user();
 		$user = get_user_to_edit( $id );
@@ -65,7 +67,7 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the controller function that expects slashed data
+	 * Tests the controller function that expects slashed data.
 	 */
 	function test_edit_user() {
 		$id = self::factory()->user->create();
@@ -77,7 +79,8 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 		$_POST['email']        = 'user1@example.com';
 		$_POST['display_name'] = $this->slash_7;
 		$_POST['description']  = $this->slash_3;
-		$_POST                 = add_magic_quotes( $_POST ); // the edit_post() function will strip slashes
+
+		$_POST = add_magic_quotes( $_POST ); // The edit_user() function will strip slashes.
 
 		$id   = edit_user( $id );
 		$user = get_user_to_edit( $id );
@@ -92,7 +95,8 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 		$_POST['email']        = 'user2@example.com';
 		$_POST['display_name'] = $this->slash_2;
 		$_POST['description']  = $this->slash_4;
-		$_POST                 = add_magic_quotes( $_POST ); // the edit_post() function will strip slashes
+
+		$_POST = add_magic_quotes( $_POST ); // The edit_user() function will strip slashes.
 
 		$id   = edit_user( $id );
 		$user = get_user_to_edit( $id );
@@ -102,7 +106,7 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the model function that expects slashed data
+	 * Tests the model function that expects slashed data.
 	 */
 	function test_wp_insert_user() {
 		$id   = wp_insert_user(
@@ -149,7 +153,7 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the model function that expects slashed data
+	 * Tests the model function that expects slashed data.
 	 */
 	function test_wp_update_user() {
 		$id   = self::factory()->user->create();

@@ -44,6 +44,13 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 		);
 	}
 
+	public function tearDown() {
+		parent::tearDown();
+
+		global $wp_rest_additional_fields;
+		$wp_rest_additional_fields = array();
+	}
+
 	public function test_validate_schema_type_integer() {
 
 		$this->assertTrue(
@@ -343,6 +350,39 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 		$this->assertGreaterThan( 0, $listener->get_call_count( $method ) );
 	}
 
+	/**
+	 * @ticket 48785
+	 */
+	public function test_get_public_item_schema_with_properties() {
+		$schema = ( new WP_REST_Test_Controller() )->get_public_item_schema();
+
+		// Double-check that the public item schema set in WP_REST_Test_Controller still has properties.
+		$this->assertArrayHasKey( 'properties', $schema );
+
+		// But arg_options should be removed.
+		$this->assertArrayNotHasKey( 'arg_options', $schema['properties']['someargoptions'] );
+	}
+
+	/**
+	 * @ticket 48785
+	 */
+	public function test_get_public_item_schema_no_properties() {
+		$controller = new WP_REST_Test_Configurable_Controller(
+			array(
+				'$schema'     => 'http://json-schema.org/draft-04/schema#',
+				'title'       => 'foo',
+				'type'        => 'string',
+				'description' => 'This is my magical endpoint that just returns a string.',
+			)
+		);
+
+		// Initial check that the test class is working as expected.
+		$this->assertArrayNotHasKey( 'properties', $controller->get_public_item_schema() );
+
+		// Test that the schema lacking 'properties' is returned as expected.
+		$this->assertEqualSetsWithIndex( $controller->get_public_item_schema(), $controller->get_test_schema() );
+	}
+
 	public function test_add_additional_fields_to_object_respects_fields_param() {
 		$controller = new WP_REST_Test_Controller();
 		$request    = new WP_REST_Request( 'GET', '/wp/v2/testroute' );
@@ -382,5 +422,126 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 		$controller->prepare_item_for_response( $item, $request );
 
 		$this->assertTrue( $listener->get_call_count( $method ) > $first_call_count );
+	}
+
+	/**
+	 * @dataProvider data_filter_nested_registered_rest_fields
+	 * @ticket 49648
+	 */
+	public function test_filter_nested_registered_rest_fields( $filter, $expected ) {
+		$controller = new WP_REST_Test_Controller();
+
+		register_rest_field(
+			'type',
+			'field',
+			array(
+				'schema'       => array(
+					'type'        => 'object',
+					'description' => 'A complex object',
+					'context'     => array( 'view', 'edit' ),
+					'properties'  => array(
+						'a' => array(
+							'i'  => 'string',
+							'ii' => 'string',
+						),
+						'b' => array(
+							'iii' => 'string',
+							'iv'  => 'string',
+						),
+					),
+				),
+				'get_callback' => array( $this, 'register_nested_rest_field_get_callback' ),
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/testroute' );
+		$request->set_param( '_fields', $filter );
+
+		$response = $controller->prepare_item_for_response( array(), $request );
+		$response = rest_filter_response_fields( $response, rest_get_server(), $request );
+
+		$this->assertEquals( $expected, $response->get_data() );
+	}
+
+	public function register_nested_rest_field_get_callback() {
+		return array(
+			'a' => array(
+				'i'  => 'value i',
+				'ii' => 'value ii',
+			),
+			'b' => array(
+				'iii' => 'value iii',
+				'iv'  => 'value iv',
+			),
+		);
+	}
+
+	public function data_filter_nested_registered_rest_fields() {
+		return array(
+			array(
+				'field',
+				array(
+					'field' => array(
+						'a' => array(
+							'i'  => 'value i',
+							'ii' => 'value ii',
+						),
+						'b' => array(
+							'iii' => 'value iii',
+							'iv'  => 'value iv',
+						),
+					),
+				),
+			),
+			array(
+				'field.a',
+				array(
+					'field' => array(
+						'a' => array(
+							'i'  => 'value i',
+							'ii' => 'value ii',
+						),
+					),
+				),
+			),
+			array(
+				'field.b',
+				array(
+					'field' => array(
+						'b' => array(
+							'iii' => 'value iii',
+							'iv'  => 'value iv',
+						),
+					),
+				),
+			),
+			array(
+				'field.a.i,field.b.iv',
+				array(
+					'field' => array(
+						'a' => array(
+							'i' => 'value i',
+						),
+						'b' => array(
+							'iv' => 'value iv',
+						),
+					),
+				),
+			),
+			array(
+				'field.a,field.b.iii',
+				array(
+					'field' => array(
+						'a' => array(
+							'i'  => 'value i',
+							'ii' => 'value ii',
+						),
+						'b' => array(
+							'iii' => 'value iii',
+						),
+					),
+				),
+			),
+		);
 	}
 }

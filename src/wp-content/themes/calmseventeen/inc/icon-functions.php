@@ -16,7 +16,7 @@ function calmseventeen_include_svg_icons() {
 
 	// If it exists, include it.
 	if ( file_exists( $svg_icons ) ) {
-		require_once( $svg_icons );
+		require_once $svg_icons;
 	}
 }
 add_action( 'wp_footer', 'calmseventeen_include_svg_icons', 9999 );

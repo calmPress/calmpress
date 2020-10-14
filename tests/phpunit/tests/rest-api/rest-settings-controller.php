@@ -38,6 +38,14 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->endpoint = new WP_REST_Settings_Controller();
 	}
 
+	public function tearDown() {
+		parent::tearDown();
+
+		if ( isset( get_registered_settings()['mycustomarraysetting'] ) ) {
+			unregister_setting( 'somegroup', 'mycustomarraysetting' );
+		}
+	}
+
 	public function test_register_routes() {
 		$routes = rest_get_server()->get_routes();
 		$this->assertArrayHasKey( '/wp/v2/settings', $routes );
@@ -100,7 +108,7 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 
 	public function test_get_item_value_is_cast_to_type() {
 		wp_set_current_user( self::$administrator );
-		update_option( 'posts_per_page', 'invalid_number' ); // this is cast to (int) 1
+		update_option( 'posts_per_page', 'invalid_number' ); // This is cast to (int) 1.
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/settings' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
@@ -178,14 +186,14 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 		$data     = $response->get_data();
 		$this->assertEquals( array(), $data['mycustomsetting'] );
 
-		// Invalid value
+		// Invalid value.
 		update_option( 'mycustomsetting', array( array( 1 ) ) );
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/settings' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertEquals( null, $data['mycustomsetting'] );
 
-		// No option value
+		// No option value.
 		delete_option( 'mycustomsetting' );
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/settings' );
 		$response = rest_get_server()->dispatch( $request );
@@ -234,7 +242,7 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 		$data     = $response->get_data();
 		$this->assertEquals( array(), $data['mycustomsetting'] );
 
-		// Invalid value
+		// Invalid value.
 		update_option(
 			'mycustomsetting',
 			array(
@@ -375,7 +383,7 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 
 	public function update_setting_custom_callback( $result, $name, $value, $args ) {
 		if ( 'title' === $name && 'The new title!' === $value ) {
-			// Do not allow changing the title in this case
+			// Do not allow changing the title in this case.
 			return true;
 		}
 
@@ -634,5 +642,59 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 	}
 
 	public function test_get_item_schema() {
+	}
+
+	/**
+	 * @ticket 42875
+	 */
+	public function test_register_setting_issues_doing_it_wrong_when_show_in_rest_is_true() {
+		$this->setExpectedIncorrectUsage( 'register_setting' );
+
+		register_setting(
+			'somegroup',
+			'mycustomarraysetting',
+			array(
+				'type'         => 'array',
+				'show_in_rest' => true,
+			)
+		);
+	}
+
+	/**
+	 * @ticket 42875
+	 */
+	public function test_register_setting_issues_doing_it_wrong_when_show_in_rest_omits_schema() {
+		$this->setExpectedIncorrectUsage( 'register_setting' );
+
+		register_setting(
+			'somegroup',
+			'mycustomarraysetting',
+			array(
+				'type'         => 'array',
+				'show_in_rest' => array(
+					'prepare_callback' => 'rest_sanitize_value_from_schema',
+				),
+			)
+		);
+	}
+
+	/**
+	 * @ticket 42875
+	 */
+	public function test_register_setting_issues_doing_it_wrong_when_show_in_rest_omits_schema_items() {
+		$this->setExpectedIncorrectUsage( 'register_setting' );
+
+		register_setting(
+			'somegroup',
+			'mycustomarraysetting',
+			array(
+				'type'         => 'array',
+				'show_in_rest' => array(
+					'schema' => array(
+						'default' => array( 'Hi!' ),
+					),
+				),
+			)
+		);
 	}
 }

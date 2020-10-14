@@ -9,7 +9,7 @@
 define( 'WP_LOAD_IMPORTERS', true );
 
 /** Load WordPress Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'import' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to import content into this site.' ) );
@@ -17,13 +17,15 @@ if ( ! current_user_can( 'import' ) ) {
 
 $title = __( 'Import' );
 
-get_current_screen()->add_help_tab( array(
-	'id'      => 'overview',
-	'title'   => __('Overview'),
-	'content' => '<p>' . __('This screen lists importers installed at the site. Importers are a functionality provided by plugins, and if you need a specific type of importer you should look for a plugin that implements it.') . '</p>'
-) );
+get_current_screen()->add_help_tab(
+	array(
+		'id'      => 'overview',
+		'title'   => __('Overview'),
+		'content' => '<p>' . __('This screen lists importers installed at the site. Importers are a functionality provided by plugins, and if you need a specific type of importer you should look for a plugin that implements it.') . '</p>'
+	)
+);
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 $parent_file = 'tools.php';
 ?>
 
@@ -31,7 +33,7 @@ $parent_file = 'tools.php';
 <h1><?php echo esc_html( $title ); ?></h1>
 <?php if ( ! empty( $_GET['invalid'] ) ) : ?>
 	<div class="error">
-		<p><strong><?php _e( 'ERROR:' ); ?></strong>
+		<p><strong><?php _e( 'Error:' ); ?></strong>
 			<?php
 			/* translators: %s: Importer slug. */
 			printf( __( 'The %s importer is invalid or is not installed.' ), '<strong>' . esc_html( $_GET['invalid'] ) . '</strong>' );
@@ -45,7 +47,7 @@ $parent_file = 'tools.php';
 $importers = get_importers();
 
 if ( empty( $importers ) ) {
-	echo '<p>' . __( 'No importers are available.' ) . '</p>'; // TODO: make more helpful
+	echo '<p>' . __( 'No importers are available.' ) . '</p>'; // TODO: Make more helpful.
 } else {
 	echo '<p>' . __('Following is a list of importers available at the site:') . '</p>';
 	uasort( $importers, '_usort_by_first_member' );
@@ -114,7 +116,7 @@ if ( empty( $importers ) ) {
 					);
 				} else {
 					$action = sprintf(
-						/* translators: URL to Import screen on the main site. */
+						/* translators: %s: URL to Import screen on the main site. */
 						__( 'This importer is not installed. Please install importers from <a href="%s">the main site</a>.' ),
 						get_admin_url( get_current_network_id(), 'import.php' )
 					);
@@ -189,4 +191,4 @@ if ( current_user_can( 'install_plugins' ) ) {
 <?php
 wp_print_admin_notice_templates();
 
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';

@@ -42,7 +42,7 @@ function edit_user( $user_id = 0 ) {
 
 	if ( ! $update ) {
 		if ( isset( $_POST['user_login'] ) ) {
-			$user->user_login = sanitize_user($_POST['user_login'], true);
+			$user->user_login = sanitize_user( $_POST['user_login'], true );
 		} else {
 			$user->user_login = md5( $_POST['email'] );
 		}
@@ -74,7 +74,7 @@ function edit_user( $user_id = 0 ) {
 		 */
 		if (
 			( is_multisite() && current_user_can( 'manage_network_users' ) ) ||
-			$user_id !== get_current_user_id() ||
+			get_current_user_id() !== $user_id ||
 			( $potential_role && $potential_role->has_cap( 'promote_users' ) )
 		) {
 			$user->role = $new_role;
@@ -145,17 +145,17 @@ function edit_user( $user_id = 0 ) {
 
 	// Check for blank password when adding a user.
 	if ( ! $update && empty( $pass1 ) ) {
-		$errors->add( 'pass', __( '<strong>ERROR</strong>: Please enter a password.' ), array( 'form-field' => 'pass1' ) );
+		$errors->add( 'pass', __( '<strong>Error</strong>: Please enter a password.' ), array( 'form-field' => 'pass1' ) );
 	}
 
 	// Check for "\" in password.
 	if ( false !== strpos( wp_unslash( $pass1 ), '\\' ) ) {
-		$errors->add( 'pass', __( '<strong>ERROR</strong>: Passwords may not contain the character "\\".' ), array( 'form-field' => 'pass1' ) );
+		$errors->add( 'pass', __( '<strong>Error</strong>: Passwords may not contain the character "\\".' ), array( 'form-field' => 'pass1' ) );
 	}
 
 	// Checking the password has been typed twice the same.
 	if ( ( $update || ! empty( $pass1 ) ) && $pass1 != $pass2 ) {
-		$errors->add( 'pass', __( '<strong>ERROR</strong>: Please enter the same password in both password fields.' ), array( 'form-field' => 'pass1' ) );
+		$errors->add( 'pass', __( '<strong>Error</strong>: Please enter the same password in both password fields.' ), array( 'form-field' => 'pass1' ) );
 	}
 
 	if ( ! empty( $pass1 ) ) {
@@ -163,18 +163,18 @@ function edit_user( $user_id = 0 ) {
 	}
 
 	if ( ! $update && isset( $_POST['user_login'] ) && ! validate_username( $_POST['user_login'] ) ) {
-		$errors->add( 'user_login', __( '<strong>ERROR</strong>: This username is invalid because it uses illegal characters. Please enter a valid username.' ) );
+		$errors->add( 'user_login', __( '<strong>Error</strong>: This username is invalid because it uses illegal characters. Please enter a valid username.' ) );
 	}
 
 	/* checking email address */
 	if ( empty( $user->user_email ) ) {
-		$errors->add( 'empty_email', __( '<strong>ERROR</strong>: Please enter an email address.' ), array( 'form-field' => 'email' ) );
+		$errors->add( 'empty_email', __( '<strong>Error</strong>: Please enter an email address.' ), array( 'form-field' => 'email' ) );
 	} elseif ( ! is_email( $user->user_email ) ) {
-		$errors->add( 'invalid_email', __( '<strong>ERROR</strong>: The email address isn&#8217;t correct.' ), array( 'form-field' => 'email' ) );
+		$errors->add( 'invalid_email', __( '<strong>Error</strong>: The email address isn&#8217;t correct.' ), array( 'form-field' => 'email' ) );
 	} else {
 		$owner_id = email_exists( $user->user_email );
 		if ( $owner_id && ( ! $update || ( $owner_id != $user->ID ) ) ) {
-			$errors->add( 'email_exists', __( '<strong>ERROR</strong>: This email is already registered, please choose another one.' ), array( 'form-field' => 'email' ) );
+			$errors->add( 'email_exists', __( '<strong>Error</strong>: This email is already registered, please choose another one.' ), array( 'form-field' => 'email' ) );
 		}
 	}
 
@@ -379,7 +379,7 @@ function wp_delete_user( $id, $reassign = null ) {
 		}
 	}
 
-	// FINALLY, delete user
+	// FINALLY, delete user.
 	if ( is_multisite() ) {
 		remove_user_from_blog( $id, get_current_blog_id() );
 	} else {
@@ -435,7 +435,7 @@ function default_password_nag_handler( $errors = false ) {
 		return;
 	}
 
-	// get_user_setting = JS saved UI setting. else no-js-fallback code.
+	// get_user_setting() = JS-saved UI setting. Else no-js-fallback code.
 	if ( 'hide' == get_user_setting( 'default_password_nag' ) || isset( $_GET['default_password_nag'] ) && '0' == $_GET['default_password_nag'] ) {
 		delete_user_setting( 'default_password_nag' );
 		update_user_option( $user_ID, 'default_password_nag', false, true );
@@ -512,7 +512,7 @@ jQuery(document).ready( function($) {
  *
  * @since 2.7.0
  *
- * @param object $user User data object.
+ * @param WP_User $user User data object.
  */
 function use_ssl_preference( $user ) {
 	?>

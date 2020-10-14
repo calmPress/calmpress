@@ -24,7 +24,7 @@ class Tests_Formatting_EscUrl extends WP_UnitTestCase {
 		$this->assertEquals( 'http://example.com/watchthelinefeedgo', esc_url( 'http://example.com/watchthelinefeed%0ago' ) );
 		$this->assertEquals( 'http://example.com/watchthecarriagereturngo', esc_url( 'http://example.com/watchthecarriagereturn%0Dgo' ) );
 		$this->assertEquals( 'http://example.com/watchthecarriagereturngo', esc_url( 'http://example.com/watchthecarriagereturn%0dgo' ) );
-		//Nesting Checks
+		// Nesting checks.
 		$this->assertEquals( 'http://example.com/watchthecarriagereturngo', esc_url( 'http://example.com/watchthecarriagereturn%0%0ddgo' ) );
 		$this->assertEquals( 'http://example.com/watchthecarriagereturngo', esc_url( 'http://example.com/watchthecarriagereturn%0%0DDgo' ) );
 		$this->assertEquals( 'http://example.com/', esc_url( 'http://example.com/%0%0%0DAD' ) );
@@ -209,6 +209,7 @@ Hi there,
 
 I thought you might want to sign up for this newsletter
 EOT;
+		$body       = str_replace( "\r\n", "\n", $body );
 		$email_link = 'mailto:?body=' . rawurlencode( $body );
 		$email_link = esc_url( $email_link );
 		$this->assertEquals( 'mailto:?body=Hi%20there%2C%0A%0AI%20thought%20you%20might%20want%20to%20sign%20up%20for%20this%20newsletter', $email_link );
@@ -223,6 +224,7 @@ Hi there,
 
 I thought you might want to sign up for this newsletter
 EOT;
+		$body       = str_replace( "\r\n", "\n", $body );
 		$email_link = 'http://example.com/mailto:?body=' . rawurlencode( $body );
 		$email_link = esc_url( $email_link );
 		$this->assertEquals( 'http://example.com/mailto:?body=Hi%20there%2CI%20thought%20you%20might%20want%20to%20sign%20up%20for%20this%20newsletter', $email_link );
