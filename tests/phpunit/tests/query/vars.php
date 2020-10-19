@@ -9,6 +9,7 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 35115
+	 * @ticket 51154
 	 */
 	public function testPublicQueryVarsAreAsExpected() {
 		global $wp;
@@ -52,6 +53,9 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 				// Dynamically added public query vars.
 				'rest_route',
 				\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
+				'sitemap',
+				'sitemap-subtype',
+				'sitemap-stylesheet',
 
 		);
 		sort( $expected );

@@ -111,11 +111,11 @@ printf( __( 'Enable threaded (nested) comments %s levels deep' ), $thread_commen
 <input name="page_comments" type="checkbox" id="page_comments" value="1" <?php checked( '1', get_option( 'page_comments' ) ); ?> />
 <?php
 $default_comments_page = '</label> <label for="default_comments_page"><select name="default_comments_page" id="default_comments_page"><option value="newest"';
-if ( 'newest' == get_option( 'default_comments_page' ) ) {
+if ( 'newest' === get_option( 'default_comments_page' ) ) {
 	$default_comments_page .= ' selected="selected"';
 }
 $default_comments_page .= '>' . __( 'last' ) . '</option><option value="oldest"';
-if ( 'oldest' == get_option( 'default_comments_page' ) ) {
+if ( 'oldest' === get_option( 'default_comments_page' ) ) {
 	$default_comments_page .= ' selected="selected"';
 }
 $default_comments_page .= '>' . __( 'first' ) . '</option></select>';
@@ -132,11 +132,11 @@ printf(
 <?php
 
 $comment_order = '<select name="comment_order" id="comment_order"><option value="asc"';
-if ( 'asc' == get_option( 'comment_order' ) ) {
+if ( 'asc' === get_option( 'comment_order' ) ) {
 	$comment_order .= ' selected="selected"';
 }
 $comment_order .= '>' . __( 'older' ) . '</option><option value="desc"';
-if ( 'desc' == get_option( 'comment_order' ) ) {
+if ( 'desc' === get_option( 'comment_order' ) ) {
 	$comment_order .= ' selected="selected"';
 }
 $comment_order .= '>' . __( 'newer' ) . '</option></select>';
@@ -167,7 +167,7 @@ printf( __( 'Comments should be displayed with the %s comments at the top of eac
 <input name="comment_moderation" type="checkbox" id="comment_moderation" value="1" <?php checked( '1', get_option( 'comment_moderation' ) ); ?> />
 <?php _e( 'Comment must be manually approved' ); ?> </label>
 <br />
-<label for="comment_whitelist"><input type="checkbox" name="comment_whitelist" id="comment_whitelist" value="1" <?php checked( '1', get_option( 'comment_whitelist' ) ); ?> /> <?php _e( 'Comment author must have a previously approved comment' ); ?></label>
+<label for="comment_previously_approved"><input type="checkbox" name="comment_previously_approved" id="comment_previously_approved" value="1" <?php checked( '1', get_option( 'comment_previously_approved' ) ); ?> /> <?php _e( 'Comment author must have a previously approved comment' ); ?></label>
 </fieldset></td>
 </tr>
 <tr>

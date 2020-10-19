@@ -25,18 +25,6 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 			</p>
 		</div>
 
-		<div class="about__header-text">
-			<p>
-				<?php _e( 'Building more with blocks, faster and easier.' ); ?>
-			</p>
-		</div>
-
-		<nav class="about__header-navigation nav-tab-wrapper wp-clearfix" aria-label="<?php esc_attr_e( 'Secondary menu' ); ?>">
-			<a href="about.php" class="nav-tab"><?php _e( 'What&#8217;s New' ); ?></a>
-			<a href="credits.php" class="nav-tab"><?php _e( 'Credits' ); ?></a>
-			<a href="freedoms.php" class="nav-tab"><?php _e( 'Freedoms' ); ?></a>
-			<a href="privacy.php" class="nav-tab nav-tab-active" aria-current="page"><?php _e( 'Privacy' ); ?></a>
-		</nav>
 	</div>
 
 	<div class="about__section">

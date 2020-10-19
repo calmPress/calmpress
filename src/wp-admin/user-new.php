@@ -29,7 +29,7 @@ if ( is_multisite() ) {
 	add_filter( 'wpmu_signup_user_notification_email', 'admin_created_user_email' );
 }
 
-if ( isset( $_REQUEST['action'] ) && 'adduser' == $_REQUEST['action'] ) {
+if ( isset( $_REQUEST['action'] ) && 'adduser' === $_REQUEST['action'] ) {
 	check_admin_referer( 'add-user', '_wpnonce_add-user' );
 
 	$user_details = null;
@@ -148,7 +148,7 @@ Please click the following link to confirm the invite:
 	}
 	wp_redirect( $redirect );
 	die();
-} elseif ( isset( $_REQUEST['action'] ) && 'createuser' == $_REQUEST['action'] ) {
+} elseif ( isset( $_REQUEST['action'] ) && 'createuser' === $_REQUEST['action'] ) {
 	check_admin_referer( 'create-user', '_wpnonce_create-user' );
 
 	if ( ! current_user_can( 'create_users' ) ) {
@@ -324,7 +324,7 @@ if ( isset( $_GET['update'] ) ) {
 				break;
 		}
 	} else {
-		if ( 'add' == $_GET['update'] ) {
+		if ( 'add' === $_GET['update'] ) {
 			$messages[] = __( 'User added.' );
 		}
 	}
@@ -420,7 +420,7 @@ if ( is_multisite() && current_user_can( 'promote_users' ) ) {
 			<label for="adduser-noconfirmation"><?php _e( 'Add the user without sending an email that requires their confirmation.' ); ?></label>
 		</td>
 	</tr>
-<?php } ?>
+	<?php } ?>
 </table>
 	<?php
 	/**
@@ -471,7 +471,7 @@ $new_user_ignore_pass       = $creating && isset( $_POST['noconfirmation'] ) ? w
 		<th scope="row"><label for="email"><?php _e('Email'); ?> <span class="description"><?php _e('(required)'); ?></span></label></th>
 		<td><input name="email" type="email" id="email" value="<?php echo esc_attr( $new_user_email ); ?>" /></td>
 	</tr>
-<?php if ( !is_multisite() ) { ?>
+	<?php if ( ! is_multisite() ) { ?>
 	<tr class="form-field form-required user-pass1-wrap">
 		<th scope="row">
 			<label for="pass1">
@@ -521,7 +521,8 @@ $new_user_ignore_pass       = $creating && isset( $_POST['noconfirmation'] ) ? w
 			<label for="send_user_notification"><?php _e( 'Send the new user an email about their account.' ); ?></label>
 		</td>
 	</tr>
-<?php } // End if ! is_multisite(). ?>
+	<?php } // End if ! is_multisite(). ?>
+	<?php if ( current_user_can( 'promote_users' ) ) { ?>
 	<tr class="form-field">
 		<th scope="row"><label for="role"><?php _e( 'Role' ); ?></label></th>
 		<td><select name="role" id="role">
@@ -534,6 +535,7 @@ $new_user_ignore_pass       = $creating && isset( $_POST['noconfirmation'] ) ? w
 			</select>
 		</td>
 	</tr>
+	<?php } ?>
 	<?php if ( is_multisite() && current_user_can( 'manage_network_users' ) ) { ?>
 	<tr>
 		<th scope="row"><?php _e( 'Skip Confirmation Email' ); ?></th>

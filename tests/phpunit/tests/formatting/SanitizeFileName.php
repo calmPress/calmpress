@@ -11,7 +11,7 @@ class Tests_Formatting_SanitizeFileName extends WP_UnitTestCase {
 	}
 
 	function test_removes_special_chars() {
-		$special_chars = array( '?', '[', ']', '/', '\\', '=', '<', '>', ':', ';', ',', "'", '"', '&', '$', '#', '*', '(', ')', '|', '~', '`', '!', '{', '}', '%', '+', chr( 0 ) );
+		$special_chars = array( '?', '[', ']', '/', '\\', '=', '<', '>', ':', ';', ',', "'", '"', '&', '$', '#', '*', '(', ')', '|', '~', '`', '!', '{', '}', '%', '+', '’', '«', '»', '”', '“', chr( 0 ) );
 		$string        = 'test';
 		foreach ( $special_chars as $char ) {
 			$string .= $char;
@@ -21,11 +21,20 @@ class Tests_Formatting_SanitizeFileName extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 22363
+	 */
+	function test_removes_accents() {
+		$in  = 'àáâãäåæçèéêëìíîïñòóôõöøùúûüýÿ';
+		$out = 'aaaaaaaeceeeeiiiinoooooouuuuyy';
+		$this->assertEquals( $out, sanitize_file_name( $in ) );
+	}
+
+	/**
 	 * Test that spaces are correctly replaced with dashes.
 	 *
 	 * @ticket 16330
 	 */
-	function test_replace_spaces() {
+	function test_replaces_spaces() {
 		$urls = array(
 			'unencoded space.png'  => 'unencoded-space.png',
 			'encoded-space.jpg'    => 'encoded-space.jpg',
@@ -58,14 +67,30 @@ class Tests_Formatting_SanitizeFileName extends WP_UnitTestCase {
 		$this->assertEquals( 'a22b.jpg', sanitize_file_name( 'a%22b.jpg' ) );
 	}
 
-	function test_replaces_unnammed_file_extensions() {
+	function test_replaces_unnamed_file_extensions() {
 		// Test filenames with both supported and unsupported extensions.
 		$this->assertEquals( 'unnamed-file.exe', sanitize_file_name( '_.exe' ) );
 		$this->assertEquals( 'unnamed-file.jpg', sanitize_file_name( '_.jpg' ) );
 	}
 
-	function test_replaces_unnammed_file_extensionless() {
+	function test_replaces_unnamed_file_extensionless() {
 		// Test a filenames that becomes extensionless.
 		$this->assertEquals( 'no-extension', sanitize_file_name( '_.no-extension' ) );
+	}
+
+	/**
+	 * @dataProvider data_wp_filenames
+	 */
+	function test_replaces_invalid_utf8_characters( $input, $expected ) {
+		$this->assertEquals( $expected, sanitize_file_name( $input ) );
+	}
+
+	function data_wp_filenames() {
+		return array(
+			array( urldecode( '%B1myfile.png' ), 'myfile.png' ),
+			array( urldecode( '%B1myfile' ), 'myfile' ),
+			array( 'demo bar.png', 'demo-bar.png' ),
+			array( 'demo' . json_decode( '"\u00a0"' ) . 'bar.png', 'demo-bar.png' ),
+		);
 	}
 }

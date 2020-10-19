@@ -277,7 +277,7 @@ function update_user_status( $id, $pref, $value, $deprecated = null ) {
 	$user = new WP_User( $id );
 	clean_user_cache( $user );
 
-	if ( $pref == 'spam' ) {
+	if ( 'spam' === $pref ) {
 		if ( $value == 1 ) {
 			/** This filter is documented in wp-includes/user.php */
 			do_action( 'make_spam_user', $id );

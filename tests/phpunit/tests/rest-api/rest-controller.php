@@ -27,6 +27,10 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 					'somestring'  => array(
 						'type' => 'string',
 					),
+					'somehex'     => array(
+						'type'   => 'string',
+						'format' => 'hex-color',
+					),
 					'someenum'    => array(
 						'type' => 'string',
 						'enum' => array( 'a' ),
@@ -38,6 +42,10 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 					'someemail'   => array(
 						'type'   => 'string',
 						'format' => 'email',
+					),
+					'someuuid'    => array(
+						'type'   => 'string',
+						'format' => 'uuid',
 					),
 				),
 			)
@@ -173,6 +181,21 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 		);
 	}
 
+	/**
+	 * @ticket 49270
+	 */
+	public function test_validate_schema_format_hex_color() {
+
+		$this->assertTrue(
+			rest_validate_request_arg( '#000000', $this->request, 'somehex' )
+		);
+
+		$this->assertErrorResponse(
+			'rest_invalid_hex_color',
+			rest_validate_request_arg( 'wibble', $this->request, 'somehex' )
+		);
+	}
+
 	public function test_validate_schema_format_date_time() {
 
 		$this->assertTrue(
@@ -182,6 +205,20 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 		$this->assertErrorResponse(
 			'rest_invalid_date',
 			rest_validate_request_arg( '2010-18-18T12:00:00', $this->request, 'somedate' )
+		);
+	}
+
+	/**
+	 * @ticket 50053
+	 */
+	public function test_validate_schema_format_uuid() {
+		$this->assertTrue(
+			rest_validate_request_arg( '123e4567-e89b-12d3-a456-426655440000', $this->request, 'someuuid' )
+		);
+
+		$this->assertErrorResponse(
+			'rest_invalid_uuid',
+			rest_validate_request_arg( '123e4567-e89b-12d3-a456-426655440000X', $this->request, 'someuuid' )
 		);
 	}
 
@@ -211,7 +248,38 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 	}
 
 	/**
-	 * @dataProvider data_get_fields_for_response,
+	 * @ticket 50301
+	 */
+	public function test_get_endpoint_args_for_item_schema_arg_properties() {
+
+		$controller = new WP_REST_Test_Controller();
+		$args       = $controller->get_endpoint_args_for_item_schema();
+
+		foreach ( array( 'minLength', 'maxLength', 'pattern' ) as $property ) {
+			$this->assertArrayHasKey( $property, $args['somestring'] );
+		}
+
+		foreach ( array( 'minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum' ) as $property ) {
+			$this->assertArrayHasKey( $property, $args['someinteger'] );
+		}
+
+		$this->assertArrayHasKey( 'items', $args['somearray'] );
+
+		foreach ( array( 'minItems', 'maxItems', 'uniqueItems' ) as $property ) {
+			$this->assertArrayHasKey( $property, $args['somearray'] );
+		}
+
+		foreach ( array( 'properties', 'additionalProperties' ) as $property ) {
+			$this->assertArrayHasKey( $property, $args['someobject'] );
+		}
+
+		// Ignored properties.
+		$this->assertArrayNotHasKey( 'ignored_prop', $args['someobject'] );
+
+	}
+
+	/**
+	 * @dataProvider data_get_fields_for_response
 	 */
 	public function test_get_fields_for_response( $param, $expected ) {
 		$controller = new WP_REST_Test_Controller();
@@ -225,9 +293,13 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 				'someurl',
 				'somedate',
 				'someemail',
+				'somehex',
+				'someuuid',
 				'someenum',
 				'someargoptions',
 				'somedefault',
+				'somearray',
+				'someobject',
 			),
 			$fields
 		);
@@ -254,9 +326,13 @@ class WP_Test_REST_Controller extends WP_Test_REST_TestCase {
 					'someurl',
 					'somedate',
 					'someemail',
+					'somehex',
+					'someuuid',
 					'someenum',
 					'someargoptions',
 					'somedefault',
+					'somearray',
+					'someobject',
 				),
 			),
 		);

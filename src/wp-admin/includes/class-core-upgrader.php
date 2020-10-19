@@ -62,7 +62,7 @@ class Core_Upgrader extends WP_Upgrader {
 	public function upgrade( $current, $args = array() ) {
 		global $wp_filesystem;
 
-		require ABSPATH . WPINC . '/version.php'; / version related data.
+		require ABSPATH . WPINC . '/version.php'; // version related data.
 
 		$start_time = time();
 
@@ -114,6 +114,7 @@ class Core_Upgrader extends WP_Upgrader {
 		}
 		$wp_filesystem->chmod( $wp_dir . 'wp-admin/includes/update-core.php', FS_CHMOD_FILE );
 
+		wp_opcache_invalidate( ABSPATH . 'wp-admin/includes/update-core.php' );
 		require_once ABSPATH . 'wp-admin/includes/update-core.php';
 
 		if ( ! function_exists( 'update_core' ) ) {

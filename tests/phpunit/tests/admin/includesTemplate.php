@@ -3,6 +3,7 @@
  * @group admin
  */
 class Tests_Admin_includesTemplate extends WP_UnitTestCase {
+
 	function test_equal() {
 		$this->assertEquals( ' selected=\'selected\'', selected( 'foo', 'foo', false ) );
 		$this->assertEquals( ' checked=\'checked\'', checked( 'foo', 'foo', false ) );
@@ -46,6 +47,45 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 		$this->assertEquals( '', checked( 0, false, false ) );
 	}
 
+	/**
+	 * @ticket 51147
+	 * @dataProvider data_wp_terms_checklist_with_selected_cats
+	 */
+	public function test_wp_terms_checklist_with_selected_cats( $term_id ) {
+		$output = wp_terms_checklist(
+			0,
+			array(
+				'selected_cats' => array( $term_id ),
+				'echo'          => false,
+			)
+		);
+
+		$this->assertContains( "checked='checked'", $output );
+	}
+
+	/**
+	 * @ticket 51147
+	 * @dataProvider data_wp_terms_checklist_with_selected_cats
+	 */
+	public function test_wp_terms_checklist_with_popular_cats( $term_id ) {
+		$output = wp_terms_checklist(
+			0,
+			array(
+				'popular_cats' => array( $term_id ),
+				'echo'         => false,
+			)
+		);
+
+		$this->assertContains( 'class="popular-category"', $output );
+	}
+
+	public function data_wp_terms_checklist_with_selected_cats() {
+		return array(
+			array( '1' ),
+			array( 1 ),
+		);
+	}
+
 	public function test_add_meta_box() {
 		global $wp_meta_boxes;
 
@@ -57,7 +97,7 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 	public function test_remove_meta_box() {
 		global $wp_meta_boxes;
 
-		// Add a meta boxes to remove.
+		// Add a meta box to remove.
 		add_meta_box( 'testbox1', 'Test Metabox', '__return_false', $current_screen = 'post' );
 
 		// Confirm it's there.
@@ -106,6 +146,25 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 
 		$this->assertFalse( $wp_meta_boxes['comment']['advanced']['default']['testbox1'] );
 		$this->assertFalse( $wp_meta_boxes['attachment']['advanced']['default']['testbox1'] );
+	}
+
+	/**
+	 * @ticket 50019
+	 */
+	public function test_add_meta_box_with_previously_removed_box_and_sorted_priority() {
+		global $wp_meta_boxes;
+
+		// Add a meta box to remove.
+		add_meta_box( 'testbox1', 'Test Metabox', '__return_false', $current_screen = 'post' );
+
+		// Remove the meta box.
+		remove_meta_box( 'testbox1', $current_screen, 'advanced' );
+
+		// Attempt to re-add the meta box with the 'sorted' priority.
+		add_meta_box( 'testbox1', null, null, $current_screen, 'advanced', 'sorted' );
+
+		// Check that the meta box was not re-added.
+		$this->assertFalse( $wp_meta_boxes[ $current_screen ]['advanced']['default']['testbox1'] );
 	}
 
 	/**

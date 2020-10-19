@@ -140,7 +140,7 @@ class WP_Privacy_Data_Export_Requests_Table extends WP_Privacy_Data_Export_Reque
 			$args['screen'] = 'export-personal-data';
 		}
 
-		parent::__construct( $args );	
+		parent::__construct( $args );
 	}
 }
 

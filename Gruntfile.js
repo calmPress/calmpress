@@ -2,6 +2,7 @@
 /* jshint esversion: 6 */
 /* globals Set */
 var webpackConfig = require( './webpack.config' );
+var installChanged = require( 'install-changed' );
 
 module.exports = function(grunt) {
 	var path = require('path'),
@@ -38,6 +39,9 @@ module.exports = function(grunt) {
 			'grunt watch:phpunit --group=multisite,mail'
 		);
 	}
+
+	// First do `npm install` if package.json has changed.
+	installChanged.watchPackage();
 
 	// Load tasks.
 	require('matchdep').filterDev(['grunt-*', '!grunt-legacy-util']).forEach( grunt.loadNpmTasks );
@@ -114,7 +118,7 @@ module.exports = function(grunt) {
 				WORKING_DIR + 'wp-includes/js/'
 			],
 			'webpack-assets': [
-				WORKING_DIR + 'wp-includes/js/dist/assets.php'
+				WORKING_DIR + 'wp-includes/assets/'
 			],
 			dynamic: {
 				dot: true,
@@ -348,10 +352,6 @@ module.exports = function(grunt) {
 					}
 				]
 			},
-			'webpack-assets': {
-				src: WORKING_DIR + 'wp-includes/js/dist/assets.php',
-				dest: WORKING_DIR + 'wp-includes/assets/script-loader-packages.php'
-			},
 			dynamic: {
 				dot: true,
 				expand: true,
@@ -390,7 +390,7 @@ module.exports = function(grunt) {
 		},
 		cssmin: {
 			options: {
-				compatibility: 'ie7'
+				compatibility: 'ie11'
 			},
 			core: {
 				expand: true,
@@ -990,7 +990,7 @@ module.exports = function(grunt) {
 					patterns: [
 						{
 							match: /\/\/ START: emoji arrays[\S\s]*\/\/ END: emoji arrays/g,
-							replacement: function () {
+							replacement: function() {
 								var regex, files,
 									partials, partialsSet,
 									entities, emojiArray;
@@ -1016,7 +1016,7 @@ module.exports = function(grunt) {
 								entities = entities.replace( /-/g, '' );
 
 								// Sort the entities list by length, so the longest emoji will be found first.
-								emojiArray = entities.split( '\n' ).sort( function ( a, b ) {
+								emojiArray = entities.split( '\n' ).sort( function( a, b ) {
 									return b.length - a.length;
 								} );
 
@@ -1054,6 +1054,26 @@ module.exports = function(grunt) {
 							SOURCE_DIR + 'wp-includes/formatting.php'
 						],
 						dest: SOURCE_DIR + 'wp-includes/'
+					}
+				]
+			},
+			emojiBannerText: {
+				options: {
+					patterns: [
+						{
+							match: new RegExp( '\\s*' + BANNER_TEXT.replace( /[\/\*\!]/g, '\\$&' ) ),
+							replacement: ''
+						}
+					]
+				},
+				files: [
+					{
+						expand: true,
+						flatten: true,
+						src: [
+							BUILD_DIR + 'wp-includes/formatting.php'
+						],
+						dest: BUILD_DIR + 'wp-includes/'
 					}
 				]
 			}
@@ -1322,10 +1342,9 @@ module.exports = function(grunt) {
 	] );
 
 	grunt.registerTask( 'build:webpack', [
+		'clean:webpack-assets',
 		'webpack:prod',
 		'webpack:dev',
-		'copy:webpack-assets',
-		'clean:webpack-assets',
 	] );
 
 	grunt.registerTask( 'build:js', [
@@ -1368,6 +1387,7 @@ module.exports = function(grunt) {
 				'build:css',
 				'includes:emoji',
 				'includes:embed',
+				'replace:emojiBannerText'
 			] );
 		}
 	} );

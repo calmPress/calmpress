@@ -102,7 +102,7 @@ function wp_dashboard_setup() {
 		wp_add_dashboard_widget( $widget_id, $name, $wp_registered_widgets[ $widget_id ]['callback'], $wp_registered_widget_controls[ $widget_id ]['callback'] );
 	}
 
-	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && isset( $_POST['widget_id'] ) ) {
+	if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['widget_id'] ) ) {
 		check_admin_referer( 'edit-dashboard-widget_' . $_POST['widget_id'], 'dashboard-widget-nonce' );
 		ob_start(); // Hack - but the same hack wp-admin/widgets.php uses.
 		wp_dashboard_trigger_widget_control( $_POST['widget_id'] );
@@ -160,7 +160,7 @@ function wp_add_dashboard_widget( $widget_id, $widget_name, $callback, $control_
 	$side_widgets = array( 'dashboard_quick_press' );
 
 	$location = 'normal';
-	if ( in_array( $widget_id, $side_widgets ) ) {
+	if ( in_array( $widget_id, $side_widgets, true ) ) {
 		$location = 'side';
 	}
 
@@ -247,7 +247,7 @@ function wp_dashboard_right_now() {
 	foreach ( array( 'post', 'page' ) as $post_type ) {
 		$num_posts = wp_count_posts( $post_type );
 		if ( $num_posts && $num_posts->publish ) {
-			if ( 'post' == $post_type ) {
+			if ( 'post' === $post_type ) {
 				/* translators: %s: Number of posts. */
 				$text = _n( '%s Post', '%s Posts', $num_posts->publish );
 			} else {
@@ -311,7 +311,7 @@ function wp_dashboard_right_now() {
 	if ( ! is_network_admin() && ! is_user_admin() && current_user_can( 'manage_options' ) && '0' == get_option( 'blog_public' ) ) {
 
 		/**
-		 * Filters the link title attribute for the 'Search Engines Discouraged'
+		 * Filters the link title attribute for the 'Search engines discouraged'
 		 * message displayed in the 'At a Glance' dashboard widget.
 		 *
 		 * Prior to 3.8.0, the widget was named 'Right Now'.
@@ -324,7 +324,7 @@ function wp_dashboard_right_now() {
 		$title = apply_filters( 'privacy_on_link_title', '' );
 
 		/**
-		 * Filters the link label for the 'Search Engines Discouraged' message
+		 * Filters the link label for the 'Search engines discouraged' message
 		 * displayed in the 'At a Glance' dashboard widget.
 		 *
 		 * Prior to 3.8.0, the widget was named 'Right Now'.
@@ -333,10 +333,10 @@ function wp_dashboard_right_now() {
 		 *
 		 * @param string $content Default text.
 		 */
-		$content    = apply_filters( 'privacy_on_link_text', __( 'Search Engines Discouraged' ) );
+		$content    = apply_filters( 'privacy_on_link_text', __( 'Search engines discouraged' ) );
 		$title_attr = '' === $title ? '' : " title='$title'";
 
-		echo "<p><a href='options-reading.php'$title_attr>$content</a></p>";
+		echo "<p class='search-engines-info'><a href='options-reading.php'$title_attr>$content</a></p>";
 	}
 	?>
 	</div>
@@ -484,7 +484,7 @@ function wp_dashboard_quick_press( $error_msg = false ) {
 		$post    = get_default_post_to_edit( 'post', true );
 		$user_id = get_current_user_id();
 		// Don't create an option if this is a super admin who does not belong to this site.
-		if ( in_array( get_current_blog_id(), array_keys( get_blogs_of_user( $user_id ) ) ) ) {
+		if ( in_array( get_current_blog_id(), array_keys( get_blogs_of_user( $user_id ) ), true ) ) {
 			update_user_option( $user_id, 'dashboard_quick_press_last_post_id', (int) $post->ID ); // Save post_ID.
 		}
 	}
@@ -721,18 +721,27 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 		$actions = apply_filters( 'comment_row_actions', array_filter( $actions ), $comment );
 
 		$i = 0;
+
 		foreach ( $actions as $action => $link ) {
 			++$i;
-			( ( ( 'approve' == $action || 'unapprove' == $action ) && 2 === $i ) || 1 === $i ) ? $sep = '' : $sep = ' | ';
+
+			if ( ( ( 'approve' === $action || 'unapprove' === $action ) && 2 === $i )
+				|| 1 === $i
+			) {
+				$sep = '';
+			} else {
+				$sep = ' | ';
+			}
 
 			// Reply and quickedit need a hide-if-no-js span.
-			if ( 'reply' == $action || 'quickedit' == $action ) {
+			if ( 'reply' === $action || 'quickedit' === $action ) {
 				$action .= ' hide-if-no-js';
 			}
 
 			if ( 'view' === $action && '1' !== $comment->comment_approved ) {
 				$action .= ' hidden';
 			}
+
 			$actions_string .= "<span class='$action'>$sep$link</span>";
 		}
 	}
@@ -742,7 +751,7 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 
 			<?php echo get_avatar( $comment, 50 ); ?>
 
-			<?php if ( ! $comment->comment_type || 'comment' == $comment->comment_type ) : ?>
+			<?php if ( ! $comment->comment_type || 'comment' === $comment->comment_type ) : ?>
 
 			<div class="dashboard-comment-wrap has-row-actions <?php echo $comment_row_class; ?>">
 			<p class="comment-meta">
@@ -842,7 +851,6 @@ function wp_dashboard_site_activity() {
 
 	if ( ! $future_posts && ! $recent_posts && ! $recent_comments ) {
 		echo '<div class="no-activity">';
-		echo '<p class="smiley" aria-hidden="true"></p>';
 		echo '<p>' . __( 'No activity yet!' ) . '</p>';
 		echo '</div>';
 	}
@@ -1217,10 +1225,10 @@ function wp_welcome_panel() {
 	<div class="welcome-panel-column">
 		<h3><?php _e( 'Next Steps' ); ?></h3>
 		<ul>
-		<?php if ( 'page' == get_option( 'show_on_front' ) && ! get_option( 'page_for_posts' ) ) : ?>
+		<?php if ( 'page' === get_option( 'show_on_front' ) && ! get_option( 'page_for_posts' ) ) : ?>
 			<li><?php printf( '<a href="%s" class="welcome-icon welcome-edit-page">' . __( 'Edit your front page' ) . '</a>', get_edit_post_link( get_option( 'page_on_front' ) ) ); ?></li>
 			<li><?php printf( '<a href="%s" class="welcome-icon welcome-add-page">' . __( 'Add additional pages' ) . '</a>', admin_url( 'post-new.php?post_type=page' ) ); ?></li>
-		<?php elseif ( 'page' == get_option( 'show_on_front' ) ) : ?>
+		<?php elseif ( 'page' === get_option( 'show_on_front' ) ) : ?>
 			<li><?php printf( '<a href="%s" class="welcome-icon welcome-edit-page">' . __( 'Edit your front page' ) . '</a>', get_edit_post_link( get_option( 'page_on_front' ) ) ); ?></li>
 			<li><?php printf( '<a href="%s" class="welcome-icon welcome-add-page">' . __( 'Add additional pages' ) . '</a>', admin_url( 'post-new.php?post_type=page' ) ); ?></li>
 			<li><?php printf( '<a href="%s" class="welcome-icon welcome-write-blog">' . __( 'Add a blog post' ) . '</a>', admin_url( 'post-new.php' ) ); ?></li>

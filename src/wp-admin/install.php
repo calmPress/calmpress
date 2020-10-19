@@ -47,7 +47,7 @@ function display_header( $body_classes = '' ) {
 	}
 	?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
+<html <?php language_attributes(); ?>>
 <head>
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -73,8 +73,8 @@ function display_header( $body_classes = '' ) {
 function display_setup_form( $error = null ) {
 	global $wpdb;
 
-	$sql        = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->users ) );
-	$user_table = ( $wpdb->get_var( $sql ) != null );
+	$user_table = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->users ) ) ) !== null );
+
 	// Ensure that Blogs appear in search engines by default, unless this is a local install.
 	$blog_public = in_array( $_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1'], true ) ? 0 : 1;
 	if ( isset( $_POST['weblog_title'] ) ) {
@@ -142,10 +142,10 @@ function display_setup_form( $error = null ) {
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><?php has_action( 'blog_privacy_selector' ) ? _e( 'Site Visibility' ) : _e( 'Search Engine Visibility' ); ?></th>
+			<th scope="row"><?php has_action( 'blog_privacy_selector' ) ? _e( 'Site visibility' ) : _e( 'Search engine visibility' ); ?></th>
 			<td>
 				<fieldset>
-					<legend class="screen-reader-text"><span><?php has_action( 'blog_privacy_selector' ) ? _e( 'Site Visibility' ) : _e( 'Search Engine Visibility' ); ?> </span></legend>
+					<legend class="screen-reader-text"><span><?php has_action( 'blog_privacy_selector' ) ? _e( 'Site visibility' ) : _e( 'Search engine visibility' ); ?> </span></legend>
 					<?php
 					if ( has_action( 'blog_privacy_selector' ) ) {
 						?>
@@ -204,10 +204,14 @@ $version_url = sprintf(
 	$version_slug
 );
 
-/* translators: %s: URL to Update PHP page */
-$php_update_message = '</p><p>' . sprintf( __( '<a href="%s">Learn more about updating PHP</a>.' ), esc_url( wp_get_update_php_url() ) );
+/* translators: %s: URL to Update PHP page. */
+$php_update_message = '</p><p>' . sprintf(
+	__( '<a href="%s">Learn more about updating PHP</a>.' ),
+	esc_url( wp_get_update_php_url() )
+);
 
 $annotation = wp_get_update_php_annotation();
+
 if ( $annotation ) {
 	$php_update_message .= '</p><p><em>' . $annotation . '</em>';
 }
@@ -336,7 +340,7 @@ switch ( $step ) {
 		// Check email address.
 		$error = false;
 		if ( $admin_password != $admin_password_check ) {
-			// TODO: poka-yoke
+			// TODO: poka-yoke.
 			display_setup_form( __( 'Your passwords do not match. Please try again.' ) );
 			$error = true;
 		} elseif ( empty( $admin_email ) ) {

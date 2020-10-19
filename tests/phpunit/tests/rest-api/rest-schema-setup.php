@@ -123,6 +123,9 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			'/wp/v2/search',
 			'/wp/v2/settings',
 			'/wp/v2/themes',
+			'/wp/v2/plugins',
+			'/wp/v2/plugins/(?P<plugin>[^.\/]+(?:\/[^.\/]+)?)',
+			'/wp/v2/block-directory/search',
 		);
 
 		$this->assertEquals( $expected_routes, $routes );
@@ -227,39 +230,41 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			)
 		);
 
-		$cat_id = $this->factory->category->create( array(
-			'name'        => 'REST API Client Fixture: Category',
-			'slug'        => 'restapi-client-fixture-category',
-			'description' => 'REST API Client Fixture: Category',
-		) );
+		$tag_id = $this->factory->tag->create(
+			array(
+				'name'        => 'REST API Client Fixture: Tag',
+				'slug'        => 'restapi-client-fixture-tag',
+				'description' => 'REST API Client Fixture: Tag',
+			)
+		);
 
-		$tag_id = $this->factory->tag->create( array(
-			'name'        => 'REST API Client Fixture: Tag',
-			'slug'        => 'restapi-client-fixture-tag',
-			'description' => 'REST API Client Fixture: Tag',
-		) );
+		$media_id = $this->factory->attachment->create_object(
+			get_temp_dir() . 'canola.jpg',
+			0,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_excerpt'   => 'A sample caption',
+				'post_name'      => 'restapi-client-fixture-attachment',
+				'post_title'     => 'REST API Client Fixture: Attachment',
+				'post_date'      => '2017-02-14 00:00:00',
+				'post_date_gmt'  => '2017-02-14 00:00:00',
+				'post_author'    => 0,
+			)
+		);
 
-		$media_id = $this->factory->attachment->create_object( sys_get_temp_dir() . '/canola.jpg', 0, array(
-			'post_mime_type' => 'image/jpeg',
-			'post_excerpt'   => 'A sample caption',
-			'post_name'      => 'restapi-client-fixture-attachment',
-			'post_title'     => 'REST API Client Fixture: Attachment',
-			'post_date'      => '2017-02-14 00:00:00',
-			'post_date_gmt'  => '2017-02-14 00:00:00',
-			'post_author'    => 0,
-		) );
-
-		$comment_id = $this->factory->comment->create( array(
-			'comment_approved'     => 1,
-			'comment_post_ID'      => $post_id,
-			'user_id'              => 0,
-			'comment_date'         => '2017-02-14 00:00:00',
-			'comment_date_gmt'     => '2017-02-14 00:00:00',
-			'comment_author'       => 'Internet of something or other',
-			'comment_author_email' => 'lights@example.org',
-			'comment_author_url'   => 'http://lights.example.org/',
-		) );
-		$meta_args = array(
+		$comment_id = $this->factory->comment->create(
+			array(
+				'comment_approved'     => 1,
+				'comment_post_ID'      => $post_id,
+				'user_id'              => 0,
+				'comment_date'         => '2017-02-14 00:00:00',
+				'comment_date_gmt'     => '2017-02-14 00:00:00',
+				'comment_author'       => 'Internet of something or other',
+				'comment_author_email' => 'lights@example.org',
+				'comment_author_url'   => 'http://lights.example.org/',
+			)
+		);
+		$meta_args  = array(
 			'sanitize_callback' => 'sanitize_my_meta_key',
 			'auth_callback'     => '__return_true',
 			'type'              => 'string',

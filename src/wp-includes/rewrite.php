@@ -241,7 +241,7 @@ function remove_permastruct( $name ) {
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
  * @param bool $hard Whether to update .htaccess (hard flush) or just update
- *                   rewrite_rules transient (soft flush). Default is true (hard).
+ *                   rewrite_rules option (soft flush). Default is true (hard).
  */
 function flush_rewrite_rules( $hard = true ) {
 	global $wp_rewrite;
@@ -336,7 +336,7 @@ function wp_resolve_numeric_slug_conflicts( $query_vars = array() ) {
 
 	// Identify the 'postname' position in the permastruct array.
 	$permastructs   = array_values( array_filter( explode( '/', get_option( 'permalink_structure' ) ) ) );
-	$postname_index = array_search( '%postname%', $permastructs );
+	$postname_index = array_search( '%postname%', $permastructs, true );
 
 	if ( false === $postname_index ) {
 		return $query_vars;
@@ -487,7 +487,7 @@ function url_to_postid( $url ) {
 		$url = str_replace( '://www.', '://', $url );
 	}
 
-	if ( trim( $url, '/' ) === home_url() && 'page' == get_option( 'show_on_front' ) ) {
+	if ( trim( $url, '/' ) === home_url() && 'page' === get_option( 'show_on_front' ) ) {
 		$page_on_front = get_option( 'page_on_front' );
 
 		if ( $page_on_front && get_post( $page_on_front ) instanceof WP_Post ) {
@@ -565,7 +565,7 @@ function url_to_postid( $url ) {
 			parse_str( $query, $query_vars );
 			$query = array();
 			foreach ( (array) $query_vars as $key => $value ) {
-				if ( in_array( $key, $wp->public_query_vars ) ) {
+				if ( in_array( (string) $key, $wp->public_query_vars, true ) ) {
 					$query[ $key ] = $value;
 					if ( isset( $post_type_query_vars[ $key ] ) ) {
 						$query['post_type'] = $post_type_query_vars[ $key ];

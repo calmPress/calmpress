@@ -17,7 +17,7 @@ use calmpress\post_authors;
  *
  * @since 1.5.0
  *
- * @global object $authordata The current author's DB object.
+ * @global WP_User $authordata The current author's data.
  *
  * @return string|null The author's display name.
  */
@@ -48,7 +48,7 @@ function get_the_author() {
 	 *
 	 * @since 2.9.0
 	 *
-	 * @param string $authordata->display_name The author's display name.
+	 * @param string|null $display_name The author's display name.
 	 */
 	return apply_filters( 'the_author', $display_name );
 }
@@ -65,6 +65,7 @@ function get_the_author() {
  * return it. However, backward compatibility has to be maintained.
  *
  * @since 0.71
+ *
  * @see get_the_author()
  * @link https://developer.wordpress.org/reference/functions/the_author/
  *
@@ -97,7 +98,7 @@ function get_the_modified_editor() {
 		 *
 		 * @since 2.8.0
 		 *
-		 * @param string $last_user->display_name The author's display name.
+		 * @param string $display_name The author's display name.
 		 */
 		return apply_filters( 'the_modified_editor', $last_user->display_name );
 	}
@@ -149,7 +150,7 @@ function the_modified_editor() {
  *
  * @since 2.8.0
  *
- * @global object $authordata The current author's DB object.
+ * @global WP_User $authordata The current author's data.
  *
  * @param string    $field   Optional. The user field to retrieve. Default empty.
  * @param int|false $user_id Optional. User ID.
@@ -188,7 +189,7 @@ function get_the_author_meta( $field = '', $user_id = false ) {
 		$authordata = get_userdata( $user_id );
 	}
 
-	if ( in_array( $field, array( 'login', 'pass', 'nicename', 'email', 'registered', 'activation_key', 'status' ) ) ) {
+	if ( in_array( $field, array( 'login', 'pass', 'nicename', 'email', 'registered', 'activation_key', 'status' ), true ) ) {
 		$field = 'user_' . $field;
 	}
 
@@ -458,7 +459,7 @@ function wp_list_authors( $args = '' ) {
 			continue; // No need to go further to process HTML.
 		}
 
-		if ( 'list' == $args['style'] ) {
+		if ( 'list' === $args['style'] ) {
 			$return .= '<li>';
 		}
 
@@ -475,7 +476,7 @@ function wp_list_authors( $args = '' ) {
 		}
 
 		$return .= $link;
-		$return .= ( 'list' == $args['style'] ) ? '</li>' : ', ';
+		$return .= ( 'list' === $args['style'] ) ? '</li>' : ', ';
 	}
 
 	$return = rtrim( $return, ', ' );

@@ -52,7 +52,8 @@ if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
 			__( 'The file %1$s already exists. If you need to reset any of the configuration items in this file, please delete it first. You may try <a href="%2$s">installing now</a>.' ),
 			'<code>wp-config.php</code>',
 			'install.php'
-		) . '</p>'
+		) . '</p>',
+		409
 	);
 }
 
@@ -63,7 +64,8 @@ if ( @file_exists( ABSPATH . '../wp-config.php' ) && ! @file_exists( ABSPATH . '
 			__( 'The file %1$s already exists one level above your calmPress installation. If you need to reset any of the configuration items in this file, please delete it first. You may try <a href="%2$s">installing now</a>.' ),
 			'<code>wp-config.php</code>',
 			'install.php'
-		) . '</p>'
+		) . '</p>',
+		409
 	);
 }
 
@@ -92,7 +94,7 @@ function setup_config_display_header( $body_classes = array() ) {
 	header( 'Content-Type: text/html; charset=utf-8' );
 	?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"<?php echo $dir_attr; ?>>
+<html<?php echo $dir_attr; ?>>
 <head>
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -272,7 +274,7 @@ switch ( $step ) {
 
 		$key = 0;
 		foreach ( $config_file as $line_num => $line ) {
-			if ( '$table_prefix =' == substr( $line, 0, 15 ) ) {
+			if ( '$table_prefix =' === substr( $line, 0, 15 ) ) {
 				$config_file[ $line_num ] = '$table_prefix = \'' . addcslashes( $prefix, "\\'" ) . "';\r\n";
 				continue;
 			}

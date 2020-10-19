@@ -72,10 +72,8 @@ wp_initial_constants();
 wp_register_fatal_error_handler();
 
 // WordPress calculates offsets from UTC.
+// phpcs:ignore WordPress.DateTime.RestrictedFunctions.timezone_change_date_default_timezone_set
 date_default_timezone_set( 'UTC' );
-
-// Turn register_globals off.
-wp_unregister_GLOBALS();
 
 // Standardize $_SERVER variables across setups.
 wp_fix_server_vars();
@@ -265,6 +263,7 @@ require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-comments-controller
 require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-search-controller.php';
 require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-settings-controller.php';
 require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-themes-controller.php';
+require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-plugins-controller.php';
 require ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-meta-fields.php';
 require ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-comment-meta-fields.php';
 require ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-post-meta-fields.php';
@@ -272,6 +271,16 @@ require ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-term-meta-fields.php';
 require ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-user-meta-fields.php';
 require ABSPATH . WPINC . '/rest-api/search/class-wp-rest-search-handler.php';
 require ABSPATH . WPINC . '/rest-api/search/class-wp-rest-post-search-handler.php';
+require ABSPATH . WPINC . '/sitemaps.php';
+require ABSPATH . WPINC . '/sitemaps/class-wp-sitemaps.php';
+require ABSPATH . WPINC . '/sitemaps/class-wp-sitemaps-index.php';
+require ABSPATH . WPINC . '/sitemaps/class-wp-sitemaps-provider.php';
+require ABSPATH . WPINC . '/sitemaps/class-wp-sitemaps-registry.php';
+require ABSPATH . WPINC . '/sitemaps/class-wp-sitemaps-renderer.php';
+require ABSPATH . WPINC . '/sitemaps/class-wp-sitemaps-stylesheet.php';
+require ABSPATH . WPINC . '/sitemaps/providers/class-wp-sitemaps-posts.php';
+require ABSPATH . WPINC . '/sitemaps/providers/class-wp-sitemaps-taxonomies.php';
+require ABSPATH . WPINC . '/sitemaps/providers/class-wp-sitemaps-users.php';
 require ABSPATH . WPINC . '/blocks.php';
 
 $GLOBALS['wp_embed'] = new WP_Embed();

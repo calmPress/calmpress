@@ -158,6 +158,7 @@ class Tests_Term extends WP_UnitTestCase {
 		$term1 = wp_insert_term( 'Foo', 'category' );
 		$term2 = wp_insert_term( 'Bar', 'category' );
 		$term3 = wp_insert_term( 'Baz', 'category' );
+
 		wp_set_post_categories( $post_id, array( $term1['term_id'], $term2['term_id'] ) );
 		$this->assertEquals( 2, count( $post->post_category ) );
 		$this->assertEquals( array( $term2['term_id'], $term1['term_id'] ), $post->post_category );
@@ -166,6 +167,7 @@ class Tests_Term extends WP_UnitTestCase {
 		$this->assertEquals( array( $term2['term_id'], $term3['term_id'], $term1['term_id'] ), $post->post_category );
 
 		$term4 = wp_insert_term( 'Burrito', 'category' );
+
 		wp_set_post_categories( $post_id, $term4['term_id'] );
 		$this->assertEquals( array( $term4['term_id'] ), $post->post_category );
 
@@ -177,6 +179,30 @@ class Tests_Term extends WP_UnitTestCase {
 
 		wp_set_post_categories( $post_id, array() );
 		$this->assertEquals( 0, count( $post->post_category ) );
+	}
+
+	/**
+	 * @ticket 43516
+	 */
+	function test_wp_set_post_categories_sets_default_category_for_custom_post_types() {
+		add_filter( 'default_category_post_types', array( $this, 'filter_default_category_post_types' ) );
+
+		register_post_type( 'cpt', array( 'taxonomies' => array( 'category' ) ) );
+
+		$post_id = self::factory()->post->create( array( 'post_type' => 'cpt' ) );
+		$post    = get_post( $post_id );
+
+		$term = wp_insert_term( 'Foo', 'category' );
+
+		wp_set_post_categories( $post_id, $term['term_id'] );
+		$this->assertEquals( $term['term_id'], $post->post_category[0] );
+
+		remove_filter( 'default_category_post_types', array( $this, 'filter_default_category_post_types' ) );
+	}
+
+	function filter_default_category_post_types( $post_types ) {
+		$post_types[] = 'cpt';
+		return $post_types;
 	}
 
 	/**

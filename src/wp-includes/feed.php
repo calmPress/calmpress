@@ -18,6 +18,7 @@
  * are retrieved for use in the feeds.
  *
  * @since 1.5.1
+ *
  * @see get_bloginfo() For the list of possible values to display.
  *
  * @param string $show See get_bloginfo() for possible values.
@@ -47,6 +48,7 @@ function get_bloginfo_rss( $show = '' ) {
  * are retrieved for use in the feeds.
  *
  * @since 0.71
+ *
  * @see get_bloginfo() For the list of possible values to display.
  *
  * @param string $show See get_bloginfo() for possible values.
@@ -148,8 +150,7 @@ function get_the_title_rss() {
 	 *
 	 * @param string $title The current post title.
 	 */
-	$title = apply_filters( 'the_title_rss', $title );
-	return $title;
+	return apply_filters( 'the_title_rss', $title );
 }
 
 /**
@@ -165,6 +166,7 @@ function the_title_rss() {
  * Retrieve the post content for feeds.
  *
  * @since 2.9.0
+ *
  * @see get_the_content()
  *
  * @param string $feed_type The type of feed.
@@ -178,6 +180,7 @@ function get_the_content_feed( $feed_type = null ) {
 	/** This filter is documented in wp-includes/post-template.php */
 	$content = apply_filters( 'the_content', get_the_content() );
 	$content = str_replace( ']]>', ']]&gt;', $content );
+
 	/**
 	 * Filters the post content for use in feeds.
 	 *
@@ -255,7 +258,7 @@ function comments_link_feed() {
  *
  * @since 2.5.0
  *
- * @param int|WP_Comment $comment_id Optional comment object or id. Defaults to global comment object.
+ * @param int|WP_Comment $comment_id Optional comment object or ID. Defaults to global comment object.
  */
 function comment_guid( $comment_id = null ) {
 	echo esc_url( get_comment_guid( $comment_id ) );
@@ -266,7 +269,7 @@ function comment_guid( $comment_id = null ) {
  *
  * @since 2.5.0
  *
- * @param int|WP_Comment $comment_id Optional comment object or id. Defaults to global comment object.
+ * @param int|WP_Comment $comment_id Optional comment object or ID. Defaults to global comment object.
  * @return string|false GUID for comment on success, false on failure.
  */
 function get_comment_guid( $comment_id = null ) {
@@ -285,7 +288,7 @@ function get_comment_guid( $comment_id = null ) {
  * @since 1.5.0
  * @since 4.4.0 Introduced the `$comment` argument.
  *
- * @param int|WP_Comment $comment Optional. Comment object or id. Defaults to global comment object.
+ * @param int|WP_Comment $comment Optional. Comment object or ID. Defaults to global comment object.
  */
 function comment_link( $comment = null ) {
 	/**
@@ -376,6 +379,7 @@ function get_the_category_rss( $type = null ) {
  * Display the post categories in the feed.
  *
  * @since 0.71
+ *
  * @see get_the_category_rss() For better explanation.
  *
  * @param string $type Optional, default is the type returned by get_default_feed().
@@ -471,7 +475,7 @@ function rss2_site_icon() {
  * @return string Correct link for the atom:self element.
  */
 function get_self_link() {
-	$host = @parse_url( home_url() );
+	$host = parse_url( home_url() );
 	return set_url_scheme( 'http://' . $host['host'] . wp_unslash( $_SERVER['REQUEST_URI'] ) );
 }
 

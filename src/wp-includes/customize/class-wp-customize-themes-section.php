@@ -143,7 +143,7 @@ class WP_Customize_Themes_Section extends WP_Customize_Section {
 			<span class="themes-displayed">
 				<?php
 				/* translators: %s: Number of themes displayed. */
-				echo sprintf( __( '%s themes' ), '<span class="theme-count">0</span>' );
+				printf( __( '%s themes' ), '<span class="theme-count">0</span>' );
 				?>
 			</span>
 		</div>
@@ -158,7 +158,9 @@ class WP_Customize_Themes_Section extends WP_Customize_Section {
 	 * @since 4.9.0
 	 */
 	protected function filter_drawer_content_template() {
-		$feature_list = get_theme_feature_list( false ); // @todo Use the .org API instead of the local core feature list. The .org API is currently outdated and will be reconciled when the .org themes directory is next redesigned.
+		// @todo Use the .org API instead of the local core feature list.
+		// The .org API is currently outdated and will be reconciled when the .org themes directory is next redesigned.
+		$feature_list = get_theme_feature_list( false );
 		?>
 		<# if ( 'wporg' === data.action ) { #>
 			<div class="filter-drawer filter-details">

@@ -117,11 +117,11 @@ function calmseventeen_get_svg( $args = array() ) {
 /**
  * Display SVG icons in social links menu.
  *
- * @param  string  $item_output The menu item output.
- * @param  WP_Post $item        Menu item object.
- * @param  int     $depth       Depth of the menu.
- * @param  array   $args        wp_nav_menu() arguments.
- * @return string  $item_output The menu item output with social icon.
+ * @param string   $item_output The menu item's starting HTML output.
+ * @param WP_Post  $item        Menu item data object.
+ * @param int      $depth       Depth of the menu. Used for padding.
+ * @param stdClass $args        An object of wp_nav_menu() arguments.
+ * @return string The menu item output with social icon.
  */
 function calmseventeen_nav_menu_social_icons( $item_output, $item, $depth, $args ) {
 	// Get supported social icons.
@@ -143,11 +143,11 @@ add_filter( 'walker_nav_menu_start_el', 'calmseventeen_nav_menu_social_icons', 1
 /**
  * Add dropdown icon if menu item has children.
  *
- * @param  string  $title The menu item's title.
- * @param  WP_Post $item  The current menu item.
- * @param  array   $args  An array of wp_nav_menu() arguments.
- * @param  int     $depth Depth of menu item. Used for padding.
- * @return string  $title The menu item's title with dropdown icon.
+ * @param string   $title The menu item's title.
+ * @param WP_Post  $item  The current menu item.
+ * @param stdClass $args  An object of wp_nav_menu() arguments.
+ * @param int      $depth Depth of menu item. Used for padding.
+ * @return string The menu item's title with dropdown icon.
  */
 function calmseventeen_dropdown_icon_to_menu_link( $title, $item, $args, $depth ) {
 	if ( 'top' === $args->theme_location ) {
@@ -165,7 +165,7 @@ add_filter( 'nav_menu_item_title', 'calmseventeen_dropdown_icon_to_menu_link', 1
 /**
  * Returns an array of supported social links (URL and icon name).
  *
- * @return array $social_links_icons
+ * @return array Array of social links icons.
  */
 function calmseventeen_social_links_icons() {
 	// Supported social links icons.
@@ -197,12 +197,17 @@ function calmseventeen_social_links_icons() {
 		'soundcloud.com'  => 'soundcloud',
 		'spotify.com'     => 'spotify',
 		'stumbleupon.com' => 'stumbleupon',
+		't.me'            => 'telegram',
+		'telegram.me'     => 'telegram',
 		'tumblr.com'      => 'tumblr',
 		'twitch.tv'       => 'twitch',
 		'twitter.com'     => 'twitter',
 		'vimeo.com'       => 'vimeo',
 		'vine.co'         => 'vine',
 		'vk.com'          => 'vk',
+		'whatsapp.com'    => 'whatsapp',
+		'wordpress.org'   => 'wordpress',
+		'wordpress.com'   => 'wordpress',
 		'yelp.com'        => 'yelp',
 		'youtube.com'     => 'youtube',
 	);

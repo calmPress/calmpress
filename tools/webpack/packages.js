@@ -80,9 +80,19 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 	const minifyVendors = {
 	};
 
-	const externals = {
-		tinymce: 'tinymce',
-		jquery: 'jQuery',
+	const dynamicBlockFolders = [
+	];
+	const blockFolders = [
+		...dynamicBlockFolders,
+	];
+	const phpFiles = {
+	};
+	
+	const blockMetadataFiles = {
+		...blockFolders.reduce( ( files, blockName ) => {
+			files[ `block-library/src/${ blockName }/block.json` ] = `wp-includes/blocks/${ blockName }/block.json`;
+			return files;
+		} , {} ),
 	};
 
 	const developmentCopies = mapVendorCopies( vendors, buildTarget );
@@ -124,6 +134,11 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 		}
 	} ) );
 
+	const phpCopies = Object.keys( phpFiles ).map( ( filename ) => ( {
+		from: join( baseDir, `node_modules/@wordpress/${ filename }` ),
+		to: join( baseDir, `src/${ phpFiles[ filename ] }` ),
+	} ) );
+	
 	const config = {
 		mode,
 
@@ -163,6 +178,9 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 			new DefinePlugin( {
 				// Inject the `GUTENBERG_PHASE` global, used for feature flagging.
 				'process.env.GUTENBERG_PHASE': 1,
+				'process.env.FORCE_REDUCED_MOTION': JSON.stringify(
+					process.env.FORCE_REDUCED_MOTION
+				),
 			} ),
 			new LibraryExportDefaultPlugin( [
 				'api-fetch',
@@ -199,11 +217,13 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 			new DependencyExtractionPlugin( {
 				injectPolyfill: true,
 				combineAssets: true,
+				combinedOutputFile: '../../assets/script-loader-packages.php',
 			} ),
 			new CopyWebpackPlugin(
 				[
 					...vendorCopies,
 					...cssCopies,
+					...phpCopies,
 				],
 			),
 		],

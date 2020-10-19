@@ -80,6 +80,7 @@ switch ( $action ) {
 					'sslverify'   => false,
 				)
 			);
+
 			if ( is_wp_error( $response ) ) {
 				wp_die(
 					sprintf(
@@ -99,6 +100,7 @@ switch ( $action ) {
 			 * @param array|WP_Error $response The upgrade response array or WP_Error on failure.
 			 */
 			do_action( 'after_mu_upgrade', $response );
+
 			/**
 			 * Fires after each site has been upgraded.
 			 *

@@ -27,9 +27,9 @@ class Tests_oEmbed_Response_Data extends WP_UnitTestCase {
 			array(
 				'version'       => '1.0',
 				'provider_name' => get_bloginfo( 'name' ),
-				'provider_url'  => get_home_url( '/' ),
+				'provider_url'  => home_url(),
 				'author_name'   => get_bloginfo( 'name' ),
-				'author_url'    => get_home_url( '/' ),
+				'author_url'    => home_url(),
 				'title'         => 'Some Post',
 				'type'          => 'rich',
 				'width'         => 400,
@@ -63,7 +63,7 @@ class Tests_oEmbed_Response_Data extends WP_UnitTestCase {
 			array(
 				'version'       => '1.0',
 				'provider_name' => get_bloginfo( 'name' ),
-				'provider_url'  => get_home_url( '/' ),
+				'provider_url'  => home_url(),
 				'author_name'   => 'John Doe',
 				'author_url'    => get_author_posts_url( $user_id ),
 				'title'         => 'Some Post',
@@ -91,9 +91,9 @@ class Tests_oEmbed_Response_Data extends WP_UnitTestCase {
 			array(
 				'version'       => '1.0',
 				'provider_name' => get_bloginfo( 'name' ),
-				'provider_url'  => get_home_url( '/' ),
+				'provider_url'  => home_url(),
 				'author_name'   => get_bloginfo( 'name' ),
-				'author_url'    => get_home_url( '/' ),
+				'author_url'    => home_url(),
 				'title'         => 'Some Post',
 				'type'          => 'link',
 			),

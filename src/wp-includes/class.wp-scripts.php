@@ -207,7 +207,7 @@ class WP_Scripts extends WP_Dependencies {
 			return $output;
 		}
 
-		echo "<script{$this->type_attr}>\n";
+		printf( "<script%s id='%s-js-extra'>\n", $this->type_attr, esc_attr( $handle ) );
 
 		// CDATA is not needed for HTML 5.
 		if ( $this->type_attr ) {
@@ -278,17 +278,22 @@ class WP_Scripts extends WP_Dependencies {
 		$after_handle  = $this->print_inline_script( $handle, 'after', false );
 
 		if ( $before_handle ) {
-			$before_handle = sprintf( "<script%s>\n%s\n</script>\n", $this->type_attr, $before_handle );
+			$before_handle = sprintf( "<script%s id='%s-js-before'>\n%s\n</script>\n", $this->type_attr, esc_attr( $handle ), $before_handle );
 		}
 
 		if ( $after_handle ) {
-			$after_handle = sprintf( "<script%s>\n%s\n</script>\n", $this->type_attr, $after_handle );
+			$after_handle = sprintf( "<script%s id='%s-js-after'>\n%s\n</script>\n", $this->type_attr, esc_attr( $handle ), $after_handle );
 		}
 
 		if ( $before_handle || $after_handle ) {
 			$inline_script_tag = $cond_before . $before_handle . $after_handle . $cond_after;
 		} else {
 			$inline_script_tag = '';
+		}
+
+		$translations = $this->print_translations( $handle, false );
+		if ( $translations ) {
+			$translations = sprintf( "<script%s id='%s-js-translations'>\n%s\n</script>\n", $this->type_attr, esc_attr( $handle ), $translations );
 		}
 
 		if ( $this->do_concat ) {
@@ -302,7 +307,7 @@ class WP_Scripts extends WP_Dependencies {
 			 */
 			$srce = apply_filters( 'script_loader_src', $src, $handle );
 
-			if ( $this->in_default_dir( $srce ) && ( $before_handle || $after_handle ) ) {
+			if ( $this->in_default_dir( $srce ) && ( $before_handle || $after_handle || $translations ) ) {
 				$this->do_concat = false;
 
 				// Have to print the so-far concatenated scripts right away to maintain the right order.
@@ -344,11 +349,6 @@ class WP_Scripts extends WP_Dependencies {
 			return true;
 		}
 
-		$translations = $this->print_translations( $handle, false );
-		if ( $translations ) {
-			$translations = sprintf( "<script%s>\n%s\n</script>\n", $this->type_attr, $translations );
-		}
-
 		if ( ! preg_match( '|^(https?:)?//|', $src ) && ! ( $this->content_url && 0 === strpos( $src, $this->content_url ) ) ) {
 			$src = $this->base_url . $src;
 		}
@@ -365,7 +365,7 @@ class WP_Scripts extends WP_Dependencies {
 		}
 
 		$tag  = $translations . $cond_before . $before_handle;
-		$tag .= sprintf( "<script%s src='%s'></script>\n", $this->type_attr, $src );
+		$tag .= sprintf( "<script%s src='%s' id='%s-js'></script>\n", $this->type_attr, $src, esc_attr( $handle ) );
 		$tag .= $after_handle . $cond_after;
 
 		/**
@@ -438,7 +438,7 @@ class WP_Scripts extends WP_Dependencies {
 		$output = trim( implode( "\n", $output ), "\n" );
 
 		if ( $echo ) {
-			printf( "<script%s>\n%s\n</script>\n", $this->type_attr, $output );
+			printf( "<script%s id='%s-js-%s'>\n%s\n</script>\n", $this->type_attr, esc_attr( $handle ), esc_attr( $position ), $output );
 		}
 
 		return $output;
@@ -575,7 +575,7 @@ class WP_Scripts extends WP_Dependencies {
 JS;
 
 		if ( $echo ) {
-			printf( "<script%s>\n%s\n</script>\n", $this->type_attr, $output );
+			printf( "<script%s id='%s-js-translations'>\n%s\n</script>\n", $this->type_attr, esc_attr( $handle ), $output );
 		}
 
 		return $output;

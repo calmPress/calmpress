@@ -14,12 +14,13 @@
  *
  * @since 5.0.0
  *
- * @param string|WP_Block_Type $name Block type name including namespace, or alternatively a
- *                                   complete WP_Block_Type instance. In case a WP_Block_Type
+ * @param string|WP_Block_Type $name Block type name including namespace, or alternatively
+ *                                   a complete WP_Block_Type instance. In case a WP_Block_Type
  *                                   is provided, the $args parameter will be ignored.
  * @param array                $args {
- *     Optional. Array of block type arguments. Any arguments may be defined, however the
- *     ones described below are supported by default. Default empty array.
+ *     Optional. Array of block type arguments. Accepts any public property of `WP_Block_Type`.
+ *     Any arguments may be defined, however the ones described below are supported by default.
+ *     Default empty array.
  *
  *     @type callable $render_callback Callback used to render blocks of this block type.
  * }
@@ -36,12 +37,223 @@ function register_block_type( $name, $args = array() ) {
  *
  * @since 5.0.0
  *
- * @param string|WP_Block_Type $name Block type name including namespace, or alternatively a
- *                                   complete WP_Block_Type instance.
+ * @param string|WP_Block_Type $name Block type name including namespace, or alternatively
+ *                                   a complete WP_Block_Type instance.
  * @return WP_Block_Type|false The unregistered block type on success, or false on failure.
  */
 function unregister_block_type( $name ) {
 	false;
+}
+
+/**
+ * Removes the block asset's path prefix if provided.
+ *
+ * @since 5.5.0
+ *
+ * @param string $asset_handle_or_path Asset handle or prefixed path.
+ * @return string Path without the prefix or the original value.
+ */
+function remove_block_asset_path_prefix( $asset_handle_or_path ) {
+	$path_prefix = 'file:';
+	if ( 0 !== strpos( $asset_handle_or_path, $path_prefix ) ) {
+		return $asset_handle_or_path;
+	}
+	return substr(
+		$asset_handle_or_path,
+		strlen( $path_prefix )
+	);
+}
+
+/**
+ * Generates the name for an asset based on the name of the block
+ * and the field name provided.
+ *
+ * @since 5.5.0
+ *
+ * @param string $block_name Name of the block.
+ * @param string $field_name Name of the metadata field.
+ * @return string Generated asset name for the block's field.
+ */
+function generate_block_asset_handle( $block_name, $field_name ) {
+	$field_mappings = array(
+		'editorScript' => 'editor-script',
+		'script'       => 'script',
+		'editorStyle'  => 'editor-style',
+		'style'        => 'style',
+	);
+	return str_replace( '/', '-', $block_name ) .
+		'-' . $field_mappings[ $field_name ];
+}
+
+/**
+ * Finds a script handle for the selected block metadata field. It detects
+ * when a path to file was provided and finds a corresponding asset file
+ * with details necessary to register the script under automatically
+ * generated handle name. It returns unprocessed script handle otherwise.
+ *
+ * @since 5.5.0
+ *
+ * @param array  $metadata   Block metadata.
+ * @param string $field_name Field name to pick from metadata.
+ * @return string|bool Script handle provided directly or created through
+ *                     script's registration, or false on failure.
+ */
+function register_block_script_handle( $metadata, $field_name ) {
+	if ( empty( $metadata[ $field_name ] ) ) {
+		return false;
+	}
+	$script_handle = $metadata[ $field_name ];
+	$script_path   = remove_block_asset_path_prefix( $metadata[ $field_name ] );
+	if ( $script_handle === $script_path ) {
+		return $script_handle;
+	}
+
+	$script_handle     = generate_block_asset_handle( $metadata['name'], $field_name );
+	$script_asset_path = realpath(
+		dirname( $metadata['file'] ) . '/' .
+		substr_replace( $script_path, '.asset.php', - strlen( '.js' ) )
+	);
+	if ( ! file_exists( $script_asset_path ) ) {
+		$message = sprintf(
+			/* translators: %1: field name. %2: block name */
+			__( 'The asset file for the "%1$s" defined in "%2$s" block definition is missing.', 'default' ),
+			$field_name,
+			$metadata['name']
+		);
+		_doing_it_wrong( __FUNCTION__, $message, '5.5.0' );
+		return false;
+	}
+	$script_asset = require $script_asset_path;
+	$result       = wp_register_script(
+		$script_handle,
+		plugins_url( $script_path, $metadata['file'] ),
+		$script_asset['dependencies'],
+		$script_asset['version']
+	);
+	return $result ? $script_handle : false;
+}
+
+/**
+ * Finds a style handle for the block metadata field. It detects when a path
+ * to file was provided and registers the style under automatically
+ * generated handle name. It returns unprocessed style handle otherwise.
+ *
+ * @since 5.5.0
+ *
+ * @param array  $metadata Block metadata.
+ * @param string $field_name Field name to pick from metadata.
+ * @return string|boolean Style handle provided directly or created through
+ *                        style's registration, or false on failure.
+ */
+function register_block_style_handle( $metadata, $field_name ) {
+	if ( empty( $metadata[ $field_name ] ) ) {
+		return false;
+	}
+	$style_handle = $metadata[ $field_name ];
+	$style_path   = remove_block_asset_path_prefix( $metadata[ $field_name ] );
+	if ( $style_handle === $style_path ) {
+		return $style_handle;
+	}
+
+	$style_handle = generate_block_asset_handle( $metadata['name'], $field_name );
+	$block_dir    = dirname( $metadata['file'] );
+	$result       = wp_register_style(
+		$style_handle,
+		plugins_url( $style_path, $metadata['file'] ),
+		array(),
+		filemtime( realpath( "$block_dir/$style_path" ) )
+	);
+	return $result ? $style_handle : false;
+}
+
+/**
+ * Registers a block type from metadata stored in the `block.json` file.
+ *
+ * @since 5.5.0
+ *
+ * @param string $file_or_folder Path to the JSON file with metadata definition for
+ *                               the block or path to the folder where the `block.json` file is located.
+ * @param array  $args {
+ *     Optional. Array of block type arguments. Accepts any public property of `WP_Block_Type`.
+ *     Any arguments may be defined, however the ones described below are supported by default.
+ *     Default empty array.
+ *
+ *     @type callable $render_callback Callback used to render blocks of this block type.
+ * }
+ * @return WP_Block_Type|false The registered block type on success, or false on failure.
+ */
+function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
+	$filename      = 'block.json';
+	$metadata_file = ( substr( $file_or_folder, -strlen( $filename ) ) !== $filename ) ?
+		trailingslashit( $file_or_folder ) . $filename :
+		$file_or_folder;
+	if ( ! file_exists( $metadata_file ) ) {
+		return false;
+	}
+
+	$metadata = json_decode( file_get_contents( $metadata_file ), true );
+	if ( ! is_array( $metadata ) || empty( $metadata['name'] ) ) {
+		return false;
+	}
+	$metadata['file'] = $metadata_file;
+
+	$settings          = array();
+	$property_mappings = array(
+		'title'           => 'title',
+		'category'        => 'category',
+		'parent'          => 'parent',
+		'icon'            => 'icon',
+		'description'     => 'description',
+		'keywords'        => 'keywords',
+		'attributes'      => 'attributes',
+		'providesContext' => 'provides_context',
+		'usesContext'     => 'uses_context',
+		'supports'        => 'supports',
+		'styles'          => 'styles',
+		'example'         => 'example',
+	);
+
+	foreach ( $property_mappings as $key => $mapped_key ) {
+		if ( isset( $metadata[ $key ] ) ) {
+			$settings[ $mapped_key ] = $metadata[ $key ];
+		}
+	}
+
+	if ( ! empty( $metadata['editorScript'] ) ) {
+		$settings['editor_script'] = register_block_script_handle(
+			$metadata,
+			'editorScript'
+		);
+	}
+
+	if ( ! empty( $metadata['script'] ) ) {
+		$settings['script'] = register_block_script_handle(
+			$metadata,
+			'script'
+		);
+	}
+
+	if ( ! empty( $metadata['editorStyle'] ) ) {
+		$settings['editor_style'] = register_block_style_handle(
+			$metadata,
+			'editorStyle'
+		);
+	}
+
+	if ( ! empty( $metadata['style'] ) ) {
+		$settings['style'] = register_block_style_handle(
+			$metadata,
+			'style'
+		);
+	}
+
+	return register_block_type(
+		$metadata['name'],
+		array_merge(
+			$settings,
+			$args
+		)
+	);
 }
 
 /**
@@ -54,6 +266,7 @@ function unregister_block_type( $name ) {
  * Always returns false for calmPress.
  *
  * @since 5.0.0
+ *
  * @see parse_blocks()
  *
  * @param int|string|WP_Post|null $post Optional. Post content, post ID, or post object. Defaults to global $post.
@@ -73,6 +286,7 @@ function has_blocks( $post = null ) {
  * Always returns false for calmPress.
  *
  * @since 5.0.0
+ *
  * @see parse_blocks()
  *
  * @param string                  $block_name Full Block type to look for.
@@ -106,7 +320,7 @@ function get_dynamic_block_names() {
  *
  * @since 5.3.1
  *
- * @param array $attributes Attributes object.
+ * @param array $block_attributes Attributes object.
  * @return string Serialized attributes.
  */
 function serialize_block_attributes( $block_attributes ) {
@@ -143,9 +357,9 @@ function strip_core_block_namespace( $block_name = null ) {
  *
  * @since 5.3.1
  *
- * @param string $block_name Block name.
- * @param array  $attributes Block attributes.
- * @param string $content    Block save content.
+ * @param string $block_name       Block name.
+ * @param array  $block_attributes Block attributes.
+ * @param string $block_content    Block save content.
  * @return string Comment-delimited block content.
  */
 function get_comment_delimited_block_content( $block_name = null, $block_attributes, $block_content ) {
@@ -238,10 +452,10 @@ function excerpt_remove_blocks( $content ) {
  * Returns empty string for calmPress.
  *
  * @since 5.0.0
+ * 
+ * @since calmPress 1.0.0 returns empty string
  *
- * @global WP_Post $post The post to edit.
- *
- * @param array $block A single parsed block object.
+ * @param array $parsed_block A single parsed block object.
  * @return string String of rendered HTML.
  */
 function render_block( $block ) {
@@ -298,8 +512,9 @@ function block_version( $content ) {
  * @since 5.3.0
  *
  * @param string $block_name       Block type name including namespace.
- * @param array  $style_properties Array containing the properties of the style name, label, style (name of the stylesheet to be enqueued), inline_style (string containing the CSS to be added).
- *
+ * @param array  $style_properties Array containing the properties of the style name,
+ *                                 label, style (name of the stylesheet to be enqueued),
+ *                                 inline_style (string containing the CSS to be added).
  * @return boolean True if the block style was registered with success and false otherwise.
  */
 function register_block_style( $block_name, $style_properties ) {
@@ -313,7 +528,6 @@ function register_block_style( $block_name, $style_properties ) {
  *
  * @param string $block_name       Block type name including namespace.
  * @param array  $block_style_name Block style name.
- *
  * @return boolean True if the block style was unregistered with success and false otherwise.
  */
 function unregister_block_style( $block_name, $block_style_name ) {

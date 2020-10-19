@@ -36,7 +36,7 @@ function ms_upload_constants() {
 		define( 'UPLOADS', UPLOADBLOGSDIR . '/' . $site_id . '/files/' );
 
 		// Uploads dir relative to ABSPATH.
-		if ( 'wp-content/blogs.dir' == UPLOADBLOGSDIR && ! defined( 'BLOGUPLOADDIR' ) ) {
+		if ( 'wp-content/blogs.dir' === UPLOADBLOGSDIR && ! defined( 'BLOGUPLOADDIR' ) ) {
 			define( 'BLOGUPLOADDIR', WP_CONTENT_DIR . '/blogs.dir/' . $site_id . '/files/' );
 		}
 	}

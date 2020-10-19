@@ -747,7 +747,7 @@ class WP_Rewrite {
 	 * @param string $query String to append to the rewritten query. Must end in '='.
 	 */
 	public function add_rewrite_tag( $tag, $regex, $query ) {
-		$position = array_search( $tag, $this->rewritecode );
+		$position = array_search( $tag, $this->rewritecode, true );
 		if ( false !== $position && null !== $position ) {
 			$this->rewritereplace[ $position ] = $regex;
 			$this->queryreplace[ $position ]   = $query;
@@ -771,7 +771,7 @@ class WP_Rewrite {
 	 * @param string $tag Name of the rewrite tag to remove.
 	 */
 	public function remove_rewrite_tag( $tag ) {
-		$position = array_search( $tag, $this->rewritecode );
+		$position = array_search( $tag, $this->rewritecode, true );
 		if ( false !== $position && null !== $position ) {
 			unset( $this->rewritecode[ $position ] );
 			unset( $this->rewritereplace[ $position ] );
@@ -1130,7 +1130,8 @@ class WP_Rewrite {
 	 * @see WP_Rewrite::generate_rewrite_rules() See for long description and rest of parameters.
 	 *
 	 * @param string $permalink_structure The permalink structure to generate rules.
-	 * @param bool   $walk_dirs           Optional, default is false. Whether to create list of directories to walk over.
+	 * @param bool   $walk_dirs           Optional. Whether to create list of directories to walk over.
+	 *                                    Default false.
 	 * @return array
 	 */
 	public function generate_rewrite_rule( $permalink_structure, $walk_dirs = false ) {
@@ -1159,10 +1160,10 @@ class WP_Rewrite {
 
 		// robots.txt -- only if installed at the root.
 		$home_path      = parse_url( home_url() );
-		$robots_rewrite = ( empty( $home_path['path'] ) || '/' == $home_path['path'] ) ? array( 'robots\.txt$' => $this->index . '?robots=1' ) : array();
+		$robots_rewrite = ( empty( $home_path['path'] ) || '/' === $home_path['path'] ) ? array( 'robots\.txt$' => $this->index . '?robots=1' ) : array();
 
 		// favicon.ico -- only if installed at the root.
-		$favicon_rewrite = ( empty( $home_path['path'] ) || '/' == $home_path['path'] ) ? array( 'favicon\.ico$' => $this->index . '?favicon=1' ) : array();
+		$favicon_rewrite = ( empty( $home_path['path'] ) || '/' === $home_path['path'] ) ? array( 'favicon\.ico$' => $this->index . '?favicon=1' ) : array();
 
 		// Registration rules.
 		$registration_pages = array();
@@ -1281,7 +1282,8 @@ class WP_Rewrite {
 			 * @param string[] $rules Array of rewrite rules generated for the current permastruct, keyed by their regex pattern.
 			 */
 			$rules = apply_filters( "{$permastructname}_rewrite_rules", $rules );
-			if ( 'post_tag' == $permastructname ) {
+
+			if ( 'post_tag' === $permastructname ) {
 
 				/**
 				 * Filters rewrite rules used specifically for Tags.
@@ -1325,7 +1327,7 @@ class WP_Rewrite {
 		 *
 		 * @since 1.5.0
 		 *
-		 * @param string[] $this->rules The compiled array of rewrite rules, keyed by their regex pattern.
+		 * @param string[] $rules The compiled array of rewrite rules, keyed by their regex pattern.
 		 */
 		$this->rules = apply_filters( 'rewrite_rules_array', $this->rules );
 
@@ -1584,7 +1586,7 @@ class WP_Rewrite {
 		if ( $external ) {
 			$this->add_external_rule( $regex, $query );
 		} else {
-			if ( 'bottom' == $after ) {
+			if ( 'bottom' === $after ) {
 				$this->extra_rules = array_merge( $this->extra_rules, array( $regex => $query ) );
 			} else {
 				$this->extra_rules_top = array_merge( $this->extra_rules_top, array( $regex => $query ) );
@@ -1720,8 +1722,6 @@ class WP_Rewrite {
 	 *
 	 * @since 2.0.1
 	 *
-	 * @staticvar bool $do_hard_later
-	 *
 	 * @param bool $hard Whether to update .htaccess (hard flush) or just update rewrite_rules option (soft flush). Default is true (hard).
 	 */
 	public function flush_rules( $hard = true ) {
@@ -1794,7 +1794,8 @@ class WP_Rewrite {
 		unset( $this->search_structure );
 		unset( $this->feed_structure );
 		unset( $this->comment_feed_structure );
-		$this->use_trailing_slashes = ( '/' == substr($this->permalink_structure, -1, 1 ) );
+
+		$this->use_trailing_slashes = ( '/' === substr( $this->permalink_structure, -1, 1 ) );
 
 		// Enable generic rules for pages if permalink structure doesn't begin with a wildcard.
 		if ( preg_match( '/^[^%]*%(?:postname|category|tag|author)%/', $this->permalink_structure ) ) {

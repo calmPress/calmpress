@@ -38,6 +38,7 @@ if ( isset( $_REQUEST['action'] ) && 'add-user' == $_REQUEST['action'] ) {
 	$user = wp_unslash( $_POST['user'] );
 
 	$user_details = wpmu_validate_user_signup( md5( $user['email'] ), $user['email'] );
+
 	if ( is_wp_error( $user_details[ 'errors' ] ) && ! empty( $user_details[ 'errors' ]->errors ) ) {
 		$add_user_errors = $user_details[ 'errors' ];
 	} else {
@@ -55,6 +56,7 @@ if ( isset( $_REQUEST['action'] ) && 'add-user' == $_REQUEST['action'] ) {
 			 * @param int $user_id ID of the newly created user.
 			 */
 			do_action( 'network_user_new_created_user', $user_id );
+
 			wp_redirect(
 				add_query_arg(
 					array(
@@ -71,7 +73,7 @@ if ( isset( $_REQUEST['action'] ) && 'add-user' == $_REQUEST['action'] ) {
 
 if ( isset( $_GET['update'] ) ) {
 	$messages = array();
-	if ( 'added' == $_GET['update'] ) {
+	if ( 'added' === $_GET['update'] ) {
 		$edit_link = '';
 		if ( isset( $_GET['user_id'] ) ) {
 			$user_id_new = absint( $_GET['user_id'] );

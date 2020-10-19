@@ -130,8 +130,8 @@ function wp_schedule_single_event( $timestamp, $hook, $args = array() ) {
 	 *
 	 * @since 3.1.0
 	 *
-	 * @param stdClass $event {
-	 *     An object containing an event's data.
+	 * @param stdClass|false $event {
+	 *     An object containing an event's data, or boolean false to prevent the event from being scheduled.
 	 *
 	 *     @type string       $hook      Action hook to execute when the event is run.
 	 *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
@@ -845,7 +845,7 @@ function wp_get_schedules() {
  * @since 5.1.0 {@see 'get_schedule'} filter added.
  *
  * @param string $hook Action hook to identify the event.
- * @param array $args Optional. Arguments passed to the event's callback function.
+ * @param array  $args Optional. Arguments passed to the event's callback function.
  * @return string|false False, if no schedule. Schedule name on success.
  */
 function wp_get_schedule( $hook, $args = array() ) {

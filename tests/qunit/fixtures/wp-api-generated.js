@@ -7939,7 +7939,7 @@ mockedApiResponse.Schema = {
             "endpoints": [
                 {
                     "methods": [
-                        "GET"
+                        "POST"
                     ],
                     "args": []
                 },
@@ -8024,49 +8024,19 @@ mockedApiResponse.Schema = {
                         "PATCH"
                     ],
                     "args": {
-                        "title": {
+                        "context": {
                             "required": false,
-                            "description": "Site title.",
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
                             "type": "string"
                         },
-                        "description": {
+                        "plugin": {
                             "required": false,
-                            "description": "Site tagline.",
-                            "type": "string"
-                        },
-                        "url": {
-                            "required": false,
-                            "description": "Site URL.",
-                            "type": "string"
-                        },
-                        "email": {
-                            "required": false,
-                            "description": "This address is used for admin purposes, like new user notification.",
-                            "type": "string"
-                        },
-                        "timezone": {
-                            "required": false,
-                            "description": "A city in the same timezone as you.",
-                            "type": "string"
-                        },
-                        "date_format": {
-                            "required": false,
-                            "description": "A date format for all date strings.",
-                            "type": "string"
-                        },
-                        "time_format": {
-                            "required": false,
-                            "description": "A time format for all time strings.",
-                            "type": "string"
-                        },
-                        "start_of_week": {
-                            "required": false,
-                            "description": "A day number of the week that the week should start on.",
-                            "type": "integer"
-                        },
-                        "language": {
-                            "required": false,
-                            "description": "WordPress locale code.",
                             "type": "string"
                         },
                         "posts_per_page": {
@@ -8085,12 +8055,9 @@ mockedApiResponse.Schema = {
                         }
                     }
                 }
-            ],
-            "_links": {
-                "self": "http://example.org/index.php?rest_route=/wp/v2/settings"
-            }
+            ]
         },
-        "/wp/v2/themes": {
+        "/wp/v2/block-directory/search": {
             "namespace": "wp/v2",
             "methods": [
                 "GET",
@@ -8104,6 +8071,10 @@ mockedApiResponse.Schema = {
                     "args": {
                         "context": {
                             "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view"
+                            ],
                             "description": "Scope under which the request is made; determines fields present in response.",
                             "type": "string"
                         },
@@ -8119,21 +8090,10 @@ mockedApiResponse.Schema = {
                             "description": "Maximum number of items to be returned in result set.",
                             "type": "integer"
                         },
-                        "search": {
-                            "required": false,
-                            "description": "Limit results to those matching a string.",
-                            "type": "string"
-                        },
-                        "status": {
+                        "term": {
                             "required": true,
-                            "description": "Limit result set to themes assigned one or more statuses.",
-                            "type": "array",
-                            "items": {
-                                "enum": [
-                                    "active"
-                                ],
-                                "type": "string"
-                            }
+                            "description": "Limit result set to blocks matching the search term.",
+                            "type": "string"
                         }
                     }
                 },
@@ -8179,7 +8139,11 @@ mockedApiResponse.Schema = {
                 }
             ],
             "_links": {
-                "self": "http://example.org/index.php?rest_route=/wp/v2/themes"
+                "self": [
+                    {
+                        "href": "http://example.org/index.php?rest_route=/wp/v2/block-directory/search"
+                    }
+                ]
             }
         },
         "/oembed/1.0": {
@@ -8331,7 +8295,9 @@ mockedApiResponse.oembed = {
                     ],
                     "args": {
                         "url": {
-                            "required": true
+                            "required": true,
+                            "description": "The URL of the resource for which to fetch oEmbed data.",
+                            "type": "string"
                         },
                         "format": {
                             "required": false,
@@ -8388,7 +8354,7 @@ mockedApiResponse.oembed = {
                         "discover": {
                             "required": false,
                             "default": true,
-                            "description": "Whether to perform an oEmbed discovery request for non-whitelisted providers.",
+                            "description": "Whether to perform an oEmbed discovery request for unsanctioned providers.",
                             "type": "boolean"
                         }
                     }
