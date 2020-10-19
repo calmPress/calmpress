@@ -1,7 +1,7 @@
 === Twenty Seventeen ===
 Contributors: wordpressdotorg
 Tested up to: 5.5
-Version: 2.4
+Version: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: one-column, two-columns, right-sidebar, flexible-header, accessibility-ready, custom-colors, custom-header, custom-menu, custom-logo, editor-style, featured-images, footer-widgets, post-formats, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready
@@ -57,74 +57,3 @@ Bundled header image, Copyright Alvin Engler
 License: CC0 1.0 Universal (CC0 1.0)
 Source: https://unsplash.com/@englr?photo=bIhpiQA009k
 
-== Changelog ==
-
-= 2.3 =
-* Released: March 31, 2020
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_2.3
-
-= 2.2 =
-* Released: May 7, 2019
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_2.2
-
-= 2.1 =
-* Released: February 21, 2019
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_2.1
-
-= 2.0 =
-* Released: January 9, 2019
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_2.0
-
-= 1.9 =
-* Released: December 19, 2018
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_1.9
-
-= 1.8 =
-* Released: December 6, 2018
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_1.8
-
-= 1.7 =
-* Released: August 2, 2018
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_1.7
-
-= 1.6 =
-* Released: May 17, 2018
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_1.6
-
-= 1.5 =
-* Released: April 4, 2018
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_1.5
-
-= 1.4 =
-* Released: November 14, 2017
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_1.4
-
-= 1.3 =
-* Released: June 8, 2017
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_1.3
-
-= 1.2 =
-* Released: April 18, 2017
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_1.2
-
-= 1.1 =
-* Released: January 6, 2017
-
-https://codex.wordpress.org/Twenty_Seventeen_Theme_Changelog#Version_1.1
-
-= 1.0 =
-* Released: December 6, 2016
-
-Initial release
