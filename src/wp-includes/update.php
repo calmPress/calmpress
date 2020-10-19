@@ -362,8 +362,6 @@ function wp_update_plugins( $extra_stats = array() ) {
  *
  * @since 2.7.0
  *
- * @global string $wp_version The WordPress version string.
- *
  * @param array $extra_stats Extra statistics to report to the WordPress.org API.
  */
 function wp_update_themes( $extra_stats = array() ) {
