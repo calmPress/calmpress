@@ -224,17 +224,6 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test 'ID'.
-	 *
-	 * @ticket 20043
-	 */
-	function test_user_unset_uppercase_id( $user ) {
-		$this->assertNotEmpty( $user->ID );
-		unset( $user->ID );
-		$this->assertNotEmpty( $user->ID );
-	}
-
-	/**
 	 * Test meta property magic functions for property get/set/isset.
 	 */
 	function test_user_meta_properties() {
