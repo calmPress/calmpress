@@ -152,12 +152,8 @@ function dismissed_updates() {
  * Display upgrade calmPress for downloading latest or upgrading automatically form.
  *
  * @since 2.7.0
- *
- * @global string $required_php_version   The required PHP version string.
- * @global string $required_mysql_version The required MySQL version string.
  */
 function core_upgrade_preamble() {
-	global $required_php_version, $required_mysql_version;
 
 	$updates = get_core_updates();
 
@@ -167,7 +163,7 @@ function core_upgrade_preamble() {
 		echo '</h2>';
 	}
 
-	if ( isset( $updates[0]->version ) && version_compare( $updates[0]->version, $wp_version, '>' ) ) {
+	if ( isset( $updates[0]->version ) && version_compare( $updates[0]->version, calmpress_version(), '>' ) ) {
 		echo '<div class="notice notice-warning"><p>';
 		_e( '<strong>Important:</strong> before updating, please back up your database and files.' );
 		echo '</p></div>';
