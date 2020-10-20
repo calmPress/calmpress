@@ -224,23 +224,8 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test 'id' (lowercase).
-	 *
-	 * @depends test_user_unset
-	 * @expectedDeprecated WP_User->id
-	 * @ticket 20043
-	 */
-	function test_user_unset_lowercase_id( $user ) {
-		$id = $user->id;
-		unset( $user->id );
-		$this->assertSame( $id, $user->id );
-		return $user;
-	}
-
-	/**
 	 * Test 'ID'.
 	 *
-	 * @depends test_user_unset_lowercase_id
 	 * @ticket 20043
 	 */
 	function test_user_unset_uppercase_id( $user ) {
