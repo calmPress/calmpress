@@ -113,7 +113,6 @@ class WP_Sitemaps {
 		$providers = array(
 			'posts'      => new WP_Sitemaps_Posts(),
 			'taxonomies' => new WP_Sitemaps_Taxonomies(),
-			'users'      => new WP_Sitemaps_Users(),
 		);
 
 		/* @var WP_Sitemaps_Provider $provider */

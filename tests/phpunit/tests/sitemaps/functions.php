@@ -49,7 +49,6 @@ class Test_Sitemaps_Functions extends WP_UnitTestCase {
 		$expected = array(
 			'posts'      => 'WP_Sitemaps_Posts',
 			'taxonomies' => 'WP_Sitemaps_Taxonomies',
-			'users'      => 'WP_Sitemaps_Users',
 		);
 
 		$this->assertEquals( array_keys( $expected ), array_keys( $sitemaps ), 'Unable to confirm default sitemap types are registered.' );
