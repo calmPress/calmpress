@@ -49,13 +49,25 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 51147
-	 * @dataProvider data_wp_terms_checklist_with_selected_cats
 	 */
-	public function test_wp_terms_checklist_with_selected_cats( $term_id ) {
+	public function test_wp_terms_checklist_with_selected_cats() {
+		$cat_id = (int) $this->factory->category->create( array( 'slug' => 'cat' ) );
+		wp_set_post_categories( 0, $cat_id );
+
 		$output = wp_terms_checklist(
 			0,
 			array(
-				'selected_cats' => array( $term_id ),
+				'selected_cats' => array( $cat_id ),
+				'echo'          => false,
+			)
+		);
+
+		$this->assertContains( "checked='checked'", $output );
+
+		$output = wp_terms_checklist(
+			0,
+			array(
+				'selected_cats' => array( (string) $cat_id ),
 				'echo'          => false,
 			)
 		);
@@ -65,25 +77,30 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 51147
-	 * @dataProvider data_wp_terms_checklist_with_selected_cats
 	 */
-	public function test_wp_terms_checklist_with_popular_cats( $term_id ) {
+	public function test_wp_terms_checklist_with_popular_cats() {
+		$cat_id = (int) $this->factory->category->create( array( 'slug' => 'cat2' ) );
+		wp_set_post_categories( 0, $cat_id );
+
 		$output = wp_terms_checklist(
 			0,
 			array(
-				'popular_cats' => array( $term_id ),
+				'popular_cats' => array( $cat_id ),
 				'echo'         => false,
 			)
 		);
 
 		$this->assertContains( 'class="popular-category"', $output );
-	}
 
-	public function data_wp_terms_checklist_with_selected_cats() {
-		return array(
-			array( '1' ),
-			array( 1 ),
+		$output = wp_terms_checklist(
+			0,
+			array(
+				'popular_cats' => array( (string) $cat_id ),
+				'echo'         => false,
+			)
 		);
+
+		$this->assertContains( 'class="popular-category"', $output );
 	}
 
 	public function test_add_meta_box() {
