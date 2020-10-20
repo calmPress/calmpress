@@ -1074,26 +1074,36 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 
 	/**
 	 * The create_item() method does not exist for themes.
+	 * 
+	 * @doesNotPerformAssertions
 	 */
 	public function test_create_item() {}
 
 	/**
 	 * The update_item() method does not exist for themes.
+	 * 
+	 * @doesNotPerformAssertions
 	 */
 	public function test_update_item() {}
 
 	/**
 	 * The get_item() method does not exist for themes.
+	 * 
+	 * @doesNotPerformAssertions
 	 */
 	public function test_get_item() {}
 
 	/**
 	 * The delete_item() method does not exist for themes.
+	 * 
+	 * @doesNotPerformAssertions
 	 */
 	public function test_delete_item() {}
 
 	/**
 	 * Context is not supported for themes.
+	 * 
+	 * @doesNotPerformAssertions
 	 */
 	public function test_context_param() {}
 }
