@@ -111,33 +111,6 @@ class Test_Sitemaps extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test default sitemap entries.
-	 */
-	public function test_get_sitemap_entries() {
-		$entries = $this->_get_sitemap_entries();
-
-		$expected = array(
-			array(
-				'loc' => 'http://' . WP_TESTS_DOMAIN . '/?sitemap=posts&sitemap-subtype=post&paged=1',
-			),
-			array(
-				'loc' => 'http://' . WP_TESTS_DOMAIN . '/?sitemap=posts&sitemap-subtype=page&paged=1',
-			),
-			array(
-				'loc' => 'http://' . WP_TESTS_DOMAIN . '/?sitemap=taxonomies&sitemap-subtype=category&paged=1',
-			),
-			array(
-				'loc' => 'http://' . WP_TESTS_DOMAIN . '/?sitemap=taxonomies&sitemap-subtype=post_tag&paged=1',
-			),
-			array(
-				'loc' => 'http://' . WP_TESTS_DOMAIN . '/?sitemap=users&paged=1',
-			),
-		);
-
-		$this->assertSame( $expected, $entries );
-	}
-
-	/**
 	 * Test default sitemap entries with permalinks on.
 	 */
 	public function test_get_sitemap_entries_post_with_permalinks() {
@@ -402,7 +375,7 @@ class Test_Sitemaps extends WP_UnitTestCase {
 	public function test_robots_text() {
 		// Get the text added to the default robots text output.
 		$robots_text    = apply_filters( 'robots_txt', '', true );
-		$sitemap_string = 'Sitemap: http://' . WP_TESTS_DOMAIN . '/?sitemap=index';
+		$sitemap_string = 'Sitemap: http://' . WP_TESTS_DOMAIN . '/wp-sitemap.xml';
 
 		$this->assertContains( $sitemap_string, $robots_text, 'Sitemap URL not included in robots text.' );
 	}

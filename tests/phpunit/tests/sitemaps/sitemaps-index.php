@@ -52,13 +52,6 @@ class Test_WP_Sitemaps_Index extends WP_UnitTestCase {
 		$this->assertCount( 0, $sitemap_index->get_sitemap_list() );
 	}
 
-	public function test_get_index_url() {
-		$sitemap_index = new WP_Sitemaps_Index( new WP_Sitemaps_Registry() );
-		$index_url     = $sitemap_index->get_index_url();
-
-		$this->assertStringEndsWith( '/?sitemap=index', $index_url );
-	}
-
 	public function test_get_index_url_pretty_permalinks() {
 		// Set permalinks for testing.
 		$this->set_permalink_structure( '/%year%/%postname%/' );

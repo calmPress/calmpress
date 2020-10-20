@@ -20,7 +20,7 @@ class Test_WP_Sitemaps_Posts extends WP_UnitTestCase {
 
 		$expected = array(
 			array(
-				'loc' => home_url( '/?sitemap=posts&sitemap-subtype=page&paged=1' ),
+				'loc' => home_url( '/wp-sitemap-posts-page-1.xml' ),
 			),
 		);
 
