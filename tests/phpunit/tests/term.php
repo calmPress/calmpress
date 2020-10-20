@@ -182,30 +182,6 @@ class Tests_Term extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 43516
-	 */
-	function test_wp_set_post_categories_sets_default_category_for_custom_post_types() {
-		add_filter( 'default_category_post_types', array( $this, 'filter_default_category_post_types' ) );
-
-		register_post_type( 'cpt', array( 'taxonomies' => array( 'category' ) ) );
-
-		$post_id = self::factory()->post->create( array( 'post_type' => 'cpt' ) );
-		$post    = get_post( $post_id );
-
-		$term = wp_insert_term( 'Foo', 'category' );
-
-		wp_set_post_categories( $post_id, $term['term_id'] );
-		$this->assertEquals( $term['term_id'], $post->post_category[0] );
-
-		remove_filter( 'default_category_post_types', array( $this, 'filter_default_category_post_types' ) );
-	}
-
-	function filter_default_category_post_types( $post_types ) {
-		$post_types[] = 'cpt';
-		return $post_types;
-	}
-
-	/**
 	 * @ticket 25852
 	 */
 	function test_sanitize_term_field() {
