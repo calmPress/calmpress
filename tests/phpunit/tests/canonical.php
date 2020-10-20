@@ -120,7 +120,6 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 
 			// Pages.
 			array( '/child-page-1/', '/parent-page/child-page-1/' ),
-			array( '/?page_id=144', '/parent-page/child-page-1/' ),
 			array( '/abo', '/about/' ),
 			array( '/parent/child1/grandchild/', '/parent/child1/grandchild/' ),
 			array( '/parent/child2/grandchild/', '/parent/child2/grandchild/' ),
@@ -179,7 +178,6 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 			// Feeds.
 			array( '/feed', '/feed/' ),
 			array( '/rss2', '/feed/' ),
-			array( '/atom', '/atom/' ),
 
 			// Index.
 			array( '/?paged=1', '/' ),
