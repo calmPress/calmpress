@@ -267,18 +267,9 @@ function wp_scripts_get_suffix( $type = '' ) {
 	static $suffixes;
 
 	if ( null === $suffixes ) {
-		// Include an unmodified $wp_version.
-		require ABSPATH . WPINC . '/version.php';
-
-		$develop_src = false !== strpos( $wp_version, '-src' );
-
-		if ( ! defined( 'SCRIPT_DEBUG' ) ) {
-			define( 'SCRIPT_DEBUG', $develop_src );
-		}
 		$suffix = SCRIPT_DEBUG ? '' : '.min';
-		$dev_suffix = $develop_src ? '' : '.min';
 
-		$suffixes = array( 'suffix' => $suffix, 'dev_suffix' => $dev_suffix );
+		$suffixes = array( 'suffix' => $suffix, 'dev_suffix' => $suffix );
 	}
 
 	if ( 'dev' === $type ) {
