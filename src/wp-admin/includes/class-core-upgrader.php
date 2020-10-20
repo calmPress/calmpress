@@ -62,8 +62,6 @@ class Core_Upgrader extends WP_Upgrader {
 	public function upgrade( $current, $args = array() ) {
 		global $wp_filesystem;
 
-		require ABSPATH . WPINC . '/version.php'; // version related data.
-
 		$start_time = time();
 
 		$defaults    = array(
