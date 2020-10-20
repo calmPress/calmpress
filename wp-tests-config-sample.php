@@ -1,6 +1,6 @@
 <?php
 
-/* Path to the WordPress codebase you'd like to test. Add a forward slash in the end. */
+/* Path to the calmPress codebase you'd like to test. Add a forward slash in the end. */
 if ( defined( 'WP_RUN_CORE_TESTS' ) && WP_RUN_CORE_TESTS ) {
 	define( 'ABSPATH', dirname( __FILE__ ) . '/build/' );
 } else {
@@ -11,7 +11,7 @@ if ( defined( 'WP_RUN_CORE_TESTS' ) && WP_RUN_CORE_TESTS ) {
  * Path to the theme to test with.
  *
  * The 'default' theme is symlinked from test/phpunit/data/themedir1/default into
- * the themes directory of the WordPress installation defined above.
+ * the themes directory of the calmPress installation defined above.
  */
 define( 'WP_DEFAULT_THEME', 'default' );
 
@@ -63,7 +63,7 @@ define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
 define( 'LOGGED_IN_SALT',   'put your unique phrase here' );
 define( 'NONCE_SALT',       'put your unique phrase here' );
 
-$table_prefix = 'wptests_';   // Only numbers, letters, and underscores please!
+$table_prefix = 'calmtests_';   // Only numbers, letters, and underscores please!
 
 define( 'WP_TESTS_DOMAIN', 'example.org' );
 define( 'WP_TESTS_EMAIL', 'admin@example.org' );
