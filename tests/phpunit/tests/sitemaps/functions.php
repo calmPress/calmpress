@@ -95,9 +95,6 @@ class Test_Sitemaps_Functions extends WP_UnitTestCase {
 			array( 'taxonomies', 'post_tag', 1, home_url( '/wp-sitemap-taxonomies-post_tag-1.xml' ) ),
 			// negative paged, gets converted to it's absolute value.
 			array( 'taxonomies', 'post_tag', -1, home_url( '/wp-sitemap-taxonomies-post_tag-1.xml' ) ),
-			array( 'users', '', 4, home_url( '/wp-sitemap-users-4.xml' ) ),
-			// users provider doesn't allow subtypes.
-			array( 'users', 'foo', 4, false ),
 			// provider doesn't exist.
 			array( 'foo', '', 4, false ),
 		);
