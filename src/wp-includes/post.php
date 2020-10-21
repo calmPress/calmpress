@@ -4036,13 +4036,6 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 				if ( ! empty( $terms ) && empty( $postarr['tax_input'][ $taxonomy ] ) ) {
 					$postarr['tax_input'][ $taxonomy ] = $terms;
 				}
-
-				if ( empty( $postarr['tax_input'][ $taxonomy ] ) ) {
-					$default_term_id = get_option( 'default_term_' . $taxonomy );
-					if ( ! empty( $default_term_id ) ) {
-						$postarr['tax_input'][ $taxonomy ] = array( (int) $default_term_id );
-					}
-				}
 			}
 		}
 	}
