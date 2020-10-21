@@ -37,7 +37,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 		);
 
 		// Set up categories for pagination tests.
-		for ( $i = 0; $i < self::$total_categories - 1; $i++ ) {
+		for ( $i = 0; $i < self::$total_categories; $i++ ) {
 			$category_ids[] = $factory->category->create(
 				array(
 					'name' => "Category {$i}",
@@ -176,7 +176,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 		$category1 = $this->factory->category->create( array( 'name' => 'Season 5' ) );
 		$category2 = $this->factory->category->create( array( 'name' => 'The Be Sharps' ) );
 
-		$total_categories = self::$total_categories + 2;
+		$total_categories = self::$total_categories + 3;
 
 		wp_set_object_terms( $post_id, array( $category1, $category2 ), 'category' );
 
@@ -377,9 +377,9 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
-		$this->assertEquals( 'Category 0', $data[1]['name'] );
-		$this->assertEquals( 'Category 1', $data[2]['name'] );
-		$this->assertEquals( 'Category 2', $data[3]['name'] );
+		$this->assertEquals( 'Category 0', $data[0]['name'] );
+		$this->assertEquals( 'Category 1', $data[1]['name'] );
+		$this->assertEquals( 'Category 2', $data[2]['name'] );
 
 		// 'orderby' => 'id', 'order' => 'desc'.
 		$request = new WP_REST_Request( 'GET', '/wp/v2/categories' );
