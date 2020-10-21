@@ -137,6 +137,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			array(
 				'post_status' => 'draft',
 				'post_author' => self::$author_id,
+				'comment_status' => 'open',
 			)
 		);
 
@@ -343,6 +344,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			array(
 				'post_status' => 'private',
 				'post_author' => self::$author_id,
+				'comment_status' => 'open',
 			)
 		);
 
@@ -366,6 +368,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			array(
 				'post_status' => 'private',
 				'post_author' => self::$author_id,
+				'comment_status' => 'open',
 			)
 		);
 
