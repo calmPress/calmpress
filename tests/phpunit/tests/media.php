@@ -2921,7 +2921,7 @@ EOF;
 				'ids' => self::$large_id,
 			)
 		);
-		$this->assertContains( '?attachment_id=', $actual );
+		$this->assertContains( get_attachment_link( self::$large_id ), $actual );
 
 		// File: Links to image file URL.
 		$actual = gallery_shortcode(
