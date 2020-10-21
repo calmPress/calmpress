@@ -232,7 +232,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			if ( $redirect_url ) {
 				$redirect['query'] = remove_query_arg( 'name', $redirect['query'] );
 			}
-		} elseif ( is_page() && ! is_feed() && 'page' === (int) get_option( 'show_on_front' ) && get_queried_object_id() === (int) get_option( 'page_on_front' ) && ! $redirect_url ) {
+		} elseif ( is_page() && ! is_feed() && 'page' === get_option( 'show_on_front' ) && get_queried_object_id() === (int) get_option( 'page_on_front' ) && ! $redirect_url ) {
 			$redirect_url = home_url( '/' );
 		} elseif ( ! empty( $_GET['m'] ) && ( is_year() || is_month() || is_day() ) ) {
 			$m = get_query_var( 'm' );
