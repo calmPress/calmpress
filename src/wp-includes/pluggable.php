@@ -2206,14 +2206,26 @@ if ( ! function_exists( 'wp_salt' ) ) :
 					$values[ $type ] = constant( $const );
 				} elseif ( ! $values[ $type ] ) {
 					$values[ $type ] = get_site_option( "{$scheme}_{$type}" );
+					if ( ! $values[ $type ] ) {
+						$values[ $type ] = wp_generate_password( 64, true, true );
+						update_site_option( "{$scheme}_{$type}", $values[ $type ] );
+					}
+				}
+			}
+		} else {
+			if ( ! $values['key'] ) {
+				$values['key'] = get_site_option( 'secret_key' );
+				if ( ! $values['key'] ) {
+					$values['key'] = wp_generate_password( 64, true, true );
+					update_site_option( 'secret_key', $values['key'] );
+				}
 			}
 			$values['salt'] = hash_hmac( 'md5', $scheme, $values['key'] );
 		}
-	}
 
-	/** This filter is documented in wp-includes/pluggable.php */
-	return apply_filters( 'salt', $values['key'] . $values['salt'], $scheme );
-}
+		/** This filter is documented in wp-includes/pluggable.php */
+		return apply_filters( 'salt', $values['key'] . $values['salt'], $scheme );
+	}
 endif;
 
 if ( ! function_exists( 'wp_hash' ) ) :
