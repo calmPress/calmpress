@@ -1341,11 +1341,11 @@ class Tests_WP_Customize_Manager extends WP_UnitTestCase {
 
 		// User saved as one who cannot bypass content_save_pre filter.
 		$this->assertNotContains( '<script>', get_option( 'custom_html_2' ) );
-		$this->assertContains( 'WordPress', get_option( 'custom_html_2' ) );
+		$this->assertContains( 'Wordpress', get_option( 'custom_html_2' ) ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 
 		// User saved as one who also cannot bypass content_save_pre filter.
 		$this->assertNotContains( '<script>', get_option( 'custom_html_3' ) );
-		$this->assertContains( 'WordPress', get_option( 'custom_html_3' ) );
+		$this->assertContains( 'Wordpress', get_option( 'custom_html_3' ) ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 	}
 
 	/**
