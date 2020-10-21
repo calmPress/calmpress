@@ -308,6 +308,7 @@ class Test_WP_Customize_Nav_Menus extends WP_UnitTestCase {
 		$term_ids   = array();
 		$term_ids[] = self::factory()->category->create( array( 'name' => 'Dogs Are Cool' ) );
 		$term_ids[] = self::factory()->category->create( array( 'name' => 'Cats Drool' ) );
+		self::factory()->category->create( array( 'name' => 'Uncategorized' ) );
 
 		// Test empty results.
 		$expected = array();
