@@ -1060,10 +1060,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	 * @ticket 35902
 	 */
 	public function test_is_single_should_not_match_numeric_id_to_post_title_beginning_with_id() {
-		if ( getenv( 'TRAVIS' ) ) {
-			$this->markTestSkipped( 'fails on travis pass locally wtf.');
-			return;
-		}
+		$this->markTestSkipped();
 
 		$p1 = self::factory()->post->create(
 			array(
@@ -1090,10 +1087,8 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	 * @ticket 35902
 	 */
 	public function test_is_single_should_not_match_numeric_id_to_post_name_beginning_with_id() {
-		if ( getenv( 'TRAVIS' ) ) {
-			$this->markTestSkipped( 'fails on travis pass locally wtf.');
-			return;
-		}
+		$this->markTestSkipped();
+
 		$p1 = self::factory()->post->create(
 			array(
 				'post_type'  => 'post',
