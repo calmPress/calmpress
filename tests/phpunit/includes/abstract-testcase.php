@@ -1141,6 +1141,10 @@ abstract class WP_UnitTestCase_Base extends PHPUnit\Framework\TestCase {
 			return wpmu_delete_user( $user_id );
 		}
 
+		if ( ! function_exists( 'wp_delete_user' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+		
 		return wp_delete_user( $user_id );
 	}
 
