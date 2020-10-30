@@ -54,7 +54,7 @@ class WP_Test_REST_Tags_Controller extends WP_Test_REST_Controller_Testcase {
 
 		// Set up tags for pagination tests.
 		for ( $i = 0; $i < self::$total_tags; $i++ ) {
-			$tag_ids[] = $factory->tag->create(
+			self::$tag_ids[] = $factory->tag->create(
 				array(
 					'name' => "Tag {$i}",
 				)
@@ -66,6 +66,7 @@ class WP_Test_REST_Tags_Controller extends WP_Test_REST_Controller_Testcase {
 		self::delete_user( self::$superadmin );
 		self::delete_user( self::$administrator );
 		self::delete_user( self::$editor );
+		
 		self::delete_user( self::$subscriber );
 
 		// Remove tags for pagination tests.
