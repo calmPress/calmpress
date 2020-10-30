@@ -87,6 +87,7 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			'search',
 			'slug',
 			'status',
+			'tax_relation',
 			), $keys );
 	}
 
@@ -361,7 +362,7 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 	}
 
 	public function test_get_item() {
-
+		$this->markTestSkipped();
 	}
 
 	public function test_get_item_invalid_post_type() {
