@@ -111,11 +111,9 @@ class Test_Sitemaps extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test default sitemap entries with permalinks on.
+	 * Test default sitemap entries.
 	 */
-	public function test_get_sitemap_entries_post_with_permalinks() {
-		$this->set_permalink_structure( '/%year%/%postname%/' );
-
+	public function test_get_sitemap_entries() {
 		$entries = $this->_get_sitemap_entries();
 
 		$expected = array(
@@ -126,18 +124,9 @@ class Test_Sitemaps extends WP_UnitTestCase {
 				'loc' => 'http://' . WP_TESTS_DOMAIN . '/wp-sitemap-posts-page-1.xml',
 			),
 			array(
-				'loc' => 'http://' . WP_TESTS_DOMAIN . '/wp-sitemap-taxonomies-category-1.xml',
-			),
-			array(
 				'loc' => 'http://' . WP_TESTS_DOMAIN . '/wp-sitemap-taxonomies-post_tag-1.xml',
 			),
-			array(
-				'loc' => 'http://' . WP_TESTS_DOMAIN . '/wp-sitemap-users-1.xml',
-			),
 		);
-
-		// Clean up permalinks.
-		$this->set_permalink_structure();
 
 		$this->assertSame( $expected, $entries );
 	}
@@ -160,8 +149,8 @@ class Test_Sitemaps extends WP_UnitTestCase {
 		unregister_post_type( 'public_cpt' );
 		unregister_post_type( 'private_cpt' );
 
-		$this->assertContains( 'http://' . WP_TESTS_DOMAIN . '/?sitemap=posts&sitemap-subtype=public_cpt&paged=1', $entries, 'Public CPTs are not in the index.' );
-		$this->assertNotContains( 'http://' . WP_TESTS_DOMAIN . '/?sitemap=posts&sitemap-subtype=private_cpt&paged=1', $entries, 'Private CPTs are visible in the index.' );
+		$this->assertContains( 'http://' . WP_TESTS_DOMAIN . '/wp-sitemap-posts-public_cpt-1.xml', $entries, 'Public CPTs are not in the index.' );
+		$this->assertNotContains( 'http://' . WP_TESTS_DOMAIN . '/wp-sitemap-posts-private_cpt-1.xml', $entries, 'Private CPTs are visible in the index.' );
 	}
 
 	/**
@@ -385,7 +374,7 @@ class Test_Sitemaps extends WP_UnitTestCase {
 	 */
 	public function test_robots_text_private_site() {
 		$robots_text    = apply_filters( 'robots_txt', '', false );
-		$sitemap_string = 'Sitemap: http://' . WP_TESTS_DOMAIN . '/?sitemap=index';
+		$sitemap_string = 'Sitemap: http://' . WP_TESTS_DOMAIN . '/wp-sitemap.xml';
 
 		$this->assertNotContains( $sitemap_string, $robots_text );
 	}
