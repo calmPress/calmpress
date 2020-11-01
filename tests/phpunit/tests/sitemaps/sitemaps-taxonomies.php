@@ -41,8 +41,8 @@ class Test_WP_Sitemaps_Taxonomies extends WP_UnitTestCase {
 	 * WP_Sitemaps_Taxonomies::get_url_list().
 	 */
 	public function test_get_url_list_taxonomies() {
-		// Add the default category to the list of categories we're testing.
-		$categories = array_merge( array( 1 ), self::$cats );
+
+		$categories = self::$cats;
 
 		// Create a test post to calculate update times.
 		$post = self::factory()->post->create_and_get(
@@ -201,9 +201,9 @@ class Test_WP_Sitemaps_Taxonomies extends WP_UnitTestCase {
 		unregister_taxonomy_for_object_type( 'non_queryable_taxonomy', 'post' );
 		unregister_taxonomy_for_object_type( 'private_taxonomy', 'post' );
 
-		$this->assertContains( 'http://' . WP_TESTS_DOMAIN . '/?sitemap=taxonomies&sitemap-subtype=public_taxonomy&paged=1', $entries, 'Public Taxonomies are not in the index.' );
-		$this->assertNotContains( 'http://' . WP_TESTS_DOMAIN . '/?sitemap=taxonomies&sitemap-subtype=non_queryable_taxonomy&paged=1', $entries, 'Private Taxonomies are visible in the index.' );
-		$this->assertNotContains( 'http://' . WP_TESTS_DOMAIN . '/?sitemap=taxonomies&sitemap-subtype=private_taxonomy&paged=1', $entries, 'Private Taxonomies are visible in the index.' );
+		$this->assertContains( 'http://' . WP_TESTS_DOMAIN . '/wp-sitemap-taxonomies-public_taxonomy-1.xml', $entries, 'Public Taxonomies are not in the index.' );
+		$this->assertNotContains( 'http://' . WP_TESTS_DOMAIN . '/wp-sitemap-taxonomies-non_queryable_taxonomy-1.xml', $entries, 'Private Taxonomies are visible in the index.' );
+		$this->assertNotContains( 'http://' . WP_TESTS_DOMAIN . '/wp-sitemap-taxonomies-private_taxonomy-1.xml', $entries, 'Private Taxonomies are visible in the index.' );
 	}
 
 	/**
