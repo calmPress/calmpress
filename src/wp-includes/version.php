@@ -73,7 +73,7 @@ if ( ! function_exists( 'wordpress_core_version' ) ) {
 	 * @return string The version string.
 	 */
 	function wordpress_core_version() {
-		return '5.5.1';
+		return '5.5.3';
 	}
 }
 
