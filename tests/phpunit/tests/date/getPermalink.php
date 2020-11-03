@@ -22,7 +22,11 @@ class Tests_Date_Get_Permalink extends WP_UnitTestCase {
 	public function test_should_return_correct_date_permalink_with_changed_time_zone() {
 		$timezone = 'America/Chicago';
 		update_option( 'timezone_string', $timezone );
-		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%hour%/%minute%/%second%' );
+		global $wp_rewrite;
+
+		$wp_rewrite->init();
+		$wp_rewrite->set_permalink_structure( '/%year%/%monthnum%/%day%/%hour%/%minute%/%second%' );
+		$wp_rewrite->flush_rules();
 		// phpcs:ignore WordPress.DateTime.RestrictedFunctions.timezone_change_date_default_timezone_set
 		date_default_timezone_set( 'UTC' );
 
