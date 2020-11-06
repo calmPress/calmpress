@@ -77,12 +77,11 @@ label {
 }
 
 #logo {
-	margin: 6px 0 14px 0;
-	padding: 0 0 7px 0;
-	border-bottom: none;
-	text-align: center
-}
-#logo a {
+	margin: -130px auto 25px;
+	padding: 0 0 25px 0;
+	width: 84px;
+	height: 84px;
+	overflow: hidden;
 	background-image: url(../images/calmpresslogo.png?ver=20180827);
 	background-image: none, url(../images/calmpresslogo.svg?ver=20180827);
 	background-size: 84px;
