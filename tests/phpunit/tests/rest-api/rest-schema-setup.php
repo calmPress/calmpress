@@ -232,6 +232,14 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			)
 		);
 
+		$cat_id = $this->factory->category->create(
+			array(
+				'name'        => 'REST API Client Fixture: Category',
+				'slug'        => 'restapi-client-fixture-cat',
+				'description' => 'REST API Client Fixture: Category',
+			)
+		);
+
 		$tag_id = $this->factory->tag->create(
 			array(
 				'name'        => 'REST API Client Fixture: Tag',

@@ -4460,6 +4460,89 @@ mockedApiResponse.Schema = {
                 }
             ]
         },
+        "/wp/v2/media/(?P<id>[\\d]+)/edit": {
+            "namespace": "wp/v2",
+            "methods": [
+                "POST",
+                "POST"
+            ],
+            "endpoints": [
+                {
+                    "methods": [
+                        "POST"
+                    ],
+                    "args": {
+                        "rotation": {
+                            "required": false,
+                            "description": "The amount to rotate the image clockwise in degrees.",
+                            "type": "integer"
+                        },
+                        "x": {
+                            "required": false,
+                            "description": "As a percentage of the image, the x position to start the crop from.",
+                            "type": "number"
+                        },
+                        "y": {
+                            "required": false,
+                            "description": "As a percentage of the image, the y position to start the crop from.",
+                            "type": "number"
+                        },
+                        "width": {
+                            "required": false,
+                            "description": "As a percentage of the image, the width to crop the image to.",
+                            "type": "number"
+                        },
+                        "height": {
+                            "required": false,
+                            "description": "As a percentage of the image, the height to crop the image to.",
+                            "type": "number"
+                        },
+                        "src": {
+                            "required": true,
+                            "description": "URL to the edited image file.",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "POST"
+                    ],
+                    "args": {
+                        "rotation": {
+                            "required": false,
+                            "description": "The amount to rotate the image clockwise in degrees.",
+                            "type": "integer"
+                        },
+                        "x": {
+                            "required": false,
+                            "description": "As a percentage of the image, the x position to start the crop from.",
+                            "type": "number"
+                        },
+                        "y": {
+                            "required": false,
+                            "description": "As a percentage of the image, the y position to start the crop from.",
+                            "type": "number"
+                        },
+                        "width": {
+                            "required": false,
+                            "description": "As a percentage of the image, the width to crop the image to.",
+                            "type": "number"
+                        },
+                        "height": {
+                            "required": false,
+                            "description": "As a percentage of the image, the height to crop the image to.",
+                            "type": "number"
+                        },
+                        "src": {
+                            "required": true,
+                            "description": "URL to the edited image file.",
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        },
         "/wp/v2/types": {
             "namespace": "wp/v2",
             "methods": [
@@ -7939,7 +8022,7 @@ mockedApiResponse.Schema = {
             "endpoints": [
                 {
                     "methods": [
-                        "POST"
+                        "GET"
                     ],
                     "args": []
                 },
@@ -8024,19 +8107,49 @@ mockedApiResponse.Schema = {
                         "PATCH"
                     ],
                     "args": {
-                        "context": {
+                        "title": {
                             "required": false,
-                            "default": "view",
-                            "enum": [
-                                "view",
-                                "embed",
-                                "edit"
-                            ],
-                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "description": "Site title.",
                             "type": "string"
                         },
-                        "plugin": {
+                        "description": {
                             "required": false,
+                            "description": "Site tagline.",
+                            "type": "string"
+                        },
+                        "url": {
+                            "required": false,
+                            "description": "Site URL.",
+                            "type": "string"
+                        },
+                        "email": {
+                            "required": false,
+                            "description": "This address is used for admin purposes, like new user notification.",
+                            "type": "string"
+                        },
+                        "timezone": {
+                            "required": false,
+                            "description": "A city in the same timezone as you.",
+                            "type": "string"
+                        },
+                        "date_format": {
+                            "required": false,
+                            "description": "A date format for all date strings.",
+                            "type": "string"
+                        },
+                        "time_format": {
+                            "required": false,
+                            "description": "A time format for all time strings.",
+                            "type": "string"
+                        },
+                        "start_of_week": {
+                            "required": false,
+                            "description": "A day number of the week that the week should start on.",
+                            "type": "integer"
+                        },
+                        "language": {
+                            "required": false,
+                            "description": "WordPress locale code.",
                             "type": "string"
                         },
                         "posts_per_page": {
@@ -8055,9 +8168,12 @@ mockedApiResponse.Schema = {
                         }
                     }
                 }
-            ]
+            ],
+            "_links": {
+                "self": "http://example.org/index.php?rest_route=/wp/v2/settings"
+            }
         },
-        "/wp/v2/block-directory/search": {
+        "/wp/v2/themes": {
             "namespace": "wp/v2",
             "methods": [
                 "GET",
@@ -8071,10 +8187,6 @@ mockedApiResponse.Schema = {
                     "args": {
                         "context": {
                             "required": false,
-                            "default": "view",
-                            "enum": [
-                                "view"
-                            ],
                             "description": "Scope under which the request is made; determines fields present in response.",
                             "type": "string"
                         },
@@ -8090,10 +8202,21 @@ mockedApiResponse.Schema = {
                             "description": "Maximum number of items to be returned in result set.",
                             "type": "integer"
                         },
-                        "term": {
-                            "required": true,
-                            "description": "Limit result set to blocks matching the search term.",
+                        "search": {
+                            "required": false,
+                            "description": "Limit results to those matching a string.",
                             "type": "string"
+                        },
+                        "status": {
+                            "required": true,
+                            "description": "Limit result set to themes assigned one or more statuses.",
+                            "type": "array",
+                            "items": {
+                                "enum": [
+                                    "active"
+                                ],
+                                "type": "string"
+                            }
                         }
                     }
                 },
@@ -8139,12 +8262,311 @@ mockedApiResponse.Schema = {
                 }
             ],
             "_links": {
+                "self": "http://example.org/index.php?rest_route=/wp/v2/themes"
+            }
+        },
+        "/wp/v2/plugins": {
+            "namespace": "wp/v2",
+            "methods": [
+                "GET",
+                "POST",
+                "GET",
+                "POST"
+            ],
+            "endpoints": [
+                {
+                    "methods": [
+                        "GET"
+                    ],
+                    "args": {
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        },
+                        "search": {
+                            "required": false,
+                            "description": "Limit results to those matching a string.",
+                            "type": "string"
+                        },
+                        "status": {
+                            "required": false,
+                            "description": "Limits results to plugins with the given status.",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "inactive",
+                                    "active"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "POST"
+                    ],
+                    "args": {
+                        "slug": {
+                            "required": true,
+                            "description": "WordPress.org plugin directory slug.",
+                            "type": "string"
+                        },
+                        "status": {
+                            "required": false,
+                            "default": "inactive",
+                            "enum": [
+                                "inactive",
+                                "active"
+                            ],
+                            "description": "The plugin activation status.",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "GET"
+                    ],
+                    "args": {
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        },
+                        "search": {
+                            "required": false,
+                            "description": "Limit results to those matching a string.",
+                            "type": "string"
+                        },
+                        "status": {
+                            "required": false,
+                            "description": "Limits results to plugins with the given status.",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "inactive",
+                                    "active"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "POST"
+                    ],
+                    "args": {
+                        "slug": {
+                            "required": true,
+                            "description": "WordPress.org plugin directory slug.",
+                            "type": "string"
+                        },
+                        "status": {
+                            "required": false,
+                            "default": "inactive",
+                            "enum": [
+                                "inactive",
+                                "active"
+                            ],
+                            "description": "The plugin activation status.",
+                            "type": "string"
+                        }
+                    }
+                }
+            ],
+            "_links": {
                 "self": [
                     {
-                        "href": "http://example.org/index.php?rest_route=/wp/v2/block-directory/search"
+                        "href": "http://example.org/wp-json/wp/v2/plugins"
                     }
                 ]
             }
+        },
+        "/wp/v2/plugins/(?P<plugin>[^.\\/]+(?:\\/[^.\\/]+)?)": {
+            "namespace": "wp/v2",
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE"
+            ],
+            "endpoints": [
+                {
+                    "methods": [
+                        "GET"
+                    ],
+                    "args": {
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        },
+                        "plugin": {
+                            "required": false,
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "POST",
+                        "PUT",
+                        "PATCH"
+                    ],
+                    "args": {
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        },
+                        "plugin": {
+                            "required": false,
+                            "type": "string"
+                        },
+                        "status": {
+                            "required": false,
+                            "enum": [
+                                "inactive",
+                                "active"
+                            ],
+                            "description": "The plugin activation status.",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "DELETE"
+                    ],
+                    "args": {
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        },
+                        "plugin": {
+                            "required": false,
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "GET"
+                    ],
+                    "args": {
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        },
+                        "plugin": {
+                            "required": false,
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "POST",
+                        "PUT",
+                        "PATCH"
+                    ],
+                    "args": {
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        },
+                        "plugin": {
+                            "required": false,
+                            "type": "string"
+                        },
+                        "status": {
+                            "required": false,
+                            "enum": [
+                                "inactive",
+                                "active"
+                            ],
+                            "description": "The plugin activation status.",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "methods": [
+                        "DELETE"
+                    ],
+                    "args": {
+                        "context": {
+                            "required": false,
+                            "default": "view",
+                            "enum": [
+                                "view",
+                                "embed",
+                                "edit"
+                            ],
+                            "description": "Scope under which the request is made; determines fields present in response.",
+                            "type": "string"
+                        },
+                        "plugin": {
+                            "required": false,
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
         },
         "/oembed/1.0": {
             "namespace": "oembed/1.0",
@@ -8184,7 +8606,9 @@ mockedApiResponse.Schema = {
                     ],
                     "args": {
                         "url": {
-                            "required": true
+                            "required": true,
+                            "description": "The URL of the resource for which to fetch oEmbed data.",
+                            "type": "string"
                         },
                         "format": {
                             "required": false,
@@ -8241,7 +8665,7 @@ mockedApiResponse.Schema = {
                         "discover": {
                             "required": false,
                             "default": true,
-                            "description": "Whether to perform an oEmbed discovery request for non-whitelisted providers.",
+                            "description": "Whether to perform an oEmbed discovery request for unsanctioned providers.",
                             "type": "boolean"
                         }
                     }
@@ -8485,7 +8909,7 @@ mockedApiResponse.PostsCollection = [
                 {
                     "taxonomy": "calm_authors",
                     "embeddable": true,
-                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=1775"
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=4"
                 }
             ],
             "curies": [
@@ -8755,7 +9179,7 @@ mockedApiResponse.PagesCollection = [
                 {
                     "taxonomy": "calm_authors",
                     "embeddable": true,
-                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=1778"
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=7"
                 }
             ],
             "curies": [
@@ -9008,7 +9432,7 @@ mockedApiResponse.MediaCollection = [
                 {
                     "taxonomy": "calm_authors",
                     "embeddable": true,
-                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=1781"
+                    "href": "http://example.org/wp-json/wp/v2/calm_authors?post=10"
                 }
             ],
             "curies": [
@@ -9367,12 +9791,12 @@ mockedApiResponse.TaxonomyModel = {
 
 mockedApiResponse.CategoriesCollection = [
     {
-        "id": 398,
+        "id": 1,
         "count": 0,
         "description": "REST API Client Fixture: Category",
         "link": "http://example.org/?cat=1",
         "name": "REST API Client Fixture: Category",
-        "slug": "restapi-client-fixture-category",
+        "slug": "restapi-client-fixture-cat",
         "taxonomy": "category",
         "parent": 0,
         "meta": {
