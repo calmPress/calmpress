@@ -8,6 +8,8 @@
  * @subpackage REST API
  */
 
+require_once ABSPATH . 'wp-admin/includes/admin.php';
+
 /**
  * @group restapi
  * @group restapi-jsclient
