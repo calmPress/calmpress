@@ -779,19 +779,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
 	}
 
-	/**
-	 * Any user with 'edit_posts' on a show_in_rest post type
-	 * can view authors. Others (e.g. subscribers) cannot.
-	 */
-	public function test_get_items_who_unauthorized_query() {
-		wp_set_current_user( self::$subscriber );
-
-		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
-		$request->set_param( 'who', 'authors' );
-		$response = rest_get_server()->dispatch( $request );
-		$this->assertErrorResponse( 'rest_user_cannot_view', $response, 403 );
-	}
-
 	public function test_get_item() {
 		$user_id = $this->factory->user->create();
 
