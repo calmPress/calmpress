@@ -15,20 +15,13 @@ class Tests_Avatar extends WP_UnitTestCase {
 
 		$user = get_user_by( 'id', 1 );
 		$url2 = get_avatar_url( $user );
-		$this->assertEquals( $url, $url2 );
+		$this->assertSame( $url, $url2 );
 
 		// no URL when user  do not have image avatar.
 		$post_id = self::factory()->post->create( array( 'post_author' => 1 ) );
-		$post = get_post( $post_id );
-		$comment_id = self::factory()->comment->create(
-			array(
-				'comment_post_ID' => $post_id,
-				'user_id'         => 1,
-			)
-		);
-		$comment    = get_comment( $comment_id );
-		$url2       = get_avatar_url( $comment );
-		$this->assertEquals( $url, $url2 );
+		$post    = get_post( $post_id );
+		$url2    = get_avatar_url( $post );
+		$this->assertSame( $url, $url2 );
 
 		$file = DIR_TESTDATA . '/images/canola.jpg';
 		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
@@ -62,8 +55,7 @@ class Tests_Avatar extends WP_UnitTestCase {
 		);
 		$comment    = get_comment( $comment_id );
 		$url2       = get_avatar_url( $comment );
-		$avatar_url = wp_get_attachment_image_url( $attachment_id, [50, 50] );
-		$this->assertContains( $url2, $avatar_url );
+		$this->assertSame( $url, $url2 );
 	}
 
 	protected $fake_url;
@@ -77,7 +69,7 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$url = get_avatar_url( 1 );
 		remove_filter( 'pre_get_avatar_data', array( $this, 'pre_get_avatar_url_filter' ), 10 );
 
-		$this->assertEquals( $url, $this->fake_url );
+		$this->assertSame( $url, $this->fake_url );
 	}
 	public function pre_get_avatar_url_filter( $args ) {
 		$args['url'] = $this->fake_url;
@@ -94,7 +86,7 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$url = get_avatar_url( 1 );
 		remove_filter( 'get_avatar_url', array( $this, 'get_avatar_url_filter' ), 10 );
 
-		$this->assertEquals( $url, $this->fake_url );
+		$this->assertSame( $url, $this->fake_url );
 	}
 	public function get_avatar_url_filter( $url ) {
 		return $this->fake_url;
@@ -125,7 +117,7 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$img = get_avatar( 1 );
 		remove_filter( 'pre_get_avatar', array( $this, 'pre_get_avatar_filter' ), 10 );
 
-		$this->assertEquals( $img, $this->fake_img );
+		$this->assertSame( $img, $this->fake_img );
 	}
 	public function pre_get_avatar_filter( $img ) {
 		return $this->fake_img;
@@ -141,7 +133,7 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$img = get_avatar( 1 );
 		remove_filter( 'get_avatar', array( $this, 'get_avatar_filter' ), 10 );
 
-		$this->assertEquals( $img, $this->fake_url );
+		$this->assertSame( $img, $this->fake_url );
 	}
 	public function get_avatar_filter( $img ) {
 		return $this->fake_url;

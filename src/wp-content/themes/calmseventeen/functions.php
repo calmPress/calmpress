@@ -36,6 +36,11 @@ function calmseventeen_setup() {
 	add_theme_support( 'title-tag' );
 
 	/*
+	 * Enables custom line height for blocks
+	 */
+	add_theme_support( 'custom-line-height' );
+
+	/*
 	 * Enable support for Post Thumbnails on posts and pages.
 	 *
 	 * @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
@@ -68,6 +73,7 @@ function calmseventeen_setup() {
 			'caption',
 			'script',
 			'style',
+			'navigation-widgets',
 		)
 	);
 
@@ -232,7 +238,7 @@ function calmseventeen_content_width() {
 	}
 
 	/**
-	 * Filter calm Seventeen content width of the theme.
+	 * Filters calm Seventeen content width of the theme.
 	 *
 	 * @since calm Seventeen 1.0
 	 *
@@ -390,7 +396,7 @@ function calmseventeen_scripts() {
 	wp_enqueue_style( 'calmseventeen-fonts', calmseventeen_fonts_url(), array(), null );
 
 	// Theme stylesheet.
-	wp_enqueue_style( 'calmseventeen-style', get_stylesheet_uri(), array(), '20190507' );
+	wp_enqueue_style( 'calmseventeen-style', get_stylesheet_uri(), array(), '20201208' );
 
 	// Load the dark colorscheme.
 	if ( 'dark' === get_theme_mod( 'colorscheme', 'light' ) || is_customize_preview() ) {
@@ -470,7 +476,7 @@ function calmseventeen_content_image_sizes_attr( $sizes, $size ) {
 add_filter( 'wp_calculate_image_sizes', 'calmseventeen_content_image_sizes_attr', 10, 2 );
 
 /**
- * Filter the `sizes` value in the header image markup.
+ * Filters the `sizes` value in the header image markup.
  *
  * @since calm Seventeen 1.0
  *
@@ -589,3 +595,8 @@ require get_parent_theme_file_path( '/inc/customizer.php' );
  * SVG icons functions and filters.
  */
 require get_parent_theme_file_path( '/inc/icon-functions.php' );
+
+/**
+ * Block Patterns.
+ */
+require get_template_directory() . '/inc/block-patterns.php';

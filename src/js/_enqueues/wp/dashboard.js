@@ -5,6 +5,7 @@
 /* global pagenow, ajaxurl, postboxes, wpActiveEditor:true, ajaxWidgets */
 /* global quickPressLoad,  */
 window.wp = window.wp || {};
+window.communityEventsData = window.communityEventsData || {};
 
 /**
  * Initializes the dashboard widget functionality.
@@ -39,7 +40,7 @@ jQuery(document).ready( function($) {
 	}
 
 	// Hide the welcome panel when the dismiss button or close button is clicked.
-	$('.welcome-panel-close, .welcome-panel-dismiss a', welcomePanel).click( function(e) {
+	$('.welcome-panel-close, .welcome-panel-dismiss a', welcomePanel).on( 'click', function(e) {
 		e.preventDefault();
 		welcomePanel.addClass('hidden');
 		updateWelcomePanel( 0 );
@@ -47,7 +48,7 @@ jQuery(document).ready( function($) {
 	});
 
 	// Set welcome panel visibility based on Welcome Option checkbox value.
-	welcomePanelHide.click( function() {
+	welcomePanelHide.on( 'click', function() {
 		welcomePanel.toggleClass('hidden', ! this.checked );
 		updateWelcomePanel( this.checked ? 1 : 0 );
 	});
@@ -69,7 +70,7 @@ jQuery(document).ready( function($) {
 		// Enable the submit buttons.
 		$( '#quick-press .submit input[type="submit"], #quick-press .submit input[type="reset"]' ).prop( 'disabled' , false );
 
-		t = $('#quick-press').submit( function( e ) {
+		t = $('#quick-press').on( 'submit', function( e ) {
 			e.preventDefault();
 
 			// Show a spinner.
@@ -87,7 +88,7 @@ jQuery(document).ready( function($) {
 				highlightLatestPost();
 
 				// Focus the title to allow for quickly drafting another post.
-				$('#title').focus();
+				$('#title').trigger( 'focus' );
 			});
 
 			/**
@@ -105,7 +106,7 @@ jQuery(document).ready( function($) {
 		} );
 
 		// Change the QuickPost action to the publish value.
-		$('#publish').click( function() { act.val( 'post-quickpress-publish' ); } );
+		$('#publish').on( 'click', function() { act.val( 'post-quickpress-publish' ); } );
 
 		$('#quick-press').on( 'click focusin', function() {
 			wpActiveEditor = 'content';

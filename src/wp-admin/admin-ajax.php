@@ -126,14 +126,13 @@ $core_actions_post = array(
 	'wp-privacy-export-personal-data',
 	'wp-privacy-erase-personal-data',
 	'health-check-site-status-result',
-	'health-check-dotorg-communication',
-	'health-check-is-in-debug-mode',
-	'health-check-background-updates',
-	'health-check-loopback-requests',
+	'send-password-reset',
 );
 
 // Deprecated.
-$core_actions_post_deprecated = array( 'wp-fullscreen-save-post' );
+$core_actions_post_deprecated = array(
+	'wp-fullscreen-save-post',
+);
 $core_actions_post            = array_merge( $core_actions_post, $core_actions_post_deprecated );
 
 // Register core Ajax calls.
@@ -144,6 +143,8 @@ if ( ! empty( $_GET['action'] ) && in_array( $_GET['action'], $core_actions_get,
 if ( ! empty( $_POST['action'] ) && in_array( $_POST['action'], $core_actions_post, true ) ) {
 	add_action( 'wp_ajax_' . $_POST['action'], 'wp_ajax_' . str_replace( '-', '_', $_POST['action'] ), 1 );
 }
+
+add_action( 'wp_ajax_nopriv_generate-password', 'wp_ajax_nopriv_generate_password' );
 
 add_action( 'wp_ajax_nopriv_heartbeat', 'wp_ajax_nopriv_heartbeat', 1 );
 

@@ -619,9 +619,12 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 				'post_title'  => __( 'Auto Draft' ),
 				'post_type'   => $post_type,
 				'post_status' => 'auto-draft',
-			)
+			),
+			false,
+			false
 		);
 		$post    = get_post( $post_id );
+		wp_after_insert_post( $post, false, null );
 
 		// Schedule auto-draft cleanup.
 		if ( ! wp_next_scheduled( 'wp_scheduled_auto_draft_delete' ) ) {
@@ -741,7 +744,7 @@ function post_exists( $title, $content = '', $date = '', $type = '' ) {
  *
  * @global WP_User $current_user
  *
- * @return int|WP_Error
+ * @return int|WP_Error Post ID on success, WP_Error on failure.
  */
 function wp_write_post() {
 	if ( isset( $_POST['post_type'] ) ) {
@@ -810,7 +813,7 @@ function wp_write_post() {
  *
  * @since 2.0.0
  *
- * @return int|null
+ * @return int|void Post ID on success, void on failure.
  */
 function write_post() {
 	$result = wp_write_post();
@@ -925,7 +928,7 @@ function get_available_post_statuses( $type = 'post' ) {
  *
  * @since 2.5.0
  *
- * @param array|bool $q Array of query variables to use to build the query or false to use $_GET superglobal.
+ * @param array|false $q Array of query variables to use to build the query or false to use $_GET superglobal.
  * @return array
  */
 function wp_edit_posts_query( $q = false ) {
@@ -1145,9 +1148,9 @@ function postbox_classes( $box_id, $screen_id ) {
  *
  * @since 2.5.0
  *
- * @param int    $id    Post ID or post object.
- * @param string $title Optional. Title to override the post's current title when generating the post name. Default null.
- * @param string $name  Optional. Name to override the post name. Default null.
+ * @param int|WP_Post $id    Post ID or post object.
+ * @param string      $title Optional. Title to override the post's current title when generating the post name. Default null.
+ * @param string      $name  Optional. Name to override the post name. Default null.
  * @return array {
  *     Array containing the sample permalink with placeholder for the post name, and the post name.
  *
@@ -1167,7 +1170,7 @@ function get_sample_permalink( $id, $title = null, $name = null ) {
 	$original_date   = $post->post_date;
 	$original_name   = $post->post_name;
 
-	// Hack: get_permalink() would return ugly permalink for drafts, so we will fake that our post is published.
+	// Hack: get_permalink() would return plain permalink for drafts, so we will fake that our post is published.
 	if ( in_array( $post->post_status, array( 'draft', 'pending', 'future' ), true ) ) {
 		$post->post_status = 'publish';
 		$post->post_name   = sanitize_title( $post->post_name ? $post->post_name : $post->post_title, $post->ID );
@@ -1342,15 +1345,12 @@ function _wp_post_thumbnail_html( $thumbnail_id = null, $post = null ) {
 		 *
 		 * Note: When a theme adds 'post-thumbnail' support, a special 'post-thumbnail'
 		 * image size is registered, which differs from the 'thumbnail' image size
-		 * managed via the Settings > Media screen. See the `$size` parameter description
-		 * for more information on default values.
+		 * managed via the Settings > Media screen.
 		 *
 		 * @since 4.4.0
 		 *
-		 * @param string|array $size         Post thumbnail image size to display in the meta box. Accepts any valid
-		 *                                   image size, or an array of width and height values in pixels (in that order).
-		 *                                   If the 'post-thumbnail' size is set, default is 'post-thumbnail'. Otherwise,
-		 *                                   default is an array with 266 as both the height and width values.
+		 * @param string|int[] $size         Requested image size. Can be any registered image size name, or
+		 *                                   an array of width and height values in pixels (in that order).
 		 * @param int          $thumbnail_id Post thumbnail attachment ID.
 		 * @param WP_Post      $post         The post object associated with the thumbnail.
 		 */
@@ -1391,7 +1391,7 @@ function _wp_post_thumbnail_html( $thumbnail_id = null, $post = null ) {
  *
  * @since 2.5.0
  *
- * @param int $post_id ID of the post to check for editing.
+ * @param int|WP_Post $post_id ID or object of the post to check for editing.
  * @return int|false ID of the user with lock. False if the post does not exist, post is not locked,
  *                   the user with lock does not exist, or the post is locked by current user.
  */
@@ -1429,7 +1429,7 @@ function wp_check_post_lock( $post_id ) {
  *
  * @since 2.5.0
  *
- * @param int $post_id ID of the post being edited.
+ * @param int|WP_Post $post_id ID or object of the post being edited.
  * @return array|false Array of the lock time and user ID. False if the post does not exist, or
  *                     there is no current user.
  */
@@ -1547,10 +1547,10 @@ function _admin_notice_post_locked() {
 		<?php
 		if ( $override ) {
 			/* translators: %s: User's display name. */
-			printf( __( '%s is already editing this post. Do you want to take over?' ), esc_html( $user->display_name ) );
+			printf( __( '%s is currently editing this post. Do you want to take over?' ), esc_html( $user->display_name ) );
 		} else {
 			/* translators: %s: User's display name. */
-			printf( __( '%s is already editing this post.' ), esc_html( $user->display_name ) );
+			printf( __( '%s is currently editing this post.' ), esc_html( $user->display_name ) );
 		}
 		?>
 		</p>
@@ -1728,7 +1728,7 @@ function post_preview() {
 		$query_args['preview_nonce'] = wp_create_nonce( 'post_preview_' . $post->ID );
 
 		if ( isset( $_POST['_thumbnail_id'] ) ) {
-			$query_args['_thumbnail_id'] = ( intval( $_POST['_thumbnail_id'] ) <= 0 ) ? '-1' : intval( $_POST['_thumbnail_id'] );
+			$query_args['_thumbnail_id'] = ( (int) $_POST['_thumbnail_id'] <= 0 ) ? '-1' : (int) $_POST['_thumbnail_id'];
 		}
 	}
 
@@ -1882,7 +1882,7 @@ function taxonomy_meta_box_sanitize_cb_input( $taxonomy, $terms ) {
 		);
 
 		if ( ! empty( $_term ) ) {
-			$clean_terms[] = intval( $_term[0] );
+			$clean_terms[] = (int) $_term[0];
 		} else {
 			// No existing term was found, so pass the string. A new term will be created.
 			$clean_terms[] = $term;

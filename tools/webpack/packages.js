@@ -72,9 +72,27 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 		.map( ( packageName ) => packageName.replace( WORDPRESS_NAMESPACE, '' ) );
 
 	const vendors = {
+		'lodash.js': 'lodash/lodash.js',
+		'wp-polyfill.js': '@babel/polyfill/dist/polyfill.js',
+		'wp-polyfill-fetch.js': 'whatwg-fetch/dist/fetch.umd.js',
+		'wp-polyfill-element-closest.js': 'element-closest/element-closest.js',
+		'wp-polyfill-node-contains.js': 'polyfill-library/polyfills/Node/prototype/contains/polyfill.js',
+		'wp-polyfill-url.js': 'core-js-url-browser/url.js',
+		'wp-polyfill-dom-rect.js': 'polyfill-library/polyfills/DOMRect/polyfill.js',
+		'wp-polyfill-formdata.js': 'formdata-polyfill/FormData.js',
+		'wp-polyfill-object-fit.js': 'objectFitPolyfill/src/objectFitPolyfill.js',
+		'react.js': 'react/umd/react.development.js',
+		'react-dom.js': 'react-dom/umd/react-dom.development.js',
 	};
 
 	const minifiedVendors = {
+		'lodash.min.js': 'lodash/lodash.min.js',
+		'wp-polyfill.min.js': '@babel/polyfill/dist/polyfill.min.js',
+		'wp-polyfill-formdata.min.js': 'formdata-polyfill/formdata.min.js',
+		'wp-polyfill-url.min.js': 'core-js-url-browser/url.min.js',
+		'wp-polyfill-object-fit.min.js': 'objectFitPolyfill/dist/objectFitPolyfill.min.js',
+		'react.min.js': 'react/umd/react.production.min.js',
+		'react-dom.min.js': 'react-dom/umd/react-dom.production.min.js',
 	};
 
 	const minifyVendors = {
@@ -178,6 +196,8 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 			new DefinePlugin( {
 				// Inject the `GUTENBERG_PHASE` global, used for feature flagging.
 				'process.env.GUTENBERG_PHASE': 1,
+				// Inject the `COMPONENT_SYSTEM_PHASE` global, used for controlling Component System roll-out.
+				'process.env.COMPONENT_SYSTEM_PHASE': 0,
 				'process.env.FORCE_REDUCED_MOTION': JSON.stringify(
 					process.env.FORCE_REDUCED_MOTION
 				),

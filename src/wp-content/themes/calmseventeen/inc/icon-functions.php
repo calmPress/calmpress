@@ -213,7 +213,7 @@ function calmseventeen_social_links_icons() {
 	);
 
 	/**
-	 * Filter calm Seventeen social links icons.
+	 * Filters calm Seventeen social links icons.
 	 *
 	 * @since calm Seventeen 1.0
 	 *

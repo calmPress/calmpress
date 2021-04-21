@@ -179,6 +179,11 @@ $_old_files = array(
 	'wp-admin/css/ie.min.css',
 	'wp-admin/css/ie-rtl.css',
 	'wp-admin/css/ie-rtl.min.css',
+	// 5.6
+	'wp-includes/js/jquery/ui/position.min.js',
+	'wp-includes/js/jquery/ui/widget.min.js',
+	// 5.7
+	'wp-includes/blocks/classic/block.json',
 );
 
 /**
@@ -283,6 +288,15 @@ function update_core( $from, $to ) {
 	$php_version    = phpversion();
 	$mysql_version  = $wpdb->db_version();
 	$php_compat     = version_compare( $php_version, $required_php_version, '>=' );
+
+	/*
+	 * `wp_opcache_invalidate()` only exists in WordPress 5.5 or later,
+	 * so don't run it when upgrading from older versions.
+	 */
+	if ( function_exists( 'wp_opcache_invalidate' ) ) {
+		wp_opcache_invalidate( $versions_file );
+	}
+
 	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) ) {
 		$mysql_compat = true;
 	} else {
@@ -400,6 +414,14 @@ function update_core( $from, $to ) {
 			$result = new WP_Error( 'copy_failed_for_version_file', __( 'The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions.' ), 'wp-includes/version.php' );
 		}
 		$wp_filesystem->chmod( $to . 'wp-includes/version.php', FS_CHMOD_FILE );
+
+		/*
+		 * `wp_opcache_invalidate()` only exists in WordPress 5.5 or later,
+		 * so don't run it when upgrading from older versions.
+		 */
+		if ( function_exists( 'wp_opcache_invalidate' ) ) {
+			wp_opcache_invalidate( $to . 'wp-includes/version.php' );
+		}
 	}
 
 	// Check to make sure everything copied correctly.
@@ -520,6 +542,10 @@ function _copy_dir( $from, $to, $skip_list = array() ) {
 
 	$dirlist = $wp_filesystem->dirlist( $from );
 
+	if ( false === $dirlist ) {
+		return new WP_Error( 'dirlist_failed__copy_dir', __( 'Directory listing failed.' ), basename( $to ) );
+	}
+
 	$from = trailingslashit( $from );
 	$to   = trailingslashit( $to );
 
@@ -537,7 +563,10 @@ function _copy_dir( $from, $to, $skip_list = array() ) {
 				}
 			}
 
-			// `wp_opcache_invalidate()` only exists in WordPress 5.5, so don't run it when upgrading to 5.5.
+			/*
+			 * `wp_opcache_invalidate()` only exists in WordPress 5.5 or later,
+			 * so don't run it when upgrading from older versions.
+			 */
 			if ( function_exists( 'wp_opcache_invalidate' ) ) {
 				wp_opcache_invalidate( $to . $filename );
 			}

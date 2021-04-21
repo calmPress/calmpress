@@ -8,18 +8,28 @@
  */
 class Tests_User_Capabilities extends WP_UnitTestCase {
 
-	protected static $users       = array(
+	/**
+	 * @var WP_User[] $users
+	 */
+	protected static $users = array(
 		'administrator' => null,
 		'editor'        => null,
 		'author'        => null,
 		'contributor'   => null,
 		'subscriber'    => null,
 	);
+
+	/**
+	 * @var WP_User $super_admin
+	 */
 	protected static $super_admin = null;
 
+	/**
+	 * @var int $block_id
+	 */
 	protected static $block_id;
 
-	public static function wpSetUpBeforeClass( $factory ) {
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		self::$users       = array(
 			'administrator' => $factory->user->create_and_get( array( 'role' => 'administrator' ) ),
 			'editor'        => $factory->user->create_and_get( array( 'role' => 'editor' ) ),
@@ -72,7 +82,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		return $meta_value;
 	}
 
-	final private function _getSingleSitePrimitiveCaps() {
+	private function _getSingleSitePrimitiveCaps() {
 		return array(
 
 			'unfiltered_html'         => array( 'administrator', 'editor' ),
@@ -151,7 +161,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 	}
 
-	final private function _getMultiSitePrimitiveCaps() {
+	private function _getMultiSitePrimitiveCaps() {
 		return array(
 
 			'unfiltered_html'         => array(),
@@ -231,7 +241,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 	}
 
-	final private function _getSingleSiteMetaCaps() {
+	private function _getSingleSiteMetaCaps() {
 		return array(
 			'create_sites'                => array(),
 			'delete_sites'                => array(),
@@ -253,6 +263,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'update_languages'            => array( 'administrator' ),
 			'deactivate_plugins'          => array( 'administrator' ),
 			'update_php'                  => array( 'administrator' ),
+			'update_https'                => array( 'administrator' ),
 			'export_others_personal_data' => array( 'administrator' ),
 			'erase_others_personal_data'  => array( 'administrator' ),
 			'manage_privacy_options'      => array( 'administrator' ),
@@ -269,7 +280,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		);
 	}
 
-	final private function _getMultiSiteMetaCaps() {
+	private function _getMultiSiteMetaCaps() {
 		return array(
 			'create_sites'                => array(),
 			'delete_sites'                => array(),
@@ -288,6 +299,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'update_languages'            => array(),
 			'deactivate_plugins'          => array(),
 			'update_php'                  => array(),
+			'update_https'                => array(),
 			'export_others_personal_data' => array( '' ),
 			'erase_others_personal_data'  => array( '' ),
 			'manage_privacy_options'      => array(),
@@ -305,6 +317,22 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'assign_categories'           => array( 'administrator', 'editor', 'author', 'contributor' ),
 			'assign_post_tags'            => array( 'administrator', 'editor', 'author', 'contributor' ),
 		);
+	}
+
+	public function dataAllCapsAndRoles() {
+		$data = array();
+		$caps = $this->getAllCapsAndRoles();
+
+		foreach ( self::$users as $role => $null ) {
+			foreach ( $caps as $cap => $roles ) {
+				$data[] = array(
+					$role,
+					$cap,
+				);
+			}
+		}
+
+		return $data;
 	}
 
 	protected function getAllCapsAndRoles() {
@@ -335,13 +363,13 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$multi_primitive  = array_keys( $this->_getMultiSitePrimitiveCaps() );
 		sort( $single_primitive );
 		sort( $multi_primitive );
-		$this->assertEquals( $single_primitive, $multi_primitive );
+		$this->assertSame( $single_primitive, $multi_primitive );
 
 		$single_meta = array_keys( $this->_getSingleSiteMetaCaps() );
 		$multi_meta  = array_keys( $this->_getMultiSiteMetaCaps() );
 		sort( $single_meta );
 		sort( $multi_meta );
-		$this->assertEquals( $single_meta, $multi_meta );
+		$this->assertSame( $single_meta, $multi_meta );
 	}
 
 	/**
@@ -367,7 +395,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 			$diff = array_diff( array_keys( $user_caps ), array_keys( $caps ) );
 
-			$this->assertEquals( array(), $diff, "User with {$role} role has capabilities that aren't being tested" );
+			$this->assertSame( array(), $diff, "User with {$role} role has capabilities that aren't being tested" );
 
 		}
 
@@ -482,7 +510,13 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			$expected['add_user_meta'],
 			$expected['edit_files'],
 			$expected['edit_plugins'],
-			$expected['edit_themes']
+			$expected['edit_themes'],
+			$expected['create_app_password'],
+			$expected['list_app_passwords'],
+			$expected['read_app_password'],
+			$expected['edit_app_password'],
+			$expected['delete_app_passwords'],
+			$expected['delete_app_password']
 		);
 
 		$expected = array_keys( $expected );
@@ -496,38 +530,43 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test the default roles and caps.
+	 * Test the default capabilities of all user roles.
+	 *
+	 * @dataProvider dataAllCapsAndRoles
 	 */
-	function test_all_roles_and_caps() {
-		$caps = $this->getAllCapsAndRoles();
+	function test_default_caps_for_all_roles( $role, $cap ) {
+		$user         = self::$users[ $role ];
+		$roles_by_cap = $this->getAllCapsAndRoles();
 
+		if ( in_array( $role, $roles_by_cap[ $cap ], true ) ) {
+			$this->assertTrue( $user->has_cap( $cap ), "User with the {$role} role should have the {$cap} capability" );
+			$this->assertTrue( user_can( $user, $cap ), "User with the {$role} role should have the {$cap} capability" );
+		} else {
+			$this->assertFalse( $user->has_cap( $cap ), "User with the {$role} role should not have the {$cap} capability" );
+			$this->assertFalse( user_can( $user, $cap ), "User with the {$role} role should not have the {$cap} capability" );
+		}
+	}
+
+	/**
+	 * Test miscellaneous capabilities of all user roles.
+	 */
+	function test_other_caps_for_all_roles() {
 		foreach ( self::$users as $role => $user ) {
-
 			// Make sure the user is valid.
 			$this->assertTrue( $user->exists(), "User with {$role} role does not exist" );
 
 			// Make sure the role name is correct.
-			$this->assertEquals( array( $role ), $user->roles, "User should only have the {$role} role" );
+			$this->assertSame( array( $role ), $user->roles, "User should only have the {$role} role" );
 
-			foreach ( $caps as $cap => $roles ) {
-				if ( in_array( $role, $roles, true ) ) {
-					$this->assertTrue( $user->has_cap( $cap ), "User with the {$role} role should have the {$cap} capability" );
-					$this->assertTrue( user_can( $user, $cap ), "User with the {$role} role should have the {$cap} capability" );
-				} else {
-					$this->assertFalse( $user->has_cap( $cap ), "User with the {$role} role should not have the {$cap} capability" );
-					$this->assertFalse( user_can( $user, $cap ), "User with the {$role} role should not have the {$cap} capability" );
-				}
-			}
+			$this->assertFalse( $user->has_cap( 'start_a_fire' ), "User with the {$role} role should not have a custom capability" );
+			$this->assertFalse( user_can( $user, 'start_a_fire' ), "User with the {$role} role should not have a custom capability" );
+
+			$this->assertFalse( $user->has_cap( 'do_not_allow' ), "User with the {$role} role should not have the do_not_allow capability" );
+			$this->assertFalse( user_can( $user, 'do_not_allow' ), "User with the {$role} role should not have the do_not_allow capability" );
+
+			$this->assertTrue( $user->has_cap( 'exist' ), "User with the {$role} role should have the exist capability" );
+			$this->assertTrue( user_can( $user, 'exist' ), "User with the {$role} role should have the exist capability" );
 		}
-
-		$this->assertFalse( $user->has_cap( 'start_a_fire' ), "User with the {$role} role should not have a custom capability" );
-		$this->assertFalse( user_can( $user, 'start_a_fire' ), "User with the {$role} role should not have a custom capability" );
-
-		$this->assertFalse( $user->has_cap( 'do_not_allow' ), "User with the {$role} role should not have the do_not_allow capability" );
-		$this->assertFalse( user_can( $user, 'do_not_allow' ), "User with the {$role} role should not have the do_not_allow capability" );
-
-		$this->assertTrue( $user->has_cap( 'exist' ), "User with the {$role} role should have the exist capability" );
-		$this->assertTrue( user_can( $user, 'exist' ), "User with the {$role} role should have the exist capability" );
 	}
 
 	/**
@@ -709,7 +748,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertTrue( $user->exists(), 'User does not exist' );
 
 		// Make sure the role name is correct.
-		$this->assertEquals( array(), $user->roles, 'User should not have any roles' );
+		$this->assertSame( array(), $user->roles, 'User should not have any roles' );
 
 		$caps = $this->getAllCapsAndRoles();
 
@@ -731,7 +770,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$user->add_role( 'contributor' );
 
 		// User should have two roles now.
-		$this->assertEquals( array( 'subscriber', 'contributor' ), $user->roles );
+		$this->assertSame( array( 'subscriber', 'contributor' ), $user->roles );
 
 		$caps = $this->getAllCapsAndRoles();
 
@@ -747,7 +786,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 		$user->remove_role( 'contributor' );
 		// User should have one role now.
-		$this->assertEquals( array( 'subscriber' ), $user->roles );
+		$this->assertSame( array( 'subscriber' ), $user->roles );
 
 	}
 
@@ -769,7 +808,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertTrue( $user->exists(), 'User does not exist' );
 
 		// Make sure the role name is correct.
-		$this->assertEquals( array( $role_name ), $user->roles );
+		$this->assertSame( array( $role_name ), $user->roles );
 
 		$caps = $this->getAllCapsAndRoles();
 
@@ -808,7 +847,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertTrue( $user->exists(), 'User does not exist' );
 
 		// Make sure the role name is correct.
-		$this->assertEquals( array( $role_name ), $user->roles );
+		$this->assertSame( array( $role_name ), $user->roles );
 
 		$caps = $this->getPrimitiveCapsAndRoles();
 
@@ -849,7 +888,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 		$user = new WP_User( $id );
 		$this->assertTrue( $user->exists(), "Problem getting user $id" );
-		$this->assertEquals( array( $role_name ), $user->roles );
+		$this->assertSame( array( $role_name ), $user->roles );
 
 		// The user should have all the above caps.
 		$this->assertTrue( $user->has_cap( $role_name ) );
@@ -899,7 +938,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 		$user = new WP_User( $id );
 		$this->assertTrue( $user->exists(), "Problem getting user $id" );
-		$this->assertEquals( array( $role_name ), $user->roles );
+		$this->assertSame( array( $role_name ), $user->roles );
 
 		// The user should have all the above caps.
 		$this->assertTrue( $user->has_cap( $role_name ) );
@@ -921,7 +960,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	 */
 	function test_user_add_cap() {
 		// There are two contributors.
-		$id_1 = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$id_1 = self::$users['contributor']->ID;
 		$id_2 = self::factory()->user->create( array( 'role' => 'contributor' ) );
 
 		// User 1 has an extra capability.
@@ -936,8 +975,8 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertTrue( $user_2->exists(), "Problem getting user $id_2" );
 
 		// Make sure they're both still contributors.
-		$this->assertEquals( array( 'contributor' ), $user_1->roles );
-		$this->assertEquals( array( 'contributor' ), $user_2->roles );
+		$this->assertSame( array( 'contributor' ), $user_1->roles );
+		$this->assertSame( array( 'contributor' ), $user_2->roles );
 
 		// Check the extra cap on both users.
 		$this->assertTrue( $user_1->has_cap( 'publish_posts' ) );
@@ -960,7 +999,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	 */
 	function test_user_remove_cap() {
 		// There are two contributors.
-		$id_1 = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$id_1 = self::$users['contributor']->ID;
 		$id_2 = self::factory()->user->create( array( 'role' => 'contributor' ) );
 
 		// User 1 has an extra capability.
@@ -978,8 +1017,8 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertTrue( $user_2->exists(), "Problem getting user $id_2" );
 
 		// Make sure they're both still contributors.
-		$this->assertEquals( array( 'contributor' ), $user_1->roles );
-		$this->assertEquals( array( 'contributor' ), $user_2->roles );
+		$this->assertSame( array( 'contributor' ), $user_1->roles );
+		$this->assertSame( array( 'contributor' ), $user_2->roles );
 
 		// Check the removed cap on both users.
 		$this->assertFalse( $user_1->has_cap( 'publish_posts' ) );
@@ -992,7 +1031,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	 */
 	function test_user_level_update() {
 		// User starts as an author.
-		$id   = self::factory()->user->create( array( 'role' => 'author' ) );
+		$id   = self::$users['author']->ID;
 		$user = new WP_User( $id );
 		$this->assertTrue( $user->exists(), "Problem getting user $id" );
 
@@ -1001,21 +1040,21 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 		// They get promoted to editor - level should get bumped to 7.
 		$user->set_role( 'editor' );
-		$this->assertEquals( 7, $user->user_level );
+		$this->assertSame( 7, $user->user_level );
 
 		// Demoted to contributor - level is reduced to 1.
 		$user->set_role( 'contributor' );
-		$this->assertEquals( 1, $user->user_level );
+		$this->assertSame( 1, $user->user_level );
 
 		// If they have two roles, user_level should be the max of the two.
 		$user->add_role( 'editor' );
-		$this->assertEquals( array( 'contributor', 'editor' ), $user->roles );
-		$this->assertEquals( 7, $user->user_level );
+		$this->assertSame( array( 'contributor', 'editor' ), $user->roles );
+		$this->assertSame( 7, $user->user_level );
 	}
 
 	function test_user_remove_all_caps() {
 		// User starts as an author.
-		$id   = self::factory()->user->create( array( 'role' => 'author' ) );
+		$id   = self::$users['author']->ID;
 		$user = new WP_User( $id );
 		$this->assertTrue( $user->exists(), "Problem getting user $id" );
 
@@ -1070,10 +1109,10 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertTrue( $author->exists(), "Problem getting user $author->ID" );
 
 		// Add some other users.
-		$admin       = new WP_User( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$admin       = self::$users['administrator'];
 		$author_2    = new WP_User( self::factory()->user->create( array( 'role' => 'author' ) ) );
-		$editor      = new WP_User( self::factory()->user->create( array( 'role' => 'editor' ) ) );
-		$contributor = new WP_User( self::factory()->user->create( array( 'role' => 'contributor' ) ) );
+		$editor      = self::$users['editor'];
+		$contributor = self::$users['contributor'];
 
 		// Administrators, editors and the post owner can edit it.
 		$this->assertTrue( $admin->has_cap( 'edit_post', $post ) );
@@ -1101,8 +1140,8 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 		register_post_type( 'something', array( 'capabilities' => array( 'edit_posts' => 'draw_somethings' ) ) );
 		$something = get_post_type_object( 'something' );
-		$this->assertEquals( 'draw_somethings', $something->cap->edit_posts );
-		$this->assertEquals( 'draw_somethings', $something->cap->create_posts );
+		$this->assertSame( 'draw_somethings', $something->cap->edit_posts );
+		$this->assertSame( 'draw_somethings', $something->cap->create_posts );
 
 		register_post_type(
 			'something',
@@ -1115,8 +1154,8 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			)
 		);
 		$something = get_post_type_object( 'something' );
-		$this->assertEquals( 'draw_somethings', $something->cap->edit_posts );
-		$this->assertEquals( 'create_somethings', $something->cap->create_posts );
+		$this->assertSame( 'draw_somethings', $something->cap->edit_posts );
+		$this->assertSame( 'create_somethings', $something->cap->create_posts );
 		_unregister_post_type( 'something' );
 
 		// Test meta authorization callbacks.
@@ -1177,7 +1216,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertFalse( $contributor->has_cap( 'publish_post', $post ) );
 		$this->assertFalse( $contributor->has_cap( 'edit_post', $post ) );
 		$this->assertFalse( $contributor->has_cap( 'delete_post', $post ) );
-		$this->assertEquals( 'publish' === $status, $contributor->has_cap( 'read_post', $post ) );
+		$this->assertSame( 'publish' === $status, $contributor->has_cap( 'read_post', $post ) );
 	}
 
 	/**
@@ -1200,7 +1239,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		register_post_type( 'foobar' );
 		$cap = get_post_type_object( 'foobar' )->cap;
 
-		$this->assertEquals( 'edit_posts', $cap->create_posts );
+		$this->assertSame( 'edit_posts', $cap->create_posts );
 
 		$this->assertTrue( $admin->has_cap( $cap->create_posts ) );
 		$this->assertTrue( $author->has_cap( $cap->create_posts ) );
@@ -1214,7 +1253,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		register_post_type( 'foobar', array( 'capability_type' => array( 'foobar', 'foobars' ) ) );
 		$cap = get_post_type_object( 'foobar' )->cap;
 
-		$this->assertEquals( 'edit_foobars', $cap->create_posts );
+		$this->assertSame( 'edit_foobars', $cap->create_posts );
 
 		$this->assertFalse( $admin->has_cap( $cap->create_posts ) );
 		$this->assertFalse( $author->has_cap( $cap->create_posts ) );
@@ -1236,8 +1275,8 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		_unregister_post_type( 'foobar' );
 
 		$cap = get_post_type_object( 'attachment' )->cap;
-		$this->assertEquals( 'upload_files', $cap->create_posts );
-		$this->assertEquals( 'edit_posts', $cap->edit_posts );
+		$this->assertSame( 'upload_files', $cap->create_posts );
+		$this->assertSame( 'edit_posts', $cap->edit_posts );
 
 		$this->assertTrue( $author->has_cap( $cap->create_posts ) );
 		$this->assertTrue( $author->has_cap( $cap->edit_posts ) );
@@ -1310,7 +1349,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 		foreach ( $expected as $meta_cap => $primitive_cap ) {
 			$caps = map_meta_cap( $tax->cap->$meta_cap, $user->ID );
-			$this->assertEquals(
+			$this->assertSame(
 				array(
 					$primitive_cap,
 				),
@@ -1395,7 +1434,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 		foreach ( $expected as $meta_cap => $primitive_cap ) {
 			$caps = map_meta_cap( $tax->cap->$meta_cap, $user->ID );
-			$this->assertEquals(
+			$this->assertSame(
 				array(
 					$primitive_cap,
 				),
@@ -1450,7 +1489,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertNotEmpty( $user->caps );
 		$user->set_role( 'administrator' );
 		$this->assertNotEmpty( $user->caps );
-		$this->assertEquals( $caps, $user->caps );
+		$this->assertSame( $caps, $user->caps );
 	}
 
 	function test_current_user_can_for_blog() {
@@ -1491,7 +1530,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 
 		current_user_can_for_blog( $blog_id, 'edit_posts' );
 
-		$this->assertEquals( $orig_blog_id, get_current_blog_id() );
+		$this->assertSame( $orig_blog_id, get_current_blog_id() );
 	}
 
 	function _nullify_current_user() {
@@ -1738,7 +1777,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$author      = self::$users['author'];
 		$contributor = self::$users['contributor'];
 
-		$this->assertEquals( 'edit_pages', $cpt->cap->edit_posts );
+		$this->assertSame( 'edit_pages', $cpt->cap->edit_posts );
 		$this->assertTrue( user_can( $admin->ID, $cpt->cap->edit_posts ) );
 		$this->assertTrue( user_can( $editor->ID, $cpt->cap->edit_posts ) );
 		$this->assertFalse( user_can( $author->ID, $cpt->cap->edit_posts ) );
@@ -1792,12 +1831,12 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	 * @ticket 35488
 	 */
 	function test_wp_logout_should_clear_current_user() {
-		$user_id = self::factory()->user->create();
+		$user_id = self::$users['author']->ID;
 		wp_set_current_user( $user_id );
 
 		wp_logout();
 
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 
 	}
 

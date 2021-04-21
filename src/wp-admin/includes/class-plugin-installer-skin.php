@@ -65,7 +65,7 @@ class Plugin_Installer_Skin extends WP_Upgrader_Skin {
 	 *
 	 * @since 5.5.0
 	 *
-	 * @param WP_Error $wp_error WP_Error.
+	 * @param WP_Error $wp_error WP_Error object.
 	 * @return bool
 	 */
 	public function hide_process_failed( $wp_error ) {
@@ -112,23 +112,23 @@ class Plugin_Installer_Skin extends WP_Upgrader_Skin {
 			unset( $install_actions['activate_plugin'] );
 		}
 
-		if ( $this->type === 'web' ) {
+		if ( 'web' === $this->type ) {
 			$install_actions['plugins_page'] = sprintf(
 				'<a href="%s" target="_parent">%s</a>',
 				self_admin_url( 'plugin-install.php' ),
-				__( 'Return to Plugin Installer' )
+				__( 'Go to Plugin Installer' )
 			);
 		} elseif ( 'upload' === $this->type && 'plugins' === $from ) {
 			$install_actions['plugins_page'] = sprintf(
 				'<a href="%s">%s</a>',
 				self_admin_url( 'plugin-install.php' ),
-				__( 'Return to Plugin Installer' )
+				__( 'Go to Plugin Installer' )
 			);
 		} else {
 			$install_actions['plugins_page'] = sprintf(
 				'<a href="%s" target="_parent">%s</a>',
 				self_admin_url( 'plugins.php' ),
-				__( 'Return to Plugins page' )
+				__( 'Go to Plugins page' )
 			);
 		}
 
@@ -305,8 +305,8 @@ class Plugin_Installer_Skin extends WP_Upgrader_Skin {
 		);
 
 		/**
-		 * Filters the list of action links available following a single plugin installation
-		 * failure when overwriting is allowed.
+		 * Filters the list of action links available following a single plugin installation failure
+		 * when overwriting is allowed.
 		 *
 		 * @since 5.5.0
 		 *

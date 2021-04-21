@@ -421,7 +421,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 		$a = $plugin_a->$orderby;
 		$b = $plugin_b->$orderby;
 
-		if ( $a == $b ) {
+		if ( $a === $b ) {
 			return 0;
 		}
 
@@ -466,7 +466,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 			}
 
 			// Display the group heading if there is one.
-			if ( isset( $plugin['group'] ) && $plugin['group'] != $group ) {
+			if ( isset( $plugin['group'] ) && $plugin['group'] !== $group ) {
 				if ( isset( $this->groups[ $plugin['group'] ] ) ) {
 					$group_name = $this->groups[ $plugin['group'] ];
 					if ( isset( $plugins_group_titles[ $group_name ] ) ) {
@@ -487,6 +487,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 				$group = $plugin['group'];
 			}
+
 			$title = wp_kses( $plugin['name'], $plugins_allowedtags );
 
 			// Remove any HTML from the description.
@@ -737,7 +738,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 							_nx( '%s+ Million', '%s+ Million', $active_installs_millions, 'Active plugin installations' ),
 							number_format_i18n( $active_installs_millions )
 						);
-					} elseif ( 0 == $plugin['active_installs'] ) {
+					} elseif ( 0 === $plugin['active_installs'] ) {
 						$active_installs_text = _x( 'Less Than 10', 'Active plugin installations' );
 					} else {
 						$active_installs_text = number_format_i18n( $plugin['active_installs'] ) . '+';

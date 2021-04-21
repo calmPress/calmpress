@@ -14,7 +14,7 @@ function calmseventeen_custom_colors_css() {
 	$hue = absint( get_theme_mod( 'colorscheme_hue', 250 ) );
 
 	/**
-	 * Filter calm Seventeen default saturation level.
+	 * Filters calm Seventeen default saturation level.
 	 *
 	 * @since calm Seventeen 1.0
 	 *

@@ -17,7 +17,8 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 		// Re-initialise any dynamically-added public query vars:
 		do_action( 'init' );
 
-		$expected = array(
+		$this->assertSame(
+			array(
 
 				// Static public query vars:
 				'm',
@@ -56,7 +57,7 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 				'sitemap',
 				'sitemap-subtype',
 				'sitemap-stylesheet',
-
+			)
 		);
 		sort( $expected );
 		$actual = $wp->public_query_vars;

@@ -1271,8 +1271,8 @@ class _WP_Editors {
 
 				'Row'                                  => __( 'Row' ),
 				'Rows'                                 => __( 'Rows' ),
-				'Column'                               => _x( 'Column', 'table column' ),
-				'Cols'                                 => _x( 'Cols', 'table columns' ),
+				'Column'                               => __( 'Column' ),
+				'Cols'                                 => __( 'Columns' ),
 				'Cell'                                 => _x( 'Cell', 'table cell' ),
 				'Header cell'                          => __( 'Header cell' ),
 				'Header'                               => _x( 'Header', 'table header' ),

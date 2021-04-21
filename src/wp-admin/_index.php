@@ -72,18 +72,22 @@ $screen->add_help_tab(
 
 $help = '<p>' . __( 'The boxes on your Dashboard screen are:' ) . '</p>';
 
+if ( current_user_can( 'edit_theme_options' ) ) {
+	$help .= '<p>' . __( '<strong>Welcome</strong> &mdash; Shows links for some of the most common tasks when setting up a new site.' ) . '</p>';
+}
+
+if ( current_user_can( 'view_site_health_checks' ) ) {
+	$help .= '<p>' . __( '<strong>Site Health Status</strong> &mdash; Informs you of any potential issues that should be addressed to improve the performance or security of your website.' ) . '</p>';
+}
+
 if ( current_user_can( 'edit_posts' ) ) {
-	$help .= '<p>' . __( '<strong>At A Glance</strong> &mdash; Displays a summary of the content on your site and identifies which theme and version of calmPress you are using.' ) . '</p>';
+	$help .= '<p>' . __( '<strong>At a Glance</strong> &mdash; Displays a summary of the content on your site and identifies which theme and version of WordPress you are using.' ) . '</p>';
 }
 
 $help .= '<p>' . __( '<strong>Activity</strong> &mdash; Shows the upcoming scheduled posts, recently published posts, and the most recent comments on your posts and allows you to moderate them.' ) . '</p>';
 
 if ( is_blog_admin() && current_user_can( 'edit_posts' ) ) {
 	$help .= '<p>' . __( "<strong>Quick Draft</strong> &mdash; Allows you to create a new post and save it as a draft. Also displays links to the 3 most recent draft posts you've started." ) . '</p>';
-}
-
-if ( current_user_can( 'edit_theme_options' ) ) {
-	$help .= '<p>' . __( '<strong>Welcome</strong> &mdash; Shows links for some of the most common tasks when setting up a new site.' ) . '</p>';
 }
 
 $screen->add_help_tab(

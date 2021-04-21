@@ -107,7 +107,7 @@ function get_clean_basedomain() {
  *
  * @global bool $is_apache
  *
- * @param WP_Error $errors
+ * @param false|WP_Error $errors Optional. Error object. Default false.
  */
 function network_step1( $errors = false ) {
 	global $is_apache;
@@ -145,7 +145,7 @@ function network_step1( $errors = false ) {
 			__( 'You cannot use port numbers such as %s.' ),
 			'<code>' . $has_ports . '</code>'
 		) . '</p>';
-		echo '<a href="' . esc_url( admin_url() ) . '">' . __( 'Return to Dashboard' ) . '</a>';
+		echo '<a href="' . esc_url( admin_url() ) . '">' . __( 'Go to Dashboard' ) . '</a>';
 		echo '</div>';
 		require_once ABSPATH . 'wp-admin/admin-footer.php';
 		die();
@@ -381,7 +381,7 @@ function network_step1( $errors = false ) {
  * @global wpdb $wpdb     WordPress database abstraction object.
  * @global bool $is_nginx Whether the server software is Nginx or something else.
  *
- * @param WP_Error $errors
+ * @param false|WP_Error $errors Optional. Error object. Default false.
  */
 function network_step2( $errors = false ) {
 	global $wpdb, $is_nginx;
@@ -587,6 +587,7 @@ order allow,deny
 deny from all
 </files>
 RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 RewriteBase {$base}
 RewriteRule ^index\.php$ - [L]
 RewriteRule (^|/)\. - [F]

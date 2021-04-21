@@ -14,15 +14,15 @@ class Tests_Basic extends WP_UnitTestCase {
 		$license = file_get_contents( ABSPATH . 'license.txt' );
 		preg_match( '#Copyright 2011-(\d+) by the contributors#', $license, $matches );
 		$this_year = gmdate( 'Y' );
-		$this->assertEquals( $this_year, trim( $matches[1] ), "license.txt's year needs to be updated to $this_year." );
+		$this->assertSame( $this_year, trim( $matches[1] ), "license.txt's year needs to be updated to $this_year." );
 	}
 
 	// Test some helper utility functions.
 
 	function test_strip_ws() {
-		$this->assertEquals( '', strip_ws( '' ) );
-		$this->assertEquals( 'foo', strip_ws( 'foo' ) );
-		$this->assertEquals( '', strip_ws( "\r\n\t  \n\r\t" ) );
+		$this->assertSame( '', strip_ws( '' ) );
+		$this->assertSame( 'foo', strip_ws( 'foo' ) );
+		$this->assertSame( '', strip_ws( "\r\n\t  \n\r\t" ) );
 
 		$in  = "asdf\n";
 		$in .= "asdf asdf\n";
@@ -42,7 +42,7 @@ class Tests_Basic extends WP_UnitTestCase {
 		$expected .= "foo bar\n";
 		$expected .= 'foo';
 
-		$this->assertEquals( $expected, strip_ws( $in ) );
+		$this->assertSame( $expected, strip_ws( $in ) );
 
 	}
 
@@ -60,6 +60,6 @@ EOF;
 <p>If a new user is created by WordPress, the password will be set, by default, to "changeme". Quite suggestive, eh? ;)</p>
         <ol id="authors"><form action="?import=wordpress&amp;step=2&amp;id=" method="post"><input type="hidden" name="_wpnonce" value="***" /><input type="hidden" name="_wp_http_referer" value="wp-test.php" /><li>Current author: <strong>Alex Shiels</strong><br />Create user  <input type="text" value="Alex Shiels" name="user[]" maxlength="30"> <br /> or map to existing<select name="userselect[0]">
 EOF;
-		$this->assertEquals( $expected, mask_input_value( $in ) );
+		$this->assertSame( $expected, mask_input_value( $in ) );
 	}
 }

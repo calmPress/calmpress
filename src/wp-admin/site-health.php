@@ -14,6 +14,8 @@ if ( isset( $_GET['tab'] ) && 'debug' === $_GET['tab'] ) {
 /** WordPress Administration Bootstrap */
 require_once __DIR__ . '/admin.php';
 
+wp_reset_vars( array( 'action' ) );
+
 $title = __( 'Site Health Status' );
 
 if ( ! current_user_can( 'view_site_health_checks' ) ) {
@@ -25,6 +27,23 @@ wp_enqueue_script( 'site-health' );
 
 if ( ! class_exists( 'WP_Site_Health' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-site-health.php';
+}
+
+if ( 'update_https' === $action ) {
+	check_admin_referer( 'wp_update_https' );
+
+	if ( ! current_user_can( 'update_https' ) ) {
+		wp_die( __( 'Sorry, you are not allowed to update this site to HTTPS.' ), 403 );
+	}
+
+	if ( ! wp_is_https_supported() ) {
+		wp_die( __( 'It looks like HTTPS is not supported for your website at this point.' ) );
+	}
+
+	$result = wp_update_urls_to_https();
+
+	wp_redirect( add_query_arg( 'https_updated', (int) $result, wp_get_referer() ) );
+	exit;
 }
 
 $health_check_site_status = WP_Site_Health::get_instance();
@@ -39,6 +58,32 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 		<h1>
 			<?php _e( 'Site Health' ); ?>
 		</h1>
+	</div>
+
+	<?php
+	if ( isset( $_GET['https_updated'] ) ) {
+		if ( $_GET['https_updated'] ) {
+			?>
+			<div id="message" class="notice notice-success is-dismissible"><p><?php _e( 'Site URLs switched to HTTPS.' ); ?></p></div>
+			<?php
+		} else {
+			?>
+			<div id="message" class="notice notice-error is-dismissible"><p><?php _e( 'Site URLs could not be switched to HTTPS.' ); ?></p></div>
+			<?php
+		}
+	}
+	?>
+
+	<div class="health-check-title-section site-health-progress-wrapper loading hide-if-no-js">
+		<div class="site-health-progress">
+			<svg role="img" aria-hidden="true" focusable="false" width="100%" height="100%" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+				<circle r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+				<circle id="bar" r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+			</svg>
+		</div>
+		<div class="site-health-progress-label">
+			<?php _e( 'Results are still loading&hellip;' ); ?>
+		</div>
 	</div>
 
 	<nav class="health-check-tabs-wrapper hide-if-no-js" aria-label="<?php esc_attr_e( 'Secondary menu' ); ?>">
@@ -128,7 +173,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 	<h4 class="health-check-accordion-heading">
 		<button aria-expanded="false" class="health-check-accordion-trigger" aria-controls="health-check-accordion-block-{{ data.test }}" type="button">
 			<span class="title">{{ data.label }}</span>
-			<span class="badge {{ data.badge.color }}">{{ data.badge.label }}</span>
+			<# if ( data.badge ) { #>
+				<span class="badge {{ data.badge.color }}">{{ data.badge.label }}</span>
+			<# } #>
 			<span class="icon"></span>
 		</button>
 	</h4>

@@ -31,7 +31,7 @@ get_header(); ?>
 		if ( 0 !== calmseventeen_panel_count() || is_customize_preview() ) : // If we have pages to show.
 
 			/**
-			 * Filter number of front page sections in calm Seventeen.
+			 * Filter the number of front page sections in calm Seventeen.
 			 *
 			 * @since calm Seventeen 1.0
 			 *

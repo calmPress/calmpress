@@ -4,11 +4,11 @@
  * @group user
  */
 class Tests_User_ListAuthors extends WP_UnitTestCase {
-	static $author_ids = array();
-	static $fred_id;
-	static $fred_url;
-	static $posts     = array();
-	static $user_urls = array();
+	public static $author_ids = array();
+	public static $fred_id;
+	public static $fred_url;
+	public static $posts     = array();
+	public static $user_urls = array();
 		/* Defaults
 		'orderby'       => 'name',
 		'order'         => 'ASC',
@@ -50,7 +50,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
 			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
 
-		$this->AssertEquals( $expected['default'], wp_list_authors( array( 'echo' => false ) ) );
+		$this->assertSame( $expected['default'], wp_list_authors( array( 'echo' => false ) ) );
 	}
 
 	function test_wp_list_authors_orderby() {
@@ -59,7 +59,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
 			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>';
 
-		$this->AssertEquals(
+		$this->assertSame(
 			$expected['post_count'],
 			wp_list_authors(
 				array(
@@ -76,7 +76,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a> (3)</li>' .
 			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a> (1)</li>';
 
-		$this->AssertEquals(
+		$this->assertSame(
 			$expected['optioncount'],
 			wp_list_authors(
 				array(
@@ -99,7 +99,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
 			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
 
-		$this->AssertEquals(
+		$this->assertSame(
 			$expected['hide_empty'],
 			wp_list_authors(
 				array(
@@ -126,7 +126,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 			'<a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a>, ' .
 			'<a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a>';
 
-		$this->AssertEquals(
+		$this->assertSame(
 			$expected['style'],
 			wp_list_authors(
 				array(
@@ -140,7 +140,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 	function test_wp_list_authors_html() {
 		$expected['html'] = 'bob, paul, zack';
 
-		$this->AssertEquals(
+		$this->assertSame(
 			$expected['html'],
 			wp_list_authors(
 				array(

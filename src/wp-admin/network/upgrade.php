@@ -39,7 +39,7 @@ $action = isset( $_GET['action'] ) ? $_GET['action'] : 'show';
 
 switch ( $action ) {
 	case 'upgrade':
-		$n = ( isset( $_GET['n'] ) ) ? intval( $_GET['n'] ) : 0;
+		$n = ( isset( $_GET['n'] ) ) ? (int) $_GET['n'] : 0;
 
 		if ( $n < 5 ) {
 			update_site_option( 'calmpress_wpmu_upgrade_site', calmpress_version() );

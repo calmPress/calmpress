@@ -1024,6 +1024,8 @@ function get_theme_mod( $name, $default = false ) {
 	if ( is_string( $default ) ) {
 		// Only run the replacement if an sprintf() string format pattern was found.
 		if ( preg_match( '#(?<!%)%(?:\d+\$?)?s#', $default ) ) {
+			// Remove a single trailing percent sign.
+			$default = preg_replace( '#(?<!%)%$#', '', $default );
 			$default = sprintf( $default, get_template_directory_uri(), get_stylesheet_directory_uri() );
 		}
 	}
@@ -1036,9 +1038,11 @@ function get_theme_mod( $name, $default = false ) {
  * Updates theme modification value for the current theme.
  *
  * @since 2.1.0
+ * @since 5.6.0 A return value was added.
  *
  * @param string $name  Theme modification name.
  * @param mixed  $value Theme modification value.
+ * @return bool True if the value was updated, false otherwise.
  */
 function set_theme_mod( $name, $value ) {
 	$mods      = get_theme_mods();
@@ -1059,7 +1063,8 @@ function set_theme_mod( $name, $value ) {
 	$mods[ $name ] = apply_filters( "pre_set_theme_mod_{$name}", $value, $old_value );
 
 	$theme = get_option( 'stylesheet' );
-	update_option( "theme_mods_$theme", $mods );
+
+	return update_option( "theme_mods_$theme", $mods );
 }
 
 /**
@@ -1085,7 +1090,9 @@ function remove_theme_mod( $name ) {
 		remove_theme_mods();
 		return;
 	}
+
 	$theme = get_option( 'stylesheet' );
+
 	update_option( "theme_mods_$theme", $mods );
 }
 
@@ -1102,6 +1109,7 @@ function remove_theme_mods() {
 	if ( false === $theme_name ) {
 		$theme_name = wp_get_theme()->get( 'Name' );
 	}
+
 	delete_option( 'mods_' . $theme_name );
 }
 
@@ -1961,7 +1969,7 @@ function get_theme_starter_content() {
 				'text',
 				array(
 					'title'  => _x( 'Find Us', 'Theme starter content' ),
-					'text'   => join(
+					'text'   => implode(
 						'',
 						array(
 							'<strong>' . _x( 'Address', 'Theme starter content' ) . "</strong>\n",
@@ -2272,14 +2280,36 @@ function get_theme_starter_content() {
  *
  * @global array $_wp_theme_features
  *
- * @param string $feature The feature being added. Likely core values include 'post-formats', 'post-thumbnails',
- *                        'custom-header', 'custom-background', 'custom-logo', 'menus', 'automatic-feed-links',
- *                        'html5', 'title-tag', 'customize-selective-refresh-widgets', 'starter-content',
- *                        'responsive-embeds', 'align-wide', 'dark-editor-style', 'disable-custom-colors',
- *                        'disable-custom-font-sizes', 'editor-color-palette', 'editor-font-sizes',
- *                        'editor-styles'.
- * @param mixed  ...$args  Optional extra arguments to pass along with certain features.
- * @return void|bool False on failure, void otherwise.
+ * @param string $feature The feature being added. Likely core values include:
+ *                          - 'admin-bar'
+ *                          - 'align-wide'
+ *                          - 'automatic-feed-links'
+ *                          - 'core-block-patterns'
+ *                          - 'custom-background'
+ *                          - 'custom-header'
+ *                          - 'custom-line-height'
+ *                          - 'custom-logo'
+ *                          - 'customize-selective-refresh-widgets'
+ *                          - 'custom-spacing'
+ *                          - 'custom-units'
+ *                          - 'dark-editor-style'
+ *                          - 'disable-custom-colors'
+ *                          - 'disable-custom-font-sizes'
+ *                          - 'editor-color-palette'
+ *                          - 'editor-gradient-presets'
+ *                          - 'editor-font-sizes'
+ *                          - 'editor-styles'
+ *                          - 'featured-content'
+ *                          - 'html5'
+ *                          - 'menus'
+ *                          - 'post-formats'
+ *                          - 'post-thumbnails'
+ *                          - 'responsive-embeds'
+ *                          - 'starter-content'
+ *                          - 'title-tag'
+ *                          - 'widgets'
+ * @param mixed  ...$args Optional extra arguments to pass along with certain features.
+ * @return void|false Void on success, false on failure.
  */
 function add_theme_support( $feature, ...$args ) {
 	global $_wp_theme_features;

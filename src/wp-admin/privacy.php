@@ -31,6 +31,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 		<div class="column">
 			<h1><?php _e( 'Privacy' ); ?></h1>
 
+			<p><img class="privacy-image" src="<?php echo esc_url( admin_url( 'images/privacy.png' ) ); ?>" alt="" /></p>
+
 			<p><?php _e( 'From time to time, your WordPress site may send data to WordPress.org &#8212; including, but not limited to &#8212; the version of WordPress you are using, and a list of installed plugins and themes.' ); ?></p>
 
 			<p>
@@ -47,7 +49,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 				<?php
 				printf(
 					/* translators: %s: https://wordpress.org/about/privacy/ */
-					__( 'We take privacy and transparency very seriously. To learn more about what data we collect, and how we use it, please visit <a href="%s">WordPress.org/about/privacy</a>.' ),
+					__( 'We take privacy and transparency very seriously. To learn more about what data we collect, and how we use it, please visit <a href="%s">our Privacy Policy</a>.' ),
 					__( 'https://wordpress.org/about/privacy/' )
 				);
 				?>

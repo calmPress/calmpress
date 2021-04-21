@@ -722,7 +722,7 @@ function _get_wptexturize_split_regex( $shortcode_regex = '' ) {
  * @return string The regular expression
  */
 function _get_wptexturize_shortcode_regex( $tagnames ) {
-	$tagregexp = join( '|', array_map( 'preg_quote', $tagnames ) );
+	$tagregexp = implode( '|', array_map( 'preg_quote', $tagnames ) );
 	$tagregexp = "(?:$tagregexp)(?=[\\s\\]\\/])"; // Excerpt of get_shortcode_regex().
 	// phpcs:disable Squiz.Strings.ConcatenationSpacing.PaddingFound -- don't remove regex indentation
 	$regex =
@@ -824,7 +824,7 @@ function shortcode_unautop( $pee ) {
 		return $pee;
 	}
 
-	$tagregexp = join( '|', array_map( 'preg_quote', array_keys( $shortcode_tags ) ) );
+	$tagregexp = implode( '|', array_map( 'preg_quote', array_keys( $shortcode_tags ) ) );
 	$spaces    = wp_spaces_regexp();
 
 	// phpcs:disable Squiz.Strings.ConcatenationSpacing.PaddingFound,WordPress.WhiteSpace.PrecisionAlignment.Found -- don't remove regex indentation
@@ -1537,7 +1537,7 @@ function utf8_uri_encode( $utf8_string, $length = 0 ) {
  * | U+1EF9   | ỹ     | y           | Latin small letter y with tilde                       |
  *
  * German (`de_DE`), German formal (`de_DE_formal`), German (Switzerland) formal (`de_CH`),
- * and German (Switzerland) informal (`de_CH_informal`) locales:
+ * German (Switzerland) informal (`de_CH_informal`), and German (Austria) (`de_AT`) locales:
  *
  * |   Code   | Glyph | Replacement |               Description               |
  * | -------- | ----- | ----------- | --------------------------------------- |
@@ -1577,6 +1577,7 @@ function utf8_uri_encode( $utf8_string, $length = 0 ) {
  * @since 4.6.0 Added locale support for `de_CH`, `de_CH_informal`, and `ca`.
  * @since 4.7.0 Added locale support for `sr_RS`.
  * @since 4.8.0 Added locale support for `bs_BA`.
+ * @since 5.7.0 Added locale support for `de_AT`.
  *
  * @param string $string Text that might have accent characters
  * @return string Filtered string with replaced "nice" characters.
@@ -1919,7 +1920,7 @@ function remove_accents( $string ) {
 		// Used for locale-specific rules.
 		$locale = get_locale();
 
-		if ( in_array( $locale, array( 'de_DE', 'de_DE_formal', 'de_CH', 'de_CH_informal' ), true ) ) {
+		if ( in_array( $locale, array( 'de_DE', 'de_DE_formal', 'de_CH', 'de_CH_informal', 'de_AT' ), true ) ) {
 			$chars['Ä'] = 'Ae';
 			$chars['ä'] = 'ae';
 			$chars['Ö'] = 'Oe';
@@ -2034,14 +2035,7 @@ function sanitize_file_name( $filename ) {
 
 	// Return if only one extension.
 	if ( count( $parts ) <= 2 ) {
-		/**
-		 * Filters a sanitized filename string.
-		 *
-		 * @since 2.8.0
-		 *
-		 * @param string $filename     Sanitized filename.
-		 * @param string $filename_raw The filename prior to sanitization.
-		 */
+		/** This filter is documented in wp-includes/formatting.php */
 		return apply_filters( 'sanitize_file_name', $filename, $filename_raw );
 	}
 
@@ -2074,7 +2068,14 @@ function sanitize_file_name( $filename ) {
 
 	$filename .= '.' . $extension;
 
-	/** This filter is documented in wp-includes/formatting.php */
+	/**
+	 * Filters a sanitized filename string.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @param string $filename     Sanitized filename.
+	 * @param string $filename_raw The filename prior to sanitization.
+	 */
 	return apply_filters( 'sanitize_file_name', $filename, $filename_raw );
 }
 
@@ -2164,6 +2165,7 @@ function sanitize_key( $key ) {
  * @param string $title          The string to be sanitized.
  * @param string $fallback_title Optional. A title to use if $title is empty. Default empty.
  * @param string $context        Optional. The operation for which the string is sanitized.
+ *                               When set to 'save', the string runs through remove_accents().
  *                               Default 'save'.
  * @return string The sanitized string.
  */
@@ -2217,7 +2219,8 @@ function sanitize_title_for_query( $title ) {
  * @param string $title     The title to be sanitized.
  * @param string $raw_title Optional. Not used. Default empty.
  * @param string $context   Optional. The operation for which the string is sanitized.
- *                          Default 'display'.
+ *                          When set to 'save', additional entities are converted to hyphens
+ *                          or stripped entirely. Default 'display'.
  * @return string The sanitized title.
  */
 function sanitize_title_with_dashes( $title, $raw_title = '', $context = 'display' ) {
@@ -3133,9 +3136,10 @@ function wp_rel_ugc( $text ) {
 }
 
 /**
- * Adds rel noreferrer and noopener to all HTML A elements that have a target.
+ * Adds `rel="noopener"` to all HTML A elements that have a target.
  *
  * @since 5.1.0
+ * @since 5.6.0 Removed 'noreferrer' relationship.
  *
  * @param string $text Content that may contain HTML A elements.
  * @return string Converted content.
@@ -3168,15 +3172,15 @@ function wp_targeted_link_rel( $text ) {
 }
 
 /**
- * Callback to add rel="noreferrer noopener" string to HTML A element.
+ * Callback to add `rel="noopener"` string to HTML A element.
  *
- * Will not duplicate existing noreferrer and noopener values
- * to prevent from invalidating the HTML.
+ * Will not duplicate an existing 'noopener' value to avoid invalidating the HTML.
  *
  * @since 5.1.0
+ * @since 5.6.0 Removed 'noreferrer' relationship.
  *
- * @param array $matches Single Match
- * @return string HTML A Element with rel noreferrer noopener in addition to any existing values
+ * @param array $matches Single match.
+ * @return string HTML A Element with `rel="noopener"` in addition to any existing values.
  */
 function wp_targeted_link_rel_callback( $matches ) {
 	$link_html          = $matches[1];
@@ -3199,7 +3203,7 @@ function wp_targeted_link_rel_callback( $matches ) {
 	 * @param string $rel       The rel values.
 	 * @param string $link_html The matched content of the link tag including all HTML attributes.
 	 */
-	$rel = apply_filters( 'wp_targeted_link_rel', 'noopener noreferrer', $link_html );
+	$rel = apply_filters( 'wp_targeted_link_rel', 'noopener', $link_html );
 
 	// Return early if no rel values to be added or if no actual target attribute.
 	if ( ! $rel || ! isset( $atts['target'] ) ) {
@@ -3212,7 +3216,7 @@ function wp_targeted_link_rel_callback( $matches ) {
 	}
 
 	$atts['rel']['whole'] = 'rel="' . esc_attr( $rel ) . '"';
-	$link_html            = join( ' ', array_column( $atts, 'whole' ) );
+	$link_html            = implode( ' ', array_column( $atts, 'whole' ) );
 
 	if ( $is_escaped ) {
 		$link_html = preg_replace( '/[\'"]/', '\\\\$0', $link_html );
@@ -3419,8 +3423,8 @@ function iso8601_timezone_to_offset( $timezone ) {
 		$offset = 0;
 	} else {
 		$sign    = ( '+' === substr( $timezone, 0, 1 ) ) ? 1 : -1;
-		$hours   = intval( substr( $timezone, 1, 2 ) );
-		$minutes = intval( substr( $timezone, 3, 4 ) ) / 60;
+		$hours   = (int) substr( $timezone, 1, 2 );
+		$minutes = (int) substr( $timezone, 3, 4 ) / 60;
 		$offset  = $sign * HOUR_IN_SECONDS * ( $hours + $minutes );
 	}
 	return $offset;
@@ -3433,7 +3437,7 @@ function iso8601_timezone_to_offset( $timezone ) {
  *
  * @param string $date_string Date and time in ISO 8601 format {@link https://en.wikipedia.org/wiki/ISO_8601}.
  * @param string $timezone    Optional. If set to 'gmt' returns the result in UTC. Default 'user'.
- * @return string|bool The date and time in MySQL DateTime format - Y-m-d H:i:s, or false on failure.
+ * @return string|false The date and time in MySQL DateTime format - Y-m-d H:i:s, or false on failure.
  */
 function iso8601_to_datetime( $date_string, $timezone = 'user' ) {
 	$timezone    = strtolower( $timezone );
@@ -3547,7 +3551,7 @@ function sanitize_email( $email ) {
 	}
 
 	// Join valid subs into the new domain.
-	$domain = join( '.', $new_subs );
+	$domain = implode( '.', $new_subs );
 
 	// Put the email back together.
 	$sanitized_email = $local . '@' . $domain;
@@ -3671,7 +3675,7 @@ function wp_trim_excerpt( $text = '', $post = null ) {
 		$text = str_replace( ']]>', ']]&gt;', $text );
 
 		/* translators: Maximum number of words used in a post excerpt. */
-		$excerpt_length = intval( _x( '55', 'excerpt_length' ) );
+		$excerpt_length = (int) _x( '55', 'excerpt_length' );
 
 		/**
 		 * Filters the maximum number of words in a post excerpt.
@@ -4149,6 +4153,8 @@ function esc_sql( $data ) {
  *                            Defaults to return value of wp_allowed_protocols().
  * @param string   $_context  Private. Use esc_url_raw() for database usage.
  * @return string The cleaned URL after the {@see 'clean_url'} filter is applied.
+ *                An empty string is returned if `$url` specifies a protocol other than
+ *                those in `$protocols`, or if `$url` contains an empty string.
  */
 function esc_url( $url, $protocols = null, $_context = 'display' ) {
 	$original_url = $url;
@@ -4253,10 +4259,12 @@ function esc_url( $url, $protocols = null, $_context = 'display' ) {
  *
  * @since 2.8.0
  *
+ * @see esc_url()
+ *
  * @param string   $url       The URL to be cleaned.
  * @param string[] $protocols Optional. An array of acceptable protocols.
  *                            Defaults to return value of wp_allowed_protocols().
- * @return string The cleaned URL.
+ * @return string The cleaned URL after esc_url() is run with the 'db' context.
  */
 function esc_url_raw( $url, $protocols = null ) {
 	return esc_url( $url, $protocols, 'db' );
@@ -4590,7 +4598,7 @@ function sanitize_option( $option, $value ) {
 			if ( null === $value ) {
 				$value = 1;
 			} else {
-				$value = intval( $value );
+				$value = (int) $value;
 			}
 			break;
 
@@ -4891,7 +4899,7 @@ function wp_sprintf( $pattern, ...$args ) {
 			if ( $_fragment != $fragment ) {
 				$fragment = $_fragment;
 			} else {
-				$fragment = sprintf( $fragment, strval( $arg ) );
+				$fragment = sprintf( $fragment, (string) $arg );
 			}
 		}
 
@@ -5067,7 +5075,7 @@ function links_add_target( $content, $target = '_blank', $tags = array( 'a' ) ) 
 	global $_links_add_target;
 	$_links_add_target = $target;
 	$tags              = implode( '|', (array) $tags );
-	return preg_replace_callback( "!<($tags)([^>]*)>!i", '_links_add_target', $content );
+	return preg_replace_callback( "!<($tags)((\s[^>]*)?)>!i", '_links_add_target', $content );
 }
 
 /**
@@ -5271,7 +5279,7 @@ function sanitize_mime_type( $mime_type ) {
 }
 
 /**
- * Add slashes to a string or array of strings.
+ * Adds slashes to a string or recursively adds slashes to strings within an array.
  *
  * This should be used when preparing data for core API that expects slashed data.
  * This should not be used to escape data going directly into an SQL query.
@@ -5279,8 +5287,8 @@ function sanitize_mime_type( $mime_type ) {
  * @since 3.6.0
  * @since 5.5.0 Non-string values are left untouched.
  *
- * @param string|string[] $value String or array of strings to slash.
- * @return string|string[] Slashed $value.
+ * @param string|array $value String or array of data to slash.
+ * @return string|array Slashed $value.
  */
 function wp_slash( $value ) {
 	if ( is_array( $value ) ) {
@@ -5295,45 +5303,18 @@ function wp_slash( $value ) {
 }
 
 /**
- * Remove slashes from a string or array of strings.
+ * Removes slashes from a string or recursively removes slashes from strings within an array.
  *
  * This should be used to remove slashes from data passed to core API that
  * expects data to be unslashed.
  *
  * @since 3.6.0
  *
- * @param string|string[] $value String or array of strings to unslash.
- * @return string|string[] Unslashed $value
+ * @param string|array $value String or array of data to unslash.
+ * @return string|array Unslashed $value.
  */
 function wp_unslash( $value ) {
 	return stripslashes_deep( $value );
-}
-
-/**
- * Adds slashes to only string values in an array of values.
- *
- * This should be used when preparing data for core APIs that expect slashed data.
- * This should not be used to escape data going directly into an SQL query.
- *
- * @since 5.3.0
- *
- * @param mixed $value Scalar or array of scalars.
- * @return mixed Slashes $value
- */
-function wp_slash_strings_only( $value ) {
-	return map_deep( $value, 'addslashes_strings_only' );
-}
-
-/**
- * Adds slashes only if the provided value is a string.
- *
- * @since 5.3.0
- *
- * @param mixed $value
- * @return mixed
- */
-function addslashes_strings_only( $value ) {
-	return is_string( $value ) ? addslashes( $value ) : $value;
 }
 
 /**

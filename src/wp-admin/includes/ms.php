@@ -302,7 +302,7 @@ function upload_space_setting( $id ) {
  * @since 3.0.0
  *
  * @param int $id The user ID.
- * @return bool|int The ID of the refreshed user or false if the user does not exist.
+ * @return int|false The ID of the refreshed user or false if the user does not exist.
  */
 function refresh_user_details( $id ) {
 	$id = (int) $id;
@@ -679,7 +679,7 @@ function mu_dropdown_languages( $lang_files = array(), $current = '' ) {
  *
  * @global string $pagenow
  *
- * @return false False if the current user is not a super admin.
+ * @return void|false Void on success. False if the current user is not a super admin.
  */
 function site_admin_notice() {
 	global $pagenow;
@@ -991,7 +991,7 @@ function network_settings_add_js() {
 <script type="text/javascript">
 jQuery(document).ready( function($) {
 	var languageSelect = $( '#WPLANG' );
-	$( 'form' ).submit( function() {
+	$( 'form' ).on( 'submit', function() {
 		// Don't show a spinner for English and installed languages,
 		// as there is nothing to download.
 		if ( ! languageSelect.find( 'option:selected' ).data( 'installed' ) ) {
@@ -1007,6 +1007,8 @@ jQuery(document).ready( function($) {
  * Outputs the HTML for a network's "Edit Site" tabular interface.
  *
  * @since 4.6.0
+ *
+ * @global string $pagenow
  *
  * @param array $args {
  *     Optional. Array or string of Query parameters. Default empty array.

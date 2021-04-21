@@ -77,6 +77,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 
 	$redirect     = $original;
 	$redirect_url = false;
+	$redirect_obj = false;
 
 	// Notice fixing.
 	if ( ! isset( $redirect['path'] ) ) {
@@ -102,6 +103,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 
 	if ( is_feed() && $post_id ) {
 		$redirect_url = get_post_comments_feed_link( $post_id, get_query_var( 'feed' ) );
+		$redirect_obj = get_post( $post_id );
 
 		if ( $redirect_url ) {
 			$redirect['query'] = _remove_qs_args_if_not_in_url(
@@ -126,6 +128,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			}
 
 			$redirect_url = get_permalink( $post_id );
+			$redirect_obj = get_post( $post_id );
 
 			if ( $redirect_url ) {
 				$redirect['query'] = _remove_qs_args_if_not_in_url(
@@ -148,8 +151,9 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		if ( $redirect_post ) {
 			$post_type_obj = get_post_type_object( $redirect_post->post_type );
 
-			if ( $post_type_obj->public && 'auto-draft' !== $redirect_post->post_status ) {
+			if ( $post_type_obj && $post_type_obj->public && 'auto-draft' !== $redirect_post->post_status ) {
 				$redirect_url = get_permalink( $redirect_post );
+				$redirect_obj = get_post( $redirect_post );
 
 				$redirect['query'] = _remove_qs_args_if_not_in_url(
 					$redirect['query'],
@@ -197,6 +201,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 
 			if ( $post_id ) {
 				$redirect_url = get_permalink( $post_id );
+				$redirect_obj = get_post( $post_id );
 
 				$redirect['path']  = rtrim( $redirect['path'], (int) get_query_var( 'page' ) . '/' );
 				$redirect['query'] = remove_query_arg( 'page', $redirect['query'] );
@@ -216,23 +221,28 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		}
 	} elseif ( is_object( $wp_rewrite ) ) {
 		// Rewriting of old ?p=X, ?m=2004, ?m=200401, ?m=20040101.
-		if ( is_attachment() &&
-			! array_diff( array_keys( $wp->query_vars ), array( 'attachment', 'attachment_id' ) ) &&
-			! $redirect_url ) {
+		if ( is_attachment()
+			&& ! array_diff( array_keys( $wp->query_vars ), array( 'attachment', 'attachment_id' ) )
+			&& ! $redirect_url ) {
 			$redirect_url = get_attachment_link();
+			$redirect_obj = get_post();
 		} elseif ( is_single() && ! empty( $_GET['p'] ) && ! $redirect_url ) {
 			$redirect_url = get_permalink( get_query_var( 'p' ) );
+			$redirect_obj = get_post( get_query_var( 'p' ) );
 
 			if ( $redirect_url ) {
 				$redirect['query'] = remove_query_arg( array( 'p', 'post_type' ), $redirect['query'] );
 			}
 		} elseif ( is_single() && ! empty( $_GET['name'] ) && ! $redirect_url ) {
 			$redirect_url = get_permalink( $wp_query->get_queried_object_id() );
+			$redirect_obj = get_post( $wp_query->get_queried_object_id() );
 
 			if ( $redirect_url ) {
 				$redirect['query'] = remove_query_arg( 'name', $redirect['query'] );
 			}
-		} elseif ( is_page() && ! is_feed() && 'page' === get_option( 'show_on_front' ) && get_queried_object_id() === (int) get_option( 'page_on_front' ) && ! $redirect_url ) {
+		} elseif ( is_page() && ! is_feed() && ! $redirect_url
+			&& 'page' === get_option( 'show_on_front' ) && get_queried_object_id() === (int) get_option( 'page_on_front' )
+		) {
 			$redirect_url = home_url( '/' );
 		} elseif ( ! empty( $_GET['m'] ) && ( is_year() || is_month() || is_day() ) ) {
 			$m = get_query_var( 'm' );
@@ -347,6 +357,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 					|| ! has_term( $category->term_id, 'category', $wp_query->get_queried_object_id() )
 				) {
 					$redirect_url = get_permalink( $wp_query->get_queried_object_id() );
+					$redirect_obj = get_post( $wp_query->get_queried_object_id() );
 				}
 			}
 		}
@@ -357,6 +368,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 
 			if ( ! $redirect_url ) {
 				$redirect_url = get_permalink( get_queried_object_id() );
+				$redirect_obj = get_post( get_queried_object_id() );
 			}
 
 			if ( $page > 1 ) {
@@ -439,7 +451,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			}
 
 			if ( ! empty( $addl_path ) ) {
-				$redirect['path'] = trailingslashit($redirect['path']) . $addl_path;
+				$redirect['path'] = trailingslashit( $redirect['path'] ) . $addl_path;
 			}
 
 			$redirect_url = $redirect['scheme'] . '://' . $redirect['host'] . $redirect['path'];
@@ -663,6 +675,28 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		$requested_url = preg_replace_callback( '|%[a-fA-F0-9][a-fA-F0-9]|', 'lowercase_octets', $requested_url );
 	}
 
+	if ( $redirect_obj instanceof WP_Post ) {
+		$post_status_obj = get_post_status_object( get_post_status( $redirect_obj ) );
+		/*
+		 * Unset the redirect object and URL if they are not readable by the user.
+		 * This condition is a little confusing as the condition needs to pass if
+		 * the post is not readable by the user. That's why there are ! (not) conditions
+		 * throughout.
+		 */
+		if (
+			// Private post statuses only redirect if the user can read them.
+			! (
+				$post_status_obj->private &&
+				current_user_can( 'read_post', $redirect_obj->ID )
+			) &&
+			// For other posts, only redirect if publicly viewable.
+			! is_post_publicly_viewable( $redirect_obj )
+		) {
+			$redirect_obj = false;
+			$redirect_url = false;
+		}
+	}
+
 	/**
 	 * Filters the canonical redirect URL.
 	 *
@@ -818,7 +852,12 @@ function redirect_guess_404_permalink() {
 
 		// If any of post_type, year, monthnum, or day are set, use them to refine the query.
 		if ( get_query_var( 'post_type' ) ) {
-			$where .= $wpdb->prepare( ' AND post_type = %s', get_query_var( 'post_type' ) );
+			if ( is_array( get_query_var( 'post_type' ) ) ) {
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				$where .= " AND post_type IN ('" . join( "', '", esc_sql( get_query_var( 'post_type' ) ) ) . "')";
+			} else {
+				$where .= $wpdb->prepare( ' AND post_type = %s', get_query_var( 'post_type' ) );
+			}
 		} else {
 			$where .= " AND post_type IN ('" . implode( "', '", get_post_types( array( 'public' => true ) ) ) . "')";
 		}

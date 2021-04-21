@@ -76,7 +76,7 @@ function calmseventeen_panel_count() {
 	$panel_count = 0;
 
 	/**
-	 * Filter number of front page sections in calm Seventeen.
+	 * Filters number of front page sections in calm Seventeen.
 	 *
 	 * @since calm Seventeen 1.0
 	 *
