@@ -42,47 +42,6 @@ class Tests_Post_wpPublishPost extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Ensure wp_publish_post adds default category.
-	 *
-	 * @covers ::wp_publish_post
-	 * @ticket 51292
-	 */
-	function test_wp_publish_post_adds_default_category() {
-		$post_id = self::$auto_draft_id;
-
-		wp_publish_post( $post_id );
-
-		$post_categories = get_the_category( $post_id );
-		$this->assertCount( 1, $post_categories );
-		$this->assertSame(
-			(int) get_option( 'default_category' ),
-			$post_categories[0]->term_id,
-			'wp_publish_post failed to add default category.'
-		);
-	}
-
-	/**
-	 * Ensure wp_publish_post adds default category when tagged.
-	 *
-	 * @covers ::wp_publish_post
-	 * @ticket 51292
-	 */
-	function test_wp_publish_post_adds_default_category_when_tagged() {
-		$post_id = self::$auto_draft_id;
-		$tag_id  = $this->factory->term->create( array( 'taxonomy' => 'post_tag' ) );
-		wp_set_post_tags( $post_id, array( $tag_id ) );
-		wp_publish_post( $post_id );
-
-		$post_categories = get_the_category( $post_id );
-		$this->assertCount( 1, $post_categories );
-		$this->assertSame(
-			(int) get_option( 'default_category' ),
-			$post_categories[0]->term_id,
-			'wp_publish_post failed to add default category.'
-		);
-	}
-
-	/**
 	 * Ensure wp_publish_post does not add default term in error.
 	 *
 	 * @covers ::wp_publish_post

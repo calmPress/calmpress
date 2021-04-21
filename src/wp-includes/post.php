@@ -4495,7 +4495,7 @@ function wp_publish_post( $post ) {
 		}
 
 		if ( 'category' === $taxonomy ) {
-			$default_term_id = (int) get_option( 'default_category', 0 );
+			$default_term_id = 0;
 		} else {
 			$default_term_id = (int) get_option( 'default_term_' . $taxonomy, 0 );
 		}
