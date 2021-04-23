@@ -7,7 +7,8 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		require_once ABSPATH . 'wp-admin/includes/template.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
-	}
+		require_once ABSPATH . 'wp-admin/includes/post.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';	}
 
 	/**
 	 * @ticket 51147
@@ -52,7 +53,6 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 		global $wp_meta_boxes;
 
 		add_meta_box( 'testbox1', 'Test Metabox', '__return_false', 'post' );
-		var_dump($wp_meta_boxes);
 
 		$this->assertArrayHasKey( 'testbox1', $wp_meta_boxes['post']['advanced']['default'] );
 	}
