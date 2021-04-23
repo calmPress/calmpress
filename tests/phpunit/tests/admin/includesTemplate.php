@@ -4,6 +4,10 @@
  */
 class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+	}
+
 	/**
 	 * @ticket 51147
 	 * @dataProvider data_wp_terms_checklist_with_selected_cats
