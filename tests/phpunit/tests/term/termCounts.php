@@ -41,18 +41,26 @@ class Tests_Term_termCount extends WP_UnitTestCase {
 	public static $user_id;
 
 	/**
+	 * Category ID for a category replacing the role of the default one.
+	 *
+	 * @var int
+	 */
+	public static $cat_id;
+
+	/**
 	 * Create shared fixtures.
 	 *
 	 * @param WP_UnitTest_Factory $factory Test suite factory.
 	 */
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		self::$cat_id = $factory->category->create();
 		$statuses = array( 'publish', 'auto-draft', 'draft', 'private' );
 		foreach ( $statuses as $status ) {
-			self::$post_ids[ $status ] = $factory->post->create( array( 'post_status' => $status ) );
+			self::$post_ids[ $status ] = $factory->post->create( array( 'post_status' => $status, 'post_category' => array( self::$cat_id ) ) );
 		}
 
 		// Extra published post.
-		self::$post_ids['publish_two'] = $factory->post->create( array( 'post_status' => 'publish' ) );
+		self::$post_ids['publish_two'] = $factory->post->create( array( 'post_status' => 'publish', 'post_category' => array( self::$cat_id ) ) );
 
 		self::$user_id = $factory->user->create( array( 'role' => 'author' ) );
 
@@ -88,12 +96,12 @@ class Tests_Term_termCount extends WP_UnitTestCase {
 	 * @param int    $change      Expected change.
 	 */
 	public function test_term_count_changes_for_post_statuses( $post_status, $change ) {
-		$term_count = get_term( get_option( 'default_category' ) )->count;
+		$term_count = get_term( self::$cat_id )->count;
 		// Do not use shared fixture for this test as it relies on a new post.
-		$post_id = $this->factory()->post->create( array( 'post_status' => $post_status ) );
+		$post_id = $this->factory()->post->create( array( 'post_status' => $post_status, 'post_category' => array( self::$cat_id ) ) );
 
 		$expected = $term_count + $change;
-		$this->assertSame( $expected, get_term( get_option( 'default_category' ) )->count );
+		$this->assertSame( $expected, get_term( self::$cat_id )->count );
 	}
 
 	/**
@@ -130,12 +138,12 @@ class Tests_Term_termCount extends WP_UnitTestCase {
 	 */
 	public function test_term_counts_incremented_on_publish( $original_post_status, $change ) {
 		$post_id    = self::$post_ids[ $original_post_status ];
-		$term_count = get_term( get_option( 'default_category' ) )->count;
+		$term_count = get_term( self::$cat_id )->count;
 
 		wp_publish_post( $post_id );
 
 		$expected = $term_count + $change;
-		$this->assertSame( $expected, get_term( get_option( 'default_category' ) )->count );
+		$this->assertSame( $expected, get_term( self::$cat_id )->count );
 	}
 
 	/**
@@ -171,7 +179,7 @@ class Tests_Term_termCount extends WP_UnitTestCase {
 	 */
 	function test_term_count_transitions_update_term_counts( $original_post_status, $new_post_status, $change ) {
 		$post_id    = self::$post_ids[ $original_post_status ];
-		$term_count = get_term( get_option( 'default_category' ) )->count;
+		$term_count = get_term( self::$cat_id )->count;
 
 		wp_update_post(
 			array(
@@ -181,7 +189,7 @@ class Tests_Term_termCount extends WP_UnitTestCase {
 		);
 
 		$expected = $term_count + $change;
-		$this->assertSame( $expected, get_term( get_option( 'default_category' ) )->count );
+		$this->assertSame( $expected, get_term( self::$cat_id )->count );
 	}
 
 	/**
@@ -244,7 +252,7 @@ class Tests_Term_termCount extends WP_UnitTestCase {
 
 		add_filter( 'update_post_term_count_statuses', array( $this, 'add_custom_status_to_counted_statuses' ) );
 
-		$post_id = $this->factory()->post->create( array( 'post_status' => $post_status ) );
+		$post_id = $this->factory()->post->create( array( 'post_status' => $post_status, 'post_category' => array( self::$cat_id ) ) );
 		wp_add_object_terms( $post_id, self::$attachment_term, 'wp_test_tax_counts' );
 		$attachment_id = self::factory()->attachment->create_object(
 			array(
@@ -296,7 +304,7 @@ class Tests_Term_termCount extends WP_UnitTestCase {
 	public function test_term_count_changes_for_post_statuses_with_attachments( $post_status, $change ) {
 		$term_count = get_term( self::$attachment_term )->count;
 		// Do not use shared fixture for this test as it relies on a new post.
-		$post_id = $this->factory()->post->create( array( 'post_status' => $post_status ) );
+		$post_id = $this->factory()->post->create( array( 'post_status' => $post_status, 'post_category' => array( self::$cat_id ) ) );
 		wp_add_object_terms( $post_id, self::$attachment_term, 'wp_test_tax_counts' );
 		$attachment_id = self::factory()->attachment->create_object(
 			array(
