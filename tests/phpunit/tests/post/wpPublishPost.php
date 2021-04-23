@@ -75,38 +75,4 @@ class Tests_Post_wpPublishPost extends WP_UnitTestCase {
 			'wp_publish_post replaced set term for custom taxonomy.'
 		);
 	}
-
-	/**
-	 * Ensure wp_publish_post adds default term.
-	 *
-	 * @covers ::wp_publish_post
-	 * @ticket 51292
-	 */
-	function test_wp_publish_post_adds_default_term() {
-		// Create custom taxonomy to test with.
-		register_taxonomy(
-			'tax_51292',
-			'post',
-			array(
-				'hierarchical' => true,
-				'public'       => true,
-				'default_term' => array(
-					'name' => 'Default 51292',
-					'slug' => 'default-51292',
-				),
-			)
-		);
-
-		$post_id = self::$auto_draft_id;
-
-		wp_publish_post( $post_id );
-
-		$post_terms = get_the_terms( $post_id, 'tax_51292' );
-		$this->assertCount( 1, $post_terms );
-		$this->assertSame(
-			get_term_by( 'slug', 'default-51292', 'tax_51292' )->term_id,
-			$post_terms[0]->term_id,
-			'wp_publish_post failed to add default term for custom taxonomy.'
-		);
-	}
 }
