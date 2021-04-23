@@ -187,6 +187,9 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 	function test_item_elements() {
 		global $post;
+
+		add_filter( 'comments_open', '__return_true' );
+
 		$this->go_to( '/feed/' );
 		$feed = $this->do_rss2();
 		$xml  = xml_to_array( $feed );
@@ -271,6 +274,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 				$this->assertSame( trim( apply_filters( 'the_content', $post->post_content ) ), trim( $content[0]['content'] ) );
 			}
 		}
+		add_filter( 'comments_open', '__return_false' );
 	}
 
 	/**
