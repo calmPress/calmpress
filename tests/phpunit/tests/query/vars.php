@@ -17,52 +17,49 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 		// Re-initialise any dynamically-added public query vars:
 		do_action( 'init' );
 
-		$this->assertSame(
-			array(
+		$expected =	array(
+			// Static public query vars:
+			'm',
+			'p',
+			'w',
+			's',
+			'search',
+			'exact',
+			'sentence',
+			'page',
+			'paged',
+			'more',
+			'order',
+			'orderby',
+			'year',
+			'monthnum',
+			'day',
+			'hour',
+			'minute',
+			'second',
+			'name',
+			'tag',
+			'pagename',
+			'page_id',
+			'error',
+			'preview',
+			'robots',
+			'favicon',
+			'cpage',
+			'category_name',
+			'attachment',
 
-				// Static public query vars:
-				'm',
-				'p',
-				'w',
-				's',
-				'search',
-				'exact',
-				'sentence',
-				'page',
-				'paged',
-				'more',
-				'order',
-				'orderby',
-				'year',
-				'monthnum',
-				'day',
-				'hour',
-				'minute',
-				'second',
-				'name',
-				'tag',
-				'pagename',
-				'page_id',
-				'error',
-				'preview',
-				'robots',
-				'favicon',
-				'cpage',
-				'category_name',
-				'attachment',
-
-				// Dynamically added public query vars.
-				'rest_route',
-				\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
-				'sitemap',
-				'sitemap-subtype',
-				'sitemap-stylesheet',
-			)
+			// Dynamically added public query vars.
+			'rest_route',
+			\calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME,
+			'sitemap',
+			'sitemap-subtype',
+			'sitemap-stylesheet',
 		);
 		sort( $expected );
 		$actual = $wp->public_query_vars;
 		sort( $actual );
-		$this->assertEquals( $expected, $actual, 'Care should be taken when introducing new public query vars. See https://core.trac.wordpress.org/ticket/35115' );
+		$this->assertSame( $expected, $actual, 'Care should be taken when introducing new public query vars. See https://core.trac.wordpress.org/ticket/35115' );
 
 		// Test that when feeds are enabled, "feed" is a valid public variable.
 		update_option( 'calm_embedding_on', 0 );
@@ -72,7 +69,7 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 		sort( $expected );
 		$actual = $wp->public_query_vars;
 		sort( $actual );
-		$this->assertEquals( $expected, $actual, 'Care should be taken when introducing new public query vars. See https://core.trac.wordpress.org/ticket/35115' );
+		$this->assertSame( $expected, $actual, 'Care should be taken when introducing new public query vars. See https://core.trac.wordpress.org/ticket/35115' );
 
 		// Test that when embeding is is enabled, "embed" is a valid public variable.
 		update_option( 'posts_per_rss', 0 );
@@ -82,7 +79,7 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 		sort( $expected );
 		$actual = $wp->public_query_vars;
 		sort( $actual );
-		$this->assertEquals( $expected, $actual, 'Care should be taken when introducing new public query vars. See https://core.trac.wordpress.org/ticket/35115' );
+		$this->assertSame( $expected, $actual, 'Care should be taken when introducing new public query vars. See https://core.trac.wordpress.org/ticket/35115' );
 	}
 
 }
