@@ -710,65 +710,6 @@ class WP_Test_REST_Search_Controller extends WP_Test_REST_Controller_Testcase {
 	}
 
 	/**
-	 * Search through post formats of any type.
-	 *
-	 * @ticket 51459
-	 */
-	public function test_get_items_search_type_post_format() {
-		$response = $this->do_request_with_params(
-			array(
-				'per_page' => 100,
-				'type'     => 'post-format',
-			)
-		);
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertContains(
-			'Aside',
-			wp_list_pluck( $response->get_data(), 'title' )
-		);
-	}
-
-	/**
-	 * Search through all that matches a 'Aside' search.
-	 *
-	 * @ticket 51459
-	 */
-	public function test_get_items_search_for_test_post_format() {
-		$response = $this->do_request_with_params(
-			array(
-				'per_page' => 100,
-				'search'   => 'Aside',
-				'type'     => 'post-format',
-			)
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertContains(
-			'Aside',
-			wp_list_pluck( $response->get_data(), 'title' )
-		);
-	}
-
-	/**
-	 * Searching for a post format that doesn't exist should return an empty
-	 * result.
-	 *
-	 * @ticket 51459
-	 */
-	public function test_get_items_search_for_missing_post_format() {
-		$response = $this->do_request_with_params(
-			array(
-				'per_page' => 100,
-				'search'   => 'Doesn\'t exist',
-				'type'     => 'post-format',
-			)
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertEmpty( $response->get_data() );
-	}
-
-	/**
 	 * Perform a REST request to our search endpoint with given parameters.
 	 */
 	private function do_request_with_params( $params = array(), $method = 'GET' ) {
