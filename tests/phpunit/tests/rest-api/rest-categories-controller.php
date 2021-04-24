@@ -14,6 +14,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	protected static $administrator;
 	protected static $contributor;
 	protected static $subscriber;
+	protected static $def_cat;
 
 	protected static $category_ids     = array();
 	protected static $total_categories = 30;
@@ -36,8 +37,11 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 			)
 		);
 
+		// Replacement for default category.
+		self::$def_cat = $factory->category->create( array( 'name' => 'Uncategorized' ) );
+
 		// Set up categories for pagination tests.
-		for ( $i = 0; $i < self::$total_categories; $i++ ) {
+		for ( $i = 0; $i < self::$total_categories - 1; $i++ ) {
 			$category_ids[] = $factory->category->create(
 				array(
 					'name' => "Category {$i}",
@@ -154,7 +158,6 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_items() {
-		$id      = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		$request = new WP_REST_Request( 'GET', '/wp/v2/categories' );
 		$request->set_param( 'per_page', self::$per_page );
 		$response = rest_get_server()->dispatch( $request );
@@ -172,11 +175,10 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 
 	public function test_get_items_hide_empty_arg() {
 		$post_id = $this->factory->post->create();
-		$id      = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		$category1 = $this->factory->category->create( array( 'name' => 'Season 5' ) );
 		$category2 = $this->factory->category->create( array( 'name' => 'The Be Sharps' ) );
 
-		$total_categories = self::$total_categories + 3;
+		$total_categories = self::$total_categories + 2;
 
 		wp_set_object_terms( $post_id, array( $category1, $category2 ), 'category' );
 
@@ -325,7 +327,6 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_items_orderby_args() {
-		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		$this->factory->category->create( array( 'name' => 'Apple' ) );
 		$this->factory->category->create( array( 'name' => 'Banana' ) );
 
@@ -357,7 +358,6 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_items_orderby_id() {
-		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		$this->factory->category->create( array( 'name' => 'Cantaloupe' ) );
 		$this->factory->category->create( array( 'name' => 'Apple' ) );
 		$this->factory->category->create( array( 'name' => 'Banana' ) );
@@ -716,18 +716,16 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_item() {
-		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
-		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
+		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/' . self::$def_cat );
 		$response = rest_get_server()->dispatch( $request );
-		$this->check_get_taxonomy_term_response( $response, $id );
+		$this->check_get_taxonomy_term_response( $response, self::$def_cat );
 	}
 
 	/**
 	 * @ticket 39122
 	 */
 	public function test_get_item_meta() {
-		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/categories/' . self::$def_cat );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertArrayHasKey( 'meta', $data );
@@ -747,8 +745,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	 * @ticket 39122
 	 */
 	public function test_get_item_meta_registered_for_different_taxonomy() {
-		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/categories/' . self::$def_cat );
 		$response = rest_get_server()->dispatch( $request );
 		$data = $response->get_data();
 		$this->assertArrayHasKey( 'meta', $data );
@@ -771,9 +768,8 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_get_item_invalid_permission_for_context() {
-		$id = $this->factory->category->create( array( 'name' => 'Uncategorized' ) );
 		wp_set_current_user( 0 );
-		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/' . $id );
+		$request = new WP_REST_Request( 'GET', '/wp/v2/categories/' . self::$def_cat );
 		$request->set_param( 'context', 'edit' );
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_forbidden_context', $response, 401 );
