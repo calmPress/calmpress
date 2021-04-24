@@ -623,6 +623,12 @@ class Test_WP_Customize_Nav_Menus extends WP_UnitTestCase {
 				'type'       => 'taxonomy',
 				'object'     => 'post_tag',
 			),
+			array(
+				'title'      => 'Authors',
+				'type_label' => __( 'Author' ),
+				'type'       => 'taxonomy',
+				'object'     => 'calm_authors',
+			),
 		);
 
 		$this->assertSame( $expected, $menus->available_item_types() );
