@@ -877,25 +877,6 @@ class Tests_Cron extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 49961
-	 * @expectedDeprecated wp_clear_scheduled_hook
-	 */
-	public function test_deprecated_argument_usage_of_wp_clear_scheduled_hook() {
-		$return_pre = function( $pre, $hook, $args, $wp_error ) {
-			$this->assertSame( array( 1, 2, 3 ), $args );
-			$this->assertFalse( $wp_error );
-
-			return $pre;
-		};
-
-		add_filter( 'pre_clear_scheduled_hook', $return_pre, 10, 4 );
-
-		$cleared = wp_clear_scheduled_hook( 'hook', 1, 2, 3 );
-
-		$this->assertSame( 0, $cleared );
-	}
-
-	/**
-	 * @ticket 49961
 	 */
 	public function test_clear_scheduled_hook_returns_default_pre_filter_error_when_wp_error_is_set_to_true() {
 		add_filter( 'pre_unschedule_event', '__return_false' );
