@@ -220,8 +220,7 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 			'version',
 		);
 		$this->assertEqualSets( $fields, array_keys( $data[0] ) );
-
-		$this->assertContains( 'twentytwenty', wp_list_pluck( $data, 'stylesheet' ) );
+		$this->assertContains( 'theme1', wp_list_pluck( $data, 'stylesheet' ) );
 		$this->assertNotContains( get_stylesheet(), wp_list_pluck( $data, 'stylesheet' ) );
 	}
 
@@ -240,7 +239,7 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertSame( 200, $response->get_status() );
 		$data = $response->get_data();
 
-		$this->assertContains( 'twentytwenty', wp_list_pluck( $data, 'stylesheet' ) );
+		$this->assertContains( 'theme1', wp_list_pluck( $data, 'stylesheet' ) );
 		$this->assertContains( get_stylesheet(), wp_list_pluck( $data, 'stylesheet' ) );
 	}
 
