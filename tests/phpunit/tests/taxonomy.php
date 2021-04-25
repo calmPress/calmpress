@@ -1,5 +1,8 @@
 <?php
 
+require_once ABSPATH . '/wp-admin/includes/taxonomy.php';
+require_once ABSPATH . '/wp-admin/includes/post.php';
+
 /**
  * @group taxonomy
  */
@@ -25,7 +28,7 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 			// Should return an object with the correct taxonomy object type.
 			$this->assertTrue( is_object( $tax ) );
 			$this->assertTrue( is_array( $tax->object_type ) );
-			$this->assertSame( array( 'post' ), $tax->object_type );
+			$this->assertTrue( in_array( 'post', $tax->object_type, true ) );
 		}
 	}
 
