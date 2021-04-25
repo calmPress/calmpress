@@ -4,11 +4,18 @@
  * @group taxonomy
  */
 class Tests_Term_getTerms extends WP_UnitTestCase {
+
+	protected static $def_cat;
+
 	function setUp() {
 		parent::setUp();
 
 		_clean_term_filters();
 		wp_cache_delete( 'last_changed', 'terms' );
+	}
+
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		self::$def_cat = self::factory()->category->create();
 	}
 
 	/**
@@ -373,8 +380,6 @@ class Tests_Term_getTerms extends WP_UnitTestCase {
 	 */
 	function test_get_terms_exclude_tree() {
 
-		$term_id_uncategorized = self::factory()->category->create();
-
 		$term_id1  = self::factory()->category->create();
 		$term_id11 = self::factory()->category->create( array( 'parent' => $term_id1 ) );
 		$term_id2  = self::factory()->category->create();
@@ -383,7 +388,7 @@ class Tests_Term_getTerms extends WP_UnitTestCase {
 		$terms = get_terms(
 			'category',
 			array(
-				'exclude'    => $term_id_uncategorized,
+				'exclude'    => self::$def_cat,
 				'fields'     => 'ids',
 				'hide_empty' => false,
 			)
@@ -394,7 +399,7 @@ class Tests_Term_getTerms extends WP_UnitTestCase {
 			'category',
 			array(
 				'fields'       => 'ids',
-				'exclude_tree' => "$term_id1,$term_id_uncategorized",
+				'exclude_tree' => "$term_id1," . self::$def_cat,
 				'hide_empty'   => false,
 			)
 		);
