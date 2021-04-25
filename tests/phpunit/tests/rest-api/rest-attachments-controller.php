@@ -1,4 +1,7 @@
 <?php
+
+require_once ABSPATH . '/wp-admin/includes/image.php';
+
 /**
  * Unit tests covering WP_REST_Attachments_Controller functionality
  *
@@ -199,6 +202,8 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 			'include',
 			'media_type',
 			'mime_type',
+			'modified_after',
+			'modified_before',
 			'offset',
 			'order',
 			'orderby',
@@ -209,6 +214,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 			'search',
 			'slug',
 			'status',
+			'tax_relation',
 			), $keys
 		);
 		
