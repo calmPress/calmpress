@@ -572,7 +572,6 @@ class WP_Test_REST_Search_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSameSets(
 			array(
-				0 => 1, // That is the default category.
 				self::$my_category_id,
 				self::$my_tag_id,
 			),
@@ -597,7 +596,6 @@ class WP_Test_REST_Search_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSameSets(
 			array(
-				0 => 1, // That is the default category.
 				self::$my_category_id,
 			),
 			wp_list_pluck( $response->get_data(), 'id' )
@@ -637,7 +635,6 @@ class WP_Test_REST_Search_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSameSets(
 			array(
-				0 => 1, // This is the default category.
 				self::$my_category_id,
 				self::$my_tag_id,
 			),
