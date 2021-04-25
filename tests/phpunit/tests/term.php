@@ -1,5 +1,7 @@
 <?php
 
+require_once ABSPATH . '/wp-admin/includes/taxonomy.php';
+
 /**
  * @group taxonomy
  */
@@ -81,9 +83,8 @@ class Tests_Term extends WP_UnitTestCase {
 	function test_wp_count_terms_legacy_interoperability() {
 		self::factory()->tag->create_many( 5 );
 
-		// Counts all terms (1 default category, 5 tags).
 		$count = wp_count_terms();
-		$this->assertEquals( 6, $count );
+		$this->assertEquals( 5, $count );
 
 		// Counts only tags (5), with both current and legacy signature.
 		// Legacy usage should not trigger deprecated notice.
