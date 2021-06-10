@@ -82,9 +82,11 @@ class Tests_Term extends WP_UnitTestCase {
 	 */
 	function test_wp_count_terms_legacy_interoperability() {
 		self::factory()->tag->create_many( 5 );
+		self::factory()->category->create();
 
+		// Counts all terms (1 category, 5 tags).
 		$count = wp_count_terms();
-		$this->assertEquals( 5, $count );
+		$this->assertEquals( 6, $count );
 
 		// Counts only tags (5), with both current and legacy signature.
 		// Legacy usage should not trigger deprecated notice.
