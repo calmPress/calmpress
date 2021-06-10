@@ -1,5 +1,8 @@
 <?php
 
+require_once ABSPATH . '/wp-admin/includes/screen.php';
+require_once ABSPATH . '/wp-admin/includes/screen.php';
+
 /**
  * Test the is_*() functions in query.php across the URL structure
  *

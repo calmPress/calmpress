@@ -7,6 +7,10 @@
  */
 class Tests_Avatar extends WP_UnitTestCase {
 
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		require_once ABSPATH . '/wp-admin/includes/image.php';
+	}
+
 	/**
 	 * @ticket 21195
 	 */

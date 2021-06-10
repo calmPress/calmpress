@@ -1,5 +1,9 @@
 <?php
 
+require_once ABSPATH . '/wp-admin/includes/image.php';
+require_once ABSPATH . '/wp-admin/includes/file.php';
+require_once ABSPATH . '/wp-admin/includes/media.php';
+
 /**
  * @group media
  * @group shortcode
