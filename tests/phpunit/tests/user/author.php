@@ -48,14 +48,14 @@ class Tests_User_Author_Template extends WP_UnitTestCase {
 		$author_name = get_the_author();
 		$user        = new WP_User( self::$author_id );
 
-		$this->assertEquals( $user->display_name, 'Anonymous' );
+		$this->assertEquals( $user->display_name, 'Test Author' );
 		$this->assertEquals( '', $author_name );
 	}
 
 	function test_get_the_author_meta() {
 		$this->assertEquals( 'test_author', get_the_author_meta( 'login' ) );
 		$this->assertEquals( 'test_author', get_the_author_meta( 'user_login' ) );
-		$this->assertEquals( 'Anonymous', get_the_author_meta( 'display_name' ) );
+		$this->assertEquals( 'Test Author', get_the_author_meta( 'display_name' ) );
 
 		$this->assertSame( 'test_author', trim( get_the_author_meta( 'description' ) ) );
 		$this->assertSame( 'test_author', get_the_author_meta( 'user_description' ) );
