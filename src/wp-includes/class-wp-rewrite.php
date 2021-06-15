@@ -117,7 +117,7 @@ class WP_Rewrite {
 	 * @since 1.5.0
 	 * @var string
 	 */
-	public $feed_base = 'feed';
+	public $feed_base = '';
 
 	/**
 	 * Comments feed permalink structure.
