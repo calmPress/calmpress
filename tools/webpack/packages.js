@@ -96,6 +96,10 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 	};
 
 	const minifyVendors = {
+		'wp-polyfill-fetch.min.js': 'whatwg-fetch/dist/fetch.umd.js',
+		'wp-polyfill-element-closest.min.js': 'element-closest/element-closest.js',
+		'wp-polyfill-node-contains.min.js': 'polyfill-library/polyfills/Node/prototype/contains/polyfill.js',
+		'wp-polyfill-dom-rect.min.js': 'polyfill-library/polyfills/DOMRect/polyfill.js',
 	};
 
 	const dynamicBlockFolders = [

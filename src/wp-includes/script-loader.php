@@ -94,9 +94,33 @@ function wp_default_packages_vendor( $scripts ) {
 	$suffix = wp_scripts_get_suffix();
 
 	$vendor_scripts = array(
+		'react'     => array( 'wp-polyfill' ),
+		'react-dom' => array( 'react' ),
+		'moment',
+		'lodash',
+		'wp-polyfill-fetch',
+		'wp-polyfill-formdata',
+		'wp-polyfill-node-contains',
+		'wp-polyfill-url',
+		'wp-polyfill-dom-rect',
+		'wp-polyfill-element-closest',
+		'wp-polyfill-object-fit',
+		'wp-polyfill',
 	);
 
 	$vendor_scripts_versions = array(
+		'react'                       => '16.13.1',
+		'react-dom'                   => '16.13.1',
+		'moment'                      => '2.26.0',
+		'lodash'                      => '4.17.19',
+		'wp-polyfill-fetch'           => '3.0.0',
+		'wp-polyfill-formdata'        => '3.0.12',
+		'wp-polyfill-node-contains'   => '3.42.0',
+		'wp-polyfill-url'             => '3.6.4',
+		'wp-polyfill-dom-rect'        => '3.42.0',
+		'wp-polyfill-element-closest' => '2.0.2',
+		'wp-polyfill-object-fit'      => '2.3.4',
+		'wp-polyfill'                 => '7.4.4',
 	);
 
 	foreach ( $vendor_scripts as $handle => $dependencies ) {
