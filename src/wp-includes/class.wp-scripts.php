@@ -51,31 +51,6 @@ class WP_Scripts extends WP_Dependencies {
 	public $in_footer = array();
 
 	/**
-	 * Holds a list of script handles which will be concatenated.
-	 *
-	 * @since 2.8.0
-	 * @var string
-	 */
-	public $concat = '';
-
-	/**
-	 * Holds a string which contains script handles and their version.
-	 *
-	 * @since 2.8.0
-	 * @deprecated 3.4.0
-	 * @var string
-	 */
-	public $concat_version = '';
-
-	/**
-	 * Whether to perform concatenation.
-	 *
-	 * @since 2.8.0
-	 * @var bool
-	 */
-	public $do_concat = false;
-
-	/**
 	 * Holds HTML markup of scripts and additional data if concatenation
 	 * is enabled.
 	 *
@@ -296,34 +271,6 @@ class WP_Scripts extends WP_Dependencies {
 			$translations = sprintf( "<script%s id='%s-js-translations'>\n%s\n</script>\n", $this->type_attr, esc_attr( $handle ), $translations );
 		}
 
-		if ( $this->do_concat ) {
-			/**
-			 * Filters the script loader source.
-			 *
-			 * @since 2.2.0
-			 *
-			 * @param string $src    Script loader source path.
-			 * @param string $handle Script handle.
-			 */
-			$srce = apply_filters( 'script_loader_src', $src, $handle );
-
-			if ( $this->in_default_dir( $srce ) && ( $before_handle || $after_handle || $translations ) ) {
-				$this->do_concat = false;
-
-				// Have to print the so-far concatenated scripts right away to maintain the right order.
-				_print_scripts();
-				$this->reset();
-			} elseif ( $this->in_default_dir( $srce ) && ! $conditional ) {
-				$this->print_code     .= $this->print_extra_script( $handle, false );
-				$this->concat         .= "$handle,";
-				$this->concat_version .= "$handle$ver";
-				return true;
-			} else {
-				$this->ext_handles .= "$handle,";
-				$this->ext_version .= "$handle$ver";
-			}
-		}
-
 		$has_conditional_data = $conditional && $this->get_data( $handle, 'data' );
 
 		if ( $has_conditional_data ) {
@@ -339,11 +286,7 @@ class WP_Scripts extends WP_Dependencies {
 		// A single item may alias a set of items, by having dependencies, but no source.
 		if ( ! $src ) {
 			if ( $inline_script_tag ) {
-				if ( $this->do_concat ) {
-					$this->print_html .= $inline_script_tag;
-				} else {
-					echo $inline_script_tag;
-				}
+				echo $inline_script_tag;
 			}
 
 			return true;
@@ -379,11 +322,7 @@ class WP_Scripts extends WP_Dependencies {
 		 */
 		$tag = apply_filters( 'script_loader_tag', $tag, $handle, $src );
 
-		if ( $this->do_concat ) {
-			$this->print_html .= $tag;
-		} else {
-			echo $tag;
-		}
+		echo $tag;
 
 		return true;
 	}
@@ -686,10 +625,7 @@ JS;
 	 * @since 2.8.0
 	 */
 	public function reset() {
-		$this->do_concat      = false;
 		$this->print_code     = '';
-		$this->concat         = '';
-		$this->concat_version = '';
 		$this->print_html     = '';
 		$this->ext_version    = '';
 		$this->ext_handles    = '';

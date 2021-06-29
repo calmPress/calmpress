@@ -51,31 +51,6 @@ class WP_Styles extends WP_Dependencies {
 	public $text_direction = 'ltr';
 
 	/**
-	 * Holds a list of style handles which will be concatenated.
-	 *
-	 * @since 2.8.0
-	 * @var string
-	 */
-	public $concat = '';
-
-	/**
-	 * Holds a string which contains style handles and their version.
-	 *
-	 * @since 2.8.0
-	 * @deprecated 3.4.0
-	 * @var string
-	 */
-	public $concat_version = '';
-
-	/**
-	 * Whether to perform concatenation.
-	 *
-	 * @since 2.8.0
-	 * @var bool
-	 */
-	public $do_concat = false;
-
-	/**
 	 * Holds HTML markup of styles and additional data if concatenation
 	 * is enabled.
 	 *
@@ -188,17 +163,6 @@ class WP_Styles extends WP_Dependencies {
 			$inline_style_tag = '';
 		}
 
-		if ( $this->do_concat ) {
-			if ( $this->in_default_dir( $src ) && ! $conditional && ! isset( $obj->extra['alt'] ) ) {
-				$this->concat         .= "$handle,";
-				$this->concat_version .= "$handle$ver";
-
-				$this->print_code .= $inline_style;
-
-				return true;
-			}
-		}
-
 		if ( isset( $obj->args ) ) {
 			$media = esc_attr( $obj->args );
 		} else {
@@ -208,11 +172,7 @@ class WP_Styles extends WP_Dependencies {
 		// A single item may alias a set of items, by having dependencies, but no source.
 		if ( ! $src ) {
 			if ( $inline_style_tag ) {
-				if ( $this->do_concat ) {
-					$this->print_html .= $inline_style_tag;
-				} else {
-					echo $inline_style_tag;
-				}
+				echo $inline_style_tag;
 			}
 
 			return true;
@@ -278,19 +238,10 @@ class WP_Styles extends WP_Dependencies {
 			}
 		}
 
-		if ( $this->do_concat ) {
-			$this->print_html .= $cond_before;
-			$this->print_html .= $tag;
-			if ( $inline_style_tag ) {
-				$this->print_html .= $inline_style_tag;
-			}
-			$this->print_html .= $cond_after;
-		} else {
-			echo $cond_before;
-			echo $tag;
-			$this->print_inline_style( $handle );
-			echo $cond_after;
-		}
+		echo $cond_before;
+		echo $tag;
+		$this->print_inline_style( $handle );
+		echo $cond_after;
 
 		return true;
 	}
@@ -456,9 +407,6 @@ class WP_Styles extends WP_Dependencies {
 	 * @since 3.3.0
 	 */
 	public function reset() {
-		$this->do_concat      = false;
-		$this->concat         = '';
-		$this->concat_version = '';
 		$this->print_html     = '';
 	}
 }

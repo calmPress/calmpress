@@ -159,36 +159,6 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if inline styles work with concatination
-	 *
-	 * @global WP_Styles $wp_styles
-	 * @ticket 24813
-	 */
-	public function test_inline_styles_concat() {
-
-		global $wp_styles;
-
-		$wp_styles->do_concat    = true;
-		$wp_styles->default_dirs = array( '/wp-admin/', '/wp-includes/css/' ); // Default dirs as in wp-includes/script-loader.php.
-
-		$style  = ".thing {\n";
-		$style .= "\tbackground: red;\n";
-		$style .= '}';
-
-		$expected  = "<link rel='stylesheet' id='handle-css'  href='http://example.com?ver=1' type='text/css' media='all' />\n";
-		$expected .= "<style id='handle-inline-css' type='text/css'>\n";
-		$expected .= "$style\n";
-		$expected .= "</style>\n";
-
-		wp_enqueue_style( 'handle', 'http://example.com', array(), 1 );
-		wp_add_inline_style( 'handle', $style );
-
-		wp_print_styles();
-		$this->assertSame( $expected, $wp_styles->print_html );
-
-	}
-
-	/**
 	 * Test if multiple inline styles work
 	 *
 	 * @ticket 24813
