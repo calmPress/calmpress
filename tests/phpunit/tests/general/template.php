@@ -8,6 +8,7 @@
  */
 
 require_once ABSPATH . 'wp-admin/includes/class-wp-site-icon.php';
+require_once ABSPATH . '/wp-admin/includes/image.php';
 
 class Tests_General_Template extends WP_UnitTestCase {
 	protected $wp_site_icon;
