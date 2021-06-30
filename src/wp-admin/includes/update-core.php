@@ -166,8 +166,9 @@ $_old_files = array(
 	'wp-admin/includes/image-edit.php',
 	'wp-admin/js/image-edit.js',
 	'wp-admin/js/image-edit.min.js',
-	'wp-includes/js/wp-a11y.js',
-	'wp-includes/js/wp-a11y.min.js',
+	'wp-admin/load-scripts.php'
+	'wp-admin/load-styles.php',
+	'wp-admin/includes/noop.php',
 	// 5.3
 	'wp-includes/js/wp-a11y.js',     // Moved to: wp-includes/js/dist/a11y.js
 	'wp-includes/js/wp-a11y.min.js', // Moved to: wp-includes/js/dist/a11y.min.js
