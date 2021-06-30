@@ -8,6 +8,8 @@
 
 use calmpress\post_authors;
 
+require_once ABSPATH . '/wp-admin/includes/image.php';
+
 class WP_Test_Post_Authors_As_Taxonomy_Db_Upgrade extends WP_UnitTestCase {
 
 	/**
@@ -101,8 +103,8 @@ class WP_Test_Post_Authors_As_Taxonomy_Db_Upgrade extends WP_UnitTestCase {
 		    )
 		);
 
-		// We count on get_posts not returning suplicates. We expect 2 posts, a page and attachment.
-		$this->assertCount(4, $posts );
+		// We count on get_posts not returning duplicates. We expect 2 posts and a page.
+		$this->assertCount(3, $posts );
 
 		// Check that the draft was ignored.
 		$this->assertFalse( in_array( $draft, $posts ) );
@@ -231,12 +233,11 @@ class WP_Test_Post_Authors_As_Taxonomy_Db_Upgrade extends WP_UnitTestCase {
 		    )
 		);
 
-		// We count on get_posts not returning duplicates. We expect a page and attachment.
-		$this->assertCount(2, $posts );
+		// We count on get_posts not returning duplicates. We expect a page.
+		$this->assertCount( 1, $posts );
 
 		// Check that the draft was ignored.
 		$this->assertFalse( in_array( $draft, $posts ) );
 		$this->assertTrue( in_array( $page1, $posts ) );
-		$this->assertTrue( in_array( $attachment_id, $posts ) );
 	}
 }

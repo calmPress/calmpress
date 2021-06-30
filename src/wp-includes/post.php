@@ -78,7 +78,7 @@ function create_initial_post_types() {
 				'view_item'      => __( 'View Attachment Page' ),
 				'attributes'     => __( 'Attachment Attributes' ),
 			),
-			'public'                => true,
+			'public'                => false,
 			'show_ui'               => true,
 			'_builtin'              => true, /* internal use only. don't use this when registering your own post type. */
 			'_edit_link'            => 'post.php?post=%d', /* internal use only. don't use this when registering your own post type. */
