@@ -92,11 +92,11 @@ class Tests_Post_IsPostPubliclyViewable extends WP_UnitTestCase {
 			array( 'post', 'unregistered_cps', false ),
 			array( 'page', 'unregistered_cps', false ),
 
-			array( 'attachment', 'inherit', true, 'publish' ),
+			array( 'attachment', 'inherit', false, 'publish' ),
 			array( 'attachment', 'inherit', false, 'private' ),
 			array( 'attachment', 'inherit', false, 'future' ),
-			array( 'attachment', 'inherit', true, 'trash' ),
-			array( 'attachment', 'inherit', true, 'delete' ),
+			array( 'attachment', 'inherit', false, 'trash' ),
+			array( 'attachment', 'inherit', false, 'delete' ),
 
 			array( 'page', 'publish', true, 'publish' ),
 			array( 'page', 'publish', true, 'private' ),
