@@ -65,24 +65,4 @@ class Tests_oEmbed_Discovery extends WP_UnitTestCase {
 
 		$this->assertSame( $expected, get_echo( 'wp_oembed_add_discovery_links' ) );
 	}
-
-	function test_add_oembed_discovery_links_to_attachment() {
-		$post_id       = self::factory()->post->create();
-		$file          = DIR_TESTDATA . '/images/canola.jpg';
-		$attachment_id = self::factory()->attachment->create_object(
-			$file,
-			$post_id,
-			array(
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-
-		$this->go_to( get_permalink( $attachment_id ) );
-		$this->assertQueryTrue( 'is_attachment', 'is_singular', 'is_single' );
-
-		$expected  = '<link rel="alternate" type="application/json+oembed" href="' . esc_url( get_oembed_endpoint_url( get_permalink() ) ) . '" />' . "\n";
-		$expected .= '<link rel="alternate" type="text/xml+oembed" href="' . esc_url( get_oembed_endpoint_url( get_permalink(), 'xml' ) ) . '" />' . "\n";
-
-		$this->assertSame( $expected, get_echo( 'wp_oembed_add_discovery_links' ) );
-	}
 }

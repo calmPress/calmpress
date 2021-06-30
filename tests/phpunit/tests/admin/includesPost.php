@@ -359,31 +359,6 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 35980
-	 */
-	public function test_get_sample_permalink_html_should_use_pretty_permalink_for_view_attachment_link_when_pretty_permalinks_are_enabled() {
-		$this->set_permalink_structure( '/%postname%/' );
-
-		wp_set_current_user( self::$admin_id );
-
-		$p = self::factory()->attachment->create_object(
-			'صورة.jpg',
-			0,
-			array(
-				'post_mime_type' => 'image/jpeg',
-				'post_type'      => 'attachment',
-				'post_title'     => 'صورة',
-				'post_status'    => 'inherit',
-			)
-		);
-
-		$found = get_sample_permalink_html( $p );
-		$post  = get_post( $p );
-		$this->assertContains( 'href="' . get_option( 'home' ) . '/' . $post->post_name . '/"', $found );
-		$this->assertContains( '>' . urldecode( get_permalink( $post ) ) . '<', $found );
-	}
-
-	/**
 	 * @ticket 32954
 	 * @ticket 18306
 	 */
