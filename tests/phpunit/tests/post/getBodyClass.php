@@ -142,28 +142,6 @@ class Tests_Post_GetBodyClass extends WP_UnitTestCase {
 	/**
 	 * @ticket 18375
 	 */
-	public function test_page_template_body_classes_attachment() {
-		$post_id = self::factory()->post->create(
-			array(
-				'post_type' => 'attachment',
-			)
-		);
-
-		add_post_meta( $post_id, '_wp_page_template', 'templates/cpt.php' );
-
-		$this->go_to( get_permalink( $post_id ) );
-
-		$class = get_body_class();
-
-		$this->assertContains( 'attachment-template', $class );
-		$this->assertContains( 'attachment-template-templates', $class );
-		$this->assertContains( 'attachment-template-cpt', $class );
-		$this->assertContains( 'attachment-template-templatescpt-php', $class );
-	}
-
-	/**
-	 * @ticket 18375
-	 */
 	public function test_page_template_body_classes_post() {
 		$post_id = self::factory()->post->create();
 
@@ -177,29 +155,6 @@ class Tests_Post_GetBodyClass extends WP_UnitTestCase {
 		$this->assertContains( 'post-template-templates', $class );
 		$this->assertContains( 'post-template-cpt', $class );
 		$this->assertContains( 'post-template-templatescpt-php', $class );
-	}
-
-	/**
-	 * @ticket 38225
-	 */
-	public function test_attachment_body_classes() {
-		$post_id = self::factory()->post->create();
-
-		$attachment_id = self::factory()->attachment->create_object(
-			'image.jpg',
-			$post_id,
-			array(
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-
-		$this->go_to( get_permalink( $attachment_id ) );
-
-		$class = get_body_class();
-
-		$this->assertContains( 'attachment', $class );
-		$this->assertContains( "attachmentid-{$attachment_id}", $class );
-		$this->assertContains( 'attachment-jpeg', $class );
 	}
 
 	/**
