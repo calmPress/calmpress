@@ -320,13 +320,6 @@ class Tests_Canonical_PostStatus extends WP_Canonical_UnitTestCase {
 				);
 
 				$data[] = array(
-					"$post_key-attachment",
-					$user,
-					'/?attachment_id=%ID%',
-					'/?attachment_id=%ID%',
-				);
-
-				$data[] = array(
 					"$post_key-page",
 					$user,
 					'/?post_type=page&p=%ID%',
@@ -377,13 +370,6 @@ class Tests_Canonical_PostStatus extends WP_Canonical_UnitTestCase {
 				);
 
 				$data[] = array(
-					"$post_key-attachment",
-					$user,
-					'/?attachment_id=%ID%',
-					'/?attachment_id=%ID%',
-				);
-
-				$data[] = array(
 					$post_key,
 					$user,
 					"/?name=$post_key&post_type=$post_key",
@@ -403,14 +389,6 @@ class Tests_Canonical_PostStatus extends WP_Canonical_UnitTestCase {
 				);
 
 				$data[] = array(
-					"$post_key-attachment",
-					$user,
-					'/?attachment_id=%ID%',
-					'/?attachment_id=%ID%',
-					// "/$post_key-inherited-attachment/",
-				);
-
-				$data[] = array(
 					$post_key,
 					$user,
 					"/?name=$post_key&post_type=$post_key",
@@ -427,13 +405,6 @@ class Tests_Canonical_PostStatus extends WP_Canonical_UnitTestCase {
 					$user,
 					'/?p=%ID%',
 					'/?p=%ID%',
-				);
-
-				$data[] = array(
-					"$post_key-attachment",
-					$user,
-					'/?attachment_id=%ID%',
-					'/?attachment_id=%ID%',
 				);
 
 				$data[] = array(
@@ -467,27 +438,6 @@ class Tests_Canonical_PostStatus extends WP_Canonical_UnitTestCase {
 					$user,
 					'/?p=%ID%',
 					'/?p=%ID%',
-				);
-
-				$data[] = array(
-					"$post_key-attachment",
-					$user,
-					'/?attachment_id=%ID%',
-					'/?attachment_id=%ID%',
-				);
-
-				$data[] = array(
-					"$post_key-attachment",
-					$user,
-					'/trash-post/trash-post-inherited-attachment/',
-					'/?attachment_id=%ID%',
-				);
-
-				$data[] = array(
-					"$post_key-attachment",
-					$user,
-					'/trash-post__trashed/trash-post-inherited-attachment/',
-					'/?attachment_id=%ID%',
 				);
 
 				$data[] = array(

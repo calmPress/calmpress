@@ -484,14 +484,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 	}
 
-	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
-	function test_post_attachment() {
-		$post_id   = self::factory()->post->create( array( 'post_type' => 'attachment' ) );
-		$permalink = get_attachment_link( $post_id );
-		$this->go_to( $permalink );
-		$this->assertQueryTrue( 'is_single', 'is_attachment', 'is_singular' );
-	}
-
 	/**
 	 * @expectedIncorrectUsage WP_Date_Query
 	 */
@@ -706,29 +698,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->set_permalink_structure();
 	}
 
-	/**
-	 * @ticket 38225
-	 */
-	function test_is_single_with_attachment() {
-		$post_id = self::factory()->post->create();
-
-		$attachment_id = self::factory()->attachment->create_object(
-			'image.jpg',
-			$post_id,
-			array(
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-
-		$this->go_to( get_permalink( $attachment_id ) );
-
-		$q = $GLOBALS['wp_query'];
-
-		$this->assertTrue( is_single() );
-		$this->assertTrue( $q->is_single );
-		$this->assertTrue( $q->is_attachment );
-	}
-
 	function test_is_page() {
 		$post_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
 		$this->go_to( "/?page_id=$post_id" );
@@ -783,48 +752,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertFalse( is_page( 'foo' ) );
 	}
 
-	function test_is_attachment() {
-		$post_id = self::factory()->post->create( array( 'post_type' => 'attachment', 'post_name' => 'test' ) );
-		$this->go_to( '/test' );
-
-		$post = get_queried_object();
-		$q    = $GLOBALS['wp_query'];
-
-		$this->assertTrue( is_attachment() );
-		$this->assertTrue( is_single() );
-		$this->assertTrue( $q->is_attachment );
-		$this->assertTrue( $q->is_single );
-		$this->assertFalse( $q->is_page );
-		$this->assertTrue( is_attachment( $post ) );
-		$this->assertTrue( is_attachment( $post->ID ) );
-		$this->assertTrue( is_attachment( $post->post_title ) );
-		$this->assertTrue( is_attachment( $post->post_name ) );
-	}
-
-	/**
-	 * @ticket 24674
-	 */
-	public function test_is_attachment_with_slug_that_begins_with_a_number_that_clashes_with_a_page_ID() {
-		$p1 = self::factory()->post->create( array( 'post_type' => 'attachment', 'post_name' => 'test' ) );
-
-		$p2_name = $p1 . '-attachment';
-		$p2      = self::factory()->post->create(
-			array(
-				'post_type' => 'attachment',
-				'post_name' => $p2_name,
-			)
-		);
-
-		$this->go_to( '/test' );
-
-		$q = $GLOBALS['wp_query'];
-
-		$this->assertTrue( $q->is_attachment() );
-		$this->assertTrue( $q->is_attachment( $p1 ) );
-		$this->assertFalse( $q->is_attachment( $p2_name ) );
-		$this->assertFalse( $q->is_attachment( $p2 ) );
-	}
-
 	/**
 	 * @ticket 24674
 	 */
@@ -857,56 +784,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->go_to( get_post_permalink( $post_id ) );
 		$this->assertFalse( is_page_template( array( 'test.php' ) ) );
 		$this->assertTrue( is_page_template( array( 'test.php', 'example.php' ) ) );
-	}
-
-	/**
-	 * @ticket 35902
-	 */
-	public function test_is_attachment_should_not_match_numeric_id_to_post_title_beginning_with_id() {
-		$p1 = self::factory()->post->create(
-			array(
-				'post_type'  => 'attachment',
-				'post_title' => 'Foo',
-				'post_name'  => 'foo',
-			)
-		);
-		$p2 = self::factory()->post->create(
-			array(
-				'post_type'  => 'attachment',
-				'post_title' => "$p1 Foo",
-				'post_name'  => 'foo-2',
-			)
-		);
-
-		$this->go_to( get_permalink( $p2 ) );
-
-		$this->assertTrue( is_attachment( $p2 ) );
-		$this->assertFalse( is_attachment( $p1 ) );
-	}
-
-	/**
-	 * @ticket 35902
-	 */
-	public function test_is_attachment_should_not_match_numeric_id_to_post_name_beginning_with_id() {
-		$p1 = self::factory()->post->create(
-			array(
-				'post_type'  => 'attachment',
-				'post_title' => 'Foo',
-				'post_name'  => 'foo',
-			)
-		);
-		$p2 = self::factory()->post->create(
-			array(
-				'post_type'  => 'attachment',
-				'post_title' => 'Foo',
-				'post_name'  => "$p1-foo",
-			)
-		);
-
-		$this->go_to( get_permalink( $p2 ) );
-
-		$this->assertTrue( is_attachment( $p2 ) );
-		$this->assertFalse( is_attachment( $p1 ) );
 	}
 
 	/**

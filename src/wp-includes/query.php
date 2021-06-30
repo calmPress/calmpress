@@ -202,22 +202,15 @@ function is_post_type_archive( $post_types = '' ) {
  * Conditional Tags} article in the Theme Developer Handbook.
  *
  * @since 2.0.0
- *
- * @global WP_Query $wp_query WordPress Query object.
+ * 
+ * @since calmPress 1.0.0 always false
  *
  * @param int|string|int[]|string[] $attachment Optional. Attachment ID, title, slug, or array of such
  *                                              to check against. Default empty.
  * @return bool Whether the query is for an existing attachment page.
  */
 function is_attachment( $attachment = '' ) {
-	global $wp_query;
-
-	if ( ! isset( $wp_query ) ) {
-		_doing_it_wrong( __FUNCTION__, __( 'Conditional query tags do not work before the query is run. Before then, they always return false.' ), '3.1.0' );
-		return false;
-	}
-
-	return $wp_query->is_attachment( $attachment );
+	return false;
 }
 
 /**

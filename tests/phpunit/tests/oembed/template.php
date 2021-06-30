@@ -87,36 +87,6 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 		$this->assertNotFalse( strpos( $actual, 'That embed can&#8217;t be found.' ) );
 	}
 
-	function test_oembed_output_attachment() {
-		update_option( 'calm_embedding_on', 1 );
-		$post          = self::factory()->post->create_and_get();
-		$file          = DIR_TESTDATA . '/images/canola.jpg';
-		$attachment_id = self::factory()->attachment->create_object(
-			$file,
-			$post->ID,
-			array(
-				'post_mime_type' => 'image/jpeg',
-				'post_title'     => 'Hello World',
-				'post_content'   => 'Foo Bar',
-				'post_excerpt'   => 'Bar Baz',
-			)
-		);
-
-		$this->go_to( get_post_embed_url( $attachment_id ) );
-
-		$this->assertQueryTrue( 'is_single', 'is_singular', 'is_attachment', 'is_embed' );
-
-		ob_start();
-		require ABSPATH . WPINC . '/theme-compat/embed.php';
-		$actual = ob_get_clean();
-
-		$doc = new DOMDocument();
-		$this->assertTrue( $doc->loadHTML( $actual ) );
-		$this->assertFalse( strpos( $actual, 'That embed can&#8217;t be found.' ) );
-		$this->assertNotFalse( strpos( $actual, 'Hello World' ) );
-		$this->assertNotFalse( strpos( $actual, 'canola.jpg' ) );
-	}
-
 	function test_oembed_output_draft_post() {
 		update_option( 'calm_embedding_on', 1 );
 		$post_id = self::factory()->post->create(

@@ -54,47 +54,6 @@ class Tests_Rewrite_OldSlugRedirect extends WP_UnitTestCase {
 		$this->assertSame( $permalink, $this->old_slug_redirect_url );
 	}
 
-	public function test_old_slug_redirect_attachment() {
-		$file          = DIR_TESTDATA . '/images/canola.jpg';
-		$attachment_id = self::factory()->attachment->create_object(
-			$file,
-			$this->post_id,
-			array(
-				'post_mime_type' => 'image/jpeg',
-				'post_name'      => 'my-attachment',
-			)
-		);
-
-		$old_permalink = get_attachment_link( $attachment_id );
-
-		wp_update_post(
-			array(
-				'ID'        => $this->post_id,
-				'post_name' => 'bar-baz',
-			)
-		);
-
-		$this->go_to( $old_permalink );
-		wp_old_slug_redirect();
-		$this->assertNull( $this->old_slug_redirect_url );
-		$this->assertQueryTrue( 'is_attachment', 'is_singular', 'is_single' );
-
-		$old_permalink = get_attachment_link( $attachment_id );
-
-		wp_update_post(
-			array(
-				'ID'        => $attachment_id,
-				'post_name' => 'the-attachment',
-			)
-		);
-
-		$permalink = user_trailingslashit( trailingslashit( get_permalink( $this->post_id ) ) . 'the-attachment' );
-
-		$this->go_to( $old_permalink );
-		wp_old_slug_redirect();
-		$this->assertSame( $permalink, $this->old_slug_redirect_url );
-	}
-
 	public function test_old_slug_redirect_paged() {
 		wp_update_post(
 			array(

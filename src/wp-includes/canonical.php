@@ -108,7 +108,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		if ( $redirect_url ) {
 			$redirect['query'] = _remove_qs_args_if_not_in_url(
 				$redirect['query'],
-				array( 'p', 'page_id', 'attachment_id', 'pagename', 'name', 'post_type', 'feed' ),
+				array( 'p', 'page_id', 'pagename', 'name', 'post_type', 'feed' ),
 				$redirect_url
 			);
 
@@ -133,7 +133,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			if ( $redirect_url ) {
 				$redirect['query'] = _remove_qs_args_if_not_in_url(
 					$redirect['query'],
-					array( 'p', 'page_id', 'attachment_id', 'pagename', 'name', 'post_type' ),
+					array( 'p', 'page_id', 'pagename', 'name', 'post_type' ),
 					$redirect_url
 				);
 			}
@@ -144,7 +144,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 	if ( is_404() ) {
 
 		// Redirect ?page_id, ?p=, ?attachment_id= to their respective URLs.
-		$post_id = max( get_query_var( 'p' ), get_query_var( 'page_id' ), get_query_var( 'attachment_id' ) );
+		$post_id = max( get_query_var( 'p' ), get_query_var( 'page_id' ) );
 
 		$redirect_post = $post_id ? get_post( $post_id ) : false;
 
@@ -157,7 +157,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 
 				$redirect['query'] = _remove_qs_args_if_not_in_url(
 					$redirect['query'],
-					array( 'p', 'page_id', 'attachment_id', 'pagename', 'name', 'post_type' ),
+					array( 'p', 'page_id', 'pagename', 'name', 'post_type' ),
 					$redirect_url
 				);
 			}
@@ -214,19 +214,14 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			if ( $redirect_url ) {
 				$redirect['query'] = _remove_qs_args_if_not_in_url(
 					$redirect['query'],
-					array( 'page', 'feed', 'p', 'page_id', 'attachment_id', 'pagename', 'name', 'post_type' ),
+					array( 'page', 'feed', 'p', 'page_id', 'pagename', 'name', 'post_type' ),
 					$redirect_url
 				);
 			}
 		}
 	} elseif ( is_object( $wp_rewrite ) ) {
 		// Rewriting of old ?p=X, ?m=2004, ?m=200401, ?m=20040101.
-		if ( is_attachment()
-			&& ! array_diff( array_keys( $wp->query_vars ), array( 'attachment', 'attachment_id' ) )
-			&& ! $redirect_url ) {
-			$redirect_url = get_attachment_link();
-			$redirect_obj = get_post();
-		} elseif ( is_single() && ! empty( $_GET['p'] ) && ! $redirect_url ) {
+		if ( is_single() && ! empty( $_GET['p'] ) && ! $redirect_url ) {
 			$redirect_url = get_permalink( get_query_var( 'p' ) );
 			$redirect_obj = get_post( get_query_var( 'p' ) );
 
