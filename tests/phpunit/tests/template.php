@@ -403,7 +403,6 @@ class Tests_Template extends WP_UnitTestCase {
 			'privacy_policy'    => 'is_privacy_policy',
 			'post_type_archive' => 'is_post_type_archive',
 			'taxonomy'          => 'is_tax',
-			'attachment'        => 'is_attachment',
 			'single'            => 'is_single',
 			'page'              => 'is_page',
 			'singular'          => 'is_singular',
