@@ -47,7 +47,6 @@ class Tests_Query_Vars extends WP_UnitTestCase {
 			'favicon',
 			'cpage',
 			'category_name',
-			'attachment',
 
 			// Dynamically added public query vars.
 			'rest_route',

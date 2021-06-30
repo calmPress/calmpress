@@ -14,7 +14,7 @@ class WP {
 	 * @since 2.0.0
 	 * @var string[]
 	 */
-	public $public_query_vars = array( 'm', 'p', 'page_id', 'w', 's', 'search', 'exact', 'sentence', 'page', 'paged', 'more', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'pagename', 'error', 'attachment', 'preview', 'robots', 'favicon', 'cpage' );
+	public $public_query_vars = array( 'm', 'p', 'page_id', 'w', 's', 'search', 'exact', 'sentence', 'page', 'paged', 'more', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'pagename', 'error', 'preview', 'robots', 'favicon', 'cpage' );
 
 	/**
 	 * Private query variables.
