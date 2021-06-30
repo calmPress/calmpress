@@ -194,8 +194,6 @@ function get_permalink( $post = 0, $leavename = false ) {
 
 	if ( 'page' === $post->post_type ) {
 		return get_page_link( $post, $leavename, $sample );
-	} elseif ( 'attachment' === $post->post_type ) {
-		return get_attachment_link( $post, $leavename );
 	} elseif ( in_array( $post->post_type, get_post_types( array( '_builtin' => false ) ), true ) ) {
 		return get_post_permalink( $post, $leavename, $sample );
 	}
@@ -447,6 +445,8 @@ function _get_page_link( $post = false, $leavename = false, $sample = false ) {
  * This can be used in the WordPress Loop or outside of it.
  *
  * @since 2.0.0
+ * 
+ * @since calmPress 1.0.0 return the url of the file.
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
@@ -459,52 +459,8 @@ function get_attachment_link( $post = null, $leavename = false ) {
 
 	$link = false;
 
-	$post             = get_post( $post );
-	$force_plain_link = wp_force_plain_post_permalink( $post );
-	$parent_id        = $post->post_parent;
-	$parent           = $parent_id ? get_post( $parent_id ) : false;
-	$parent_valid     = true; // Default for no parent.
-	if (
-		$parent_id &&
-		(
-			$post->post_parent === $post->ID ||
-			! $parent ||
-			! is_post_type_viewable( get_post_type( $parent ) )
-		)
-	) {
-		// Post is either its own parent or parent post unavailable.
-		$parent_valid = false;
-	}
-
-	if ( $force_plain_link || ! $parent_valid ) {
-		$link = false;
-	} elseif ( $parent ) {
-		if ( 'page' === $parent->post_type ) {
-			$parentlink = _get_page_link( $post->post_parent ); // Ignores page_on_front.
-		} else {
-			$parentlink = get_permalink( $post->post_parent );
-		}
-
-		if ( is_numeric( $post->post_name ) || false !== strpos( get_option( 'permalink_structure' ), '%category%' ) ) {
-			$name = 'attachment/' . $post->post_name; // <permalink>/<int>/ is paged so we use the explicit attachment marker.
-		} else {
-			$name = $post->post_name;
-		}
-
-		if ( strpos( $parentlink, '?' ) === false ) {
-			$link = user_trailingslashit( trailingslashit( $parentlink ) . '%postname%' );
-		}
-
-		if ( ! $leavename ) {
-			$link = str_replace( '%postname%', $name, $link );
-		}
-	} elseif ( ! $leavename ) {
-		$link = home_url( user_trailingslashit( $post->post_name ) );
-	}
-
-	if ( ! $link ) {
-		$link = home_url( '/?attachment_id=' . $post->ID );
-	}
+	$post = get_post( $post );
+	$link = wp_get_attachment_url( $post->ID );
 
 	/**
 	 * Filters the permalink for an attachment.
