@@ -351,60 +351,6 @@ class Tests_Template extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_attachment_template_hierarchy() {
-		$attachment = self::factory()->attachment->create_and_get(
-			array(
-				'post_name'      => 'attachment-name-😀',
-				'file'           => 'image.jpg',
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-		$this->assertTemplateHierarchy(
-			get_permalink( $attachment ),
-			array(
-				'image-jpeg.php',
-				'jpeg.php',
-				'image.php',
-				'attachment.php',
-				'single-attachment-attachment-name-😀.php',
-				'single-attachment-attachment-name-%f0%9f%98%80.php',
-				'single-attachment.php',
-				'single.php',
-				'singular.php',
-			)
-		);
-	}
-
-	/**
-	 * @ticket 18375
-	 */
-	public function test_attachment_template_hierarchy_with_template() {
-		$attachment = self::factory()->attachment->create_and_get(
-			array(
-				'post_name'      => 'attachment-name-😀',
-				'file'           => 'image.jpg',
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-
-		add_post_meta( $attachment, '_wp_page_template', 'templates/cpt.php' );
-
-		$this->assertTemplateHierarchy(
-			get_permalink( $attachment ),
-			array(
-				'image-jpeg.php',
-				'jpeg.php',
-				'image.php',
-				'attachment.php',
-				'single-attachment-attachment-name-😀.php',
-				'single-attachment-attachment-name-%f0%9f%98%80.php',
-				'single-attachment.php',
-				'single.php',
-				'singular.php',
-			)
-		);
-	}
-
 	public function test_embed_template_hierarchy_for_post() {
 		update_option( 'calm_embedding_on', 1 );
 		$this->assertTemplateHierarchy(
