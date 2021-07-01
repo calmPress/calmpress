@@ -129,6 +129,7 @@ class Test_Theme_File extends WP_UnitTestCase {
 	 * @covers ::get_parent_theme_file_uri
 	 */
 	public function test_theme_file_uri_returns_valid_uri( $file, $expected_theme, $existence ) {
+		switch_theme( 'theme-file-child' );
 		$uri        = get_theme_file_uri( $file );
 		$parent_uri = get_parent_theme_file_uri( $file );
 
