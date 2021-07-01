@@ -136,30 +136,6 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 		$this->assertNotFalse( strpos( $actual, 'That embed can&#8217;t be found.' ) );
 	}
 
-	function test_oembed_output_private_post() {
-		update_option( 'calm_embedding_on', 1 );
-		$post_id = self::factory()->post->create(
-			array(
-				'post_title'   => 'Hello World',
-				'post_content' => 'Foo Bar',
-				'post_excerpt' => 'Bar Baz',
-				'post_status'  => 'private',
-			)
-		);
-
-		$this->go_to( get_post_embed_url( $post_id ) );
-
-		$this->assertQueryTrue( 'is_404', 'is_embed' );
-
-		ob_start();
-		require ABSPATH . WPINC . '/theme-compat/embed.php';
-		$actual = ob_get_clean();
-
-		$doc = new DOMDocument();
-		$this->assertTrue( $doc->loadHTML( $actual ) );
-		$this->assertNotFalse( strpos( $actual, 'That embed can&#8217;t be found.' ) );
-	}
-
 	function test_oembed_output_private_post_with_permissions() {
 		update_option( 'calm_embedding_on', 1 );
 		$user_id = self::factory()->user->create( array( 'role' => 'editor' ) );
