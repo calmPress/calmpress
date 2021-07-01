@@ -120,7 +120,7 @@ function _delete_all_data() {
 		$wpdb->term_taxonomy,
 	) as $table ) {
 		//phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( "DELETE FROM {$table} WHERE term_id != 1" );
+		$wpdb->query( "DELETE FROM {$table}" );
 	}
 
 	$wpdb->query( "UPDATE {$wpdb->term_taxonomy} SET count = 0" );
