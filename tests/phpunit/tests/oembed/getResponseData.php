@@ -233,23 +233,4 @@ class Tests_oEmbed_Response_Data extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'thumbnail_height', $data );
 		$this->assertTrue( 400 >= $data['thumbnail_width'] );
 	}
-
-	function test_get_oembed_response_data_for_attachment() {
-		$parent = self::factory()->post->create();
-		$file   = DIR_TESTDATA . '/images/canola.jpg';
-		$post   = self::factory()->attachment->create_object(
-			$file,
-			$parent,
-			array(
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-
-		$data = get_oembed_response_data( $post, 400 );
-
-		$this->assertArrayHasKey( 'thumbnail_url', $data );
-		$this->assertArrayHasKey( 'thumbnail_width', $data );
-		$this->assertArrayHasKey( 'thumbnail_height', $data );
-		$this->assertTrue( 400 >= $data['thumbnail_width'] );
-	}
 }
