@@ -60,7 +60,6 @@ if ( wp_using_themes() ) {
 		'is_privacy_policy'    => 'get_privacy_policy_template',
 		'is_post_type_archive' => 'get_post_type_archive_template',
 		'is_tax'               => 'get_taxonomy_template',
-		'is_attachment'        => 'get_attachment_template',
 		'is_single'            => 'get_single_template',
 		'is_page'              => 'get_page_template',
 		'is_singular'          => 'get_singular_template',
