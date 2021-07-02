@@ -166,7 +166,7 @@ $_old_files = array(
 	'wp-admin/includes/image-edit.php',
 	'wp-admin/js/image-edit.js',
 	'wp-admin/js/image-edit.min.js',
-	'wp-admin/load-scripts.php'
+	'wp-admin/load-scripts.php',
 	'wp-admin/load-styles.php',
 	'wp-admin/includes/noop.php',
 	// 5.3
