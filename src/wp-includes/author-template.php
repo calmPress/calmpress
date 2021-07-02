@@ -499,10 +499,13 @@ function wp_list_authors( $args = '' ) {
  * Conditional Tags} article in the Theme Developer Handbook.
  *
  * @since 3.2.0
+ * 
+ * @global WPDB $wpdb The DB object.
  *
  * @return bool Whether or not we have more than one author
  */
 function is_multi_author() {
+	global $wpdb;
 
 	$is_multi_author = get_transient( 'is_multi_author' );
 	if ( false === $is_multi_author ) {
