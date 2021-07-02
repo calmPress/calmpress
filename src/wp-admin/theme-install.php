@@ -125,17 +125,7 @@ get_current_screen()->add_help_tab(
 	)
 );
 
-<<<<<<< HEAD
 include( ABSPATH . 'wp-admin/admin-header.php' );
-=======
-get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/article/using-themes/#adding-new-themes">Documentation on Adding New Themes</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
-);
-
-require_once ABSPATH . 'wp-admin/admin-header.php';
->>>>>>> upstream/5.4
 
 ?>
 <div class="wrap">
