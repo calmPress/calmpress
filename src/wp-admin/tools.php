@@ -41,8 +41,6 @@ require_once __DIR__ . '/admin.php';
 
 $title = __( 'Tools' );
 
-}
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 ?>
