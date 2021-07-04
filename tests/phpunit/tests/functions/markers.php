@@ -110,7 +110,6 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 		$called = false;
 		add_action( 'calm_insert_with_markers_exception', function ( $exception ) use ( &$called ) {
 			$called = true;
-			echo 'ooo';
 		}, 10, 1 );
 
 		// Test markers with empty content.
