@@ -406,11 +406,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			if ( is_feed() && in_array( $feed, $wp_rewrite->feeds, true ) ) {
 				$addl_path = ! empty( $addl_path ) ? trailingslashit( $addl_path ) : '';
 
-				if ( ( 'rss' === $default_feed && 'feed' === $feed ) || 'rss' === $feed ) {
-					$format = ( 'rss2' === $default_feed ) ? '' : 'rss2';
-				} else {
-					$format = ( $default_feed === $feed || 'feed' === $feed ) ? '' : $feed;
-				}
+				$format = $feed;
 
 				$addl_path .= user_trailingslashit( 'feed/' . $format, 'feed' );
 

@@ -216,28 +216,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		delete_option( 'page_for_posts' );
 	}
 
-	// FIXME: no tests for these yet:
-	// 'about/attachment/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
-
-	// '(feed|rss2)/?$' => 'index.php?&feed=$matches[1]',
-	function test_main_feed_2() {
-		self::factory()->post->create(); // @test_404
-		$feeds = array( 'feed', 'rss2', 'atom' );
-
-		// Long version.
-		foreach ( $feeds as $feed ) {
-			$this->go_to( "/{$feed}/" );
-			$this->assertQueryTrue( 'is_feed' );
-		}
-
-		// Test for 404 when feeds are disabled.
-		update_option( 'posts_per_rss', 0 );
-		foreach ( $feeds as $feed ) {
-			$this->go_to( "/{$feed}/" );
-			$this->assertQueryTrue( 'is_404' );
-		}
-	}
-
 	function test_main_feed() {
 		self::factory()->post->create(); // @test_404
 		$types = array( 'rss2', 'atom' );
@@ -264,18 +242,18 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		}
 	}
 
-	// 'search/(.+)/(feed|rss2)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
+	// 'search/(.+)/(rss2)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
 	function test_search_feed() {
-		$types = array( 'feed', 'rss2', 'atom' );
+		$types = array( 'rss2', 'atom' );
 		foreach ( $types as $type ) {
-				$this->go_to( "/search/test/{$type}" );
+				$this->go_to( "/search/test/feed/{$type}" );
 				$this->assertQueryTrue( 'is_feed', 'is_search' );
 		}
 
 		// Test for 404 when feeds are disabled.
 		update_option( 'posts_per_rss', 0 );
 		foreach ( $types as $type ) {
-			$this->go_to( "/search/test/{$type}" );
+			$this->go_to( "/search/test/feed/{$type}" );
 			$this->assertQueryTrue( 'is_404' );
 		}
 	}
@@ -302,7 +280,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertSame( get_query_var( 's' ), 'Fünf+bar' );
 	}
 
-	// 'category/(.+?)/(feed|rss2)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
+	// 'category/(.+?)/(rss2)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
 	function test_category_feed() {
 
 		self::factory()->term->create(
@@ -312,9 +290,9 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			)
 		);
 
-		$types = array( 'feed', 'rss2', 'atom' );
+		$types = array( 'rss2', 'atom' );
 		foreach ( $types as $type ) {
-			$this->go_to( "/category/cat-a/{$type}" );
+			$this->go_to( "/category/cat-a/feed/{$type}" );
 			$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_category' );
 		}
 
@@ -327,7 +305,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		// Check the short form.
 		$types = array( 'feed', 'rss2', 'atom' );
 		foreach ( $types as $type ) {
-			$this->go_to( "/category/cat-a/{$type}" );
+			$this->go_to( "/category/cat-a/feed/{$type}" );
 			$this->assertQueryTrue( 'is_404' );
 		}
 	}
@@ -356,7 +334,7 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertQueryTrue( 'is_archive', 'is_category' );
 	}
 
-	// 'tag/(.+?)/(feed|rss2)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
+	// 'tag/(.+?)/(rss2)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
 	function test_tag_feed() {
 		self::factory()->term->create(
 			array(
@@ -365,9 +343,9 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 			)
 		);
 
-		$types = array( 'feed', 'rss2', 'atom' );
+		$types = array( 'rss2', 'atom' );
 		foreach ( $types as $type ) {
-				$this->go_to( "/tag/tag-a/{$type}" );
+				$this->go_to( "/tag/tag-a/feed/{$type}" );
 				$this->assertQueryTrue( 'is_archive', 'is_feed', 'is_tag' );
 		}
 
@@ -378,9 +356,9 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		// Test a 404 when feeds are disabled.
 		update_option( 'posts_per_rss', 0 );
 		// Check the short form.
-		$types = array( 'feed', 'rss2', 'atom' );
+		$types = array( 'rss2', 'atom' );
 		foreach ( $types as $type ) {
-			$this->go_to( "/tag/tag-a/{$type}" );
+			$this->go_to( "/tag/tag-a/feed/{$type}" );
 			$this->assertQueryTrue( 'is_404' );
 		}
 	}

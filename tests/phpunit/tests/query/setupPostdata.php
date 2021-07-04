@@ -359,7 +359,7 @@ class Tests_Query_SetupPostdata extends WP_UnitTestCase {
 		update_option( 'posts_per_rss', 10 );
 
 		$post = self::factory()->post->create_and_get();
-		$this->go_to( '/rss2' );
+		$this->go_to( '/feed/rss2' );
 		setup_postdata( $post );
 
 		$this->assertSame( 1, $GLOBALS['more'] );

@@ -632,7 +632,7 @@ function the_feed_link( $anchor, $feed = '' ) {
  *                     Default is the value of get_default_feed().
  * @return string The feed permalink.
  */
-function get_feed_link( $feed = 'feed' ) {
+function get_feed_link( $feed = 'rss2' ) {
 	global $wp_rewrite;
 
 	$permalink = $wp_rewrite->get_feed_permastruct();
@@ -641,10 +641,6 @@ function get_feed_link( $feed = 'feed' ) {
 		if ( false !== strpos( $feed, 'comments_' ) ) {
 			$feed      = str_replace( 'comments_', '', $feed );
 			$permalink = $wp_rewrite->get_comment_feed_permastruct();
-		}
-
-		if ( get_default_feed() == $feed ) {
-			$feed = 'feed';
 		}
 
 		$permalink = str_replace( '%feed%', $feed, $permalink );

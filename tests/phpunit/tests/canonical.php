@@ -176,8 +176,7 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 			array( '/2012/11/51/', '/2012/11/', 0, array( 'WP_Date_Query' ) ),
 
 			// Feeds.
-			array( '/feed', '/feed/' ),
-			array( '/rss2', '/feed/' ),
+			array( '/feed/rss2', '/feed/rss2/' ),
 
 			// Index.
 			array( '/?paged=1', '/' ),

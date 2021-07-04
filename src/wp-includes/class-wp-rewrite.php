@@ -117,7 +117,7 @@ class WP_Rewrite {
 	 * @since 1.5.0
 	 * @var string
 	 */
-	public $feed_base = '';
+	public $feed_base = 'feed';
 
 	/**
 	 * Comments feed permalink structure.
@@ -327,7 +327,7 @@ class WP_Rewrite {
 	 * @since 1.5.0
 	 * @var array
 	 */
-	public $feeds = array( 'feed', 'rss2' );
+	public $feeds = array( 'rss2' );
 
 	/**
 	 * Determines whether permalinks are being used.
@@ -822,13 +822,19 @@ class WP_Rewrite {
 	 * @return string[] Array of rewrite rules keyed by their regex pattern.
 	 */
 	public function generate_rewrite_rules( $permalink_structure, $ep_mask = EP_NONE, $paged = true, $feed = true, $forcomments = false, $walk_dirs = true, $endpoints = true ) {
-		// Build a regex to match the feed section of URLs, something like (feed|rss2)/?
+		// Build a regex to match the feed section of URLs, something like (rss2|atom)/?
 		$feedregex2 = '';
 
 		foreach ( $this->feeds as $feed_name ) {
 			$feedregex2 .= $feed_name . '|';
 		}
 		$feedregex2 = '(' . trim( $feedregex2, '|' ) . ')/?$';
+
+		/*
+		 * $feedregex is identical but with /feed/ added on as well, so URLs like <permalink>/feed/atom
+		 * and <permalink>/atom are both possible
+		 */
+		$feedregex = $this->feed_base . '/' . $feedregex2;
 
 		// Build a regex to match the page/xx part of URLs.
 		$pageregex    = $this->pagination_base . '/?([0-9]{1,})/?$';
@@ -940,9 +946,9 @@ class WP_Rewrite {
 				$rootcommentquery = $index . '?' . $query . '&page_id=' . get_option( 'page_on_front' ) . '&cpage=' . $this->preg_index( $num_toks + 1 );
 			}
 
-			// Create query for /(feed|rss2) (see comment near creation of $feedregex).
-			$feedmatch2 = $match . $feedregex2;
-			$feedquery2 = $feedindex . '?' . $query . '&feed=' . $this->preg_index($num_toks + 1);
+			// Create query for /feed/(rss2|atom).
+			$feedmatch = $match . $feedregex;
+			$feedquery = $feedindex . '?' . $query . '&feed=' . $this->preg_index( $num_toks + 1 );
 
 			// Create query and regex for embeds.
 			$embedmatch = $match . $embedregex;
@@ -954,7 +960,7 @@ class WP_Rewrite {
 			// ...adding on /feed/ regexes => queries.
 			// In case feeds are off (number of items is 0), do not generate feed rules.
 			if ( $feed && ( 0 != get_option( 'posts_per_rss' ) ) ) {
-				$rewrite[ $feedmatch2 ] = $feedquery2;
+				$rewrite[ $feedmatch ]  = $feedquery;
 			}
 
 			// ...and /page/xx ones.

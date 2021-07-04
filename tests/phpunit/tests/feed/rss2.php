@@ -109,7 +109,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 * with the expected child elements and attributes.
 	 */
 	function test_rss_element() {
-		$this->go_to( '/feed/' );
+		$this->go_to( '/feed/rss2' );
 		$feed = $this->do_rss2();
 		$xml  = xml_to_array( $feed );
 
@@ -133,7 +133,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 * @return [type] [description]
 	 */
 	function test_channel_element() {
-		$this->go_to( '/feed/' );
+		$this->go_to( '/feed/rss2' );
 		$feed = $this->do_rss2();
 		$xml  = xml_to_array( $feed );
 
@@ -190,7 +190,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 		add_filter( 'comments_open', '__return_true' );
 
-		$this->go_to( '/feed/' );
+		$this->go_to( '/feed/rss2' );
 		$feed = $this->do_rss2();
 		$xml  = xml_to_array( $feed );
 
@@ -283,7 +283,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	function test_items_comments_closed() {
 		add_filter( 'comments_open', '__return_false' );
 
-		$this->go_to( '/feed/' );
+		$this->go_to( '/feed/rss2' );
 		$feed = $this->do_rss2();
 		$xml  = xml_to_array( $feed );
 
@@ -312,7 +312,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 */
 	function test_valid_home_feed_endpoint() {
 		// An example of a valid home feed endpoint.
-		$this->go_to( 'feed/' );
+		$this->go_to( 'feed/rss2' );
 
 		// Verify the query object is a feed.
 		$this->assertQueryTrue( 'is_feed' );
@@ -340,7 +340,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 */
 	function test_valid_taxonomy_feed_endpoint() {
 		// An example of an valid taxonomy feed endpoint.
-		$this->go_to( 'category/foo/feed/' );
+		$this->go_to( 'category/foo/feed/rss2' );
 
 		// Verify the query object is a feed.
 		$this->assertQueryTrue( 'is_feed', 'is_archive', 'is_category' );
@@ -367,7 +367,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 */
 	function test_valid_search_feed_endpoint() {
 		// An example of an valid search feed endpoint
-		$this->go_to( '/search/Lorem/rss2' );
+		$this->go_to( '/search/Lorem/feed/rss2' );
 
 		// Verify the query object is a feed.
 		$this->assertQueryTrue( 'is_feed', 'is_search' );
@@ -408,8 +408,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 	public function data_test_get_feed_build_date() {
 		return array(
-			array( '/?feed=rss2', 'rss' ),
-			array( '/?feed=commentsrss2', 'rss' ),
+			array( '/feed/rss2', 'rss' ),
 		);
 
 	}
