@@ -7629,7 +7629,13 @@ function clean_dirsize_cache( $path ) {
 	unset( $directory_cache[ $path ] );
 
 	while ( DIRECTORY_SEPARATOR !== $path && '.' !== $path && '..' !== $path ) {
-		$path = dirname( $path );
+		$parent = dirname( $path );
+		// In windows one way of detecting that we got to the root of filesystem is that
+		// the dirname returns the same path as its parameter.
+		if ( $parent === $path ) {
+			break;
+		}
+		$path = $parent;
 		unset( $directory_cache[ $path ] );
 	}
 
