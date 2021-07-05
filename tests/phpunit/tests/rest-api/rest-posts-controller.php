@@ -3184,12 +3184,10 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		}
 		$query = parse_url( $categories_path, PHP_URL_QUERY );
 		parse_str( $query, $args );
-		$request = new WP_REST_Request( 'GET', $args['rest_route'] );
-		unset( $args['rest_route'] );
+		$request = WP_REST_Request::from_url( $categories_path );
 		$request->set_query_params( $args );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
-		var_dump($data);
 		$this->assertCount( 1, $data );
 		$this->assertSame( 'Test Category', $data[0]['name'] );
 	}
