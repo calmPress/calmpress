@@ -1041,12 +1041,6 @@ class WP_Rewrite {
 					// And <permalink>/embed/...
 					$sub1embed = $sub1 . $embedregex;
 
-					/*
-					 * Add another rule to match attachments in the explicit form:
-					 * <permalink>/attachment/some-text
-					 */
-					$sub2 = $submatchbase . '/attachment/([^/]+)/';
-
 					// And <permalink>/comment-page-xx
 					$sub2comment = $sub2 . $commentregex;
 
