@@ -33,7 +33,7 @@ function get_query_template( $type, $templates = array() ) {
 	 * The last element in the array should always be the fallback template for this query type.
 	 *
 	 * Possible values for `$type` include: 'index', '404', 'archive', 'author', 'category', 'tag', 'taxonomy', 'date',
-	 * 'embed', 'home', 'frontpage', 'privacypolicy', 'page', 'paged', 'search', 'single', 'singular', and 'attachment'.
+	 * 'embed', 'home', 'frontpage', 'privacypolicy', 'page', 'paged', 'search', 'single', and 'singular'.
 	 *
 	 * @since 4.7.0
 	 *
@@ -51,7 +51,7 @@ function get_query_template( $type, $templates = array() ) {
 	 * This hook also applies to various types of files loaded as part of the Template Hierarchy.
 	 *
 	 * Possible values for `$type` include: 'index', '404', 'archive', 'author', 'category', 'tag', 'taxonomy', 'date',
-	 * 'embed', 'home', 'frontpage', 'privacypolicy', 'page', 'paged', 'search', 'single', 'singular', and 'attachment'.
+	 * 'embed', 'home', 'frontpage', 'privacypolicy', 'page', 'paged', 'search', 'single', and 'singular'.
 	 *
 	 * @since 1.5.0
 	 * @since 4.8.0 The `$type` and `$templates` parameters were added.
@@ -449,7 +449,7 @@ function get_search_template() {
 
 /**
  * Retrieve path of single template in current or parent template. Applies to single Posts,
- * single Attachments, and single custom post types.
+ * and single custom post types.
  *
  * The hierarchy for this template looks like:
  *
