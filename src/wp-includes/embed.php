@@ -683,15 +683,6 @@ function get_oembed_response_data_rich( $data, $post, $width, $height ) {
 		$thumbnail_id = get_post_thumbnail_id( $post->ID );
 	}
 
-	if ( 'attachment' === get_post_type( $post ) ) {
-		if ( wp_attachment_is_image( $post ) ) {
-			$thumbnail_id = $post->ID;
-		} elseif ( wp_attachment_is( 'video', $post ) ) {
-			$thumbnail_id = get_post_thumbnail_id( $post );
-			$data['type'] = 'video';
-		}
-	}
-
 	if ( $thumbnail_id ) {
 		list( $thumbnail_url, $thumbnail_width, $thumbnail_height ) = wp_get_attachment_image_src( $thumbnail_id, array( $width, 99999 ) );
 		$data['thumbnail_url']                                      = $thumbnail_url;
@@ -998,14 +989,13 @@ function the_excerpt_embed() {
  * Shows players for video and audio attachments.
  *
  * @since 4.4.0
+ * 
+ * @since calmPress 1.0.0 there is no oembed for attachment, and this function does nothing.
  *
  * @param string $content The current post excerpt.
  * @return string The modified post excerpt.
  */
 function wp_embed_excerpt_attachment( $content ) {
-	if ( is_attachment() ) {
-		return prepend_attachment( '' );
-	}
 
 	return $content;
 }
