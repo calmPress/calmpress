@@ -398,12 +398,14 @@ class WP_Rewrite {
 	}
 
 	/**
-	 * Retrieves all page and attachments for pages URIs.
+	 * Retrieves all page for pages URIs.
 	 *
 	 * The attachments are for those that have pages as parents and will be
 	 * retrieved.
 	 *
 	 * @since 2.5.0
+	 * 
+	 * @since calmPress 1.0.0 Do not handle attachments.
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
@@ -425,23 +427,15 @@ class WP_Rewrite {
 		$posts = array_reverse( $posts, true );
 
 		$page_uris            = array();
-		$page_attachment_uris = array();
 
 		foreach ( $posts as $id => $post ) {
 			// URL => page name.
 			$uri         = get_page_uri( $id );
-			$attachments = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_name, post_parent FROM $wpdb->posts WHERE post_type = 'attachment' AND post_parent = %d", $id ) );
-			if ( ! empty( $attachments ) ) {
-				foreach ( $attachments as $attachment ) {
-					$attach_uri                          = get_page_uri( $attachment->ID );
-					$page_attachment_uris[ $attach_uri ] = $attachment->ID;
-				}
-			}
 
 			$page_uris[ $uri ] = $id;
 		}
 
-		return array( $page_uris, $page_attachment_uris );
+		return $page_uris;
 	}
 
 	/**
@@ -794,7 +788,6 @@ class WP_Rewrite {
 	 *                                    - `EP_ALL`
 	 *                                    - `EP_NONE`
 	 *                                    - `EP_ALL_ARCHIVES`
-	 *                                    - `EP_ATTACHMENT`
 	 *                                    - `EP_AUTHORS`
 	 *                                    - `EP_CATEGORIES`
 	 *                                    - `EP_COMMENTS`
@@ -1012,14 +1005,14 @@ class WP_Rewrite {
 						if ( strpos( $struct, "%$ptype%" ) !== false ) {
 							$post = true;
 
-							// This is for page style attachment URLs.
+							// This is for page style URLs.
 							$page = is_post_type_hierarchical( $ptype );
 							break;
 						}
 					}
 				}
 
-				// If creating rules for a permalink, do all the endpoints like attachments etc.
+				// If creating rules for a permalink, do all the endpoints like embed etc.
 				if ( $post ) {
 
 					// Create query and regex for embeds.
@@ -1031,45 +1024,6 @@ class WP_Rewrite {
 
 					// Get rid of brackets.
 					$submatchbase = str_replace( array( '(', ')' ), '', $match );
-
-					// Add a rule for at attachments, which take the form of <permalink>/some-text.
-					$sub1 = $submatchbase . '/([^/]+)/';
-
-					// And <permalink>/comment-page-xx
-					$sub1comment = $sub1 . $commentregex;
-
-					// And <permalink>/embed/...
-					$sub1embed = $sub1 . $embedregex;
-
-					// And <permalink>/comment-page-xx
-					$sub2comment = $sub2 . $commentregex;
-
-					// And <permalink>/embed/...
-					$sub2embed = $sub2 . $embedregex;
-
-					// Create queries for these extra tag-ons we've just dealt with.
-					$subquery        = $index . '?attachment=' . $this->preg_index( 1 );
-					$subfeedquery    = $subquery . '&feed=' . $this->preg_index( 2 );
-					$subcommentquery = $subquery . '&cpage=' . $this->preg_index( 2 );
-					$subembedquery   = $subquery . '&embed=true';
-
-					// Do endpoints for attachments.
-					if ( ! empty( $endpoints ) ) {
-						foreach ( (array) $ep_query_append as $regex => $ep ) {
-							if ( $ep[0] & EP_ATTACHMENT ) {
-								$rewrite[ $sub1 . $regex ] = $subquery . $ep[1] . $this->preg_index( 3 );
-								$rewrite[ $sub2 . $regex ] = $subquery . $ep[1] . $this->preg_index( 3 );
-							}
-						}
-					}
-
-					/*
-					 * Now we've finished with endpoints, finish off the $sub1 and $sub2 matches
-					 * add a ? as we don't have to match that last slash, and finally a $ so we
-					 * match to the end of the URL
-					 */
-					$sub1 .= '?$';
-					$sub2 .= '?$';
 
 					/*
 					 * Post pagination, e.g. <permalink>/2/
@@ -1098,29 +1052,6 @@ class WP_Rewrite {
 					// Add embed if they are enabled.
 					if ( 0 != get_option( 'calm_embedding_on') ) {
 						$rewrite = array_merge( array( $embedmatch => $embedquery ), $rewrite );
-					}
-
-					// Add regexes/queries for attachments and so on.
-					if ( ! $page ) {
-						// Require <permalink>/attachment/stuff form for pages because of confusion with subpages.
-						$rewrite = array_merge( $rewrite, array(
-							$sub1        => $subquery,
-							$sub1comment => $subcommentquery,
-						) );
-
-						// Add the embed related rules only if embedding is on.
-						if ( 0 != get_option( 'calm_embedding_on' ) ) {
-							$rewrite[ $sub1embed ] = $subembedquery;
-						}
-					}
-
-					$rewrite = array_merge( array(
-						$sub2        => $subquery,
-						$sub2comment => $subcommentquery,
-					), $rewrite );
-
-					if ( 0 != get_option( 'calm_embedding_on' ) ) {
-						$rewrite[ $sub1embed ] = $subembedquery;
 					}
 				}
 			}
@@ -1637,7 +1568,6 @@ class WP_Rewrite {
 	 *                               - `EP_ALL`
 	 *                               - `EP_NONE`
 	 *                               - `EP_ALL_ARCHIVES`
-	 *                               - `EP_ATTACHMENT`
 	 *                               - `EP_AUTHORS`
 	 *                               - `EP_CATEGORIES`
 	 *                               - `EP_COMMENTS`
@@ -1697,7 +1627,6 @@ class WP_Rewrite {
 	 *                             - `EP_ALL`
 	 *                             - `EP_NONE`
 	 *                             - `EP_ALL_ARCHIVES`
-	 *                             - `EP_ATTACHMENT`
 	 *                             - `EP_AUTHORS`
 	 *                             - `EP_CATEGORIES`
 	 *                             - `EP_COMMENTS`

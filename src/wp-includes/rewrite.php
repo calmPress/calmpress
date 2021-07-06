@@ -24,6 +24,8 @@ define( 'EP_PERMALINK', 1 );
  * Endpoint mask that matches attachment permalinks.
  *
  * @since 2.1.0
+ * 
+ * @since calmPress 1.0.0 not actually used.
  */
 define( 'EP_ATTACHMENT', 2 );
 
@@ -119,7 +121,7 @@ define( 'EP_ALL_ARCHIVES', EP_DATE | EP_YEAR | EP_MONTH | EP_DAY | EP_CATEGORIES
  *
  * @since 2.1.0
  */
-define( 'EP_ALL', EP_PERMALINK | EP_ATTACHMENT | EP_ROOT | EP_COMMENTS | EP_SEARCH | EP_PAGES | EP_ALL_ARCHIVES );
+define( 'EP_ALL', EP_PERMALINK | EP_ROOT | EP_COMMENTS | EP_SEARCH | EP_PAGES | EP_ALL_ARCHIVES );
 
 /**
  * Adds a rewrite rule that transforms a URL structure to a set of query vars.
@@ -287,7 +289,6 @@ function flush_rewrite_rules( $hard = true ) {
  *                               - `EP_ALL`
  *                               - `EP_NONE`
  *                               - `EP_ALL_ARCHIVES`
- *                               - `EP_ATTACHMENT`
  *                               - `EP_AUTHORS`
  *                               - `EP_CATEGORIES`
  *                               - `EP_COMMENTS`
