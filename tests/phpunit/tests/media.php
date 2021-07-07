@@ -284,6 +284,8 @@ CAP;
 
 	/**
 	 * @ticket 23776
+	 *
+	 * @group external-http
 	 */
 	function test_autoembed_no_paragraphs_around_urls() {
 		global $wp_embed;
@@ -1245,6 +1247,8 @@ EOF;
 
 	/**
 	 * @ticket 33016
+	 *
+	 * @group external-http
 	 */
 	function test_multiline_comment_with_embeds() {
 		$content = <<<EOF
@@ -1288,6 +1292,8 @@ EOF;
 
 	/**
 	 * @ticket 33016
+	 *
+	 * @group external-http
 	 */
 	function test_oembed_explicit_media_link() {
 		global $wp_embed;
@@ -2900,6 +2906,19 @@ EOF;
 	function test_wp_iframe_tag_add_loading_attr_opt_out() {
 		$iframe = '<iframe src="https://www.example.com" width="640" height="360"></iframe>';
 		add_filter( 'wp_iframe_tag_add_loading_attr', '__return_false' );
+		$iframe = wp_iframe_tag_add_loading_attr( $iframe, 'test' );
+
+		$this->assertNotContains( ' loading=', $iframe );
+	}
+
+	/**
+	 * @ticket 52768
+	 */
+	function test_wp_iframe_tag_add_loading_attr_skip_wp_embed() {
+		$iframe   = '<iframe src="https://www.example.com" width="640" height="360"></iframe>';
+		$fallback = '<blockquote>Fallback content.</blockquote>';
+		$iframe   = wp_filter_oembed_result( $fallback . $iframe, (object) array( 'type' => 'rich' ), 'https://www.example.com' );
+		$iframe   = wp_iframe_tag_add_loading_attr( $iframe, 'test' );
 
 		$this->assertNotContains( ' loading=', $iframe );
 	}
@@ -2968,6 +2987,7 @@ EOF;
 
 	/**
 	 * @ticket 50425
+	 * @ticket 53463
 	 * @dataProvider data_wp_lazy_loading_enabled_context_defaults
 	 *
 	 * @param string $context  Function context.
@@ -2987,6 +3007,7 @@ EOF;
 			'the_content => true'             => array( 'the_content', true ),
 			'the_excerpt => true'             => array( 'the_excerpt', true ),
 			'widget_text_content => true'     => array( 'widget_text_content', true ),
+			'widget_block_content => true'    => array( 'widget_block_content', true ),
 			'get_avatar => true'              => array( 'get_avatar', true ),
 			'arbitrary context => true'       => array( 'something_completely_arbitrary', true ),
 		);

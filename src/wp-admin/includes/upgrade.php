@@ -78,9 +78,9 @@ if ( ! function_exists( 'wp_install' ) ) :
 
 		if ( ! $user_id && empty( $user_password ) ) {
 			$user_password = wp_generate_password( 12, false );
-			$message = __('<strong><em>Note that password</em></strong> carefully! It is a <em>random</em> password that was generated just for you.');
-			$user_id = wp_create_user($user_name, $user_password, $user_email);
-			update_user_option($user_id, 'default_password_nag', true, true);
+			$message       = __( '<strong><em>Note that password</em></strong> carefully! It is a <em>random</em> password that was generated just for you.' );
+			$user_id       = wp_create_user( $user_name, $user_password, $user_email );
+			update_user_meta( $user_id, 'default_password_nag', true );
 			$email_password = true;
 			$user_created   = true;
 		} elseif ( ! $user_id ) {
@@ -335,7 +335,7 @@ To get started with moderating, editing, and deleting comments, please visit the
 
 		// Set up default widgets for default theme.
 		update_option(
-			'widget_search',
+			'widget_block',
 			array(
 				2              => array( 'title' => '' ),
 				'_multiwidget' => 1,
@@ -366,13 +366,14 @@ To get started with moderating, editing, and deleting comments, please visit the
 			array(
 				'wp_inactive_widgets' => array(),
 				'sidebar-1'           => array(
-					0 => 'search-2',
-					1 => 'recent-posts-2',
-					2 => 'recent-comments-2',
+					0 => 'block-2',
+					1 => 'block-3',
+					2 => 'block-4',
 				),
 				'array_version'       => 3,
 			)
 		);
+
 		if ( ! is_multisite() ) {
 			update_user_meta( $user_id, 'show_welcome_panel', 1 );
 		} elseif ( ! is_super_admin( $user_id ) && ! metadata_exists( 'user', $user_id, 'show_welcome_panel' ) ) {

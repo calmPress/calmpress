@@ -112,86 +112,6 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 }
 
 /**
- * Authenticate a user, confirming the username and password are valid.
- *
- * @since 2.8.0
- *
- * @param WP_User|WP_Error|null $user     WP_User or WP_Error object from a previous callback. Default null.
- * @param string                $username Username for authentication.
- * @param string                $password Password for authentication.
- * @return WP_User|WP_Error WP_User on success, WP_Error on failure.
- */
-function wp_authenticate_username_password( $user, $username, $password ) {
-	if ( $user instanceof WP_User ) {
-		return $user;
-	}
-
-	if ( empty( $username ) || empty( $password ) ) {
-		if ( is_wp_error( $user ) ) {
-			return $user;
-		}
-
-		$error = new WP_Error();
-
-		if ( empty( $username ) ) {
-			$error->add( 'empty_username', __( '<strong>Error</strong>: The username field is empty.' ) );
-		}
-
-		if ( empty( $password ) ) {
-			$error->add( 'empty_password', __( '<strong>Error</strong>: The password field is empty.' ) );
-		}
-
-		return $error;
-	}
-
-	$user = get_user_by( 'login', $username );
-
-	if ( ! $user ) {
-		// The next line waste CPU cycles to prevent detection of invalid user names
-		// via timing attacks.
-		password_verify( $password, password_hash( $password, PASSWORD_DEFAULT ) );
-
-		return new WP_Error( 'incorrect_password',
-			sprintf(
-				/* translators: %s: user name */
-				__( '<strong>ERROR</strong>: The password you entered for the username %s do not match the one associated with it.' ),
-				'<strong>' . $username . '</strong>'
-			)
-		);
-	}
-
-	/**
-	 * Filters whether the given user can be authenticated with the provided $password.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @param WP_User|WP_Error $user     WP_User or WP_Error object if a previous
-	 *                                   callback failed authentication.
-	 * @param string           $password Password to check against the user.
-	 */
-	$user = apply_filters( 'wp_authenticate_user', $user, $password );
-	if ( is_wp_error( $user ) ) {
-		return $user;
-	}
-
-	if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
-		return new WP_Error(
-			'incorrect_password',
-			sprintf(
-				/* translators: %s: User name. */
-				__( '<strong>ERROR</strong>: The password you entered for the username %s do not match the one associated with it.' ),
-				'<strong>' . $username . '</strong>'
-			) .
-			' <a href="' . wp_lostpassword_url() . '">' .
-			__( 'Lost your password?' ) .
-			'</a>'
-		);
-	}
-
-	return $user;
-}
-
-/**
  * Authenticates a user using the email and password.
  *
  * @since 4.5.0
@@ -361,12 +281,12 @@ function wp_authenticate_application_password( $input_user, $username, $password
 		if ( is_email( $username ) ) {
 			$error = new WP_Error(
 				'invalid_email',
-				__( 'Unknown email address. Check again or try your username.' )
+				__( '<strong>Error</strong>: Unknown email address. Check again or try your username.' )
 			);
 		} else {
 			$error = new WP_Error(
 				'invalid_username',
-				__( 'Unknown username. Check again or try your email address.' )
+				__( '<strong>Error</strong>: Unknown username. Check again or try your email address.' )
 			);
 		}
 	} elseif ( ! wp_is_application_passwords_available() ) {
@@ -757,7 +677,7 @@ function delete_user_option( $user_id, $option_name, $global = false ) {
  *
  * @see WP_User_Query
  *
- * @param array $args Optional. Arguments to retrieve users. See WP_User_Query::prepare_query().
+ * @param array $args Optional. Arguments to retrieve users. See WP_User_Query::prepare_query()
  *                    for more information on accepted arguments.
  * @return array List of users.
  */
@@ -1018,10 +938,12 @@ function delete_user_meta( $user_id, $meta_key, $meta_value = '' ) {
  * @param string $key     Optional. The meta key to retrieve. By default,
  *                        returns data for all keys.
  * @param bool   $single  Optional. Whether to return a single value.
- *                        This parameter has no effect if $key is not specified.
+ *                        This parameter has no effect if `$key` is not specified.
  *                        Default false.
- * @return mixed An array if $single is false. The value of meta data field
- *               if $single is true. False for an invalid $user_id.
+ * @return mixed An array of values if `$single` is false.
+ *               The value of meta data field if `$single` is true.
+ *               False for an invalid `$user_id` (non-numeric, zero, or negative value).
+ *               An empty string if a valid but non-existing user ID is passed.
  */
 function get_user_meta( $user_id, $key = '', $single = false ) {
 	return get_metadata( 'user', $user_id, $key, $single );
@@ -1538,6 +1460,12 @@ function sanitize_user_field( $field, $value, $user_id, $context ) {
 	} elseif ( 'js' === $context ) {
 		$value = esc_js( $value );
 	}
+
+	// Restore the type for integer fields after esc_attr().
+	if ( in_array( $field, $int_fields, true ) ) {
+		$value = (int) $value;
+	}
+
 	return $value;
 }
 
@@ -1569,10 +1497,15 @@ function update_user_caches( $user ) {
  *
  * @since 3.0.0
  * @since 4.4.0 'clean_user_cache' action was added.
+ * @since 5.8.0 Refreshes the global user instance if cleaning the user cache for the current user.
+ *
+ * @global WP_User $current_user The current user object which holds the user data.
  *
  * @param WP_User|int $user User object or ID to be cleaned from the cache
  */
 function clean_user_cache( $user ) {
+	global $current_user;
+
 	if ( is_numeric( $user ) ) {
 		$user = new WP_User( $user );
 	}
@@ -1595,6 +1528,13 @@ function clean_user_cache( $user ) {
 	 * @param WP_User $user    User object.
 	 */
 	do_action( 'clean_user_cache', $user->ID, $user );
+
+	// Refresh the global user instance if the cleaning current user.
+	if ( get_current_user_id() === (int) $user->ID ) {
+		$user_id      = (int) $user->ID;
+		$current_user = null;
+		wp_set_current_user( $user_id, '' );
+	}
 }
 
 /**
@@ -1977,6 +1917,7 @@ function wp_insert_user( $userdata ) {
 	 * It only includes data in the users table, not any user metadata.
 	 *
 	 * @since 4.9.0
+	 * @since 5.8.0 The $userdata parameter was added.
 	 *
 	 * @param array    $data {
 	 *     Values and keys for the user.
@@ -1990,10 +1931,11 @@ function wp_insert_user( $userdata ) {
 	 *     @type string $user_registered MySQL timestamp describing the moment when the user registered. Defaults to
 	 *                                   the current UTC timestamp.
 	 * }
-	 * @param bool     $update Whether the user is being updated rather than created.
-	 * @param int|null $id     ID of the user to be updated, or NULL if the user is being created.
+	 * @param bool     $update   Whether the user is being updated rather than created.
+	 * @param int|null $id       ID of the user to be updated, or NULL if the user is being created.
+	 * @param array    $userdata The raw array of data passed to wp_insert_user().
 	 */
-	$data = apply_filters( 'wp_pre_insert_user_data', $data, $update, $update ? (int) $ID : null );
+	$data = apply_filters( 'wp_pre_insert_user_data', $data, $update, ( $update ? (int) $ID : null ), $userdata );
 
 	if ( empty( $data ) || ! is_array( $data ) ) {
 		return new WP_Error( 'empty_data', __( 'Not enough data to create this user.' ) );
@@ -2019,6 +1961,7 @@ function wp_insert_user( $userdata ) {
 	 * Does not include contact methods. These are added using `wp_get_user_contact_methods( $user )`.
 	 *
 	 * @since 4.4.0
+	 * @since 5.8.0 The $userdata parameter was added.
 	 *
 	 * @param array $meta {
 	 *     Default meta values and keys for the user.
@@ -2036,10 +1979,11 @@ function wp_insert_user( $userdata ) {
 	 *                                          Default 'true'.
 	 *     @type string   $locale               User's locale. Default empty.
 	 * }
-	 * @param WP_User $user   User object.
-	 * @param bool    $update Whether the user is being updated rather than created.
+	 * @param WP_User $user     User object.
+	 * @param bool    $update   Whether the user is being updated rather than created.
+	 * @param array   $userdata The raw array of data passed to wp_insert_user().
 	 */
-	$meta = apply_filters( 'insert_user_meta', $meta, $user, $update );
+	$meta = apply_filters( 'insert_user_meta', $meta, $user, $update, $userdata );
 
 	// Update user meta.
 	foreach ( $meta as $key => $value ) {
@@ -2078,11 +2022,13 @@ function wp_insert_user( $userdata ) {
 		 * Fires immediately after an existing user is updated.
 		 *
 		 * @since 2.0.0
+		 * @since 5.8.0 The $userdata parameter was added.
 		 *
 		 * @param int     $user_id       User ID.
 		 * @param WP_User $old_user_data Object containing user's data prior to update.
+		 * @param array   $userdata      The raw array of data passed to wp_insert_user().
 		 */
-		do_action( 'profile_update', $user_id, $old_user_data );
+		do_action( 'profile_update', $user_id, $old_user_data, $userdata );
 
 		if ( isset( $userdata['spam'] ) && $userdata['spam'] != $old_user_data->spam ) {
 			if ( 1 == $userdata['spam'] ) {
@@ -2110,10 +2056,12 @@ function wp_insert_user( $userdata ) {
 		 * Fires immediately after a new user is registered.
 		 *
 		 * @since 1.5.0
+		 * @since 5.8.0 The $userdata parameter was added.
 		 *
-		 * @param int $user_id User ID.
+		 * @param int   $user_id  User ID.
+		 * @param array $userdata The raw array of data passed to wp_insert_user().
 		 */
-		do_action( 'user_register', $user_id );
+		do_action( 'user_register', $user_id, $userdata );
 	}
 
 	return $user_id;
@@ -2748,7 +2696,7 @@ function retrieve_password( $user_login = null ) {
 	$message .= sprintf( __( 'Email: %s' ), $user_email ) . "\r\n\r\n";
 	$message .= __( 'If this was a mistake, ignore this email and nothing will happen.' ) . "\r\n\r\n";
 	$message .= __( 'To reset your password, visit the following address:' ) . "\r\n\r\n";
-	$message .= network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) . "\r\n\r\n";
+	$message .= network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) . '&wp_lang=' . $locale . "\r\n\r\n";
 
 	if ( ! is_user_logged_in() ) {
 		$requester_ip = $_SERVER['REMOTE_ADDR'];
@@ -2830,7 +2778,7 @@ function reset_password( $user, $new_pass ) {
 	do_action( 'password_reset', $user, $new_pass );
 
 	wp_set_password( $new_pass, $user->ID );
-	update_user_option( $user->ID, 'default_password_nag', false, true );
+	update_user_meta( $user->ID, 'default_password_nag', false );
 
 	/**
 	 * Fires after the user's password is reset.
@@ -2941,7 +2889,7 @@ function register_new_user( $user_login, $user_email ) {
 		return $errors;
 	}
 
-	update_user_option( $user_id, 'default_password_nag', true, true ); // Set up the password change nag.
+	update_user_meta( $user_id, 'default_password_nag', true ); // Set up the password change nag.
 
 	/**
 	 * Fires after a new user registration has been recorded.
@@ -3589,59 +3537,6 @@ function _wp_privacy_send_request_confirmation_notification( $request_id ) {
 		'admin_email' => $admin_email,
 	);
 
-	/* translators: Do not translate SITENAME, USER_EMAIL, DESCRIPTION, MANAGE_URL, SITEURL; those are placeholders. */
-	$email_text = __(
-		'Howdy,
-
-A user data privacy request has been confirmed on ###SITENAME###:
-
-User: ###USER_EMAIL###
-Request: ###DESCRIPTION###
-
-You can view and manage these data privacy requests here:
-
-###MANAGE_URL###
-
-Regards,
-All at ###SITENAME###
-###SITEURL###'
-	);
-
-	/**
-	 * Filters the body of the user request confirmation email.
-	 *
-	 * The email is sent to an administrator when an user request is confirmed.
-	 * The following strings have a special meaning and will get replaced dynamically:
-	 *
-	 * ###SITENAME###    The name of the site.
-	 * ###USER_EMAIL###  The user email for the request.
-	 * ###DESCRIPTION### Description of the action being performed so the user knows what the email is for.
-	 * ###MANAGE_URL###  The URL to manage requests.
-	 * ###SITEURL###     The URL to the site.
-	 *
-	 * @since 4.9.6
-	 *
-	 * @param string $email_text Text in the email.
-	 * @param array  $email_data {
-	 *     Data relating to the account action email.
-	 *
-	 *     @type WP_User_Request $request     User request object.
-	 *     @type string          $user_email  The email address confirming a request
-	 *     @type string          $description Description of the action being performed so the user knows what the email is for.
-	 *     @type string          $manage_url  The link to click manage privacy requests of this type.
-	 *     @type string          $sitename    The site name sending the mail.
-	 *     @type string          $siteurl     The site URL sending the mail.
-	 *     @type string          $admin_email The administrator email receiving the mail.
-	 * }
-	 */
-	$content = apply_filters( 'user_confirmed_action_email_content', $email_text, $email_data );
-
-	$content = str_replace( '###SITENAME###', $email_data['sitename'], $content );
-	$content = str_replace( '###USER_EMAIL###', $email_data['user_email'], $content );
-	$content = str_replace( '###DESCRIPTION###', $email_data['description'], $content );
-	$content = str_replace( '###MANAGE_URL###', esc_url_raw( $email_data['manage_url'] ), $content );
-	$content = str_replace( '###SITEURL###', esc_url_raw( $email_data['siteurl'] ), $content );
-
 	$subject = sprintf(
 		/* translators: Privacy data request confirmed notification email subject. 1: Site title, 2: Name of the confirmed action. */
 		__( '[%1$s] Action Confirmed: %2$s' ),
@@ -3669,6 +3564,106 @@ All at ###SITENAME###
 	 * }
 	 */
 	$subject = apply_filters( 'user_request_confirmed_email_subject', $subject, $email_data['sitename'], $email_data );
+
+	/* translators: Do not translate SITENAME, USER_EMAIL, DESCRIPTION, MANAGE_URL, SITEURL; those are placeholders. */
+	$content = __(
+// phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect, PEAR.Functions.FunctionCallSignature.Indent
+'Howdy,
+
+A user data privacy request has been confirmed on ###SITENAME###:
+
+User: ###USER_EMAIL###
+Request: ###DESCRIPTION###
+
+You can view and manage these data privacy requests here:
+
+###MANAGE_URL###
+
+Regards,
+All at ###SITENAME###
+###SITEURL###'
+	);
+
+	/**
+	 * Filters the body of the user request confirmation email.
+	 *
+	 * Use {@see 'user_request_confirmed_email_content'} instead.
+	 *
+	 * The email is sent to an administrator when an user request is confirmed.
+	 *
+	 * The following strings have a special meaning and will get replaced dynamically:
+	 *
+	 * ###SITENAME###    The name of the site.
+	 * ###USER_EMAIL###  The user email for the request.
+	 * ###DESCRIPTION### Description of the action being performed so the user knows what the email is for.
+	 * ###MANAGE_URL###  The URL to manage requests.
+	 * ###SITEURL###     The URL to the site.
+	 *
+	 * For fulfillment email content use {@see 'user_erasure_fulfillment_email_content'} instead.
+	 *
+	 * @since 4.9.6
+	 *
+	 * @deprecated 5.8.0 Use {@see 'user_request_confirmed_email_content'} instead. For fulfillment email content use {@see 'user_erasure_fulfillment_email_content'} instead.
+	 *
+	 * @param string $content    The email content.
+	 * @param array  $email_data {
+	 *     Data relating to the account action email.
+	 *
+	 *     @type WP_User_Request $request     User request object.
+	 *     @type string          $user_email  The email address confirming a request
+	 *     @type string          $description Description of the action being performed so the user knows what the email is for.
+	 *     @type string          $manage_url  The link to click manage privacy requests of this type.
+	 *     @type string          $sitename    The site name sending the mail.
+	 *     @type string          $siteurl     The site URL sending the mail.
+	 *     @type string          $admin_email The administrator email receiving the mail.
+	 * }
+	 */
+	$content = apply_filters_deprecated(
+		'user_confirmed_action_email_content',
+		array( $content, $email_data ),
+		'5.8.0',
+		sprintf(
+			/* translators: 1 & 2: Deprecation replacement options */
+			__( '%1$s or %2$s' ),
+			'user_request_confirmed_email_content',
+			'user_erasure_fulfillment_email_content'
+		)
+	);
+
+	/**
+	 * Filters the body of the user request confirmation email.
+	 *
+	 * The email is sent to an administrator when an user request is confirmed.
+	 * The following strings have a special meaning and will get replaced dynamically:
+	 *
+	 * ###SITENAME###    The name of the site.
+	 * ###USER_EMAIL###  The user email for the request.
+	 * ###DESCRIPTION### Description of the action being performed so the user knows what the email is for.
+	 * ###MANAGE_URL###  The URL to manage requests.
+	 * ###SITEURL###     The URL to the site.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $content    The email content.
+	 * @param array  $email_data {
+	 *     Data relating to the account action email.
+	 *
+	 *     @type WP_User_Request $request     User request object.
+	 *     @type string          $user_email  The email address confirming a request
+	 *     @type string          $description Description of the action being performed so the user knows what the email is for.
+	 *     @type string          $manage_url  The link to click manage privacy requests of this type.
+	 *     @type string          $sitename    The site name sending the mail.
+	 *     @type string          $siteurl     The site URL sending the mail.
+	 *     @type string          $admin_email The administrator email receiving the mail.
+	 * }
+	 */
+	$content = apply_filters( 'user_request_confirmed_email_content', $content, $email_data );
+
+	$content = str_replace( '###SITENAME###', $email_data['sitename'], $content );
+	$content = str_replace( '###USER_EMAIL###', $email_data['user_email'], $content );
+	$content = str_replace( '###DESCRIPTION###', $email_data['description'], $content );
+	$content = str_replace( '###MANAGE_URL###', esc_url_raw( $email_data['manage_url'] ), $content );
+	$content = str_replace( '###SITEURL###', esc_url_raw( $email_data['siteurl'] ), $content );
 
 	$headers = '';
 
@@ -3760,7 +3755,11 @@ function _wp_privacy_send_erasure_fulfillment_notification( $request_id ) {
 	/**
 	 * Filters the subject of the email sent when an erasure request is completed.
 	 *
+	 * Use {@see 'user_erasure_fulfillment_email_subject'} instead.
+	 *
 	 * @since 4.9.8
+	 *
+	 * @deprecated 5.8.0 Use {@see 'user_erasure_fulfillment_email_subject'} instead.
 	 *
 	 * @param string $subject    The email subject.
 	 * @param string $sitename   The name of the site.
@@ -3776,12 +3775,33 @@ function _wp_privacy_send_erasure_fulfillment_notification( $request_id ) {
 	 *     @type string          $siteurl            The site URL sending the mail.
 	 * }
 	 */
-	$subject = apply_filters( 'user_erasure_complete_email_subject', $subject, $email_data['sitename'], $email_data );
+	$subject = apply_filters_deprecated( 'user_erasure_complete_email_subject', array( $subject, $email_data['sitename'], $email_data ), '5.8.0', 'user_erasure_fulfillment_email_subject' );
 
-	if ( empty( $email_data['privacy_policy_url'] ) ) {
-		/* translators: Do not translate SITENAME, SITEURL; those are placeholders. */
-		$email_text = __(
-			'Howdy,
+	/**
+	 * Filters the subject of the email sent when an erasure request is completed.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $subject    The email subject.
+	 * @param string $sitename   The name of the site.
+	 * @param array  $email_data {
+	 *     Data relating to the account action email.
+	 *
+	 *     @type WP_User_Request $request            User request object.
+	 *     @type string          $message_recipient  The address that the email will be sent to. Defaults
+	 *                                               to the value of `$request->email`, but can be changed
+	 *                                               by the `user_erasure_fulfillment_email_to` filter.
+	 *     @type string          $privacy_policy_url Privacy policy URL.
+	 *     @type string          $sitename           The site name sending the mail.
+	 *     @type string          $siteurl            The site URL sending the mail.
+	 * }
+	 */
+	$subject = apply_filters( 'user_erasure_fulfillment_email_subject', $subject, $email_data['sitename'], $email_data );
+
+	/* translators: Do not translate SITENAME, SITEURL; those are placeholders. */
+	$content = __(
+// phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect, PEAR.Functions.FunctionCallSignature.Indent
+'Howdy,
 
 Your request to erase your personal data on ###SITENAME### has been completed.
 
@@ -3790,11 +3810,13 @@ If you have any follow-up questions or concerns, please contact the site adminis
 Regards,
 All at ###SITENAME###
 ###SITEURL###'
-		);
-	} else {
+	);
+
+	if ( ! empty( $email_data['privacy_policy_url'] ) ) {
 		/* translators: Do not translate SITENAME, SITEURL, PRIVACY_POLICY_URL; those are placeholders. */
-		$email_text = __(
-			'Howdy,
+		$content = __(
+// phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect, PEAR.Functions.FunctionCallSignature.Indent
+'Howdy,
 
 Your request to erase your personal data on ###SITENAME### has been completed.
 
@@ -3811,6 +3833,8 @@ All at ###SITENAME###
 	/**
 	 * Filters the body of the data erasure fulfillment notification.
 	 *
+	 * Use {@see 'user_erasure_fulfillment_email_content'} instead.
+	 *
 	 * The email is sent to a user when a their data erasure request is fulfilled
 	 * by an administrator.
 	 *
@@ -3820,9 +3844,13 @@ All at ###SITENAME###
 	 * ###PRIVACY_POLICY_URL### Privacy policy page URL.
 	 * ###SITEURL###            The URL to the site.
 	 *
+	 * For user request confirmation email content use {@see 'user_request_confirmed_email_content'} instead.
+	 *
 	 * @since 4.9.6
 	 *
-	 * @param string $email_text Text in the email.
+	 * @deprecated 5.8.0 Use {@see 'user_erasure_fulfillment_email_content'} instead. For user request confirmation email content use {@see 'user_request_confirmed_email_content'} instead.
+	 *
+	 * @param string $content The email content.
 	 * @param array  $email_data {
 	 *     Data relating to the account action email.
 	 *
@@ -3835,7 +3863,46 @@ All at ###SITENAME###
 	 *     @type string          $siteurl            The site URL sending the mail.
 	 * }
 	 */
-	$content = apply_filters( 'user_confirmed_action_email_content', $email_text, $email_data );
+	$content = apply_filters_deprecated(
+		'user_confirmed_action_email_content',
+		array( $content, $email_data ),
+		'5.8.0',
+		sprintf(
+			/* translators: 1 & 2: Deprecation replacement options */
+			__( '%1$s or %2$s' ),
+			'user_erasure_fulfillment_email_content',
+			'user_request_confirmed_email_content'
+		)
+	);
+
+	/**
+	 * Filters the body of the data erasure fulfillment notification.
+	 *
+	 * The email is sent to a user when a their data erasure request is fulfilled
+	 * by an administrator.
+	 *
+	 * The following strings have a special meaning and will get replaced dynamically:
+	 *
+	 * ###SITENAME###           The name of the site.
+	 * ###PRIVACY_POLICY_URL### Privacy policy page URL.
+	 * ###SITEURL###            The URL to the site.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $content The email content.
+	 * @param array  $email_data {
+	 *     Data relating to the account action email.
+	 *
+	 *     @type WP_User_Request $request            User request object.
+	 *     @type string          $message_recipient  The address that the email will be sent to. Defaults
+	 *                                               to the value of `$request->email`, but can be changed
+	 *                                               by the `user_erasure_fulfillment_email_to` filter.
+	 *     @type string          $privacy_policy_url Privacy policy URL.
+	 *     @type string          $sitename           The site name sending the mail.
+	 *     @type string          $siteurl            The site URL sending the mail.
+	 * }
+	 */
+	$content = apply_filters( 'user_erasure_fulfillment_email_content', $content, $email_data );
 
 	$content = str_replace( '###SITENAME###', $email_data['sitename'], $content );
 	$content = str_replace( '###PRIVACY_POLICY_URL###', $email_data['privacy_policy_url'], $content );
@@ -3846,7 +3913,11 @@ All at ###SITENAME###
 	/**
 	 * Filters the headers of the data erasure fulfillment notification.
 	 *
+	 * Use {@see 'user_erasure_fulfillment_email_headers'} instead.
+	 *
 	 * @since 5.4.0
+	 *
+	 * @deprecated 5.8.0 Use {@see 'user_erasure_fulfillment_email_headers'} instead.
 	 *
 	 * @param string|array $headers    The email headers.
 	 * @param string       $subject    The email subject.
@@ -3864,7 +3935,30 @@ All at ###SITENAME###
 	 *     @type string          $siteurl            The site URL sending the mail.
 	 * }
 	 */
-	$headers = apply_filters( 'user_erasure_complete_email_headers', $headers, $subject, $content, $request_id, $email_data );
+	$headers = apply_filters_deprecated( 'user_erasure_complete_email_headers', array( $headers, $subject, $content, $request_id, $email_data ), '5.8.0', 'user_erasure_fulfillment_email_headers' );
+
+	/**
+	 * Filters the headers of the data erasure fulfillment notification.
+	 *
+	 * @since 5.7.0
+	 *
+	 * @param string|array $headers    The email headers.
+	 * @param string       $subject    The email subject.
+	 * @param string       $content    The email content.
+	 * @param int          $request_id The request ID.
+	 * @param array        $email_data {
+	 *     Data relating to the account action email.
+	 *
+	 *     @type WP_User_Request $request            User request object.
+	 *     @type string          $message_recipient  The address that the email will be sent to. Defaults
+	 *                                               to the value of `$request->email`, but can be changed
+	 *                                               by the `user_erasure_fulfillment_email_to` filter.
+	 *     @type string          $privacy_policy_url Privacy policy URL.
+	 *     @type string          $sitename           The site name sending the mail.
+	 *     @type string          $siteurl            The site URL sending the mail.
+	 * }
+	 */
+	$headers = apply_filters( 'user_erasure_fulfillment_email_headers', $headers, $subject, $content, $request_id, $email_data );
 
 	$email_sent = wp_mail( $user_email, $subject, $content, $headers );
 
@@ -4059,9 +4153,33 @@ function wp_send_user_request( $request_id ) {
 		'siteurl'     => home_url(),
 	);
 
+	/* translators: Confirm privacy data request notification email subject. 1: Site title, 2: Name of the action. */
+	$subject = sprintf( __( '[%1$s] Confirm Action: %2$s' ), $email_data['sitename'], $email_data['description'] );
+
+	/**
+	 * Filters the subject of the email sent when an account action is attempted.
+	 *
+	 * @since 4.9.6
+	 *
+	 * @param string $subject    The email subject.
+	 * @param string $sitename   The name of the site.
+	 * @param array  $email_data {
+	 *     Data relating to the account action email.
+	 *
+	 *     @type WP_User_Request $request     User request object.
+	 *     @type string          $email       The email address this is being sent to.
+	 *     @type string          $description Description of the action being performed so the user knows what the email is for.
+	 *     @type string          $confirm_url The link to click on to confirm the account action.
+	 *     @type string          $sitename    The site name sending the mail.
+	 *     @type string          $siteurl     The site URL sending the mail.
+	 * }
+	 */
+	$subject = apply_filters( 'user_request_action_email_subject', $subject, $email_data['sitename'], $email_data );
+
 	/* translators: Do not translate DESCRIPTION, CONFIRM_URL, SITENAME, SITEURL: those are placeholders. */
-	$email_text = __(
-		'Howdy,
+	$content = __(
+// phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect, PEAR.Functions.FunctionCallSignature.Indent
+'Howdy,
 
 A request has been made to perform the following action on your account:
 
@@ -4090,7 +4208,7 @@ All at ###SITENAME###
 	 *
 	 * @since 4.9.6
 	 *
-	 * @param string $email_text Text in the email.
+	 * @param string $content Text in the email.
 	 * @param array  $email_data {
 	 *     Data relating to the account action email.
 	 *
@@ -4102,36 +4220,13 @@ All at ###SITENAME###
 	 *     @type string          $siteurl     The site URL sending the mail.
 	 * }
 	 */
-	$content = apply_filters( 'user_request_action_email_content', $email_text, $email_data );
+	$content = apply_filters( 'user_request_action_email_content', $content, $email_data );
 
 	$content = str_replace( '###DESCRIPTION###', $email_data['description'], $content );
 	$content = str_replace( '###CONFIRM_URL###', esc_url_raw( $email_data['confirm_url'] ), $content );
 	$content = str_replace( '###EMAIL###', $email_data['email'], $content );
 	$content = str_replace( '###SITENAME###', $email_data['sitename'], $content );
 	$content = str_replace( '###SITEURL###', esc_url_raw( $email_data['siteurl'] ), $content );
-
-	/* translators: Confirm privacy data request notification email subject. 1: Site title, 2: Name of the action. */
-	$subject = sprintf( __( '[%1$s] Confirm Action: %2$s' ), $email_data['sitename'], $email_data['description'] );
-
-	/**
-	 * Filters the subject of the email sent when an account action is attempted.
-	 *
-	 * @since 4.9.6
-	 *
-	 * @param string $subject    The email subject.
-	 * @param string $sitename   The name of the site.
-	 * @param array  $email_data {
-	 *     Data relating to the account action email.
-	 *
-	 *     @type WP_User_Request $request     User request object.
-	 *     @type string          $email       The email address this is being sent to.
-	 *     @type string          $description Description of the action being performed so the user knows what the email is for.
-	 *     @type string          $confirm_url The link to click on to confirm the account action.
-	 *     @type string          $sitename    The site name sending the mail.
-	 *     @type string          $siteurl     The site URL sending the mail.
-	 * }
-	 */
-	$subject = apply_filters( 'user_request_action_email_subject', $subject, $email_data['sitename'], $email_data );
 
 	$headers = '';
 

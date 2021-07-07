@@ -252,6 +252,12 @@ if ( ! CUSTOM_TAGS ) {
 			'align' => true,
 			'value' => true,
 		),
+		'main'       => array(
+			'align'    => true,
+			'dir'      => true,
+			'lang'     => true,
+			'xml:lang' => true,
+		),
 		'map'        => array(
 			'name' => true,
 		),
@@ -2168,6 +2174,8 @@ function safecss_filter_attr( $css ) {
 	 * @since 5.3.0 Added support for `grid`, `flex` and `column` layout properties.
 	 *              Extend `background-*` support of individual properties.
 	 * @since 5.3.1 Added support for gradient backgrounds.
+	 * @since 5.7.1 Added support for `object-position`.
+	 * @since 5.8.0 Added support for `calc()` and `var()` values.
 	 *
 	 * @param string[] $attr Array of allowed CSS attributes.
 	 */
@@ -2281,6 +2289,7 @@ function safecss_filter_attr( $css ) {
 			'direction',
 			'float',
 			'list-style-type',
+			'object-position',
 			'overflow',
 			'vertical-align',
 		)
@@ -2376,7 +2385,13 @@ function safecss_filter_attr( $css ) {
 		}
 
 		if ( $found ) {
-			// Check for any CSS containing \ ( & } = or comments, except for url() usage checked above.
+			// Allow CSS calc().
+			$css_test_string = preg_replace( '/calc\(((?:\([^()]*\)?|[^()])*)\)/', '', $css_test_string );
+			// Allow CSS var().
+			$css_test_string = preg_replace( '/\(?var\(--[a-zA-Z0-9_-]*\)/', '', $css_test_string );
+
+			// Check for any CSS containing \ ( & } = or comments,
+			// except for url(), calc(), or var() usage checked above.
 			$allow_css = ! preg_match( '%[\\\(&=}]|/\*%', $css_test_string );
 
 			/**

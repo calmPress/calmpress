@@ -91,17 +91,12 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 	}
 
 	public function tearDown() {
-		parent::tearDown();
-
 		if ( file_exists( $this->test_file ) ) {
 			unlink( $this->test_file );
 		}
 		if ( file_exists( $this->test_file2 ) ) {
 			unlink( $this->test_file2 );
 		}
-
-		remove_action( 'rest_insert_attachment', array( $this, 'filter_rest_insert_attachment' ) );
-		remove_action( 'rest_after_insert_attachment', array( $this, 'filter_rest_after_insert_attachment' ) );
 
 		$this->remove_added_uploads();
 
@@ -110,6 +105,8 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 			WP_Image_Editor_Mock::$edit_return = array();
 			WP_Image_Editor_Mock::$size_return = null;
 		}
+
+		parent::tearDown();
 	}
 
 	public function test_register_routes() {

@@ -126,7 +126,7 @@ function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 
 	$wp_logo_menu_args = array(
 		'id'    => 'wp-logo',
-		'title' => '<span class="ab-icon"></span><span class="screen-reader-text">' . __( 'About calmPress' ) . '</span>',
+		'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' . __( 'About calmPress' ) . '</span>',
 	);
 
 	// Set tabindex="0" to make sub menus accessible when no URL is available.
@@ -192,7 +192,7 @@ function wp_admin_bar_sidebar_toggle( $wp_admin_bar ) {
 		$wp_admin_bar->add_node(
 			array(
 				'id'    => 'menu-toggle',
-				'title' => '<span class="ab-icon"></span><span class="screen-reader-text">' . __( 'Menu' ) . '</span>',
+				'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' . __( 'Menu' ) . '</span>',
 				'href'  => '#',
 			)
 		);
@@ -563,7 +563,15 @@ function wp_admin_bar_my_sites_menu( $wp_admin_bar ) {
 	foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
 		switch_to_blog( $blog->userblog_id );
 
-		$blavatar = '<div class="blavatar"></div>';
+		if ( has_site_icon() ) {
+			$blavatar = sprintf(
+				'<img class="blavatar" src="%s" srcset="%s 2x" alt="" width="16" height="16" />',
+				esc_url( get_site_icon_url( 16 ) ),
+				esc_url( get_site_icon_url( 32 ) )
+			);
+		} else {
+			$blavatar = '<div class="blavatar"></div>';
+		}
 
 		$blogname = $blog->blogname;
 
@@ -668,6 +676,7 @@ function wp_admin_bar_shortlink_menu( $wp_admin_bar ) {
  * Provide an edit link for posts and terms.
  *
  * @since 3.1.0
+ * @since 5.5.0 Added a "View Post" link on Comments screen for a single post.
  *
  * @global WP_Term  $tag
  * @global WP_Query $wp_the_query WordPress Query object.
@@ -855,7 +864,7 @@ function wp_admin_bar_new_content_menu( $wp_admin_bar ) {
 		return;
 	}
 
-	$title = '<span class="ab-icon"></span><span class="ab-label">' . _x( 'New', 'admin bar menu group label' ) . '</span>';
+	$title = '<span class="ab-icon" aria-hidden="true"></span><span class="ab-label">' . _x( 'New', 'admin bar menu group label' ) . '</span>';
 
 	$wp_admin_bar->add_node(
 		array(
@@ -899,7 +908,7 @@ function wp_admin_bar_comments_menu( $wp_admin_bar ) {
 		number_format_i18n( $awaiting_mod )
 	);
 
-	$icon   = '<span class="ab-icon"></span>';
+	$icon   = '<span class="ab-icon" aria-hidden="true"></span>';
 	$title  = '<span class="ab-label awaiting-mod pending-count count-' . $awaiting_mod . '" aria-hidden="true">' . number_format_i18n( $awaiting_mod ) . '</span>';
 	$title .= '<span class="screen-reader-text comments-in-moderation-text">' . $awaiting_text . '</span>';
 
@@ -1009,17 +1018,21 @@ function wp_admin_bar_updates_menu( $wp_admin_bar ) {
 		return;
 	}
 
-	$title  = '<span class="ab-icon"></span><span class="ab-label">' . number_format_i18n( $update_data['counts']['total'] ) . '</span>';
-	$title .= '<span class="screen-reader-text">' . $update_data['title'] . '</span>';
+	$updates_text = sprintf(
+		/* translators: %s: Total number of updates available. */
+		_n( '%s update available', '%s updates available', $update_data['counts']['total'] ),
+		number_format_i18n( $update_data['counts']['total'] )
+	);
+
+	$icon   = '<span class="ab-icon" aria-hidden="true"></span>';
+	$title  = '<span class="ab-label" aria-hidden="true">' . number_format_i18n( $update_data['counts']['total'] ) . '</span>';
+	$title .= '<span class="screen-reader-text updates-available-text">' . $updates_text . '</span>';
 
 	$wp_admin_bar->add_node(
 		array(
 			'id'    => 'updates',
-			'title' => $title,
+			'title' => $icon . $title,
 			'href'  => network_admin_url( 'update-core.php' ),
-			'meta'  => array(
-				'title' => $update_data['title'],
-			),
 		)
 	);
 }
@@ -1039,7 +1052,7 @@ function wp_admin_bar_search_menu( $wp_admin_bar ) {
 	$form  = '<form action="' . esc_url( home_url( '/' ) ) . '" method="get" id="adminbarsearch">';
 	$form .= '<input class="adminbar-input" name="s" id="adminbar-search" type="text" value="" maxlength="150" />';
 	$form .= '<label for="adminbar-search" class="screen-reader-text">' . __( 'Search' ) . '</label>';
-	$form .= '<input type="submit" class="adminbar-button" value="' . __( 'Search' ) . '"/>';
+	$form .= '<input type="submit" class="adminbar-button" value="' . __( 'Search' ) . '" />';
 	$form .= '</form>';
 
 	$wp_admin_bar->add_node(

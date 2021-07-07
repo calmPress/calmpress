@@ -56,6 +56,7 @@ class Tests_HTTPS_Detection extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 47577
+	 * @ticket 52484
 	 */
 	public function test_pre_wp_update_https_detection_errors() {
 		// Override to enforce no errors being detected.

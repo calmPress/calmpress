@@ -163,24 +163,27 @@ function _wp_translate_postdata( $update = false, $post_data = null ) {
 	}
 
 	if ( ! empty( $post_data['edit_date'] ) ) {
-		$aa                     = $post_data['aa'];
-		$mm                     = $post_data['mm'];
-		$jj                     = $post_data['jj'];
-		$hh                     = $post_data['hh'];
-		$mn                     = $post_data['mn'];
-		$ss                     = $post_data['ss'];
-		$aa                     = ( $aa <= 0 ) ? gmdate( 'Y' ) : $aa;
-		$mm                     = ( $mm <= 0 ) ? gmdate( 'n' ) : $mm;
-		$jj                     = ( $jj > 31 ) ? 31 : $jj;
-		$jj                     = ( $jj <= 0 ) ? gmdate( 'j' ) : $jj;
-		$hh                     = ( $hh > 23 ) ? $hh - 24 : $hh;
-		$mn                     = ( $mn > 59 ) ? $mn - 60 : $mn;
-		$ss                     = ( $ss > 59 ) ? $ss - 60 : $ss;
+		$aa = $post_data['aa'];
+		$mm = $post_data['mm'];
+		$jj = $post_data['jj'];
+		$hh = $post_data['hh'];
+		$mn = $post_data['mn'];
+		$ss = $post_data['ss'];
+		$aa = ( $aa <= 0 ) ? gmdate( 'Y' ) : $aa;
+		$mm = ( $mm <= 0 ) ? gmdate( 'n' ) : $mm;
+		$jj = ( $jj > 31 ) ? 31 : $jj;
+		$jj = ( $jj <= 0 ) ? gmdate( 'j' ) : $jj;
+		$hh = ( $hh > 23 ) ? $hh - 24 : $hh;
+		$mn = ( $mn > 59 ) ? $mn - 60 : $mn;
+		$ss = ( $ss > 59 ) ? $ss - 60 : $ss;
+
 		$post_data['post_date'] = sprintf( '%04d-%02d-%02d %02d:%02d:%02d', $aa, $mm, $jj, $hh, $mn, $ss );
-		$valid_date             = wp_checkdate( $mm, $jj, $aa, $post_data['post_date'] );
+
+		$valid_date = wp_checkdate( $mm, $jj, $aa, $post_data['post_date'] );
 		if ( ! $valid_date ) {
 			return new WP_Error( 'invalid_date', __( 'Invalid date.' ) );
 		}
+
 		$post_data['post_date_gmt'] = get_gmt_from_date( $post_data['post_date'] );
 	}
 
@@ -240,8 +243,9 @@ function edit_post( $post_data = null ) {
 	// Clear out any data in internal vars.
 	unset( $post_data['filter'] );
 
-	$post_ID                     = (int) $post_data['post_ID'];
-	$post                        = get_post( $post_ID );
+	$post_ID = (int) $post_data['post_ID'];
+	$post    = get_post( $post_ID );
+
 	$post_data['post_type']      = $post->post_type;
 	$post_data['post_mime_type'] = $post->post_mime_type;
 
@@ -690,6 +694,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
  *
  * @since 2.0.0
  * @since 5.2.0 Added the `$type` parameter.
+ * @since 5.8.0 Added the `$status` parameter.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
@@ -697,15 +702,17 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
  * @param string $content Optional post content.
  * @param string $date    Optional post date.
  * @param string $type    Optional post type.
+ * @param string $status  Optional post status.
  * @return int Post ID if post exists, 0 otherwise.
  */
-function post_exists( $title, $content = '', $date = '', $type = '' ) {
+function post_exists( $title, $content = '', $date = '', $type = '', $status = '' ) {
 	global $wpdb;
 
 	$post_title   = wp_unslash( sanitize_post_field( 'post_title', $title, 0, 'db' ) );
 	$post_content = wp_unslash( sanitize_post_field( 'post_content', $content, 0, 'db' ) );
 	$post_date    = wp_unslash( sanitize_post_field( 'post_date', $date, 0, 'db' ) );
 	$post_type    = wp_unslash( sanitize_post_field( 'post_type', $type, 0, 'db' ) );
+	$post_status  = wp_unslash( sanitize_post_field( 'post_status', $status, 0, 'db' ) );
 
 	$query = "SELECT ID FROM $wpdb->posts WHERE 1=1";
 	$args  = array();
@@ -728,6 +735,11 @@ function post_exists( $title, $content = '', $date = '', $type = '' ) {
 	if ( ! empty( $type ) ) {
 		$query .= ' AND post_type = %s';
 		$args[] = $post_type;
+	}
+
+	if ( ! empty( $status ) ) {
+		$query .= ' AND post_status = %s';
+		$args[] = $post_status;
 	}
 
 	if ( ! empty( $args ) ) {
@@ -981,8 +993,11 @@ function wp_edit_posts_query( $q = false ) {
 	 *
 	 * The dynamic portion of the hook name, `$post_type`, refers to the post type.
 	 *
-	 * Some examples of filter hooks generated here include: 'edit_attachment_per_page',
-	 * 'edit_post_per_page', 'edit_page_per_page', etc.
+	 * Possible hook names include:
+	 *
+	 *  - `edit_post_per_page`
+	 *  - `edit_page_per_page`
+	 *  - `edit_attachment_per_page`
 	 *
 	 * @since 3.0.0
 	 *

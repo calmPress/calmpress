@@ -6,12 +6,13 @@
 
 /* global ajaxurl, ClipboardJS, SiteHealth, wp */
 
-jQuery( document ).ready( function( $ ) {
+jQuery( function( $ ) {
 
 	var __ = wp.i18n.__,
 		_n = wp.i18n._n,
 		sprintf = wp.i18n.sprintf,
 		clipboard = new ClipboardJS( '.site-health-copy-buttons .copy-button' ),
+		isStatusTab = $( '.health-check-body.health-check-status-tab' ).length,
 		isDebugTab = $( '.health-check-body.health-check-debug-tab' ).length,
 		successTimeout;
 
@@ -211,7 +212,7 @@ jQuery( document ).ready( function( $ ) {
 			$( '.site-status-has-issues' ).addClass( 'hide' );
 		}
 
-		if ( ! isDebugTab ) {
+		if ( isStatusTab ) {
 			$.post(
 				ajaxurl,
 				{
@@ -328,7 +329,7 @@ jQuery( document ).ready( function( $ ) {
 		appendIssue( wp.hooks.applyFilters( 'site_status_test_result', issue ) );
 	}
 
-	if ( 'undefined' !== typeof SiteHealth && ! isDebugTab ) {
+	if ( 'undefined' !== typeof SiteHealth ) {
 		if ( 0 === SiteHealth.site_status.direct.length && 0 === SiteHealth.site_status.async.length ) {
 			recalculateProgression();
 		} else {
@@ -355,4 +356,9 @@ jQuery( document ).ready( function( $ ) {
 	if ( isDebugTab ) {
 		RecalculateProgression();
 	}
+
+	// Trigger a class toggle when the extended menu button is clicked.
+	$( '.health-check-offscreen-nav-wrapper' ).on( 'click', function() {
+		$( this ).toggleClass( 'visible' );
+	} );
 } );

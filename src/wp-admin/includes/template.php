@@ -707,7 +707,7 @@ function wp_import_upload_form( $action ) {
 		?>
 		<div class="error"><p><?php _e( 'Before you can upload your import file, you will need to fix the following error:' ); ?></p>
 		<p><strong><?php echo $upload_dir['error']; ?></strong></p></div>
-								<?php
+		<?php
 	else :
 		?>
 <form enctype="multipart/form-data" id="import-upload-form" method="post" class="wp-upload-form" action="<?php echo esc_url( wp_nonce_url( $action, 'import-upload' ) ); ?>">
@@ -1195,7 +1195,7 @@ function add_settings_section( $id, $title, $callback, $page ) {
  *
  * Part of the Settings API. Use this to define a settings field that will show
  * as part of a settings section inside a settings page. The fields are shown using
- * do_settings_fields() in do_settings-sections()
+ * do_settings_fields() in do_settings_sections().
  *
  * The $callback argument should be the name of a function that echoes out the
  * HTML input tags for this setting field. Use get_option() to retrieve existing
@@ -1588,7 +1588,7 @@ function iframe_header( $title = '', $deprecated = false ) {
 	wp_enqueue_style( 'colors' );
 	?>
 <script type="text/javascript">
-addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
+addLoadEvent = function(func){if(typeof jQuery!=='undefined')jQuery(document).ready(func);else if(typeof wpOnload!=='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
 function tb_close(){var win=window.dialogArguments||opener||parent||top;win.tb_remove();}
 var ajaxurl = '<?php echo esc_js( admin_url( 'admin-ajax.php', 'relative' ) ); ?>',
 	pagenow = '<?php echo esc_js( $current_screen->id ); ?>',
@@ -1678,7 +1678,7 @@ function iframe_footer() {
 	do_action( 'admin_print_footer_scripts' );
 	?>
 	</div>
-<script type="text/javascript">if(typeof wpOnload=="function")wpOnload();</script>
+<script type="text/javascript">if(typeof wpOnload==='function')wpOnload();</script>
 </body>
 </html>
 	<?php
@@ -1904,7 +1904,7 @@ function get_media_states( $post ) {
 	 *                               'Background Image', 'Site Icon', 'Logo'.
 	 * @param WP_Post  $post         The current attachment object.
 	 */
-	 return apply_filters( 'display_media_states', $media_states, $post );
+	return apply_filters( 'display_media_states', $media_states, $post );
 }
 
 /**
@@ -2219,11 +2219,31 @@ function wp_star_rating( $args = array() ) {
 }
 
 /**
- * Output a notice when editing the page for posts (internal use only).
+ * Outputs a notice when editing the page for posts (internal use only).
  *
  * @ignore
  * @since 4.2.0
  */
 function _wp_posts_page_notice() {
-	echo '<div class="notice notice-warning inline"><p>' . __( 'You are currently editing the page that shows your latest posts.' ) . '</p></div>';
+	printf(
+		'<div class="notice notice-warning inline"><p>%s</p></div>',
+		__( 'You are currently editing the page that shows your latest posts.' )
+	);
+}
+
+/**
+ * Outputs a notice when editing the page for posts in the block editor (internal use only).
+ *
+ * @ignore
+ * @since 5.8.0
+ */
+function _wp_block_editor_posts_page_notice() {
+	wp_add_inline_script(
+		'wp-notices',
+		sprintf(
+			'wp.data.dispatch( "core/notices" ).createWarningNotice( "%s", { isDismissible: false } )',
+			__( 'You are currently editing the page that shows your latest posts.' )
+		),
+		'after'
+	);
 }

@@ -369,7 +369,7 @@ if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
 			die();
 	endif;
 		break;
-}
+} // End of the steps switch.
 ?>
 <script type="text/javascript">
 var elements = document.querySelectorAll( '.hide-if-no-js' );

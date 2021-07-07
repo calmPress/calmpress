@@ -186,6 +186,7 @@ module.exports = function(grunt) {
 						[ WORKING_DIR + 'wp-includes/js/imagesloaded.min.js' ]: [ './node_modules/imagesloaded/imagesloaded.pkgd.min.js' ],
 						[ WORKING_DIR + 'wp-includes/js/jquery/jquery.js' ]: [ './node_modules/jquery/dist/jquery.js' ],
 						[ WORKING_DIR + 'wp-includes/js/jquery/jquery.min.js' ]: [ './node_modules/jquery/dist/jquery.min.js' ],
+						[ WORKING_DIR + 'wp-includes/js/jquery/jquery.form.js' ]: [ './node_modules/jquery-form/src/jquery.form.js' ],
 						[ WORKING_DIR + 'wp-includes/js/masonry.min.js' ]: [ './node_modules/masonry-layout/dist/masonry.pkgd.min.js' ],
 						[ WORKING_DIR + 'wp-includes/js/underscore.js' ]: [ './node_modules/underscore/underscore.js' ],
 					}
@@ -647,31 +648,24 @@ module.exports = function(grunt) {
 		},
 		phpunit: {
 			'default': {
-				cmd: 'phpunit',
 				args: ['--verbose', '-c', 'phpunit.xml.dist']
 			},
 			ajax: {
-				cmd: 'phpunit',
 				args: ['--verbose', '-c', 'phpunit.xml.dist', '--group', 'ajax']
 			},
 			multisite: {
-				cmd: 'phpunit',
 				args: ['--verbose', '-c', 'tests/phpunit/multisite.xml']
 			},
 			'ms-ajax': {
-				cmd: 'phpunit',
 				args: ['--verbose', '-c', 'tests/phpunit/multisite.xml', '--group', 'ajax']
 			},
 			'ms-files': {
-				cmd: 'phpunit',
 				args: ['--verbose', '-c', 'tests/phpunit/multisite.xml', '--group', 'ms-files']
 			},
 			'external-http': {
-				cmd: 'phpunit',
 				args: ['--verbose', '-c', 'phpunit.xml.dist', '--group', 'external-http']
 			},
 			'restapi-jsclient': {
-				cmd: 'phpunit',
 				args: ['--verbose', '-c', 'phpunit.xml.dist', '--group', 'restapi-jsclient']
 			}
 		},
@@ -961,7 +955,7 @@ module.exports = function(grunt) {
 					src: [
 						WORKING_DIR + 'wp-{admin,includes}/**/*.js',
 						WORKING_DIR + 'wp-content/themes/calm*/**/*.js',
-						'!' + WORKING_DIR + 'wp-includes/js/dist/vendor/*.js',
+						'!' + WORKING_DIR + 'wp-includes/js/dist/**/*.js',
 					]
 				}
 			},
@@ -993,7 +987,7 @@ module.exports = function(grunt) {
 			}
 		},
 		replace: {
-			emojiRegex: {
+			'emoji-regex': {
 				options: {
 					patterns: [
 						{
@@ -1065,7 +1059,7 @@ module.exports = function(grunt) {
 					}
 				]
 			},
-			emojiBannerText: {
+			'emoji-banner-text': {
 				options: {
 					patterns: [
 						{
@@ -1082,6 +1076,26 @@ module.exports = function(grunt) {
 							BUILD_DIR + 'wp-includes/formatting.php'
 						],
 						dest: BUILD_DIR + 'wp-includes/'
+					}
+				]
+			},
+			'source-maps': {
+				options: {
+					patterns: [
+						{
+							match: new RegExp( '//# sourceMappingURL=.*\\s*' ),
+							replacement: ''
+						}
+					]
+				},
+				files: [
+					{
+						expand: true,
+						flatten: true,
+						src: [
+							BUILD_DIR + 'wp-includes/js/underscore.js'
+						],
+						dest: BUILD_DIR + 'wp-includes/js/'
 					}
 				]
 			}
@@ -1224,7 +1238,7 @@ module.exports = function(grunt) {
 	] );
 
 	grunt.registerTask( 'precommit:emoji', [
-		'replace:emojiRegex'
+		'replace:emoji-regex'
 	] );
 
 	grunt.registerTask( 'precommit', 'Runs test and build tasks in preparation for a commit', function() {
@@ -1480,8 +1494,14 @@ module.exports = function(grunt) {
 	 * @ticket 46218
 	 */
 	grunt.registerTask( 'verify:source-maps', function() {
-		const path = `${ BUILD_DIR }**/*.js`;
-		const files = glob.sync( path );
+		const files = buildFiles.reduce( ( acc, path ) => {
+			// Skip excluded paths and any path that isn't a file.
+			if ( '!' === path[0] || '**' !== path.substr( -2 ) ) {
+				return acc;
+			}
+			acc.push( ...glob.sync( `${ BUILD_DIR }/${ path }/*.js` ) );
+			return acc;
+		}, [] );
 
 		assert(
 			files.length > 0,
@@ -1515,7 +1535,8 @@ module.exports = function(grunt) {
 				'build:css',
 				'includes:emoji',
 				'includes:embed',
-				'replace:emojiBannerText',
+				'replace:emoji-banner-text',
+				'replace:source-maps',
 				'verify:build'
 			] );
 		}
@@ -1530,24 +1551,31 @@ module.exports = function(grunt) {
 	] );
 
 	// Testing tasks.
-	grunt.registerMultiTask('phpunit', 'Runs PHPUnit tests, including the ajax, external-http, and multisite tests.', function() {
+	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax, external-http, and multisite tests.', function() {
+		var args = phpUnitWatchGroup ? this.data.args.concat( [ '--group', phpUnitWatchGroup ] ) : this.data.args;
+
+		args.unshift( 'test', '--' );
+
 		grunt.util.spawn({
-			cmd: this.data.cmd,
-			args: phpUnitWatchGroup ? this.data.args.concat( [ '--group', phpUnitWatchGroup ] ) : this.data.args,
-			opts: {stdio: 'inherit'}
+			cmd: 'composer',
+			args: args,
+			opts: { stdio: 'inherit' }
 		}, this.async());
 	});
 
-	grunt.registerTask('qunit:compiled', 'Runs QUnit tests on compiled as well as uncompiled scripts.',
-		['build', 'copy:qunit', 'qunit']);
+	grunt.registerTask( 'qunit:compiled', 'Runs QUnit tests on compiled as well as uncompiled scripts.',
+		['build', 'copy:qunit', 'qunit']
+	);
 
-	grunt.registerTask('test', 'Runs all QUnit and PHPUnit tasks.', ['qunit:compiled', 'phpunit']);
+	grunt.registerTask( 'test', 'Runs all QUnit and PHPUnit tasks.', ['qunit:compiled', 'phpunit'] );
 
 	grunt.registerTask( 'format:php', 'Runs the code formatter on changed files.', function() {
 		var done = this.async();
 		var flags = this.flags;
 		var args = changedFiles.php;
+
 		args.unshift( 'format' );
+
 		grunt.util.spawn( {
 			cmd: 'composer',
 			args: args,
@@ -1565,15 +1593,9 @@ module.exports = function(grunt) {
 		var done = this.async();
 		var flags = this.flags;
 		var args = changedFiles.php;
-		if ( flags.travisErrors ) {
-			// We can check the entire codebase for coding standards errors.
-			args = [ 'lint:errors' ];
-		} else if ( flags.travisWarnings ) {
-			// We can check the tests directory for errors and warnings.
-			args = [ 'lint', 'tests' ];
-		} else {
-			args.unshift( 'lint' );
-		}
+
+		args.unshift( 'lint' );
+
 		grunt.util.spawn( {
 			cmd: 'composer',
 			args: args,
@@ -1586,11 +1608,6 @@ module.exports = function(grunt) {
 			}
 		} );
 	} );
-
-	// Travis CI tasks.
-	grunt.registerTask('travis:js', 'Runs JavaScript Travis CI tasks.', [ 'jshint:corejs', 'qunit:compiled' ]);
-	grunt.registerTask('travis:phpunit', 'Runs PHPUnit Travis CI tasks.', [ 'build', 'phpunit' ]);
-	grunt.registerTask('travis:phpcs', 'Runs PHP Coding Standards Travis CI tasks.', [ 'format:php:error', 'lint:php:travisErrors:error', 'lint:php:travisWarnings:error' ]);
 
 	// Patch task.
 	grunt.renameTask('patch_wordpress', 'patch');

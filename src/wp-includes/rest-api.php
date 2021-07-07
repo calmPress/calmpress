@@ -303,6 +303,18 @@ function create_initial_rest_routes() {
 	$controller = new WP_REST_Plugins_Controller();
 	$controller->register_routes();
 
+	// Sidebars.
+	$controller = new WP_REST_Sidebars_Controller();
+	$controller->register_routes();
+
+	// Widget Types.
+	$controller = new WP_REST_Widget_Types_Controller();
+	$controller->register_routes();
+
+	// Widgets.
+	$controller = new WP_REST_Widgets_Controller();
+	$controller->register_routes();
+
 	// Site Health.
 	$site_health = WP_Site_Health::get_instance();
 	$controller  = new WP_REST_Site_Health_Controller( $site_health );
@@ -965,7 +977,7 @@ function rest_cookie_check_errors( $result ) {
 	$result = wp_verify_nonce( $nonce, 'wp_rest' );
 
 	if ( ! $result ) {
-		return new WP_Error( 'rest_cookie_invalid_nonce', __( 'Cookie nonce is invalid' ), array( 'status' => 403 ) );
+		return new WP_Error( 'rest_cookie_invalid_nonce', __( 'Cookie check failed' ), array( 'status' => 403 ) );
 	}
 
 	// Send a refreshed nonce in header.
@@ -1879,6 +1891,12 @@ function rest_are_values_equal( $value1, $value2 ) {
 		return true;
 	}
 
+	if ( is_int( $value1 ) && is_float( $value2 )
+		|| is_float( $value1 ) && is_int( $value2 )
+	) {
+		return (float) $value1 === (float) $value2;
+	}
+
 	return $value1 === $value2;
 }
 
@@ -2237,8 +2255,8 @@ function rest_validate_object_value_from_schema( $value, $args, $param ) {
 	if ( isset( $args['minProperties'] ) && count( $value ) < $args['minProperties'] ) {
 		return new WP_Error(
 			'rest_too_few_properties',
-			/* translators: 1: Parameter, 2: Number. */
 			sprintf(
+				/* translators: 1: Parameter, 2: Number. */
 				_n(
 					'%1$s must contain at least %2$s property.',
 					'%1$s must contain at least %2$s properties.',
@@ -2253,8 +2271,8 @@ function rest_validate_object_value_from_schema( $value, $args, $param ) {
 	if ( isset( $args['maxProperties'] ) && count( $value ) > $args['maxProperties'] ) {
 		return new WP_Error(
 			'rest_too_many_properties',
-			/* translators: 1: Parameter, 2: Number. */
 			sprintf(
+				/* translators: 1: Parameter, 2: Number. */
 				_n(
 					'%1$s must contain at most %2$s property.',
 					'%1$s must contain at most %2$s properties.',
@@ -2303,8 +2321,8 @@ function rest_validate_array_value_from_schema( $value, $args, $param ) {
 	if ( isset( $args['minItems'] ) && count( $value ) < $args['minItems'] ) {
 		return new WP_Error(
 			'rest_too_few_items',
-			/* translators: 1: Parameter, 2: Number. */
 			sprintf(
+				/* translators: 1: Parameter, 2: Number. */
 				_n(
 					'%1$s must contain at least %2$s item.',
 					'%1$s must contain at least %2$s items.',
@@ -2319,8 +2337,8 @@ function rest_validate_array_value_from_schema( $value, $args, $param ) {
 	if ( isset( $args['maxItems'] ) && count( $value ) > $args['maxItems'] ) {
 		return new WP_Error(
 			'rest_too_many_items',
-			/* translators: 1: Parameter, 2: Number. */
 			sprintf(
+				/* translators: 1: Parameter, 2: Number. */
 				_n(
 					'%1$s must contain at most %2$s item.',
 					'%1$s must contain at most %2$s items.',
@@ -2409,8 +2427,8 @@ function rest_validate_number_value_from_schema( $value, $args, $param ) {
 			if ( $value >= $args['maximum'] || $value <= $args['minimum'] ) {
 				return new WP_Error(
 					'rest_out_of_bounds',
-					/* translators: 1: Parameter, 2: Minimum number, 3: Maximum number. */
 					sprintf(
+						/* translators: 1: Parameter, 2: Minimum number, 3: Maximum number. */
 						__( '%1$s must be between %2$d (exclusive) and %3$d (exclusive)' ),
 						$param,
 						$args['minimum'],
@@ -2424,8 +2442,8 @@ function rest_validate_number_value_from_schema( $value, $args, $param ) {
 			if ( $value > $args['maximum'] || $value <= $args['minimum'] ) {
 				return new WP_Error(
 					'rest_out_of_bounds',
-					/* translators: 1: Parameter, 2: Minimum number, 3: Maximum number. */
 					sprintf(
+						/* translators: 1: Parameter, 2: Minimum number, 3: Maximum number. */
 						__( '%1$s must be between %2$d (exclusive) and %3$d (inclusive)' ),
 						$param,
 						$args['minimum'],
@@ -2439,8 +2457,8 @@ function rest_validate_number_value_from_schema( $value, $args, $param ) {
 			if ( $value >= $args['maximum'] || $value < $args['minimum'] ) {
 				return new WP_Error(
 					'rest_out_of_bounds',
-					/* translators: 1: Parameter, 2: Minimum number, 3: Maximum number. */
 					sprintf(
+						/* translators: 1: Parameter, 2: Minimum number, 3: Maximum number. */
 						__( '%1$s must be between %2$d (inclusive) and %3$d (exclusive)' ),
 						$param,
 						$args['minimum'],
@@ -2454,8 +2472,8 @@ function rest_validate_number_value_from_schema( $value, $args, $param ) {
 			if ( $value > $args['maximum'] || $value < $args['minimum'] ) {
 				return new WP_Error(
 					'rest_out_of_bounds',
-					/* translators: 1: Parameter, 2: Minimum number, 3: Maximum number. */
 					sprintf(
+						/* translators: 1: Parameter, 2: Minimum number, 3: Maximum number. */
 						__( '%1$s must be between %2$d (inclusive) and %3$d (inclusive)' ),
 						$param,
 						$args['minimum'],
@@ -2492,8 +2510,8 @@ function rest_validate_string_value_from_schema( $value, $args, $param ) {
 	if ( isset( $args['minLength'] ) && mb_strlen( $value ) < $args['minLength'] ) {
 		return new WP_Error(
 			'rest_too_short',
-			/* translators: 1: Parameter, 2: Number of characters. */
 			sprintf(
+				/* translators: 1: Parameter, 2: Number of characters. */
 				_n(
 					'%1$s must be at least %2$s character long.',
 					'%1$s must be at least %2$s characters long.',
@@ -2508,8 +2526,8 @@ function rest_validate_string_value_from_schema( $value, $args, $param ) {
 	if ( isset( $args['maxLength'] ) && mb_strlen( $value ) > $args['maxLength'] ) {
 		return new WP_Error(
 			'rest_too_long',
-			/* translators: 1: Parameter, 2: Number of characters. */
 			sprintf(
+				/* translators: 1: Parameter, 2: Number of characters. */
 				_n(
 					'%1$s must be at most %2$s character long.',
 					'%1$s must be at most %2$s characters long.',

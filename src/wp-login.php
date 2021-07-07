@@ -293,8 +293,8 @@ function login_footer( $input_id = '' ) {
 			$html_link = sprintf(
 				'<a href="%s">%s</a>',
 				esc_url( home_url( '/' ) ),
-				/* translators: %s: Site title. */
 				sprintf(
+					/* translators: %s: Site title. */
 					_x( '&larr; Go to %s', 'site' ),
 					get_bloginfo( 'title', 'display' )
 				)
@@ -323,7 +323,7 @@ function login_footer( $input_id = '' ) {
 		?>
 		<script type="text/javascript">
 		try{document.getElementById('<?php echo $input_id; ?>').focus();}catch(e){}
-		if(typeof wpOnload=='function')wpOnload();
+		if(typeof wpOnload==='function')wpOnload();
 		</script>
 		<?php
 	}
@@ -475,8 +475,22 @@ do_action( 'login_init' );
  * Fires before a specified login form action.
  *
  * The dynamic portion of the hook name, `$action`, refers to the action
- * that brought the visitor to the login form. Actions include 'postpass',
- * 'logout', 'lostpassword', etc.
+ * that brought the visitor to the login form.
+ *
+ * Possible hook names include:
+ *
+ *  - 'login_form_checkemail'
+ *  - 'login_form_confirm_admin_email'
+ *  - 'login_form_confirmaction'
+ *  - 'login_form_entered_recovery_mode'
+ *  - 'login_form_login'
+ *  - 'login_form_logout'
+ *  - 'login_form_lostpassword'
+ *  - 'login_form_postpass'
+ *  - 'login_form_register'
+ *  - 'login_form_resetpass'
+ *  - 'login_form_retrievepassword'
+ *  - 'login_form_rp'
  *
  * @since 2.8.0
  */
@@ -546,9 +560,9 @@ switch ( $action ) {
 
 		if ( isset( $_GET['error'] ) ) {
 			if ( 'invalidkey' === $_GET['error'] ) {
-				$errors->add( 'invalidkey', __( 'Your password reset link appears to be invalid. Please request a new link below.' ) );
+				$errors->add( 'invalidkey', __( '<strong>Error</strong>: Your password reset link appears to be invalid. Please request a new link below.' ) );
 			} elseif ( 'expiredkey' === $_GET['error'] ) {
-				$errors->add( 'expiredkey', __( 'Your password reset link has expired. Please request a new link below.' ) );
+				$errors->add( 'expiredkey', __( '<strong>Error</strong>: Your password reset link has expired. Please request a new link below.' ) );
 			}
 		}
 
@@ -629,7 +643,7 @@ switch ( $action ) {
 		list( $rp_path ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		$rp_cookie       = 'wp-resetpass-' . COOKIEHASH;
 
-		if ( isset( $_GET['key'] ) ) {
+		if ( isset( $_GET['key'] ) && isset( $_GET['login'] ) ) {
 			$value = sprintf( '%s:%s', wp_unslash( $_GET['login'] ), wp_unslash( $_GET['key'] ) );
 			setcookie( $rp_cookie, $value, 0, $rp_path, COOKIE_DOMAIN, is_ssl(), true );
 
@@ -664,7 +678,7 @@ switch ( $action ) {
 		$errors = new WP_Error();
 
 		if ( isset( $_POST['pass1'] ) && $_POST['pass1'] !== $_POST['pass2'] ) {
-			$errors->add( 'password_reset_mismatch', __( 'The passwords do not match.' ) );
+			$errors->add( 'password_reset_mismatch', __( '<strong>Error</strong>: The passwords do not match.' ) );
 		}
 
 		/**

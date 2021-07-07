@@ -29,13 +29,11 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 	}
 
 	public function tearDown() {
-		parent::tearDown();
-
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
 		$wp_rest_server = null;
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_embed_request' ), 10, 3 );
+		parent::tearDown();
 	}
 
 	public function mock_embed_request( $preempt, $r, $url ) {
@@ -102,10 +100,11 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			'/wp/v2/pages/(?P<parent>[\\d]+)/revisions/(?P<id>[\\d]+)',
 			'/wp/v2/pages/(?P<id>[\\d]+)/autosaves',
 			'/wp/v2/pages/(?P<parent>[\\d]+)/autosaves/(?P<id>[\\d]+)',
+			'/wp/v2/pattern-directory/patterns',
 			'/wp/v2/media',
 			'/wp/v2/media/(?P<id>[\\d]+)',
 			'/wp/v2/media/(?P<id>[\\d]+)/post-process',
-			'/wp/v2/media/(?P<id>[\d]+)/edit',
+			'/wp/v2/media/(?P<id>[\\d]+)/edit',
 			'/wp/v2/types',
 			'/wp/v2/types/(?P<type>[\\w-]+)',
 			'/wp/v2/statuses',
@@ -128,10 +127,23 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			'/wp/v2/comments/(?P<id>[\\d]+)',
 			'/wp/v2/search',
 			'/wp/v2/settings',
+			'/wp/v2/templates',
+			'/wp/v2/templates/(?P<id>[\/\w-]+)',
+			'/wp/v2/templates/(?P<id>[\d]+)/autosaves',
+			'/wp/v2/templates/(?P<parent>[\d]+)/autosaves/(?P<id>[\d]+)',
+			'/wp/v2/templates/(?P<parent>[\d]+)/revisions',
+			'/wp/v2/templates/(?P<parent>[\d]+)/revisions/(?P<id>[\d]+)',
 			'/wp/v2/themes',
 			'/wp/v2/themes/(?P<stylesheet>[\w-]+)',
 			'/wp/v2/plugins',
 			'/wp/v2/plugins/(?P<plugin>[^.\/]+(?:\/[^.\/]+)?)',
+			'/wp/v2/sidebars',
+			'/wp/v2/sidebars/(?P<id>[\w-]+)',
+			'/wp/v2/widget-types',
+			'/wp/v2/widget-types/(?P<id>[a-zA-Z0-9_-]+)',
+			'/wp/v2/widget-types/(?P<id>[a-zA-Z0-9_-]+)/encode',
+			'/wp/v2/widgets',
+			'/wp/v2/widgets/(?P<id>[\w\-]+)',
 			'/wp-site-health/v1',
 			'/wp-site-health/v1/tests/background-updates',
 			'/wp-site-health/v1/tests/loopback-requests',

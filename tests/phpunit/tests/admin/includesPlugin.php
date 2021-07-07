@@ -97,6 +97,8 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 
 		// Clean up the temporary user.
 		wp_delete_user( $admin_user );
+		// Reset current screen.
+		set_current_screen( 'front' );
 
 		// Verify the menu was inserted at the expected position.
 		$this->assertSame( 'custom-position', $submenu[ $parent ][ $expected_position ][2] );
@@ -205,6 +207,8 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 
 		// Clean up the temporary user.
 		wp_delete_user( $admin_user );
+		// Reset current screen.
+		set_current_screen( 'front' );
 
 		foreach ( $actual_positions as $test => $actual_position ) {
 			// Verify the menu was inserted at the expected position.
@@ -288,6 +292,8 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		// Clean up the temporary user.
 		wp_set_current_user( $current_user );
 		wp_delete_user( $admin_user );
+		// Reset current screen.
+		set_current_screen( 'front' );
 
 		// Verify the menu was inserted at the expected position.
 		$this->assertSame( 'main_slug', $submenu['main_slug'][0][2] );
@@ -319,6 +325,8 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		// Clean up the temporary user.
 		wp_set_current_user( $current_user );
 		wp_delete_user( $admin_user );
+		// Reset current screen.
+		set_current_screen( 'front' );
 
 		// Verify the menu was inserted at the expected position.
 		$this->assertSame( 'submenu_page_1', $submenu['main_slug'][1][2] );

@@ -483,9 +483,6 @@ function populate_options( array $options = array() ) {
 		// 4.9.8
 		'show_comments_cookies_opt_in'    => 1,
 
-		// 5.3.0
-		'admin_email_lifespan'            => ( time() + 6 * MONTH_IN_SECONDS ),
-
 		// 5.5.0
 		'disallowed_keys'                 => '',
 		'comment_previously_approved'     => 1,
@@ -493,6 +490,16 @@ function populate_options( array $options = array() ) {
 
 		// calmPress 0.9.9.
 		'calmpress_db_version'            => calmpress_version(),
+		// 5.6.0
+		'auto_update_core_dev'            => 'enabled',
+		'auto_update_core_minor'          => 'enabled',
+		// Default to enabled for new installs.
+		// See https://core.trac.wordpress.org/ticket/51742.
+		'auto_update_core_major'          => 'enabled',
+
+		// 5.8.0
+		'wp_force_deactivated_plugins'    => array(),
+	);
 
 		// calmPress 1.0.0
 		'calm_embedding_on'               => 0,
@@ -1096,6 +1103,7 @@ We hope you enjoy your new site. Thanks!
 		'jpeg',
 		'png',
 		'gif',
+		'webp',
 		// Video.
 		'mov',
 		'avi',

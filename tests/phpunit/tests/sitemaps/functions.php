@@ -89,11 +89,11 @@ class Test_Sitemaps_Functions extends WP_UnitTestCase {
 			array( 'posts', 'post', 0, home_url( '/wp-sitemap-posts-post-1.xml' ) ),
 			array( 'posts', 'page', 1, home_url( '/wp-sitemap-posts-page-1.xml' ) ),
 			array( 'posts', 'page', 5, home_url( '/wp-sitemap-posts-page-5.xml' ) ),
-			// post_type doesn't exist.
+			// Post type doesn't exist.
 			array( 'posts', 'foo', 5, false ),
 			array( 'taxonomies', 'category', 1, home_url( '/wp-sitemap-taxonomies-category-1.xml' ) ),
 			array( 'taxonomies', 'post_tag', 1, home_url( '/wp-sitemap-taxonomies-post_tag-1.xml' ) ),
-			// negative paged, gets converted to it's absolute value.
+			// Negative paged, gets converted to its absolute value.
 			array( 'taxonomies', 'post_tag', -1, home_url( '/wp-sitemap-taxonomies-post_tag-1.xml' ) ),
 			// provider doesn't exist.
 			array( 'foo', '', 4, false ),

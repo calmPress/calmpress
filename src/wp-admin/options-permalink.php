@@ -340,7 +340,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 		if ( isset( $_POST['submit'] ) && $permalink_structure && ! $using_index_permalinks && ! $writable ) :
 			if ( file_exists( $home_path . 'web.config' ) ) :
 				?>
-<p>
+<p id="iis-description-a">
 				<?php
 				printf(
 					/* translators: 1: web.config, 2: Documentation URL, 3: CTRL + a, 4: Element code. */
@@ -354,7 +354,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 </p>
 <form action="options-permalink.php" method="post">
 				<?php wp_nonce_field( 'update-permalink' ); ?>
-	<p><textarea rows="9" class="large-text readonly" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( $wp_rewrite->iis7_url_rewrite_rules() ); ?></textarea></p>
+	<p><label for="rules"><?php _e( 'Rewrite rules:' ); ?></label><br /><textarea rows="9" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="iis-description-a"><?php echo esc_textarea( $wp_rewrite->iis7_url_rewrite_rules() ); ?></textarea></p>
 </form>
 <p>
 				<?php
@@ -366,7 +366,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 				?>
 </p>
 		<?php else : ?>
-<p>
+<p id="iis-description-b">
 			<?php
 			printf(
 				/* translators: 1: Documentation URL, 2: web.config, 3: CTRL + a */
@@ -379,7 +379,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 </p>
 <form action="options-permalink.php" method="post">
 			<?php wp_nonce_field( 'update-permalink' ); ?>
-	<p><textarea rows="18" class="large-text readonly" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( $wp_rewrite->iis7_url_rewrite_rules( true ) ); ?></textarea></p>
+	<p><label for="rules"><?php _e( 'Rewrite rules:' ); ?></label><br /><textarea rows="18" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="iis-description-b"><?php echo esc_textarea( $wp_rewrite->iis7_url_rewrite_rules( true ) ); ?></textarea></p>
 </form>
 <p>
 			<?php
@@ -396,7 +396,7 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 else :
 	if ( ! $writable && $htaccess_update_required ) :
 		?>
-<p>
+<p id="htaccess-description">
 		<?php
 		printf(
 			/* translators: 1: .htaccess, 2: .htaccess section indicator */
@@ -408,7 +408,7 @@ else :
 </p>
 <form action="options-permalink.php" method="post">
 		<?php wp_nonce_field( 'update-permalink' ); ?>
-	<p><textarea rows="6" class="large-text readonly" onclick="this.focus();this.select()" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>
+	<p><label for="rules"><?php _e( 'Rewrite rules:' ); ?></label><br /><textarea rows="8" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="htaccess-description"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>
 </form>
 	<?php endif; ?>
 <?php endif; ?>
