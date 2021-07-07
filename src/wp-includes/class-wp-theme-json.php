@@ -375,44 +375,13 @@ class WP_Theme_JSON {
 	 *     }
 	 *
 	 * @since 5.8.0
+	 * @since calmPress 1.0.0 return an empty array.
 	 *
 	 * @return array Block metadata.
 	 */
 	private static function get_blocks_metadata() {
-		if ( null !== self::$blocks_metadata ) {
-			return self::$blocks_metadata;
-		}
 
-		self::$blocks_metadata = array();
-
-		$registry = WP_Block_Type_Registry::get_instance();
-		$blocks   = $registry->get_all_registered();
-		foreach ( $blocks as $block_name => $block_type ) {
-			if (
-				isset( $block_type->supports['__experimentalSelector'] ) &&
-				is_string( $block_type->supports['__experimentalSelector'] )
-			) {
-				self::$blocks_metadata[ $block_name ]['selector'] = $block_type->supports['__experimentalSelector'];
-			} else {
-				self::$blocks_metadata[ $block_name ]['selector'] = '.wp-block-' . str_replace( '/', '-', str_replace( 'core/', '', $block_name ) );
-			}
-
-			/*
-			 * Assign defaults, then overwrite those that the block sets by itself.
-			 * If the block selector is compounded, will append the element to each
-			 * individual block selector.
-			 */
-			$block_selectors = explode( ',', self::$blocks_metadata[ $block_name ]['selector'] );
-			foreach ( self::ELEMENTS as $el_name => $el_selector ) {
-				$element_selector = array();
-				foreach ( $block_selectors as $selector ) {
-					$element_selector[] = $selector . ' ' . $el_selector;
-				}
-				self::$blocks_metadata[ $block_name ]['elements'][ $el_name ] = implode( ',', $element_selector );
-			}
-		}
-
-		return self::$blocks_metadata;
+		return [];
 	}
 
 	/**
