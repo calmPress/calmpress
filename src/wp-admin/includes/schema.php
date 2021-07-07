@@ -499,7 +499,6 @@ function populate_options( array $options = array() ) {
 
 		// 5.8.0
 		'wp_force_deactivated_plugins'    => array(),
-	);
 
 		// calmPress 1.0.0
 		'calm_embedding_on'               => 0,

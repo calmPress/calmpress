@@ -704,23 +704,6 @@ class Tests_Admin_Includes_Post extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 43559
-	 */
-	public function test_post_add_meta_empty_is_allowed() {
-		$p = self::factory()->post->create();
-
-		$_POST = array(
-			'metakeyinput' => 'testkey',
-			'metavalue'    => '',
-		);
-
-		wp_set_current_user( self::$admin_id );
-
-		$this->assertNotFalse( add_meta( $p ) );
-		$this->assertSame( '', get_post_meta( $p, 'testkey', true ) );
-	}
-
-	/**
 	 * Test the post type support in post_exists().
 	 *
 	 * @ticket 37406

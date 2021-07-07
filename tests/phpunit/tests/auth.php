@@ -93,7 +93,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		foreach ( $passwords_to_test as $password_to_test ) {
 			wp_set_password( $password_to_test, $this->user->ID );
-			$authed_user = wp_authenticate( $this->user->user_login, $password_to_test );
+			$authed_user = wp_authenticate( $this->user->user_email, $password_to_test );
 
 			$this->assertInstanceOf( 'WP_User', $authed_user );
 			$this->assertSame( $this->user->ID, $authed_user->ID );
@@ -363,7 +363,6 @@ class Tests_Auth extends WP_UnitTestCase {
 		$this->factory->user->create( $user_args );
 
 		$this->assertInstanceOf( 'WP_User', wp_authenticate( $user_args['user_email'], $user_args['user_pass'] ) );
-		$this->assertInstanceOf( 'WP_User', wp_authenticate( $user_args['user_login'], $user_args['user_pass'] ) );
 	}
 
 	/**

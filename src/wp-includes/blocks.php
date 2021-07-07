@@ -8,40 +8,6 @@
  */
 
 /**
- * Registers a block type.
- *
- * Does nothing for calmPress.
- *
- * @since 5.0.0
- *
- * @param string|WP_Block_Type $name Block type name including namespace, or alternatively
- *                                   a complete WP_Block_Type instance. In case a WP_Block_Type
- *                                   is provided, the $args parameter will be ignored.
- * @param array                $args Optional. Array of block type arguments. Accepts any public property
- *                                   of `WP_Block_Type`. See WP_Block_Type::__construct() for information
- *                                   on accepted arguments. Default empty array.
- * @return WP_Block_Type|false The registered block type on success, or false on failure.
- */
-function register_block_type( $name, $args = array() ) {
-	return false;
-}
-
-/**
- * Unregisters a block type.
- *
- * Does nothing for calmPress.
- *
- * @since 5.0.0
- *
- * @param string|WP_Block_Type $name Block type name including namespace, or alternatively
- *                                   a complete WP_Block_Type instance.
- * @return WP_Block_Type|false The unregistered block type on success, or false on failure.
- */
-function unregister_block_type( $name ) {
-	false;
-}
-
-/**
  * Removes the block asset's path prefix if provided.
  *
  * @since 5.5.0
@@ -216,6 +182,7 @@ function register_block_style_handle( $metadata, $field_name ) {
  * Registers a block type from the metadata stored in the `block.json` file.
  *
  * @since 5.5.0
+ * @since calmPress 1.0.0 Does nothing, returns false.
  *
  * @param string $file_or_folder Path to the JSON file with metadata definition for
  *                               the block or path to the folder where the `block.json` file is located.
@@ -225,154 +192,7 @@ function register_block_style_handle( $metadata, $field_name ) {
  * @return WP_Block_Type|false The registered block type on success, or false on failure.
  */
 function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
-	$filename      = 'block.json';
-	$metadata_file = ( substr( $file_or_folder, -strlen( $filename ) ) !== $filename ) ?
-		trailingslashit( $file_or_folder ) . $filename :
-		$file_or_folder;
-	if ( ! file_exists( $metadata_file ) ) {
-		return false;
-	}
-
-	$metadata = json_decode( file_get_contents( $metadata_file ), true );
-	if ( ! is_array( $metadata ) || empty( $metadata['name'] ) ) {
-		return false;
-	}
-	$metadata['file'] = $metadata_file;
-
-	/**
-	 * Filters the metadata provided for registering a block type.
-	 *
-	 * @since 5.7.0
-	 *
-	 * @param array $metadata Metadata for registering a block type.
-	 */
-	$metadata = apply_filters( 'block_type_metadata', $metadata );
-
-	// Add `style` and `editor_style` for core blocks if missing.
-	if ( ! empty( $metadata['name'] ) && 0 === strpos( $metadata['name'], 'core/' ) ) {
-		$block_name = str_replace( 'core/', '', $metadata['name'] );
-
-		if ( ! isset( $metadata['style'] ) ) {
-			$metadata['style'] = "wp-block-$block_name";
-		}
-		if ( ! isset( $metadata['editorStyle'] ) ) {
-			$metadata['editorStyle'] = "wp-block-{$block_name}-editor";
-		}
-	}
-
-	$settings          = array();
-	$property_mappings = array(
-		'title'           => 'title',
-		'category'        => 'category',
-		'parent'          => 'parent',
-		'icon'            => 'icon',
-		'description'     => 'description',
-		'keywords'        => 'keywords',
-		'attributes'      => 'attributes',
-		'providesContext' => 'provides_context',
-		'usesContext'     => 'uses_context',
-		'supports'        => 'supports',
-		'styles'          => 'styles',
-		'example'         => 'example',
-		'apiVersion'      => 'api_version',
-	);
-
-	foreach ( $property_mappings as $key => $mapped_key ) {
-		if ( isset( $metadata[ $key ] ) ) {
-			$value = $metadata[ $key ];
-			if ( empty( $metadata['textdomain'] ) ) {
-				$settings[ $mapped_key ] = $value;
-				continue;
-			}
-			$textdomain = $metadata['textdomain'];
-			switch ( $key ) {
-				case 'title':
-				case 'description':
-					// phpcs:ignore WordPress.WP.I18n.LowLevelTranslationFunction,WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.WP.I18n.NonSingularStringLiteralContext,WordPress.WP.I18n.NonSingularStringLiteralDomain
-					$settings[ $mapped_key ] = translate_with_gettext_context( $value, sprintf( 'block %s', $key ), $textdomain );
-					break;
-				case 'keywords':
-					$settings[ $mapped_key ] = array();
-					if ( ! is_array( $value ) ) {
-						continue 2;
-					}
-
-					foreach ( $value as $keyword ) {
-						// phpcs:ignore WordPress.WP.I18n.LowLevelTranslationFunction,WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.WP.I18n.NonSingularStringLiteralDomain
-						$settings[ $mapped_key ][] = translate_with_gettext_context( $keyword, 'block keyword', $textdomain );
-					}
-
-					break;
-				case 'styles':
-					$settings[ $mapped_key ] = array();
-					if ( ! is_array( $value ) ) {
-						continue 2;
-					}
-
-					foreach ( $value as $style ) {
-						if ( ! empty( $style['label'] ) ) {
-							// phpcs:ignore WordPress.WP.I18n.LowLevelTranslationFunction,WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.WP.I18n.NonSingularStringLiteralDomain
-							$style['label'] = translate_with_gettext_context( $style['label'], 'block style label', $textdomain );
-						}
-						$settings[ $mapped_key ][] = $style;
-					}
-
-					break;
-				default:
-					$settings[ $mapped_key ] = $value;
-			}
-		}
-	}
-
-	if ( ! empty( $metadata['editorScript'] ) ) {
-		$settings['editor_script'] = register_block_script_handle(
-			$metadata,
-			'editorScript'
-		);
-	}
-
-	if ( ! empty( $metadata['script'] ) ) {
-		$settings['script'] = register_block_script_handle(
-			$metadata,
-			'script'
-		);
-	}
-
-	if ( ! empty( $metadata['editorStyle'] ) ) {
-		$settings['editor_style'] = register_block_style_handle(
-			$metadata,
-			'editorStyle'
-		);
-	}
-
-	if ( ! empty( $metadata['style'] ) ) {
-		$settings['style'] = register_block_style_handle(
-			$metadata,
-			'style'
-		);
-	}
-
-	/**
-	 * Filters the settings determined from the block type metadata.
-	 *
-	 * @since 5.7.0
-	 *
-	 * @param array $settings Array of determined settings for registering a block type.
-	 * @param array $metadata Metadata provided for registering a block type.
-	 */
-	$settings = apply_filters(
-		'block_type_metadata_settings',
-		array_merge(
-			$settings,
-			$args
-		),
-		$metadata
-	);
-
-	return WP_Block_Type_Registry::get_instance()->register(
-		$metadata['name'],
-		$settings
-	);
+	return false;
 }
 
 /**
@@ -381,6 +201,8 @@ function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
  *
  * @since 5.0.0
  * @since 5.8.0 First param accepts a path to the `block.json` file.
+ * 
+ * @sinc3 calmPress 1.0.0 Does nothing.
  *
  * @param string|WP_Block_Type $block_type Block type name including namespace, or alternatively
  *                                         a path to the JSON file with metadata definition for the block,
@@ -394,24 +216,19 @@ function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
  * @return WP_Block_Type|false The registered block type on success, or false on failure.
  */
 function register_block_type( $block_type, $args = array() ) {
-	if ( is_string( $block_type ) && file_exists( $block_type ) ) {
-		return register_block_type_from_metadata( $block_type, $args );
-	}
-
-	return WP_Block_Type_Registry::get_instance()->register( $block_type, $args );
 }
 
 /**
  * Unregisters a block type.
  *
  * @since 5.0.0
+ * @since calmPress 1.0.0 Does nothing.
  *
  * @param string|WP_Block_Type $name Block type name including namespace, or alternatively
  *                                   a complete WP_Block_Type instance.
  * @return WP_Block_Type|false The unregistered block type on success, or false on failure.
  */
 function unregister_block_type( $name ) {
-	return WP_Block_Type_Registry::get_instance()->unregister( $name );
 }
 
 /**
@@ -721,49 +538,12 @@ function block_has_support( $block_type, $feature, $default = false ) {
  * Displays a `_doing_it_wrong()` notice when a block using the older format is detected.
  *
  * @since 5.8.0
+ * @since calmPress 1.0.0 Does nothing, return the metadata as is
  *
  * @param array $metadata Metadata for registering a block type.
  * @return array Filtered metadata for registering a block type.
  */
 function wp_migrate_old_typography_shape( $metadata ) {
-	if ( ! isset( $metadata['supports'] ) ) {
-		return $metadata;
-	}
-
-	$typography_keys = array(
-		'__experimentalFontFamily',
-		'__experimentalFontStyle',
-		'__experimentalFontWeight',
-		'__experimentalLetterSpacing',
-		'__experimentalTextDecoration',
-		'__experimentalTextTransform',
-		'fontSize',
-		'lineHeight',
-	);
-
-	foreach ( $typography_keys as $typography_key ) {
-		$support_for_key = _wp_array_get( $metadata['supports'], array( $typography_key ), null );
-
-		if ( null !== $support_for_key ) {
-			_doing_it_wrong(
-				'register_block_type_from_metadata()',
-				sprintf(
-					/* translators: 1: Block type, 2: Typography supports key, e.g: fontSize, lineHeight, etc. 3: block.json, 4: Old metadata key, 5: New metadata key. */
-					__( 'Block "%1$s" is declaring %2$s support in %3$s file under %4$s. %2$s support is now declared under %5$s.' ),
-					$metadata['name'],
-					"<code>$typography_key</code>",
-					'<code>block.json</code>',
-					"<code>supports.$typography_key</code>",
-					"<code>supports.typography.$typography_key</code>"
-				),
-				'5.8.0'
-			);
-
-			_wp_array_set( $metadata['supports'], array( 'typography', $typography_key ), $support_for_key );
-			unset( $metadata['supports'][ $typography_key ] );
-		}
-	}
-
 	return $metadata;
 }
 
