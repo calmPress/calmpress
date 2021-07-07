@@ -217,6 +217,7 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 	 * @ticket 41683
 	 */
 	public function test_context_param() {
+		$this->markTestSkipped('has no meaning in this context.');
 	}
 
 	/**
@@ -1438,6 +1439,7 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 	 * The test_prepare_item() method does not exist for sidebar.
 	 */
 	public function test_prepare_item() {
+		$this->markTestSkipped('has no meaning in this context.');
 	}
 
 	/**

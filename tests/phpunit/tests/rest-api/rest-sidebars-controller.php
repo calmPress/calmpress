@@ -378,6 +378,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 	 * The test_create_item() method does not exist for sidebar.
 	 */
 	public function test_create_item() {
+		$this->markTestSkipped('has no meaning in this context.');
 	}
 
 	/**
@@ -647,12 +648,14 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 	 * The test_delete_item() method does not exist for sidebar.
 	 */
 	public function test_delete_item() {
+		$this->markTestSkipped('has no meaning in this context.');
 	}
 
 	/**
 	 * The test_prepare_item() method does not exist for sidebar.
 	 */
 	public function test_prepare_item() {
+		$this->markTestSkipped('has no meaning in this context.');
 	}
 
 	/**

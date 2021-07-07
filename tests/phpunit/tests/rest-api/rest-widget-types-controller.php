@@ -517,15 +517,21 @@ class WP_Test_REST_Widget_Types_Controller extends WP_Test_REST_Controller_Testc
 	/**
 	 * The test_create_item() method does not exist for widget types.
 	 */
-	public function test_create_item() {}
+	public function test_create_item() {
+		$this->markTestSkipped('has no meaning in this context.');
+	}
 
 	/**
 	 * The test_update_item() method does not exist for widget types.
 	 */
-	public function test_update_item() {}
+	public function test_update_item() {
+		$this->markTestSkipped('has no meaning in this context.');
+	}
 
 	/**
 	 * The test_delete_item() method does not exist for widget types.
 	 */
-	public function test_delete_item() {}
+	public function test_delete_item() {
+		$this->markTestSkipped('has no meaning in this context.');
+	}
 }
