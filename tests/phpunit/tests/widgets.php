@@ -585,7 +585,7 @@ class Tests_Widgets extends WP_UnitTestCase {
 	function test_wp_widget__register() {
 		global $wp_registered_widgets;
 
-		$settings = get_option( 'widget_block' );
+		$settings = get_option( 'widget_recent-posts' );
 		unset( $settings['_multiwidget'] );
 		$this->assertArrayHasKey( 2, $settings );
 
@@ -594,7 +594,7 @@ class Tests_Widgets extends WP_UnitTestCase {
 
 		// Note: We cannot use array_keys() here because $settings could be an ArrayIterator.
 		foreach ( $settings as $widget_number => $instance ) {
-			$widget_id = "block-$widget_number";
+			$widget_id = "recent-posts-$widget_number";
 			$this->assertArrayHasKey( $widget_id, $wp_registered_widgets );
 		}
 	}
@@ -630,13 +630,13 @@ class Tests_Widgets extends WP_UnitTestCase {
 	function test_wp_widget_get_settings() {
 		global $wp_registered_widgets;
 
-		$option_value = get_option( 'widget_block' );
+		$option_value = get_option( 'widget_recent-posts' );
 		$this->assertArrayHasKey( '_multiwidget', $option_value );
 		$this->assertSame( 1, $option_value['_multiwidget'] );
 		$this->assertArrayHasKey( 2, $option_value );
 		$instance = $option_value[2];
 		$this->assertInternalType( 'array', $instance );
-		$this->assertArrayHasKey( 'content', $instance );
+		$this->assertArrayHasKey( 'number', $instance );
 		unset( $option_value['_multiwidget'] );
 
 		// Pretend this widget is new.
@@ -645,9 +645,9 @@ class Tests_Widgets extends WP_UnitTestCase {
 		$this->assertSame( array(), (array) $never_used );
 
 		wp_widgets_init();
-		$wp_widget_block = $wp_registered_widgets['block-2']['callback'][0];
+		$wp_widget = $wp_registered_widgets['recent-posts-2']['callback'][0];
 
-		$settings = $wp_widget_block->get_settings();
+		$settings = $wp_widget->get_settings();
 		// @todo $this->assertArrayNotHasKey( '_multiwidget', $settings ); ?
 		$this->assertArrayHasKey( 2, $settings );
 
@@ -668,10 +668,10 @@ class Tests_Widgets extends WP_UnitTestCase {
 		global $wp_registered_widgets;
 
 		wp_widgets_init();
-		$wp_widget_block = $wp_registered_widgets['block-2']['callback'][0];
+		$wp_widget = $wp_registered_widgets['recent-posts-2']['callback'][0];
 
-		$settings           = $wp_widget_block->get_settings();
-		$overridden_content = 'Unit Tested';
+		$settings           = $wp_widget->get_settings();
+		$overridden_content = 10;
 
 		/*
 		 * Note that if a plugin is filtering $settings to be an ArrayIterator,
@@ -682,14 +682,14 @@ class Tests_Widgets extends WP_UnitTestCase {
 		 * So this is why the value must be obtained.
 		 */
 		$instance            = $settings[2];
-		$instance['content'] = $overridden_content;
+		$instance['number']  = $overridden_content;
 		$settings[2]         = $instance;
 
-		$wp_widget_block->save_settings( $settings );
+		$wp_widget->save_settings( $settings );
 
-		$option_value = get_option( $wp_widget_block->option_name );
+		$option_value = get_option( $wp_widget->option_name );
 		$this->assertArrayHasKey( '_multiwidget', $option_value );
-		$this->assertSame( $overridden_content, $option_value[2]['content'] );
+		$this->assertSame( $overridden_content, $option_value[2]['number'] );
 	}
 
 	/**
@@ -699,13 +699,13 @@ class Tests_Widgets extends WP_UnitTestCase {
 		global $wp_registered_widgets;
 
 		wp_widgets_init();
-		$wp_widget_block = $wp_registered_widgets['block-2']['callback'][0];
+		$wp_widget = $wp_registered_widgets['recent-posts-2']['callback'][0];
 
-		$settings = $wp_widget_block->get_settings();
+		$settings = $wp_widget->get_settings();
 		$this->assertArrayHasKey( 2, $settings );
 		unset( $settings[2] );
-		$wp_widget_block->save_settings( $settings );
-		$option_value = get_option( $wp_widget_block->option_name );
+		$wp_widget->save_settings( $settings );
+		$option_value = get_option( $wp_widget->option_name );
 		$this->assertArrayNotHasKey( 2, $option_value );
 	}
 
@@ -870,10 +870,8 @@ class Tests_Widgets extends WP_UnitTestCase {
 		// Unregistered widget should be filtered out.
 		$this->assertNotContains( 'unregistered_widget-1', $sidebars_widgets['sidebar-3'] );
 
-		// 3 default widgets - 1 active text widget + 1 orphaned widget = 6.
-		$this->assertCount( 3, $sidebars_widgets['wp_inactive_widgets'] );
+		$this->assertCount( 2, $sidebars_widgets['wp_inactive_widgets'] );
 
-		$this->assertContains( 'search-2', $sidebars_widgets['wp_inactive_widgets'] );
 		$this->assertContains( 'recent-posts-2', $sidebars_widgets['wp_inactive_widgets'] );
 		$this->assertContains( 'recent-comments-2', $sidebars_widgets['wp_inactive_widgets'] );
 
