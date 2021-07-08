@@ -111,6 +111,26 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 	}
 
 	/**
+	 * Remove the inactive sidebar from the data.
+	 * 
+	 * @since calmPress 1.0.0
+	 * 
+	 * @param array $data the data returned from the API (array of sidebar info arrays).
+	 * 
+	 * @return array The $data without the inactive sidebar if exists.
+	 */
+	function remove_inactive( $data ) : array {
+		$ret = [];
+		foreach ( $data as $sidebar ) {
+			if ( 'wp_inactive_widgets' !== $sidebar['id'] ) {
+				$ret[] = $sidebar;
+			} 
+		}
+
+		return $ret;
+
+	}
+	/**
 	 * @ticket 41683
 	 */
 	public function test_register_routes() {
@@ -185,6 +205,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$data     = $this->remove_links( $data );
+		$data     = $this->remove_inactive( $data );
 		$this->assertSame(
 			array(
 				array(
@@ -211,10 +232,10 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 		wp_widgets_init();
 
 		$this->setup_widget(
-			'widget_rss',
+			'widget_recent-posts',
 			1,
 			array(
-				'title' => 'RSS test',
+				'title' => 'recent posts test',
 			)
 		);
 		$this->setup_widget(
@@ -229,7 +250,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 			array(
 				'name' => 'Test sidebar',
 			),
-			array( 'text-1', 'rss-1' )
+			array( 'text-1', 'recent-posts-1' )
 		);
 
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/sidebars' );
@@ -250,7 +271,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 					'status'        => 'active',
 					'widgets'       => array(
 						'text-1',
-						'rss-1',
+						'recent-posts-1',
 					),
 				),
 			),
@@ -277,6 +298,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$data     = $this->remove_links( $data );
+
 		$this->assertSame(
 			array(
 				array(
@@ -289,7 +311,10 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 					'before_title'  => '',
 					'after_title'   => '',
 					'status'        => 'inactive',
-					'widgets'       => array(),
+					'widgets'       => [
+						0 => 'recent-posts-2',
++            			1 => 'recent-comments-2'
+					],
 				),
 				array(
 					'id'            => 'new-sidebar',
@@ -301,7 +326,9 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 					'before_title'  => '',
 					'after_title'   => '',
 					'status'        => 'active',
-					'widgets'       => array(),
+					'widgets'       => [
+						0 => 'text-1',
+					],
 				),
 			),
 			$data
@@ -334,7 +361,9 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 				'before_title'  => '',
 				'after_title'   => '',
 				'status'        => 'active',
-				'widgets'       => array(),
+				'widgets'       => [
+					0 => 'text-1',
+				],
 			),
 			$data
 		);
@@ -388,10 +417,10 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 		wp_widgets_init();
 
 		$this->setup_widget(
-			'widget_rss',
+			'widget_recent-posts',
 			1,
 			array(
-				'title' => 'RSS test',
+				'title' => 'recebt posts test',
 			)
 		);
 		$this->setup_widget(
@@ -413,7 +442,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 			array(
 				'name' => 'Test sidebar',
 			),
-			array( 'text-1', 'rss-1' )
+			array( 'text-1', 'recent-posst-1' )
 		);
 
 		$request = new WP_REST_Request( 'PUT', '/wp/v2/sidebars/sidebar-1' );
@@ -542,10 +571,10 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 		wp_widgets_init();
 
 		$this->setup_widget(
-			'widget_rss',
+			'widget_recent-posts',
 			1,
 			array(
-				'title' => 'RSS test',
+				'title' => 'recent posts test',
 			)
 		);
 		$this->setup_widget(
@@ -567,7 +596,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 			array_merge(
 				get_option( 'sidebars_widgets' ),
 				array(
-					'wp_inactive_widgets' => array( 'rss-1', 'rss' ),
+					'wp_inactive_widgets' => array( 'recent-posts-1', 'recent-posts' ),
 				)
 			)
 		);
@@ -604,7 +633,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 					'after_title'   => '',
 					'status'        => 'inactive',
 					'widgets'       => array(
-						'rss-1',
+						'recent-posts-1',
 					),
 				),
 			),
