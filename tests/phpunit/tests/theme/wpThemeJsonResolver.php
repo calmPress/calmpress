@@ -94,60 +94,6 @@ class Tests_Theme_wpThemeJsonResolver extends WP_UnitTestCase {
 	/**
 	 * @ticket 52991
 	 */
-	public function test_translations_are_applied() {
-		add_filter( 'locale', array( $this, 'filter_set_locale_to_polish' ) );
-		load_textdomain( 'fse', realpath( DIR_TESTDATA . '/languages/themes/fse-pl_PL.mo' ) );
-
-		switch_theme( 'fse' );
-
-		$actual = WP_Theme_JSON_Resolver::get_theme_data();
-
-		unload_textdomain( 'fse' );
-		remove_filter( 'locale', array( $this, 'filter_set_locale_to_polish' ) );
-
-		$this->assertSame( wp_get_theme()->get( 'TextDomain' ), 'fse' );
-		$this->assertSame(
-			array(
-				'color'  => array(
-					'palette' => array(
-						'theme' => array(
-							array(
-								'slug'  => 'light',
-								'name'  => 'Jasny',
-								'color' => '#f5f7f9',
-							),
-							array(
-								'slug'  => 'dark',
-								'name'  => 'Ciemny',
-								'color' => '#000',
-							),
-						),
-					),
-					'custom'  => false,
-				),
-				'blocks' => array(
-					'core/paragraph' => array(
-						'color' => array(
-							'palette' => array(
-								'theme' => array(
-									array(
-										'slug'  => 'light',
-										'name'  => 'Jasny',
-										'color' => '#f5f7f9',
-									),
-								),
-							),
-						),
-					),
-				),
-			),
-			$actual->get_settings()
-		);
-	}
-
-	/**
-	 * @ticket 52991
-	 */
 	public function test_switching_themes_recalculates_data() {
 		// By default, the theme for unit tests is "default",
 		// which doesn't have theme.json support.
