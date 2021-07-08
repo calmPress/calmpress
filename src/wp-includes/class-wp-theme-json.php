@@ -89,43 +89,6 @@ class WP_Theme_JSON {
 	 * @var array
 	 */
 	const PRESETS_METADATA = array(
-		array(
-			'path'          => array( 'color', 'palette' ),
-			'value_key'     => 'color',
-			'css_var_infix' => 'color',
-			'classes'       => array(
-				array(
-					'class_suffix'  => 'color',
-					'property_name' => 'color',
-				),
-				array(
-					'class_suffix'  => 'background-color',
-					'property_name' => 'background-color',
-				),
-			),
-		),
-		array(
-			'path'          => array( 'color', 'gradients' ),
-			'value_key'     => 'gradient',
-			'css_var_infix' => 'gradient',
-			'classes'       => array(
-				array(
-					'class_suffix'  => 'gradient-background',
-					'property_name' => 'background',
-				),
-			),
-		),
-		array(
-			'path'          => array( 'typography', 'fontSizes' ),
-			'value_key'     => 'size',
-			'css_var_infix' => 'font-size',
-			'classes'       => array(
-				array(
-					'class_suffix'  => 'font-size',
-					'property_name' => 'font-size',
-				),
-			),
-		),
 	);
 
 	/**
@@ -139,29 +102,6 @@ class WP_Theme_JSON {
 	 * @var array
 	 */
 	const PROPERTIES_METADATA = array(
-		'background'       => array(
-			'value' => array( 'color', 'gradient' ),
-		),
-		'background-color' => array(
-			'value' => array( 'color', 'background' ),
-		),
-		'color'            => array(
-			'value' => array( 'color', 'text' ),
-		),
-		'font-size'        => array(
-			'value' => array( 'typography', 'fontSize' ),
-		),
-		'line-height'      => array(
-			'value' => array( 'typography', 'lineHeight' ),
-		),
-		'margin'           => array(
-			'value'      => array( 'spacing', 'margin' ),
-			'properties' => array( 'top', 'right', 'bottom', 'left' ),
-		),
-		'padding'          => array(
-			'value'      => array( 'spacing', 'padding' ),
-			'properties' => array( 'top', 'right', 'bottom', 'left' ),
-		),
 	);
 
 	/**
@@ -179,27 +119,6 @@ class WP_Theme_JSON {
 	 * @var array
 	 */
 	const ALLOWED_SETTINGS = array(
-		'color'      => array(
-			'custom'         => null,
-			'customGradient' => null,
-			'duotone'        => null,
-			'gradients'      => null,
-			'link'           => null,
-			'palette'        => null,
-		),
-		'custom'     => null,
-		'layout'     => null,
-		'spacing'    => array(
-			'customMargin'  => null,
-			'customPadding' => null,
-			'units'         => null,
-		),
-		'typography' => array(
-			'customFontSize'   => null,
-			'customLineHeight' => null,
-			'dropCap'          => null,
-			'fontSizes'        => null,
-		),
 	);
 
 	/**
@@ -207,29 +126,6 @@ class WP_Theme_JSON {
 	 * @var array
 	 */
 	const ALLOWED_STYLES = array(
-		'color'      => array(
-			'background' => null,
-			'gradient'   => null,
-			'text'       => null,
-		),
-		'spacing'    => array(
-			'margin'  => array(
-				'top'    => null,
-				'right'  => null,
-				'bottom' => null,
-				'left'   => null,
-			),
-			'padding' => array(
-				'bottom' => null,
-				'left'   => null,
-				'right'  => null,
-				'top'    => null,
-			),
-		),
-		'typography' => array(
-			'fontSize'   => null,
-			'lineHeight' => null,
-		),
 	);
 
 	/**
