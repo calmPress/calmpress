@@ -1547,21 +1547,12 @@ function wp_setup_widgets_block_editor() {
  * filtered the return value of this function.
  *
  * @since 5.8.0
+ * @since calmPress 1.0.0 always returns false
  *
  * @return boolean Whether or not to use the block editor to manage widgets.
  */
 function wp_use_widgets_block_editor() {
-	/**
-	 * Filters whether or not to use the block editor to manage widgets.
-	 *
-	 * @since 5.8.0
-	 *
-	 * @param boolean $use_widgets_block_editor Whether or not to use the block editor to manage widgets.
-	 */
-	return apply_filters(
-		'use_widgets_block_editor',
-		get_theme_support( 'widgets-block-editor' )
-	);
+	return false;
 }
 
 /**
