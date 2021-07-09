@@ -149,7 +149,7 @@ if ( ! function_exists( 'wp_install_defaults' ) ) :
 		// First post.
 		$now             = current_time( 'mysql' );
 		$now_gmt         = current_time( 'mysql', 1 );
-		$first_post_guid = get_option( 'home' ) . '/?p=1';
+		$first_post_guid = get_option( 'home' ) . '/' . uniqid();
 
 		if ( is_multisite() ) {
 			$first_post = get_site_option( 'first_post' );
@@ -254,7 +254,7 @@ To get started with moderating, editing, and deleting comments, please visit the
 			);
 		}
 
-		$first_post_guid = get_option( 'home' ) . '/?page_id=2';
+		$first_post_guid = get_option( 'home' ) . '/' . uniqid();
 		$wpdb->insert(
 			$wpdb->posts,
 			array(
@@ -298,7 +298,7 @@ To get started with moderating, editing, and deleting comments, please visit the
 		}
 
 		if ( ! empty( $privacy_policy_content ) ) {
-			$privacy_policy_guid = get_option( 'home' ) . '/?page_id=3';
+			$privacy_policy_guid = get_option( 'home' ) . '/' . uniqid();
 
 			$wpdb->insert(
 				$wpdb->posts,
@@ -934,7 +934,7 @@ function upgrade_110() {
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  */
-function upgrade_130() {
+function upgrade_13() {
 	global $wpdb;
 
 	// Remove extraneous backslashes.
@@ -945,7 +945,7 @@ function upgrade_130() {
 			$post_title   = addslashes( deslash( $post->post_title ) );
 			$post_excerpt = addslashes( deslash( $post->post_excerpt ) );
 			if ( empty( $post->guid ) ) {
-				$guid = get_permalink( $post->ID );
+				$guid = get_option( 'home' ) . '/' . uniqid();
 			} else {
 				$guid = $post->guid;
 			}
