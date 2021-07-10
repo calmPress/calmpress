@@ -71,11 +71,6 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 	/* translators: Login screen title. 1: Login screen name, 2: Network or site name. */
 	$login_title = sprintf( __( '%1$s &lsaquo; %2$s &#8212; calmPress' ), $title, $login_title );
 
-	if ( wp_is_recovery_mode() ) {
-		/* translators: %s: Login screen title. */
-		$login_title = sprintf( __( 'Recovery Mode &#8212; %s' ), $login_title );
-	}
-
 	/**
 	 * Filters the title tag content for login page.
 	 *
@@ -482,7 +477,6 @@ do_action( 'login_init' );
  *  - 'login_form_checkemail'
  *  - 'login_form_confirm_admin_email'
  *  - 'login_form_confirmaction'
- *  - 'login_form_entered_recovery_mode'
  *  - 'login_form_login'
  *  - 'login_form_logout'
  *  - 'login_form_lostpassword'
@@ -1076,8 +1070,6 @@ switch ( $action ) {
 				$errors->add( 'newpass', __( 'Check your email for your new password.' ), 'message' );
 			} elseif ( isset( $_GET['checkemail'] ) && 'registered' === $_GET['checkemail'] ) {
 				$errors->add( 'registered', __( 'Registration complete. Please check your email.' ), 'message' );
-			} elseif ( WP_Recovery_Mode_Link_Service::LOGIN_ACTION_ENTERED === $action ) {
-				$errors->add( 'enter_recovery_mode', __( 'Recovery Mode Initialized. Please log in to continue.' ), 'message' );
 			} elseif ( isset( $_GET['redirect_to'] ) && false !== strpos( $_GET['redirect_to'], 'wp-admin/authorize-application.php' ) ) {
 				$query_component = wp_parse_url( $_GET['redirect_to'], PHP_URL_QUERY );
 				parse_str( $query_component, $query );
