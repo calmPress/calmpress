@@ -427,7 +427,6 @@ $default_actions = array(
 	'checkemail',
 	'confirmaction',
 	'login',
-	WP_Recovery_Mode_Link_Service::LOGIN_ACTION_ENTERED,
 );
 
 // Validate action so as to default to the login screen.
