@@ -1288,30 +1288,6 @@ ul.cat-checklist {
 	text-decoration: underline;
 }
 
-.plugins tr.paused th.check-column {
-	border-left: 4px solid #d63638;
-}
-
-.plugins tr.paused th,
-.plugins tr.paused td {
-	background-color: #f6f7f7;
-}
-
-.plugins tr.paused .plugin-title,
-.plugins .paused .dashicons-warning {
-	color: #d63638;
-}
-
-.plugins .paused .error-display p,
-.plugins .paused .error-display code {
-	font-size: 90%;
-	color: rgba(0, 0, 0, 0.7);
-}
-
-.plugins .resume-link {
-	color: #d63638;
-}
-
 .plugin-card .update-now:before {
 	color: #d63638;
 	content: "\f463";

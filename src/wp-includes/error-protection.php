@@ -7,36 +7,6 @@
  */
 
 /**
- * Get the instance for storing paused plugins.
- *
- * @return WP_Paused_Extensions_Storage
- */
-function wp_paused_plugins() {
-	static $storage = null;
-
-	if ( null === $storage ) {
-		$storage = new WP_Paused_Extensions_Storage( 'plugin' );
-	}
-
-	return $storage;
-}
-
-/**
- * Get the instance for storing paused extensions.
- *
- * @return WP_Paused_Extensions_Storage
- */
-function wp_paused_themes() {
-	static $storage = null;
-
-	if ( null === $storage ) {
-		$storage = new WP_Paused_Extensions_Storage( 'theme' );
-	}
-
-	return $storage;
-}
-
-/**
  * Get a human readable description of an extension's error.
  *
  * @since 5.2.0
@@ -137,21 +107,4 @@ function wp_is_fatal_error_handler_enabled() {
 	 * @param bool $enabled True if the fatal error handler is enabled, false otherwise.
 	 */
 	return apply_filters( 'wp_fatal_error_handler_enabled', $enabled );
-}
-
-/**
- * Access the WordPress Recovery Mode instance.
- *
- * @since 5.2.0
- *
- * @return WP_Recovery_Mode
- */
-function wp_recovery_mode() {
-	static $wp_recovery_mode;
-
-	if ( ! $wp_recovery_mode ) {
-		$wp_recovery_mode = new WP_Recovery_Mode();
-	}
-
-	return $wp_recovery_mode;
 }

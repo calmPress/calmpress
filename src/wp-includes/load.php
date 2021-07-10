@@ -828,43 +828,6 @@ function wp_get_active_and_valid_plugins() {
 		}
 	}
 
-	/*
-	 * Remove plugins from the list of active plugins when we're on an endpoint
-	 * that should be protected against WSODs and the plugin is paused.
-	 */
-	if ( wp_is_recovery_mode() ) {
-		$plugins = wp_skip_paused_plugins( $plugins );
-	}
-
-	return $plugins;
-}
-
-/**
- * Filters a given list of plugins, removing any paused plugins from it.
- *
- * @since 5.2.0
- *
- * @param string[] $plugins Array of absolute plugin main file paths.
- * @return string[] Filtered array of plugins, without any paused plugins.
- */
-function wp_skip_paused_plugins( array $plugins ) {
-	$paused_plugins = wp_paused_plugins()->get_all();
-
-	if ( empty( $paused_plugins ) ) {
-		return $plugins;
-	}
-
-	foreach ( $plugins as $index => $plugin ) {
-		list( $plugin ) = explode( '/', plugin_basename( $plugin ) );
-
-		if ( array_key_exists( $plugin, $paused_plugins ) ) {
-			unset( $plugins[ $index ] );
-
-			// Store list of paused plugins for displaying an admin notice.
-			$GLOBALS['_paused_plugins'][ $plugin ] = $paused_plugins[ $plugin ];
-		}
-	}
-
 	return $plugins;
 }
 
@@ -893,62 +856,7 @@ function wp_get_active_and_valid_themes() {
 
 	$themes[] = TEMPLATEPATH;
 
-	/*
-	 * Remove themes from the list of active themes when we're on an endpoint
-	 * that should be protected against WSODs and the theme is paused.
-	 */
-	if ( wp_is_recovery_mode() ) {
-		$themes = wp_skip_paused_themes( $themes );
-
-		// If no active and valid themes exist, skip loading themes.
-		if ( empty( $themes ) ) {
-			add_filter( 'wp_using_themes', '__return_false' );
-		}
-	}
-
 	return $themes;
-}
-
-/**
- * Filters a given list of themes, removing any paused themes from it.
- *
- * @since 5.2.0
- *
- * @param string[] $themes Array of absolute theme directory paths.
- * @return string[] Filtered array of absolute paths to themes, without any paused themes.
- */
-function wp_skip_paused_themes( array $themes ) {
-	$paused_themes = wp_paused_themes()->get_all();
-
-	if ( empty( $paused_themes ) ) {
-		return $themes;
-	}
-
-	foreach ( $themes as $index => $theme ) {
-		$theme = basename( $theme );
-
-		if ( array_key_exists( $theme, $paused_themes ) ) {
-			unset( $themes[ $index ] );
-
-			// Store list of paused themes for displaying an admin notice.
-			$GLOBALS['_paused_themes'][ $theme ] = $paused_themes[ $theme ];
-		}
-	}
-
-	return $themes;
-}
-
-/**
- * Is WordPress in Recovery Mode.
- *
- * In this mode, plugins or themes that cause WSODs will be paused.
- *
- * @since 5.2.0
- *
- * @return bool
- */
-function wp_is_recovery_mode() {
-	return wp_recovery_mode()->is_active();
 }
 
 /**

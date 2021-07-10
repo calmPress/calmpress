@@ -27,12 +27,13 @@
  * @since 4.9.6 Added the `export_others_personal_data`, `erase_others_personal_data`,
  *              and `manage_privacy_options` capabilities.
  * @since 5.1.0 Added the `update_php` capability.
- * @since 5.2.0 Added the `resume_plugin` and `resume_theme` capabilities.
+ * @since 5.2.0 Added the `resume_plugin` and `resume_theme` capabilities. 
  * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
  * @since 5.7.0 Added the `create_app_password`, `list_app_passwords`, `read_app_password`,
  *              `edit_app_password`, `delete_app_passwords`, `delete_app_password`,
  *              and `update_https` capabilities.
+ * @since calmPress 1.0.0 removed the `resume_plugin` and `resume_theme` capabilities.
  *
  * @global array $post_type_meta_caps Used to get post type meta capabilities.
  *
@@ -478,12 +479,6 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 					$caps[] = 'manage_network_plugins';
 				}
 			}
-			break;
-		case 'resume_plugin':
-			$caps[] = 'resume_plugins';
-			break;
-		case 'resume_theme':
-			$caps[] = 'resume_themes';
 			break;
 		case 'delete_user':
 		case 'delete_users':
@@ -999,28 +994,6 @@ function revoke_super_admin( $user_id ) {
 function wp_maybe_grant_install_languages_cap( $allcaps ) {
 	if ( ! empty( $allcaps['update_core'] ) || ! empty( $allcaps['install_plugins'] ) || ! empty( $allcaps['install_themes'] ) ) {
 		$allcaps['install_languages'] = true;
-	}
-
-	return $allcaps;
-}
-
-/**
- * Filters the user capabilities to grant the 'resume_plugins' and 'resume_themes' capabilities as necessary.
- *
- * @since 5.2.0
- *
- * @param bool[] $allcaps An array of all the user's capabilities.
- * @return bool[] Filtered array of the user's capabilities.
- */
-function wp_maybe_grant_resume_extensions_caps( $allcaps ) {
-	// Even in a multisite, regular administrators should be able to resume plugins.
-	if ( ! empty( $allcaps['activate_plugins'] ) ) {
-		$allcaps['resume_plugins'] = true;
-	}
-
-	// Even in a multisite, regular administrators should be able to resume themes.
-	if ( ! empty( $allcaps['switch_themes'] ) ) {
-		$allcaps['resume_themes'] = true;
 	}
 
 	return $allcaps;

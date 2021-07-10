@@ -938,35 +938,6 @@ function wp_print_update_row_templates() {
 }
 
 /**
- * Displays a notice when the user is in recovery mode.
- *
- * @since 5.2.0
- */
-function wp_recovery_mode_nag() {
-	if ( ! wp_is_recovery_mode() ) {
-		return;
-	}
-
-	$url = wp_login_url();
-	$url = add_query_arg( 'action', WP_Recovery_Mode::EXIT_ACTION, $url );
-	$url = wp_nonce_url( $url, WP_Recovery_Mode::EXIT_ACTION );
-
-	?>
-	<div class="notice notice-info">
-		<p>
-			<?php
-			printf(
-				/* translators: %s: Recovery Mode exit link. */
-				__( 'You are in recovery mode. This means there may be an error with a theme or plugin. To exit recovery mode, log out or use the Exit button. <a href="%s">Exit Recovery Mode</a>' ),
-				esc_url( $url )
-			);
-			?>
-		</p>
-	</div>
-	<?php
-}
-
-/**
  * Checks whether auto-updates are enabled.
  *
  * @since 5.5.0
