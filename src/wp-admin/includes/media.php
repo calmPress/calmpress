@@ -3112,18 +3112,9 @@ function edit_form_image_editor( $post ) {
 	<?php
 
 	if ( wp_attachment_is_image( $post->ID ) ) :
-		$open_style     = '';
-		$not_open_style = '';
-
-		if ( $open ) {
-			$open_style = ' style="display:none"';
-		} else {
-			$not_open_style = ' style="display:none"';
-		}
-
 		?>
 
-		<div<?php echo $open_style; ?> class="wp_attachment_image wp-clearfix" id="media-head-<?php echo $attachment_id; ?>">
+		<div class="wp_attachment_image wp-clearfix" id="media-head-<?php echo $attachment_id; ?>">
 			<p id="thumbnail-head-<?php echo $attachment_id; ?>"><img class="thumbnail" src="<?php echo set_url_scheme( $thumb_url[0] ); ?>" style="max-width:100%" alt="" /></p>
 		</div>
 		<?php
