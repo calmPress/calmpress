@@ -497,9 +497,6 @@ function populate_options( array $options = array() ) {
 		// See https://core.trac.wordpress.org/ticket/51742.
 		'auto_update_core_major'          => 'enabled',
 
-		// 5.8.0
-		'wp_force_deactivated_plugins'    => array(),
-
 		// calmPress 1.0.0
 		'calm_embedding_on'               => 0,
 	);
