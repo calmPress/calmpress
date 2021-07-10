@@ -207,8 +207,8 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		foreach ( $items as $key => $item ) {
 
 			// Get post for comparison
-			$guid = xml_find( $items[$key]['child'], 'guid' );
-			$post = get_post( url_to_postid( $guid[0]['content'] ) );
+			$url = xml_find( $items[$key]['child'], 'link' );
+			$post = get_post( url_to_postid( $url[0]['content'] ) );
 
 			// Title.
 			$title = xml_find( $items[ $key ]['child'], 'title' );
