@@ -799,13 +799,6 @@ function wp_print_media_templates() {
 					<?php esc_html_e( 'Media File' ); ?>
 				<# } #>
 				</option>
-				<option value="post">
-				<# if ( data.model.canEmbed ) { #>
-					<?php esc_html_e( 'Link to Attachment Page' ); ?>
-				<# } else { #>
-					<?php esc_html_e( 'Attachment Page' ); ?>
-				<# } #>
-				</option>
 			<# if ( 'image' === data.type ) { #>
 				<option value="custom">
 					<?php esc_html_e( 'Custom URL' ); ?>
@@ -865,11 +858,6 @@ function wp_print_media_templates() {
 					data-user-setting="urlbutton"
 				<# } #>>
 
-				<option value="post" <# if ( ! wp.media.galleryDefaults.link || 'post' === wp.media.galleryDefaults.link ) {
-					#>selected="selected"<# }
-				#>>
-					<?php esc_html_e( 'Attachment Page' ); ?>
-				</option>
 				<option value="file" <# if ( 'file' === wp.media.galleryDefaults.link ) { #>selected="selected"<# } #>>
 					<?php esc_html_e( 'Media File' ); ?>
 				</option>
@@ -1145,9 +1133,6 @@ function wp_print_media_templates() {
 						<# if ( data.attachment ) { #>
 							<option value="file">
 								<?php esc_html_e( 'Media File' ); ?>
-							</option>
-							<option value="post">
-								<?php esc_html_e( 'Attachment Page' ); ?>
 							</option>
 						<# } else { #>
 							<option value="file">
