@@ -310,7 +310,6 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$this->assertTrue( in_array( $id1, $ids, true ) );
 		$this->assertFalse( in_array( $id2, $ids, true ) );
 		$this->assertTrue( in_array( $id3, $ids, true ) );
-
 		$this->check_get_posts_response( $response );
 	}
 
@@ -1448,7 +1447,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$data       = $response->get_data();
 		$properties = $data['schema']['properties'];
 
-		$this->assertSame( 26, count( $properties ) );
+		$this->assertSame( 24, count( $properties ) );
 		$this->assertArrayHasKey( 'author', $properties );
 		$this->assertArrayHasKey( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, $properties );
 		$this->assertArrayHasKey( 'alt_text', $properties );
@@ -1458,7 +1457,6 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$this->assertArrayHasKey( 'description', $properties );
 		$this->assertArrayHasKey( 'raw', $properties['description']['properties'] );
 		$this->assertArrayHasKey( 'rendered', $properties['description']['properties'] );
-		$this->assertArrayHasKey( 'comment_status', $properties );
 		$this->assertArrayHasKey( 'date', $properties );
 		$this->assertArrayHasKey( 'date_gmt', $properties );
 		$this->assertArrayHasKey( 'guid', $properties );
@@ -1471,7 +1469,6 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$this->assertArrayHasKey( 'modified', $properties );
 		$this->assertArrayHasKey( 'modified_gmt', $properties );
 		$this->assertArrayHasKey( 'post', $properties );
-		$this->assertArrayHasKey( 'ping_status', $properties );
 		$this->assertArrayHasKey( 'status', $properties );
 		$this->assertArrayHasKey( 'slug', $properties );
 		$this->assertArrayHasKey( 'source_url', $properties );

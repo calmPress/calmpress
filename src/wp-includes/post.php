@@ -93,7 +93,7 @@ function create_initial_post_types() {
 			'query_var'             => false,
 			'show_in_nav_menus'     => false,
 			'delete_with_user'      => true,
-			'supports'              => array( 'title', 'author', 'comments' ),
+			'supports'              => array( 'title', 'author' ),
 			'show_in_rest'          => true,
 			'rest_base'             => 'media',
 			'rest_controller_class' => 'WP_REST_Attachments_Controller',

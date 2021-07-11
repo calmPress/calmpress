@@ -2170,7 +2170,6 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			'attachment' => array(
 				'title',
 				'author',
-				'comments',
 				'revisions',
 				'custom-fields',
 			),
