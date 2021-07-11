@@ -789,12 +789,6 @@ function media_upload_form_handler() {
 			if ( $post != $_post ) {
 				wp_update_post( $post );
 			}
-
-			foreach ( get_attachment_taxonomies( $post ) as $t ) {
-				if ( isset( $attachment[ $t ] ) ) {
-					wp_set_object_terms( $attachment_id, array_map( 'trim', preg_split( '/,+/', $attachment[ $t ] ) ), $t, false );
-				}
-			}
 		}
 	}
 
@@ -1431,38 +1425,6 @@ function get_attachment_fields_to_edit( $post, $errors = null ) {
 		),
 	);
 
-	foreach ( get_attachment_taxonomies( $post ) as $taxonomy ) {
-		$t = (array) get_taxonomy( $taxonomy );
-
-		if ( ! $t['public'] || ! $t['show_ui'] ) {
-			continue;
-		}
-
-		if ( empty( $t['label'] ) ) {
-			$t['label'] = $taxonomy;
-		}
-
-		if ( empty( $t['args'] ) ) {
-			$t['args'] = array();
-		}
-
-		$terms = get_object_term_cache( $post->ID, $taxonomy );
-
-		if ( false === $terms ) {
-			$terms = wp_get_object_terms( $post->ID, $taxonomy, $t['args'] );
-		}
-
-		$values = array();
-
-		foreach ( $terms as $term ) {
-			$values[] = $term->slug;
-		}
-
-		$t['value'] = implode( ', ', $values );
-
-		$form_fields[ $taxonomy ] = $t;
-	}
-
 	/*
 	 * Merge default fields with their errors, so any key passed with the error
 	 * (e.g. 'error', 'helps', 'value') will replace the default.
@@ -1878,41 +1840,6 @@ function get_compat_media_markup( $attachment_id, $args = null ) {
 	$args = apply_filters( 'get_media_item_args', $args );
 
 	$form_fields = array();
-
-	if ( $args['in_modal'] ) {
-		foreach ( get_attachment_taxonomies( $post ) as $taxonomy ) {
-			$t = (array) get_taxonomy( $taxonomy );
-
-			if ( ! $t['public'] || ! $t['show_ui'] ) {
-				continue;
-			}
-
-			if ( empty( $t['label'] ) ) {
-				$t['label'] = $taxonomy;
-			}
-
-			if ( empty( $t['args'] ) ) {
-				$t['args'] = array();
-			}
-
-			$terms = get_object_term_cache( $post->ID, $taxonomy );
-
-			if ( false === $terms ) {
-				$terms = wp_get_object_terms( $post->ID, $taxonomy, $t['args'] );
-			}
-
-			$values = array();
-
-			foreach ( $terms as $term ) {
-				$values[] = $term->slug;
-			}
-
-			$t['value']    = implode( ', ', $values );
-			$t['taxonomy'] = true;
-
-			$form_fields[ $taxonomy ] = $t;
-		}
-	}
 
 	/*
 	 * Merge default fields with their errors, so any key passed with the error
