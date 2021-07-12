@@ -1203,16 +1203,6 @@
 					<span class="name">Uploaded By</span>
 					<span class="value">{{ data.authorName }}</span>
 				</div>
-				<# if ( data.uploadedToTitle ) { #>
-					<div class="setting">
-						<span class="name">Uploaded To</span>
-						<# if ( data.uploadedToLink ) { #>
-							<span class="value"><a href="{{ data.uploadedToLink }}">{{ data.uploadedToTitle }}</a></span>
-						<# } else { #>
-							<span class="value">{{ data.uploadedToTitle }}</span>
-						<# } #>
-					</div>
-				<# } #>
 				<label class="setting" data-setting="url">
 					<span class="name">Copy Link</span>
 					<input type="text" value="{{ data.url }}" readonly />
