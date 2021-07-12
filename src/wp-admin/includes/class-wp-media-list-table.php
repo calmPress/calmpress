@@ -24,8 +24,6 @@ class WP_Media_List_Table extends WP_List_Table {
 	 */
 	protected $comment_pending_count = array();
 
-	private $detached;
-
 	private $is_trash;
 
 	/**
@@ -38,7 +36,6 @@ class WP_Media_List_Table extends WP_List_Table {
 	 * @param array $args An associative array of arguments.
 	 */
 	public function __construct( $args = array() ) {
-		$this->detached = ( isset( $_REQUEST['attachment-filter'] ) && 'detached' === $_REQUEST['attachment-filter'] );
 
 		$this->modes = array(
 			'list' => __( 'List view' ),
@@ -147,8 +144,6 @@ class WP_Media_List_Table extends WP_List_Table {
 			);
 		}
 
-		$type_links['detached'] = '<option value="detached"' . ( $this->detached ? ' selected="selected"' : '' ) . '>' . __( 'Unattached' ) . '</option>';
-
 		$type_links['mine'] = sprintf(
 			'<option value="mine"%s>%s</option>',
 			selected( 'mine' === $filter, true, false ),
@@ -181,10 +176,6 @@ class WP_Media_List_Table extends WP_List_Table {
 			}
 		} else {
 			$actions['delete'] = __( 'Delete permanently' );
-		}
-
-		if ( $this->detached ) {
-			$actions['attach'] = __( 'Attach' );
 		}
 
 		return $actions;
@@ -344,26 +335,19 @@ class WP_Media_List_Table extends WP_List_Table {
 		}
 
 		/* translators: Column name. */
-		if ( ! $this->detached ) {
-			$posts_columns['parent'] = _x( 'Uploaded to', 'column name' );
-			if ( post_type_supports( 'attachment', 'comments' ) ) {
-				$posts_columns['comments'] = '<span class="vers comment-grey-bubble" title="' . esc_attr__( 'Comments' ) . '"><span class="screen-reader-text">' . __( 'Comments' ) . '</span></span>';
-			}
-		}
-
-		/* translators: Column name. */
 		$posts_columns['date'] = _x( 'Date', 'column name' );
 
 		/**
 		 * Filters the Media list table columns.
 		 *
 		 * @since 2.5.0
+		 * @since calmPress 1.0.0 detached parameter always true.
 		 *
 		 * @param string[] $posts_columns An array of columns displayed in the Media list table.
 		 * @param bool     $detached      Whether the list table contains media not attached
 		 *                                to any posts. Default true.
 		 */
-		return apply_filters( 'manage_media_columns', $posts_columns, $this->detached );
+		return apply_filters( 'manage_media_columns', $posts_columns, true );
 	}
 
 	/**
@@ -503,68 +487,6 @@ class WP_Media_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Handles the parent column output.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @param WP_Post $post The current WP_Post object.
-	 */
-	public function column_parent( $post ) {
-		$user_can_edit = current_user_can( 'edit_post', $post->ID );
-
-		if ( $post->post_parent > 0 ) {
-			$parent = get_post( $post->post_parent );
-		} else {
-			$parent = false;
-		}
-
-		if ( $parent ) {
-			$title       = _draft_or_post_title( $post->post_parent );
-			$parent_type = get_post_type_object( $parent->post_type );
-
-			if ( $parent_type && $parent_type->show_ui && current_user_can( 'edit_post', $post->post_parent ) ) {
-				printf( '<strong><a href="%s">%s</a></strong>', get_edit_post_link( $post->post_parent ), $title );
-			} elseif ( $parent_type && current_user_can( 'read_post', $post->post_parent ) ) {
-				printf( '<strong>%s</strong>', $title );
-			} else {
-				_e( '(Private post)' );
-			}
-
-			if ( $user_can_edit ) :
-				$detach_url = add_query_arg(
-					array(
-						'parent_post_id' => $post->post_parent,
-						'media[]'        => $post->ID,
-						'_wpnonce'       => wp_create_nonce( 'bulk-' . $this->_args['plural'] ),
-					),
-					'upload.php'
-				);
-				printf(
-					'<br /><a href="%s" class="hide-if-no-js detach-from-parent" aria-label="%s">%s</a>',
-					$detach_url,
-					/* translators: %s: Title of the post the attachment is attached to. */
-					esc_attr( sprintf( __( 'Detach from &#8220;%s&#8221;' ), $title ) ),
-					__( 'Detach' )
-				);
-			endif;
-		} else {
-			_e( '(Unattached)' );
-			?>
-			<?php
-			if ( $user_can_edit ) {
-				$title = _draft_or_post_title( $post->post_parent );
-				printf(
-					'<br /><a href="#the-list" onclick="findPosts.open( \'media[]\', \'%s\' ); return false;" class="hide-if-no-js aria-button-if-js" aria-label="%s">%s</a>',
-					$post->ID,
-					/* translators: %s: Attachment title. */
-					esc_attr( sprintf( __( 'Attach &#8220;%s&#8221; to existing content' ), $title ) ),
-					__( 'Attach' )
-				);
-			}
-		}
-	}
-
-	/**
 	 * Handles the comments column output.
 	 *
 	 * @since 4.3.0
@@ -692,114 +614,51 @@ class WP_Media_List_Table extends WP_List_Table {
 	private function _get_row_actions( $post, $att_title ) {
 		$actions = array();
 
-		if ( $this->detached ) {
-			if ( current_user_can( 'edit_post', $post->ID ) ) {
-				$actions['edit'] = sprintf(
-					'<a href="%s" aria-label="%s">%s</a>',
-					get_edit_post_link( $post->ID ),
-					/* translators: %s: Attachment title. */
-					esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $att_title ) ),
-					__( 'Edit' )
-				);
-			}
-
-			if ( current_user_can( 'delete_post', $post->ID ) ) {
-				if ( EMPTY_TRASH_DAYS && MEDIA_TRASH ) {
-					$actions['trash'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js" aria-label="%s">%s</a>',
-						wp_nonce_url( "post.php?action=trash&amp;post=$post->ID", 'trash-post_' . $post->ID ),
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( 'Move &#8220;%s&#8221; to the Trash' ), $att_title ) ),
-						_x( 'Trash', 'verb' )
-					);
-				} else {
-					$delete_ays        = ! MEDIA_TRASH ? " onclick='return showNotice.warn();'" : '';
-					$actions['delete'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js"%s aria-label="%s">%s</a>',
-						wp_nonce_url( "post.php?action=delete&amp;post=$post->ID", 'delete-post_' . $post->ID ),
-						$delete_ays,
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( 'Delete &#8220;%s&#8221; permanently' ), $att_title ) ),
-						__( 'Delete Permanently' )
-					);
-				}
-			}
-
-			$actions['view'] = sprintf(
-				'<a href="%s" aria-label="%s" rel="bookmark">%s</a>',
-				get_permalink( $post->ID ),
+		if ( current_user_can( 'edit_post', $post->ID ) ) {
+			$actions['edit'] = sprintf(
+				'<a href="%s" aria-label="%s">%s</a>',
+				get_edit_post_link( $post->ID ),
 				/* translators: %s: Attachment title. */
-				esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $att_title ) ),
-				__( 'View' )
+				esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $att_title ) ),
+				__( 'Edit' )
 			);
+		}
 
-			if ( current_user_can( 'edit_post', $post->ID ) ) {
-				$actions['attach'] = sprintf(
-					'<a href="#the-list" onclick="findPosts.open( \'media[]\', \'%s\' ); return false;" class="hide-if-no-js aria-button-if-js" aria-label="%s">%s</a>',
-					$post->ID,
+		if ( current_user_can( 'delete_post', $post->ID ) ) {
+			if ( EMPTY_TRASH_DAYS && MEDIA_TRASH ) {
+				$actions['trash'] = sprintf(
+					'<a href="%s" class="submitdelete aria-button-if-js" aria-label="%s">%s</a>',
+					wp_nonce_url( "post.php?action=trash&amp;post=$post->ID", 'trash-post_' . $post->ID ),
 					/* translators: %s: Attachment title. */
-					esc_attr( sprintf( __( 'Attach &#8220;%s&#8221; to existing content' ), $att_title ) ),
-					__( 'Attach' )
+					esc_attr( sprintf( __( 'Move &#8220;%s&#8221; to the Trash' ), $att_title ) ),
+					_x( 'Trash', 'verb' )
 				);
-			}
-		} else {
-			if ( current_user_can( 'edit_post', $post->ID ) && ! $this->is_trash ) {
-				$actions['edit'] = sprintf(
-					'<a href="%s" aria-label="%s">%s</a>',
-					get_edit_post_link( $post->ID ),
+			} else {
+				$delete_ays        = ! MEDIA_TRASH ? " onclick='return showNotice.warn();'" : '';
+				$actions['delete'] = sprintf(
+					'<a href="%s" class="submitdelete aria-button-if-js"%s aria-label="%s">%s</a>',
+					wp_nonce_url( "post.php?action=delete&amp;post=$post->ID", 'delete-post_' . $post->ID ),
+					$delete_ays,
 					/* translators: %s: Attachment title. */
-					esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $att_title ) ),
-					__( 'Edit' )
-				);
-			}
-
-			if ( current_user_can( 'delete_post', $post->ID ) ) {
-				if ( $this->is_trash ) {
-					$actions['untrash'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js" aria-label="%s">%s</a>',
-						wp_nonce_url( "post.php?action=untrash&amp;post=$post->ID", 'untrash-post_' . $post->ID ),
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( 'Restore &#8220;%s&#8221; from the Trash' ), $att_title ) ),
-						__( 'Restore' )
-					);
-				} elseif ( EMPTY_TRASH_DAYS && MEDIA_TRASH ) {
-					$actions['trash'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js" aria-label="%s">%s</a>',
-						wp_nonce_url( "post.php?action=trash&amp;post=$post->ID", 'trash-post_' . $post->ID ),
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( 'Move &#8220;%s&#8221; to the Trash' ), $att_title ) ),
-						_x( 'Trash', 'verb' )
-					);
-				}
-
-				if ( $this->is_trash || ! EMPTY_TRASH_DAYS || ! MEDIA_TRASH ) {
-					$delete_ays        = ( ! $this->is_trash && ! MEDIA_TRASH ) ? " onclick='return showNotice.warn();'" : '';
-					$actions['delete'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js"%s aria-label="%s">%s</a>',
-						wp_nonce_url( "post.php?action=delete&amp;post=$post->ID", 'delete-post_' . $post->ID ),
-						$delete_ays,
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( 'Delete &#8220;%s&#8221; permanently' ), $att_title ) ),
-						__( 'Delete Permanently' )
-					);
-				}
-			}
-
-			if ( ! $this->is_trash ) {
-				$actions['view'] = sprintf(
-					'<a href="%s" aria-label="%s" rel="bookmark">%s</a>',
-					get_permalink( $post->ID ),
-					/* translators: %s: Attachment title. */
-					esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $att_title ) ),
-					__( 'View' )
+					esc_attr( sprintf( __( 'Delete &#8220;%s&#8221; permanently' ), $att_title ) ),
+					__( 'Delete Permanently' )
 				);
 			}
 		}
+
+		$actions['view'] = sprintf(
+			'<a href="%s" aria-label="%s" rel="bookmark">%s</a>',
+			get_permalink( $post->ID ),
+			/* translators: %s: Attachment title. */
+			esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $att_title ) ),
+			__( 'View' )
+		);
 
 		/**
 		 * Filters the action links for each attachment in the Media list table.
 		 *
 		 * @since 2.8.0
+		 * @since calmPress 1.0.0 detached is always true.
 		 *
 		 * @param string[] $actions  An array of action links for each attachment.
 		 *                           Default 'Edit', 'Delete Permanently', 'View'.
@@ -807,7 +666,7 @@ class WP_Media_List_Table extends WP_List_Table {
 		 * @param bool     $detached Whether the list table contains media not attached
 		 *                           to any posts. Default true.
 		 */
-		return apply_filters( 'media_row_actions', $actions, $post, $this->detached );
+		return apply_filters( 'media_row_actions', $actions, $post, true );
 	}
 
 	/**

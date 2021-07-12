@@ -3205,25 +3205,6 @@ function attachment_submitbox_metadata() {
 		<?php } ?>
 	</div>
 
-	<?php
-	if ( $post->post_parent ) {
-		$post_parent = get_post( $post->post_parent );
-		if ( $post_parent ) {
-			$uploaded_to_title = $post_parent->post_title ? $post_parent->post_title : __( '(no title)' );
-			$uploaded_to_link  = get_edit_post_link( $post->post_parent, 'raw' );
-			?>
-			<div class="misc-pub-section misc-pub-uploadedto">
-				<?php if ( $uploaded_to_link ) { ?>
-					<?php _e( 'Uploaded to:' ); ?> <a href="<?php echo $uploaded_to_link; ?>"><strong><?php echo $uploaded_to_title; ?></strong></a>
-				<?php } else { ?>
-					<?php _e( 'Uploaded to:' ); ?> <strong><?php echo $uploaded_to_title; ?></strong>
-				<?php } ?>
-			</div>
-			<?php
-		}
-	}
-	?>
-
 	<div class="misc-pub-section misc-pub-attachment">
 		<label for="attachment_url"><?php _e( 'File URL:' ); ?></label>
 		<input type="text" class="widefat urlfield" readonly="readonly" name="attachment_url" id="attachment_url" value="<?php echo esc_attr( $att_url ); ?>" />
@@ -3704,16 +3685,6 @@ function wp_media_attach_action( $parent_id, $action = 'attach' ) {
 		}
 
 		$location = 'upload.php';
-		$referer  = wp_get_referer();
-
-		if ( $referer ) {
-			if ( false !== strpos( $referer, 'upload.php' ) ) {
-				$location = remove_query_arg( array( 'attached', 'detach' ), $referer );
-			}
-		}
-
-		$key      = 'attach' === $action ? 'attached' : 'detach';
-		$location = add_query_arg( array( $key => $result ), $location );
 
 		wp_redirect( $location );
 		exit;

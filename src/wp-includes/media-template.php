@@ -403,16 +403,6 @@ function wp_print_media_templates() {
 							{{ data.authorName }}
 						<# } #>
 				</div>
-				<# if ( data.uploadedToTitle ) { #>
-					<div class="uploaded-to">
-						<strong><?php _e( 'Uploaded to:' ); ?></strong>
-						<# if ( data.uploadedToLink ) { #>
-							<a href="{{ data.uploadedToLink }}">{{ data.uploadedToTitle }}</a>
-						<# } else { #>
-							{{ data.uploadedToTitle }}
-						<# } #>
-					</div>
-				<# } #>
 				<div class="filename"><strong><?php _e( 'File name:' ); ?></strong> {{ data.filename }}</div>
 				<div class="file-type"><strong><?php _e( 'File type:' ); ?></strong> {{ data.mime }}</div>
 				<div class="file-size"><strong><?php _e( 'File size:' ); ?></strong> {{ data.filesizeHumanReadable }}</div>

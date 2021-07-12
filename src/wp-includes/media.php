@@ -3949,8 +3949,6 @@ function wp_plupload_default_settings() {
  *     @type string $title                 Title of the attachment (usually slugified file name without the extension).
  *     @type string $type                  Type of the attachment (usually first part of the mime type, e.g. image).
  *     @type int    $uploadedTo            Parent post to which the attachment was uploaded.
- *     @type string $uploadedToLink        URL to the edit page of the parent post of the attachment.
- *     @type string $uploadedToTitle       Post title of the parent of the attachment.
  *     @type string $url                   Direct URL to the attachment file (from wp-content).
  *     @type int    $width                 If the attachment is an image, represents the width of the image in pixels.
  * }
@@ -4015,14 +4013,6 @@ function wp_prepare_attachment_for_js( $attachment ) {
 		$response['authorLink'] = get_edit_user_link( $author->ID );
 	} else {
 		$response['authorName'] = __( '(no author)' );
-	}
-
-	if ( $attachment->post_parent ) {
-		$post_parent = get_post( $attachment->post_parent );
-		if ( $post_parent ) {
-			$response['uploadedToTitle'] = $post_parent->post_title ? $post_parent->post_title : __( '(no title)' );
-			$response['uploadedToLink']  = get_edit_post_link( $attachment->post_parent, 'raw' );
-		}
 	}
 
 	$attached_file = get_attached_file( $attachment->ID );

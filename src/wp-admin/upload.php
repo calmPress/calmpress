@@ -284,30 +284,6 @@ if ( ! empty( $_GET['posted'] ) ) {
 	$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'posted' ), $_SERVER['REQUEST_URI'] );
 }
 
-if ( ! empty( $_GET['attached'] ) && absint( $_GET['attached'] ) ) {
-	$attached = absint( $_GET['attached'] );
-	if ( 1 == $attached ) {
-		$message = __( 'Media file attached.' );
-	} else {
-		/* translators: %s: Number of media files. */
-		$message = _n( '%s media file attached.', '%s media files attached.', $attached );
-	}
-	$message                = sprintf( $message, number_format_i18n( $attached ) );
-	$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'detach', 'attached' ), $_SERVER['REQUEST_URI'] );
-}
-
-if ( ! empty( $_GET['detach'] ) && absint( $_GET['detach'] ) ) {
-	$detached = absint( $_GET['detach'] );
-	if ( 1 == $detached ) {
-		$message = __( 'Media file detached.' );
-	} else {
-		/* translators: %s: Number of media files. */
-		$message = _n( '%s media file detached.', '%s media files detached.', $detached );
-	}
-	$message                = sprintf( $message, number_format_i18n( $detached ) );
-	$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'detach', 'attached' ), $_SERVER['REQUEST_URI'] );
-}
-
 if ( ! empty( $_GET['deleted'] ) && absint( $_GET['deleted'] ) ) {
 	$deleted = absint( $_GET['deleted'] );
 	if ( 1 == $deleted ) {
@@ -368,7 +344,6 @@ if ( ! empty( $message ) ) {
 <?php $wp_list_table->display(); ?>
 
 <div id="ajax-response"></div>
-<?php find_posts_div(); ?>
 </form>
 </div>
 

@@ -76,7 +76,6 @@ abstract class WP_Ajax_UnitTestCase extends WP_UnitTestCase {
 		'sample-permalink',
 		'inline-save',
 		'inline-save-tax',
-		'find_posts',
 		'widgets-order',
 		'save-widget',
 		'set-post-thumbnail',
