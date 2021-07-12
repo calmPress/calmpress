@@ -498,7 +498,7 @@ function wp_print_media_templates() {
 
 			<div class="actions">
 				<# if ( data.link ) { #>
-					<a class="view-attachment" href="{{ data.link }}"><?php _e( 'View attachment page' ); ?></a>
+					<a class="view-attachment" href="{{ data.link }}"><?php _e( 'View File' ); ?></a>
 				<# } #>
 				<# if ( data.can.save ) { #>
 					<# if ( data.link ) { #>

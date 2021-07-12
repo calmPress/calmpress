@@ -75,7 +75,7 @@ function create_initial_post_types() {
 				'name_admin_bar' => _x( 'Media', 'add new from admin bar' ),
 				'add_new'        => _x( 'Add New', 'add new media' ),
 				'edit_item'      => __( 'Edit Media' ),
-				'view_item'      => __( 'View Attachment Page' ),
+				'view_item'      => __( 'View File' ),
 				'attributes'     => __( 'Attachment Attributes' ),
 			),
 			'public'                => false,
