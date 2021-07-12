@@ -194,6 +194,8 @@ function get_permalink( $post = 0, $leavename = false ) {
 
 	if ( 'page' === $post->post_type ) {
 		return get_page_link( $post, $leavename, $sample );
+	} elseif ( 'attachment' === $post->post_type ) {
+		return get_attachment_link( $post, $leavename );
 	} elseif ( in_array( $post->post_type, get_post_types( array( '_builtin' => false ) ), true ) ) {
 		return get_post_permalink( $post, $leavename, $sample );
 	}
