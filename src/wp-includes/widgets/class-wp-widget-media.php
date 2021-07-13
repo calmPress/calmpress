@@ -118,8 +118,6 @@ abstract class WP_Widget_Media extends WP_Widget {
 		// Note that the widgets component in the customizer will also do
 		// the 'admin_footer-widgets.php' action in WP_Customize_Widgets::print_footer_scripts().
 		add_action( 'admin_footer-widgets.php', array( $this, 'render_control_template_scripts' ) );
-
-		add_filter( 'display_media_states', array( $this, 'display_media_state' ), 10, 2 );
 	}
 
 	/**
@@ -348,37 +346,6 @@ abstract class WP_Widget_Media extends WP_Widget {
 			/>
 			<?php
 		endforeach;
-	}
-
-	/**
-	 * Filters the default media display states for items in the Media list table.
-	 *
-	 * @since 4.8.0
-	 *
-	 * @param array   $states An array of media states.
-	 * @param WP_Post $post   The current attachment object.
-	 * @return array
-	 */
-	public function display_media_state( $states, $post = null ) {
-		if ( ! $post ) {
-			$post = get_post();
-		}
-
-		// Count how many times this attachment is used in widgets.
-		$use_count = 0;
-		foreach ( $this->get_settings() as $instance ) {
-			if ( isset( $instance['attachment_id'] ) && $instance['attachment_id'] === $post->ID ) {
-				$use_count++;
-			}
-		}
-
-		if ( 1 === $use_count ) {
-			$states[] = $this->l10n['media_library_state_single'];
-		} elseif ( $use_count > 0 ) {
-			$states[] = sprintf( translate_nooped_plural( $this->l10n['media_library_state_multi'], $use_count ), number_format_i18n( $use_count ) );
-		}
-
-		return $states;
 	}
 
 	/**

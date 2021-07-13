@@ -4167,13 +4167,6 @@ function wp_prepare_attachment_for_js( $attachment ) {
 		$response['compat'] = get_compat_media_markup( $attachment->ID, array( 'in_modal' => true ) );
 	}
 
-	if ( function_exists( 'get_media_states' ) ) {
-		$media_states = get_media_states( $attachment );
-		if ( ! empty( $media_states ) ) {
-			$response['mediaStates'] = implode( ', ', $media_states );
-		}
-	}
-
 	/**
 	 * Filters the attachment data prepared for JavaScript.
 	 *

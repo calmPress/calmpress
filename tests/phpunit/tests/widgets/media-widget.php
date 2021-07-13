@@ -404,48 +404,6 @@ class Test_WP_Widget_Media extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test display_media_state method.
-	 *
-	 * @covers WP_Widget_Media::display_media_state
-	 */
-	function test_display_media_state() {
-		$widget        = $this->get_mocked_class_instance();
-		$attachment_id = self::factory()->attachment->create_object(
-			array(
-				'file'           => DIR_TESTDATA . '/images/canola.jpg',
-				'post_parent'    => 0,
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-
-		$result = $widget->display_media_state( array(), get_post( $attachment_id ) );
-		$this->assertSameSets( array(), $result );
-
-		$widget->save_settings(
-			array(
-				array(
-					'attachment_id' => $attachment_id,
-				),
-			)
-		);
-		$result = $widget->display_media_state( array(), get_post( $attachment_id ) );
-		$this->assertSameSets( array( $widget->l10n['media_library_state_single'] ), $result );
-
-		$widget->save_settings(
-			array(
-				array(
-					'attachment_id' => $attachment_id,
-				),
-				array(
-					'attachment_id' => $attachment_id,
-				),
-			)
-		);
-		$result = $widget->display_media_state( array(), get_post( $attachment_id ) );
-		$this->assertSameSets( array( sprintf( $widget->l10n['media_library_state_multi']['singular'], 2 ) ), $result );
-	}
-
-	/**
 	 * Test enqueue_admin_scripts method.
 	 *
 	 * @covers WP_Widget_Media::enqueue_admin_scripts
