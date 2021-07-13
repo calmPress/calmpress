@@ -2101,6 +2101,8 @@ add_shortcode( 'caption', 'img_caption_shortcode' );
  * @return string HTML content to display the caption.
  */
 function img_caption_shortcode( $attr, $content = null ) {
+	static $attachment_seq_id = 1;
+
 	// New-style shortcode with the caption inside the shortcode with the link and image tags.
 	if ( ! isset( $attr['caption'] ) ) {
 		if ( preg_match( '#((?:<a [^>]+>\s*)?<img [^>]+>(?:\s*</a>)?)(.*)#is', $content, $matches ) ) {
@@ -2155,6 +2157,10 @@ function img_caption_shortcode( $attr, $content = null ) {
 	$describedby = '';
 
 	if ( $atts['id'] ) {
+		// If it is an attachment caption, "hide" the attachment number information.
+		if ( 'attachment_' === substr( $atts['id'], 0, 11 ) ) {
+			$atts['id'] = 'attachment_' . $attachment_seq_id++;
+		}
 		$atts['id'] = sanitize_html_class( $atts['id'] );
 		$id         = 'id="' . esc_attr( $atts['id'] ) . '" ';
 	}
