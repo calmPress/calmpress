@@ -198,7 +198,7 @@ class WP_Widget_Media_Image extends WP_Widget_Media {
 			}
 
 			$image_attributes = array(
-				'class' => sprintf( 'image wp-image-%d %s', $attachment->ID, $instance['image_classes'] ),
+				'class' => sprintf( 'image %s', $instance['image_classes'] ),
 				'style' => 'max-width: 100%; height: auto;',
 			);
 			if ( ! empty( $instance['image_title'] ) ) {

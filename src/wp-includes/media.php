@@ -1838,6 +1838,9 @@ function wp_filter_content_tags( $content, $context = null ) {
 			$filtered_image = wp_img_tag_add_loading_attr( $filtered_image, $context );
 		}
 
+		// Remove the wp-image-{attachment_id} as should not be output.
+		$filtered_image = str_replace('wp-image-' . $attachment_id, '', $filtered_image );
+
 		if ( $filtered_image !== $image ) {
 			$content = str_replace( $image, $filtered_image, $content );
 		}

@@ -2049,10 +2049,10 @@ EOF;
 
 		// Function used to build HTML for the editor.
 		$img                  = get_image_tag( self::$large_id, '', '', '', 'medium' );
+		$img_no_size_id       = str_replace( 'wp-image-', 'id-', $img );
 		$img_no_size_in_class = str_replace( 'size-', '', $img );
 		$img_no_width_height  = str_replace( ' width="' . $size_array[0] . '"', '', $img );
 		$img_no_width_height  = str_replace( ' height="' . $size_array[1] . '"', '', $img_no_width_height );
-		$img_no_size_id       = str_replace( 'wp-image-', 'id-', $img );
 		$img_with_sizes_attr  = str_replace( '<img ', '<img sizes="99vw" ', $img );
 		$img_xhtml            = str_replace( ' />', '/>', $img );
 		$img_html5            = str_replace( ' />', '>', $img );
@@ -2108,7 +2108,7 @@ EOF;
 			$respimg_xhtml,
 			$respimg_html5
 		);
-
+		$content_filtered = str_replace( 'wp-image-' . self::$large_id, '', $content_filtered );
 		// Do not add width, height, and loading.
 		add_filter( 'wp_img_tag_add_width_and_height_attr', '__return_false' );
 		add_filter( 'wp_img_tag_add_loading_attr', '__return_false' );
@@ -2136,6 +2136,7 @@ EOF;
 
 		// Replace the src URL.
 		$image_wrong_src = preg_replace( '|src="[^"]+"|', 'src="http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/foo.jpg"', $img );
+		$image_wrong_src = str_replace('wp-image-' . self::$large_id, '', $image_wrong_src );
 
 		$this->assertSame( $image_wrong_src, wp_filter_content_tags( $image_wrong_src ) );
 	}
@@ -2148,9 +2149,11 @@ EOF;
 		$img = get_image_tag( self::$large_id, '', '', '', 'medium' );
 		$img = wp_img_tag_add_loading_attr( $img, 'test' );
 		$img = preg_replace( '|<img ([^>]+) />|', '<img $1 ' . 'srcset="image2x.jpg 2x" />', $img );
+		
+		$expected = str_replace('wp-image-' . self::$large_id, '', $img );
 
 		// The content filter should return the image unchanged.
-		$this->assertSame( $img, wp_filter_content_tags( $img ) );
+		$this->assertSame( $expected, wp_filter_content_tags( $img ) );
 	}
 
 	/**
@@ -2243,6 +2246,8 @@ EOF;
 			$respimg_https,
 			$respimg_relative
 		);
+		$expected = str_replace( 'wp-image-' . self::$large_id, '', $expected );
+
 
 		$actual = wp_filter_content_tags( $unfiltered );
 
@@ -2693,6 +2698,7 @@ EOF;
 
 		$content_unfiltered = sprintf( $content, $img, $img_no_width_height, $img_no_width, $img_no_height );
 		$content_filtered   = sprintf( $content, $img, $respimg_no_width_height, $img_no_width, $img_no_height );
+		$content_filtered   = str_replace( 'wp-image-' . self::$large_id, '', $content_filtered );
 
 		// Do not add loading, srcset, and sizes.
 		add_filter( 'wp_img_tag_add_loading_attr', '__return_false' );
@@ -2751,6 +2757,7 @@ EOF;
 
 		$content_unfiltered = sprintf( $content, $img, $img_xhtml, $img_html5, $img_eager, $img_no_width_height, $iframe, $iframe_eager, $iframe_no_width_height );
 		$content_filtered   = sprintf( $content, $lazy_img, $lazy_img_xhtml, $lazy_img_html5, $img_eager, $img_no_width_height, $lazy_iframe, $iframe_eager, $iframe_no_width_height );
+		$content_filtered   = str_replace( 'wp-image-' . self::$large_id, '', $content_filtered );
 
 		// Do not add width, height, srcset, and sizes.
 		add_filter( 'wp_img_tag_add_width_and_height_attr', '__return_false' );
@@ -2780,6 +2787,8 @@ EOF;
 
 		$content_unfiltered = sprintf( $content, $img, $iframe );
 		$content_filtered   = sprintf( $content, $lazy_img, $lazy_iframe );
+		$content_filtered   = str_replace( 'wp-image-' . self::$large_id, '', $content_filtered );
+
 
 		// Do not add srcset and sizes while testing.
 		add_filter( 'wp_img_tag_add_srcset_and_sizes_attr', '__return_false' );
@@ -2813,7 +2822,9 @@ EOF;
 		// Disable globally for all tags.
 		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 
-		$this->assertSame( $content, wp_filter_content_tags( $content ) );
+		$expected = str_replace( 'wp-image-' . self::$large_id, '', $content );
+
+		$this->assertSame( $expected, wp_filter_content_tags( $content ) );
 		remove_filter( 'wp_lazy_loading_enabled', '__return_false' );
 		remove_filter( 'wp_img_tag_add_srcset_and_sizes_attr', '__return_false' );
 	}

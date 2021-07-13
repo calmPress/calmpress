@@ -452,7 +452,7 @@ class Test_WP_Widget_Media_Image extends WP_UnitTestCase {
 		// No default title.
 		$this->assertNotContains( 'title="', $output );
 		// Default image classes.
-		$this->assertContains( 'class="image wp-image-' . $attachment_id, $output );
+		$this->assertContains( 'class="image ', $output );
 		$this->assertContains( 'style="max-width: 100%; height: auto;"', $output );
 		$this->assertContains( 'alt=""', $output );
 
@@ -473,7 +473,7 @@ class Test_WP_Widget_Media_Image extends WP_UnitTestCase {
 		// Custom image title.
 		$this->assertContains( 'title="Custom Title"', $output );
 		// Custom image class.
-		$this->assertContains( 'class="image wp-image-' . $attachment_id . ' custom-class', $output );
+		$this->assertContains( 'class="image custom-class', $output );
 		$this->assertContains( 'alt="A flower"', $output );
 		$this->assertContains( 'width="100"', $output );
 		$this->assertContains( 'height="100"', $output );

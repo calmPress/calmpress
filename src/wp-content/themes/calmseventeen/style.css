@@ -2854,7 +2854,7 @@ p > object:only-child {
 	max-width: 100%;
 }
 
-.wp-caption img[class*="wp-image-"] {
+.wp-caption img {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
