@@ -9,7 +9,7 @@
  */
 
 ?>
-<article id="post-<?php the_ID(); ?>" <?php post_class( 'calmseventeen-panel ' ); ?> >
+<article <?php post_class( 'calmseventeen-panel ' ); ?> >
 
 	<?php if ( has_post_thumbnail() ) :
 		$thumbnail = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'calmseventeen-featured-image' );
