@@ -422,8 +422,6 @@ class WP_Media_List_Table extends WP_List_Table {
 			endif;
 
 			echo $title . $link_end;
-
-			_media_states( $post );
 			?>
 		</strong>
 		<p class="filename">
