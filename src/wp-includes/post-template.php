@@ -469,7 +469,6 @@ function get_post_class( $class = '', $post_id = null ) {
 		return $classes;
 	}
 
-	$classes[] = 'post-' . $post->ID;
 	if ( ! is_admin() ) {
 		$classes[] = $post->post_type;
 	}
