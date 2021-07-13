@@ -381,9 +381,6 @@ function edit_post( $post_data = null ) {
 		wp_update_post( $translated );
 	}
 
-	// Now that we have an ID we can fix any attachment anchor hrefs.
-	_fix_attachment_links( $post_ID );
-
 	wp_set_post_lock( $post_ID );
 
 	if ( current_user_can( $ptype->cap->edit_others_posts ) && current_user_can( $ptype->cap->publish_posts ) ) {
@@ -812,9 +809,6 @@ function wp_write_post() {
 
 	add_post_meta( $post_ID, '_edit_last', $GLOBALS['current_user']->ID );
 
-	// Now that we have an ID we can fix any attachment anchor hrefs.
-	_fix_attachment_links( $post_ID );
-
 	wp_set_post_lock( $post_ID );
 
 	return $post_ID;
@@ -863,63 +857,6 @@ function has_meta( $postid ) {
 //
 // Private.
 //
-
-/**
- * Replace hrefs of attachment anchors with up-to-date permalinks.
- *
- * @since 2.3.0
- * @access private
- *
- * @param int|object $post Post ID or post object.
- * @return void|int|WP_Error Void if nothing fixed. 0 or WP_Error on update failure. The post ID on update success.
- */
-function _fix_attachment_links( $post ) {
-	$post    = get_post( $post, ARRAY_A );
-	$content = $post['post_content'];
-
-	// Don't run if no pretty permalinks or post is not published, scheduled, or privately published.
-	if ( ! in_array( $post['post_status'], array( 'publish', 'future', 'private' ), true ) ) {
-		return;
-	}
-
-	// Short if there aren't any links or no '?attachment_id=' strings (strpos cannot be zero).
-	if ( ! strpos( $content, '?attachment_id=' ) || ! preg_match_all( '/<a ([^>]+)>[\s\S]+?<\/a>/', $content, $link_matches ) ) {
-		return;
-	}
-
-	$site_url = get_bloginfo( 'url' );
-	$site_url = substr( $site_url, (int) strpos( $site_url, '://' ) ); // Remove the http(s).
-	$replace  = '';
-
-	foreach ( $link_matches[1] as $key => $value ) {
-		if ( ! strpos( $value, '?attachment_id=' ) || ! strpos( $value, 'wp-att-' )
-			|| ! preg_match( '/href=(["\'])[^"\']*\?attachment_id=(\d+)[^"\']*\\1/', $value, $url_match )
-			|| ! preg_match( '/rel=["\'][^"\']*wp-att-(\d+)/', $value, $rel_match ) ) {
-				continue;
-		}
-
-		$quote  = $url_match[1]; // The quote (single or double).
-		$url_id = (int) $url_match[2];
-		$rel_id = (int) $rel_match[1];
-
-		if ( ! $url_id || ! $rel_id || $url_id != $rel_id || strpos( $url_match[0], $site_url ) === false ) {
-			continue;
-		}
-
-		$link    = $link_matches[0][ $key ];
-		$replace = str_replace( $url_match[0], 'href=' . $quote . get_attachment_link( $url_id ) . $quote, $link );
-
-		$content = str_replace( $link, $replace, $content );
-	}
-
-	if ( $replace ) {
-		$post['post_content'] = $content;
-		// Escape data pulled from DB.
-		$post = add_magic_quotes( $post );
-
-		return wp_update_post( $post );
-	}
-}
 
 /**
  * Get all the possible statuses for a post_type
