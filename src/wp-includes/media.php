@@ -1757,6 +1757,8 @@ function wp_lazy_loading_enabled( $tag_name, $context ) {
  *
  * @since 5.5.0
  * @since 5.7.0 Now supports adding `loading` attributes to `iframe` tags.
+ * @since calmPress 1.0.0 remove the wp-image- class from images, remove "rel="attachment.."
+ *                        from links to attachments.
  *
  * @see wp_img_tag_add_width_and_height_attr()
  * @see wp_img_tag_add_srcset_and_sizes_attr()
@@ -1772,6 +1774,9 @@ function wp_filter_content_tags( $content, $context = null ) {
 	if ( null === $context ) {
 		$context = current_filter();
 	}
+
+	// Remove the rel="attachment..." found in links to attachments.
+	$content = preg_replace('/\s+rel="attachment wp-att-[0-9]+"/i', '', $content);
 
 	$add_img_loading_attr    = wp_lazy_loading_enabled( 'img', $context );
 	$add_iframe_loading_attr = wp_lazy_loading_enabled( 'iframe', $context );
