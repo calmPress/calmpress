@@ -154,6 +154,8 @@ function create_initial_taxonomies() {
 			'show_in_rest'      => false,
 		)
 	);
+		
+	\calmpress\post_authors\Post_Authors_As_Taxonomy::register_taxonomy();
 }
 
 /**

@@ -38,52 +38,16 @@ class Post_Authors_As_Taxonomy {
 	 */
 	public static function init() {
 
-		// Create the taxonomy on init action.
+		// This is needed as calls to register_taxonomy_for_post_type while registering post type
+		// fail because the post type is not fully registered at that time. 
 		add_action(
-			'init', function () {
-				$labels = [
-					'name'                       => __( 'Authors' ),
-					'singular_name'              => __( 'Author' ),
-					'separate_items_with_commas' => __( 'Separate authors with commas' ),
-					'choose_from_most_used'      => __( 'Choose from the most used authors' ),
-					'not_found'                  => __( 'No authors found.' ),
-					'add_new_item'               => __( 'Add New Author' ),
-					'edit_item'                  => __( 'Edit Author' ),
-					'search_items'               => __( 'Search Authors' ),
-					'update_item'                => __( 'Update Author' ),
-					'back_to_items'              => __( '&larr; Back to Authors' ),
-					'view_item'                  => __( 'View Author' ),
-				];
-
-				$args = [
-					'labels'            => $labels,
-					'public'            => true,
-					'hierarchical'      => false,
-					'show_in_rest'      => true,
-					'rewrite'           => [
-						'slug' => self::TAXONOMY_SLUG,
-					],
-					'show_admin_column' => true,
-					'show_in_menu'      => false,
-				];
-
-				// Do not associate with any CPT right now as it will be done
-				// on a later hook.
-				register_taxonomy( self::TAXONOMY_NAME, [], $args );
-			}
-		);
-
-		// Associate the taxonomy with CPTs that support authors. Done after
-		// all the post type are supposed to be registered.
-		add_action(
-			'init', function () {
-				$post_types = get_post_types();
-				foreach ( $post_types as $key => $post_type ) {
-					if ( post_type_supports( $post_type, 'author' ) ) {
-						register_taxonomy_for_object_type( self::TAXONOMY_NAME, $post_type );
-					}
+			'registered_post_type', function ( $post_type, $post_type_object ) {
+				if ( post_type_supports( $post_type, 'author' ) ) {
+					self::register_taxonomy_for_post_type( $post_type );
 				}
-			}, PHP_INT_MAX
+			},
+			10,
+			2
 		);
 
 		// Add the admin menu.
@@ -93,6 +57,74 @@ class Post_Authors_As_Taxonomy {
 				add_menu_page( __( 'Authors' ), __( 'Authors' ), $tax->cap->manage_terms, 'edit-tags.php?taxonomy=' . $tax->name, '', 'dashicons-admin-users', 69 );
 			}
 		);
+	}
+
+	/**
+	 * Register the taxonomy
+	 * 
+	 * @since 1.0.0
+	 */
+	public static function register_taxonomy() {
+		$labels = [
+			'name'                       => __( 'Authors' ),
+			'singular_name'              => __( 'Author' ),
+			'separate_items_with_commas' => __( 'Separate authors with commas' ),
+			'choose_from_most_used'      => __( 'Choose from the most used authors' ),
+			'not_found'                  => __( 'No authors found.' ),
+			'add_new_item'               => __( 'Add New Author' ),
+			'edit_item'                  => __( 'Edit Author' ),
+			'search_items'               => __( 'Search Authors' ),
+			'update_item'                => __( 'Update Author' ),
+			'back_to_items'              => __( '&larr; Back to Authors' ),
+			'view_item'                  => __( 'View Author' ),
+		];
+
+		if ( ! did_action( 'init' ) ) {
+			$rewrite = false;
+		} else {
+			$rewrite = [
+				'hierarchical' => false,
+				'slug'         => self::TAXONOMY_SLUG,
+				'with_front'   => true,
+				'ep_mask'      => EP_TAGS,
+			];
+		}
+
+		$args = [
+			'labels'            => $labels,
+			'public'            => true,
+			'hierarchical'      => false,
+			'show_in_rest'      => true,
+			'rewrite'           => $rewrite,
+			'show_admin_column' => true,
+			'show_in_menu'      => false,
+		];
+
+		// Do not associate with any CPT right now as it will be done
+		// on a later hook.
+		register_taxonomy( self::TAXONOMY_NAME, [], $args );
+	}
+
+	/**
+	 * Associate the taxonomy with a post type.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param string $post_type The post type to associate with the taxonomy.
+	 */
+	public static function register_taxonomy_for_post_type(string $post_type) {
+		register_taxonomy_for_object_type( self::TAXONOMY_NAME, $post_type );
+	}
+
+	/**
+	 * DisAssociate the taxonomy from a post type.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param string $post_type The post type to associate with the taxonomy.
+	 */
+	public static function unregister_taxonomy_for_post_type(string $post_type) {
+		unregister_taxonomy_for_object_type( self::TAXONOMY_NAME, $post_type );
 	}
 
 	/**

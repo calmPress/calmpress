@@ -1972,6 +1972,10 @@ function add_post_type_support( $post_type, $feature, ...$args ) {
 		} else {
 			$_wp_post_type_features[ $post_type ][ $feature ] = true;
 		}
+
+		if ( 'author' === $feature ) {
+			\calmpress\post_authors\Post_Authors_As_Taxonomy::register_taxonomy_for_post_type( $post_type );
+		}
 	}
 }
 
@@ -1987,6 +1991,10 @@ function add_post_type_support( $post_type, $feature, ...$args ) {
  */
 function remove_post_type_support( $post_type, $feature ) {
 	global $_wp_post_type_features;
+
+	if ( 'author' === $feature ) {
+		\calmpress\post_authors\Post_Authors_As_Taxonomy::unregister_taxonomy_for_post_type( $post_type );
+	}
 
 	unset( $_wp_post_type_features[ $post_type ][ $feature ] );
 }
