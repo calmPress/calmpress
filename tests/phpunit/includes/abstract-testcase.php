@@ -122,8 +122,8 @@ abstract class WP_UnitTestCase_Base extends PHPUnit\Framework\TestCase {
 		 * taxonomies at 'init'.
 		 */
 		if ( defined( 'WP_RUN_CORE_TESTS' ) && WP_RUN_CORE_TESTS ) {
-			$this->reset_post_types();
 			$this->reset_taxonomies();
+			$this->reset_post_types();
 			$this->reset_post_statuses();
 			$this->reset__SERVER();
 
