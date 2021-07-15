@@ -53,7 +53,7 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 			'sidebars_widgets',
 			array(
 				'wp_inactive_widgets' => array(),
-				'sidebar-1'           => array( 'search-2' ),
+				'sidebar-1'           => array( 'recent-posts-2' ),
 				'sidebar-2'           => array( 'categories-2' ),
 				'array_version'       => 3,
 			)
@@ -64,11 +64,12 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 
 		unset( $GLOBALS['_wp_sidebars_widgets'] ); // Clear out cache set by wp_get_sidebars_widgets().
 		$sidebars_widgets = wp_get_sidebars_widgets();
-		$this->assertSameSets( array( 'wp_inactive_widgets', 'sidebar-1' ), array_keys( wp_get_sidebars_widgets() ) );
-		$this->assertContains( 'search-2', $sidebars_widgets['sidebar-1'] );
+
+		$this->assertSameSets( array( 'wp_inactive_widgets', 'sidebar-1', 'sidebar-2' ), array_keys( wp_get_sidebars_widgets() ) );
 		$this->assertContains( 'recent-posts-2', $sidebars_widgets['sidebar-1'] );
+		$this->assertContains( 'categories-2', $sidebars_widgets['sidebar-2'] );
 		$this->assertArrayHasKey( 2, get_option( 'widget_search' ) );
-		$widget_categories = get_option( 'widget_recent-posts' );
+		$widget_categories = get_option( 'widget_categories' );
 		$this->assertArrayHasKey( 2, $widget_categories );
 		$this->assertSame( '', $widget_categories[2]['title'] );
 
@@ -177,25 +178,6 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 
 	public function data_customize_register_control_label_and_description() {
 		return array(
-			'with widgets block editor' => array(
-				'sidebars'            => array(
-					'footer-1' => array(
-						'id'          => 'footer-1',
-						'name'        => 'Footer 1',
-						'description' => 'This is the Footer 1 sidebar.',
-					),
-					'footer-2' => array(
-						'id'          => 'footer-2',
-						'name'        => 'Footer 2',
-						'description' => 'This is the Footer 2 sidebar.',
-					),
-				),
-				'use_classic_widgets' => false,
-				'expected'            => array(
-					'label'       => array( 'Footer 1', 'Footer 2' ),
-					'description' => array( '', '' ),
-				),
-			),
 			'with classic widgets'      => array(
 				'sidebars'            => array(
 					'classic-1' => array(
@@ -326,8 +308,8 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 		$this->assertNotEmpty( $setting, 'Expected setting for pre-existing widget category-2, being customized.' );
 		$this->assertSame( $expected_transport, $setting->transport );
 
-		$setting = $this->manager->get_setting( 'widget_search[2]' );
-		$this->assertNotEmpty( $setting, 'Expected setting for pre-existing widget search-2, not being customized.' );
+		$setting = $this->manager->get_setting( 'widget_recent-posts[2]' );
+		$this->assertNotEmpty( $setting, 'Expected setting for pre-existing widget recent-posts-2, not being customized.' );
 		$this->assertSame( $expected_transport, $setting->transport );
 
 		$setting = $this->manager->get_setting( 'widget_search[3]' );
@@ -485,32 +467,6 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 	}
 
 	/**
-	 * There should be a 'raw_instance' key when the block editor is enabled and
-	 * the widget supports them via `show_instance_in_rest`.
-	 *
-	 * @ticket 53489
-	 */
-	function test_sanitize_widget_instance_raw_instance() {
-		remove_action( 'widgets_init', array( $this, 'remove_widgets_block_editor' ) );
-		$this->do_customize_boot_actions();
-
-		$block_instance = array(
-			'content' => '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->',
-		);
-
-		$sanitized_for_js = $this->manager->widgets->sanitize_widget_js_instance( $block_instance, 'block' );
-		$this->assertArrayHasKey( 'encoded_serialized_instance', $sanitized_for_js );
-		$this->assertTrue( is_serialized( base64_decode( $sanitized_for_js['encoded_serialized_instance'] ), true ) );
-		$this->assertSame( '', $sanitized_for_js['title'] );
-		$this->assertTrue( $sanitized_for_js['is_widget_customizer_js_value'] );
-		$this->assertArrayHasKey( 'instance_hash_key', $sanitized_for_js );
-		$this->assertEquals( (object) $block_instance, $sanitized_for_js['raw_instance'] );
-
-		$unsanitized_from_js = $this->manager->widgets->sanitize_widget_instance( $sanitized_for_js );
-		$this->assertSame( $unsanitized_from_js, $block_instance );
-	}
-
-	/**
 	 * There should NOT be a 'raw_instance' key when the block editor is enabled
 	 * but the widget does not support them because `show_instance_in_rest` on
 	 * the widget is set to false.
@@ -561,7 +517,7 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 	function get_test_widget_control_args() {
 		global $wp_registered_widgets;
 		require_once ABSPATH . '/wp-admin/includes/widgets.php';
-		$widget_id = 'search-2';
+		$widget_id = 'recent-posts-2';
 		$widget    = $wp_registered_widgets[ $widget_id ];
 		$args      = array(
 			'widget_id'   => $widget['id'],
@@ -585,7 +541,7 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 
 		$this->assertContains( '<div class="form">', $widget_control );
 		$this->assertContains( '<div class="widget-content">', $widget_control );
-		$this->assertContains( '<input type="hidden" name="id_base" class="id_base" value="search"', $widget_control );
+		$this->assertContains( '<input type="hidden" name="id_base" class="id_base" value="recent-posts"', $widget_control );
 		$this->assertContains( '<input class="widefat"', $widget_control );
 	}
 
@@ -600,7 +556,7 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 
 		$this->assertContains( '<div class="form">', $widget_control_parts['control'] );
 		$this->assertContains( '<div class="widget-content">', $widget_control_parts['control'] );
-		$this->assertContains( '<input type="hidden" name="id_base" class="id_base" value="search"', $widget_control_parts['control'] );
+		$this->assertContains( '<input type="hidden" name="id_base" class="id_base" value="recent-posts"', $widget_control_parts['control'] );
 		$this->assertNotContains( '<input class="widefat"', $widget_control_parts['control'] );
 		$this->assertContains( '<input class="widefat"', $widget_control_parts['content'] );
 	}
@@ -610,7 +566,7 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 	 */
 	function test_wp_widget_form_customize_control_json() {
 		$this->do_customize_boot_actions();
-		$control = $this->manager->get_control( 'widget_search[2]' );
+		$control = $this->manager->get_control( 'widget_recent-posts[2]' );
 		$params  = $control->json();
 
 		$this->assertSame( 'widget_form', $params['type'] );
@@ -619,8 +575,8 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 		$this->assertContains( '<div class="widget-content"></div>', $params['widget_control'] );
 		$this->assertNotContains( '<input class="widefat"', $params['widget_control'] );
 		$this->assertContains( '<input class="widefat"', $params['widget_content'] );
-		$this->assertSame( 'search-2', $params['widget_id'] );
-		$this->assertSame( 'search', $params['widget_id_base'] );
+		$this->assertSame( 'recent-posts-2', $params['widget_id'] );
+		$this->assertSame( 'recent-posts', $params['widget_id_base'] );
 		$this->assertArrayHasKey( 'sidebar_id', $params );
 		$this->assertArrayHasKey( 'width', $params );
 		$this->assertArrayHasKey( 'height', $params );
@@ -650,10 +606,12 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 	function test_call_widget_update() {
 
 		$widget_number = 2;
-		$widget_id     = "search-{$widget_number}";
-		$setting_id    = "widget_search[{$widget_number}]";
+		$widget_id     = "recent-posts-{$widget_number}";
+		$setting_id    = "widget_recent-posts[{$widget_number}]";
 		$instance      = array(
-			'title' => 'Buscar',
+			'title'     => 'Buscar',
+			'number'    => 6,
+			'show_date' => false,
 		);
 
 		$_POST = wp_slash(
@@ -663,11 +621,11 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 				'nonce'         => wp_create_nonce( 'update-widget' ),
 				'theme'         => $this->manager->get_stylesheet(),
 				'customized'    => '{}',
-				'widget-search' => array(
+				'widget-recent-posts' => array(
 					2 => $instance,
 				),
 				'widget-id'     => $widget_id,
-				'id_base'       => 'search',
+				'id_base'       => 'recent-posts',
 				'widget-width'  => '250',
 				'widget-height' => '200',
 				'widget_number' => (string) $widget_number,
@@ -680,12 +638,11 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 
 		$this->assertArrayNotHasKey( $setting_id, $this->manager->unsanitized_post_values() );
 		$result = $this->manager->widgets->call_widget_update( $widget_id );
-
 		$this->assertInternalType( 'array', $result );
 		$this->assertArrayHasKey( 'instance', $result );
 		$this->assertArrayHasKey( 'form', $result );
 		$this->assertSame( $instance, $result['instance'] );
-		$this->assertContains( sprintf( 'value="%s"', esc_attr( $instance['title'] ) ), $result['form'] );
+		$this->assertContains( 'value="6"', $result['form'] );
 
 		$post_values = $this->manager->unsanitized_post_values();
 		$this->assertArrayHasKey( $setting_id, $post_values );
@@ -842,7 +799,6 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 		$this->assertFalse( $this->manager->widgets->render_widget_partial( $partial, array( 'sidebar_id' => 'non-existing' ) ) );
 
 		$output = $this->manager->widgets->render_widget_partial( $partial, array( 'sidebar_id' => 'sidebar-1' ) );
-
 		$this->assertSame( 1, substr_count( $output, 'data-customize-partial-id' ) );
 		$this->assertSame( 1, substr_count( $output, 'data-customize-partial-type="widget"' ) );
 		$this->assertContains( ' id="search-2"', $output );

@@ -101,7 +101,7 @@ class WP_Test_REST_Widget_Types_Controller extends WP_Test_REST_Controller_Testc
 		$this->assertSame( 'view', $data['endpoints'][0]['args']['context']['default'] );
 		$this->assertSame( array( 'view', 'embed', 'edit' ), $data['endpoints'][0]['args']['context']['enum'] );
 		// Single.
-		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/widget-types/calendar' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/widget-types/search' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertSame( 'view', $data['endpoints'][0]['args']['context']['default'] );
@@ -160,7 +160,7 @@ class WP_Test_REST_Widget_Types_Controller extends WP_Test_REST_Controller_Testc
 	 * @ticket 41683
 	 */
 	public function test_get_item() {
-		$widget_name = 'calendar';
+		$widget_name = 'search';
 		wp_set_current_user( self::$admin_id );
 		$request     = new WP_REST_Request( 'GET', '/wp/v2/widget-types/' . $widget_name );
 		$response    = rest_get_server()->dispatch( $request );
@@ -253,7 +253,7 @@ class WP_Test_REST_Widget_Types_Controller extends WP_Test_REST_Controller_Testc
 	 */
 	public function test_get_item_wrong_permission() {
 		wp_set_current_user( self::$subscriber_id );
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/widget-types/calendar' );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/widget-types/search' );
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_cannot_manage_widgets', $response, 403 );
 	}
@@ -273,7 +273,7 @@ class WP_Test_REST_Widget_Types_Controller extends WP_Test_REST_Controller_Testc
 	 */
 	public function test_get_item_no_permission() {
 		wp_set_current_user( 0 );
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/widget-types/calendar' );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/widget-types/search' );
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_cannot_manage_widgets', $response, 401 );
 	}
@@ -283,7 +283,7 @@ class WP_Test_REST_Widget_Types_Controller extends WP_Test_REST_Controller_Testc
 	 */
 	public function test_prepare_item() {
 		$endpoint    = new WP_REST_Widget_Types_Controller;
-		$widget_type = $endpoint->get_widget( 'calendar' );
+		$widget_type = $endpoint->get_widget( 'search' );
 		$request     = new WP_REST_Request;
 		$request->set_param( 'context', 'edit' );
 		$response = $endpoint->prepare_item_for_response( $widget_type, $request );

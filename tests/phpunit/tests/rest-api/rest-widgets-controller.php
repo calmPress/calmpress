@@ -175,6 +175,7 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 		update_option( $option_name, $settings );
 
 		$widget_object = $wp_widget_factory->get_widget_object( $id_base );
+
 		foreach ( array_keys( $settings ) as $number ) {
 			$widget_object->_set( $number );
 			$widget_object->_register_one( $number );
@@ -255,34 +256,14 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 	 * @ticket 41683
 	 */
 	public function test_get_items() {
-		add_filter( 'pre_http_request', array( $this, 'mocked_rss_response' ) );
 		global $wp_widget_factory;
 
-		$wp_widget_factory->widgets['WP_Widget_RSS']->widget_options['show_instance_in_rest'] = false;
-
-		$block_content = '<!-- wp:paragraph --><p>Block test</p><!-- /wp:paragraph -->';
-
-		$this->setup_widget(
-			'rss',
-			1,
-			array(
-				'title' => 'RSS test',
-				'url'   => 'https://wordpress.org/news/feed',
-			)
-		);
-		$this->setup_widget(
-			'block',
-			1,
-			array(
-				'content' => $block_content,
-			)
-		);
 		$this->setup_sidebar(
 			'sidebar-1',
 			array(
 				'name' => 'Test sidebar',
 			),
-			array( 'block-1', 'rss-1', 'testwidget' )
+			array( 'rss-1', 'testwidget' )
 		);
 
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/widgets' );
@@ -291,55 +272,6 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 		$data     = $this->remove_links( $data );
 		$this->assertSameSets(
 			array(
-				array(
-					'id'       => 'block-1',
-					'id_base'  => 'block',
-					'sidebar'  => 'sidebar-1',
-					'rendered' => '<p>Block test</p>',
-					'instance' => array(
-						'encoded' => base64_encode(
-							serialize(
-								array(
-									'content' => $block_content,
-								)
-							)
-						),
-						'hash'    => wp_hash(
-							serialize(
-								array(
-									'content' => $block_content,
-								)
-							)
-						),
-						'raw'     => array(
-							'content' => $block_content,
-						),
-					),
-				),
-				array(
-					'id'       => 'rss-1',
-					'id_base'  => 'rss',
-					'sidebar'  => 'sidebar-1',
-					'rendered' => '<a class="rsswidget" href="https://wordpress.org/news/feed"><img class="rss-widget-icon" style="border:0" width="14" height="14" src="http://example.org/wp-includes/images/rss.png" alt="RSS" /></a> <a class="rsswidget" href="https://wordpress.org/news">RSS test</a><ul><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/12/introducing-learn-wordpress/\'>Introducing Learn WordPress</a></li><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/12/simone/\'>WordPress 5.6 “Simone”</a></li><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/12/state-of-the-word-2020/\'>State of the Word 2020</a></li><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/12/the-month-in-wordpress-november-2020/\'>The Month in WordPress: November 2020</a></li><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/12/wordpress-5-6-release-candidate-2/\'>WordPress 5.6 Release Candidate 2</a></li><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/11/wordpress-5-6-release-candidate/\'>WordPress 5.6 Release Candidate</a></li><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/11/wordpress-5-6-beta-4/\'>WordPress 5.6 Beta 4</a></li><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/11/wordpress-5-6-beta-3/\'>WordPress 5.6 Beta 3</a></li><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/11/the-month-in-wordpress-october-2020/\'>The Month in WordPress: October 2020</a></li><li><a class=\'rsswidget\' href=\'https://wordpress.org/news/2020/10/wordpress-5-5-3-maintenance-release/\'>WordPress 5.5.3 Maintenance Release</a></li></ul>',
-					'instance' => array(
-						'encoded' => base64_encode(
-							serialize(
-								array(
-									'title' => 'RSS test',
-									'url'   => 'https://wordpress.org/news/feed',
-								)
-							)
-						),
-						'hash'    => wp_hash(
-							serialize(
-								array(
-									'title' => 'RSS test',
-									'url'   => 'https://wordpress.org/news/feed',
-								)
-							)
-						),
-					),
-				),
 				array(
 					'id'       => 'testwidget',
 					'id_base'  => 'testwidget',
@@ -352,24 +284,6 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 		);
 
 		$wp_widget_factory->widgets['WP_Widget_RSS']->widget_options['show_instance_in_rest'] = true;
-	}
-
-	public function mocked_rss_response() {
-		$single_value_headers = array(
-			'content-type' => 'application/rss+xml; charset=UTF-8',
-			'link'         => '<https://wordpress.org/news/wp-json/>; rel="https://api.w.org/"',
-		);
-
-		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( $single_value_headers ),
-			'body'     => file_get_contents( DIR_TESTDATA . '/feed/wordpress-org-news.xml' ),
-			'response' => array(
-				'code'    => 200,
-				'message' => 'OK',
-			),
-			'cookies'  => array(),
-			'filename' => null,
-		);
 	}
 
 	/**
@@ -645,41 +559,6 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 		);
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_invalid_widget', $response, 400 );
-	}
-
-	/**
-	 * @ticket 41683
-	 */
-	public function test_create_item_using_raw_instance() {
-		$this->setup_sidebar(
-			'sidebar-1',
-			array(
-				'name' => 'Test sidebar',
-			)
-		);
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/widgets' );
-		$request->set_body_params(
-			array(
-				'id_base'  => 'block',
-				'sidebar'  => 'sidebar-1',
-				'instance' => array(
-					'raw' => array(
-						'content' => '<!-- wp:paragraph --><p>Block test</p><!-- /wp:paragraph -->',
-					),
-				),
-			)
-		);
-		$response = rest_get_server()->dispatch( $request );
-		$data     = $response->get_data();
-		$this->assertSame( 'block-7', $data['id'] );
-		$this->assertSame( 'sidebar-1', $data['sidebar'] );
-		$this->assertSameSets(
-			array(
-				'content' => '<!-- wp:paragraph --><p>Block test</p><!-- /wp:paragraph -->',
-			),
-			get_option( 'widget_block' )[7]
-		);
 	}
 
 	/**

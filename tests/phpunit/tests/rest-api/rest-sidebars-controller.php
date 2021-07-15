@@ -283,6 +283,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 	 * @ticket 53489
 	 */
 	public function test_get_items_when_registering_new_sidebars() {
+
 		register_sidebar(
 			array(
 				'name'          => 'New Sidebar',
@@ -298,7 +299,6 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$data     = $this->remove_links( $data );
-
 		$this->assertSame(
 			array(
 				array(
@@ -311,10 +311,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 					'before_title'  => '',
 					'after_title'   => '',
 					'status'        => 'inactive',
-					'widgets'       => [
-						0 => 'recent-posts-2',
-+            			1 => 'recent-comments-2'
-					],
+					'widgets'       => array(),
 				),
 				array(
 					'id'            => 'new-sidebar',
@@ -326,9 +323,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 					'before_title'  => '',
 					'after_title'   => '',
 					'status'        => 'active',
-					'widgets'       => [
-						0 => 'text-1',
-					],
+					'widgets'       => array(),
 				),
 			),
 			$data
@@ -361,9 +356,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 				'before_title'  => '',
 				'after_title'   => '',
 				'status'        => 'active',
-				'widgets'       => [
-					0 => 'text-1',
-				],
+				'widgets'       => array(),
 			),
 			$data
 		);
