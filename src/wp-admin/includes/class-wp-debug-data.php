@@ -935,14 +935,6 @@ class WP_Debug_Data {
 		$plugin_updates = get_plugin_updates();
 		$transient      = get_site_transient( 'update_plugins' );
 
-		$auto_updates = array();
-
-		$auto_updates_enabled = wp_is_auto_update_enabled_for_type( 'plugin' );
-
-		if ( $auto_updates_enabled ) {
-			$auto_updates = (array) get_site_option( 'auto_update_plugins', array() );
-		}
-
 		foreach ( $plugins as $plugin_path => $plugin ) {
 			$plugin_part = ( is_plugin_active( $plugin_path ) ) ? 'wp-plugins-active' : 'wp-plugins-inactive';
 
@@ -976,59 +968,6 @@ class WP_Debug_Data {
 				$plugin_version_string_debug .= sprintf( ' (latest version: %s)', $plugin_updates[ $plugin_path ]->update->new_version );
 			}
 
-			if ( $auto_updates_enabled ) {
-				if ( isset( $transient->response[ $plugin_path ] ) ) {
-					$item = $transient->response[ $plugin_path ];
-				} elseif ( isset( $transient->no_update[ $plugin_path ] ) ) {
-					$item = $transient->no_update[ $plugin_path ];
-				} else {
-					$item = array(
-						'id'            => $plugin_path,
-						'slug'          => '',
-						'plugin'        => $plugin_path,
-						'new_version'   => '',
-						'url'           => '',
-						'package'       => '',
-						'icons'         => array(),
-						'banners'       => array(),
-						'banners_rtl'   => array(),
-						'tested'        => '',
-						'requires_php'  => '',
-						'compatibility' => new stdClass(),
-					);
-					$item = wp_parse_args( $plugin, $item );
-				}
-
-				$auto_update_forced = wp_is_auto_update_forced_for_item( 'plugin', null, (object) $item );
-
-				if ( ! is_null( $auto_update_forced ) ) {
-					$enabled = $auto_update_forced;
-				} else {
-					$enabled = in_array( $plugin_path, $auto_updates, true );
-				}
-
-				if ( $enabled ) {
-					$auto_updates_string = __( 'Auto-updates enabled' );
-				} else {
-					$auto_updates_string = __( 'Auto-updates disabled' );
-				}
-
-				/**
-				 * Filters the text string of the auto-updates setting for each plugin in the Site Health debug data.
-				 *
-				 * @since 5.5.0
-				 *
-				 * @param string $auto_updates_string The string output for the auto-updates column.
-				 * @param string $plugin_path         The path to the plugin file.
-				 * @param array  $plugin              An array of plugin data.
-				 * @param bool   $enabled             Whether auto-updates are enabled for this item.
-				 */
-				$auto_updates_string = apply_filters( 'plugin_auto_update_debug_string', $auto_updates_string, $plugin_path, $plugin, $enabled );
-
-				$plugin_version_string       .= ' | ' . $auto_updates_string;
-				$plugin_version_string_debug .= ', ' . $auto_updates_string;
-			}
-
 			$info[ $plugin_part ]['fields'][ sanitize_text_field( $plugin['Name'] ) ] = array(
 				'label' => $plugin['Name'],
 				'value' => $plugin_version_string,
@@ -1052,12 +991,6 @@ class WP_Debug_Data {
 
 		$active_theme_version       = $active_theme->version;
 		$active_theme_version_debug = $active_theme_version;
-
-		$auto_updates         = array();
-		$auto_updates_enabled = wp_is_auto_update_enabled_for_type( 'theme' );
-		if ( $auto_updates_enabled ) {
-			$auto_updates = (array) get_site_option( 'auto_update_themes', array() );
-		}
 
 		if ( array_key_exists( $active_theme->stylesheet, $theme_updates ) ) {
 			$theme_update_new_version = $theme_updates[ $active_theme->stylesheet ]->update['new_version'];
@@ -1125,46 +1058,6 @@ class WP_Debug_Data {
 			),
 		);
 
-		if ( $auto_updates_enabled ) {
-			if ( isset( $transient->response[ $active_theme->stylesheet ] ) ) {
-				$item = $transient->response[ $active_theme->stylesheet ];
-			} elseif ( isset( $transient->no_update[ $active_theme->stylesheet ] ) ) {
-				$item = $transient->no_update[ $active_theme->stylesheet ];
-			} else {
-				$item = array(
-					'theme'        => $active_theme->stylesheet,
-					'new_version'  => $active_theme->version,
-					'url'          => '',
-					'package'      => '',
-					'requires'     => '',
-					'requires_php' => '',
-				);
-			}
-
-			$auto_update_forced = wp_is_auto_update_forced_for_item( 'theme', null, (object) $item );
-
-			if ( ! is_null( $auto_update_forced ) ) {
-				$enabled = $auto_update_forced;
-			} else {
-				$enabled = in_array( $active_theme->stylesheet, $auto_updates, true );
-			}
-
-			if ( $enabled ) {
-				$auto_updates_string = __( 'Enabled' );
-			} else {
-				$auto_updates_string = __( 'Disabled' );
-			}
-
-			/** This filter is documented in wp-admin/includes/class-wp-debug-data.php */
-			$auto_updates_string = apply_filters( 'theme_auto_update_debug_string', $auto_updates_string, $active_theme, $enabled );
-
-			$info['wp-active-theme']['fields']['auto_update'] = array(
-				'label' => __( 'Auto-updates' ),
-				'value' => $auto_updates_string,
-				'debug' => $auto_updates_string,
-			);
-		}
-
 		$parent_theme = $active_theme->parent();
 
 		if ( $parent_theme ) {
@@ -1210,46 +1103,6 @@ class WP_Debug_Data {
 					'value' => get_template_directory(),
 				),
 			);
-
-			if ( $auto_updates_enabled ) {
-				if ( isset( $transient->response[ $parent_theme->stylesheet ] ) ) {
-					$item = $transient->response[ $parent_theme->stylesheet ];
-				} elseif ( isset( $transient->no_update[ $parent_theme->stylesheet ] ) ) {
-					$item = $transient->no_update[ $parent_theme->stylesheet ];
-				} else {
-					$item = array(
-						'theme'        => $parent_theme->stylesheet,
-						'new_version'  => $parent_theme->version,
-						'url'          => '',
-						'package'      => '',
-						'requires'     => '',
-						'requires_php' => '',
-					);
-				}
-
-				$auto_update_forced = wp_is_auto_update_forced_for_item( 'theme', null, (object) $item );
-
-				if ( ! is_null( $auto_update_forced ) ) {
-					$enabled = $auto_update_forced;
-				} else {
-					$enabled = in_array( $parent_theme->stylesheet, $auto_updates, true );
-				}
-
-				if ( $enabled ) {
-					$parent_theme_auto_update_string = __( 'Enabled' );
-				} else {
-					$parent_theme_auto_update_string = __( 'Disabled' );
-				}
-
-				/** This filter is documented in wp-admin/includes/class-wp-debug-data.php */
-				$parent_theme_auto_update_string = apply_filters( 'theme_auto_update_debug_string', $auto_updates_string, $parent_theme, $enabled );
-
-				$info['wp-parent-theme']['fields']['auto_update'] = array(
-					'label' => __( 'Auto-update' ),
-					'value' => $parent_theme_auto_update_string,
-					'debug' => $parent_theme_auto_update_string,
-				);
-			}
 		}
 
 		// Populate a list of all themes available in the install.
@@ -1297,51 +1150,6 @@ class WP_Debug_Data {
 				/* translators: %s: Latest theme version number. */
 				$theme_version_string       .= ' ' . sprintf( __( '(Latest version: %s)' ), $theme_updates[ $theme_slug ]->update['new_version'] );
 				$theme_version_string_debug .= sprintf( ' (latest version: %s)', $theme_updates[ $theme_slug ]->update['new_version'] );
-			}
-
-			if ( $auto_updates_enabled ) {
-				if ( isset( $transient->response[ $theme_slug ] ) ) {
-					$item = $transient->response[ $theme_slug ];
-				} elseif ( isset( $transient->no_update[ $theme_slug ] ) ) {
-					$item = $transient->no_update[ $theme_slug ];
-				} else {
-					$item = array(
-						'theme'        => $theme_slug,
-						'new_version'  => $theme->version,
-						'url'          => '',
-						'package'      => '',
-						'requires'     => '',
-						'requires_php' => '',
-					);
-				}
-
-				$auto_update_forced = wp_is_auto_update_forced_for_item( 'theme', null, (object) $item );
-
-				if ( ! is_null( $auto_update_forced ) ) {
-					$enabled = $auto_update_forced;
-				} else {
-					$enabled = in_array( $theme_slug, $auto_updates, true );
-				}
-
-				if ( $enabled ) {
-					$auto_updates_string = __( 'Auto-updates enabled' );
-				} else {
-					$auto_updates_string = __( 'Auto-updates disabled' );
-				}
-
-				/**
-				 * Filters the text string of the auto-updates setting for each theme in the Site Health debug data.
-				 *
-				 * @since 5.5.0
-				 *
-				 * @param string   $auto_updates_string The string output for the auto-updates column.
-				 * @param WP_Theme $theme               An object of theme data.
-				 * @param bool     $enabled             Whether auto-updates are enabled for this item.
-				 */
-				$auto_updates_string = apply_filters( 'theme_auto_update_debug_string', $auto_updates_string, $theme, $enabled );
-
-				$theme_version_string       .= ' | ' . $auto_updates_string;
-				$theme_version_string_debug .= ', ' . $auto_updates_string;
 			}
 
 			$info['wp-themes-inactive']['fields'][ sanitize_text_field( $theme->name ) ] = array(

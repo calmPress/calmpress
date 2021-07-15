@@ -608,21 +608,6 @@ function wp_update_themes( $extra_stats = array() ) {
 }
 
 /**
- * Performs WordPress automatic background updates.
- *
- * Updates WordPress core plus any plugins and themes that have automatic updates enabled.
- *
- * @since 3.7.0
- */
-function wp_maybe_auto_update() {
-	include_once ABSPATH . 'wp-admin/includes/admin.php';
-	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-
-	$upgrader = new WP_Automatic_Updater;
-	$upgrader->run();
-}
-
-/**
  * Retrieves a list of all language updates available.
  *
  * @since 3.7.0
@@ -858,7 +843,5 @@ add_action( 'admin_init', '_maybe_update_themes' );
 add_action( 'wp_update_themes', 'wp_update_themes' );
 
 add_action( 'update_option_WPLANG', 'wp_clean_update_cache', 10, 0 );
-
-add_action( 'wp_maybe_auto_update', 'wp_maybe_auto_update' );
 
 add_action( 'init', 'wp_schedule_update_checks' );

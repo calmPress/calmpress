@@ -1173,7 +1173,6 @@ function wp_removable_query_args() {
 		'activated',
 		'admin_email_remind_later',
 		'approved',
-		'core-major-auto-updates-saved',
 		'deactivate',
 		'delete_count',
 		'deleted',

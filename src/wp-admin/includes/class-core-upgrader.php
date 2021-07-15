@@ -196,33 +196,6 @@ class Core_Upgrader extends WP_Upgrader {
 
 		$current_is_development_version = (bool) strpos( $wp_version, '-' );
 
-		// Defaults:
-		$upgrade_dev   = get_site_option( 'auto_update_core_dev', 'enabled' ) === 'enabled';
-		$upgrade_minor = get_site_option( 'auto_update_core_minor', 'enabled' ) === 'enabled';
-		$upgrade_major = get_site_option( 'auto_update_core_major', 'unset' ) === 'enabled';
-
-		// WP_AUTO_UPDATE_CORE = true (all), 'beta', 'rc', 'development', 'branch-development', 'minor', false.
-		if ( defined( 'WP_AUTO_UPDATE_CORE' ) ) {
-			if ( false === WP_AUTO_UPDATE_CORE ) {
-				// Defaults to turned off, unless a filter allows it.
-				$upgrade_dev   = false;
-				$upgrade_minor = false;
-				$upgrade_major = false;
-			} elseif ( true === WP_AUTO_UPDATE_CORE
-				|| in_array( WP_AUTO_UPDATE_CORE, array( 'beta', 'rc', 'development', 'branch-development' ), true )
-			) {
-				// ALL updates for core.
-				$upgrade_dev   = true;
-				$upgrade_minor = true;
-				$upgrade_major = true;
-			} elseif ( 'minor' === WP_AUTO_UPDATE_CORE ) {
-				// Only minor updates for core.
-				$upgrade_dev   = false;
-				$upgrade_minor = true;
-				$upgrade_major = false;
-			}
-		}
-
 		// 1: If we're already on that version, not much point in updating?
 		if ( $offered_ver === $wp_version ) {
 			return false;
@@ -253,49 +226,6 @@ class Core_Upgrader extends WP_Upgrader {
 			if ( empty( $failure_data['retry'] ) && $wp_version === $failure_data['current'] && $offered_ver === $failure_data['attempted'] ) {
 				return false;
 			}
-		}
-
-		// 3: 3.7-alpha-25000 -> 3.7-alpha-25678 -> 3.7-beta1 -> 3.7-beta2.
-		if ( $current_is_development_version ) {
-
-			/**
-			 * Filters whether to enable automatic core updates for development versions.
-			 *
-			 * @since 3.7.0
-			 *
-			 * @param bool $upgrade_dev Whether to enable automatic updates for
-			 *                          development versions.
-			 */
-			if ( ! apply_filters( 'allow_dev_auto_core_updates', $upgrade_dev ) ) {
-				return false;
-			}
-			// Else fall through to minor + major branches below.
-		}
-
-		// 4: Minor in-branch updates (3.7.0 -> 3.7.1 -> 3.7.2 -> 3.7.4).
-		if ( $current_branch === $new_branch ) {
-
-			/**
-			 * Filters whether to enable minor automatic core updates.
-			 *
-			 * @since 3.7.0
-			 *
-			 * @param bool $upgrade_minor Whether to enable minor automatic core updates.
-			 */
-			return apply_filters( 'allow_minor_auto_core_updates', $upgrade_minor );
-		}
-
-		// 5: Major version updates (3.7.0 -> 3.8.0 -> 3.9.1).
-		if ( version_compare( $new_branch, $current_branch, '>' ) ) {
-
-			/**
-			 * Filters whether to enable major automatic core updates.
-			 *
-			 * @since 3.7.0
-			 *
-			 * @param bool $upgrade_major Whether to enable major automatic core updates.
-			 */
-			return apply_filters( 'allow_major_auto_core_updates', $upgrade_major );
 		}
 
 		// If we're not sure, we don't want it.

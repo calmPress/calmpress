@@ -712,14 +712,6 @@ function upgrade_all() {
 			upgrade_350();
 		}
 
-		if ( $wp_current_db_version < 25824 ) {
-			upgrade_370();
-		}
-
-		if ( $wp_current_db_version < 26148 ) {
-			upgrade_372();
-		}
-
 		if ( $wp_current_db_version < 26691 ) {
 			upgrade_380();
 		}
@@ -1658,39 +1650,6 @@ function upgrade_350() {
 }
 
 /**
- * Execute changes made in WordPress 3.7.
- *
- * @ignore
- * @since 3.7.0
- *
- * @global int $wp_current_db_version The old (current) database version.
- */
-function upgrade_370() {
-	global $wp_current_db_version;
-
-	if ( $wp_current_db_version < 25824 ) {
-		wp_clear_scheduled_hook( 'wp_auto_updates_maybe_update' );
-	}
-}
-
-/**
- * Execute changes made in WordPress 3.7.2.
- *
- * @ignore
- * @since 3.7.2
- * @since 3.8.0
- *
- * @global int $wp_current_db_version The old (current) database version.
- */
-function upgrade_372() {
-	global $wp_current_db_version;
-
-	if ( $wp_current_db_version < 26148 ) {
-		wp_clear_scheduled_hook( 'wp_maybe_auto_update' );
-	}
-}
-
-/**
  * Execute changes made in WordPress 3.8.0.
  *
  * @ignore
@@ -1876,10 +1835,6 @@ function upgrade_440() {
 function upgrade_450() {
 	global $wp_current_db_version, $wpdb;
 
-	if ( $wp_current_db_version < 36180 ) {
-		wp_clear_scheduled_hook( 'wp_maybe_auto_update' );
-	}
-
 	// Remove unused email confirmation options, moved to usermeta.
 	if ( $wp_current_db_version < 36679 && is_multisite() ) {
 		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name REGEXP '^[0-9]+_new_email$'" );
@@ -2000,13 +1955,6 @@ function upgrade_560() {
 		if ( ! is_null( $post_category_exists ) ) {
 			$wpdb->query( "ALTER TABLE $wpdb->posts DROP COLUMN `post_category`" );
 		}
-
-		/*
-		 * When upgrading from WP < 5.6.0 set the core major auto-updates option to `unset` by default.
-		 * This overrides the same option from populate_options() that is intended for new installs.
-		 * See https://core.trac.wordpress.org/ticket/51742.
-		 */
-		update_option( 'auto_update_core_major', 'unset' );
 	}
 
 	if ( $wp_current_db_version < 49632 ) {

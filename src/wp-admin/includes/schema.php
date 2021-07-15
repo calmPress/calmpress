@@ -490,12 +490,6 @@ function populate_options( array $options = array() ) {
 
 		// calmPress 0.9.9.
 		'calmpress_db_version'            => calmpress_version(),
-		// 5.6.0
-		'auto_update_core_dev'            => 'enabled',
-		'auto_update_core_minor'          => 'enabled',
-		// Default to enabled for new installs.
-		// See https://core.trac.wordpress.org/ticket/51742.
-		'auto_update_core_major'          => 'enabled',
 
 		// calmPress 1.0.0
 		'calm_embedding_on'               => 0,
