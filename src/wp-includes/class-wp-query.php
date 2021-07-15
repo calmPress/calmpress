@@ -928,7 +928,7 @@ class WP_Query {
 			$this->is_admin = true;
 		}
 
-		$this->is_singular = $this->is_single || $this->is_page || $this->is_attachment;
+		$this->is_singular = $this->is_single || $this->is_page;
 
 		if ( ! ( $this->is_singular || $this->is_archive || $this->is_search || $this->is_feed
 				|| ( defined( 'REST_REQUEST' ) && REST_REQUEST && $this->is_main_query() )
@@ -1018,7 +1018,7 @@ class WP_Query {
 			}
 		}
 
-		$this->is_singular = $this->is_single || $this->is_page || $this->is_attachment;
+		$this->is_singular = $this->is_single || $this->is_page;
 		// Done correcting `is_*` for 'page_on_front' and 'page_for_posts'.
 
 		if ( '404' == $qv['error'] ) {
@@ -2344,9 +2344,6 @@ class WP_Query {
 		} elseif ( ! empty( $post_type ) ) {
 			$where           .= $wpdb->prepare( " AND {$wpdb->posts}.post_type = %s", $post_type );
 			$post_type_object = get_post_type_object( $post_type );
-		} elseif ( $this->is_attachment ) {
-			$where           .= " AND {$wpdb->posts}.post_type = 'attachment'";
-			$post_type_object = get_post_type_object( 'attachment' );
 		} elseif ( $this->is_page ) {
 			$where           .= " AND {$wpdb->posts}.post_type = 'page'";
 			$post_type_object = get_post_type_object( 'page' );
@@ -2880,12 +2877,6 @@ class WP_Query {
 		// Check post status to determine if post should be displayed.
 		if ( ! empty( $this->posts ) && ( $this->is_single || $this->is_page ) ) {
 			$status = get_post_status( $this->posts[0] );
-
-			if ( 'attachment' === $this->posts[0]->post_type && 0 === (int) $this->posts[0]->post_parent ) {
-				$this->is_page       = false;
-				$this->is_single     = true;
-				$this->is_attachment = true;
-			}
 
 			// If the post_status was specifically requested, let it pass through.
 			if ( ! in_array( $status, $q_status, true ) ) {

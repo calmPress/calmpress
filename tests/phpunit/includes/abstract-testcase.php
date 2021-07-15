@@ -982,7 +982,6 @@ abstract class WP_UnitTestCase_Base extends PHPUnit\Framework\TestCase {
 			'is_404',
 			'is_admin',
 			'is_archive',
-			'is_attachment',
 			'is_author',
 			'is_category',
 			'is_date',

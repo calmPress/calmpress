@@ -1728,11 +1728,7 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
  */
 function get_adjacent_post_rel_link( $title = '%title', $in_same_term = false, $excluded_terms = '', $previous = true, $taxonomy = 'category' ) {
 	$post = get_post();
-	if ( $previous && is_attachment() && $post ) {
-		$post = get_post( $post->post_parent );
-	} else {
-		$post = get_adjacent_post( $in_same_term, $excluded_terms, $previous, $taxonomy );
-	}
+	$post = get_adjacent_post( $in_same_term, $excluded_terms, $previous, $taxonomy );
 
 	if ( empty( $post ) ) {
 		return;
@@ -1805,7 +1801,7 @@ function adjacent_posts_rel_link( $title = '%title', $in_same_term = false, $exc
  * @see adjacent_posts_rel_link()
  */
 function adjacent_posts_rel_link_wp_head() {
-	if ( ! is_single() || is_attachment() ) {
+	if ( ! is_single() ) {
 		return;
 	}
 	adjacent_posts_rel_link();
@@ -1861,7 +1857,7 @@ function prev_post_rel_link( $title = '%title', $in_same_term = false, $excluded
  */
 function get_boundary_post( $in_same_term = false, $excluded_terms = '', $start = true, $taxonomy = 'category' ) {
 	$post = get_post();
-	if ( ! $post || ! is_single() || is_attachment() || ! taxonomy_exists( $taxonomy ) ) {
+	if ( ! $post || ! is_single() || ! taxonomy_exists( $taxonomy ) ) {
 		return null;
 	}
 
@@ -1991,11 +1987,7 @@ function next_post_link( $format = '%link &raquo;', $link = '%title', $in_same_t
  * @return string The link URL of the previous or next post in relation to the current post.
  */
 function get_adjacent_post_link( $format, $link, $in_same_term = false, $excluded_terms = '', $previous = true, $taxonomy = 'category' ) {
-	if ( $previous && is_attachment() ) {
-		$post = get_post( get_post()->post_parent );
-	} else {
-		$post = get_adjacent_post( $in_same_term, $excluded_terms, $previous, $taxonomy );
-	}
+	$post = get_adjacent_post( $in_same_term, $excluded_terms, $previous, $taxonomy );
 
 	if ( ! $post ) {
 		$output = '';

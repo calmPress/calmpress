@@ -562,7 +562,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertTrue( is_single() );
 		$this->assertTrue( $q->is_single );
 		$this->assertFalse( $q->is_page );
-		$this->assertFalse( $q->is_attachment );
 		$this->assertTrue( is_single( $post ) );
 		$this->assertTrue( is_single( $post->ID ) );
 		$this->assertTrue( is_single( $post->post_title ) );
@@ -611,7 +610,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertTrue( is_single() );
 		$this->assertFalse( $q->is_page );
 		$this->assertTrue( $q->is_single );
-		$this->assertFalse( $q->is_attachment );
 		$this->assertTrue( is_single( $post ) );
 		$this->assertTrue( is_single( $post->ID ) );
 		$this->assertTrue( is_single( $post->post_title ) );
@@ -670,7 +668,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 
 		$this->assertTrue( $q->is_single() );
 		$this->assertTrue( $q->is_single( $post_id ) );
-		$this->assertFalse( $q->is_attachment() );
 		$this->assertFalse( $q->is_404() );
 
 		$this->set_permalink_structure();
@@ -686,7 +683,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertTrue( is_page() );
 		$this->assertFalse( $q->is_single );
 		$this->assertTrue( $q->is_page );
-		$this->assertFalse( $q->is_attachment );
 		$this->assertTrue( is_page( $post ) );
 		$this->assertTrue( is_page( $post->ID ) );
 		$this->assertTrue( is_page( $post->post_title ) );
@@ -718,7 +714,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->assertTrue( is_page() );
 		$this->assertFalse( $q->is_single );
 		$this->assertTrue( $q->is_page );
-		$this->assertFalse( $q->is_attachment );
 		$this->assertTrue( is_page( $post ) );
 		$this->assertTrue( is_page( $post->ID ) );
 		$this->assertTrue( is_page( $post->post_title ) );
