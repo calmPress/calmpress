@@ -733,8 +733,8 @@ if ( 'upgrade-core' === $action ) {
 	}
 
 	echo '<h2 class="wp-current-version">';
-	/* translators: Current version of WordPress. */
-	printf( __( 'Current version: %s' ), get_bloginfo( 'version' ) );
+	/* translators: Current version of calmPress. */
+	printf( __( 'Current version: %s' ), calmpress_version() );
 	echo '</h2>';
 
 	echo '<p class="update-last-checked">';
