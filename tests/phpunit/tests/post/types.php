@@ -569,3 +569,45 @@ class Tests_Post_Types extends WP_UnitTestCase {
 		$this->assertSameSets( array(), get_post_types_by_support( 'somefeature' ) );
 	}
 }
+
+	/**
+	 * Test add_post_type_supports of author add also the authors_as_taxonomy to the 
+	 * post type.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	function test_add_post_type_support() {
+		register_post_type( 'without_author', [
+			'label' => 'with author',
+			'supports' => [ 'title' ],
+		] );
+
+		add_post_type_support( 'without_author', 'editor' );
+
+		$this->assertFalse( is_object_in_taxonomy( 'without_author', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
+
+		add_post_type_support( 'without_author', 'author' );
+
+		$this->assertTrue( is_object_in_taxonomy( 'without_author', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
+	}
+
+	/**
+	 * Test remove_post_type_supports of author removes also the authors_as_taxonomy from the 
+	 * post type.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	function test_remove_post_type_support() {
+		register_post_type( 'with_author', [
+			'label' => 'with author',
+			'supports' => [ 'title', 'editor', 'author' ],
+		] );
+
+		remove_post_type_support( 'with_author', 'editor' );
+
+		$this->assertTrue( is_object_in_taxonomy( 'with_author', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
+
+		remove_post_type_support( 'with_author', 'author' );
+
+		$this->assertFalse( is_object_in_taxonomy( 'with_author', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ) );
+	}
