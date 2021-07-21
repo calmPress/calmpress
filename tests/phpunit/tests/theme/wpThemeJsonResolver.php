@@ -100,11 +100,11 @@ class Tests_Theme_wpThemeJsonResolver extends WP_UnitTestCase {
 		$default = WP_Theme_JSON_Resolver::theme_has_support();
 
 		// Switch to a theme that does have support.
-		switch_theme( 'fse' );
-		$fse = WP_Theme_JSON_Resolver::theme_has_support();
+		switch_theme( 'block-theme' );
+		$has_theme_json_support = WP_Theme_JSON_Resolver::theme_has_support();
 
 		$this->assertFalse( $default );
-		$this->assertTrue( $fse );
+		$this->assertTrue( $has_theme_json_support );
 	}
 
 }

@@ -1634,7 +1634,8 @@ class _WP_Editors {
 		?>
 
 		( function() {
-			var initialize = function() {
+			var initialized = [];
+			var initialize  = function() {
 				var init, id, inPostbox, $wrap;
 				var readyState = document.readyState;
 
@@ -1643,6 +1644,10 @@ class _WP_Editors {
 				}
 
 				for ( id in tinyMCEPreInit.mceInit ) {
+					if ( initialized.indexOf( id ) > -1 ) {
+						continue;
+					}
+
 					init      = tinyMCEPreInit.mceInit[id];
 					$wrap     = tinymce.$( '#wp-' + id + '-wrap' );
 					inPostbox = $wrap.parents( '.postbox' ).length > 0;
@@ -1650,9 +1655,10 @@ class _WP_Editors {
 					if (
 						! init.wp_skip_init &&
 						( $wrap.hasClass( 'tmce-active' ) || ! tinyMCEPreInit.qtInit.hasOwnProperty( id ) ) &&
-						( ( inPostbox && readyState === 'complete' ) || ( ! inPostbox && readyState === 'interactive' ) )
+						( readyState === 'complete' || ( ! inPostbox && readyState === 'interactive' ) )
 					) {
 						tinymce.init( init );
+						initialized.push( id );
 
 						if ( ! window.wpActiveEditor ) {
 							window.wpActiveEditor = id;

@@ -110,6 +110,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'switch_themes'           => array( 'administrator' ),
 			'edit_dashboard'          => array( 'administrator' ),
 			'view_site_health_checks' => array( 'administrator' ),
+			'backup'                  => array( 'administrator' ),
 
 			'moderate_comments'       => array( 'administrator', 'editor' ),
 			'manage_categories'       => array( 'administrator', 'editor' ),
@@ -178,6 +179,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'update_plugins'          => array(),
 			'update_themes'           => array(),
 			'view_site_health_checks' => array(),
+			'backup'                  => array(),
 
 			'edit_theme_options'      => array( 'administrator' ),
 			'export'                  => array( 'administrator' ),

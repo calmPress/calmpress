@@ -183,6 +183,27 @@ $_old_files = array(
 	// 5.6
 	'wp-includes/js/jquery/ui/position.min.js',
 	'wp-includes/js/jquery/ui/widget.min.js',
+	// 5.7
+	'wp-includes/blocks/classic/block.json',
+	// 5.8
+	'wp-admin/images/freedoms.png',
+	'wp-admin/images/privacy.png',
+	'wp-admin/images/about-badge.svg',
+	'wp-admin/images/about-color-palette.svg',
+	'wp-admin/images/about-color-palette-vert.svg',
+	'wp-admin/images/about-header-brushes.svg',
+	'wp-includes/block-patterns/large-header.php',
+	'wp-includes/block-patterns/heading-paragraph.php',
+	'wp-includes/block-patterns/quote.php',
+	'wp-includes/block-patterns/text-three-columns-buttons.php',
+	'wp-includes/block-patterns/two-buttons.php',
+	'wp-includes/block-patterns/two-images.php',
+	'wp-includes/block-patterns/three-buttons.php',
+	'wp-includes/block-patterns/text-two-columns-with-images.php',
+	'wp-includes/block-patterns/text-two-columns.php',
+	'wp-includes/block-patterns/large-header-button.php',
+	'wp-includes/blocks/subhead/block.json',
+	'wp-includes/blocks/subhead',
 );
 
 /**
