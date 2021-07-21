@@ -180,7 +180,7 @@ if ( is_multisite() ) :
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$result = $wpdb->get_results( "SELECT * FROM $prefix$table LIMIT 1" );
 
-				if ( 'commentmeta' === $table || 'termmeta' === $table || 'links' === $table ) {
+				if ( in_array( $table, ['commentmeta', 'termmeta', 'terms', 'term_taxonomy', 'term_relationships' ], true ) ) {
 					$this->assertEmpty( $result );
 				} else {
 					$this->assertNotEmpty( $result, 'Table: ' . $table  );
