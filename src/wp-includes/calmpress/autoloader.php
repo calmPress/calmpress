@@ -43,6 +43,11 @@ const MAP = [
 	'calmpress\plugin\Repository'                       => __DIR__ . '/plugin/class-repository.php',
 	'calmpress\plugin\Trivial_Version'                  => __DIR__ . '/plugin/class-trivial-version.php',
 	'calmpress\plugin\Version'                          => __DIR__ . '/plugin/class-version.php',
+	'calmpress\backup\Backup_Manager'                   => __DIR__ . '/backup/class-backup-manager.php',
+	'calmpress\backup\Managed_Backup'                   => __DIR__ . '/backup/class-managed-backup.php',
+	'calmpress\backup\Backup'                           => __DIR__ . '/backup/class-backup.php',
+	'calmpress\backup\Backup_Storage'                   => __DIR__ . '/backup/class-backup-storage.php',
+	'calmpress\backup\Local_Backup_Storage'             => __DIR__ . '/backup/class-local-backup-storage.php',
 ];
 
 spl_autoload_register(

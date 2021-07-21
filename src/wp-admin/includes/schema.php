@@ -591,6 +591,7 @@ function populate_roles() {
 	populate_roles_270();
 	populate_roles_280();
 	populate_roles_300();
+	populate_roles_calmpress_100();
 }
 
 /**
@@ -811,6 +812,19 @@ function populate_roles_300() {
 		$role->add_cap( 'edit_theme_options' );
 		$role->add_cap( 'delete_themes' );
 		$role->add_cap( 'export' );
+	}
+}
+
+/**
+ * Create and modify WordPress roles for calmPress 1.0.0.
+ *
+ * @since calmPress 1.0.0
+ */
+function populate_roles_calmpress_100() {
+	$role = get_role( 'administrator' );
+
+	if ( ! empty( $role ) ) {
+		$role->add_cap( 'backup' );
 	}
 }
 
