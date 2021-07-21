@@ -1530,18 +1530,6 @@ function wp_widgets_init() {
 }
 
 /**
- * Enables the widgets block editor. This is hooked into 'after_setup_theme' so
- * that the block editor is enabled by default but can be disabled by themes.
- *
- * @since 5.8.0
- *
- * @access private
- */
-function wp_setup_widgets_block_editor() {
-	add_theme_support( 'widgets-block-editor' );
-}
-
-/**
  * Whether or not to use the block editor to manage widgets. Defaults to true
  * unless a theme has removed support for widgets-block-editor or a plugin has
  * filtered the return value of this function.

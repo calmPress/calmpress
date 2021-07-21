@@ -66,18 +66,7 @@ if ( ! current_user_can( $post_type_object->cap->edit_posts ) || ! current_user_
 $post    = get_default_post_to_edit( $post_type, true );
 $post_ID = $post->ID;
 
-/** This filter is documented in wp-admin/post.php */
-if ( apply_filters( 'replace_editor', false, $post ) !== true ) {
-	if ( use_block_editor_for_post( $post ) ) {
-		require ABSPATH . 'wp-admin/edit-form-blocks.php';
-	} else {
-		wp_enqueue_script( 'autosave' );
-		require ABSPATH . 'wp-admin/edit-form-advanced.php';
-	}
-} else {
-	// Flag that we're not loading the block editor.
-	$current_screen = get_current_screen();
-	$current_screen->is_block_editor( false );
-}
+wp_enqueue_script( 'autosave' );
+require ABSPATH . 'wp-admin/edit-form-advanced.php';
 
 require_once ABSPATH . 'wp-admin/admin-footer.php';

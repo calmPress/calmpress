@@ -401,8 +401,7 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertArrayHasKey( 'post-thumbnails', $theme_supports );
 		$this->assertArrayHasKey( 'responsive-embeds', $theme_supports );
 		$this->assertArrayHasKey( 'title-tag', $theme_supports );
-		$this->assertArrayHasKey( 'wp-block-styles', $theme_supports );
-		$this->assertCount( 20, $theme_supports );
+		$this->assertCount( 19, $theme_supports );
 	}
 
 	/**
@@ -881,30 +880,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 		$result   = $response->get_data();
 		$this->assertArrayHasKey( 'theme_supports', $result[0] );
 		$this->assertTrue( $result[0]['theme_supports']['customize-selective-refresh-widgets'] );
-	}
-
-	/**
-	 * @ticket 49037
-	 */
-	public function test_theme_no_wp_block_styles() {
-		remove_theme_support( 'wp-block-styles' );
-		$response = self::perform_active_theme_request();
-		$result   = $response->get_data();
-		$this->assertArrayHasKey( 'theme_supports', $result[0] );
-		$this->assertArrayHasKey( 'wp-block-styles', $result[0]['theme_supports'] );
-		$this->assertFalse( $result[0]['theme_supports']['wp-block-styles'] );
-	}
-
-	/**
-	 * @ticket 49037
-	 */
-	public function test_theme_wp_block_styles_optin() {
-		remove_theme_support( 'wp-block-styles' );
-		add_theme_support( 'wp-block-styles' );
-		$response = self::perform_active_theme_request();
-		$result   = $response->get_data();
-		$this->assertArrayHasKey( 'theme_supports', $result[0] );
-		$this->assertTrue( $result[0]['theme_supports']['wp-block-styles'] );
 	}
 
 	/**

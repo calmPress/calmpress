@@ -8,60 +8,13 @@
  */
 
 /**
- * Removes the block asset's path prefix if provided.
- *
- * @since 5.5.0
- *
- * @param string $asset_handle_or_path Asset handle or prefixed path.
- * @return string Path without the prefix or the original value.
- */
-function remove_block_asset_path_prefix( $asset_handle_or_path ) {
-	$path_prefix = 'file:';
-	if ( 0 !== strpos( $asset_handle_or_path, $path_prefix ) ) {
-		return $asset_handle_or_path;
-	}
-	return substr(
-		$asset_handle_or_path,
-		strlen( $path_prefix )
-	);
-}
-
-/**
- * Generates the name for an asset based on the name of the block
- * and the field name provided.
- *
- * @since 5.5.0
- *
- * @param string $block_name Name of the block.
- * @param string $field_name Name of the metadata field.
- * @return string Generated asset name for the block's field.
- */
-function generate_block_asset_handle( $block_name, $field_name ) {
-	if ( 0 === strpos( $block_name, 'core/' ) ) {
-		$asset_handle = str_replace( 'core/', 'wp-block-', $block_name );
-		if ( 0 === strpos( $field_name, 'editor' ) ) {
-			$asset_handle .= '-editor';
-		}
-		return $asset_handle;
-	}
-
-	$field_mappings = array(
-		'editorScript' => 'editor-script',
-		'script'       => 'script',
-		'editorStyle'  => 'editor-style',
-		'style'        => 'style',
-	);
-	return str_replace( '/', '-', $block_name ) .
-		'-' . $field_mappings[ $field_name ];
-}
-
-/**
  * Finds a script handle for the selected block metadata field. It detects
  * when a path to file was provided and finds a corresponding asset file
  * with details necessary to register the script under automatically
  * generated handle name. It returns unprocessed script handle otherwise.
  *
  * @since 5.5.0
+ * @since calmPress 1.0.0 Does nothing.
  *
  * @param array  $metadata   Block metadata.
  * @param string $field_name Field name to pick from metadata.
@@ -69,49 +22,6 @@ function generate_block_asset_handle( $block_name, $field_name ) {
  *                      script's registration, or false on failure.
  */
 function register_block_script_handle( $metadata, $field_name ) {
-	if ( empty( $metadata[ $field_name ] ) ) {
-		return false;
-	}
-	$script_handle = $metadata[ $field_name ];
-	$script_path   = remove_block_asset_path_prefix( $metadata[ $field_name ] );
-	if ( $script_handle === $script_path ) {
-		return $script_handle;
-	}
-
-	$script_handle     = generate_block_asset_handle( $metadata['name'], $field_name );
-	$script_asset_path = realpath(
-		dirname( $metadata['file'] ) . '/' .
-		substr_replace( $script_path, '.asset.php', - strlen( '.js' ) )
-	);
-	if ( ! file_exists( $script_asset_path ) ) {
-		_doing_it_wrong(
-			__FUNCTION__,
-			sprintf(
-				/* translators: 1: Field name, 2: Block name. */
-				__( 'The asset file for the "%1$s" defined in "%2$s" block definition is missing.' ),
-				$field_name,
-				$metadata['name']
-			),
-			'5.5.0'
-		);
-		return false;
-	}
-	$script_asset = require $script_asset_path;
-	$result       = wp_register_script(
-		$script_handle,
-		plugins_url( $script_path, $metadata['file'] ),
-		$script_asset['dependencies'],
-		$script_asset['version']
-	);
-	if ( ! $result ) {
-		return false;
-	}
-
-	if ( ! empty( $metadata['textdomain'] ) ) {
-		wp_set_script_translations( $script_handle, $metadata['textdomain'] );
-	}
-
-	return $script_handle;
 }
 
 /**
@@ -120,6 +30,7 @@ function register_block_script_handle( $metadata, $field_name ) {
  * generated handle name. It returns unprocessed style handle otherwise.
  *
  * @since 5.5.0
+ * @since calmPress 1.0.0 Does nothing, just return false.
  *
  * @param array  $metadata   Block metadata.
  * @param string $field_name Field name to pick from metadata.
@@ -127,55 +38,7 @@ function register_block_script_handle( $metadata, $field_name ) {
  *                      style's registration, or false on failure.
  */
 function register_block_style_handle( $metadata, $field_name ) {
-	if ( empty( $metadata[ $field_name ] ) ) {
-		return false;
-	}
-	$is_core_block = isset( $metadata['file'] ) && 0 === strpos( $metadata['file'], ABSPATH . WPINC );
-	if ( $is_core_block && ! wp_should_load_separate_core_block_assets() ) {
-		return false;
-	}
-
-	// Check whether styles should have a ".min" suffix or not.
-	$suffix = SCRIPT_DEBUG ? '' : '.min';
-
-	$style_handle = $metadata[ $field_name ];
-	$style_path   = remove_block_asset_path_prefix( $metadata[ $field_name ] );
-
-	if ( $style_handle === $style_path && ! $is_core_block ) {
-		return $style_handle;
-	}
-
-	$style_uri = plugins_url( $style_path, $metadata['file'] );
-	if ( $is_core_block ) {
-		$style_path = "style$suffix.css";
-		$style_uri  = includes_url( 'blocks/' . str_replace( 'core/', '', $metadata['name'] ) . "/style$suffix.css" );
-	}
-
-	$style_handle   = generate_block_asset_handle( $metadata['name'], $field_name );
-	$block_dir      = dirname( $metadata['file'] );
-	$style_file     = realpath( "$block_dir/$style_path" );
-	$has_style_file = false !== $style_file;
-	$version        = ! $is_core_block && isset( $metadata['version'] ) ? $metadata['version'] : false;
-	$style_uri      = $has_style_file ? $style_uri : false;
-	$result         = wp_register_style(
-		$style_handle,
-		$style_uri,
-		array(),
-		$version
-	);
-	if ( file_exists( str_replace( '.css', '-rtl.css', $style_file ) ) ) {
-		wp_style_add_data( $style_handle, 'rtl', 'replace' );
-	}
-	if ( $has_style_file ) {
-		wp_style_add_data( $style_handle, 'path', $style_file );
-	}
-
-	$rtl_file = str_replace( "$suffix.css", "-rtl$suffix.css", $style_file );
-	if ( is_rtl() && file_exists( $rtl_file ) ) {
-		wp_style_add_data( $style_handle, 'path', $rtl_file );
-	}
-
-	return $result ? $style_handle : false;
+	return false;
 }
 
 /**
@@ -288,126 +151,6 @@ function get_dynamic_block_names() {
 }
 
 /**
- * Given an array of attributes, returns a string in the serialized attributes
- * format prepared for post content.
- *
- * The serialized result is a JSON-encoded string, with unicode escape sequence
- * substitution for characters which might otherwise interfere with embedding
- * the result in an HTML comment.
- *
- * @since 5.3.1
- *
- * @param array $block_attributes Attributes object.
- * @return string Serialized attributes.
- */
-function serialize_block_attributes( $block_attributes ) {
-	$encoded_attributes = json_encode( $block_attributes );
-	$encoded_attributes = preg_replace( '/--/', '\\u002d\\u002d', $encoded_attributes );
-	$encoded_attributes = preg_replace( '/</', '\\u003c', $encoded_attributes );
-	$encoded_attributes = preg_replace( '/>/', '\\u003e', $encoded_attributes );
-	$encoded_attributes = preg_replace( '/&/', '\\u0026', $encoded_attributes );
-	// Regex: /\\"/
-	$encoded_attributes = preg_replace( '/\\\\"/', '\\u0022', $encoded_attributes );
-
-	return $encoded_attributes;
-}
-
-/**
- * Returns the block name to use for serialization. This will remove the default
- * "core/" namespace from a block name.
- *
- * @since 5.3.1
- *
- * @param string $block_name Original block name.
- * @return string Block name to use for serialization.
- */
-function strip_core_block_namespace( $block_name = null ) {
-	if ( is_string( $block_name ) && 0 === strpos( $block_name, 'core/' ) ) {
-		return substr( $block_name, 5 );
-	}
-
-	return $block_name;
-}
-
-/**
- * Returns the content of a block, including comment delimiters.
- *
- * @since 5.3.1
- *
- * @param string|null $block_name       Block name. Null if the block name is unknown,
- *                                      e.g. Classic blocks have their name set to null.
- * @param array       $block_attributes Block attributes.
- * @param string      $block_content    Block save content.
- * @return string Comment-delimited block content.
- */
-function get_comment_delimited_block_content( $block_name, $block_attributes, $block_content ) {
-	if ( is_null( $block_name ) ) {
-		return $block_content;
-	}
-
-	$serialized_block_name = strip_core_block_namespace( $block_name );
-	$serialized_attributes = empty( $block_attributes ) ? '' : serialize_block_attributes( $block_attributes ) . ' ';
-
-	if ( empty( $block_content ) ) {
-		return sprintf( '<!-- wp:%s %s/-->', $serialized_block_name, $serialized_attributes );
-	}
-
-	return sprintf(
-		'<!-- wp:%s %s-->%s<!-- /wp:%s -->',
-		$serialized_block_name,
-		$serialized_attributes,
-		$block_content,
-		$serialized_block_name
-	);
-}
-
-/**
- * Returns the content of a block, including comment delimiters, serializing all
- * attributes from the given parsed block.
- *
- * This should be used when preparing a block to be saved to post content.
- * Prefer `render_block` when preparing a block for display. Unlike
- * `render_block`, this does not evaluate a block's `render_callback`, and will
- * instead preserve the markup as parsed.
- *
- * @since 5.3.1
- *
- * @param WP_Block_Parser_Block $block A single parsed block object.
- * @return string String of rendered HTML.
- */
-function serialize_block( $block ) {
-	$block_content = '';
-
-	$index = 0;
-	foreach ( $block['innerContent'] as $chunk ) {
-		$block_content .= is_string( $chunk ) ? $chunk : serialize_block( $block['innerBlocks'][ $index++ ] );
-	}
-
-	if ( ! is_array( $block['attrs'] ) ) {
-		$block['attrs'] = array();
-	}
-
-	return get_comment_delimited_block_content(
-		$block['blockName'],
-		$block['attrs'],
-		$block_content
-	);
-}
-
-/**
- * Returns a joined string of the aggregate serialization of the given parsed
- * blocks.
- *
- * @since 5.3.1
- *
- * @param WP_Block_Parser_Block[] $blocks Parsed block objects.
- * @return string String of rendered HTML.
- */
-function serialize_blocks( $blocks ) {
-	return implode( '', array_map( 'serialize_block', $blocks ) );
-}
-
-/**
  * Parses blocks out of a content string, and renders those appropriate for the excerpt.
  *
  * As the excerpt should be a small string of text relevant to the full post content,
@@ -510,129 +253,4 @@ function register_block_style( $block_name, $style_properties ) {
  */
 function unregister_block_style( $block_name, $block_style_name ) {
 	return false;
-}
-
-/**
- * Checks whether the current block type supports the feature requested.
- *
- * @since 5.8.0
- *
- * @param WP_Block_Type $block_type Block type to check for support.
- * @param string        $feature    Name of the feature to check support for.
- * @param mixed         $default    Fallback value for feature support, defaults to false.
- *
- * @return boolean                  Whether or not the feature is supported.
- */
-function block_has_support( $block_type, $feature, $default = false ) {
-	$block_support = $default;
-	if ( $block_type && property_exists( $block_type, 'supports' ) ) {
-		$block_support = _wp_array_get( $block_type->supports, $feature, $default );
-	}
-
-	return true === $block_support || is_array( $block_support );
-}
-
-/**
- * Converts typography keys declared under `supports.*` to `supports.typography.*`.
- *
- * Displays a `_doing_it_wrong()` notice when a block using the older format is detected.
- *
- * @since 5.8.0
- * @since calmPress 1.0.0 Does nothing, return the metadata as is
- *
- * @param array $metadata Metadata for registering a block type.
- * @return array Filtered metadata for registering a block type.
- */
-function wp_migrate_old_typography_shape( $metadata ) {
-	return $metadata;
-}
-
-/**
- * Helper function that constructs a WP_Query args array from
- * a `Query` block properties.
- *
- * It's used in Query Loop, Query Pagination Numbers and Query Pagination Next blocks.
- *
- * @since 5.8.0
- *
- * @param WP_Block $block Block instance.
- * @param int      $page  Current query's page.
- *
- * @return array Returns the constructed WP_Query arguments.
- */
-function build_query_vars_from_query_block( $block, $page ) {
-	$query = array(
-		'post_type'    => 'post',
-		'order'        => 'DESC',
-		'orderby'      => 'date',
-		'post__not_in' => array(),
-	);
-
-	if ( isset( $block->context['query'] ) ) {
-		if ( ! empty( $block->context['query']['postType'] ) ) {
-			$post_type_param = $block->context['query']['postType'];
-			if ( is_post_type_viewable( $post_type_param ) ) {
-				$query['post_type'] = $post_type_param;
-			}
-		}
-		if ( isset( $block->context['query']['sticky'] ) && ! empty( $block->context['query']['sticky'] ) ) {
-			$sticky = get_option( 'sticky_posts' );
-			if ( 'only' === $block->context['query']['sticky'] ) {
-				$query['post__in'] = $sticky;
-			} else {
-				$query['post__not_in'] = array_merge( $query['post__not_in'], $sticky );
-			}
-		}
-		if ( ! empty( $block->context['query']['exclude'] ) ) {
-			$excluded_post_ids     = array_map( 'intval', $block->context['query']['exclude'] );
-			$excluded_post_ids     = array_filter( $excluded_post_ids );
-			$query['post__not_in'] = array_merge( $query['post__not_in'], $excluded_post_ids );
-		}
-		if (
-			isset( $block->context['query']['perPage'] ) &&
-			is_numeric( $block->context['query']['perPage'] )
-		) {
-			$per_page = absint( $block->context['query']['perPage'] );
-			$offset   = 0;
-
-			if (
-				isset( $block->context['query']['offset'] ) &&
-				is_numeric( $block->context['query']['offset'] )
-			) {
-				$offset = absint( $block->context['query']['offset'] );
-			}
-
-			$query['offset']         = ( $per_page * ( $page - 1 ) ) + $offset;
-			$query['posts_per_page'] = $per_page;
-		}
-		if ( ! empty( $block->context['query']['categoryIds'] ) ) {
-			$term_ids              = array_map( 'intval', $block->context['query']['categoryIds'] );
-			$term_ids              = array_filter( $term_ids );
-			$query['category__in'] = $term_ids;
-		}
-		if ( ! empty( $block->context['query']['tagIds'] ) ) {
-			$term_ids         = array_map( 'intval', $block->context['query']['tagIds'] );
-			$term_ids         = array_filter( $term_ids );
-			$query['tag__in'] = $term_ids;
-		}
-		if (
-			isset( $block->context['query']['order'] ) &&
-				in_array( strtoupper( $block->context['query']['order'] ), array( 'ASC', 'DESC' ), true )
-		) {
-			$query['order'] = strtoupper( $block->context['query']['order'] );
-		}
-		if ( isset( $block->context['query']['orderBy'] ) ) {
-			$query['orderby'] = $block->context['query']['orderBy'];
-		}
-		if (
-			isset( $block->context['query']['author'] ) &&
-			(int) $block->context['query']['author'] > 0
-		) {
-			$query['author'] = (int) $block->context['query']['author'];
-		}
-		if ( ! empty( $block->context['query']['search'] ) ) {
-			$query['s'] = $block->context['query']['search'];
-		}
-	}
-	return $query;
 }

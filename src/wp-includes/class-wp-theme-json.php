@@ -405,36 +405,14 @@ class WP_Theme_JSON {
 	 *     }
 	 *
 	 * @since 5.8.0
+	 * @since calmPress 1.0.0 always returns empty string.
 	 *
 	 * @param array $style_nodes   Nodes with styles.
 	 * @param array $setting_nodes Nodes with settings.
 	 * @return string The new stylesheet.
 	 */
 	private function get_block_styles( $style_nodes, $setting_nodes ) {
-		$block_rules = '';
-		foreach ( $style_nodes as $metadata ) {
-			if ( null === $metadata['selector'] ) {
-				continue;
-			}
-
-			$node         = _wp_array_get( $this->theme_json, $metadata['path'], array() );
-			$selector     = $metadata['selector'];
-			$declarations = self::compute_style_properties( $node );
-			$block_rules .= self::to_ruleset( $selector, $declarations );
-		}
-
-		$preset_rules = '';
-		foreach ( $setting_nodes as $metadata ) {
-			if ( null === $metadata['selector'] ) {
-				continue;
-			}
-
-			$selector      = $metadata['selector'];
-			$node          = _wp_array_get( $this->theme_json, $metadata['path'], array() );
-			$preset_rules .= self::compute_preset_classes( $node, $selector );
-		}
-
-		return $block_rules . $preset_rules;
+		return '';
 	}
 
 	/**

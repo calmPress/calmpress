@@ -2262,11 +2262,10 @@ function get_theme_starter_content() {
  * @since 4.7.0 The `starter-content` feature was added.
  * @since 5.0.0 The `responsive-embeds`, `align-wide`, `dark-editor-style`, `disable-custom-colors`,
  *              `disable-custom-font-sizes`, `editor-color-palette`, `editor-font-sizes`,
- *              `editor-styles`, and `wp-block-styles` features were added.
+ *              and `editor-styles` features were added.
  * @since 5.3.0 The `html5` feature now also accepts 'script' and 'style'.
  * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
- * @since 5.5.0 The `core-block-patterns` feature was added and is enabled by default.
  * @since 5.5.0 The `custom-logo` feature now also accepts 'unlink-homepage-logo'.
  *
  * @global array $_wp_theme_features
@@ -2275,7 +2274,6 @@ function get_theme_starter_content() {
  *                          - 'admin-bar'
  *                          - 'align-wide'
  *                          - 'automatic-feed-links'
- *                          - 'core-block-patterns'
  *                          - 'custom-background'
  *                          - 'custom-header'
  *                          - 'custom-line-height'
@@ -2299,7 +2297,6 @@ function get_theme_starter_content() {
  *                          - 'starter-content'
  *                          - 'title-tag'
  *                          - 'widgets'
- *                          - 'widgets-block-editor'
  * @param mixed  ...$args Optional extra arguments to pass along with certain features.
  * @return void|false Void on success, false on failure.
  */
@@ -3831,13 +3828,6 @@ function create_initial_theme_features() {
 		'title-tag',
 		array(
 			'description'  => __( 'Whether the theme can manage the document title tag.' ),
-			'show_in_rest' => true,
-		)
-	);
-	register_theme_feature(
-		'wp-block-styles',
-		array(
-			'description'  => __( 'Whether theme opts in to default WordPress block styles for viewing.' ),
 			'show_in_rest' => true,
 		)
 	);

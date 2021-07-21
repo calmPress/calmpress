@@ -115,7 +115,6 @@ class WP_Customize_Widgets {
 		add_action( 'customize_controls_print_footer_scripts', array( $this, 'output_widget_control_templates' ) );
 		add_action( 'customize_preview_init', array( $this, 'customize_preview_init' ) );
 		add_filter( 'customize_refresh_nonces', array( $this, 'refresh_nonces' ) );
-		add_filter( 'should_load_block_editor_scripts_and_styles', array( $this, 'should_load_block_editor_scripts_and_styles' ) );
 
 		add_action( 'dynamic_sidebar', array( $this, 'tally_rendered_widgets' ) );
 		add_filter( 'is_active_sidebar', array( $this, 'tally_sidebars_via_is_active_sidebar_calls' ), 10, 2 );
@@ -366,8 +365,6 @@ class WP_Customize_Widgets {
 	public function customize_register() {
 		global $wp_registered_widgets, $wp_registered_widget_controls, $wp_registered_sidebars;
 
-		$use_widgets_block_editor = wp_use_widgets_block_editor();
-
 		add_filter( 'sidebars_widgets', array( $this, 'preview_sidebars_widgets' ), 1 );
 
 		$sidebars_widgets = array_merge(
@@ -452,11 +449,7 @@ class WP_Customize_Widgets {
 						'sidebar_id' => $sidebar_id,
 					);
 
-					if ( $use_widgets_block_editor ) {
-						$section_args['description'] = '';
-					} else {
-						$section_args['description'] = $wp_registered_sidebars[ $sidebar_id ]['description'];
-					}
+					$section_args['description'] = $wp_registered_sidebars[ $sidebar_id ]['description'];
 
 					/**
 					 * Filters Customizer widget section arguments for a given sidebar.
@@ -472,28 +465,15 @@ class WP_Customize_Widgets {
 					$section = new WP_Customize_Sidebar_Section( $this->manager, $section_id, $section_args );
 					$this->manager->add_section( $section );
 
-					if ( $use_widgets_block_editor ) {
-						$control = new WP_Sidebar_Block_Editor_Control(
-							$this->manager,
-							$setting_id,
-							array(
-								'section'     => $section_id,
-								'sidebar_id'  => $sidebar_id,
-								'label'       => $section_args['title'],
-								'description' => $section_args['description'],
-							)
-						);
-					} else {
-						$control = new WP_Widget_Area_Customize_Control(
-							$this->manager,
-							$setting_id,
-							array(
-								'section'    => $section_id,
-								'sidebar_id' => $sidebar_id,
-								'priority'   => count( $sidebar_widget_ids ), // place 'Add Widget' and 'Reorder' buttons at end.
-							)
-						);
-					}
+					$control = new WP_Widget_Area_Customize_Control(
+						$this->manager,
+						$setting_id,
+						array(
+							'section'    => $section_id,
+							'sidebar_id' => $sidebar_id,
+							'priority'   => count( $sidebar_widget_ids ), // place 'Add Widget' and 'Reorder' buttons at end.
+						)
+					);
 
 					$this->manager->add_control( $control );
 
@@ -501,36 +481,34 @@ class WP_Customize_Widgets {
 				}
 			}
 
-			if ( ! $use_widgets_block_editor ) {
-				// Add a control for each active widget (located in a sidebar).
-				foreach ( $sidebar_widget_ids as $i => $widget_id ) {
+			// Add a control for each active widget (located in a sidebar).
+			foreach ( $sidebar_widget_ids as $i => $widget_id ) {
 
-					// Skip widgets that may have gone away due to a plugin being deactivated.
-					if ( ! $is_active_sidebar || ! isset( $wp_registered_widgets[ $widget_id ] ) ) {
-						continue;
-					}
-
-					$registered_widget = $wp_registered_widgets[ $widget_id ];
-					$setting_id        = $this->get_setting_id( $widget_id );
-					$id_base           = $wp_registered_widget_controls[ $widget_id ]['id_base'];
-
-					$control = new WP_Widget_Form_Customize_Control(
-						$this->manager,
-						$setting_id,
-						array(
-							'label'          => $registered_widget['name'],
-							'section'        => $section_id,
-							'sidebar_id'     => $sidebar_id,
-							'widget_id'      => $widget_id,
-							'widget_id_base' => $id_base,
-							'priority'       => $i,
-							'width'          => $wp_registered_widget_controls[ $widget_id ]['width'],
-							'height'         => $wp_registered_widget_controls[ $widget_id ]['height'],
-							'is_wide'        => $this->is_wide_widget( $widget_id ),
-						)
-					);
-					$this->manager->add_control( $control );
+				// Skip widgets that may have gone away due to a plugin being deactivated.
+				if ( ! $is_active_sidebar || ! isset( $wp_registered_widgets[ $widget_id ] ) ) {
+					continue;
 				}
+
+				$registered_widget = $wp_registered_widgets[ $widget_id ];
+				$setting_id        = $this->get_setting_id( $widget_id );
+				$id_base           = $wp_registered_widget_controls[ $widget_id ]['id_base'];
+
+				$control = new WP_Widget_Form_Customize_Control(
+					$this->manager,
+					$setting_id,
+					array(
+						'label'          => $registered_widget['name'],
+						'section'        => $section_id,
+						'sidebar_id'     => $sidebar_id,
+						'widget_id'      => $widget_id,
+						'widget_id_base' => $id_base,
+						'priority'       => $i,
+						'width'          => $wp_registered_widget_controls[ $widget_id ]['width'],
+						'height'         => $wp_registered_widget_controls[ $widget_id ]['height'],
+						'is_wide'        => $this->is_wide_widget( $widget_id ),
+					)
+				);
+				$this->manager->add_control( $control );
 			}
 		}
 
@@ -827,48 +805,6 @@ class WP_Customize_Widgets {
 			sprintf( 'var _wpCustomizeWidgetsSettings = %s;', wp_json_encode( $settings ) )
 		);
 
-		/*
-		 * TODO: Update 'wp-customize-widgets' to not rely so much on things in
-		 * 'customize-widgets'. This will let us skip most of the above and not
-		 * enqueue 'customize-widgets' which saves bytes.
-		 */
-
-		if ( wp_use_widgets_block_editor() ) {
-			$block_editor_context = new WP_Block_Editor_Context();
-
-			$editor_settings = get_block_editor_settings(
-				get_legacy_widget_block_editor_settings(),
-				$block_editor_context
-			);
-
-			wp_add_inline_script(
-				'wp-customize-widgets',
-				sprintf(
-					'wp.domReady( function() {
-					   wp.customizeWidgets.initialize( "widgets-customizer", %s );
-					} );',
-					wp_json_encode( $editor_settings )
-				)
-			);
-
-			// Preload server-registered block schemas.
-			wp_add_inline_script(
-				'wp-blocks',
-				'wp.blocks.unstable__bootstrapServerSideBlockDefinitions(' . wp_json_encode( get_block_editor_server_block_settings() ) . ');'
-			);
-
-			wp_add_inline_script(
-				'wp-blocks',
-				sprintf( 'wp.blocks.setCategories( %s );', wp_json_encode( get_block_categories( 'widgets-customizer' ) ) ),
-				'after'
-			);
-
-			wp_enqueue_script( 'wp-customize-widgets' );
-			wp_enqueue_style( 'wp-customize-widgets' );
-
-			/** This action is documented in edit-form-blocks.php */
-			do_action( 'enqueue_block_editor_assets' );
-		}
 	}
 
 	/**
@@ -1178,23 +1114,6 @@ class WP_Customize_Widgets {
 	}
 
 	/**
-	 * Tells the script loader to load the scripts and styles of custom blocks
-	 * if the widgets block editor is enabled.
-	 *
-	 * @since 5.8.0
-	 *
-	 * @param bool $is_block_editor_screen Current decision about loading block assets.
-	 * @return bool Filtered decision about loading block assets.
-	 */
-	public function should_load_block_editor_scripts_and_styles( $is_block_editor_screen ) {
-		if ( wp_use_widgets_block_editor() ) {
-			return true;
-		}
-
-		return $is_block_editor_screen;
-	}
-
-	/**
 	 * When previewing, ensures the proper previewing widgets are used.
 	 *
 	 * Because wp_get_sidebars_widgets() gets called early at {@see 'init' } (via
@@ -1413,22 +1332,6 @@ class WP_Customize_Widgets {
 			return $value;
 		}
 
-		if ( isset( $value['raw_instance'] ) && $id_base && wp_use_widgets_block_editor() ) {
-			$widget_object = $wp_widget_factory->get_widget_object( $id_base );
-			if ( ! empty( $widget_object->widget_options['show_instance_in_rest'] ) ) {
-				if ( 'block' === $id_base && ! current_user_can( 'unfiltered_html' ) ) {
-					/*
-					 * The content of the 'block' widget is not filtered on the
-					 * fly while editing. Filter the content here to prevent
-					 * vulnerabilities.
-					 */
-					$value['raw_instance']['content'] = wp_kses_post( $value['raw_instance']['content'] );
-				}
-
-				return $value['raw_instance'];
-			}
-		}
-
 		if (
 			empty( $value['is_widget_customizer_js_value'] ) ||
 			empty( $value['instance_hash_key'] ) ||
@@ -1478,13 +1381,6 @@ class WP_Customize_Widgets {
 				'is_widget_customizer_js_value' => true,
 				'instance_hash_key'             => $this->get_instance_hash_key( $serialized ),
 			);
-
-			if ( $id_base && wp_use_widgets_block_editor() ) {
-				$widget_object = $wp_widget_factory->get_widget_object( $id_base );
-				if ( ! empty( $widget_object->widget_options['show_instance_in_rest'] ) ) {
-					$js_value['raw_instance'] = (object) $value;
-				}
-			}
 
 			return $js_value;
 		}

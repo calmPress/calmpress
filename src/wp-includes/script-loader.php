@@ -1979,23 +1979,12 @@ function wp_enqueue_global_styles() {
  * should be enqueued on the current screen.
  *
  * @since 5.6.0
+ * @since calmPress 1.0.0 Always return false.
  *
  * @return bool Whether scripts and styles should be enqueued.
  */
 function wp_should_load_block_editor_scripts_and_styles() {
-	global $current_screen;
-
-	$is_block_editor_screen = ( $current_screen instanceof WP_Screen ) && $current_screen->is_block_editor();
-
-	/**
-	 * Filters the flag that decides whether or not block editor scripts and styles
-	 * are going to be enqueued on the current screen.
-	 *
-	 * @since 5.6.0
-	 *
-	 * @param bool $is_block_editor_screen Current value of the flag.
-	 */
-	return apply_filters( 'should_load_block_editor_scripts_and_styles', $is_block_editor_screen );
+	return false;
 }
 
 /**
@@ -2050,79 +2039,6 @@ function wp_should_load_separate_core_block_assets() {
  * @global WP_Screen $current_screen WordPress current screen object.
  */
 function wp_enqueue_registered_block_scripts_and_styles() {
-}
-
-/**
- * Function responsible for enqueuing the styles required for block styles functionality on the editor and on the frontend.
- *
- * @since 5.3.0
- */
-function enqueue_block_styles_assets() {
-	$block_styles = WP_Block_Styles_Registry::get_instance()->get_all_registered();
-
-	foreach ( $block_styles as $styles ) {
-		foreach ( $styles as $style_properties ) {
-			if ( isset( $style_properties['style_handle'] ) ) {
-				wp_enqueue_style( $style_properties['style_handle'] );
-			}
-			if ( isset( $style_properties['inline_style'] ) ) {
-				wp_add_inline_style( 'wp-block-library', $style_properties['inline_style'] );
-			}
-		}
-	}
-}
-
-/**
- * Function responsible for enqueuing the assets required for block styles functionality on the editor.
- *
- * @since 5.3.0
- */
-function enqueue_editor_block_styles_assets() {
-	$block_styles = WP_Block_Styles_Registry::get_instance()->get_all_registered();
-
-	$register_script_lines = array( '( function() {' );
-	foreach ( $block_styles as $block_name => $styles ) {
-		foreach ( $styles as $style_properties ) {
-			$block_style = array(
-				'name'  => $style_properties['name'],
-				'label' => $style_properties['label'],
-			);
-			if ( isset( $style_properties['is_default'] ) ) {
-				$block_style['isDefault'] = $style_properties['is_default'];
-			}
-			$register_script_lines[] = sprintf(
-				'	wp.blocks.registerBlockStyle( \'%s\', %s );',
-				$block_name,
-				wp_json_encode( $block_style )
-			);
-		}
-	}
-	$register_script_lines[] = '} )();';
-	$inline_script           = implode( "\n", $register_script_lines );
-
-	wp_register_script( 'wp-block-styles', false, array( 'wp-blocks' ), true, true );
-	wp_add_inline_script( 'wp-block-styles', $inline_script );
-	wp_enqueue_script( 'wp-block-styles' );
-}
-
-/**
- * Enqueues the assets required for the block directory within the block editor.
- *
- * @since 5.5.0
- */
-function wp_enqueue_editor_block_directory_assets() {
-	wp_enqueue_script( 'wp-block-directory' );
-	wp_enqueue_style( 'wp-block-directory' );
-}
-
-/**
- * Enqueues the assets required for the format library within the block editor.
- *
- * @since 5.8.0
- */
-function wp_enqueue_editor_format_library_assets() {
-	wp_enqueue_script( 'wp-format-library' );
-	wp_enqueue_style( 'wp-format-library' );
 }
 
 /**

@@ -227,11 +227,6 @@ $wp_list_table->prepare_items();
 wp_enqueue_script( 'inline-edit-post' );
 wp_enqueue_script( 'heartbeat' );
 
-if ( 'wp_block' === $post_type ) {
-	wp_enqueue_script( 'wp-list-reusable-blocks' );
-	wp_enqueue_style( 'wp-list-reusable-blocks' );
-}
-
 $title = $post_type_object->labels->name;
 
 if ( 'post' === $post_type ) {
@@ -352,19 +347,6 @@ $bulk_messages['page']     = array(
 	'trashed'   => _n( '%s page moved to the Trash.', '%s pages moved to the Trash.', $bulk_counts['trashed'] ),
 	/* translators: %s: Number of pages. */
 	'untrashed' => _n( '%s page restored from the Trash.', '%s pages restored from the Trash.', $bulk_counts['untrashed'] ),
-);
-$bulk_messages['wp_block'] = array(
-	/* translators: %s: Number of blocks. */
-	'updated'   => _n( '%s block updated.', '%s blocks updated.', $bulk_counts['updated'] ),
-	'locked'    => ( 1 === $bulk_counts['locked'] ) ? __( '1 block not updated, somebody is editing it.' ) :
-					/* translators: %s: Number of blocks. */
-					_n( '%s block not updated, somebody is editing it.', '%s blocks not updated, somebody is editing them.', $bulk_counts['locked'] ),
-	/* translators: %s: Number of blocks. */
-	'deleted'   => _n( '%s block permanently deleted.', '%s blocks permanently deleted.', $bulk_counts['deleted'] ),
-	/* translators: %s: Number of blocks. */
-	'trashed'   => _n( '%s block moved to the Trash.', '%s blocks moved to the Trash.', $bulk_counts['trashed'] ),
-	/* translators: %s: Number of blocks. */
-	'untrashed' => _n( '%s block restored from the Trash.', '%s blocks restored from the Trash.', $bulk_counts['untrashed'] ),
 );
 
 /**

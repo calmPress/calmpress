@@ -1456,16 +1456,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 			}
 		}
 
-		if ( 'wp_block' === $post->post_type ) {
-			$actions['export'] = sprintf(
-				'<button type="button" class="wp-list-reusable-blocks__export button-link" data-id="%s" aria-label="%s">%s</button>',
-				$post->ID,
-				/* translators: %s: Post title. */
-				esc_attr( sprintf( __( 'Export &#8220;%s&#8221; as JSON' ), $title ) ),
-				__( 'Export as JSON' )
-			);
-		}
-
 		if ( is_post_type_hierarchical( $post->post_type ) ) {
 
 			/**

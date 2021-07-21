@@ -177,10 +177,6 @@ require ABSPATH . WPINC . '/theme.php';
 require ABSPATH . WPINC . '/class-wp-theme.php';
 require ABSPATH . WPINC . '/class-wp-theme-json.php';
 require ABSPATH . WPINC . '/class-wp-theme-json-resolver.php';
-require ABSPATH . WPINC . '/class-wp-block-template.php';
-require ABSPATH . WPINC . '/block-template-utils.php';
-require ABSPATH . WPINC . '/block-template.php';
-require ABSPATH . WPINC . '/theme-templates.php';
 require ABSPATH . WPINC . '/template.php';
 require ABSPATH . WPINC . '/https-detection.php';
 require ABSPATH . WPINC . '/https-migration.php';
@@ -273,7 +269,6 @@ require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-site-health-control
 require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-sidebars-controller.php';
 require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-widget-types-controller.php';
 require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-widgets-controller.php';
-require ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-templates-controller.php';
 require ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-meta-fields.php';
 require ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-comment-meta-fields.php';
 require ABSPATH . WPINC . '/rest-api/fields/class-wp-rest-post-meta-fields.php';

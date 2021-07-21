@@ -183,11 +183,6 @@ switch ( $action ) {
 			break;
 		}
 
-		if ( use_block_editor_for_post( $post ) ) {
-			require ABSPATH . 'wp-admin/edit-form-blocks.php';
-			break;
-		}
-
 		if ( ! wp_check_post_lock( $post->ID ) ) {
 			$active_post_lock = wp_set_post_lock( $post->ID );
 

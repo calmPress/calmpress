@@ -546,7 +546,4 @@ add_filter( 'pre_oembed_result', 'wp_filter_pre_oembed_result', 10, 3 );
 add_filter( 'user_has_cap', 'wp_maybe_grant_install_languages_cap', 1 );
 add_filter( 'user_has_cap', 'wp_maybe_grant_site_health_caps', 1, 4 );
 
-// Block Templates CPT and Rendering
-add_filter( 'pre_wp_unique_post_slug', 'wp_filter_wp_template_unique_post_slug', 10, 5 );
-
 unset( $filter, $action );
