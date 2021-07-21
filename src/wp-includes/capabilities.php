@@ -586,6 +586,13 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 		case 'delete_app_password':
 			$caps = map_meta_cap( 'edit_user', $user_id, $args[0] );
 			break;
+		case 'backup':
+			if ( is_multisite() && ! is_super_admin( $user_id ) ) {
+				$caps[] = 'do_not_allow';
+			} else {
+				$caps[] = $cap;
+			}
+		break;
 		default:
 			// Handle meta capabilities for custom post types.
 			global $post_type_meta_caps;
