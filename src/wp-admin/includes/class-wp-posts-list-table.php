@@ -474,71 +474,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Displays a formats drop-down for filtering items.
-	 *
-	 * @since 5.2.0
-	 * @access protected
-	 *
-	 * @param string $post_type Post type slug.
-	 */
-	protected function formats_dropdown( $post_type ) {
-		/**
-		 * Filters whether to remove the 'Formats' drop-down from the post list table.
-		 *
-		 * @since 5.2.0
-		 * @since 5.5.0 The `$post_type` parameter was added.
-		 *
-		 * @param bool   $disable   Whether to disable the drop-down. Default false.
-		 * @param string $post_type Post type slug.
-		 */
-		if ( apply_filters( 'disable_formats_dropdown', false, $post_type ) ) {
-			return;
-		}
-
-		// Return if the post type doesn't have post formats or if we're in the Trash.
-		if ( ! is_object_in_taxonomy( $post_type, 'post_format' ) || $this->is_trash ) {
-			return;
-		}
-
-		// Make sure the dropdown shows only formats with a post count greater than 0.
-		$used_post_formats = get_terms(
-			array(
-				'taxonomy'   => 'post_format',
-				'hide_empty' => true,
-			)
-		);
-
-		// Return if there are no posts using formats.
-		if ( ! $used_post_formats ) {
-			return;
-		}
-
-		$displayed_post_format = isset( $_GET['post_format'] ) ? $_GET['post_format'] : '';
-		?>
-		<label for="filter-by-format" class="screen-reader-text"><?php _e( 'Filter by post format' ); ?></label>
-		<select name="post_format" id="filter-by-format">
-			<option<?php selected( $displayed_post_format, '' ); ?> value=""><?php _e( 'All formats' ); ?></option>
-			<?php
-			foreach ( $used_post_formats as $used_post_format ) {
-				// Post format slug.
-				$slug = str_replace( 'post-format-', '', $used_post_format->slug );
-				// Pretty, translated version of the post format slug.
-				$pretty_name = get_post_format_string( $slug );
-
-				// Skip the standard post format.
-				if ( 'standard' === $slug ) {
-					continue;
-				}
-				?>
-				<option<?php selected( $displayed_post_format, $slug ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $pretty_name ); ?></option>
-				<?php
-			}
-			?>
-		</select>
-		<?php
-	}
-
-	/**
 	 * @param string $which
 	 */
 	protected function extra_tablenav( $which ) {
@@ -550,7 +485,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 
 			$this->months_dropdown( $this->screen->post_type );
 			$this->categories_dropdown( $this->screen->post_type );
-			$this->formats_dropdown( $this->screen->post_type );
 
 			/**
 			 * Fires before the Filter button on the Posts and Pages list tables.
