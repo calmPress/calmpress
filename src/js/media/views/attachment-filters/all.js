@@ -59,19 +59,6 @@ All = wp.media.view.AttachmentFilters.extend(/** @lends wp.media.view.Attachment
 			};
 		}
 
-		filters.unattached = {
-			text:  l10n.unattached,
-			props: {
-				status:     null,
-				uploadedTo: 0,
-				type:       null,
-				orderby:    'menuOrder',
-				order:      'ASC',
-				author:     null
-			},
-			priority: 50
-		};
-
 		if ( uid ) {
 			filters.mine = {
 				text:  l10n.mine,

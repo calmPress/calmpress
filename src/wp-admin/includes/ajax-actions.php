@@ -2791,20 +2791,6 @@ function wp_ajax_send_attachment_to_editor() {
 		wp_send_json_error();
 	}
 
-	if ( current_user_can( 'edit_post', $id ) ) {
-		// If this attachment is unattached, attach it. Primarily a back compat thing.
-		$insert_into_post_id = (int) $_POST['post_id'];
-
-		if ( 0 == $post->post_parent && $insert_into_post_id ) {
-			wp_update_post(
-				array(
-					'ID'          => $id,
-					'post_parent' => $insert_into_post_id,
-				)
-			);
-		}
-	}
-
 	$url = empty( $attachment['url'] ) ? '' : $attachment['url'];
 	$rel = ( strpos( $url, 'attachment_id' ) || get_attachment_link( $id ) == $url );
 

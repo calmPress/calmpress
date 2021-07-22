@@ -1094,17 +1094,6 @@ Uploaded = wp.media.view.AttachmentFilters.extend(/** @lends wp.media.view.Attac
 				},
 				priority: 20
 			},
-
-			unattached: {
-				text:  l10n.unattached,
-				props: {
-					uploadedTo: 0,
-					orderby: 'menuOrder',
-					order:   'ASC',
-					author:	 null
-				},
-				priority: 50
-			}
 		};
 
 		if ( uid ) {
@@ -4543,19 +4532,6 @@ All = wp.media.view.AttachmentFilters.extend(/** @lends wp.media.view.Attachment
 				priority: 20
 			};
 		}
-
-		filters.unattached = {
-			text:  l10n.unattached,
-			props: {
-				status:     null,
-				uploadedTo: 0,
-				type:       null,
-				orderby:    'menuOrder',
-				order:      'ASC',
-				author:     null
-			},
-			priority: 50
-		};
 
 		if ( uid ) {
 			filters.mine = {
