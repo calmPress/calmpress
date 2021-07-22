@@ -714,52 +714,6 @@ function wp_theme_update_row( $theme_key, $theme ) {
 }
 
 /**
- * @since 2.7.0
- *
- * @global int $upgrading
- * @return void|false
- */
-function maintenance_nag() {
-	// Include an unmodified $wp_version.
-	require ABSPATH . WPINC . '/version.php';
-	global $upgrading;
-	$nag = isset( $upgrading );
-	if ( ! $nag ) {
-		$failed = get_site_option( 'auto_core_update_failed' );
-		/*
-		 * If an update failed critically, we may have copied over version.php but not other files.
-		 * In that case, if the installation claims we're running the version we attempted, nag.
-		 * This is serious enough to err on the side of nagging.
-		 *
-		 * If we simply failed to update before we tried to copy any files, then assume things are
-		 * OK if they are now running the latest.
-		 *
-		 * This flag is cleared whenever a successful update occurs using Core_Upgrader.
-		 */
-		$comparison = ! empty( $failed['critical'] ) ? '>=' : '>';
-		if ( isset( $failed['attempted'] ) && version_compare( $failed['attempted'], $wp_version, $comparison ) ) {
-			$nag = true;
-		}
-	}
-
-	if ( ! $nag ) {
-		return false;
-	}
-
-	if ( current_user_can( 'update_core' ) ) {
-		$msg = sprintf(
-			/* translators: %s: URL to WordPress Updates screen. */
-			__( 'An automated WordPress update has failed to complete - <a href="%s">please attempt the update again now</a>.' ),
-			'update-core.php'
-		);
-	} else {
-		$msg = __( 'An automated WordPress update has failed to complete! Please notify the site administrator.' );
-	}
-
-	echo "<div class='update-nag notice notice-warning inline'>$msg</div>";
-}
-
-/**
  * Prints the JavaScript templates for update admin notices.
  *
  * Template takes one argument with four values:

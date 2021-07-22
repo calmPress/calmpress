@@ -560,11 +560,6 @@ function update_core( $from, $to ) {
 	 */
 	do_action( '_core_updated_successfully', $calmpress_version );
 
-	// Clear the option that indicates previous failures, now that we've been successful.
-	if ( function_exists( 'delete_site_option' ) ) {
-		delete_site_option( 'auto_core_update_failed' );
-	}
-
 	return $calmpress_version;
 }
 

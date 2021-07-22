@@ -37,7 +37,6 @@ add_action( 'network_admin_notices', 'site_admin_notice' );
 
 // Update hooks.
 add_action( 'network_admin_notices', 'update_nag', 3 );
-add_action( 'network_admin_notices', 'maintenance_nag', 10 );
 
 // Network Admin hooks.
 add_action( 'add_site_option_new_admin_email', 'update_network_option_new_admin_email', 10, 2 );
