@@ -118,13 +118,6 @@ do_action( "admin_footer-{$hook_suffix}" ); // phpcs:ignore WordPress.NamingConv
  }
 echo $buffer;
 
-// get_site_option() won't exist when auto upgrading from <= 2.7.
-if ( function_exists( 'get_site_option' )
-	&& false === get_site_option( 'can_compress_scripts' )
-) {
-	compression_test();
-}
-
 ?>
 
 <div class="clear"></div></div><!-- wpwrap -->

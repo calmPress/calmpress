@@ -4,13 +4,6 @@
  *
  * Several constants are used to manage the loading, concatenating and compression of scripts and CSS:
  * define('SCRIPT_DEBUG', true); loads the development (non-minified) versions of all scripts and CSS, and disables compression and concatenation,
- * define('COMPRESS_SCRIPTS', false); disables compression of scripts,
- * define('COMPRESS_CSS', false); disables compression of CSS,
- * define('ENFORCE_GZIP', true); forces gzip for compression (default is deflate).
- *
- * The globals $compress_scripts and $compress_css can be set by plugins
- * to temporarily override the above settings. Also a compression test is run once and the result is saved
- * as option 'can_compress_scripts' (0/1). The test will run again if that option is deleted.
  *
  * @package WordPress
  */
@@ -1657,7 +1650,6 @@ function print_head_scripts() {
 
 	$wp_scripts = wp_scripts();
 
-	script_concat_settings();
 	$wp_scripts->do_head_items();
 
 	/**
@@ -1690,7 +1682,6 @@ function print_footer_scripts() {
 	if ( ! ( $wp_scripts instanceof WP_Scripts ) ) {
 		return array(); // No need to run if not instantiated.
 	}
-	script_concat_settings();
 	$wp_scripts->do_footer_items();
 
 	/**
@@ -1714,15 +1705,9 @@ function print_footer_scripts() {
  * @ignore
  *
  * @global WP_Scripts $wp_scripts
- * @global bool       $compress_scripts
  */
 function _print_scripts() {
-	global $wp_scripts, $compress_scripts;
-
-	$zip = $compress_scripts ? 1 : 0;
-	if ( $zip && defined( 'ENFORCE_GZIP' ) && ENFORCE_GZIP ) {
-		$zip = 'gzip';
-	}
+	global $wp_scripts;
 
 	$type_attr = current_theme_supports( 'html5', 'script' ) ? '' : " type='text/javascript'";
 
@@ -1809,7 +1794,6 @@ function print_admin_styles() {
 
 	$wp_styles = wp_styles();
 
-	script_concat_settings();
 	$wp_styles->do_items( false );
 
 	/**
@@ -1843,7 +1827,6 @@ function print_late_styles() {
 		return;
 	}
 
-	script_concat_settings();
 	$wp_styles->do_footer_items();
 
 	/**
@@ -1866,51 +1849,15 @@ function print_late_styles() {
  *
  * @ignore
  * @since 3.3.0
- *
- * @global bool $compress_css
  */
 function _print_styles() {
-	global $compress_css;
 
 	$wp_styles = wp_styles();
-
-	$zip = $compress_css ? 1 : 0;
-	if ( $zip && defined( 'ENFORCE_GZIP' ) && ENFORCE_GZIP ) {
-		$zip = 'gzip';
-	}
 
 	$type_attr = current_theme_supports( 'html5', 'style' ) ? '' : ' type="text/css"';
 
 	if ( ! empty( $wp_styles->print_html ) ) {
 		echo $wp_styles->print_html;
-	}
-}
-
-/**
- * Determine the concatenation and compression settings for scripts and styles.
- *
- * @since 2.8.0
- *
- * @global bool $compress_scripts
- * @global bool $compress_css
- */
-function script_concat_settings() {
-	global $compress_scripts, $compress_css;
-
-	$compressed_output = ( ini_get( 'zlib.output_compression' ) || 'ob_gzhandler' === ini_get( 'output_handler' ) );
-
-	if ( ! isset( $compress_scripts ) ) {
-		$compress_scripts = defined( 'COMPRESS_SCRIPTS' ) ? COMPRESS_SCRIPTS : true;
-		if ( $compress_scripts && ( ! get_site_option( 'can_compress_scripts' ) || $compressed_output ) ) {
-			$compress_scripts = false;
-		}
-	}
-
-	if ( ! isset( $compress_css ) ) {
-		$compress_css = defined( 'COMPRESS_CSS' ) ? COMPRESS_CSS : true;
-		if ( $compress_css && ( ! get_site_option( 'can_compress_scripts' ) || $compressed_output ) ) {
-			$compress_css = false;
-		}
 	}
 }
 

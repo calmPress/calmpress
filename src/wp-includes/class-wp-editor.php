@@ -1518,10 +1518,6 @@ class _WP_Editors {
 
 		self::$tinymce_scripts_printed = true;
 
-		if ( ! isset( $concatenate_scripts ) ) {
-			script_concat_settings();
-		}
-
 		wp_print_scripts( array( 'wp-tinymce' ) );
 
 		echo "<script type='text/javascript'>\n" . self::wp_mce_translation() . "</script>\n";
