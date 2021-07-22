@@ -1,6 +1,6 @@
 <?php
 /**
- * This file contains some WordPress and calmPress "constat" definitions related
+ * This file contains some WordPress and calmPress "constant" definitions related
  * to current versions and minimal required versions. It is used by both core
  * code itself and calmpress.org build process.
  */
