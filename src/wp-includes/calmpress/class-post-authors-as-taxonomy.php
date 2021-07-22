@@ -100,9 +100,8 @@ class Post_Authors_As_Taxonomy {
 			'show_in_menu'      => false,
 		];
 
-		// Do not associate with any CPT right now as it will be done
-		// on a later hook.
-		register_taxonomy( self::TAXONOMY_NAME, [], $args );
+		// Do association with post types early otherwise meta boxes are not displayed.
+		register_taxonomy( self::TAXONOMY_NAME, [ 'post', 'page', 'attachment' ], $args );
 	}
 
 	/**
