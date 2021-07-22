@@ -96,7 +96,7 @@ function wp_initial_constants() {
 	}
 
 	// Add define( 'SCRIPT_DEBUG', true ); to wp-config.php to enable loading of non-minified,
-	// non-concatenated scripts and stylesheets.
+	// scripts and stylesheets.
 	if ( ! defined( 'SCRIPT_DEBUG' ) ) {
 		define( 'SCRIPT_DEBUG', false );
 	}

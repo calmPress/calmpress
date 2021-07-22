@@ -207,15 +207,6 @@ class WP_Debug_Data {
 			$wp_debug_log_value = __( 'Enabled' );
 		}
 
-		// Check CONCATENATE_SCRIPTS.
-		if ( defined( 'CONCATENATE_SCRIPTS' ) ) {
-			$concatenate_scripts       = CONCATENATE_SCRIPTS ? __( 'Enabled' ) : __( 'Disabled' );
-			$concatenate_scripts_debug = CONCATENATE_SCRIPTS ? 'true' : 'false';
-		} else {
-			$concatenate_scripts       = __( 'Undefined' );
-			$concatenate_scripts_debug = 'undefined';
-		}
-
 		// Check WP_LOCAL_DEV.
 		if ( defined( 'WP_LOCAL_DEV' ) ) {
 			$wp_local_dev       = WP_LOCAL_DEV ? __( 'Enabled' ) : __( 'Disabled' );
@@ -284,11 +275,6 @@ class WP_Debug_Data {
 					'label' => 'WP_CACHE',
 					'value' => WP_CACHE ? __( 'Enabled' ) : __( 'Disabled' ),
 					'debug' => WP_CACHE,
-				),
-				'CONCATENATE_SCRIPTS' => array(
-					'label' => 'CONCATENATE_SCRIPTS',
-					'value' => $concatenate_scripts,
-					'debug' => $concatenate_scripts_debug,
 				),
 				'WP_LOCAL_DEV'        => array(
 					'label' => 'WP_LOCAL_DEV',
