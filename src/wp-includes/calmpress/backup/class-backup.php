@@ -36,7 +36,7 @@ interface Backup {
 	public function description() : string;
 
 	/**
-	 * The hstorage in which the backup is located.
+	 * The storage in which the backup is located.
 	 *
 	 * @since 1.0.0
 	 *

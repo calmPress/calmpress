@@ -48,7 +48,7 @@ class Local_Backup_Storage implements Backup_Storage {
 	 */
 	protected function backup_dir() : string {
 		$data = wp_upload_dir( null, false );
-		return $data['basedir'] . self::PATH_RELATIVE_TO_UPLOADS;
+		return $data['basedir'] . '/' . self::PATH_RELATIVE_TO_UPLOADS;
 	}
 
 	/**
@@ -82,7 +82,7 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @return Backup_Container A container which contains the backups.
 	 */
 	public function backups() : Backup_Container {
-		$container = new Backup_Container;
+		$container = new Backup_Container();
 
 		foreach ( glob( $this->backup_dir() . '*.meta' ) as $file ) {
 			try {
@@ -98,49 +98,16 @@ class Local_Backup_Storage implements Backup_Storage {
 	}
 
 	/**
-	 * A utility function to recursively add file names to a zip.
+	 * Do a local backup.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param ZipArchive $zip     The zip file to add the files into, should be open.
-	 * @param string     $dirname The directory relative to calmPress root directory to zip.
+	 * @param string $description The description to be used for the backup.
+	 *
+	 * @throws \Exception if the backup fails.
 	 */
-	private static function zip_directory( ZipArchive $zip, string $dirname ) {
-
-		$root_path = ABSPATH . '/' . $dirname;
-		$zip->addEmptyDir( $dirname );
-
-		$files = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator( ABSPATH . '/' . $dirname ),
-			RecursiveIteratorIterator::LEAVES_ONLY
-		);
-
-		foreach ( $files as $name => $file ) {
-			// Get file path relative to backup root.
-			$relative_path = substr( $file->getRealPath(), strlen( $root_path ) + 1);
-
-			if ( ! $file->isDir() )	{
-				$zip->addFile( $file->getRealPath(), $relative_path );
-			} else {
-				$zip->addEmptyDir( $relative_path );
-			}
-		}
+	public function Backup( string $description ) {
+		Local_Backup::create_backup( $description, $this->backup_dir() );
 	}
 
-	/**
-	 * Do a back up.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return Local_Backup The backup object representing the backup.
-	 */
-	public static function backup() : Local_Backup {
-
-		// Use a temp directory to avoid possible collosions.
-		$tempdir = get_temp_dir();
-
-		$zipfile = ZipArchive::open( 'backup.zip', ZipArchive::CREATE );
-		self::zip_directory( $zipfile, 'wp-admin' );
-		self::zip_directory( $zipfile, 'wp-includes' );
-	}
 }

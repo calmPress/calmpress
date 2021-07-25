@@ -295,9 +295,9 @@ $menu[80]                               = array( __( 'Settings' ), 'manage_optio
 	$submenu['options-general.php'][45] = array( __( 'Privacy' ), 'manage_privacy_options', 'options-privacy.php' );
 
 if ( ! is_multisite() ) {
-$menu[85]                          = array( __( 'Backups' ), 'backup', 'backups.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-admin-settings' );
-	$submenu['backup.php'][10]     = array( __( 'Backup' ), 'backup', 'backups.php' );
-	$submenu['new-backup.php'][10] = array( __( 'New' ), 'backup', 'backups.php' );
+$menu[85]                       = array( __( 'Backups' ), 'backup', 'backups.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-database' );
+	$submenu['backups.php'][10] = array( __( 'Backups' ), 'backup', 'backups.php' );
+	$submenu['backups.php'][15] = array( __( 'Create New' ), 'backup', 'backup-new.php' );
 }
 
 $_wp_last_utility_menu = 85; // The index of the last top-level menu in the utility menu group.
