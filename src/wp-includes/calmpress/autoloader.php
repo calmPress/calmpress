@@ -49,6 +49,7 @@ const MAP = [
 	'calmpress\backup\Backup_Storage'                   => __DIR__ . '/backup/class-backup-storage.php',
 	'calmpress\backup\Local_Backup_Storage'             => __DIR__ . '/backup/class-local-backup-storage.php',
 	'calmpress\backup\Local_Backup'                     => __DIR__ . '/backup/class-local-backup.php',
+	'calmpress\calmpress\Paths'                         => __DIR__ . '/calmpress/class-paths.php',
 ];
 
 spl_autoload_register(

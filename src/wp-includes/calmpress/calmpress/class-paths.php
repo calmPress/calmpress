@@ -1,0 +1,132 @@
+<?php
+/**
+ * Implementation of camlpress paths.
+ *
+ * @package calmPress
+ * @since 1.0.0
+ */
+
+declare(strict_types=1);
+
+namespace calmpress\calmpress;
+
+/**
+ * A mostly utility class to abstract access to various locations of calmPress files
+ * and directories.
+ *
+ * @since 1.0.0
+ */
+class Paths {
+
+	/**
+	 * The path of root directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 */
+	public function root_directory() : string {
+
+		return ABSPATH;
+	}
+
+	/**
+	 * The path of the admin directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 */
+	public function wp_admin_directory() : string {
+		return ABSPATH . 'wp-admin/';
+	}
+
+	/**
+	 * The path to the includes directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 */
+	public function wp_includes_directory() :string {
+		return ABSPATH . 'wp-includes/';
+	}
+
+	/**
+	 * The path to the content root directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 */
+	public function wp_content_directory() : string {
+		return WP_CONTENT_DIR . '/';
+	}
+
+	/**
+	 * The path to the plugins root directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 */
+	public function wp_plugins_directory() : string {
+		return WP_PLUGIN_DIR . '/';
+	}	
+
+	/**
+	 * The path to the themes root directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 */
+	public function wp_themes_directory() : string {
+		return WP_CONTENT_DIR . '/themes/';
+	}
+
+	/**
+	 * An array containing the names of the core files located at the root directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string[] The file names.
+	 */
+	public function core_root_files_name() : array{
+		return [
+			'index.php',
+			'wp-activate.php',
+			'wp-blog-header.php',
+			'wp-comments-post.php',
+			'wp-cron.php',
+			'wp-load.php',
+			'wp-login.php',
+			'wp-settings.php',
+			'wp-signup.php',
+		];
+	}
+
+	/**
+	 * An array containing the names of the possible dropin files located at the root content directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string[] The file names.
+	 */
+	public function dropin_files_name() : array{
+		return [
+			'advanced-cache.php',
+			'db.php',
+			'db-error.php',
+			'install.php',
+			'maintenance.php',
+			'object-cache.php',
+			'php-error.php',
+			'fatal-error-handler.php',
+			'sunrise.php',
+			'blog-deleted.php',
+			'blog-inactive.php',
+			'blog-suspended.php',	
+		];
+	}
+}

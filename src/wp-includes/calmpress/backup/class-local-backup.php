@@ -115,6 +115,23 @@ class Local_Backup implements Backup {
 	}
 
 	/**
+	 * A utility function to create a directory and raise exceptions if it fails.
+	 * 
+	 * Directory creation is recursive if needed.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $directory Path to the directory to create.
+	 *
+	 * @throws \Exception When creation fails.
+	 */
+	private static function mkdir( string $directory ) {
+		if ( ! mkdir( $destination, 0755, true ) ) {
+			throw new Exception( 'Failed creating a backup directory ' . $directory );
+		}
+	}
+
+	/**
 	 * A utility function to copy files and raise exceptions if it fails.
 	 *
 	 * @since 1.0.0
@@ -145,9 +162,7 @@ class Local_Backup implements Backup {
 	private static function Backup_Directory( string $source, string $destination ) {
 
 		if ( ! file_exists( $destination ) ) {
-				if ( ! mkdir( $destination, 0755, true ) ) {
-				throw new Exception( 'Failed creating a backup directory ' . $backup_dir );
-			}
+			self::mkdir( $destination )
 		}
 
 		$iterator = new \RecursiveIteratorIterator(
@@ -158,9 +173,7 @@ class Local_Backup implements Backup {
 		foreach ( $iterator as $item ) {
 			if ( $item->isDir() ) {
 				$dir = $destination . '/' . $iterator->getSubPathName();
-				if ( ! mkdir( $dir, 0755, true ) ) {
-					throw new \Exception( 'Failed creating a directory ' . $dir );
-				}
+				self::mkdir( $dir );
 			} elseif ( ! $item->isLink() ) { 
 				// Symlinks might point anywhere, no clear backup strategy for them so handle only files.
 				$file = $destination . '/' . $iterator->getSubPathName();
@@ -200,28 +213,15 @@ class Local_Backup implements Backup {
 			$tmp_backup_dir = $core_dir . wp_unique_filename( $core_dir, 'tmp-' . $version );
 
 			// Copy wp-includes
-			self::Backup_Directory( ABSPATH . WPINC, $tmp_backup_dir . '/wp-includes' );
+			self::Backup_Directory( self::installation_paths()->wp_includes_directory(), $tmp_backup_dir . '/wp-includes' );
 
 
 			// Copy wp-admin.
-			self::Backup_Directory( ABSPATH . 'wp-admin', $tmp_backup_dir . '/wp-admin' );
+			self::Backup_Directory( self::installation_paths()->wp_admin_directory(), $tmp_backup_dir . '/wp-admin' );
 
 			// Copy core code files located at root directory.
-			$files = [
-				'index.php',
-				'wp-activate.php',
-				'wp-blog-header.php',
-				'wp-comments-post.php',
-				'wp-cron.php',
-				'wp-cron.php',
-				'wp-load.php',
-				'wp-login.php',
-				'wp-settings.php',
-				'wp-signup.php',
-			];
-
-			foreach ( $files as $file ) {
-				self::Copy( ABSPATH . $file, $tmp_backup_dir . '/' . $file );
+			foreach ( self::installation_paths()->core_root_files() as $file ) {
+				self::Copy( self::installation_paths()->root_directory() . $file, $tmp_backup_dir . '/' . $file );
 			}
 
 			// All went well so far, rename the temp directory to the proper expected name.
@@ -250,12 +250,10 @@ class Local_Backup implements Backup {
 	 */
 	private static function Backup_Dropins( string $backup_dir ) : string {
 
-		if ( ! mkdir( $backup_dir, 0755, true ) ) {
-			throw new Exception( 'Failed creating a backup directory ' . $backup_dir );
-		}
+		self:mkdir( $backup_dir );
 
 		foreach ( _get_dropins() as $filename => $data ) {
-			$file = WP_CONTENT_DIR . '/' . $filename;
+			$file = self::installation_paths()->wp_content_directory() . '/' . $filename;
 			if ( file_exists( $file ) ) {
 				if ( ! is_link( $file ) ) {
 					self::Copy( $file, $backup_dir . $filename );
@@ -283,24 +281,11 @@ class Local_Backup implements Backup {
 	 */
 	private static function Backup_Root( string $backup_dir ) : string {
 
-		$core_files = [
-			'index.php',
-			'wp-activate.php',
-			'wp-blog-header.php',
-			'wp-comments-post.php',
-			'wp-cron.php',
-			'wp-cron.php',
-			'wp-load.php',
-			'wp-login.php',
-			'wp-settings.php',
-			'wp-signup.php',
-		];
+		$core_files = self::installation_paths()->core_root_files();
 
-		if ( ! mkdir( $backup_dir, 0755, true ) ) {
-			throw new Exception( 'Failed creating a backup directory ' . $backup_dir );
-		}
+		self::mkdir( $backup_dir );
 
-		foreach ( new \DirectoryIterator( ABSPATH ) as $file ) {
+		foreach ( new \DirectoryIterator( self::installation_paths()->root_directory() ) as $file ) {
 			if ( $file->isDot() || $file->isLink() || ! $file->isFile() ) {
 				continue;
 			}
@@ -479,9 +464,7 @@ class Local_Backup implements Backup {
 	private static function Backup_Options( string $backup_dir ) : string {
 		global $wpdb;
 
-		if ( ! mkdir( $backup_dir, 0755, true ) ) {
-			throw new Exception( 'Failed creating a backup directory ' . $backup_dir );
-		}
+		self::mkdir( $backup_dir );
 
 		// loop over all sites, store options for each site in different file.
 		if ( is_multisite() ) {
@@ -496,6 +479,24 @@ class Local_Backup implements Backup {
 		}
 
 		return $backup_dir;
+	}
+
+	/**
+	 * Utility function to provide access to the information about the paths in which
+	 * the calmPress being backuped is installed.
+	 * 
+	 * Helps to avoid dependency on global state to make testing easier while reducing
+	 * the amount of parameters that would have needed to be passed around.
+	 * 
+	 * @return \calmpress\calpress\Paths An object with various path related information.
+	 */
+	private static function installation_paths() : \calmpress\calpress\Paths {
+		static $cache;
+
+		if ( ! isset ( $cache ) ) {
+			$cache = new \calmpress\calmpress\Paths();
+		}
+		return $cache;
 	}
 
 	/**
