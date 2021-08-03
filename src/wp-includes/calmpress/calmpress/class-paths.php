@@ -92,7 +92,7 @@ class Paths {
 	 *
 	 * @return string[] The file names.
 	 */
-	public function core_root_files_name() : array{
+	public function core_root_file_names() : array{
 		return [
 			'index.php',
 			'wp-activate.php',

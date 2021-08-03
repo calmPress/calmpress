@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace calmpress\backup;
 
+// This is need for accessing get_plugins API.
+require_once ABSPATH . 'wp-admin\includes\plugin.php';
+
 /**
  * A local backup class for backups consisting of two files as expect by the Local_Backup_Storage
  * class.
@@ -56,14 +59,14 @@ class Local_Backup implements Backup {
 	 *
 	 * @since 1.0.0
 	 */
-	private $backup_file;
+	protected $backup_file;
 
 	/**
 	 * The meta information about the backup.
 	 *
 	 * @since 1.0.0
 	 */
-	private $storage;
+	protected $storage;
 
 	/**
 	 * Constructor of a local backup object.
@@ -125,9 +128,9 @@ class Local_Backup implements Backup {
 	 *
 	 * @throws \Exception When creation fails.
 	 */
-	private static function mkdir( string $directory ) {
-		if ( ! mkdir( $destination, 0755, true ) ) {
-			throw new Exception( 'Failed creating a backup directory ' . $directory );
+	protected static function mkdir( string $directory ) {
+		if ( ! @mkdir( $directory, 0755, true ) ) {
+			throw new \Exception( 'Failed creating a backup directory ' . $directory );
 		}
 	}
 
@@ -141,8 +144,8 @@ class Local_Backup implements Backup {
 	 *
 	 * @throws \Exception When copy fails.
 	 */
-	private static function Copy( string $source, string $destination ) {
-		if ( ! copy( $source, $destination ) ) {
+	protected static function copy( string $source, string $destination ) {
+		if ( ! @copy( $source, $destination ) ) {
 			throw new \Exception( sprintf( 'Copy from %s to %s had failed', $source, $destination ) );
 		}
 	}
@@ -151,6 +154,7 @@ class Local_Backup implements Backup {
 	 * Backup recursively a directory from source directory into destination directory.
 	 * 
 	 * The destination directory is created if do not exist.
+	 * symlinks are not copied.
 	 * 
 	 * @since 1.0.0
 	 * 
@@ -159,10 +163,10 @@ class Local_Backup implements Backup {
 	 * 
 	 * @throws Exception When directory could not be created or file could not be copied.
 	 */
-	private static function Backup_Directory( string $source, string $destination ) {
+	protected static function Backup_Directory( string $source, string $destination ) {
 
 		if ( ! file_exists( $destination ) ) {
-			self::mkdir( $destination )
+			static::mkdir( $destination );
 		}
 
 		$iterator = new \RecursiveIteratorIterator(
@@ -173,11 +177,11 @@ class Local_Backup implements Backup {
 		foreach ( $iterator as $item ) {
 			if ( $item->isDir() ) {
 				$dir = $destination . '/' . $iterator->getSubPathName();
-				self::mkdir( $dir );
+				static::mkdir( $dir );
 			} elseif ( ! $item->isLink() ) { 
 				// Symlinks might point anywhere, no clear backup strategy for them so handle only files.
 				$file = $destination . '/' . $iterator->getSubPathName();
-				self::Copy( $item->getPathname(), $file );
+				static::copy( $item->getPathname(), $file );
 			}
 		}
 	}
@@ -198,7 +202,7 @@ class Local_Backup implements Backup {
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	private static function Backup_Core( string $core_dir ) : string {
+	protected static function Backup_Core( string $core_dir ) : string {
 		$version = calmpress_version();
 
 		$backup_dir = $core_dir . $version;
@@ -213,18 +217,20 @@ class Local_Backup implements Backup {
 			$tmp_backup_dir = $core_dir . wp_unique_filename( $core_dir, 'tmp-' . $version );
 
 			// Copy wp-includes
-			self::Backup_Directory( self::installation_paths()->wp_includes_directory(), $tmp_backup_dir . '/wp-includes' );
+			static::Backup_Directory( static::installation_paths()->wp_includes_directory(), $tmp_backup_dir . '/wp-includes' );
 
 
 			// Copy wp-admin.
-			self::Backup_Directory( self::installation_paths()->wp_admin_directory(), $tmp_backup_dir . '/wp-admin' );
+			static::Backup_Directory( static::installation_paths()->wp_admin_directory(), $tmp_backup_dir . '/wp-admin' );
 
 			// Copy core code files located at root directory.
-			foreach ( self::installation_paths()->core_root_files() as $file ) {
-				self::Copy( self::installation_paths()->root_directory() . $file, $tmp_backup_dir . '/' . $file );
+			foreach ( static::installation_paths()->core_root_files() as $file ) {
+				static::copy( static::installation_paths()->root_directory() . $file, $tmp_backup_dir . '/' . $file );
 			}
 
 			// All went well so far, rename the temp directory to the proper expected name.
+			// While failure is handled, it is more for completness as the chances for it to happen
+			// are less than slim.
 			if ( ! rename( $tmp_backup_dir, $backup_dir ) ) {
 				throw new \Exception( 'Failed renaming the temp core backup directory %s to %s ', $tmp_backup_dir, $backup_dir );
 			}
@@ -243,25 +249,20 @@ class Local_Backup implements Backup {
 	 *
 	 * @param string $backup_dir The root directory for the dropins backup files.
 	 *
-	 * @return string The path to the backup directory relative to the backup
-	 *                root directory.
-	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	private static function Backup_Dropins( string $backup_dir ) : string {
+	protected static function Backup_Dropins( string $backup_dir ) {
 
 		self:mkdir( $backup_dir );
 
-		foreach ( _get_dropins() as $filename => $data ) {
-			$file = self::installation_paths()->wp_content_directory() . '/' . $filename;
+		foreach ( static::installation_paths()->dropin_files_name() as $filename ) {
+			$file = static::installation_paths()->wp_content_directory() . $filename;
 			if ( file_exists( $file ) ) {
 				if ( ! is_link( $file ) ) {
-					self::Copy( $file, $backup_dir . $filename );
+					static::copy( $file, $backup_dir . $filename );
 				}
 			}
 		}
-
-		return $backup_dir;
 	}
 
 	/**
@@ -274,18 +275,15 @@ class Local_Backup implements Backup {
 	 *
 	 * @param string $backup_dir The root directory for the root backup files.
 	 *
-	 * @return string The path to the backup directory relative to the backup
-	 *                root directory.
-	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	private static function Backup_Root( string $backup_dir ) : string {
+	protected static function Backup_Root( string $backup_dir ) {
 
-		$core_files = self::installation_paths()->core_root_files();
+		$core_files = static::installation_paths()->core_root_file_names();
 
-		self::mkdir( $backup_dir );
+		static::mkdir( $backup_dir );
 
-		foreach ( new \DirectoryIterator( self::installation_paths()->root_directory() ) as $file ) {
+		foreach ( new \DirectoryIterator( static::installation_paths()->root_directory() ) as $file ) {
 			if ( $file->isDot() || $file->isLink() || ! $file->isFile() ) {
 				continue;
 			}
@@ -294,10 +292,8 @@ class Local_Backup implements Backup {
 			if ( in_array( $file->getFilename(), $core_files, true ) ) {
 				continue;
 			}
-			self::Copy( $file->getPathname(), $backup_dir . $file->getFilename() );
+			static::copy( $file->getPathname(), $backup_dir . $file->getFilename() );
 		}
-
-		return $backup_dir;
 	}
 
 	/**
@@ -309,7 +305,7 @@ class Local_Backup implements Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string    $themes_backup_dir The root directory for the plugins backup files.
+	 * @param string    $themes_backup_dir The root directory for the themes backup directories.
 	 *
 	 * @param \WP_Theme $theme The object representing the theme properties.
 	 *
@@ -318,12 +314,12 @@ class Local_Backup implements Backup {
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	private static function Backup_Theme( string $themes_backup_dir, \WP_Theme $theme ) : string {
-		$version = $theme->get( 'Version' );
-		$source  = $theme->get_stylesheet_directory();
-
-		$theme_dir  = $themes_backup_dir . basename( $source );
-		$backup_dir = $theme_dir . '/' . $version;
+	protected static function Backup_Theme( string $themes_backup_dir, \WP_Theme $theme ) : string {
+		$version      = $theme->get( 'Version' );
+		$source       = $theme->get_stylesheet_directory();
+		$relative_dir = basename( $source ) . '/' . $version;
+		$theme_dir    = $themes_backup_dir . '/' . basename( $source );
+		$backup_dir   = $themes_backup_dir . $relative_dir;
 
 		/*
 		 * If the backup directory exists it means we already have a backup of the version,
@@ -335,18 +331,81 @@ class Local_Backup implements Backup {
 			$tmp_backup_dir = $theme_dir . '/' . wp_unique_filename( $theme_dir, 'tmp-' . $version );
 
 			// Copy the theme files.
-			self::Backup_Directory( $source, $tmp_backup_dir );
+			static::Backup_Directory( $source, $tmp_backup_dir );
 
 			// All went well so far, rename the temp directory to the proper expected name.
+			// While failure is handled, it is more for completness as the chances for it to happen
+			// are less than slim.
 			if ( ! rename( $tmp_backup_dir, $backup_dir ) ) {
 				throw new \Exception( sprintf( 'Failed renaming the temp theme backup directory %s to %s ', $tmp_backup_dir, $backup_dir ) );
 			}
 		}
 
-		return $backup_dir;
+		return $relative_dir;
 	}
 
 	/**
+	 * Backup the theme files.
+	 *
+	 * If a backup for the current version already exists, just return the directory in which it located,
+	 * otherwise create a new directory under the theme backups root / theme directory, and copy into it all
+	 * files from the theme's directory, while preserving the relative directory structure.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $themes_backup_dir The root directory for the tehemes backup directories.
+	 *
+	 * @return array Array of arrays containing meta information about the themes' backups
+	 *               Each sub array is indexed by the relevant theme's directory and has the
+	 *               following values:
+	 *               'version'   The version of the backuped theme.
+	 *               'directory' The directory in which the backup is located relative to the root
+	 *                           of the backup directory.
+	 *
+	 * @throws \Exception When directory creation or copy error occurs.
+	 */
+	protected static function Backup_Themes( string $themes_backup_dir ) : array {
+		global $wp_theme_directories;
+		$directory_change = false;
+
+		// Switch the current content of the registers theme root directories with
+		// the directory we expect from the paths object.
+		// This is done to be able to test the function while not needing to reinvent
+		// wp_get_themes.
+		$old_theme_directories = $wp_theme_directories;
+		$wp_theme_directories  = rtrim( static::installation_paths()->wp_themes_directory(), '/' );
+
+		// Need to clear the theme cache if directories actually changed.
+		if ( $old_theme_directories !== $wp_theme_directories ) {
+			wp_clean_themes_cache();
+			$directory_change = true;
+		}
+
+		$themes = wp_get_themes();
+		$meta   = []; 
+		foreach ( $themes as $theme ) {
+			// skip themes without a version.
+			if ( $theme->get( 'Version' ) ) {
+				$theme_dir = static::Backup_Theme( $themes_backup_dir . static::RELATIVE_THEMES_BACKUP_PATH, $theme );
+				$meta[ $theme->get_stylesheet() ] = [
+					'version'   => $theme->get( 'Version' ),
+					'directory' => static::RELATIVE_THEMES_BACKUP_PATH . $theme_dir,
+				];
+			}
+		}
+
+		// Return the theme directories global to its original state.
+		$wp_theme_directories = $old_theme_directories;
+		// Need to clear the theme cache if directories actually changed.
+		if ( $directory_change ) {
+			wp_clean_themes_cache();
+		}
+		
+
+		return $meta;
+	}
+
+	 /**
 	 * Backup the plugin files.
 	 *
 	 * If a backup for the current version already exists, just return the directory in which it located,
@@ -356,22 +415,18 @@ class Local_Backup implements Backup {
 	 * @since 1.0.0
 	 *
 	 * @param string $plugins_backup_dir The root directory for the plugins backup files.
-	 *
-	 * @param string $directory The directory in which the plugin is located
-	 *                          relative to plugins root directory.
-	 * @param string $version   The version of the plugin.
+	 * @param string $source             The directory in which the plugin is located.
+	 * @param string $version            The version to associate with the directory.
 	 *
 	 * @return string The path to the backup directory relative to the backup
 	 *                root directory.
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	private static function Backup_Plugin( string $plugins_backup_dir, string $directory, string $version ) : string {
-		$source = WP_PLUGIN_DIR . '/' . $directory;
-
-		$plugin_dir = $plugins_backup_dir . $directory;
-		$backup_dir = $plugin_dir . '/' . $version;
-
+	protected static function Backup_Plugin_Directory( string $plugins_backup_dir, string $source, string $version ) : string {
+		$relative_dir = basename( $source ) . '/' . $version;
+		$backup_dir   = $plugins_backup_dir . $relative_dir;
+		$plugin_dir   = $plugins_backup_dir . basename( $source );
 		/*
 		 * If the backup directory exists it means we already have a backup of the version,
 		 * If not we need to create a directory and copy into it the plugin files.
@@ -381,16 +436,150 @@ class Local_Backup implements Backup {
 			// Temp directory to backup to that will be easier to discard in case of failure.
 			$tmp_backup_dir = $plugin_dir . '/' . wp_unique_filename( $plugin_dir, 'tmp-' . $version );
 
-			// Copy the theme files.
-			self::Backup_Directory( $source, $tmp_backup_dir );
+			// Copy the directory files.
+			static::Backup_Directory( $source, $tmp_backup_dir );
 
 			// All went well so far, rename the temp directory to the proper expected name.
+			// While failure is handled, it is more for completness as the chances for it to happen
+			// are less than slim.
 			if ( ! rename( $tmp_backup_dir, $backup_dir ) ) {
 				throw new \Exception( sprintf( 'Failed renaming the temp plugin backup directory %s to %s ', $tmp_backup_dir, $backup_dir ) );
 			}
 		}
 
-		return $backup_dir;
+		return $relative_dir;
+	}
+
+	 /**
+	 * Backup a plugin which is a single file plugin on plugins root directory.
+	 *
+	 * If a backup for the current version already exists, just return the directory in which it located,
+	 * otherwise create a new directory under the plugin backups root / plugin directory, and copy into it all
+	 * files from the plugin's directory, while preserving the relative directory structure.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $plugins_backup_dir The root directory for the plugins backup files.
+	 * @param string $source             The file to backup.
+	 * @param string $version            The version of the plugin.
+	 *
+	 * @return string The path to the backup directory relative to the backup
+	 *                root directory.
+	 *
+	 * @throws \Exception When directory creation or copy error occurs.
+	 */
+	protected static function Backup_Root_Single_File_Plugin( string $plugins_backup_dir, string $source, string $version ) : string {
+		$relative_dir = basename( $source ) . '/' . $version;
+		$backup_dir   = $plugins_backup_dir . $relative_dir;
+
+		/*
+		 * If the backup directory exists it means we already have a backup of the version,
+		 * If not we need to create a directory and copy into it the plugin files.
+		 */
+		if ( ! file_exists( $backup_dir ) ) {
+
+			// Temp directory to backup to that will be easier to discard in case of failure.
+			$tmp_backup_dir = $plugins_backup_dir . wp_unique_filename( $plugins_backup_dir, 'tmp-' . $version );
+			static::mkdir( $tmp_backup_dir );
+
+			// Copy the file to the temp directory.
+			static::copy( $source, $tmp_backup_dir . '/' . basename( $source ) );
+
+			// All went well so far, rename the temp directory to the proper expected name.
+			// While failure is handled, it is more for completness as the chances for it to happen
+			// are less than slim.
+
+			// need to create the dir for the rename to not fail.
+			static::mkdir( dirname( $backup_dir ) );
+
+			if ( ! rename( $tmp_backup_dir, $backup_dir ) ) {
+				throw new \Exception( sprintf( 'Failed renaming the temp plugin backup directory %s to %s ', $tmp_backup_dir, $backup_dir ) );
+			}
+		}
+
+		return $relative_dir;
+	}
+
+	 /**
+	 * Backup the plugin files and directories.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $plugins_backup_dir The root directory for the plugins backup files.
+	 *
+	 * @return array Array of arrays containing meta information about the plugins' backups
+	 *               Each sub array is indexed by the relevant plugin's directory and has the
+	 *               following values:
+	 *               'version'   The version of the backuped theme.
+	 *               'directory' The directory in which the backup is located relative to the root
+	 *                           of the backup directory.
+	 *               'type'      The type of the plugin backedup, 'root_file' for plugins
+	 *                           located as single files on the plugin root directory or 'directory'
+	 *                           for plugins located in a directory.
+	 * 
+	 * @throws \Exception When directory creation or copy error occurs.
+	 */
+	protected static function Backup_Plugins( string $backup_root ) : array {
+
+		// Plugins are in principal just a file with a plugin header and you can have
+		// a one file plugin in the plugins directory, or two plugin files in one directory
+		// in addition to the standard format of one file in its own directory,
+		// therefore copying directorie like it is done in themes is just not enough if version
+		// information is needed.
+
+		$plugindirs = [];
+
+		foreach ( \get_plugins() as $filename => $plugin_data ) {
+			$plugin_data['filename']              = $filename; // we need this later.
+			$plugindirs[ dirname( $filename ) ][] = $plugin_data;
+		}
+
+		$meta = [];
+
+		// Special case are plugins locate at the plugins root directory.
+		if ( isset( $plugindirs['.'] ) ) {
+			foreach ( $plugindirs['.'] as $plugin_data ) {
+				$plugin_dir = static::Backup_Root_Single_File_Plugin(
+					$backup_root . static::RELATIVE_PLUGINS_BACKUP_PATH,
+					WP_PLUGIN_DIR . '/' . $plugin_data['filename'],
+					$plugin_data['Version']
+				);
+
+				$meta[ $plugin_data['filename'] ] = [
+					'version'   => $plugin_data['Version'],
+					'directory' => static::RELATIVE_PLUGINS_BACKUP_PATH . $plugin_dir,
+					'type'      => 'root_file',
+				];
+			}
+			unset( $plugindirs['.'] );
+		}
+
+		foreach ( $plugindirs as $dirname => $dir_data ) {
+			// For directories with two plugins make the version a combination
+			// of the versions of both plugins.
+			// The version generation code relies on get_plugins and the code processing the data
+			// to generate the plugin data in consistant order otherwise there might be more than
+			// one backup for the same identical versions for multiple plugins in a directory.
+			$versions = [];
+			foreach ( $dir_data as $plugin_data ) {
+				$versions[] = $plugin_data['Version'];
+			}
+			$version = join( '-', $versions );
+			
+			$plugin_dir = static::Backup_Plugin_Directory(
+				$backup_root . static::RELATIVE_PLUGINS_BACKUP_PATH,
+				$dirname,
+				$version
+			);
+
+			$meta[ $dirname ] = [
+				'version'   => $version,
+				'directory' => static::RELATIVE_PLUGINS_BACKUP_PATH . $plugin_dir,
+				'type'      => 'directory',
+			];
+		}
+
+		return $meta;
 	}
 
 	/**
@@ -401,13 +590,20 @@ class Local_Backup implements Backup {
 	 * @since 1.0.0
 	 *
 	 * @param string $backup_dir The root directory for the options backup files.
+	 * @param int    $site_id    The id of the specific site being backed up.
 	 *
 	 * @throws \Exception When file creation error occurs.
 	 */
-	private static function Backup_Site_Options( string $backup_dir ) {
+	protected static function Backup_Site_Options( string $backup_dir, int $site_id ) {
 		global $wpdb;
 
+		if ( is_multisite() ) {
+			\switch_to_blog( $site_id );
+		}
 		$options = $wpdb->get_results( "SELECT option_name, option_value, autoload FROM $wpdb->options WHERE option_name NOT LIKE '_%transient_%'" );
+		if ( is_multisite() ) {
+			\restore_current_blog();
+		}
 
 		// Remove widgets, sidebar and role capabilities.
 		$options = array_filter(
@@ -440,7 +636,7 @@ class Local_Backup implements Backup {
 		);
 
 		$json = json_encode( $options );
-		$file = $backup_dir . \get_current_blog_id() . '-options.json';
+		$file = $backup_dir . $site_id . '-options.json';
 		if ( false === file_put_contents( $file, $json ) ) {
 			throw new \Exception( 'Failed writing to ', $file );
 		}
@@ -456,29 +652,21 @@ class Local_Backup implements Backup {
 	 *
 	 * @param string $backup_dir The root directory for the options backup files.
 	 *
-	 * @return string The path to the backup directory relative to the backup
-	 *                root directory.
-	 *
 	 * @throws \Exception When directory creation or file creation error occurs.
 	 */
-	private static function Backup_Options( string $backup_dir ) : string {
+	protected static function Backup_Options( string $backup_dir ) {
 		global $wpdb;
 
-		self::mkdir( $backup_dir );
+		static::mkdir( $backup_dir );
 
 		// loop over all sites, store options for each site in different file.
 		if ( is_multisite() ) {
 			foreach ( \get_sites() as $site ) {
-				\switch_to_blog( $site->blog_id );
-				self::Backup_Site_Options( $backup_dir );
-				\restore_current_blog();
-
+				static::Backup_Site_Options( $backup_dir, $site->blog_id );
 			}
 		} else {
-			self::Backup_Site_Options( $backup_dir );
+			static::Backup_Site_Options( $backup_dir, \get_current_blog_id() );
 		}
-
-		return $backup_dir;
 	}
 
 	/**
@@ -490,7 +678,7 @@ class Local_Backup implements Backup {
 	 * 
 	 * @return \calmpress\calpress\Paths An object with various path related information.
 	 */
-	private static function installation_paths() : \calmpress\calpress\Paths {
+	protected static function installation_paths() : \calmpress\calmpress\Paths {
 		static $cache;
 
 		if ( ! isset ( $cache ) ) {
@@ -500,7 +688,7 @@ class Local_Backup implements Backup {
 	}
 
 	/**
-	 * Do a local backup.
+	 * Do a local backup of core files, themes, plugins, root directory and option values.
 	 *
 	 * @since 1.0.0
 	 *
@@ -516,71 +704,32 @@ class Local_Backup implements Backup {
 		$meta['time']        = time();
 		$meta['description'] = $description;
 
-		$core_directory = self::Backup_Core( $backup_root . self::RELATIVE_CORE_BACKUP_PATH );
+		$core_directory = static::Backup_Core( $backup_root . static::RELATIVE_CORE_BACKUP_PATH );
 		$meta['core'] = [
 			'version'   => calmpress_version(),
 			'directory' => $core_directory,
 		];
 
-		// Backup all themes that are in standard theme location, even if they are faulty.
+		// Backup all themes that are in standard theme location, which can be activated (no errors).
 		// Ignore everything else in the themes directories.
-		$meta['themes'] = [];
-		$themes         = wp_get_themes( [ 'errors' => null ] ); // Backup all themes even if broken.
-		foreach ( $themes as $theme ) {
-			$theme_dir = self::Backup_Theme( $backup_root . self::RELATIVE_THEMES_BACKUP_PATH, $theme );
-			$meta['themes'][ $theme->get_stylesheet_directory() ] = [
-				'version'   => $theme->get( 'Version' ),
-				'directory' => $theme_dir,
-			];
-		}
+		$meta['themes'] = static::Backup_Themes( $backup_root );
 
-		// Plugins are in principal just a file with a plugin header and you can have
-		// a one file plugin in the plugins directory, or two plugin files in one directory
-		// in addition to the standard format of one file in its own directory,
-		// therefore copying directorie like it is done in themes is just not enough if version
-		// information is needed.
+		$meta['plugins'] = static::Backup_Plugins( $backup_root );
 
-		$plugindir = [];
-		foreach ( get_plugins() as $filename => $plugin_data ) {
-			$plugin_data['filename']              = $filename; // we need this later.
-			$plugindirs[ dirname( $filename ) ][] = $plugin_data;
-		}
+		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . time() . '/';
+		$dropins_dir = $backup_root . $dropins_rel_dir;
+		static::Backup_Dropins( $dropins_dir );
+		$meta['dropins']['directory'] = $dropins_rel_dir;
 
-		$meta['plugins'] = [];
+		$root_dir_rel_dir = static::RELATIVE_ROOTDIR_BACKUP_PATH . time() . '/';
+		$root_dir_dir = $backup_root . $root_dir_rel_dir;
+		static::Backup_Root( $root_dir_dir );
+		$meta['root_directory']['directory'] = $root_dir_rel_dir;
 
-		// Special case are plugins locate at the plugins root directory.
-		if ( isset( $plugindirs['.'] ) ) {
-			foreach ( $plugindirs['.'] as $plugin_data ) {
-				$plugin_dir = self::Backup_Single_File_Plugin( $plugin_data );
-
-				$meta['single_file_plugins'][ $plugin_data['filename'] ] = [
-					'version'   => $plugin_data['Version'],
-					'directory' => $plugin_dir,
-				];
-			}
-			unset( $plugindirs['.'] );
-		}
-
-		foreach ( $plugindirs as $dirname => $dir_data ) {
-			$version = '';
-			foreach ( $dir_data as $plugin_data ) {
-				$version .= $plugin_data['Version'];
-			}
-			
-			$plugin_dir = self::Backup_Plugin( $backup_root . self::RELATIVE_PLUGINS_BACKUP_PATH, $dirname, $version );
-
-			$meta['plugins'][ $dirname ] = [
-				'version'   => $version,
-				'directory' => $plugin_dir,
-			];
-		}
-
-		$meta['dropins']['directory'] = self::Backup_Dropins( $backup_root . self::RELATIVE_DROPINS_BACKUP_PATH . time() . '/' );
-
-		$meta['root_directory']['directory'] = self::Backup_Root( $backup_root . self::RELATIVE_ROOTDIR_BACKUP_PATH . time() . '/' );
-
-		$meta['options']['directory'] = self::Backup_Options( $backup_root . self::RELATIVE_OPTIONS_BACKUP_PATH . time() . '/' );
-
+		$options_rel_dir = static::RELATIVE_OPTIONS_BACKUP_PATH . time() . '/';
+		$options_dir = $backup_root . $options_rel_dir;
+		static::Backup_Options( $options_dir );
+		$meta['options']['directory'] = $options_rel_dir;
 	}
 
 	/**
