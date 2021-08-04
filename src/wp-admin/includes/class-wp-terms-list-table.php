@@ -602,20 +602,6 @@ class WP_Terms_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * @param WP_Term $tag Term object.
-	 * @return string
-	 */
-	public function column_links( $tag ) {
-		$count = number_format_i18n( $tag->count );
-
-		if ( $count ) {
-			$count = "<a href='link-manager.php?cat_id=$tag->term_id'>$count</a>";
-		}
-
-		return $count;
-	}
-
-	/**
 	 * @param WP_Term $tag         Term object.
 	 * @param string  $column_name Name of the column.
 	 * @return string

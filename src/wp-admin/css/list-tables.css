@@ -1965,15 +1965,6 @@ div.action-links,
 		white-space: normal;
 	}
 
-	/* Links */
-	.link-manager-php #posts-filter {
-		margin-top: 25px;
-	}
-
-	.link-manager-php .tablenav.bottom {
-		overflow: hidden;
-	}
-
 	/* List tables that don't toggle rows */
 	.comments-box .toggle-row,
 	.wp-list-table.plugins .toggle-row {

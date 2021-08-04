@@ -175,10 +175,6 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 				'menu_root' => 'upload.php',
 			),
 			array(
-				'callback'  => 'add_links_page',
-				'menu_root' => 'link-manager.php',
-			),
-			array(
 				'callback'  => 'add_pages_page',
 				'menu_root' => 'edit.php?post_type=page',
 			),
