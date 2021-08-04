@@ -333,13 +333,11 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	}
 
 	function test_is_plugin_active_true() {
-		copy(DIR_TESTDATA . '/plugins/hello.php', WP_PLUGIN_DIR . '/hello.php' );
 		activate_plugin( 'hello.php' );
 		$test = is_plugin_active( 'hello.php' );
 		$this->assertTrue( $test );
 
 		deactivate_plugins( 'hello.php' );
-		unlink( WP_PLUGIN_DIR . '/hello.php' );
 	}
 
 	function test_is_plugin_active_false() {
@@ -355,13 +353,11 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	}
 
 	function test_is_plugin_inactive_false() {
-		copy(DIR_TESTDATA . '/plugins/hello.php', WP_PLUGIN_DIR . '/hello.php' );
 		activate_plugin( 'hello.php' );
 		$test = is_plugin_inactive( 'hello.php' );
 		$this->assertFalse( $test );
 
 		deactivate_plugins( 'hello.php' );
-		unlink( WP_PLUGIN_DIR . '/hello.php' );
 	}
 
 	/**
@@ -534,24 +530,20 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 * @covers ::activate_plugins
 	 */
 	public function test_activate_plugins_single_no_array() {
-		copy(DIR_TESTDATA . '/plugins/hello.php', WP_PLUGIN_DIR . '/hello.php' );
 		$name = 'hello.php';
 		activate_plugins( $name );
 		$this->assertTrue( is_plugin_active( $name ) );
 		deactivate_plugins( $name );
-		unlink( WP_PLUGIN_DIR . '/hello.php' );
 	}
 
 	/**
 	 * @covers ::activate_plugins
 	 */
 	public function test_activate_plugins_single_array() {
-		copy(DIR_TESTDATA . '/plugins/hello.php', WP_PLUGIN_DIR . '/hello.php' );
 		$name = 'hello.php';
 		activate_plugins( array( $name ) );
 		$this->assertTrue( is_plugin_active( $name ) );
 		deactivate_plugins( $name );
-		unlink( WP_PLUGIN_DIR . '/hello.php' );
 	}
 
 	/**

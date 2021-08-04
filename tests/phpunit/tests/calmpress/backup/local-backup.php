@@ -679,8 +679,7 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		mkdir( $dest_dir );
 		$meta = $method->invoke( null, $dest_dir );
 
-		$this->AssertSame( 4, count( $meta ) );
-		foreach ( [ 'hello.php', 'internationalized-plugin.php', 'single_plugin_directory', 'double_plugin_directory' ] as $plugin ) {
+		foreach ( [ 'hello.php', 'single_plugin_directory', 'double_plugin_directory' ] as $plugin ) {
 			$this->AssertTrue( array_key_exists( $plugin, $meta ) );
 			$this->AssertSame( 3, count( $meta[ $plugin ] ) );
 		}
