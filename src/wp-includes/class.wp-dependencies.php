@@ -67,15 +67,6 @@ class WP_Dependencies {
 	public $groups = array();
 
 	/**
-	 * A handle group to enqueue.
-	 *
-	 * @since 2.8.0
-	 * @deprecated 4.5.0
-	 * @var int
-	 */
-	public $group = 0;
-
-	/**
 	 * Cached lookup array of flattened queued items and dependencies.
 	 *
 	 * @since 5.4.0

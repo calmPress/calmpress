@@ -644,26 +644,6 @@ function media_buttons( $editor_id = 'content' ) {
 		esc_attr( $editor_id ),
 		$img . __( 'Add Media' )
 	);
-
-	/**
-	 * Filters the legacy (pre-3.5.0) media buttons.
-	 *
-	 * Use {@see 'media_buttons'} action instead.
-	 *
-	 * @since 2.5.0
-	 * @deprecated 3.5.0 Use {@see 'media_buttons'} action instead.
-	 *
-	 * @param string $string Media buttons context. Default empty.
-	 */
-	$legacy_filter = apply_filters_deprecated( 'media_buttons_context', array( '' ), '3.5.0', 'media_buttons' );
-
-	if ( $legacy_filter ) {
-		// #WP22559. Close <a> if a plugin started by closing <a> to open their own <a> tag.
-		if ( 0 === stripos( trim( $legacy_filter ), '</a>' ) ) {
-			$legacy_filter .= '</a>';
-		}
-		echo $legacy_filter;
-	}
 }
 
 /**

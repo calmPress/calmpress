@@ -88,16 +88,6 @@ class WP_Terms_List_Table extends WP_List_Table {
 			 * @param int $tags_per_page Number of tags to be displayed. Default 20.
 			 */
 			$tags_per_page = apply_filters( 'edit_tags_per_page', $tags_per_page );
-
-			/**
-			 * Filters the number of terms displayed per page for the Tags list table.
-			 *
-			 * @since 2.7.0
-			 * @deprecated 2.8.0 Use {@see 'edit_tags_per_page'} instead.
-			 *
-			 * @param int $tags_per_page Number of tags to be displayed. Default 20.
-			 */
-			$tags_per_page = apply_filters_deprecated( 'tagsperpage', array( $tags_per_page ), '2.8.0', 'edit_tags_per_page' );
 		} elseif ( 'category' === $this->screen->taxonomy ) {
 			/**
 			 * Filters the number of terms displayed per page for the Categories list table.

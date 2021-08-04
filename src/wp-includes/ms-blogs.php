@@ -254,16 +254,6 @@ function get_blog_details( $fields = null, $get_all = true ) {
 		restore_current_blog();
 	}
 
-	/**
-	 * Filters a blog's details.
-	 *
-	 * @since MU (3.0.0)
-	 * @deprecated 4.7.0 Use {@see 'site_details'} instead.
-	 *
-	 * @param WP_Site $details The blog details.
-	 */
-	$details = apply_filters_deprecated( 'blog_details', array( $details ), '4.7.0', 'site_details' );
-
 	wp_cache_set( $blog_id . $all, $details, 'blog-details' );
 
 	$key = md5( $details->domain . $details->path );

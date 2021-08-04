@@ -59,28 +59,6 @@ class WP_Screen {
 	protected $in_admin;
 
 	/**
-	 * Whether the screen is in the network admin.
-	 *
-	 * Deprecated. Use in_admin() instead.
-	 *
-	 * @since 3.3.0
-	 * @deprecated 3.5.0
-	 * @var bool
-	 */
-	public $is_network;
-
-	/**
-	 * Whether the screen is in the user admin.
-	 *
-	 * Deprecated. Use in_admin() instead.
-	 *
-	 * @since 3.3.0
-	 * @deprecated 3.5.0
-	 * @var bool
-	 */
-	public $is_user;
-
-	/**
 	 * The base menu parent.
 	 *
 	 * This is derived from `$parent_file` by removing the query string and any .php extension.
@@ -771,23 +749,6 @@ class WP_Screen {
 	 * @global string $screen_layout_columns
 	 */
 	public function render_screen_meta() {
-
-		/**
-		 * Filters the legacy contextual help list.
-		 *
-		 * @since 2.7.0
-		 * @deprecated 3.3.0 Use {@see get_current_screen()->add_help_tab()} or
-		 *                   {@see get_current_screen()->remove_help_tab()} instead.
-		 *
-		 * @param array     $old_compat_help Old contextual help.
-		 * @param WP_Screen $screen          Current WP_Screen instance.
-		 */
-		self::$_old_compat_help = apply_filters_deprecated(
-			'contextual_help_list',
-			array( self::$_old_compat_help, $this ),
-			'3.3.0',
-			'get_current_screen()->add_help_tab(), get_current_screen()->remove_help_tab()'
-		);
 
 		$old_help = isset( self::$_old_compat_help[ $this->id ] ) ? self::$_old_compat_help[ $this->id ] : '';
 

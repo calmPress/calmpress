@@ -474,24 +474,6 @@ class WP_Customize_Manager {
 	}
 
 	/**
-	 * Return the Ajax wp_die() handler if it's a customized request.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.7.0
-	 *
-	 * @return callable Die handler.
-	 */
-	public function wp_die_handler() {
-		_deprecated_function( __METHOD__, '4.7.0' );
-
-		if ( $this->doing_ajax() || isset( $_POST['customized'] ) ) {
-			return '_ajax_wp_die_handler';
-		}
-
-		return '_default_wp_die_handler';
-	}
-
-	/**
 	 * Start preview and customize theme.
 	 *
 	 * Check if customize query variable exist. Init filters to filter the current theme.
@@ -938,28 +920,6 @@ class WP_Customize_Manager {
 		if ( $this->is_preview() && ! is_admin() ) {
 			$this->customize_preview_init();
 		}
-	}
-
-	/**
-	 * Prevents Ajax requests from following redirects when previewing a theme
-	 * by issuing a 200 response instead of a 30x.
-	 *
-	 * Instead, the JS will sniff out the location header.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.7.0
-	 *
-	 * @param int $status Status.
-	 * @return int
-	 */
-	public function wp_redirect_status( $status ) {
-		_deprecated_function( __FUNCTION__, '4.7.0' );
-
-		if ( $this->is_preview() && ! is_admin() ) {
-			return 200;
-		}
-
-		return $status;
 	}
 
 	/**
@@ -1998,37 +1958,6 @@ class WP_Customize_Manager {
 	}
 
 	/**
-	 * Prevent sending a 404 status when returning the response for the customize
-	 * preview, since it causes the jQuery Ajax to fail. Send 200 instead.
-	 *
-	 * @since 4.0.0
-	 * @deprecated 4.7.0
-	 */
-	public function customize_preview_override_404_status() {
-		_deprecated_function( __METHOD__, '4.7.0' );
-	}
-
-	/**
-	 * Print base element for preview frame.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.7.0
-	 */
-	public function customize_preview_base() {
-		_deprecated_function( __METHOD__, '4.7.0' );
-	}
-
-	/**
-	 * Print a workaround to handle HTML5 tags in IE < 9.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.7.0 Customizer no longer supports IE8, so all supported browsers recognize HTML5.
-	 */
-	public function customize_preview_html5() {
-		_deprecated_function( __FUNCTION__, '4.7.0' );
-	}
-
-	/**
 	 * Print CSS for loading indicators for the Customizer preview.
 	 *
 	 * @since 4.2.0
@@ -2211,31 +2140,6 @@ class WP_Customize_Manager {
 			})( _wpCustomizeSettings.values );
 		</script>
 		<?php
-	}
-
-	/**
-	 * Prints a signature so we can ensure the Customizer was properly executed.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.7.0
-	 */
-	public function customize_preview_signature() {
-		_deprecated_function( __METHOD__, '4.7.0' );
-	}
-
-	/**
-	 * Removes the signature in case we experience a case where the Customizer was not properly executed.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.7.0
-	 *
-	 * @param mixed $return Value passed through for {@see 'wp_die_handler'} filter.
-	 * @return mixed Value passed through for {@see 'wp_die_handler'} filter.
-	 */
-	public function remove_preview_signature( $return = null ) {
-		_deprecated_function( __METHOD__, '4.7.0' );
-
-		return $return;
 	}
 
 	/**
@@ -4362,26 +4266,6 @@ class WP_Customize_Manager {
 			<# } ); #>
 		</script>
 		<?php
-	}
-
-	/**
-	 * Helper function to compare two objects by priority, ensuring sort stability via instance_number.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.7.0 Use wp_list_sort()
-	 *
-	 * @param WP_Customize_Panel|WP_Customize_Section|WP_Customize_Control $a Object A.
-	 * @param WP_Customize_Panel|WP_Customize_Section|WP_Customize_Control $b Object B.
-	 * @return int
-	 */
-	protected function _cmp_priority( $a, $b ) {
-		_deprecated_function( __METHOD__, '4.7.0', 'wp_list_sort' );
-
-		if ( $a->priority === $b->priority ) {
-			return $a->instance_number - $b->instance_number;
-		} else {
-			return $a->priority - $b->priority;
-		}
 	}
 
 	/**

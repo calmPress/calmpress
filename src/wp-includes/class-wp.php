@@ -539,24 +539,6 @@ class WP {
 				$this->query_string .= $wpvar . '=' . rawurlencode( $this->query_vars[ $wpvar ] );
 			}
 		}
-
-		if ( has_filter( 'query_string' ) ) {  // Don't bother filtering and parsing if no plugins are hooked in.
-			/**
-			 * Filters the query string before parsing.
-			 *
-			 * @since 1.5.0
-			 * @deprecated 2.1.0 Use {@see 'query_vars'} or {@see 'request'} filters instead.
-			 *
-			 * @param string $query_string The query string to modify.
-			 */
-			$this->query_string = apply_filters_deprecated(
-				'query_string',
-				array( $this->query_string ),
-				'2.1.0',
-				'query_vars, request'
-			);
-			parse_str( $this->query_string, $this->query_vars );
-		}
 	}
 
 	/**

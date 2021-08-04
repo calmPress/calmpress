@@ -303,27 +303,6 @@ class WP_Customize_Nav_Menu_Setting extends WP_Customize_Setting {
 	protected $_current_menus_sort_orderby;
 
 	/**
-	 * Sort menu objects by the class-supplied orderby property.
-	 *
-	 * This is a workaround for a lack of closures.
-	 *
-	 * @since 4.3.0
-	 * @deprecated 4.7.0 Use wp_list_sort()
-	 *
-	 * @param object $menu1
-	 * @param object $menu2
-	 * @return int
-	 *
-	 * @see WP_Customize_Nav_Menu_Setting::filter_wp_get_nav_menus()
-	 */
-	protected function _sort_menus_by_orderby( $menu1, $menu2 ) {
-		_deprecated_function( __METHOD__, '4.7.0', 'wp_list_sort' );
-
-		$key = $this->_current_menus_sort_orderby;
-		return strcmp( $menu1->$key, $menu2->$key );
-	}
-
-	/**
 	 * Filters the wp_get_nav_menu_object() result to supply the previewed menu object.
 	 *
 	 * Requesting a nav_menu object by anything but ID is not supported.

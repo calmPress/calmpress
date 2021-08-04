@@ -392,25 +392,6 @@ class WP_Object_Cache {
 	}
 
 	/**
-	 * Resets cache keys.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @deprecated 3.5.0 Use switch_to_blog()
-	 * @see switch_to_blog()
-	 */
-	public function reset() {
-		_deprecated_function( __FUNCTION__, '3.5.0', 'switch_to_blog()' );
-
-		// Clear out non-global caches since the blog ID has changed.
-		foreach ( array_keys( $this->cache ) as $group ) {
-			if ( ! isset( $this->global_groups[ $group ] ) ) {
-				unset( $this->cache[ $group ] );
-			}
-		}
-	}
-
-	/**
 	 * Sets the data contents into the cache.
 	 *
 	 * The cache contents are grouped by the $group parameter followed by the

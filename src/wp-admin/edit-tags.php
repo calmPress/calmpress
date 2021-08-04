@@ -520,37 +520,6 @@ if ( $can_edit_terms ) {
 		<span class="spinner"></span>
 	</p>
 	<?php
-	if ( 'category' === $taxonomy ) {
-		/**
-		 * Fires at the end of the Edit Category form.
-		 *
-		 * @since 2.1.0
-		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_add_form'} instead.
-		 *
-		 * @param object $arg Optional arguments cast to an object.
-		 */
-		do_action_deprecated( 'edit_category_form', array( (object) array( 'parent' => 0 ) ), '3.0.0', '{$taxonomy}_add_form' );
-	} elseif ( 'link_category' === $taxonomy ) {
-		/**
-		 * Fires at the end of the Edit Link form.
-		 *
-		 * @since 2.3.0
-		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_add_form'} instead.
-		 *
-		 * @param object $arg Optional arguments cast to an object.
-		 */
-		do_action_deprecated( 'edit_link_category_form', array( (object) array( 'parent' => 0 ) ), '3.0.0', '{$taxonomy}_add_form' );
-	} else {
-		/**
-		 * Fires at the end of the Add Tag form.
-		 *
-		 * @since 2.7.0
-		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_add_form'} instead.
-		 *
-		 * @param string $taxonomy The taxonomy slug.
-		 */
-		do_action_deprecated( 'add_tag_form', array( $taxonomy ), '3.0.0', '{$taxonomy}_add_form' );
-	}
 
 	/**
 	 * Fires at the end of the Add Term form for all taxonomies.

@@ -134,22 +134,6 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 
 	$login_header_title = '';
 
-	/**
-	 * Filters the title attribute of the header logo above login form.
-	 *
-	 * @since 2.1.0
-	 * @deprecated 5.2.0 Use {@see 'login_headertext'} instead.
-	 *
-	 * @param string $login_header_title Login header logo title attribute.
-	 */
-	$login_header_title = apply_filters_deprecated(
-		'login_headertitle',
-		array( $login_header_title ),
-		'5.2.0',
-		'login_headertext',
-		__( 'Usage of the title attribute on the login logo is not recommended for accessibility reasons. Use the link text instead.' )
-	);
-
 	$login_header_text = empty( $login_header_title ) ? __( 'Powered by calmPress' ) : $login_header_title;
 
 	/**

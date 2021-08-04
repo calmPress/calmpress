@@ -140,17 +140,6 @@
 		},
 
 		/**
-		 * Whether a url is a supported external host.
-		 *
-		 * @deprecated since 4.9.
-		 *
-		 * @return {boolean} Whether url is a supported video host.
-		 */
-		isHostedVideo: function isHostedVideo() {
-			return true;
-		},
-
-		/**
 		 * Render preview.
 		 *
 		 * @return {void}

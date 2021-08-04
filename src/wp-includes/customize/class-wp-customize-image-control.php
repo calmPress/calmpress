@@ -30,10 +30,4 @@ class WP_Customize_Image_Control extends WP_Customize_Upload_Control {
 	 * @var string
 	 */
 	public $mime_type = 'image';
-
-	/**
-	 * @since 3.4.2
-	 * @deprecated 4.1.0
-	 */
-	public function prepare_control() {}
 }

@@ -3610,20 +3610,6 @@ class WP_Query {
 	}
 
 	/**
-	 * Whether the current URL is within the comments popup window.
-	 *
-	 * @since 3.1.0
-	 * @deprecated 4.5.0
-	 *
-	 * @return false Always returns false.
-	 */
-	public function is_comments_popup() {
-		_deprecated_function( __FUNCTION__, '4.5.0' );
-
-		return false;
-	}
-
-	/**
 	 * Is the query for an existing date archive?
 	 *
 	 * @since 3.1.0
@@ -4182,35 +4168,5 @@ class WP_Query {
 			$GLOBALS['post'] = $this->post;
 			$this->setup_postdata( $this->post );
 		}
-	}
-
-	/**
-	 * Lazyload term meta for posts in the loop.
-	 *
-	 * @since 4.4.0
-	 * @deprecated 4.5.0 See wp_queue_posts_for_term_meta_lazyload().
-	 *
-	 * @param mixed $check
-	 * @param int   $term_id
-	 * @return mixed
-	 */
-	public function lazyload_term_meta( $check, $term_id ) {
-		_deprecated_function( __METHOD__, '4.5.0' );
-		return $check;
-	}
-
-	/**
-	 * Lazyload comment meta for comments in the loop.
-	 *
-	 * @since 4.4.0
-	 * @deprecated 4.5.0 See wp_queue_comments_for_comment_meta_lazyload().
-	 *
-	 * @param mixed $check
-	 * @param int   $comment_id
-	 * @return mixed
-	 */
-	public function lazyload_comment_meta( $check, $comment_id ) {
-		_deprecated_function( __METHOD__, '4.5.0' );
-		return $check;
 	}
 }

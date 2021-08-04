@@ -1356,30 +1356,12 @@
 		expand: api.Section.prototype.expand,
 
 		/**
-		 * Expand the widget form control
-		 *
-		 * @deprecated 4.1.0 Use this.expand() instead.
-		 */
-		expandForm: function() {
-			this.expand();
-		},
-
-		/**
 		 * @since 4.1.0
 		 *
 		 * @param {Object} [params]
 		 * @return {Boolean} False if already collapsed.
 		 */
 		collapse: api.Section.prototype.collapse,
-
-		/**
-		 * Collapse the widget form control
-		 *
-		 * @deprecated 4.1.0 Use this.collapse() instead.
-		 */
-		collapseForm: function() {
-			this.collapse();
-		},
 
 		/**
 		 * Expand or collapse the widget control

@@ -168,16 +168,6 @@ function wp_plugin_directory_constants() {
 	}
 
 	/**
-	 * Allows for the plugins directory to be moved from the default location.
-	 *
-	 * @since 2.1.0
-	 * @deprecated
-	 */
-	if ( ! defined( 'PLUGINDIR' ) ) {
-		define( 'PLUGINDIR', 'wp-content/plugins' ); // Relative to ABSPATH. For back compat.
-	}
-
-	/**
 	 * Allows for the mu-plugins directory to be moved from the default location.
 	 *
 	 * @since 2.8.0
@@ -193,16 +183,6 @@ function wp_plugin_directory_constants() {
 	 */
 	if ( ! defined( 'WPMU_PLUGIN_URL' ) ) {
 		define( 'WPMU_PLUGIN_URL', WP_CONTENT_URL . '/mu-plugins' ); // Full URL, no trailing slash.
-	}
-
-	/**
-	 * Allows for the mu-plugins directory to be moved from the default location.
-	 *
-	 * @since 2.8.0
-	 * @deprecated
-	 */
-	if ( ! defined( 'MUPLUGINDIR' ) ) {
-		define( 'MUPLUGINDIR', 'wp-content/mu-plugins' ); // Relative to ABSPATH. For back compat.
 	}
 }
 
@@ -330,14 +310,6 @@ function wp_ssl_constants() {
 		}
 	}
 	force_ssl_admin( FORCE_SSL_ADMIN );
-
-	/**
-	 * @since 2.6.0
-	 * @deprecated 4.0.0
-	 */
-	if ( defined( 'FORCE_SSL_LOGIN' ) && FORCE_SSL_LOGIN ) {
-		force_ssl_admin( true );
-	}
 }
 
 /**

@@ -180,27 +180,6 @@ class WP_Widget {
 	}
 
 	/**
-	 * PHP4 constructor.
-	 *
-	 * @since 2.8.0
-	 * @deprecated 4.3.0 Use __construct() instead.
-	 *
-	 * @see WP_Widget::__construct()
-	 *
-	 * @param string $id_base         Optional. Base ID for the widget, lowercase and unique. If left empty,
-	 *                                a portion of the widget's PHP class name will be used. Has to be unique.
-	 * @param string $name            Name for the widget displayed on the configuration page.
-	 * @param array  $widget_options  Optional. Widget options. See wp_register_sidebar_widget() for
-	 *                                information on accepted arguments. Default empty array.
-	 * @param array  $control_options Optional. Widget control options. See wp_register_widget_control() for
-	 *                                information on accepted arguments. Default empty array.
-	 */
-	public function WP_Widget( $id_base, $name, $widget_options = array(), $control_options = array() ) {
-		_deprecated_constructor( 'WP_Widget', '4.3.0', get_class( $this ) );
-		WP_Widget::__construct( $id_base, $name, $widget_options, $control_options );
-	}
-
-	/**
 	 * Constructs name attributes for use in form() fields
 	 *
 	 * This function should be used in form() methods to create name attributes for fields

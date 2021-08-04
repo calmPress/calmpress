@@ -51,32 +51,6 @@ window.wp = window.wp || {};
 		 * Builds an array of words that should be penalized.
 		 *
 		 * Certain words need to be penalized because it would lower the entropy of a
-		 * password if they were used. The disallowedList is based on user input fields such
-		 * as username, first name, email etc.
-		 *
-		 * @since 3.7.0
-		 * @deprecated 5.5.0 Use {@see 'userInputDisallowedList()'} instead.
-		 *
-		 * @return {string[]} The array of words to be disallowed.
-		 */
-		userInputBlacklist : function() {
-			window.console.log(
-				sprintf(
-					/* translators: 1: Deprecated function name, 2: Version number, 3: Alternative function name. */
-					__( '%1$s is deprecated since version %2$s! Use %3$s instead. Please consider writing more inclusive code.' ),
-					'wp.passwordStrength.userInputBlacklist()',
-					'5.5.0',
-					'wp.passwordStrength.userInputDisallowedList()'
-				)
-			);
-
-			return wp.passwordStrength.userInputDisallowedList();
-		},
-
-		/**
-		 * Builds an array of words that should be penalized.
-		 *
-		 * Certain words need to be penalized because it would lower the entropy of a
 		 * password if they were used. The disallowed list is based on user input fields such
 		 * as username, first name, email etc.
 		 *
@@ -132,18 +106,4 @@ window.wp = window.wp || {};
 			return disallowedList;
 		}
 	};
-
-	// Backward compatibility.
-
-	/**
-	 * Password strength meter function.
-	 *
-	 * @since 2.5.0
-	 * @deprecated 3.7.0 Use wp.passwordStrength.meter instead.
-	 *
-	 * @global
-	 *
-	 * @type {wp.passwordStrength.meter}
-	 */
-	window.passwordStrength = wp.passwordStrength.meter;
 })(jQuery);

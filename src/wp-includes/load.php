@@ -239,21 +239,6 @@ function wp_get_environment_type() {
 }
 
 /**
- * Don't load all of WordPress when handling a favicon.ico request.
- *
- * Instead, send the headers for a zero-length favicon and bail.
- *
- * @since 3.0.0
- * @deprecated 5.4.0 Deprecated in favor of do_favicon().
- */
-function wp_favicon_request() {
-	if ( '/favicon.ico' === $_SERVER['REQUEST_URI'] ) {
-		header( 'Content-Type: image/vnd.microsoft.icon' );
-		exit;
-	}
-}
-
-/**
  * Die with a maintenance message when conditions are met.
  *
  * The default message can be replaced by using a drop-in (maintenance.php in
@@ -998,20 +983,6 @@ function shutdown_action_hook() {
 	do_action( 'shutdown' );
 
 	wp_cache_close();
-}
-
-/**
- * Copy an object.
- *
- * @since 2.7.0
- * @deprecated 3.2.0
- *
- * @param object $object The object to clone.
- * @return object The cloned object.
- */
-function wp_clone( $object ) {
-	// Use parens for clone to accommodate PHP 4. See #17880.
-	return clone( $object );
 }
 
 /**

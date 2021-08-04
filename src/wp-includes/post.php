@@ -5230,26 +5230,6 @@ function get_all_page_ids() {
 }
 
 /**
- * Retrieves page data given a page ID or page object.
- *
- * Use get_post() instead of get_page().
- *
- * @since 1.5.1
- * @deprecated 3.5.0 Use get_post()
- *
- * @param int|WP_Post $page   Page object or page ID. Passed by reference.
- * @param string      $output Optional. The required return type. One of OBJECT, ARRAY_A, or ARRAY_N, which
- *                            correspond to a WP_Post object, an associative array, or a numeric array,
- *                            respectively. Default OBJECT.
- * @param string      $filter Optional. How the return value should be filtered. Accepts 'raw',
- *                            'edit', 'db', 'display'. Default 'raw'.
- * @return WP_Post|array|null WP_Post or array on success, null on failure.
- */
-function get_page( $page, $output = OBJECT, $filter = 'raw' ) {
-	return get_post( $page, $output, $filter );
-}
-
-/**
  * Retrieves a page given its path.
  *
  * @since 2.1.0
@@ -7184,16 +7164,6 @@ function _transition_post_status( $new_status, $old_status, $post ) {
 		if ( '' === get_the_guid( $post->ID ) ) {
 			$wpdb->update( $wpdb->posts, array( 'guid' => get_option( 'home' ) . '/' . uniqid() ), array( 'ID' => $post->ID ) );
 		}
-
-		/**
-		 * Fires when a post's status is transitioned from private to published.
-		 *
-		 * @since 1.5.0
-		 * @deprecated 2.3.0 Use {@see 'private_to_publish'} instead.
-		 *
-		 * @param int $post_id Post ID.
-		 */
-		do_action_deprecated( 'private_to_published', array( $post->ID ), '2.3.0', 'private_to_publish' );
 	}
 
 	// If published posts changed clear the lastpostmodified cache.

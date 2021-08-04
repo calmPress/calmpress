@@ -1228,19 +1228,6 @@ class WP_Rewrite {
 			 */
 			$rules = apply_filters( "{$permastructname}_rewrite_rules", $rules );
 
-			if ( 'post_tag' === $permastructname ) {
-
-				/**
-				 * Filters rewrite rules used specifically for Tags.
-				 *
-				 * @since 2.3.0
-				 * @deprecated 3.1.0 Use {@see 'post_tag_rewrite_rules'} instead.
-				 *
-				 * @param string[] $rules Array of rewrite rules generated for tags, keyed by their regex pattern.
-				 */
-				$rules = apply_filters_deprecated( 'tag_rewrite_rules', array( $rules ), '3.1.0', 'post_tag_rewrite_rules' );
-			}
-
 			// We might be adding same type of rules more than once, therefore
 			// need to clean the previous ones before adding the newer ones to keep
 			// the required order between them.
@@ -1441,17 +1428,7 @@ class WP_Rewrite {
 		 *
 		 * @param string $rules Rules formatted for .htaccess.
 		 */
-		$rules = apply_filters( 'mod_rewrite_rules', $rules );
-
-		/**
-		 * Filters the list of rules formatted for output to an .htaccess file.
-		 *
-		 * @since 1.5.0
-		 * @deprecated 1.5.0 Use the {@see 'mod_rewrite_rules'} filter instead.
-		 *
-		 * @param string $rules Rules formatted for .htaccess.
-		 */
-		return apply_filters_deprecated( 'rewrite_rules', array( $rules ), '1.5.0', 'mod_rewrite_rules' );
+		return apply_filters( 'mod_rewrite_rules', $rules );
 	}
 
 	/**

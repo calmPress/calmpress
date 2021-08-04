@@ -118,26 +118,6 @@ function wp_insert_site( array $data ) {
 		// The `$allowed_data_fields` matches the one used in `wpmu_create_blog()`.
 		$allowed_data_fields = array( 'public', 'archived', 'mature', 'spam', 'deleted', 'lang_id' );
 		$meta                = array_merge( array_intersect_key( $data, array_flip( $allowed_data_fields ) ), $meta );
-
-		/**
-		 * Fires immediately after a new site is created.
-		 *
-		 * @since MU (3.0.0)
-		 * @deprecated 5.1.0 Use {@see 'wp_insert_site'} instead.
-		 *
-		 * @param int    $site_id    Site ID.
-		 * @param int    $user_id    User ID.
-		 * @param string $domain     Site domain.
-		 * @param string $path       Site path.
-		 * @param int    $network_id Network ID. Only relevant on multi-network installations.
-		 * @param array  $meta       Meta data. Used to set initial site options.
-		 */
-		do_action_deprecated(
-			'wpmu_new_blog',
-			array( $new_site->id, $user_id, $new_site->domain, $new_site->path, $new_site->network_id, $meta ),
-			'5.1.0',
-			'wp_insert_site'
-		);
 	}
 
 	return (int) $new_site->id;
@@ -239,17 +219,6 @@ function wp_delete_site( $site_id ) {
 	}
 
 	/**
-	 * Fires before a site is deleted.
-	 *
-	 * @since MU (3.0.0)
-	 * @deprecated 5.1.0
-	 *
-	 * @param int  $site_id The site ID.
-	 * @param bool $drop    True if site's table should be dropped. Default false.
-	 */
-	do_action_deprecated( 'delete_blog', array( $old_site->id, true ), '5.1.0' );
-
-	/**
 	 * Fires when a site's uninitialization routine should be executed.
 	 *
 	 * @since 5.1.0
@@ -279,17 +248,6 @@ function wp_delete_site( $site_id ) {
 	 * @param WP_Site $old_site Deleted site object.
 	 */
 	do_action( 'wp_delete_site', $old_site );
-
-	/**
-	 * Fires after the site is deleted from the network.
-	 *
-	 * @since 4.8.0
-	 * @deprecated 5.1.0
-	 *
-	 * @param int  $site_id The site ID.
-	 * @param bool $drop    True if site's tables should be dropped. Default false.
-	 */
-	do_action_deprecated( 'deleted_blog', array( $old_site->id, true ), '5.1.0' );
 
 	return $old_site;
 }
@@ -984,16 +942,6 @@ function clean_blog_cache( $blog ) {
 	do_action( 'clean_site_cache', $blog_id, $blog, $domain_path_key );
 
 	wp_cache_set( 'last_changed', microtime(), 'sites' );
-
-	/**
-	 * Fires after the blog details cache is cleared.
-	 *
-	 * @since 3.4.0
-	 * @deprecated 4.9.0 Use {@see 'clean_site_cache'} instead.
-	 *
-	 * @param int $blog_id Blog ID.
-	 */
-	do_action_deprecated( 'refresh_blog_details', array( $blog_id ), '4.9.0', 'clean_site_cache' );
 }
 
 /**
