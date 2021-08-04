@@ -75,6 +75,17 @@ class Paths {
 	}	
 
 	/**
+	 * The path to the mu plugins root directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 */
+	public function wp_mu_plugins_directory() : string {
+		return WPMU_PLUGIN_DIR . '/';
+	}	
+
+	/**
 	 * The path to the themes root directory.
 	 *
 	 * @since 1.0.0

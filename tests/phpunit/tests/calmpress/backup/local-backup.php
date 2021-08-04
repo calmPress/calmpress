@@ -156,6 +156,7 @@ class mock_backup_theme extends \calmpress\backup\Local_Backup {
 	 */
 	protected static function Backup_Directory( string $source, string $destination ) {
 		static::$called = true;
+
 		// To complete the mocking, create the directory.
 		mkdir( $destination, 0755, true );
 	}
@@ -696,6 +697,39 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$this->AssertSame( 'directory', $meta['double_plugin_directory']['type'] );
 
 		$this->rmdir( $dest_dir );
+	}
+
+	/**
+     * Test the Backup_MU_Plugins method.
+     * 
+     * @since 1.0.0
+     */
+    function test_backup_mu_plugins() {
+
+        $method = new ReflectionMethod( 'mock_backup_theme', 'Backup_MU_Plugins' );
+        $method->setAccessible(true);
+
+        $upload_dir = wp_upload_dir();
+        $test_dir = $upload_dir['basedir'];
+
+		// Test non existing mu-plugins directory creates a backup directory.
+		$this->rmdir( $test_dir . '/source/' );
+		$this->rmdir( $test_dir . '/dest' );
+        $method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
+
+        $this->AssertTrue( file_exists( $test_dir . '/dest/' ) );
+        $this->AssertTrue( is_dir( $test_dir . '/dest/' ) );
+
+		// Test Backup_Directory is invoked when directory exists.
+		$this->rmdir( $test_dir . '/dest' );
+		mkdir( $test_dir . '/source/', 0777, true );
+		mock_backup_theme::$called = false;
+		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
+		$this->AssertTrue( mock_backup_theme::$called );
+        $this->AssertTrue( is_dir( $test_dir . '/dest/' ) );
+
+		$this->rmdir( $test_dir . '/source/' );
+		$this->rmdir( $test_dir . '/dest' );
 	}
 
 }

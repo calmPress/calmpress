@@ -34,10 +34,16 @@ class Local_Backup implements Backup {
 	const RELATIVE_THEMES_BACKUP_PATH = 'themes/';
 
 	/**
-	 * The directory in which themes' backup directories are located relative to the
+	 * The directory in which plugins' backup directories are located relative to the
 	 * backup root directory.
 	 */
 	const RELATIVE_PLUGINS_BACKUP_PATH = 'plugins/';
+
+	/**
+	 * The directory in which mu-plugin backup directory is located relative to the
+	 * backup root directory.
+	 */
+	const RELATIVE_MU_PLUGINS_BACKUP_PATH = 'mu-plugins/';
 
 	/**
 	 * The directory in which dropins backup files are located relative to backup root.
@@ -158,7 +164,7 @@ class Local_Backup implements Backup {
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @param string $source      Full path of the source directory.
+	 * @param string $source      Full path of the source directory, the directory should exist.
 	 * @param string $destination Full path of the destination directory.
 	 * 
 	 * @throws Exception When directory could not be created or file could not be copied.
@@ -240,6 +246,27 @@ class Local_Backup implements Backup {
 	}
 
 	/**
+	 * Backup the mu-plugins directory if
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $source     The full path to mu-plugins directory which might not exist.
+	 * @param string $backup_dir The directory to backup to.
+	 *
+	 * @throws \Exception When directory creation or copy error occurs.
+	 */
+	protected static function Backup_MU_Plugins( string $source, string $backup_dir ) {
+
+		// If the mu-plugins directory dop not exist there is nothing to backup and
+		// Backup_Directory requires an existing directory.
+		if ( is_dir( $source ) ) {
+			static::Backup_Directory( $source, $backup_dir );
+		} else {
+			static::mkdir( $backup_dir );
+		}
+	}
+
+	/**
 	 * Backup the dropins plugins files.
 	 *
 	 * Dropins are located at the root of the wp_content directory. as they don't contain
@@ -253,7 +280,7 @@ class Local_Backup implements Backup {
 	 */
 	protected static function Backup_Dropins( string $backup_dir ) {
 
-		self:mkdir( $backup_dir );
+		static::mkdir( $backup_dir );
 
 		foreach ( static::installation_paths()->dropin_files_name() as $filename ) {
 			$file = static::installation_paths()->wp_content_directory() . $filename;
@@ -715,6 +742,11 @@ class Local_Backup implements Backup {
 		$meta['themes'] = static::Backup_Themes( $backup_root );
 
 		$meta['plugins'] = static::Backup_Plugins( $backup_root );
+
+		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . time() . '/';
+		$mu_dir     = $backup_root . $mu_rel_dir;
+		$meta['mu_plugins'] = static::Backup_MU_Plugins( $backup_root, static::installation_paths()->wp_mu_plugins_directory() );
+		$meta['mu_plugins']['directory'] = $mu_rel_dir;
 
 		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . time() . '/';
 		$dropins_dir = $backup_root . $dropins_rel_dir;
