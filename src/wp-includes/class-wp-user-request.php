@@ -6,7 +6,7 @@
  *
  * @since 4.9.6
  */
-final class WP_User_Request {
+class WP_User_Request {
 	/**
 	 * Request ID.
 	 *
