@@ -97,6 +97,17 @@ class Paths {
 	}
 
 	/**
+	 * The path to the languages root directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 */
+	public function languages_directory() : string {
+		return WP_LANG_DIR . '/';
+	}
+
+	/**
 	 * An array containing the names of the core files located at the root directory.
 	 *
 	 * @since 1.0.0
