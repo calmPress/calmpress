@@ -18,6 +18,11 @@
  * @package WordPress
  */
 
+// Load a local config if one exists. Such a config should declare all the defines redlared in this file.
+if ( is_file( __DIR__ . '/.local-wp-config.php' ) ) {
+	require_once __DIR__ . '/.local-wp-config.php';
+} else {
+
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
 define( 'DB_NAME', 'database_name_here' );
@@ -86,6 +91,7 @@ define( 'WP_DEBUG', false );
 
 
 /* That's all, stop editing! Happy publishing. */
+}
 
 /** Absolute path to the WordPress directory. */
 if ( ! defined( 'ABSPATH' ) ) {
