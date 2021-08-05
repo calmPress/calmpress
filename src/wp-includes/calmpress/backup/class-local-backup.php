@@ -46,6 +46,12 @@ class Local_Backup implements Backup {
 	const RELATIVE_MU_PLUGINS_BACKUP_PATH = 'mu-plugins/';
 
 	/**
+	 * The directory in which languages backup directory is located relative to the
+	 * backup root directory.
+	 */
+	const RELATIVE_LANGUAGES_BACKUP_PATH = 'languages/';
+
+	/**
 	 * The directory in which dropins backup files are located relative to backup root.
 	 */
 	const RELATIVE_DROPINS_BACKUP_PATH = 'dropins/';
@@ -246,7 +252,7 @@ class Local_Backup implements Backup {
 	}
 
 	/**
-	 * Backup the mu-plugins directory if
+	 * Backup the mu-plugins directory.
 	 *
 	 * @since 1.0.0
 	 *
@@ -256,6 +262,27 @@ class Local_Backup implements Backup {
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
 	protected static function Backup_MU_Plugins( string $source, string $backup_dir ) {
+
+		// If the mu-plugins directory dop not exist there is nothing to backup and
+		// Backup_Directory requires an existing directory.
+		if ( is_dir( $source ) ) {
+			static::Backup_Directory( $source, $backup_dir );
+		} else {
+			static::mkdir( $backup_dir );
+		}
+	}
+
+	/**
+	 * Backup the languages directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $source     The full path to languages directory which might not exist.
+	 * @param string $backup_dir The directory to backup to.
+	 *
+	 * @throws \Exception When directory creation or copy error occurs.
+	 */
+	protected static function Backup_Languages( string $source, string $backup_dir ) {
 
 		// If the mu-plugins directory dop not exist there is nothing to backup and
 		// Backup_Directory requires an existing directory.
@@ -748,6 +775,11 @@ class Local_Backup implements Backup {
 		$mu_dir     = $backup_root . $mu_rel_dir;
 		$meta['mu_plugins'] = static::Backup_MU_Plugins( $backup_root, static::installation_paths()->mu_plugins_directory() );
 		$meta['mu_plugins']['directory'] = $mu_rel_dir;
+
+		$lang_rel_dir = static::RELATIVE_LANGUAGES_BACKUP_PATH . time() . '/';
+		$lang_dir     = $backup_root . $lang_rel_dir;
+		$meta['languages'] = static::Backup_Languages( $backup_root, static::installation_paths()->languages_directory() );
+		$meta['languages']['directory'] = $lang_rel_dir;
 
 		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . time() . '/';
 		$dropins_dir = $backup_root . $dropins_rel_dir;

@@ -733,6 +733,39 @@ class Local_Backup_Test extends WP_UnitTestCase {
 	}
 
 	/**
+     * Test the Backup_Languages method.
+     * 
+     * @since 1.0.0
+     */
+    function test_backup_languages() {
+
+        $method = new ReflectionMethod( 'mock_backup_theme', 'Backup_Languages' );
+        $method->setAccessible(true);
+
+        $upload_dir = wp_upload_dir();
+        $test_dir = $upload_dir['basedir'];
+
+		// Test non existing languages directory creates a backup directory.
+		$this->rmdir( $test_dir . '/source/' );
+		$this->rmdir( $test_dir . '/dest' );
+        $method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
+
+        $this->AssertTrue( file_exists( $test_dir . '/dest/' ) );
+        $this->AssertTrue( is_dir( $test_dir . '/dest/' ) );
+
+		// Test Backup_Directory is invoked when directory exists.
+		$this->rmdir( $test_dir . '/dest' );
+		mkdir( $test_dir . '/source/', 0777, true );
+		mock_backup_theme::$called = false;
+		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
+		$this->AssertTrue( mock_backup_theme::$called );
+        $this->AssertTrue( is_dir( $test_dir . '/dest/' ) );
+
+		$this->rmdir( $test_dir . '/source/' );
+		$this->rmdir( $test_dir . '/dest' );
+	}
+
+	/**
      * Test the Backup_Dropins method.
      * 
      * @since 1.0.0
