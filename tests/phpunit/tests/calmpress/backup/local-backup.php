@@ -365,7 +365,7 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$this->rmdir( $test_dir . '/dest' );
         $method->invoke( null, $test_dir . '/dest/' );
 
-		// Check that files that snon core files were copied
+		// Check that files that are non core files were copied
         $this->AssertTrue( is_file( $test_dir . '/dest/.htaccess' ) );
 		$this->AssertEquals( filesize( __FILE__ ), filesize( $test_dir . '/dest/.htaccess' ) );
         $this->AssertTrue( is_file( $test_dir . '/dest/none.php' ) );
@@ -729,6 +729,58 @@ class Local_Backup_Test extends WP_UnitTestCase {
         $this->AssertTrue( is_dir( $test_dir . '/dest/' ) );
 
 		$this->rmdir( $test_dir . '/source/' );
+		$this->rmdir( $test_dir . '/dest' );
+	}
+
+	/**
+     * Test the Backup_Dropins method.
+     * 
+     * @since 1.0.0
+     */
+    function test_backup_dropins() {
+
+        $method = new ReflectionMethod( '\calmpress\backup\Local_Backup', 'Backup_Dropins' );
+        $method->setAccessible(true);
+
+        $upload_dir = wp_upload_dir();
+        $test_dir = $upload_dir['basedir'];
+
+		$paths = new \calmpress\calmpress\Paths();
+
+		// copy a file (this test file).
+		$this->rmdir( $test_dir . '/source' );
+		$this->rmdir( $test_dir . '/dest' );
+		mkdir( $test_dir . '/source' );
+
+		// test all dropins are backuped, but not other files.
+		foreach ( $paths->dropin_files_name() as $filename ) {
+			copy( __FILE__, $test_dir . '/source/' . $filename );
+		}
+		touch( $test_dir . '/source/test.test' );
+		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
+		foreach ( $paths->dropin_files_name() as $filename ) {
+			$this->AssertTrue( is_file( $test_dir . '/dest/' . $filename ) );
+			$this->AssertSame( filesize( __FILE__ ), filesize( $test_dir . '/dest/' . $filename ) );
+		}
+		$this->AssertFalse( file_exists( $test_dir . '/dest/test.test' ) );
+
+		// Test symlink not copied even when their name is valid dropin name.
+		$this->rmdir( $test_dir . '/source' );
+		$this->rmdir( $test_dir . '/dest' );
+		mkdir( $test_dir . '/source' );
+		touch( $test_dir . '/source/test.test' );
+		if ( ! @symlink( $test_dir . '/source/test.test', $test_dir . '/source/db.php' ) ) {
+			$this->markTestIncomplete(' failed creating the symlink. On windows you will need to run the tests as administrator');
+		}
+		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
+		$files = new FilesystemIterator( $test_dir . '/dest', FilesystemIterator::SKIP_DOTS );
+		$this->AssertEquals( 0, iterator_count( $files ) );
+
+		// windows sucks in deleting symlinks.
+		unlink( $test_dir . '/source/test.test' );
+		unlink( $test_dir . '/source/db.php' );
+
+		$this->rmdir( $test_dir . '/source' );
 		$this->rmdir( $test_dir . '/dest' );
 	}
 

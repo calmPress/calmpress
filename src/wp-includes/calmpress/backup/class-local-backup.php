@@ -274,16 +274,17 @@ class Local_Backup implements Backup {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param string $source_dir The directory of the dropins files.
 	 * @param string $backup_dir The root directory for the dropins backup files.
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Dropins( string $backup_dir ) {
+	protected static function Backup_Dropins( string $source_dir, string $backup_dir ) {
 
 		static::mkdir( $backup_dir );
 
 		foreach ( static::installation_paths()->dropin_files_name() as $filename ) {
-			$file = static::installation_paths()->wp_content_directory() . $filename;
+			$file = $source_dir . $filename;
 			if ( file_exists( $file ) ) {
 				if ( ! is_link( $file ) ) {
 					static::copy( $file, $backup_dir . $filename );
@@ -750,7 +751,7 @@ class Local_Backup implements Backup {
 
 		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . time() . '/';
 		$dropins_dir = $backup_root . $dropins_rel_dir;
-		static::Backup_Dropins( $dropins_dir );
+		static::Backup_Dropins( static::installation_paths()->wp_content_directory(), $dropins_dir );
 		$meta['dropins']['directory'] = $dropins_rel_dir;
 
 		$root_dir_rel_dir = static::RELATIVE_ROOTDIR_BACKUP_PATH . time() . '/';
