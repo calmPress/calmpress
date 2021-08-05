@@ -35,11 +35,11 @@ class mock_paths extends \calmpress\calmpress\Paths {
 		return $this->root_dir . 'wp-content/';
 	}
 
-	public function wp_plugins_directory() : string {
+	public function plugins_directory() : string {
 		return $this->root_dir . 'wp-content/plugins/';
 	}	
 
-	public function wp_themes_directory() : string {
+	public function themes_directory() : string {
 		return $this->root_dir . 'wp-content/themes/';
 	}
 }
@@ -541,7 +541,7 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		// Create two valid themes (parent and child) with versions, an empty directory, a theme with no version,
 		// and an invalid one (there are files but no style.css).
 		$paths = $paths_method->invoke( null );
-		$source_dir = $paths->wp_themes_directory();
+		$source_dir = $paths->themes_directory();
 		$this->rmdir( $source_dir );
 		mkdir( $source_dir, 0755, true );
 

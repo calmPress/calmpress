@@ -70,7 +70,7 @@ class Paths {
 	 *
 	 * @return string The path.
 	 */
-	public function wp_plugins_directory() : string {
+	public function plugins_directory() : string {
 		return WP_PLUGIN_DIR . '/';
 	}	
 
@@ -81,7 +81,7 @@ class Paths {
 	 *
 	 * @return string The path.
 	 */
-	public function wp_mu_plugins_directory() : string {
+	public function mu_plugins_directory() : string {
 		return WPMU_PLUGIN_DIR . '/';
 	}	
 
@@ -92,7 +92,7 @@ class Paths {
 	 *
 	 * @return string The path.
 	 */
-	public function wp_themes_directory() : string {
+	public function themes_directory() : string {
 		return WP_CONTENT_DIR . '/themes/';
 	}
 

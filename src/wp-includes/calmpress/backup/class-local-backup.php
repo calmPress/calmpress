@@ -401,7 +401,7 @@ class Local_Backup implements Backup {
 		// This is done to be able to test the function while not needing to reinvent
 		// wp_get_themes.
 		$old_theme_directories = $wp_theme_directories;
-		$wp_theme_directories  = rtrim( static::installation_paths()->wp_themes_directory(), '/' );
+		$wp_theme_directories  = rtrim( static::installation_paths()->themes_directory(), '/' );
 
 		// Need to clear the theme cache if directories actually changed.
 		if ( $old_theme_directories !== $wp_theme_directories ) {
@@ -746,7 +746,7 @@ class Local_Backup implements Backup {
 
 		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . time() . '/';
 		$mu_dir     = $backup_root . $mu_rel_dir;
-		$meta['mu_plugins'] = static::Backup_MU_Plugins( $backup_root, static::installation_paths()->wp_mu_plugins_directory() );
+		$meta['mu_plugins'] = static::Backup_MU_Plugins( $backup_root, static::installation_paths()->mu_plugins_directory() );
 		$meta['mu_plugins']['directory'] = $mu_rel_dir;
 
 		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . time() . '/';
