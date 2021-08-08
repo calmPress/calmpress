@@ -72,9 +72,12 @@ define( 'NONCE_SALT',       'put your unique phrase here' );
  */
 $table_prefix = 'wp_';
 
-/* Add any custom values between this line and the "stop editing" line. */
-
-
+/*
+ * Add any custom values between the "// BEGIN User" line and the "// END User" line, or just use
+ * the .wp-config setting screen to change values in this section.
+ */
+// BEGIN User
+// END User
 
 /* That's all, stop editing! Happy publishing. */
 }
