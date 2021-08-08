@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
+require_once ABSPATH . 'wp-admin\includes\misc.php';
+
 /**
  * A simplistic Locaked_File_Access that is tailored for the needs of the tests.
  *
@@ -63,18 +65,19 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 	 * @param string[] $orig      Array to alter.
 	 * @param string   $marker    The marker.
 	 * @param string[] $insertion The new content to insert.
+	 * @param string   $prefix    The line prefix.
 	 * @param string[] $res       the expected result.
 	 */
-	function test_insert_with_markers_into_array( array $orig, string $marker, array $insertion, array $res ) {
-		$this->assertEquals( $res, insert_with_markers_into_array( $orig, $marker, $insertion ) );
+	function test_insert_with_markers_into_array( array $orig, string $marker, array $insertion, string $prefix, array $res ) {
+		$this->assertEquals( $res, insert_with_markers_into_array( $orig, $marker, $insertion, $prefix) );
 	}
 
 	/**
-	 * Test the insert_with_markers function.
+	 * Test the insert_with_markers function with default line prefix.
 	 *
 	 * @since 1.0.0
 	 */
-	function test_insert_with_markers() {
+	function test_insert_with_markers_default_prefix() {
 		$locked_file = new Dummy_Locked_File_Access();
 		add_filter( 'calm_insert_with_markers_locked_file_getter', function () use ($locked_file ) {
 			return function ( $filename ) use ($locked_file ) {
@@ -82,7 +85,7 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 			};
 		} );
 
-		// Test markers with empty content.
+		// Test markers with empty content, default prefix.
 		$ret = insert_with_markers( 'testfile', 'test', 'test string' );
 		$this->assertTrue( $ret );
 		$this->assertEquals( "\n# BEGIN test\ntest string\n# END test", $locked_file->content );
@@ -91,6 +94,30 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 		$ret = insert_with_markers( 'testfile', 'test', 'another string' );
 		$this->assertTrue( $ret );
 		$this->assertEquals( "\n# BEGIN test\nanother string\n# END test", $locked_file->content );
+	}
+
+	/**
+	 * Test the insert_with_markers function with explicit line prefix.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_insert_with_markers_explicit_prefix() {
+		$locked_file = new Dummy_Locked_File_Access();
+		add_filter( 'calm_insert_with_markers_locked_file_getter', function () use ($locked_file ) {
+			return function ( $filename ) use ($locked_file ) {
+				return $locked_file;
+			};
+		} );
+
+		// Test markers with empty content, default prefix.
+		$ret = insert_with_markers( 'testfile', 'test', 'test string', '//' );
+		$this->assertTrue( $ret );
+		$this->assertEquals( "\n// BEGIN test\ntest string\n// END test", $locked_file->content );
+
+		// Test markers with some content (from previous test).
+		$ret = insert_with_markers( 'testfile', 'test', 'another string', '//' );
+		$this->assertTrue( $ret );
+		$this->assertEquals( "\n// BEGIN test\nanother string\n// END test", $locked_file->content );
 	}
 
 	/**
@@ -125,17 +152,17 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 	 */
 	function data_insert_with_markers_into_array() {
 		return [
-			[ [], 'mark', ['test'], [
+			[ [], 'mark', ['test'], '#', [
 				'# BEGIN mark',
 				'test',
 				'# END mark',
 				],
 			],
-			[ [], 'mark', ['test', 'more test'], [
-				'# BEGIN mark',
+			[ [], 'mark', ['test', 'more test'], '//', [
+				'// BEGIN mark',
 				'test',
 				'more test',
-				'# END mark',
+				'// END mark',
 				],
 			],
 			[ [
@@ -143,7 +170,7 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 				'tost',
 				'more tost',
 				'# END mark',
-			], 'mark', ['test', 'more test'], [
+			], 'mark', ['test', 'more test'], '#', [
 				'# BEGIN mark',
 				'test',
 				'more test',
@@ -151,19 +178,19 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 				],
 			],
 			[ [
-				'# BEGIN mirk',
+				'// BEGIN mirk',
 				'tost',
 				'more tost',
-				'# END mirk',
-			], 'mark', ['test', 'more test'], [
-				'# BEGIN mirk',
+				'// END mirk',
+			], 'mark', ['test', 'more test'], '//', [
+				'// BEGIN mirk',
 				'tost',
 				'more tost',
-				'# END mirk',
-				'# BEGIN mark',
+				'// END mirk',
+				'// BEGIN mark',
 				'test',
 				'more test',
-				'# END mark',
+				'// END mark',
 				],
 			],
 			[ [
@@ -171,7 +198,7 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 				'tost',
 				'more tost',
 				'# END mark',
-			], 'mark', [], [],
+			], 'mark', [], '#', [],
 			],
 			[ [
 				'text',
@@ -180,7 +207,7 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 				'more tost',
 				'# END mark',
 				'more text',
-			], 'mark', [], [
+			], 'mark', [], '#', [
 				'text',
 				'more text'
 			],

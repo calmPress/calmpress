@@ -21,15 +21,19 @@ function got_mod_rewrite() {
 }
 
 /**
- * Extracts strings from between the BEGIN and END markers in the .htaccess file.
+ * Extracts strings from between the BEGIN and END markers in a file.
  *
  * @since 1.5.0
+ * @since calmPress 1.0.0 Can specify the marker prefix.
  *
- * @param string $filename Filename to extract the strings from.
- * @param string $marker   The marker to extract the strings from.
+ * @param string $filename    Filename to extract the strings from.
+ * @param string $marker      The marker to extract the strings from.
+ * @param string $line_prefix The prefix string that should come before the marker. Default is '#'
+ *                            for easier backward compatibility with the single use of this function
+ *                            in .htaccess files.
  * @return string[] An array of strings from a file (.htaccess) from between BEGIN and END markers.
  */
-function extract_from_markers( $filename, $marker ) {
+function extract_from_markers( $filename, $marker, $line_prefix = '#' ) {
 	$result = array();
 
 	if ( ! file_exists( $filename ) ) {
@@ -40,7 +44,7 @@ function extract_from_markers( $filename, $marker ) {
 
 	$state = false;
 	foreach ( $markerdata as $markerline ) {
-		if ( false !== strpos( $markerline, '# END ' . $marker ) ) {
+		if ( false !== strpos( $markerline, $line_prefix . ' END ' . $marker ) ) {
 			$state = false;
 		}
 		if ( $state ) {
@@ -49,7 +53,7 @@ function extract_from_markers( $filename, $marker ) {
 			}
 			$result[] = $markerline;
 		}
-		if ( false !== strpos( $markerline, '# BEGIN ' . $marker ) ) {
+		if ( false !== strpos( $markerline, $line_prefix . ' BEGIN ' . $marker ) ) {
 			$state = true;
 		}
 	}
@@ -69,12 +73,13 @@ function extract_from_markers( $filename, $marker ) {
  * @param string[] $lines     Array to alter.
  * @param string   $marker    The marker.
  * @param string[] $insertion The new content to insert.
+ * @param string   $line_prefix The prefix string that should come before the marker.
  *
  * @return string[] The original array with the relevant "section" replaced.
  */
-function insert_with_markers_into_array( array $lines, string $marker, array $insertion ) {
-	$start_marker = "# BEGIN {$marker}";
-	$end_marker   = "# END {$marker}";
+function insert_with_markers_into_array( array $lines, string $marker, array $insertion, string $line_prefix ) {
+	$start_marker = $line_prefix . " BEGIN {$marker}";
+	$end_marker   = $line_prefix . " END {$marker}";
 
 	// Split out the existing file into the preceding lines, and those that appear after the marker.
 	$pre_lines        = [];
@@ -134,9 +139,12 @@ function insert_with_markers_into_array( array $lines, string $marker, array $in
  * @param string       $filename  Filename to alter.
  * @param string       $marker    The marker to alter.
  * @param array|string $insertion The new content to insert.
+ * @param string       $line_prefix The prefix string that should come before the marker. Default is '#'
+ *                                  for easier backward compatibility with the single use of this function
+ *                                  in .htaccess files.
  * @return bool True on write success, false on failure.
  */
-function insert_with_markers( $filename, $marker, $insertion ) {
+function insert_with_markers( $filename, $marker, $insertion, $line_prefix = '#' ) {
 
 	// Get a callable which will be used to get the relevant locked file object.
 	/**
@@ -174,7 +182,7 @@ function insert_with_markers( $filename, $marker, $insertion ) {
 		// Split the content to lines based on all possible line endings.
 		$lines = preg_split( "/\r\n|\n|\r/", $current );
 
-		$newlines = insert_with_markers_into_array( $lines, $marker, $insertion );
+		$newlines = insert_with_markers_into_array( $lines, $marker, $insertion, $line_prefix );
 		// Check to see if there was a change.
 		if ( $lines === $newlines ) {
 			return true;
