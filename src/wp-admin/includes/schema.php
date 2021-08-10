@@ -500,6 +500,9 @@ function populate_options( array $options = array() ) {
 		/* translators: %s: Network title. */
 		$defaults['blogdescription']     = sprintf( __( 'Just another %s site' ), get_network()->site_name );
 		$defaults['permalink_structure'] = '/%year%/%monthnum%/%day%/%postname%/';
+	} else {
+		// Options relevant only to single sites.
+		$defaults['htaccess_user_section'] = '';
 	}
 
 	$options = wp_parse_args( $options, $defaults );
@@ -509,6 +512,7 @@ function populate_options( array $options = array() ) {
 		'recently_edited',
 		'uninstall_plugins',
 		'auto_plugin_theme_update_emails',
+		'htaccess_user_section',
 	);
 
 	$keys             = "'" . implode( "', '", array_keys( $options ) ) . "'";
