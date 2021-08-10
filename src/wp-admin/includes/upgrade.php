@@ -764,6 +764,10 @@ function upgrade_all() {
 		add_option( 'calm_embedding_on', 1, '', 'yes' );
 	}
 
+	if ( version_compare( $calmpress_db_version, '1.0.0-alpha19', '<' ) ) {
+		add_option( 'wp_config_user_section', '', '', 'no' );
+	}
+
 	delete_option( 'db_version' );
 	update_option( 'calmpress_db_version', calmpress_version() );
 	update_option( 'db_upgraded', true );

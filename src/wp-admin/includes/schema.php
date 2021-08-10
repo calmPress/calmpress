@@ -502,7 +502,8 @@ function populate_options( array $options = array() ) {
 		$defaults['permalink_structure'] = '/%year%/%monthnum%/%day%/%postname%/';
 	} else {
 		// Options relevant only to single sites.
-		$defaults['htaccess_user_section'] = '';
+		$defaults['htaccess_user_section']  = '';
+		$defaults['wp_config_user_section'] = '';
 	}
 
 	$options = wp_parse_args( $options, $defaults );
@@ -513,6 +514,7 @@ function populate_options( array $options = array() ) {
 		'uninstall_plugins',
 		'auto_plugin_theme_update_emails',
 		'htaccess_user_section',
+		'wp_config_user_section',
 	);
 
 	$keys             = "'" . implode( "', '", array_keys( $options ) ) . "'";
