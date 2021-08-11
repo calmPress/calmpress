@@ -73,11 +73,15 @@ define( 'NONCE_SALT',       'put your unique phrase here' );
 $table_prefix = 'wp_';
 
 /*
- * Add any custom values between the "// BEGIN User" line and the "// END User" line, or just use
- * the .wp-config setting screen to change values in this section.
+ * Custom values configured via the admin. Do not modify manually.
  */
 // BEGIN User
 // END User
+
+/*
+ * Any costume code that can not or should not be entered via the admin should be placed
+ * below this comment.
+ */
 
 /* That's all, stop editing! Happy publishing. */
 }
