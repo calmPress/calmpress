@@ -44,16 +44,13 @@ function extract_from_markers( $filename, $marker, $line_prefix = '#' ) {
 
 	$state = false;
 	foreach ( $markerdata as $markerline ) {
-		if ( false !== strpos( $markerline, $line_prefix . ' END ' . $marker ) ) {
+		if ( 0 === strpos( $markerline, $line_prefix . ' END ' . $marker ) ) {
 			$state = false;
 		}
 		if ( $state ) {
-			if ( '#' === substr( $markerline, 0, 1 ) ) {
-				continue;
-			}
 			$result[] = $markerline;
 		}
-		if ( false !== strpos( $markerline, $line_prefix . ' BEGIN ' . $marker ) ) {
+		if ( 0 === strpos( $markerline, $line_prefix . ' BEGIN ' . $marker ) ) {
 			$state = true;
 		}
 	}
@@ -89,10 +86,10 @@ function insert_with_markers_into_array( array $lines, string $marker, array $in
 	$found_end_marker = false;
 
 	foreach ( $lines as $line ) {
-		if ( ! $found_marker && false !== strpos( $line, $start_marker ) ) {
+		if ( ! $found_marker && 0 === strpos( $line, $start_marker ) ) {
 			$found_marker = true;
 			continue;
-		} elseif ( ! $found_end_marker && false !== strpos( $line, $end_marker ) ) {
+		} elseif ( ! $found_end_marker && 0 === strpos( $line, $end_marker ) ) {
 			$found_end_marker = true;
 			continue;
 		}
@@ -1149,4 +1146,3 @@ function _wp_privacy_settings_filter_draft_page_titles( $title, $page ) {
 
 	return $title;
 }
-
