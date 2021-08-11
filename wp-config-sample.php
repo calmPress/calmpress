@@ -79,7 +79,7 @@ $table_prefix = 'wp_';
 // END User
 
 /*
- * Any costume code that can not or should not be entered via the admin should be placed
+ * Any costum code that can not or should not be entered via the admin should be placed
  * below this comment.
  */
 
