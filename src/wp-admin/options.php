@@ -137,6 +137,9 @@ $allowed_options            = array(
 	'htaccess'   => [
 		'htaccess_user_section',
 	],
+	'wp-config'   => [
+		'wp_config_user_section',
+	],
 );
 $allowed_options['misc']    = array();
 $allowed_options['options'] = array();

@@ -2194,6 +2194,18 @@ function register_initial_settings() {
 			'default'      => '',
 		)
 	);
+
+	register_setting(
+		'wp-config',
+		'wp_config_user_section',
+		array(
+			'show_in_rest'      => false,
+			'sanitize_callback' => [ '\calmpress\wp_config\wp_config', 'sanitize_user_setting' ],
+			'type'              => 'string',
+			'description'       => __( 'The user section in the wp-config.php file.' ),
+			'default'           => '',
+		)
+	);
 }
 
 /**
