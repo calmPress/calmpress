@@ -8,6 +8,8 @@
 
 use calmpress\wp_config;
 
+require_once ABSPATH . 'wp-admin/includes/file.php';
+
 /**
  * Tests for the methods of wp_config class.
  *
@@ -15,7 +17,7 @@ use calmpress\wp_config;
  */
 class WP_Test_Post_Wp_Config extends WP_UnitTestCase {
 
-    /**
+	/**
 	 * Test valid_user_setting_line.
 	 *
 	 * @since 1.0.0
@@ -31,6 +33,8 @@ class WP_Test_Post_Wp_Config extends WP_UnitTestCase {
 
 	/**
 	 * Test data provider for single line validation.
+	 *
+	 * @since 1.0.0
 	 */
 	public function line_provider() {
         $tests = [
@@ -81,6 +85,8 @@ class WP_Test_Post_Wp_Config extends WP_UnitTestCase {
 
 	/**
 	 * Test data provider for multi line validation.
+	 *
+	 * @since 1.0.0
 	 */
 	public function multi_line_provider() {
         $tests = [
@@ -89,12 +95,49 @@ class WP_Test_Post_Wp_Config extends WP_UnitTestCase {
 		  ["comment", ""],  // one invalid line.
 		  ["\n", "\n"],       // empty two lines.
 		  ["//\n", "//\n"],   // empty second line.
+		  ["def\ndefine('a',true);", "define('a',true);"],   // Invalid first line.
 		  ["//\n\ndefine('a',true);", "//\n\ndefine('a',true);"],   // two content line with one empty between.
 		  ["//\nwhat\ndefine('a',true);", "//\ndefine('a',true);"],   // two content line with invalid between.
 		  ["//\nwhat\ndefine('a',true);", "//\ndefine('a',true);"],   // two content line with invalid between.
-		  ["who\ndefine('a',true);\nwhere", "define('a',true);"],   // several oinvalid lines.
+		  ["who\ndefine('a',true);\nwhere", "define('a',true);"],   // several invalid lines.
 		];
 
 		return $tests;
     }
+
+	/**
+	 * Test user_section_in_file.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_user_section_in_file() {
+		$filename = wp_tempnam();
+		$config = new \calmpress\wp_config\wp_config( $filename );
+		file_put_contents( $filename, "test\n// BEGIN User\ntest string\n// END User\nsomething else");
+
+		$this->AssertSame( 'test string', $config->user_section_in_file() );
+		unlink( $filename );
+	}
+
+	/**
+	 * Test save_user_section_to_file.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_save_user_section_to_file() {
+		$filename = wp_tempnam();
+		$config = new \calmpress\wp_config\wp_config( $filename );
+		file_put_contents( $filename, "test\n// BEGIN User\n// END User\nsomething else");
+
+		// Test with valid content.
+		$config->save_user_section_to_file('//test');
+		$s = file_get_contents( $filename );
+		$this->AssertSame( "test\n// BEGIN User\n//test\n// END User\nsomething else", $s );
+
+		// Test with partially invalid content.
+		$config->save_user_section_to_file("def\n//test 2");
+		$s = file_get_contents( $filename );
+		$this->AssertSame( "test\n// BEGIN User\n//test 2\n// END User\nsomething else", $s );
+		unlink( $filename );
+	}
 }

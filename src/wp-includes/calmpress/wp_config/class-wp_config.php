@@ -17,39 +17,51 @@ namespace calmpress\wp_config;
  */
 class wp_config {
 
-    /**
-     * Checks if a string is in a format appropriate to be used in the user section
-     * of wp-config.php.
-     *
-     * Line can be
-     *  - Empty
-     *  - Begining with '//' (php line comment token)
-     *  - Format of 'define("...",...); // comment'
-     *    double quotes and single quotes can be used as delimiters for the first value, both
-     *    values should be valid php literals.
-	 *    the comment part is optional.
-     * 
-     * all lines can be padded by space.
-     *
-     * @since 1.0.0
-     *
-     * @param string $line The string to validate.
-     * 
-     * @return bool true if valid, otherwise false.
-     */
-    private static function valid_user_setting_line( string $line ) : bool {
+	// The marker identifying the user section in a wp-config.php file.
+	const USER_SECTION_MARKER = 'User';
 
-        $trimmed = trim( $line );
-        if ( empty( $trimmed ) ) {
-            $result[] = $line;
-            return true;
-        }
-        if ( '//' === substr( $trimmed, 0, 2 ) ) {
-            $result[] = $line;
-            return true;
-        }
+	// The prefix used before marker identifying user section in a wp-config.php file.
+	const USER_SECTION_PREFIX = '//';
+
+	var $filename;
+
+	public function __construct( string $filename ) {
+		$this->filename = $filename;
+	}
+
+	/**
+	 * Checks if a string is in a format appropriate to be used in the user section
+	 * of wp-config.php.
+	 *
+	 * Line can be
+	 *  - Empty
+	 *  - Begining with '//' (php line comment token)
+	 *  - Format of 'define("...",...); // comment'
+	 *    double quotes and single quotes can be used as delimiters for the first value, both
+	 *    values should be valid php literals.
+	 *    the comment part is optional.
+	 * 
+	 * all lines can be padded by space.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $line The string to validate.
+	 * 
+	 * @return bool true if valid, otherwise false.
+	 */
+	private static function valid_user_setting_line( string $line ) : bool {
+
+		$trimmed = trim( $line );
+		if ( empty( $trimmed ) ) {
+			$result[] = $line;
+			return true;
+		}
+		if ( '//' === substr( $trimmed, 0, 2 ) ) {
+			$result[] = $line;
+			return true;
+		}
 		preg_match( '#^define\(\s*([\"\\\'][A-Z_a-z]*[\"\\\'])\s*,\s*([^\)]*)\s*\)\s*;\s*(\\/\\/.*)?#', $trimmed, $matches);
-        if ( 2 >= count( $matches ) ) {
+		if ( 2 >= count( $matches ) ) {
 			//no matches for the two essential parts.
 			return false;
 		}
@@ -96,32 +108,32 @@ class wp_config {
 		return true;
     }
 
-    /**
-     * Sanitize a string to a format appropriate to be used in the user section
-     * of wp-config.php.
-     *
-     * The user section can have
-     *  - Empty lines
-     *  - lines begining with '//' (php line comment token)
-     *  - lines of the format 'define("...",...);'
-     *    double quotes and single quotes can be used as delimiters for the first value, both
-     *    values should be valid php literals.
-     * 
-     * all lines can be padded by space.
-     * 
-     * Sanitization will remove lines that do not match the format.
-     *
-     * @since 1.0.0
-     *
-     * @param string $value The string to sanitize.
-     * 
-     * @return string
-     */
-    public static function sanitize_user_setting( string $value ) : string {
-        $result = [];
+	/**
+	 * Sanitize a string to a format appropriate to be used in the user section
+	 * of wp-config.php.
+	 *
+	 * The user section can have
+	 *  - Empty lines
+	 *  - lines begining with '//' (php line comment token)
+	 *  - lines of the format 'define("...",...);'
+	 *    double quotes and single quotes can be used as delimiters for the first value, both
+	 *    values should be valid php literals.
+	 * 
+	 * all lines can be padded by space.
+	 * 
+	 * Sanitization will remove lines that do not match the format.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $value The string to sanitize.
+	 * 
+	 * @return string The sanitized string.
+	 */
+	public static function sanitize_user_setting( string $value ) : string {
+		$result = [];
 
-        $lines = explode( "\n", $value );
-        foreach ( $lines as $line ) {
+		$lines = explode( "\n", $value );
+		foreach ( $lines as $line ) {
 			if ( static::valid_user_setting_line( $line ) ) {
 				$result[] = $line;
 			}
@@ -129,4 +141,48 @@ class wp_config {
     
         return join( "\n", $result );
     }
+
+	/**
+	 * Get the user section from the file.
+	 * 
+	 * @since 1.0.0
+	 */
+	public function user_section_in_file() : string {
+
+		/*
+		 * WordPress associate this function only with admin.
+		 * As we want to avoid making structural changes to file
+		 * in order to keep merging easy we need to use this hack.
+		 */
+		if ( ! function_exists( 'extract_from_markers' ) ) {
+			require_once ABSPATH . 'wp-admin\includes\misc.php';
+		}
+
+		$lines = extract_from_markers( $this->filename, self::USER_SECTION_MARKER, self::USER_SECTION_PREFIX );
+		return join( "\n", $lines );
+	}
+
+	/**
+	 * Save a string as the user section in the file.
+	 * 
+	 * The string is sanitized before save.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $settings The settings to store in the user section.
+	 */
+    public function save_user_section_to_file( string $settings ) {
+		$sanitized = static::sanitize_user_setting( $settings );
+
+		/*
+		 * WordPress associate this function only with admin.
+		 * As we want to avoid making structural changes to file
+		 * in order to keep merging easy we need to use this hack.
+		 */
+		if ( ! function_exists( 'insert_with_markers' ) ) {
+			require_once ABSPATH . 'wp-admin\includes\misc.php';
+		}
+
+		insert_with_markers( $this->filename, self::USER_SECTION_MARKER , $sanitized, self::USER_SECTION_PREFIX );
+	}
 }
