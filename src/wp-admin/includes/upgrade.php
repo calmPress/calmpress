@@ -2820,7 +2820,7 @@ function make_db_current_silent( $tables = 'all' ) {
  * @return bool
  */
 function make_site_theme_from_oldschool( $theme_name, $template ) {
-	$home_path = get_home_path();
+	$home_path = ABSPATH;
 	$site_dir  = WP_CONTENT_DIR . "/themes/$template";
 
 	if ( ! file_exists( "$home_path/index.php" ) ) {

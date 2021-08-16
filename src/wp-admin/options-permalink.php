@@ -55,7 +55,7 @@ get_current_screen()->add_help_tab(
 	)
 );
 
-$home_path           = get_home_path();
+$home_path           = ABSPATH;
 $iis7_permalinks     = iis7_supports_permalinks();
 $permalink_structure = get_option( 'permalink_structure' );
 
