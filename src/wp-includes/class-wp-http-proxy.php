@@ -171,7 +171,7 @@ class WP_HTTP_Proxy {
 			return true;
 		}
 
-		$home = parse_url( get_option( 'siteurl' ) );
+		$home = parse_url( get_option( 'home' ) );
 
 		/**
 		 * Filters whether to preempt sending the request through the proxy.

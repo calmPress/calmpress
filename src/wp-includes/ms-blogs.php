@@ -246,7 +246,7 @@ function get_blog_details( $fields = null, $get_all = true ) {
 	}
 
 	$details->blogname   = get_option( 'blogname' );
-	$details->siteurl    = get_option( 'siteurl' );
+	$details->siteurl    = get_option( 'home' );
 	$details->post_count = get_option( 'post_count' );
 	$details->home       = get_option( 'home' );
 

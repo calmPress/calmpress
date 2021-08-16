@@ -287,8 +287,8 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 	 * @ticket 15928
 	 */
 	public function test_wp_get_attachment_url_should_not_force_https_when_current_page_is_non_ssl_and_siteurl_is_non_ssl() {
-		$siteurl = get_option( 'siteurl' );
-		update_option( 'siteurl', set_url_scheme( $siteurl, 'http' ) );
+		$siteurl = get_option( 'home' );
+		update_option( 'home', set_url_scheme( $siteurl, 'http' ) );
 
 		$filename = DIR_TESTDATA . '/images/test-image.jpg';
 		$contents = file_get_contents( $filename );
@@ -312,8 +312,8 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 	 * This situation (current request is non-SSL but siteurl is https) should never arise.
 	 */
 	public function test_wp_get_attachment_url_should_not_force_https_when_current_page_is_non_ssl_and_siteurl_is_ssl() {
-		$siteurl = get_option( 'siteurl' );
-		update_option( 'siteurl', set_url_scheme( $siteurl, 'https' ) );
+		$siteurl = get_option( 'home' );
+		update_option( 'home', set_url_scheme( $siteurl, 'https' ) );
 
 		$filename = DIR_TESTDATA . '/images/test-image.jpg';
 		$contents = file_get_contents( $filename );
@@ -337,8 +337,8 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 	 * Canonical siteurl is non-SSL, but SSL support is available/optional.
 	 */
 	public function test_wp_get_attachment_url_should_force_https_with_https_on_same_host_when_siteurl_is_non_ssl_but_ssl_is_available() {
-		$siteurl = get_option( 'siteurl' );
-		update_option( 'siteurl', set_url_scheme( $siteurl, 'http' ) );
+		$siteurl = get_option( 'home' );
+		update_option( 'home', set_url_scheme( $siteurl, 'http' ) );
 
 		$filename = ( DIR_TESTDATA . '/images/test-image.jpg' );
 		$contents = file_get_contents( $filename );
@@ -365,8 +365,8 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 	 * @ticket 15928
 	 */
 	public function test_wp_get_attachment_url_with_https_on_same_host_when_siteurl_is_https() {
-		$siteurl = get_option( 'siteurl' );
-		update_option( 'siteurl', set_url_scheme( $siteurl, 'https' ) );
+		$siteurl = get_option( 'home' );
+		update_option( 'home', set_url_scheme( $siteurl, 'https' ) );
 
 		$filename = ( DIR_TESTDATA . '/images/test-image.jpg' );
 		$contents = file_get_contents( $filename );
@@ -393,8 +393,8 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 	 * @ticket 15928
 	 */
 	public function test_wp_get_attachment_url_should_not_force_https_when_administering_over_https_but_siteurl_is_not_https() {
-		$siteurl = get_option( 'siteurl' );
-		update_option( 'siteurl', set_url_scheme( $siteurl, 'http' ) );
+		$siteurl = get_option( 'home' );
+		update_option( 'home', set_url_scheme( $siteurl, 'http' ) );
 
 		$filename = ( DIR_TESTDATA . '/images/test-image.jpg' );
 		$contents = file_get_contents( $filename );

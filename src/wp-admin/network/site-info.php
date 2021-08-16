@@ -94,13 +94,8 @@ if ( isset( $_REQUEST['action'] ) && 'update-site' === $_REQUEST['action'] ) {
 		update_option( 'home', $new_home_url );
 	}
 
-	$old_site_url    = trailingslashit( esc_url( get_option( 'siteurl' ) ) );
+	$old_site_url    = trailingslashit( esc_url( get_option( 'home' ) ) );
 	$old_site_parsed = parse_url( $old_site_url );
-
-	if ( $old_site_parsed['host'] === $existing_details->domain && $old_site_parsed['path'] === $existing_details->path ) {
-		$new_site_url = untrailingslashit( esc_url_raw( $blog_data['scheme'] . '://' . $new_details->domain . $new_details->path ) );
-		update_option( 'siteurl', $new_site_url );
-	}
 
 	restore_current_blog();
 	wp_redirect(

@@ -1194,7 +1194,7 @@ class WP_REST_Server {
 		$available = array(
 			'name'            => get_option( 'blogname' ),
 			'description'     => get_option( 'blogdescription' ),
-			'url'             => get_option( 'siteurl' ),
+			'url'             => get_option( 'home' ),
 			'home'            => home_url(),
 			'gmt_offset'      => get_option( 'gmt_offset' ),
 			'timezone_string' => get_option( 'timezone_string' ),

@@ -2415,7 +2415,7 @@ if ( is_multisite() ) :
 			get_blog_details( $blog_id );
 			get_site( $blog_id )->siteurl;
 			// Set siteurl.
-			update_option( 'siteurl', 'http://testsite1.example.org/test' );
+			update_option( 'home', 'http://testsite1.example.org/test' );
 		}
 
 		/**

@@ -659,7 +659,7 @@ function get_theme_root_uri( $stylesheet_or_template = '', $theme_root = '' ) {
 	 * @param string $siteurl                WordPress web address which is set in General Options.
 	 * @param string $stylesheet_or_template The stylesheet or template name of the theme.
 	 */
-	return apply_filters( 'theme_root_uri', $theme_root_uri, get_option( 'siteurl' ), $stylesheet_or_template );
+	return apply_filters( 'theme_root_uri', $theme_root_uri, get_option( 'home' ), $stylesheet_or_template );
 }
 
 /**

@@ -245,29 +245,6 @@ class Tests_Rewrite extends WP_UnitTestCase {
 		$this->assertSame( $grandchild_id_2, url_to_postid( get_permalink( $grandchild_id_2 ) ) );
 	}
 
-	function test_url_to_postid_home_has_path() {
-
-		update_option( 'home', home_url( '/example/' ) );
-
-		$id = self::factory()->post->create(
-			array(
-				'post_title' => 'Hi',
-				'post_type'  => 'page',
-				'post_name'  => 'examp',
-			)
-		);
-		$this->assertSame( $id, url_to_postid( get_permalink( $id ) ) );
-		$this->assertSame( $id, url_to_postid( site_url( '/example/examp' ) ) );
-		$this->assertSame( $id, url_to_postid( '/example/examp/' ) );
-		$this->assertSame( $id, url_to_postid( '/example/examp' ) );
-
-		$this->assertSame( 0, url_to_postid( site_url( '/example/ex' ) ) );
-		$this->assertSame( 0, url_to_postid( '/example/ex' ) );
-		$this->assertSame( 0, url_to_postid( '/example/ex/' ) );
-		$this->assertSame( 0, url_to_postid( '/example-page/example/' ) );
-		$this->assertSame( 0, url_to_postid( '/example-page/ex/' ) );
-	}
-
 	/**
 	 * @ticket 30438
 	 */
@@ -338,23 +315,6 @@ class Tests_Rewrite extends WP_UnitTestCase {
 		_unregister_post_type( 'foo' );
 
 		$this->assertSame( array(), $GLOBALS['wp']->query_vars );
-	}
-
-	function test_url_to_postid_dupe_path() {
-		update_option( 'home', home_url( '/example/' ) );
-
-		$id = self::factory()->post->create(
-			array(
-				'post_title' => 'Hi',
-				'post_type'  => 'page',
-				'post_name'  => 'example',
-			)
-		);
-
-		$this->assertSame( $id, url_to_postid( get_permalink( $id ) ) );
-		$this->assertSame( $id, url_to_postid( site_url( '/example/example/' ) ) );
-		$this->assertSame( $id, url_to_postid( '/example/example/' ) );
-		$this->assertSame( $id, url_to_postid( '/example/example' ) );
 	}
 
 	/**

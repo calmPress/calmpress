@@ -2189,24 +2189,6 @@ class Tests_WP_Customize_Manager extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test WP_Customize_Manager::is_cross_domain().
-	 *
-	 * @ticket 30937
-	 * @covers WP_Customize_Manager::is_cross_domain
-	 */
-	function test_is_cross_domain() {
-		$wp_customize = new WP_Customize_Manager();
-
-		update_option( 'home', 'http://example.com' );
-		update_option( 'siteurl', 'http://example.com' );
-		$this->assertFalse( $wp_customize->is_cross_domain() );
-
-		update_option( 'home', 'http://example.com' );
-		update_option( 'siteurl', 'https://admin.example.com' );
-		$this->assertTrue( $wp_customize->is_cross_domain() );
-	}
-
-	/**
 	 * Test WP_Customize_Manager::get_allowed_urls().
 	 *
 	 * @ticket 30937

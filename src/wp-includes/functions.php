@@ -1642,7 +1642,7 @@ function do_favicon() {
  * the cache values, then this will work. If you use the default WordPress
  * cache, and the database goes away, then you might have problems.
  *
- * Checks for the 'siteurl' option for whether WordPress is installed.
+ * Checks for the 'home' option for whether WordPress is installed.
  *
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.wordpress.org/themes/basics/conditional-tags/
@@ -1669,11 +1669,11 @@ function is_blog_installed() {
 	if ( ! wp_installing() ) {
 		$alloptions = wp_load_alloptions();
 	}
-	// If siteurl is not set to autoload, check it specifically.
-	if ( ! isset( $alloptions['siteurl'] ) ) {
-		$installed = $wpdb->get_var( "SELECT option_value FROM $wpdb->options WHERE option_name = 'siteurl'" );
+	// If home is not set to autoload, check it specifically.
+	if ( ! isset( $alloptions['home'] ) ) {
+		$installed = $wpdb->get_var( "SELECT option_value FROM $wpdb->options WHERE option_name = 'home'" );
 	} else {
-		$installed = $alloptions['siteurl'];
+		$installed = $alloptions['home'];
 	}
 	$wpdb->suppress_errors( $suppress );
 
@@ -2300,7 +2300,7 @@ function wp_upload_dir( $time = null, $create_dir = true, $refresh_cache = false
  * @return array See wp_upload_dir()
  */
 function _wp_upload_dir( $time = null ) {
-	$siteurl     = get_option( 'siteurl' );
+	$siteurl     = get_option( 'home' );
 	$upload_path = trim( get_option( 'upload_path' ) );
 
 	if ( empty( $upload_path ) || 'wp-content/uploads' === $upload_path ) {
@@ -4220,10 +4220,7 @@ function _config_wp_home( $url = '' ) {
  * @return string The WordPress Site URL.
  */
 function _config_wp_siteurl( $url = '' ) {
-	if ( defined( 'WP_SITEURL' ) ) {
-		return untrailingslashit( WP_SITEURL );
-	}
-	return $url;
+	return untrailingslashit( WP_SITEURL );
 }
 
 /**
@@ -5500,8 +5497,8 @@ function force_ssl_admin( $force = null ) {
  * @return string The guessed URL.
  */
 function wp_guess_url() {
-	if ( defined( 'WP_SITEURL' ) && '' !== WP_SITEURL ) {
-		$url = WP_SITEURL;
+	if ( defined( 'WP_HOME' ) && '' !== WP_HOME ) {
+		$url = WP_HOME;
 	} else {
 		$abspath_fix         = str_replace( '\\', '/', ABSPATH );
 		$script_filename_dir = dirname( $_SERVER['SCRIPT_FILENAME'] );

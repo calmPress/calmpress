@@ -65,8 +65,6 @@ if ( ! function_exists( 'wp_install' ) ) :
 
 		$guessurl = wp_guess_url();
 
-		update_option( 'siteurl', $guessurl );
-
 		/*
 		 * Create default user. If the user already exists, the user tables are
 		 * being shared among sites. Just set the role in that case.

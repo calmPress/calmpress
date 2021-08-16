@@ -150,9 +150,6 @@ if ( ! in_array( get_option( 'blog_charset' ), array( 'utf8', 'utf-8', 'UTF8', '
 }
 
 if ( ! is_multisite() ) {
-	if ( ! defined( 'WP_SITEURL' ) ) {
-		$allowed_options['general'][] = 'siteurl';
-	}
 	if ( ! defined( 'WP_HOME' ) ) {
 		$allowed_options['general'][] = 'home';
 	}

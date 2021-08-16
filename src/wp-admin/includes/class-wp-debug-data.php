@@ -230,11 +230,6 @@ class WP_Debug_Data {
 					'value' => ( defined( 'WP_HOME' ) ? WP_HOME : __( 'Undefined' ) ),
 					'debug' => ( defined( 'WP_HOME' ) ? WP_HOME : 'undefined' ),
 				),
-				'WP_SITEURL'          => array(
-					'label' => 'WP_SITEURL',
-					'value' => ( defined( 'WP_SITEURL' ) ? WP_SITEURL : __( 'Undefined' ) ),
-					'debug' => ( defined( 'WP_SITEURL' ) ? WP_SITEURL : 'undefined' ),
-				),
 				'WP_CONTENT_DIR'      => array(
 					'label' => 'WP_CONTENT_DIR',
 					'value' => WP_CONTENT_DIR,

@@ -11,7 +11,6 @@ class Tests_HTTPS_Detection extends WP_UnitTestCase {
 		parent::setUp();
 
 		remove_all_filters( 'option_home' );
-		remove_all_filters( 'option_siteurl' );
 		remove_all_filters( 'home_url' );
 		remove_all_filters( 'site_url' );
 	}
@@ -21,20 +20,10 @@ class Tests_HTTPS_Detection extends WP_UnitTestCase {
 	 */
 	public function test_wp_is_using_https() {
 		update_option( 'home', 'http://example.com/' );
-		update_option( 'siteurl', 'http://example.com/' );
-		$this->assertFalse( wp_is_using_https() );
-
-		// Expect false if only one of the two relevant URLs is HTTPS.
-		update_option( 'siteurl', 'https://example.com/' );
 		$this->assertFalse( wp_is_using_https() );
 
 		update_option( 'home', 'https://example.com/' );
 		$this->assertTrue( wp_is_using_https() );
-
-		// Test that the manually included 'site_url' filter works as expected
-		// by using it to set the URL to use HTTP.
-		add_filter( 'site_url', $this->filter_set_url_scheme( 'http' ) );
-		$this->assertFalse( wp_is_using_https() );
 	}
 
 	/**

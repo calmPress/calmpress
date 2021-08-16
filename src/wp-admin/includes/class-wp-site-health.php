@@ -1175,15 +1175,14 @@ class WP_Site_Health {
 					__( 'HTTPS is already supported for your website.' )
 				);
 
-				if ( defined( 'WP_HOME' ) || defined( 'WP_SITEURL' ) ) {
+				if ( defined( 'WP_HOME' ) ) {
 					$result['description'] .= sprintf(
 						'<p>%s</p>',
 						sprintf(
-							/* translators: 1: wp-config.php, 2: WP_HOME, 3: WP_SITEURL */
-							__( 'However, your WordPress Address is currently controlled by a PHP constant and therefore cannot be updated. You need to edit your %1$s and remove or update the definitions of %2$s and %3$s.' ),
+							/* translators: 1: wp-config.php, 2: WP_HOME */
+							__( 'However, your calmPress Address is currently controlled by a PHP constant and therefore cannot be updated. You need to edit your %1$s and remove or update the definitions of %2$s.' ),
 							'<code>wp-config.php</code>',
-							'<code>WP_HOME</code>',
-							'<code>WP_SITEURL</code>'
+							'<code>WP_HOME</code>'
 						)
 					);
 				} elseif ( current_user_can( 'update_https' ) ) {

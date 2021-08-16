@@ -9,20 +9,16 @@
 /**
  * Checks whether the website is using HTTPS.
  *
- * This is based on whether both the home and site URL are using HTTPS.
+ * This is based on whether home url using HTTPS.
  *
  * @since 5.7.0
+ * @since calmPress 1.0.0 siteurl is just an alias of home option
  * @see wp_is_home_url_using_https()
- * @see wp_is_site_url_using_https()
  *
  * @return bool True if using HTTPS, false otherwise.
  */
 function wp_is_using_https() {
-	if ( ! wp_is_home_url_using_https() ) {
-		return false;
-	}
-
-	return wp_is_site_url_using_https();
+	return wp_is_home_url_using_https();
 }
 
 /**
@@ -49,11 +45,11 @@ function wp_is_home_url_using_https() {
  * @return bool True if using HTTPS, false otherwise.
  */
 function wp_is_site_url_using_https() {
-	// Use direct option access for 'siteurl' and manually run the 'site_url'
+	// Use direct option access for 'home' and manually run the 'site_url'
 	// filter because `site_url()` will adjust the scheme based on what the
 	// current request is using.
 	/** This filter is documented in wp-includes/link-template.php */
-	$site_url = apply_filters( 'site_url', get_option( 'siteurl' ), '', null, null );
+	$site_url = apply_filters( 'site_url', get_option( 'home' ), '', null, null );
 
 	return 'https' === wp_parse_url( $site_url, PHP_URL_SCHEME );
 }

@@ -151,7 +151,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		$this->assertSame( get_option( 'blogdescription' ), $desc[0]['content'] );
 
 		$link = xml_find( $xml, 'rss', 'channel', 'link' );
-		$this->assertSame( get_option( 'siteurl' ), $link[0]['content'] );
+		$this->assertSame( get_option( 'home' ), $link[0]['content'] );
 
 		$pubdate = xml_find( $xml, 'rss', 'channel', 'lastBuildDate' );
 		$this->assertSame( strtotime( get_lastpostmodified() ), strtotime( $pubdate[0]['content'] ) );

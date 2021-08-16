@@ -3085,10 +3085,10 @@ function site_url( $path = '', $scheme = null ) {
  */
 function get_site_url( $blog_id = null, $path = '', $scheme = null ) {
 	if ( empty( $blog_id ) || ! is_multisite() ) {
-		$url = get_option( 'siteurl' );
+		$url = get_option( 'home' );
 	} else {
 		switch_to_blog( $blog_id );
-		$url = get_option( 'siteurl' );
+		$url = get_option( 'home' );
 		restore_current_blog();
 	}
 

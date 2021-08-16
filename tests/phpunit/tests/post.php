@@ -556,7 +556,7 @@ class Tests_Post extends WP_UnitTestCase {
 		$plink = get_permalink( $id );
 
 		// Permalink should include the post ID at the end.
-		$this->assertSame( get_option( 'siteurl' ) . '/2007/10/31/' . $id . '/', $plink );
+		$this->assertSame( get_option( 'home' ) . '/2007/10/31/' . $id . '/', $plink );
 	}
 
 	function test_wp_publish_post() {

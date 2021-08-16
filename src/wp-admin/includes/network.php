@@ -88,7 +88,7 @@ function get_clean_basedomain() {
 	if ( $existing_domain ) {
 		return $existing_domain;
 	}
-	$domain = preg_replace( '|https?://|', '', get_option( 'siteurl' ) );
+	$domain = preg_replace( '|https?://|', '', get_option( 'home' ) );
 	$slash  = strpos( $domain, '/' );
 	if ( $slash ) {
 		$domain = substr( $domain, 0, $slash );

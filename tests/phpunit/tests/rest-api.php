@@ -753,7 +753,7 @@ class Tests_REST_API extends WP_UnitTestCase {
 	 */
 	public function test_rest_url_scheme() {
 		$_SERVER['SERVER_NAME'] = parse_url( home_url(), PHP_URL_HOST );
-		$_siteurl               = get_option( 'siteurl' );
+		$_siteurl               = get_option( 'home' );
 
 		set_current_screen( 'edit.php' );
 		$this->assertTrue( is_admin() );
@@ -768,11 +768,6 @@ class Tests_REST_API extends WP_UnitTestCase {
 		$url              = get_rest_url();
 		$this->assertSame( 'https', parse_url( $url, PHP_URL_SCHEME ) );
 
-		// Switch to an admin request on a different domain name.
-		$_SERVER['SERVER_NAME'] = 'admin.example.org';
-		update_option( 'siteurl', 'http://admin.example.org' );
-		$this->assertNotEquals( $_SERVER['SERVER_NAME'], parse_url( home_url(), PHP_URL_HOST ) );
-
 		// Test an HTTP URL.
 		unset( $_SERVER['HTTPS'] );
 		$url = get_rest_url();
@@ -784,7 +779,7 @@ class Tests_REST_API extends WP_UnitTestCase {
 		$this->assertSame( 'https', parse_url( $url, PHP_URL_SCHEME ) );
 
 		// Reset.
-		update_option( 'siteurl', $_siteurl );
+		update_option( 'home', $_siteurl );
 		set_current_screen( 'front' );
 
 	}

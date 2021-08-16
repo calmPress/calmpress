@@ -200,12 +200,7 @@ function get_option( $option, $default = false ) {
 		}
 	}
 
-	// If home is not set, use siteurl.
-	if ( 'home' === $option && '' === $value ) {
-		return get_option( 'siteurl' );
-	}
-
-	if ( in_array( $option, array( 'siteurl', 'home', 'category_base', 'tag_base' ), true ) ) {
+	if ( in_array( $option, array( 'home', 'category_base', 'tag_base' ), true ) ) {
 		$value = untrailingslashit( $value );
 	}
 

@@ -47,7 +47,7 @@ if ( is_multisite() ) :
 			switch_to_blog( $blog_id2 );
 			$info2 = wp_upload_dir();
 			$this->assertNotEquals( $info, $info2 );
-			$this->assertSame( get_option( 'siteurl' ) . '/wp-content/blogs.dir/' . get_current_blog_id() . '/files/' . gmstrftime( '%Y/%m' ), $info2['url'] );
+			$this->assertSame( get_option( 'home' ) . '/wp-content/blogs.dir/' . get_current_blog_id() . '/files/' . gmstrftime( '%Y/%m' ), $info2['url'] );
 			$this->assertSame( ABSPATH . 'wp-content/blogs.dir/' . get_current_blog_id() . '/files/' . gmstrftime( '%Y/%m' ), $info2['path'] );
 			$this->assertSame( gmstrftime( '/%Y/%m' ), $info2['subdir'] );
 			$this->assertFalse( $info2['error'] );

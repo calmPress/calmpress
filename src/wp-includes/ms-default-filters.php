@@ -115,7 +115,6 @@ remove_filter( 'option_home', '_config_wp_home' );
 
 // Some options changes should trigger site details refresh.
 add_action( 'update_option_blogname', 'clean_site_details_cache', 10, 0 );
-add_action( 'update_option_siteurl', 'clean_site_details_cache', 10, 0 );
 add_action( 'update_option_post_count', 'clean_site_details_cache', 10, 0 );
 add_action( 'update_option_home', 'clean_site_details_cache', 10, 0 );
 

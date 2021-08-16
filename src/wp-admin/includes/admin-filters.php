@@ -53,7 +53,6 @@ add_action( 'admin_print_scripts-post.php', 'wp_page_reload_on_back_button_js' )
 add_action( 'admin_print_scripts-post-new.php', 'wp_page_reload_on_back_button_js' );
 
 add_action( 'update_option_home', 'update_home_siteurl', 10, 2 );
-add_action( 'update_option_siteurl', 'update_home_siteurl', 10, 2 );
 add_action( 'update_option_page_on_front', 'update_home_siteurl', 10, 2 );
 add_action( 'update_option_admin_email', 'wp_site_admin_email_change_notification', 10, 3 );
 

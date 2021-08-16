@@ -73,7 +73,6 @@ class Tests_HTTPS_Migration extends WP_UnitTestCase {
 	 */
 	public function test_wp_update_urls_to_https() {
 		remove_all_filters( 'option_home' );
-		remove_all_filters( 'option_siteurl' );
 		remove_all_filters( 'home_url' );
 		remove_all_filters( 'site_url' );
 
@@ -82,24 +81,20 @@ class Tests_HTTPS_Migration extends WP_UnitTestCase {
 
 		// Set up options to use HTTP URLs.
 		update_option( 'home', $http_url );
-		update_option( 'siteurl', $http_url );
 
 		// Update URLs to HTTPS (successfully).
 		$this->assertTrue( wp_update_urls_to_https() );
 		$this->assertSame( $https_url, get_option( 'home' ) );
-		$this->assertSame( $https_url, get_option( 'siteurl' ) );
 
 		// Switch options back to use HTTP URLs, but now add filter to
 		// force option value which will make the update irrelevant.
 		update_option( 'home', $http_url );
-		update_option( 'siteurl', $http_url );
 		$this->force_option( 'home', $http_url );
 
 		// Update URLs to HTTPS. While the update technically succeeds, it does not take effect due to the enforced
 		// option. Therefore the change is expected to be reverted.
 		$this->assertFalse( wp_update_urls_to_https() );
 		$this->assertSame( $http_url, get_option( 'home' ) );
-		$this->assertSame( $http_url, get_option( 'siteurl' ) );
 	}
 
 	/**
@@ -132,29 +127,14 @@ class Tests_HTTPS_Migration extends WP_UnitTestCase {
 	public function test_wp_should_replace_insecure_home_url_integration() {
 		// Setup (a site on HTTP, with existing content).
 		remove_all_filters( 'option_home' );
-		remove_all_filters( 'option_siteurl' );
 		remove_all_filters( 'home_url' );
 		remove_all_filters( 'site_url' );
 		$http_url  = 'http://example.org';
 		$https_url = 'https://example.org';
 		update_option( 'home', $http_url );
-		update_option( 'siteurl', $http_url );
 		update_option( 'fresh_site', '0' );
 
 		// Should return false when URLs are HTTP.
-		$this->assertFalse( wp_should_replace_insecure_home_url() );
-
-		// Should still return false because only one of the two URLs was updated to its HTTPS counterpart.
-		update_option( 'home', $https_url );
-		$this->assertFalse( wp_should_replace_insecure_home_url() );
-
-		// Should return true because now both URLs are updated to their HTTPS counterpart.
-		update_option( 'siteurl', $https_url );
-		$this->assertTrue( wp_should_replace_insecure_home_url() );
-
-		// Should return false because the domains of 'home' and 'siteurl' do not match, and we shouldn't make any
-		// assumptions about such special cases.
-		update_option( 'siteurl', 'https://wp.example.org' );
 		$this->assertFalse( wp_should_replace_insecure_home_url() );
 	}
 

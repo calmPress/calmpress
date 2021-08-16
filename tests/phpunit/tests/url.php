@@ -69,7 +69,7 @@ class Tests_URL extends WP_UnitTestCase {
 	 * @param string $expected Expected result.
 	 */
 	function test_admin_url( $url, $expected ) {
-		$siteurl_http   = get_option( 'siteurl' );
+		$siteurl_http   = get_option( 'home' );
 		$admin_url_http = admin_url( $url );
 
 		$_SERVER['HTTPS'] = 'on';

@@ -41,17 +41,11 @@ class Dummy_Locked_File_Access extends \calmpress\filesystem\Locked_File_Access 
 	public function append_contents( string $contents ) {
 		$this->content .= $contents;
 	}
-}
 
-/**
- * Dummy class that generates exceptions.
- *
- * @since 1.0.0
- */
-class Exception_Dummy_Locked_File_Access extends Dummy_Locked_File_Access {
-	public function put_contents( string $contents ) {
-		throw new calmpress\filesystem\Locked_File_Exception( 'exception message', 0, '/foo' );
+	public function exists() {
+		return true;
 	}
+
 }
 
 class Tests_Functions_Markers extends WP_UnitTestCase {
@@ -118,31 +112,6 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 		$ret = insert_with_markers( 'testfile', 'test', 'another string', '//' );
 		$this->assertTrue( $ret );
 		$this->assertEquals( "\n// BEGIN test\nanother string\n// END test", $locked_file->content );
-	}
-
-	/**
-	 * Test that the action calm_insert_with_markers_exception is triggered when
-	 * exception happens in insert_with_markers.
-	 *
-	 * @since 1.0.0
-	 */
-	function test_calm_insert_with_markers_exception() {
-		$locked_file = new Exception_Dummy_Locked_File_Access();
-		add_filter( 'calm_insert_with_markers_locked_file_getter', function () use ($locked_file ) {
-			return function ( $filename ) use ($locked_file ) {
-				return $locked_file;
-			};
-		} );
-
-		$called = false;
-		add_action( 'calm_insert_with_markers_exception', function ( $exception ) use ( &$called ) {
-			$called = true;
-		}, 10, 1 );
-
-		// Test markers with empty content.
-		$ret = insert_with_markers( 'testfile', 'test', 'test string' );
-		$this->assertFalse( $ret );
-		$this->assertTrue( $called );
 	}
 
 	/**

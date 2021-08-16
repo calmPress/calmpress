@@ -4605,19 +4605,6 @@ function sanitize_option( $option, $value ) {
 			$value = preg_replace( '/[^0-9:.-]/', '', $value ); // Strips slashes.
 			break;
 
-		case 'siteurl':
-			$value = $wpdb->strip_invalid_text_for_column( $wpdb->options, 'option_value', $value );
-			if ( is_wp_error( $value ) ) {
-				$error = $value->get_error_message();
-			} else {
-				if ( preg_match( '#http(s?)://(.+)#i', $value ) ) {
-					$value = esc_url_raw( $value );
-				} else {
-					$error = __( 'The calmPress address you entered did not appear to be a valid URL. Please enter a valid URL.' );
-				}
-			}
-			break;
-
 		case 'home':
 			$value = $wpdb->strip_invalid_text_for_column( $wpdb->options, 'option_value', $value );
 			if ( is_wp_error( $value ) ) {

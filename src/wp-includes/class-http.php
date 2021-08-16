@@ -872,7 +872,7 @@ class WP_Http {
 			return true;
 		}
 
-		$home = parse_url( get_option( 'siteurl' ) );
+		$home = parse_url( get_option( 'home' ) );
 
 		// Don't block requests back to ourselves by default.
 		if ( 'localhost' === $check['host'] || ( isset( $home['host'] ) && $home['host'] == $check['host'] ) ) {

@@ -24,7 +24,7 @@ class Tests_Upload extends WP_UnitTestCase {
 		$info   = wp_upload_dir();
 		$subdir = gmstrftime( '/%Y/%m' );
 
-		$this->assertSame( get_option( 'siteurl' ) . '/wp-content/uploads' . $subdir, $info['url'] );
+		$this->assertSame( get_option( 'home' ) . '/wp-content/uploads' . $subdir, $info['url'] );
 		$this->assertSame( ABSPATH . 'wp-content/uploads' . $subdir, $info['path'] );
 		$this->assertSame( $subdir, $info['subdir'] );
 		$this->assertFalse( $info['error'] );
@@ -36,7 +36,7 @@ class Tests_Upload extends WP_UnitTestCase {
 		$info   = _wp_upload_dir();
 		$subdir = gmstrftime( '/%Y/%m' );
 
-		$this->assertSame( get_option( 'siteurl' ) . '/foo/bar' . $subdir, $info['url'] );
+		$this->assertSame( get_option( 'home' ) . '/foo/bar' . $subdir, $info['url'] );
 		$this->assertSame( ABSPATH . 'foo/bar' . $subdir, $info['path'] );
 		$this->assertSame( $subdir, $info['subdir'] );
 		$this->assertFalse( $info['error'] );
@@ -71,7 +71,7 @@ class Tests_Upload extends WP_UnitTestCase {
 		// Use `_wp_upload_dir()` directly to bypass caching and work with the changed options.
 		$info = _wp_upload_dir();
 
-		$this->assertSame( get_option( 'siteurl' ) . '/wp-content/uploads', $info['url'] );
+		$this->assertSame( get_option( 'home' ) . '/wp-content/uploads', $info['url'] );
 		$this->assertSame( ABSPATH . 'wp-content/uploads', $info['path'] );
 		$this->assertSame( '', $info['subdir'] );
 		$this->assertFalse( $info['error'] );
@@ -100,7 +100,7 @@ class Tests_Upload extends WP_UnitTestCase {
 		$info   = _wp_upload_dir();
 		$subdir = gmstrftime( '/%Y/%m' );
 
-		$this->assertSame( get_option( 'siteurl' ) . '/wp-content/uploads' . $subdir, $info['url'] );
+		$this->assertSame( get_option( 'home' ) . '/wp-content/uploads' . $subdir, $info['url'] );
 		$this->assertSame( ABSPATH . 'wp-content/uploads' . $subdir, $info['path'] );
 		$this->assertSame( $subdir, $info['subdir'] );
 		$this->assertFalse( $info['error'] );

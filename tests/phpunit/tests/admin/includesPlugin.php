@@ -3,6 +3,13 @@
  * @group plugins
  * @group admin
  */
+
+ require_once ABSPATH . 'wp-admin\includes\plugin.php';
+ require_once ABSPATH . 'wp-admin\includes\class-wp-screen.php';
+ require_once ABSPATH . 'wp-admin\includes\screen.php';
+ require_once ABSPATH . 'wp-admin\includes\user.php';
+ require_once ABSPATH . 'wp-admin\includes\file.php';
+
 class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::_back_up_mu_plugins();
@@ -38,7 +45,6 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	function test_menu_page_url() {
 		$current_user = get_current_user_id();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
-		update_option( 'siteurl', 'http://example.com' );
 
 		// Add some pages.
 		add_options_page( 'Test Settings', 'Test Settings', 'manage_options', 'testsettings', 'mt_settings_page' );
@@ -49,14 +55,14 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		add_theme_page( 'With Spaces', 'With Spaces', 'manage_options', 'With Spaces', 'mt_tools_page' );
 		add_pages_page( 'Appending Query Arg', 'Test Pages', 'edit_pages', 'testpages', 'mt_pages_page' );
 
-		$expected['testsettings']        = 'http://example.com/wp-admin/options-general.php?page=testsettings';
-		$expected['testtools']           = 'http://example.com/wp-admin/tools.php?page=testtools';
-		$expected['mt-top-level-handle'] = 'http://example.com/wp-admin/admin.php?page=mt-top-level-handle';
-		$expected['sub-page']            = 'http://example.com/wp-admin/admin.php?page=sub-page';
-		$expected['sub-page2']           = 'http://example.com/wp-admin/admin.php?page=sub-page2';
+		$expected['testsettings']        = 'http://example.org/wp-admin/options-general.php?page=testsettings';
+		$expected['testtools']           = 'http://example.org/wp-admin/tools.php?page=testtools';
+		$expected['mt-top-level-handle'] = 'http://example.org/wp-admin/admin.php?page=mt-top-level-handle';
+		$expected['sub-page']            = 'http://example.org/wp-admin/admin.php?page=sub-page';
+		$expected['sub-page2']           = 'http://example.org/wp-admin/admin.php?page=sub-page2';
 		$expected['not_registered']      = '';
-		$expected['With Spaces']         = 'http://example.com/wp-admin/themes.php?page=With%20Spaces';
-		$expected['testpages']           = 'http://example.com/wp-admin/edit.php?post_type=page&#038;page=testpages';
+		$expected['With Spaces']         = 'http://example.org/wp-admin/themes.php?page=With%20Spaces';
+		$expected['testpages']           = 'http://example.org/wp-admin/edit.php?post_type=page&#038;page=testpages';
 
 		foreach ( $expected as $name => $value ) {
 			$this->assertSame( $value, menu_page_url( $name, false ) );
