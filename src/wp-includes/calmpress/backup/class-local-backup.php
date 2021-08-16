@@ -142,7 +142,8 @@ class Local_Backup implements Backup {
 	 */
 	protected static function mkdir( string $directory ) {
 		if ( ! @mkdir( $directory, 0755, true ) ) {
-			throw new \Exception( 'Failed creating a backup directory ' . $directory );
+			$error = error_get_last();
+			throw new \Exception( 'Failed creating a backup directory ' . $directory . '. Cause: ' . $error['message'] );
 		}
 	}
 
@@ -158,7 +159,8 @@ class Local_Backup implements Backup {
 	 */
 	protected static function copy( string $source, string $destination ) {
 		if ( ! @copy( $source, $destination ) ) {
-			throw new \Exception( sprintf( 'Copy from %s to %s had failed', $source, $destination ) );
+			$error = error_get_last();
+			throw new \Exception( sprintf( 'Copy from %s to %s had failed. Cause: %s', $source, $destination, $error['message'] ) );
 		}
 	}
 
@@ -586,7 +588,11 @@ class Local_Backup implements Backup {
 
 		foreach ( \get_plugins() as $filename => $plugin_data ) {
 			$plugin_data['filename']              = $filename; // we need this later.
-			$plugindirs[ dirname( $filename ) ][] = $plugin_data;
+
+			// Skip plugins without versions.
+			if ( ! empty( $plugin_data['Version'] ) ) {
+				$plugindirs[ dirname( $filename ) ][] = $plugin_data;
+			}
 		}
 
 		$meta = [];
