@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 require_once ABSPATH . 'wp-admin\includes\misc.php';
+require_once ABSPATH . 'wp-admin\includes\file.php';
 
 /**
  * A simplistic Locaked_File_Access that is tailored for the needs of the tests.
@@ -66,26 +67,29 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 		$this->assertEquals( $res, insert_with_markers_into_array( $orig, $marker, $insertion, $prefix) );
 	}
 
+	function test_insert_with_markers_file_path() {
+		$filename = wp_tempnam();
+		$ret = insert_with_markers( $filename, 'test', 'test string' );
+		$this->assertTrue( $ret );
+		$this->assertSame( "\n# BEGIN test\ntest string\n# END test", file_get_contents( $filename ) );
+		unlink( $filename );
+	}
+
 	/**
 	 * Test the insert_with_markers function with default line prefix.
 	 *
 	 * @since 1.0.0
 	 */
 	function test_insert_with_markers_default_prefix() {
-		$locked_file = new Dummy_Locked_File_Access();
-		add_filter( 'calm_insert_with_markers_locked_file_getter', function () use ($locked_file ) {
-			return function ( $filename ) use ($locked_file ) {
-				return $locked_file;
-			};
-		} );
+		$locked_file = new Dummy_Locked_File_Access( 'testfile' );
 
 		// Test markers with empty content, default prefix.
-		$ret = insert_with_markers( 'testfile', 'test', 'test string' );
+		$ret = insert_with_markers( $locked_file, 'test', 'test string' );
 		$this->assertTrue( $ret );
 		$this->assertEquals( "\n# BEGIN test\ntest string\n# END test", $locked_file->content );
 
 		// Test markers with some content (from previous test).
-		$ret = insert_with_markers( 'testfile', 'test', 'another string' );
+		$ret = insert_with_markers( $locked_file, 'test', 'another string' );
 		$this->assertTrue( $ret );
 		$this->assertEquals( "\n# BEGIN test\nanother string\n# END test", $locked_file->content );
 	}
@@ -96,20 +100,15 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_insert_with_markers_explicit_prefix() {
-		$locked_file = new Dummy_Locked_File_Access();
-		add_filter( 'calm_insert_with_markers_locked_file_getter', function () use ($locked_file ) {
-			return function ( $filename ) use ($locked_file ) {
-				return $locked_file;
-			};
-		} );
+		$locked_file = new Dummy_Locked_File_Access( 'testfile' );
 
 		// Test markers with empty content, default prefix.
-		$ret = insert_with_markers( 'testfile', 'test', 'test string', '//' );
+		$ret = insert_with_markers( $locked_file, 'test', 'test string', '//' );
 		$this->assertTrue( $ret );
 		$this->assertEquals( "\n// BEGIN test\ntest string\n// END test", $locked_file->content );
 
 		// Test markers with some content (from previous test).
-		$ret = insert_with_markers( 'testfile', 'test', 'another string', '//' );
+		$ret = insert_with_markers( $locked_file, 'test', 'another string', '//' );
 		$this->assertTrue( $ret );
 		$this->assertEquals( "\n// BEGIN test\nanother string\n// END test", $locked_file->content );
 	}

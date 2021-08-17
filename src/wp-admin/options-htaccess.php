@@ -39,7 +39,7 @@ get_current_screen()->add_help_tab(
 	)
 );
 
-$home_path = get_home_path();
+$home_path = ABSPATH;
 
 $update_required = false;
 
@@ -98,7 +98,7 @@ function rules_input() {
  * @param \calmpress\filesystem\Locked_File_Exception $e The exception reported
  *                                                       by insert_with_markers.
  */
-function save_fail_handler( \calmpress\filesystem\Locked_File_Exception $e ) {
+function save_fail_notice( \calmpress\filesystem\Locked_File_Exception $e ) {
 	// Add admin notice that will report the error to the user.
 	add_action( 'admin_notices', function () use ( $e ) {
 		?>
@@ -129,27 +129,27 @@ function save_fail_handler( \calmpress\filesystem\Locked_File_Exception $e ) {
 
 if ( $update_required ) {
 
-	// Try to save the .htaccess file with the rules as system assume they should be.
-	// Notify the user if the save had failed.
-	add_action( 'calm_insert_with_markers_exception', __NAMESPACE__ . '\save_fail_handler', 10, 1 );
-
 	$saved = false;
 	if ( $writable ) {
-		$saved = save_mod_rewrite_rules();
+		try {
+			$saved = save_mod_rewrite_rules();
+		} catch ( \calmpress\filesystem\Locked_File_Exception $exception ) {
+			save_fail_notice( $e );
+		}
 	} elseif ( isset( $_POST['calm_htacess_ftp_nonce'] )
 		&& wp_verify_nonce( wp_unslash( $_POST['calm_htacess_ftp_nonce'] ), 'calm_htacess_ftp' )
 		) {
 		$ftp_creds = \calmpress\credentials\FTP_Credentials::credentials_from_request_vars( $_POST );
 		if ( null !== $ftp_creds ) {
-			add_filter( 'calm_insert_with_markers_locked_file_getter', function () use ( $ftp_creds ) {
-				return function ( $filename ) use ( $ftp_creds ) {
-					return new \calmpress\filesystem\Locked_File_FTP_Write_Access(
-						$filename,
-						$ftp_creds
-					);
-				};
-			} );
-			$saved = save_mod_rewrite_rules();
+			$file = new \calmpress\filesystem\Locked_File_FTP_Write_Access(
+				$filename,
+				$ftp_creds
+			);
+			try {
+				$saved = save_mod_rewrite_rules( $file );
+			} catch ( \calmpress\filesystem\Locked_File_Exception $e ) {
+				save_fail_notice( $e );
+			}
 		}
 	}
 
@@ -185,7 +185,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 		?>
 	</form>
 	<?php
-	if ( ! $writable && $update_required ) {
+	if ( ! $saved && $update_required ) {
 		?>
 		<p>
 			<?php

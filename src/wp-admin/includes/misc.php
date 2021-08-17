@@ -121,50 +121,37 @@ function insert_with_markers_into_array( array $lines, string $marker, array $in
 }
 
 /**
- * Inserts an array of strings into a file (.htaccess ), placing it between
+ * Inserts an array of strings into a file ( for example .htaccess ), placing it between
  * BEGIN and END markers.
  *
  * Replaces existing marked info. Retains surrounding
  * data. Creates file if none exists.
- *
- * If saving of the file fails, an action calm_insert_with_markers_exception
- * which includes failure information is run.
+ * 
+ * During the operation the file is locked to disable other processes to try to change it
+ * in the same time which might result in mangled content.
  *
  * @since 1.5.0
  * @since calmPress 1.0.0
  *
- * @param string       $filename  Filename to alter.
+ * @param string|\calmpress\filesystem\Locked_File_Access $file A locked file object to use when
+ *                                 accessing the file or the path of the file. If only file path
+ *                                 is provided, the file will be accessed with direct access locking
  * @param string       $marker    The marker to alter.
  * @param array|string $insertion The new content to insert.
  * @param string       $line_prefix The prefix string that should come before the marker. Default is '#'
  *                                  for easier backward compatibility with the single use of this function
  *                                  in .htaccess files.
  * @return bool True on write success, false on failure.
+ * 
+ * @throws \calmpress\filesystem\Locked_File_Exception If there was an exception related to generating
+ *                                                     or accessing the locked file.
  */
-function insert_with_markers( $filename, $marker, $insertion, $line_prefix = '#' ) {
+function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#' ) {
 
-	// Get a callable which will be used to get the relevant locked file object.
-	/**
-	 * Get a function to call (AKA callable) to create a locked file access object
-	 * to be able to lock the file while accessing.
-	 * The default is a function that creates a direct access file lock object.
-	 *
-	 * The function signature should be
-	 * function ( string $filename ) : \calmpress\filesystem\Locked_File_Direct_Access
-	 *
-	 * It will accept a file path and return a locked object for it.
-	 *
-	 * @since calmPress 1.0.0
-	 */
-	$getter = apply_filters('calm_insert_with_markers_locked_file_getter', function ( $filename ) {
-		return new \calmpress\filesystem\Locked_File_Direct_Access( $filename );
-	} );
-
-	// Use the callable to get the locked file object.
-	$file = $getter( $filename );
-
-	if ( ! $file instanceof \calmpress\filesystem\Locked_File_Access ) {
-		// Report an error, as the getter returned a bad object.
+	if ( is_string( $file ) ) {
+		$file =  new \calmpress\filesystem\Locked_File_Direct_Access( $file );
+	} elseif ( ! $file instanceof \calmpress\filesystem\Locked_File_Access ) {
+		// Report an error, as the $file parameter is an incompatible object.
 		trigger_error( 'Failed in getting a locked file object', E_USER_ERROR );
 		return false;
 	}
@@ -174,7 +161,11 @@ function insert_with_markers( $filename, $marker, $insertion, $line_prefix = '#'
 	}
 
 	try {
-		$current = $file->get_contents();
+		if ( $file->exists() ) {
+			$current = $file->get_contents();
+		} else {
+			$current = '';
+		}
 
 		// Split the content to lines based on all possible line endings.
 		$lines = preg_split( "/\r\n|\n|\r/", $current );
@@ -189,16 +180,8 @@ function insert_with_markers( $filename, $marker, $insertion, $line_prefix = '#'
 		$new_file_data = implode( "\n", $newlines );
 		$file->put_contents( $new_file_data );
 	} catch ( \calmpress\filesystem\Locked_File_Exception $exception ) {
-		/**
-		 * Notify listeners that the file manipulation failed with the exception
-		 * which was reported by the lower level functions.
-		 *
-		 * @since calmPress 1.0.0
-		 *
-		 * @param \calmpress\filesystem\Locked_File_Exceptio $exception The exception raised.
-		 */
-		do_action( 'calm_insert_with_markers_exception', $exception );
-		return false;
+		// just notify higher layers.
+		throw $exception;
 	} catch ( \Exception $exception ) {
 		// For backward compatability, ignore other types of errors as the original
 		// WordPress function did not do more than returning false on failure.
@@ -217,24 +200,27 @@ function insert_with_markers( $filename, $marker, $insertion, $line_prefix = '#'
  * @since 1.5.0
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
+ * 
+ * @param ?\calmpress\filesystem\Locked_File_Access $file. The locking object to the htaccess to write to
+ *                                                        or null if the location of the file should be
+ *                                                        figured out and to use a direct access locking
+ *                                                        for it. 
  *
  * @return bool|null True on write success, false on failure. Null in multisite.
  */
-function save_mod_rewrite_rules() {
+function save_mod_rewrite_rules( ?\calmpress\filesystem\Locked_File_Access $htaccess_file = null ) {
 	if ( is_multisite() ) {
 		return;
 	}
 
 	global $wp_rewrite;
 
-	// Ensure get_home_path() is declared.
-	require_once ABSPATH . 'wp-admin/includes/file.php';
-
-	$home_path     = get_home_path();
-	$htaccess_file = $home_path . '.htaccess';
-
 	// Check the webserver is apache before trying to save .htaccess.
 	if ( got_mod_rewrite() ) {
+		if ( null === $htaccess_file ) {
+			$htaccess_file = new \calmpress\filesystem\Locked_File_Direct_Access( ABSPATH . '.htaccess' );
+		}
+
 		$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
 		return insert_with_markers( $htaccess_file, 'WordPress', $rules );
 	}
@@ -259,10 +245,7 @@ function iis7_save_url_rewrite_rules() {
 
 	global $wp_rewrite;
 
-	// Ensure get_home_path() is declared.
-	require_once ABSPATH . 'wp-admin/includes/file.php';
-
-	$home_path       = get_home_path();
+	$home_path       = ABSPATH;
 	$web_config_file = $home_path . 'web.config';
 
 	// Using win_is_writable() instead of is_writable() because of a bug in Windows PHP.
