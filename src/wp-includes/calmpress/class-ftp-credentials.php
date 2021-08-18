@@ -1,6 +1,6 @@
 <?php
 /**
- * Utility functions for displaying a credentials and parsing them from the request.
+ * Utility functions for displaying a credentials form and parsing the values from the request.
  *
  * @package calmPress
  * @since 1.0.0
@@ -135,9 +135,9 @@ class FTP_Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @returns string
+	 * @return string
 	 */
-	public function host() {
+	public function host() : string {
 		return $this->host;
 	}
 
@@ -148,7 +148,7 @@ class FTP_Credentials {
 	 *
 	 * @returns int
 	 */
-	public function port() {
+	public function port() : int {
 		return $this->port;
 	}
 
@@ -157,9 +157,9 @@ class FTP_Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @returns string
+	 * @return string
 	 */
-	public function username() {
+	public function username() : string {
 		return $this->username;
 	}
 
@@ -168,9 +168,9 @@ class FTP_Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @returns string
+	 * @return string
 	 */
-	public function password() {
+	public function password() : string {
 		return $this->password;
 	}
 
@@ -180,9 +180,9 @@ class FTP_Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @returns string
+	 * @return string
 	 */
-	public function base_dir() {
+	public function base_dir() : string {
 		return $this->base_dir;
 	}
 
@@ -199,10 +199,10 @@ class FTP_Credentials {
 	 * @param array $vars An array of items in the request. Basically $_POST or
 	 *                    something that mimics it well.
 	 *
-	 * @returns FTP_Credentials|null The credentials parsed from the request, or null
-	 *                               if there are no valid settings.
+	 * @return ?FTP_Credentials The credentials parsed from the request, or null
+	 *                          if there are no valid settings.
 	 */
-	public static function credentials_from_request_vars( array $vars ) {
+	public static function credentials_from_request_vars( array $vars ) : ?FTP_Credentials {
 		if ( ! empty( $vars ) ) {
 			if ( isset( $vars[ self::HOST_FORM_NAME ] )
 				&& isset( $vars[ self::PORT_FORM_NAME ] )
@@ -224,16 +224,13 @@ class FTP_Credentials {
 	}
 
 	/**
-	 * Output an .htaccess needs to be resaved admin notice when the content of
-	 * the WordPress section of the .htaccess file is not the same as the one
-	 * calculated in code.
-	 *
-	 * The notice is not displayed on multisite setup, and it is displayed only
-	 * for admins when the site uses apache.
+	 * Return an HTML form to enter FTP credentials.
 	 *
 	 * @since 1.0.0
+	 * 
+	 * @return string
 	 */
-	public function form() {
+	public function form() : string {
 		$ret = '';
 
 		$labels_for_setting = [
@@ -300,11 +297,11 @@ EOT;
 	 *
 	 * @since 1.0.0
 	 *
-	 * @returns string An HTML escaped descriptive string for the problem if one found, otherwise
-	 *                 an empty string (which just indicates that problem could not
-	 *                 be identified, and not that there is no problem).
+	 * @return string An HTML escaped descriptive string for the problem if one found, otherwise
+	 *                an empty string (which just indicates that problem could not
+	 *                be identified, and not that there is no problem).
 	 */
-	public function human_readable_state() {
+	public function human_readable_state() : string {
 		// Test if the FTP module is installed as we need some of its APIs.
 		if ( ! function_exists( 'ftp_connect' ) ) {
 			return '';
