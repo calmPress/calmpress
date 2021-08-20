@@ -123,11 +123,11 @@ class FTP_Credentials {
 								string $username,
 								string $password,
 								string $base_dir ) {
-		$this->host     = $host;
+		$this->host     = trim( $host );
 		$this->port     = $port;
-		$this->username = $username;
-		$this->password = $password;
-		$this->base_dir = $base_dir;
+		$this->username = trim( $username );
+		$this->password = trim( $password );
+		$this->base_dir = trim( $base_dir );
 	}
 
 	/**
@@ -187,20 +187,16 @@ class FTP_Credentials {
 	}
 
 	/**
-	 * Try to find credentials in the current $_POST request, and returns a
-	 * credentials object if found.
-	 *
-	 * For flexibility and better code structure the request parameters are passed
-	 * as an array, but the assumption is that that the array is $_POST or a good
-	 * mimic of it.
+	 * Try to find credentials in an array which will most likely be current $_POST request,
+	 * and returns a credentials object if found the required fields are found.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $vars An array of items in the request. Basically $_POST or
+	 * @param array $vars An array of items in the request. Probably $_POST or
 	 *                    something that mimics it well.
 	 *
 	 * @return ?FTP_Credentials The credentials parsed from the request, or null
-	 *                          if there are no valid settings.
+	 *                          if not all of the settings are valid.
 	 */
 	public static function credentials_from_request_vars( array $vars ) : ?FTP_Credentials {
 		if ( ! empty( $vars ) ) {
@@ -290,43 +286,84 @@ EOT;
 	}
 
 	/**
-	 * Returns a descriptive error text identifying the problem of accessing the
-	 * FTP server using the credentials.
+	 * Check if a path can be accessible on the FTP server based on the base dir
+	 * configuration.
 	 *
-	 * To be able to do anything meaningful it requires that the PHP FTP module is active.
+	 * If the path is outside, raise an exception.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string An HTML escaped descriptive string for the problem if one found, otherwise
-	 *                an empty string (which just indicates that problem could not
-	 *                be identified, and not that there is no problem).
+	 * @param string $path The path to check.
+	 *
+	 * @return string The path relative to the FTP server root (base_dir).
+	 * 
+	 * @throws DomainException If $path is not under the known base_dir.
 	 */
-	public function human_readable_state() : string {
-		// Test if the FTP module is installed as we need some of its APIs.
-		if ( ! function_exists( 'ftp_connect' ) ) {
-			return '';
+	private function adjust_path_to_ftp_root( $path ) {
+
+		// Make sure the location is accessible under the FTP server.
+		// Using case insensitive here is not great but probably good enough for
+		// real life usage.
+		if ( 0 !== stripos( $path, $this->base_dir ) ) {
+			throw new DomainException( '"' . $path . '" is not accessible as FTP root is "' . $this->base_dir . '"' );
 		}
 
-		// Test if host name and port are correct.
-		$conn = ftp_connect( $this->host, $this->port, 1 );
-		if ( ! $conn ) {
-			return esc_html__( 'Host name and/or Port number values are wrong' );
-		}
+		// Remove the base dir part of the file's path.
+		$adjusted_path = substr( $path, strlen( $this->base_dir ) );
 
-		// Test if username and password are correct.
-		if ( ! @ftp_login( $conn, $this->username, $this->password ) ) {
-			return esc_html__( 'User name and/or Password are wrong' );
-		}
-		ftp_pasv( $conn, true );
+		// Make sure the returned path is absolute.
+		$adjusted_path = '\\' . ltrim( '\\', $adjusted_path );
 
-		// Test if the base directory is correct.
-		$adjusted_root = substr( ABSPATH, strlen( $this->base_dir ) );
-		$dir = ftp_nlist( $conn, $adjusted_root );
-		if ( false === $dir || ! in_array( 'wp-load.php', $dir, true ) ) {
-			return esc_html__( 'Base directory might be wrong' );
-		}
-
-		return '';
-
+		return $adjusted_path;
 	}
+
+	/**
+	 * Helper to generate a full ftp:// based path to a file.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $file The file path.
+	 *
+	 * @return string The ftp:// representation of the file.
+	 */
+	private function ftp_url_for_path( string $path ) {
+		if ( ! path_is_absolute( $path ) ) {
+			throw new DomainException( '"' . $path . '" is not absolute " path' );
+		}
+
+		$url = 'ftp://';
+		if ( ! empty( $this->username ) ) {
+			// we have a user name, add a username:password@ to the url.
+			$url .= rawurlencode( $this->username );
+			$url .= ':';
+			$url .= rawurlencode( $this->password );
+			$url .= '@';
+		}
+
+		// Add the host:port part.
+		$url .= $this->host;
+		$url .= ':';
+		$url .= $this->port;
+
+		return $url . $this->adjust_path_to_ftp_root( $path );
+	}
+
+	/**
+	 * Helper to generate the context with overwrite option for FTP file access.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return resource stream context allowing file overwrite.
+	 */
+	public static function stream_context() : resource {
+		// Allows overwriting of existing files on the remote FTP server.
+		$stream_options = [ 'ftp' => [ 'overwrite' => true ] ];
+
+		// Creates a stream context resource with the defined options.
+		$stream_context = stream_context_create( $stream_options );
+
+		return $stream_context;
+	}
+
+
 }
