@@ -126,73 +126,60 @@ function insert_with_markers_into_array( array $lines, string $marker, array $in
  *
  * Replaces existing marked info. Retains surrounding
  * data. Creates file if none exists.
- * 
- * During the operation the file is locked to disable other processes to try to change it
- * in the same time which might result in mangled content.
  *
+ * If a stream url is passed in the $file parameter, it is the responsability of the caller
+ * to lock the "real" file being modified.
+ * If $file is a local path, it will be locked here.
+ * 
  * @since 1.5.0
  * @since calmPress 1.0.0
  *
- * @param string|\calmpress\filesystem\Locked_File_Access $file A locked file object to use when
- *                                 accessing the file or the path of the file. If only file path
- *                                 is provided, the file will be accessed with direct access locking
- * @param string       $marker    The marker to alter.
- * @param array|string $insertion The new content to insert.
- * @param string       $line_prefix The prefix string that should come before the marker. Default is '#'
- *                                  for easier backward compatibility with the single use of this function
- *                                  in .htaccess files.
- * @return bool True on write success, false on failure.
+ * @param string        $file      The file path or url of the file to modify.                            
+ * @param string        $marker    The marker identifying the section to modify.
+ * @param array|string  $insertion The new content to insert.
+ * @param string        $line_prefix The prefix string that should come before the marker. Default is '#'
+ *                                     for easier backward compatibility with the single use of this function
+ *                                     in .htaccess files.
+ * @param ?resource     $context   If $file is a url, the context parameters to use to access it.
+ *                                 The context should allow writting to the url.
  * 
- * @throws \calmpress\filesystem\Locked_File_Exception If there was an exception related to generating
- *                                                     or accessing the locked file.
+ * @return bool True on write success, false on failure. error_get_last() can be used to understand
+ *              the reason for the failure.
  */
-function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#' ) {
+function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#', $context = null ) {
 
-	if ( is_string( $file ) ) {
-		$file =  new \calmpress\filesystem\Locked_File_Direct_Access( $file );
-	} elseif ( ! $file instanceof \calmpress\filesystem\Locked_File_Access ) {
-		// Report an error, as the $file parameter is an incompatible object.
-		trigger_error( 'Failed in getting a locked file object', E_USER_ERROR );
-		return false;
-	}
+	$lock = null;
 
 	if ( ! is_array( $insertion ) ) {
 		$insertion = explode( "\n", $insertion );
 	}
 
-	try {
-		if ( $file->exists() ) {
-			$current = $file->get_contents();
-		} else {
-			$current = '';
-		}
+	if ( stream_is_local( $file ) ) {
+		$lock = new \calmpress\filesystem\Path_Lock( $file );
+	}
 
-		// Split the content to lines based on all possible line endings.
-		$lines = preg_split( "/\r\n|\n|\r/", $current );
-
-		$newlines = insert_with_markers_into_array( $lines, $marker, $insertion, $line_prefix );
-		// Check to see if there was a change.
-		if ( $lines === $newlines ) {
-			return true;
-		}
-
-		// Generate the new file data.
-		$new_file_data = implode( "\n", $newlines );
-		$file->put_contents( $new_file_data );
-	} catch ( \calmpress\filesystem\Locked_File_Exception $exception ) {
-		// just notify higher layers.
-		throw $exception;
-	} catch ( \Exception $exception ) {
-		// For backward compatability, ignore other types of errors as the original
-		// WordPress function did not do more than returning false on failure.
+	$current = file_get_contents( $file, false, $context );
+	if ( false === $current ) {
 		return false;
 	}
 
-	return true;
+	// Split the content to lines based on all possible line endings.
+	$lines = preg_split( "/\r\n|\n|\r/", $current );
+
+	$newlines = insert_with_markers_into_array( $lines, $marker, $insertion, $line_prefix );
+	// Check to see if there was a change.
+	if ( $lines === $newlines ) {
+		return true;
+	}
+
+	// Generate the new file data.
+	$new_file_data = implode( "\n", $newlines );
+	return ( false !== file_put_contents( $file, $new_file_data, 0, $context ) );
 }
 
 /**
- * Updates the htaccess file with the current rules if it is writable.
+ * Updates the .htaccess file with the current rules if it is writable.
+ * File will be locked during the modification
  *
  * Always writes to the file if it exists and is writable to ensure that we
  * blank out old rules.
@@ -201,14 +188,11 @@ function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#' ) {
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  * 
- * @param ?\calmpress\filesystem\Locked_File_Access $file. The locking object to the htaccess to write to
- *                                                        or null if the location of the file should be
- *                                                        figured out and to use a direct access locking
- *                                                        for it. 
+ * @param string $file. The path or url to the htaccess file.
  *
  * @return bool|null True on write success, false on failure. Null in multisite.
  */
-function save_mod_rewrite_rules( ?\calmpress\filesystem\Locked_File_Access $htaccess_file = null ) {
+function save_mod_rewrite_rules( $file = '' ) {
 	if ( is_multisite() ) {
 		return;
 	}
@@ -217,12 +201,14 @@ function save_mod_rewrite_rules( ?\calmpress\filesystem\Locked_File_Access $htac
 
 	// Check the webserver is apache before trying to save .htaccess.
 	if ( got_mod_rewrite() ) {
-		if ( null === $htaccess_file ) {
-			$htaccess_file = new \calmpress\filesystem\Locked_File_Direct_Access( ABSPATH . '.htaccess' );
+		if ( '' === $file ) {
+			$file = ABSPATH . '.htaccess';
 		}
 
+		// Lock the file by its known location.
+		$lock = new \calmpress\filesystem\Path_Lock( ABSPATH . '.htaccess' );
 		$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
-		return insert_with_markers( $htaccess_file, 'WordPress', $rules );
+		return insert_with_markers( $file, 'WordPress', $rules );
 	}
 
 	return false;

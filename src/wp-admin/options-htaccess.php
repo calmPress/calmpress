@@ -92,15 +92,17 @@ function rules_input() {
 }
 
 /**
- * An handler for when saving the rules intothe .htaccess file fails. Responsible
+ * An handler for when saving the rules in to the .htaccess file fails. Responsible
  * to give the user a proper notification.
- *
- * @param \calmpress\filesystem\Locked_File_Exception $e The exception reported
- *                                                       by insert_with_markers.
+ * 
+ * The raeson for the failure is extracted by using the error_get_last() PHP function.
+ * 
+ * @since 1.0.0
  */
-function save_fail_notice( \calmpress\filesystem\Locked_File_Exception $e ) {
+function save_fail_notice() {
 	// Add admin notice that will report the error to the user.
-	add_action( 'admin_notices', function () use ( $e ) {
+	add_action( 'admin_notices', function () {
+		$error = error_get_last();
 		?>
 		<div class="notice notice-error">
 			<p>
@@ -108,18 +110,8 @@ function save_fail_notice( \calmpress\filesystem\Locked_File_Exception $e ) {
 			/* translators: 1: Name the .htaccess file 2: The exception error message in blockquote */
 			printf( esc_html__( 'Failed writing to the %1$s file. The text of the system error message is: %2$s' ),
 				'<code>.htaccess</code>',
-				'<br><code>' . esc_html( $e->message() ) . '</code>'
+				'<br><code>' . esc_html( $error['message'] ) . '</code>'
 			);
-
-			// If FTP credentials were used, point the user to verify them.
-			$ftp_creds = \calmpress\credentials\FTP_Credentials::credentials_from_request_vars( $_POST );
-			if ( null !== $ftp_creds ) {
-				$error = $ftp_creds->human_readable_state();
-				if ( '' !== $error ) {
-					echo '<br>' . esc_html__( 'Additional information: ' ) . $error;
-				}
-				echo '<br>' . esc_html__( 'Please make sure the FTP credentials you used are correct' );
-			}
 			?>
 			</p>
 		</div>
@@ -131,24 +123,19 @@ if ( $update_required ) {
 
 	$saved = false;
 	if ( $writable ) {
-		try {
-			$saved = save_mod_rewrite_rules();
-		} catch ( \calmpress\filesystem\Locked_File_Exception $exception ) {
-			save_fail_notice( $e );
+		$saved = save_mod_rewrite_rules();
+		if ( ! $saved ) {
+			save_fail_notice();
 		}
 	} elseif ( isset( $_POST['calm_htacess_ftp_nonce'] )
 		&& wp_verify_nonce( wp_unslash( $_POST['calm_htacess_ftp_nonce'] ), 'calm_htacess_ftp' )
 		) {
 		$ftp_creds = \calmpress\credentials\FTP_Credentials::credentials_from_request_vars( $_POST );
 		if ( null !== $ftp_creds ) {
-			$file = new \calmpress\filesystem\Locked_File_FTP_Write_Access(
-				$filename,
-				$ftp_creds
-			);
-			try {
-				$saved = save_mod_rewrite_rules( $file );
-			} catch ( \calmpress\filesystem\Locked_File_Exception $e ) {
-				save_fail_notice( $e );
+			$url   = $ftp_creds->ftp_url_for_path( $filename );
+			$saved = save_mod_rewrite_rules( $url );
+			if ( ! $saved ) {
+				save_fail_notice();
 			}
 		}
 	}
@@ -160,7 +147,7 @@ if ( $update_required ) {
 				<p>
 				<?php
 				/* translators: 1: The file name */
-				printf( esc_html( 'The %1$s file was updated.' ),
+				printf( esc_html__( 'The %1$s file was updated.' ),
 					'<code>.htaccess</code>'
 				);
 				?>
@@ -191,7 +178,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			<?php
 			printf(
 				/* translators: 1: .htaccess */
-				esc_html( 'If your %1$s file was writable, we could update it, but it isn&#8217;t (which is a good thing!)' ),
+				esc_html__( 'If your %1$s file was writable, we could update it, but it isn&#8217;t (which is a good thing!)' ),
 				'<code>.htaccess</code>'
 			);
 			?>
@@ -199,6 +186,14 @@ require ABSPATH . 'wp-admin/admin-header.php';
 		<p><?php esc_html_e( 'You should either supply FTP credentials which can be used to save the file for you, or update the file with the content below the FTP form.' ); ?></p>
 		<form action="" method="post">
 			<h2><?php esc_html_e( 'FTP credentials' ); ?></h2>
+			<p>
+				<?php
+				printf(
+					esc_html__( 'The FTP credentials required to access the server over FTP in order to modify the %s file' ),
+					'<code>.htaccess<code>'
+				);
+				?>
+			</p>
 			<?php wp_nonce_field( 'calm_htacess_ftp', 'calm_htacess_ftp_nonce' ); ?>
 			<table class="form-table">
 				<?php
