@@ -1,7 +1,10 @@
 <?php
 
-/* Path to the WordPress codebase you'd like to test. Add a forward slash in the end. */
-define( 'ABSPATH', dirname( __FILE__ ) . '/src/' );
+/*
+ * Path to the WordPress codebase you'd like to test. Add a forward slash in the end.
+ * realpath is used here to get consistant windows style path on windows.
+*/
+define( 'ABSPATH', realpath( dirname( __FILE__ ) . '/src' ) . '/' );
 
 /*
  * Path to the theme to test with.
