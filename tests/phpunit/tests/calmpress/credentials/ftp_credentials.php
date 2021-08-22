@@ -13,47 +13,6 @@ use calmpress\credentials\FTP_Credentials;
 class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 
 	/**
-	 * Data provider of non absolute paths to test against.
-	 *
-	 * @since 1.0.0
-	 */
-	public function non_absolute_paths() {
-		return [
-			[''],
-			['.'],
-			['..'],
-			['../foo'],
-			['../'],
-			['../foo.bar'],
-			['foo/bar'],
-			['foo'],
-			['FOO'],
-			['~foo'],
-			['..\\WINDOWS'],
-		];
-	}
-
-	/**
-	 * Data provider of valid absolute paths to test against.
-	 *
-	 * @since 1.0.0
-	 */
-	public function absolute_paths() {
-		return [
-			['/'],
-			['/foo/'],
-			['/foo'],
-			['/FOO/bar'],
-			['/foo/bar/'],
-			['/foo/../bar/'],
-			['\\WINDOWS'],
-			['C:\\'],
-			['C:\\WINDOWS'],
-			['\\\\sambashare\\foo'],
-		];
-	}
-
-	/**
 	 * Test constructor trims values and stores them.
 	 *
 	 * @since 1.0.0
