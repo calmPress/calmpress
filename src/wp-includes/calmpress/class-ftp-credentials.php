@@ -211,7 +211,8 @@ class FTP_Credentials {
 	 * @since 1.0.0
 	 *
 	 * @param array $vars An array of items in the request. Probably $_POST or
-	 *                    something that mimics it well.
+	 *                    something that mimics it well. If it is a mimic it has to be
+	 *                    wp_slahed as the function unslashes the values.
 	 *
 	 * @return string[]|FTP_Credentials The credentials parsed from the request, or array
 	 *                               containing validation errors if there are any.

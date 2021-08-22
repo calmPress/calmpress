@@ -75,26 +75,26 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 
 		// Test validation is done, should get the 4 possible errors here
 		$errors = FTP_Credentials::credentials_from_request_vars(
-			[
+			wp_slash( [
 				FTP_Credentials::HOST_FORM_NAME     => ' hot name',
 				FTP_Credentials::PORT_FORM_NAME     => 0,
 				FTP_Credentials::USERNAME_FORM_NAME => '',
 				FTP_Credentials::PASSWORD_FORM_NAME => 'pass ',
 				FTP_Credentials::BASEDIR_FORM_NAME  => 'fail',
-			]
+			] )
 		);
 
 		$this->assertSame( 4, count( $errors ) );
 
 		// Test validation is done, should get the 2 possible errors here
 		$errors = FTP_Credentials::credentials_from_request_vars(
-			[
+			wp_slash( [
 				FTP_Credentials::HOST_FORM_NAME     => ' hot name',
 				FTP_Credentials::PORT_FORM_NAME     => 20,
 				FTP_Credentials::USERNAME_FORM_NAME => '',
 				FTP_Credentials::PASSWORD_FORM_NAME => '',
 				FTP_Credentials::BASEDIR_FORM_NAME  => 'fail',
-			]
+			] )
 		);
 
 		$this->assertSame( 2, count( $errors ) );
@@ -103,13 +103,13 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 
 		// Test validation passes.
 		$cred = FTP_Credentials::credentials_from_request_vars(
-			[
+			wp_slash( [
 				FTP_Credentials::HOST_FORM_NAME     => ' localhost ',
 				FTP_Credentials::PORT_FORM_NAME     => ' 21',
 				FTP_Credentials::USERNAME_FORM_NAME => 'us ',
 				FTP_Credentials::PASSWORD_FORM_NAME => 'pass',
 				FTP_Credentials::BASEDIR_FORM_NAME  => dirname( ABSPATH ),
-			]
+			] )
 		);
 
 		$this->assertSame( 'localhost', $cred->host() );
