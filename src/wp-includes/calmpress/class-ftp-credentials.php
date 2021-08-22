@@ -252,7 +252,7 @@ class FTP_Credentials {
 			(int) $vars[ self::PORT_FORM_NAME ],
 			$vars[ self::USERNAME_FORM_NAME ],
 			$vars[ self::PASSWORD_FORM_NAME ],
-			$vars[ self::BASEDIR_FORM_NAME ],
+			$vars[ self::BASEDIR_FORM_NAME ]
 		);
 	}
 
@@ -450,6 +450,4 @@ EOT;
 
 		return $stream_context;
 	}
-
-
 }
