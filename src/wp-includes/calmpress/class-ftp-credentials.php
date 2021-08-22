@@ -236,11 +236,11 @@ class FTP_Credentials {
 		}
 
 		$validation_errors = static::validate(
-			$vars[ self::HOST_FORM_NAME ],
+			wp_unslash( $vars[ self::HOST_FORM_NAME ] ),
 			(int) $vars[ self::PORT_FORM_NAME ],
-			$vars[ self::USERNAME_FORM_NAME ],
-			$vars[ self::PASSWORD_FORM_NAME ],
-			$vars[ self::BASEDIR_FORM_NAME ]
+			wp_unslash( $vars[ self::USERNAME_FORM_NAME ] ),
+			wp_unslash( $vars[ self::PASSWORD_FORM_NAME ] ),
+			wp_unslash( $vars[ self::BASEDIR_FORM_NAME ] )
 		);
 
 		if ( ! empty( $validation_errors ) ) {
@@ -248,11 +248,11 @@ class FTP_Credentials {
 		}
 				
 		return new FTP_Credentials(
-			$vars[ self::HOST_FORM_NAME ],
+			wp_unslash( $vars[ self::HOST_FORM_NAME ] ),
 			(int) $vars[ self::PORT_FORM_NAME ],
-			$vars[ self::USERNAME_FORM_NAME ],
-			$vars[ self::PASSWORD_FORM_NAME ],
-			$vars[ self::BASEDIR_FORM_NAME ]
+			wp_unslash( $vars[ self::USERNAME_FORM_NAME ] ),
+			wp_unslash( $vars[ self::PASSWORD_FORM_NAME ] ),
+			wp_unslash( $vars[ self::BASEDIR_FORM_NAME ] )
 		);
 	}
 
@@ -329,11 +329,11 @@ class FTP_Credentials {
 				'type'        => 'text',
 				'attr'        => 'host',
 				'extra_attrs' => 'required',
-				'default'     => '',
+				'default'     => '127.0.0.1',
 			],
 			self::PORT_FORM_NAME     => [
 				'label'       => __( 'Port number' ),
-				'description' => __( 'The port number to which the FTP server listens, usually 21' ),
+				'description' => __( 'The port number to which the FTP server listens, between 1 and 65535, usually 21' ),
 				'type'        => 'number',
 				'attr'        => 'port',
 				'extra_attrs' => 'min="1" max="65535"',
@@ -357,7 +357,7 @@ class FTP_Credentials {
 			],
 			self::BASEDIR_FORM_NAME  => [
 				'label'       => __( 'Base directory' ),
-				'description' => __( 'The directory to which the root FTP directory maps. Usually it is the server\'s root directory /' ),
+				'description' => __( 'The directory to which the root FTP directory maps. Usually it is the server\'s root directory' ),
 				'type'        => 'text',
 				'attr'        => 'base_dir',
 				'validation'  => '',
