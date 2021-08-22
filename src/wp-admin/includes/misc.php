@@ -158,7 +158,7 @@ function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#', $c
 		$lock = new \calmpress\filesystem\Path_Lock( $file );
 	}
 
-	$current = file_get_contents( $file, false, $context );
+	$current = @file_get_contents( $file, false, $context );
 	if ( false === $current ) {
 		return false;
 	}
@@ -174,7 +174,7 @@ function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#', $c
 
 	// Generate the new file data.
 	$new_file_data = implode( "\n", $newlines );
-	return ( false !== file_put_contents( $file, $new_file_data, 0, $context ) );
+	return ( false !== @file_put_contents( $file, $new_file_data, 0, $context ) );
 }
 
 /**
