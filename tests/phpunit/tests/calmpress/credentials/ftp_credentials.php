@@ -201,4 +201,30 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 		$this->assertSame( $epected_url, $creds->ftp_url_for_path( $path) );
 	}
 
+	/**
+	 * Data provider for test ftp_url_for_path path related exceptions.
+	 * 
+	 * @since 1.0.0
+	 */
+	function ftp_url_path_exceptions_data() {
+		return [ 
+			[ 'notunderrrot' ],
+			[ ABSPATH . '../' ],
+		];
+	}
+
+	/**
+	 * Test the exceptions raised by the ftp_url_for_path method for bad paths.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @dataProvider ftp_url_path_exceptions_data
+	 */
+	function test_ftp_url_for_path_exceptions( $path ) {
+
+		$creds = new FTP_Credentials( 'local', 21, '', '', dirname( ABSPATH ) );
+		$this->expectException( \DomainException::class );
+		$creds->ftp_url_for_path( $path );
+	}
+
 }

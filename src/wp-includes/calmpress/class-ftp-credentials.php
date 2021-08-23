@@ -402,17 +402,23 @@ EOT;
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $path The file path. Must be an absoluted path.
+	 * @param string $path The file path. Must be an absolute path.
 	 *
 	 * @return string The ftp:// url representation of the file adjusted to the root of the
 	 *                FTP server as indicated by the base directory.
 	 *
-	 * @throws \DomainException When the path is a file under the root directory.
+	 * @throws \DomainException When the path is not absolute or not a file under the root directory.
 	 */
 	public function ftp_url_for_path( string $path ) {
 
 		if ( 0 !== strpos( $path, rtrim( ABSPATH, '/' ) ) ) {
 			throw new \DomainException( '"' . $path . '" is not in the current calmPress directories' );
+		}
+
+		// .. Might be part of legal filename and not only a "parent directory" but chances for it
+		// to happen in real life are about zero and it makes code much simpler.
+		if ( false !== strpos( $path, '..' ) ) {
+			throw new \DomainException( '"' . $path . '" is not absulute' );
 		}
 
 		$url = 'ftp://';
