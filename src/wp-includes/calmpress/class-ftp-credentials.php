@@ -117,9 +117,9 @@ class FTP_Credentials {
 	 * @param string $username The username to use when connecting to the server.
 	 * @param string $password The password to use when connecting to the server.
 	 * @param string $base_dir The base directory of the account on the server.
-	 * 
-	 * @throws DomainException If any of the parameters did not validate. The message incates which
-	 *                         parameters had failed validation.
+	 *
+	 * @throws \DomainException If any of the parameters did not validate. The message incates which
+	 *                          parameters had failed validation.
 	 */
 	public function __construct( string $host,
 								int $port,
@@ -143,8 +143,8 @@ class FTP_Credentials {
 
 		if ( ! empty( $validation_errors ) ) {
 			$message = 'Validation failed for the following parameters: ';
-			$keys    = array_keys( $validation_errors ); 
-			throw new \DomainException( $message . '"' . join( '", "', $keys ) . '"' ); 
+			$keys    = array_keys( $validation_errors );
+			throw new \DomainException( $message . '"' . join( '", "', $keys ) . '"' );
 		}
 	}
 
@@ -218,7 +218,7 @@ class FTP_Credentials {
 	 *                               containing validation errors if there are any.
 	 *                               The strings are HTML escaped.
 	 *
-	 * @throws DomainException If the array do not include all the fields by their names.
+	 * @throws \DomainException If the array do not include all the fields by their names.
 	 */
 	public static function credentials_from_request_vars( array $vars ) {
 		$fields = [
@@ -247,7 +247,7 @@ class FTP_Credentials {
 		if ( ! empty( $validation_errors ) ) {
 			return $validation_errors;
 		}
-				
+
 		return new FTP_Credentials(
 			wp_unslash( $vars[ self::HOST_FORM_NAME ] ),
 			(int) $vars[ self::PORT_FORM_NAME ],
@@ -259,18 +259,18 @@ class FTP_Credentials {
 
 	/**
 	 * Credentials validation, validates that the various credentials make sense by themselves.
-	 * 
+	 *
 	 * The aim is to give a more complete indication about problems with the various values that
 	 * serve better a user facing notifications.
-	 * 
+	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @param string $host The hostname to use when connecting to the server.
 	 * @param int    $port The port to use when connecting to the server.
 	 * @param string $username The username to use when connecting to the server.
 	 * @param string $password The password to use when connecting to the server.
 	 * @param string $base_dir The base directory of the account on the server.
-	 * 
+	 *
 	 * @return string[] The array has an element per parameter in which an error was detected. When
 	 *                  all validations pass the array will be empty.
 	 *                  The returned strings are HTML escaped.
@@ -284,7 +284,7 @@ class FTP_Credentials {
 
 		// Validate host is valid domaine name or IP address.
 		if ( ! filter_var( trim( $host ), FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME ) &&
-			 ! filter_var( trim( $host ), FILTER_VALIDATE_IP ) ) {
+			! filter_var( trim( $host ), FILTER_VALIDATE_IP ) ) {
 			$errors['host'] = esc_html__( 'The Hostname is not a valid domain name or IP address' );
 		}
 
@@ -292,13 +292,13 @@ class FTP_Credentials {
 		if ( $port < 1 || $port > 65535 ) {
 			$errors['port'] = esc_html__( 'The Port Number should be in the range of 1 to 65535' );
 		}
-		
+
 		// Validate that if a password is given, a username is given as well.
 
 		$username = trim( $username );
 		$password = trim( $password );
 		if ( ! empty( $password ) && empty( $username ) ) {
-			$errors['username'] = esc_html__( 'A Password was given without a Username' );
+			$errors['username'] = esc_html__( 'A Password was given without a User name' );
 		}
 
 		// Validate that the root directory of calmPress can be accessed,
@@ -315,9 +315,9 @@ class FTP_Credentials {
 	 * Return an HTML form to enter FTP credentials.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @param array $current The values passed by the user, probably in the $_POST variable.
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function form( array $current ) : string {
@@ -335,9 +335,9 @@ class FTP_Credentials {
 			self::PORT_FORM_NAME     => [
 				'label'       => __( 'Port number' ),
 				'description' => __( 'The port number to which the FTP server listens, between 1 and 65535, usually 21' ),
-				'type'        => 'number',
+				'type'        => 'text',
 				'attr'        => 'port',
-				'extra_attrs' => 'min="1" max="65535"',
+				'extra_attrs' => 'required',
 				'default'     => 21,
 			],
 			self::USERNAME_FORM_NAME => [
@@ -378,6 +378,7 @@ class FTP_Credentials {
 				$value = esc_attr( $labels['default'] );
 			}
 			$extra_attrs = $labels['extra_attrs'];
+
 			$ret .= <<<EOT
 <tr>
 	<th>
@@ -401,13 +402,16 @@ EOT;
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $path The file path. Must be an absoluted path. 
+	 * @param string $path The file path. Must be an absoluted path.
 	 *
-	 * @return string The ftp:// representation of the file.
+	 * @return string The ftp:// url representation of the file adjusted to the root of the
+	 *                FTP server as indicated by the base directory.
+	 *
+	 * @throws \DomainException When the path is a file under the root directory.
 	 */
 	public function ftp_url_for_path( string $path ) {
 
-		if ( 0 !== strpos( $path, rtrim( ABSPATH , '/' ) ) ) {
+		if ( 0 !== strpos( $path, rtrim( ABSPATH, '/' ) ) ) {
 			throw new \DomainException( '"' . $path . '" is not in the current calmPress directories' );
 		}
 
@@ -431,7 +435,6 @@ EOT;
 		// Make sure the path is absolute.
 		$adjusted_path = '/' . ltrim( $adjusted_path, '/' );
 
-		//
 		return $url . $adjusted_path;
 	}
 
