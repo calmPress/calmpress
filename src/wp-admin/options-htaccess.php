@@ -40,20 +40,19 @@ get_current_screen()->add_help_tab(
 );
 
 $home_path = ABSPATH;
+$file_path = ABSPATH . '.htaccess';
 
 $update_required = false;
 
-if ( ( ! file_exists( $home_path . '.htaccess' ) && is_writable( $home_path ) ) || is_writable( $home_path . '.htaccess' ) ) {
+if ( ( ! file_exists( $file_path ) && is_writable( $home_path ) ) || is_writable( $file_path ) ) {
 	$writable = true;
 } else {
 	$writable = false;
 }
 
-$existing_rules  = array_filter( extract_from_markers( $home_path . '.htaccess', 'WordPress' ) );
+$existing_rules  = array_filter( extract_from_markers( $file_path, 'WordPress' ) );
 $new_rules       = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );
 $update_required = ( $new_rules !== $existing_rules );
-
-$ftp_creds = null;
 
 add_settings_section(
 	'calm-htaccess-user-section',
@@ -81,8 +80,9 @@ function rules_input() {
 	<textarea class="large-text" name="htaccess_user_section" id="calm-htaccess-user-section-rules" rows="6"><?php echo esc_textarea( get_option( 'htaccess_user_section' ) ); ?></textarea>
 	<p class="description">
 		<?php
-		/* translators: 1: .htaccess, 2: .htaccess section indicator */
-		printf( esc_html__( 'These rules are going to be saved in the %1$s file in a section marked like %2$s' ),
+		printf(
+			/* translators: 1: .htaccess, 2: .htaccess section indicator */
+			esc_html__( 'These rules are going to be saved in the %1$s file in a section marked like %2$s' ),
 			'<code>.htaccess</code>',
 			'<code># BEGIN User ... # END User</code>'
 		);
@@ -94,29 +94,65 @@ function rules_input() {
 /**
  * An handler for when saving the rules in to the .htaccess file fails. Responsible
  * to give the user a proper notification.
- * 
+ *
  * The raeson for the failure is extracted by using the error_get_last() PHP function.
- * 
+ *
  * @since 1.0.0
  */
 function save_fail_notice() {
 	// Add admin notice that will report the error to the user.
-	add_action( 'admin_notices', function () {
-		$error = error_get_last();
-		?>
-		<div class="notice notice-error">
-			<p>
-			<?php
-			/* translators: 1: Name the .htaccess file 2: The exception error message in blockquote */
-			printf( esc_html__( 'Failed writing to the %1$s file. The text of the system error message is: %2$s' ),
-				'<code>.htaccess</code>',
-				'<br><code>' . esc_html( $error['message'] ) . '</code>'
-			);
+	add_action(
+		'admin_notices',
+		function () {
+			$error = error_get_last();
 			?>
-			</p>
-		</div>
-		<?php
-	}, 9, 1 );
+			<div class="notice notice-error">
+				<p>
+				<?php
+				printf(
+					/* translators: 1: Name the .htaccess file 2: The exception error message in blockquote */
+					esc_html__( 'Failed writing to the %1$s file. The text of the system error message is: %2$s' ),
+					'<code>.htaccess</code>',
+					'<br><blockquote>' . esc_html( $error['message'] ) . '</blockquote>'
+				);
+				?>
+				</p>
+			</div>
+			<?php
+		},
+		9,
+		1
+	);
+}
+
+/**
+ * An handler for when parsing the FTP credentials fails due to validation.
+ *
+ * @param string[] $errors Array of validation error strings.
+ *
+ * @since 1.0.0
+ */
+function validation_error_notice( array $errors ) {
+	// Add admin notice that will report the error to the user.
+	add_action(
+		'admin_notices',
+		function () use ( $errors ) {
+			?>
+			<div class="notice notice-error">
+				<p>
+				<?php
+				esc_html_e( 'The FTP credentials has the following problems:' );
+				foreach ( $errors as $error ) {
+					echo '<br />' . $error;
+				}
+				?>
+				</p>
+			</div>
+			<?php
+		},
+		9,
+		1
+	);
 }
 
 if ( $update_required ) {
@@ -131,8 +167,11 @@ if ( $update_required ) {
 		&& wp_verify_nonce( wp_unslash( $_POST['calm_htacess_ftp_nonce'] ), 'calm_htacess_ftp' )
 		) {
 		$ftp_creds = \calmpress\credentials\FTP_Credentials::credentials_from_request_vars( $_POST );
-		if ( null !== $ftp_creds ) {
-			$url   = $ftp_creds->ftp_url_for_path( $filename );
+		if ( is_array( $ftp_creds ) ) {
+			// Validation had failed.
+			validation_error_notice( $ftp_creds );
+		} else {
+			$url   = $ftp_creds->ftp_url_for_path( $file_path );
 			$saved = save_mod_rewrite_rules( $url );
 			if ( ! $saved ) {
 				save_fail_notice();
@@ -141,20 +180,24 @@ if ( $update_required ) {
 	}
 
 	if ( $saved ) {
-		add_action( 'admin_notices', function () {
-			?>
-			<div class='updated notice is-dismissible'>
-				<p>
-				<?php
-				/* translators: 1: The file name */
-				printf( esc_html__( 'The %1$s file was updated.' ),
-					'<code>.htaccess</code>'
-				);
+		add_action(
+			'admin_notices',
+			function () {
 				?>
-				</p>
-			</div>
-			<?php
-		});
+				<div class='updated notice is-dismissible'>
+					<p>
+					<?php
+					printf(
+						/* translators: 1: The file name */
+						esc_html__( 'The %1$s file was updated.' ),
+						'<code>.htaccess</code>'
+					);
+					?>
+					</p>
+				</div>
+				<?php
+			}
+		);
 	}
 }
 
@@ -189,18 +232,16 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			<p>
 				<?php
 				printf(
+					/* translators: %s: .htaccess */
 					esc_html__( 'The FTP credentials required to access the server over FTP in order to modify the %s file' ),
-					'<code>.htaccess<code>'
+					'<code>.htaccess</code>'
 				);
 				?>
 			</p>
 			<?php wp_nonce_field( 'calm_htacess_ftp', 'calm_htacess_ftp_nonce' ); ?>
 			<table class="form-table">
 				<?php
-				if ( null === $ftp_creds ) {
-					$ftp_creds = new \calmpress\credentials\FTP_Credentials( 'localhost', 21, '', '', '/' );
-				}
-				echo $ftp_creds->form();
+				echo \calmpress\credentials\FTP_Credentials::form( $_POST );
 				?>
 			</table>
 			<?php submit_button( __( 'Update .htaccess using FTP' ) ); ?>
