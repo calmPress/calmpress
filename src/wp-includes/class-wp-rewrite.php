@@ -1103,9 +1103,10 @@ class WP_Rewrite {
 	public function rewrite_rules() {
 		$rewrite = array();
 
-		// robots.txt -- only if installed at the root.
 		$home_path      = parse_url( home_url() );
-		$robots_rewrite = ( empty( $home_path['path'] ) || '/' === $home_path['path'] ) ? array( 'robots\.txt$' => $this->index . '?robots=1' ) : array();
+
+		// robots.txt
+		$robots_rewrite = array( 'robots\.txt$' => $this->index . '?robots=1' );
 
 		// favicon.ico -- only if installed at the root.
 		$favicon_rewrite = ( empty( $home_path['path'] ) || '/' === $home_path['path'] ) ? array( 'favicon\.ico$' => $this->index . '?favicon=1' ) : array();
