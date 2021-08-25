@@ -26,6 +26,7 @@ const MAP = [
 	'calmpress\filesystem\Path_Lock'                    => __DIR__ . '/filesystem/class-path-lock.php',
 	'calmpress\credentials\FTP_Credentials'             => __DIR__ . '/credentials/class-ftp-credentials.php',
 	'calmpress\credentials\Credentials'                 => __DIR__ . '/credentials/class-credentials.php',
+	'calmpress\credentials\File_Credentials'            => __DIR__ . '/credentials/class-file-credentials.php',
 	'calmpress\avatar\Avatar'                           => __DIR__ . '/avatar/class-avatar.php',
 	'calmpress\avatar\Blank_Avatar'                     => __DIR__ . '/avatar/class-blank-avatar.php',
 	'calmpress\avatar\Has_Avatar'                       => __DIR__ . '/avatar/class-has-avatar.php',
