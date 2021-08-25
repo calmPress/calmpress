@@ -18,13 +18,13 @@ namespace calmpress\autoloader;
  * the value is the path to the relevant file.
  */
 const MAP = [
-	'calmpress\post_authors\Post_Author'                => __DIR__ . '/class-post-author.php',
-	'calmpress\post_authors\Post_Authors_As_Taxonomy'   => __DIR__ . '/class-post-authors-as-taxonomy.php',
-	'calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade' => __DIR__ . '/class-post-authors-as-taxonomy-db-upgrade.php',
-	'calmpress\post_authors\Taxonomy_Based_Post_Author' => __DIR__ . '/class-taxonomy-based-post-author.php',
-	'calmpress\admin\Admin_Notices'                     => __DIR__ . '/class-admin-notices.php',
+	'calmpress\post_authors\Post_Author'                => __DIR__ . '/post_authors/class-post-author.php',
+	'calmpress\post_authors\Post_Authors_As_Taxonomy'   => __DIR__ . '/post_authors/class-post-authors-as-taxonomy.php',
+	'calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade' => __DIR__ . '/post_authors/class-post-authors-as-taxonomy-db-upgrade.php',
+	'calmpress\post_authors\Taxonomy_Based_Post_Author' => __DIR__ . '/post_authors/class-taxonomy-based-post-author.php',
+	'calmpress\admin\Admin_Notices'                     => __DIR__ . '/admin/class-admin-notices.php',
 	'calmpress\filesystem\Path_Lock'                    => __DIR__ . '/filesystem/class-path-lock.php',
-	'calmpress\credentials\FTP_Credentials'             => __DIR__ . '/class-ftp-credentials.php',
+	'calmpress\credentials\FTP_Credentials'             => __DIR__ . '/credentials/class-ftp-credentials.php',
 	'calmpress\avatar\Avatar'                           => __DIR__ . '/avatar/class-avatar.php',
 	'calmpress\avatar\Blank_Avatar'                     => __DIR__ . '/avatar/class-blank-avatar.php',
 	'calmpress\avatar\Has_Avatar'                       => __DIR__ . '/avatar/class-has-avatar.php',
