@@ -2178,29 +2178,6 @@ function register_initial_settings() {
 			'description'  => __( 'Allow people to submit comments on new articles.' ),
 		)
 	);
-
-	register_setting(
-		'htaccess',
-		'htaccess_user_section',
-		array(
-			'show_in_rest' => false,
-			'type'         => 'string',
-			'description'  => __( 'The user section in the .htaccess file.' ),
-			'default'      => '',
-		)
-	);
-
-	register_setting(
-		'wp-config',
-		'wp_config_user_section',
-		array(
-			'show_in_rest'      => false,
-			'sanitize_callback' => [ '\calmpress\wp_config\wp_config', 'sanitize_user_setting' ],
-			'type'              => 'string',
-			'description'       => __( 'The user section in the wp-config.php file.' ),
-			'default'           => '',
-		)
-	);
 }
 
 /**
