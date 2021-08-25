@@ -171,7 +171,7 @@ if ( $update_required ) {
 			// Validation had failed.
 			validation_error_notice( $ftp_creds );
 		} else {
-			$url   = $ftp_creds->ftp_url_for_path( $file_path );
+			$url   = $ftp_creds->stream_url_from_path( $file_path );
 			$saved = save_mod_rewrite_rules( $url );
 			if ( ! $saved ) {
 				save_fail_notice();

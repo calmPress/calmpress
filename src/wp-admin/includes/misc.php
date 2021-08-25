@@ -208,7 +208,7 @@ function save_mod_rewrite_rules( $file = '' ) {
 		// Lock the file by its known location.
 		$lock = new \calmpress\filesystem\Path_Lock( ABSPATH . '.htaccess' );
 		$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
-		return insert_with_markers( $file, 'WordPress', $rules, '#', \calmpress\credentials\FTP_Credentials::stream_context() );
+		return insert_with_markers( $file, 'WordPress', $rules, '#', \calmpress\credentials\FTP_Credentials::write_stream_context() );
 	}
 
 	return false;

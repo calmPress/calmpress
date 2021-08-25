@@ -28,12 +28,26 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test the write_stream_context method.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_write_stream_context() {
+		$context      = FTP_Credentials::write_stream_context();
+		$context_opts = stream_context_get_options( $context );
+		$this->assertTrue( isset( $context_opts['ftp'] ) );
+		$this->assertTrue( isset( $context_opts['ftp']['overwrite'] ) );
+		$this->assertTrue( $context_opts['ftp']['overwrite'] );
+	}
+
+	/**
 	 * Test the stream_context method.
 	 *
 	 * @since 1.0.0
 	 */
 	function test_stream_context() {
-		$context      = FTP_Credentials::stream_context();
+		$cred = new FTP_Credentials( ' host', 210, ' user  ', 'password  ', ' ' . ABSPATH . ' ' );
+		$context      = $cred->stream_context();
 		$context_opts = stream_context_get_options( $context );
 		$this->assertTrue( isset( $context_opts['ftp'] ) );
 		$this->assertTrue( isset( $context_opts['ftp']['overwrite'] ) );
@@ -149,7 +163,7 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data provider for ftp_url_for_path testing.
+	 * Data provider for stream_url_from_path testing.
 	 * 
 	 * @since 1.0.0
 	 */
@@ -181,13 +195,13 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test the ftp_url_for_path method.
+	 * Test the stream_url_from_path method.
 	 *
 	 * @since 1.0.0
 	 * 
 	 * @dataProvider url_path_data
 	 */
-	function test_ftp_url_for_path(
+	function test_stream_url_from_path(
 		string $host,
 		int $port,
 		string $username,
@@ -198,11 +212,11 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 		) {
 
 		$creds = new FTP_Credentials( $host, $port, $username, $password, $basedir );
-		$this->assertSame( $epected_url, $creds->ftp_url_for_path( $path) );
+		$this->assertSame( $epected_url, $creds->stream_url_from_path( $path) );
 	}
 
 	/**
-	 * Data provider for test ftp_url_for_path path related exceptions.
+	 * Data provider for test stream_url_from_path path related exceptions.
 	 * 
 	 * @since 1.0.0
 	 */
@@ -214,17 +228,17 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test the exceptions raised by the ftp_url_for_path method for bad paths.
+	 * Test the exceptions raised by the stream_url_from_path method for bad paths.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @dataProvider ftp_url_path_exceptions_data
 	 */
-	function test_ftp_url_for_path_exceptions( $path ) {
+	function test_stream_url_from_path_exceptions( $path ) {
 
 		$creds = new FTP_Credentials( 'local', 21, '', '', dirname( ABSPATH ) );
 		$this->expectException( \DomainException::class );
-		$creds->ftp_url_for_path( $path );
+		$creds->stream_url_from_path( $path );
 	}
 
 }

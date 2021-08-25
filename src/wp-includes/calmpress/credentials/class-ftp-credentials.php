@@ -1,6 +1,6 @@
 <?php
 /**
- * Utility functions for displaying a credentials form and parsing the values from the request.
+ * Implementation of FTP credentials holder.
  *
  * @package calmPress
  * @since 1.0.0
@@ -11,11 +11,11 @@ declare(strict_types=1);
 namespace calmpress\credentials;
 
 /**
- * Utility functions for displaying a FTP credentials and parsing them from the request.
+ * FTP credentials holder and UI oriented helper.
  *
  * @since 1.0.0
  */
-class FTP_Credentials {
+class FTP_Credentials implements Credentials {
 
 	/**
 	 * The name used for the host name input in the form.
@@ -409,7 +409,7 @@ EOT;
 	 *
 	 * @throws \DomainException When the path is not absolute or not a file under the root directory.
 	 */
-	public function ftp_url_for_path( string $path ) {
+	public function stream_url_from_path( string $path ) {
 
 		if ( 0 !== strpos( $path, rtrim( ABSPATH, '/' ) ) ) {
 			throw new \DomainException( '"' . $path . '" is not in the current calmPress directories' );
@@ -445,13 +445,25 @@ EOT;
 	}
 
 	/**
-	 * Helper to generate the context with overwrite option for FTP file access.
+	 * Generate the context with overwrite option for FTP file access.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return resource stream context allowing file overwrite.
+	 * @return resource stream context allowing file overwrite when accessed over FTP.
 	 */
-	public static function stream_context() {
+	public function stream_context() {
+		return static::write_stream_context();
+	}
+
+	/**
+	 * Utility function to generate the context with overwrite option for FTP file access when no
+	 * credentials object is given.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return resource stream context allowing file overwrite when accessed over FTP.
+	 */
+	public static function write_stream_context() {
 		// Allows overwriting of existing files on the remote FTP server.
 		$stream_options = [ 'ftp' => [ 'overwrite' => true ] ];
 
