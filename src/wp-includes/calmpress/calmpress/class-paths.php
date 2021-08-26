@@ -151,4 +151,26 @@ class Paths {
 			'blog-suspended.php',	
 		];
 	}
+
+	/**
+	 * The path to the wp-config.php file.
+	 *
+	 * The file can be located either at the root of the install, or one directory higher.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 *
+	 * @throws RuntimeException if file was not found at both possible locations.
+	 */
+	public function wp_config_file() : string {
+		if ( is_file( ABSPATH . 'wp-config.php' ) ) {
+			return ABSPATH . 'wp-config.php';
+		}
+		if ( is_file( dirname( ABSPATH ) . '/wp-config.php' ) ) {
+			return dirname( ABSPATH ) . '/wp-config.php';
+		}
+
+		throw new RuntimeException( 'Can not find wp-config.php file');
+	}
 }

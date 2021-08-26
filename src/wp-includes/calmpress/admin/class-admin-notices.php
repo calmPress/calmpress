@@ -82,7 +82,7 @@ class Admin_Notices {
 				if ( $screen && ( 'options-wp-config' !== $screen->id ) ) {
 					$msg .= '<br>' . sprintf(
 						/* translators: 1: The file name, 2: The URL of the permalink setting page */
-						esc_html__( 'You can fix the %1$s file by going to the %2$swp-config.php settings page%3$s which will automatically try to update the file.' ),
+						esc_html__( 'You can fix the %1$s file by going to the %2$swp-config.php settings page%3$s and update the file from there.' ),
 						'<code>wp-config.php</code>',
 						'<a href="' . esc_url( admin_url( 'options-wp-config.php' ) ) . '">',
 						'</a>'

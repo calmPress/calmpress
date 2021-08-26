@@ -23,10 +23,49 @@ class wp_config {
 	// The prefix used before marker identifying user section in a wp-config.php file.
 	const USER_SECTION_PREFIX = '//';
 
-	var $filename;
+	/**
+	 * The path to the wp-config.php file.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string
+	 */
+	private $filename;
 
+	/**
+	 * Construct an object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $filename The path to the wp-config.php file.
+	 */
 	public function __construct( string $filename ) {
 		$this->filename = $filename;
+	}
+
+	/**
+	 * The path to the actual file managed by the object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The file path.
+	 */
+	public function filename() : string {
+		return $this->filename;
+	}
+
+	/**
+	 * Get the object representing the wp-config file used for the current session.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return wp_config The object.
+	 */
+	public static function current_wp_config() : wp_config {
+		$paths       = new \calmpress\calmpress\Paths();
+		$config_file = $paths->wp_config_file();
+
+		return new wp_config( $config_file );
 	}
 
 	/**
@@ -40,13 +79,13 @@ class wp_config {
 	 *    double quotes and single quotes can be used as delimiters for the first value, both
 	 *    values should be valid php literals.
 	 *    the comment part is optional.
-	 * 
+	 *
 	 * all lines can be padded by space.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $line The string to validate.
-	 * 
+	 *
 	 * @return bool true if valid, otherwise false.
 	 */
 	private static function valid_user_setting_line( string $line ) : bool {
@@ -60,19 +99,19 @@ class wp_config {
 			$result[] = $line;
 			return true;
 		}
-		preg_match( '#^define\(\s*([\"\\\'][A-Z_a-z]*[\"\\\'])\s*,\s*([^\)]*)\s*\)\s*;\s*(\\/\\/.*)?#', $trimmed, $matches);
+		preg_match( '#^define\(\s*([\"\\\'][A-Z_a-z]*[\"\\\'])\s*,\s*([^\)]*)\s*\)\s*;\s*(\\/\\/.*)?#', $trimmed, $matches );
 		if ( 2 >= count( $matches ) ) {
-			//no matches for the two essential parts.
+			// No matches for the two essential parts.
 			return false;
 		}
 		$delim = substr( $matches[1], 0, 1 );
-		if ( $delim !== substr( $matches[1], -1, 1 ) ) {
-			//first and last quote style do not match.
+		if ( substr( $matches[1], -1, 1 ) !== $delim ) {
+			// First and last quote style do not match.
 			return false;
 		}
 		$second = trim( $matches[2] );
 		if ( empty( $second ) ) {
-			// no value as second parameter to the define.
+			// No value as second parameter to the define.
 			return false;
 		}
 
@@ -88,8 +127,8 @@ class wp_config {
 			return false;
 		}
 
-		if ( $delim !== substr( $second, -1, 1 ) ) {
-			//first and last quote style do not match.
+		if ( substr( $second, -1, 1 ) !== $delim ) {
+			// First and last quote style do not match.
 			return false;
 		}
 
@@ -106,7 +145,7 @@ class wp_config {
 		}
 
 		return true;
-    }
+	}
 
 	/**
 	 * Sanitize a string to a format appropriate to be used in the user section
@@ -118,15 +157,15 @@ class wp_config {
 	 *  - lines of the format 'define("...",...);'
 	 *    double quotes and single quotes can be used as delimiters for the first value, both
 	 *    values should be valid php literals.
-	 * 
+	 *
 	 * all lines can be padded by space.
-	 * 
+	 *
 	 * Sanitization will remove lines that do not match the format.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $value The string to sanitize.
-	 * 
+	 *
 	 * @return string The sanitized string.
 	 */
 	public static function sanitize_user_setting( string $value ) : string {
@@ -138,17 +177,16 @@ class wp_config {
 				$result[] = $line;
 			}
 		}
-    
-        return join( "\n", $result );
-    }
+
+		return join( "\n", $result );
+	}
 
 	/**
 	 * Get the user section from the file.
-	 * 
+	 *
 	 * @since 1.0.0
 	 */
 	public function user_section_in_file() : string {
-
 		/*
 		 * WordPress associate this function only with admin.
 		 * As we want to avoid making structural changes to file
@@ -158,20 +196,25 @@ class wp_config {
 			require_once ABSPATH . 'wp-admin\includes\misc.php';
 		}
 
+		$lock  = new \calmpress\filesystem\Path_Lock( $this->filename );
 		$lines = extract_from_markers( $this->filename, self::USER_SECTION_MARKER, self::USER_SECTION_PREFIX );
 		return join( "\n", $lines );
 	}
 
 	/**
 	 * Save a string as the user section in the file.
-	 * 
+	 *
 	 * The string is sanitized before save.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $settings The settings to store in the user section.
+	 * @param string                             $settings The settings to store in the user section.
+	 * @param \calmpress\credentials\credentials $credentials The credential that should be used to extract
+	 *                             the stream and context which should be used for writting.
+	 *
+	 * @throws \Exception If the save had failed. The message contains the last php error.
 	 */
-    public function save_user_section_to_file( string $settings ) {
+	public function save_user_section_to_file( string $settings, \calmpress\credentials\credentials $credentials ) {
 		$sanitized = static::sanitize_user_setting( $settings );
 
 		/*
@@ -183,6 +226,49 @@ class wp_config {
 			require_once ABSPATH . 'wp-admin\includes\misc.php';
 		}
 
-		insert_with_markers( $this->filename, self::USER_SECTION_MARKER , $sanitized, self::USER_SECTION_PREFIX );
+		$stream = $credentials->stream_url_from_path( $this->filename );
+		$lock   = new \calmpress\filesystem\Path_Lock( $this->filename );
+		if ( ! insert_with_markers( $stream, self::USER_SECTION_MARKER, $sanitized, self::USER_SECTION_PREFIX, $credentials->stream_context() ) ) {
+			// Write failed.
+			$error = error_get_last();
+			throw new \Exception( $error['message'] );
+		}
+	}
+
+	/**
+	 * Check if the file can be written to by the current process.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool True if it can be written to, otherwise false.
+	 */
+	public function is_writable() : bool {
+		return is_writable( $this->filename );
+	}
+
+	/**
+	 * The content of the file that will result from applying the user settings.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $user_settings The user setting to apply.
+	 *
+	 * @return string The content of the file after the settings are applied.
+	 */
+	public function expected_file_content( string $user_settings ) : string {
+		$setting = static::sanitize_user_setting( $user_settings );
+		$insertion = explode( "\n", $setting );
+
+		$lock    = new \calmpress\filesystem\Path_Lock( $this->filename );
+		$current = file_get_contents( $this->filename );
+
+		// Split the content to lines based on all possible line endings.
+		$lines = preg_split( "/\r\n|\n|\r/", $current );
+
+		$newlines = insert_with_markers_into_array( $lines, self::USER_SECTION_MARKER, $insertion, self::USER_SECTION_PREFIX );
+
+		// Generate the new file data.
+		$new_file_data = implode( "\n", $newlines );
+		return $new_file_data;
 	}
 }

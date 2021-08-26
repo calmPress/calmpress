@@ -288,8 +288,11 @@ $menu[80]                               = array( __( 'Settings' ), 'manage_optio
 	$submenu['options-general.php'][25] = array( __( 'Discussion' ), 'manage_options', 'options-discussion.php' );
 	$submenu['options-general.php'][30] = array( __( 'Media' ), 'manage_options', 'options-media.php' );
 	$submenu['options-general.php'][40] = array( __( 'Permalinks' ), 'manage_options', 'options-permalink.php' );
+	if ( is_super_admin() ) {
+		$submenu['options-general.php'][41] = array( __( 'wp-config.php' ), 'manage_options', 'options-wp-config.php' );
+	}
 	if ( got_mod_rewrite() && is_super_admin() ) {
-		$submenu['options-general.php'][41] = array( __( '.htaccess' ), 'manage_options', 'options-htaccess.php' );
+		$submenu['options-general.php'][42] = array( __( '.htaccess' ), 'manage_options', 'options-htaccess.php' );
 	}
 
 	$submenu['options-general.php'][45] = array( __( 'Privacy' ), 'manage_privacy_options', 'options-privacy.php' );

@@ -15,7 +15,7 @@ require_once ABSPATH . 'wp-admin/includes/file.php';
  *
  * @since 1.0.0
  */
-class WP_Test_Post_Wp_Config extends WP_UnitTestCase {
+class WP_Test_Wp_Config extends WP_UnitTestCase {
 
 	/**
 	 * Test valid_user_setting_line.
@@ -125,17 +125,18 @@ class WP_Test_Post_Wp_Config extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_save_user_section_to_file() {
+		$creds = new \calmpress\credentials\File_Credentials();
 		$filename = wp_tempnam();
 		$config = new \calmpress\wp_config\wp_config( $filename );
 		file_put_contents( $filename, "test\n// BEGIN User\n// END User\nsomething else");
 
 		// Test with valid content.
-		$config->save_user_section_to_file('//test');
+		$config->save_user_section_to_file('//test', $creds);
 		$s = file_get_contents( $filename );
 		$this->AssertSame( "test\n// BEGIN User\n//test\n// END User\nsomething else", $s );
 
 		// Test with partially invalid content.
-		$config->save_user_section_to_file("def\n//test 2");
+		$config->save_user_section_to_file("def\n//test 2", $creds);
 		$s = file_get_contents( $filename );
 		$this->AssertSame( "test\n// BEGIN User\n//test 2\n// END User\nsomething else", $s );
 		unlink( $filename );
