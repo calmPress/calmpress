@@ -1588,6 +1588,7 @@ function do_feed_rss2( $for_comments ) {
  * @since 5.3.0 Remove the "Disallow: /" output if search engine visiblity is
  *              discouraged in favor of robots meta HTML tag via wp_robots_no_robots()
  *              filter callback.
+ * @since calmPress 1.0.0 the content of the file can be modified using the admin.
  */
 function do_robots() {
 	header( 'Content-Type: text/plain; charset=utf-8' );
@@ -1599,13 +1600,8 @@ function do_robots() {
 	 */
 	do_action( 'do_robotstxt' );
 
-	$output = "User-agent: *\n";
+	$output = get_option( 'robots_txt' );
 	$public = get_option( 'blog_public' );
-
-	$site_url = parse_url( site_url() );
-	$path     = ( ! empty( $site_url['path'] ) ) ? $site_url['path'] : '';
-	$output  .= "Disallow: $path/wp-admin/\n";
-	$output  .= "Allow: $path/wp-admin/admin-ajax.php\n";
 
 	/**
 	 * Filters the robots.txt output.

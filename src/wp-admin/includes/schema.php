@@ -492,6 +492,7 @@ function populate_options( array $options = array() ) {
 
 		// calmPress 1.0.0
 		'calm_embedding_on'               => 0,
+		'robots_txt'                      => 'User-agent: *',
 	);
 
 	// 3.0.0 multisite.
@@ -514,6 +515,7 @@ function populate_options( array $options = array() ) {
 		'auto_plugin_theme_update_emails',
 		'htaccess_user_section',
 		'wp_config_user_section',
+		'robots_txt',
 	);
 
 	$keys             = "'" . implode( "', '", array_keys( $options ) ) . "'";

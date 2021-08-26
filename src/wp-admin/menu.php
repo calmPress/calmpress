@@ -294,6 +294,9 @@ $menu[80]                               = array( __( 'Settings' ), 'manage_optio
 	if ( got_mod_rewrite() && is_super_admin() ) {
 		$submenu['options-general.php'][42] = array( __( '.htaccess' ), 'manage_options', 'options-htaccess.php' );
 	}
+	if ( is_super_admin() ) {
+		$submenu['options-general.php'][43] = array( __( 'robots.txt' ), 'manage_options', 'options-robots-txt.php' );
+	}
 
 	$submenu['options-general.php'][45] = array( __( 'Privacy' ), 'manage_privacy_options', 'options-privacy.php' );
 

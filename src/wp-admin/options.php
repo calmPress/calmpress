@@ -140,6 +140,9 @@ $allowed_options            = array(
 	'wp-config'   => [
 		'wp_config_user_section',
 	],
+	'robots_txt'   => [
+		'robots_txt',
+	],
 );
 $allowed_options['misc']    = array();
 $allowed_options['options'] = array();
