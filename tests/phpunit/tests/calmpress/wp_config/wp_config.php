@@ -141,4 +141,28 @@ class WP_Test_Wp_Config extends WP_UnitTestCase {
 		$this->AssertSame( "test\n// BEGIN User\n//test 2\n// END User\nsomething else", $s );
 		unlink( $filename );
 	}
+
+	/**
+	 * Test filename.
+	 * Test that the method returns the path with which the object was constructed
+	 *
+	 * @since 1.0.0
+	 */
+	function test_filename() {
+		$config = new \calmpress\wp_config\wp_config( '/some/path/cpnfig.txt' );
+		$this->assertSame( '/some/path/cpnfig.txt', $config->filename() );
+	}
+
+	/**
+	 * Test expected_file_content.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_expected_file_content() {
+		$filename = wp_tempnam();
+		$config = new \calmpress\wp_config\wp_config( $filename );
+		file_put_contents( $filename, "test\n// BEGIN User\n// END User\nsomething else");
+		$content = $config->expected_file_content( "// comment\ndefine('a',5);" );
+		$this->assertSame( "test\n// BEGIN User\n// comment\ndefine('a',5);\n// END User\nsomething else", $content );
+	}
 }
