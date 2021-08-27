@@ -15,7 +15,7 @@
 		$submitButtons,
 		$submitButton,
 		currentPass,
-		avatar_images_modal;
+		avatar_images_modal,
 		$passwordWrapper;
 
 	function generatePassword() {
