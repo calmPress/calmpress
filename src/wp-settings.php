@@ -104,7 +104,7 @@ if ( WP_CACHE && apply_filters( 'enable_loading_advanced_cache_dropin', true ) &
 
 // Define WP_LANG_DIR if not set.
 if ( ! defined( 'WP_LANG_DIR' ) ) {
-	define( 'WP_LANG_DIR', WP_CONTENT_DIR . '/languages' );
+	define( 'WP_LANG_DIR', WP_CONTENT_DIR . '/.languages' );
 }
 
 // Load early WordPress files.
