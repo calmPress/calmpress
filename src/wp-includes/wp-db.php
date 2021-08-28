@@ -1529,16 +1529,6 @@ class wpdb {
 			list( $host, $port, $socket, $is_ipv6 ) = $host_data;
 		}
 
-		/*
-		 * If using the `mysqlnd` library, the IPv6 address needs to be
-		 * enclosed in square brackets, whereas it doesn't while using the
-		 * `libmysqlclient` library.
-		 * @see https://bugs.php.net/bug.php?id=67563
-		 */
-		if ( $is_ipv6 && extension_loaded( 'mysqlnd' ) ) {
-			$host = "[$host]";
-		}
-
 		if ( WP_DEBUG ) {
 			mysqli_real_connect( $this->dbh, $host, $this->dbuser, $this->dbpassword, null, $port, $socket, $client_flags );
 		} else {
@@ -3406,27 +3396,10 @@ class wpdb {
 			case 'collation':    // @since 2.5.0
 			case 'group_concat': // @since 2.7.0
 			case 'subqueries':   // @since 2.7.0
-				return true;
 			case 'set_charset':
-				return version_compare( $version, '5.0.7', '>=' );
 			case 'utf8mb4':      // @since 4.1.0
-				if ( version_compare( $version, '5.5.3', '<' ) ) {
-					return false;
-				}
-				$client_version = mysqli_get_client_info();
-
-				/*
-				 * libmysql has supported utf8mb4 since 5.5.3, same as the MySQL server.
-				 * mysqlnd has supported utf8mb4 since 5.0.9.
-				 */
-				if ( false !== strpos( $client_version, 'mysqlnd' ) ) {
-					$client_version = preg_replace( '/^\D+([\d.]+).*/', '$1', $client_version );
-					return version_compare( $client_version, '5.0.9', '>=' );
-				} else {
-					return version_compare( $client_version, '5.5.3', '>=' );
-				}
 			case 'utf8mb4_520': // @since 4.6.0
-				return version_compare( $version, '5.6', '>=' );
+				return true;
 		}
 
 		return false;
