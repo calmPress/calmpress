@@ -24,7 +24,7 @@ $required_php_version = '7.4';
  *
  * @global string $required_mysql_version
  */
-$required_mysql_version = '5.6';
+$required_mysql_version = '5.7';
 
 /*
  * WordPress has a bad habit of including this file multiple times therefor some
