@@ -62,6 +62,18 @@ function display_header( $body_classes = '' ) {
 } // End display_header().
 
 /**
+ * Help to identify when the site is install on a local machine.
+ * 
+ * Done by detecting if the remote address of the request is of a local machine.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @return bool true if local machine install detected, false otherwise.
+ */
+function is_local_install() {
+	return in_array( $_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1'], true );
+}
+/**
  * Display installer setup form.
  *
  * @since 2.8.0
@@ -76,7 +88,7 @@ function display_setup_form( $error = null ) {
 	$user_table = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->users ) ) ) !== null );
 
 	// Ensure that Blogs appear in search engines by default, unless this is a local install.
-	$blog_public = in_array( $_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1'], true ) ? 0 : 1;
+	$blog_public = is_local_install() ? 1 : 0;
 	if ( isset( $_POST['weblog_title'] ) ) {
 		$blog_public = isset( $_POST['blog_public'] ) ? 0 : 1;
 	}
@@ -192,8 +204,6 @@ global $required_php_version, $required_mysql_version;
 
 $php_version   = phpversion();
 $mysql_version = $wpdb->db_version();
-$php_compat    = version_compare( $php_version, $required_php_version, '>=' );
-$mysql_compat  = version_compare( $mysql_version, $required_mysql_version, '>=' ) || file_exists( WP_CONTENT_DIR . '/db.php' );
 
 $version_slug_parts = explode( '.', calmpress_version() );
 $version_slug = $version_slug_parts[0] . '-' . $version_slug_parts[1];
@@ -215,21 +225,45 @@ $annotation = wp_get_update_php_annotation();
 if ( $annotation ) {
 	$php_update_message .= '</p><p><em>' . $annotation . '</em>';
 }
+$errors = [];
 
-if ( ! $mysql_compat && ! $php_compat ) {
-	/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required PHP version number, 4: Minimum required MySQL version number, 5: Current PHP version number, 6: Current MySQL version number. */
-	$compat = sprintf( __( 'You cannot install because <a href="%1$s">calmPress %2$s</a> requires PHP version %3$s or higher and MySQL version %4$s or higher. You are running PHP version %5$s and MySQL version %6$s.' ), $version_url, calmpress_version(), $required_php_version, $required_mysql_version, $php_version, $mysql_version ) . $php_update_message;
-} elseif ( ! $php_compat ) {
-	/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required PHP version number, 4: Current PHP version number. */
-	$compat = sprintf( __( 'You cannot install because <a href="%1$s">calmPress %2$s</a> requires PHP version %3$s or higher. You are running version %4$s.' ), $version_url, calmpress_version(), $required_php_version, $php_version ) . $php_update_message;
-} elseif ( ! $mysql_compat ) {
-	/* translators: 1: URL to calmPress release notes, 2: calmPress version number, 3: Minimum required MySQL version number, 4: Current MySQL version number. */
-	$compat = sprintf( __( 'You cannot install because <a href="%1$s">calmPress %2$s</a> requires MySQL version %3$s or higher. You are running version %4$s.' ), $version_url, calmpress_version(), $required_mysql_version, $mysql_version );
+// Check PHP compatibility.
+$php_compat = version_compare( $php_version, $required_php_version, '>=' );
+if ( ! $php_compat ) {
+	$errors[] = sprintf(
+		/* translators: 1: Minimum required PHP version number, 2: Current PHP version number. */
+		esc_html__( 'PHP version must be %1$s or higher. You are running version %2$s.' ),
+		esc_html( $required_php_version ),
+		esc_html( $php_version )
+	)
+	. $php_update_message;
 }
 
-if ( ! $mysql_compat || ! $php_compat ) {
+// Check MySQL compatibility.
+$mysql_compat  = version_compare( $mysql_version, $required_mysql_version, '>=' ) || file_exists( WP_CONTENT_DIR . '/db.php' );
+if ( ! $mysql_compat ) {
+	$errors[] = sprintf( 
+		/* translators: 1: Minimum required MySQL version number, 2: Current MySQL version number. */
+		esc_html__( 'MySQL version must be %1$s or higher. You are running version %2$s.' ),
+		esc_html( $required_mysql_version ),
+		esc_html( $mysql_version )
+	);
+}
+
+// Check installed as https unless it is local.
+if ( ! is_ssl() && ! is_local_install() ) {
+	$errors[] = esc_html__( ' You do not use https: to access the site.' );
+}
+
+if ( ! empty( $errors ) ) {
 	display_header();
-	die( '<h1>' . __( 'Requirements Not Met' ) . '</h1><p>' . $compat . '</p></body></html>' );
+	$html = '<h1>' . esc_html__( 'Requirements Not Met' ) . '</h1><p>';
+	$html .= esc_html__( ' Problems that needs to be fixed ') . '</p><ul>';
+	foreach ( $errors as $error ) {
+		$html .= '<li>' . $error . '</li>';
+	}
+	$html .= '</ul></body></html>';
+	die( $html );
 }
 
 if ( ! is_string( $wpdb->base_prefix ) || '' === $wpdb->base_prefix ) {
