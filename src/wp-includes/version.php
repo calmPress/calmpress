@@ -17,14 +17,14 @@ $tinymce_version = '49110-20201110';
  *
  * @global string $required_php_version
  */
-$required_php_version = '7.0';
+$required_php_version = '7.4';
 
 /**
  * Holds the required MySQL version.
  *
  * @global string $required_mysql_version
  */
-$required_mysql_version = '5.0';
+$required_mysql_version = '5.6';
 
 /*
  * WordPress has a bad habit of including this file multiple times therefor some
