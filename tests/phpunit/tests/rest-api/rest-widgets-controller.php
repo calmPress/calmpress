@@ -282,8 +282,6 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 			),
 			$data
 		);
-
-		$wp_widget_factory->widgets['WP_Widget_RSS']->widget_options['show_instance_in_rest'] = true;
 	}
 
 	/**
