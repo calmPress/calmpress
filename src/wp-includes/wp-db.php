@@ -1518,25 +1518,29 @@ class wpdb {
 
 		$client_flags = defined( 'MYSQL_CLIENT_FLAGS' ) ? MYSQL_CLIENT_FLAGS : 0;
 
-		$this->dbh = mysqli_init();
+		if ( function_exists( 'mysqli_init' ) ) {
+			$this->dbh = mysqli_init();
 
-		$host    = $this->dbhost;
-		$port    = null;
-		$socket  = null;
-		$is_ipv6 = false;
+			$host    = $this->dbhost;
+			$port    = null;
+			$socket  = null;
+			$is_ipv6 = false;
 
-		if ( $host_data = $this->parse_db_host( $this->dbhost ) ) {
-			list( $host, $port, $socket, $is_ipv6 ) = $host_data;
-		}
+			if ( $host_data = $this->parse_db_host( $this->dbhost ) ) {
+				list( $host, $port, $socket, $is_ipv6 ) = $host_data;
+			}
 
-		if ( WP_DEBUG ) {
-			mysqli_real_connect( $this->dbh, $host, $this->dbuser, $this->dbpassword, null, $port, $socket, $client_flags );
+			if ( WP_DEBUG ) {
+				mysqli_real_connect( $this->dbh, $host, $this->dbuser, $this->dbpassword, null, $port, $socket, $client_flags );
+			} else {
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@mysqli_real_connect( $this->dbh, $host, $this->dbuser, $this->dbpassword, null, $port, $socket, $client_flags );
+			}
+
+			if ( $this->dbh->connect_errno ) {
+				$this->dbh = null;
+			}
 		} else {
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			@mysqli_real_connect( $this->dbh, $host, $this->dbuser, $this->dbpassword, null, $port, $socket, $client_flags );
-		}
-
-		if ( $this->dbh->connect_errno ) {
 			$this->dbh = null;
 		}
 
@@ -1562,6 +1566,7 @@ class wpdb {
 			$message .= '<li>' . __( 'Are you sure you have the correct username and password?' ) . "</li>\n";
 			$message .= '<li>' . __( 'Are you sure you have typed the correct hostname?' ) . "</li>\n";
 			$message .= '<li>' . __( 'Are you sure the database server is running?' ) . "</li>\n";
+			$message .= '<li>' . __( 'Are you sure relevant PHP extension (usually mysqli) is enabled?' ) . "</li>\n";
 			$message .= "</ul>\n";
 
 			$message .= '<p>' . sprintf(
@@ -3287,14 +3292,12 @@ class wpdb {
 			if ( $this->use_mysqli ) {
 				if ( $this->dbh instanceof mysqli ) {
 					$error = mysqli_error( $this->dbh );
-				} elseif ( mysqli_connect_errno() ) {
-					$error = mysqli_connect_error();
-				}
-			} else {
-				if ( is_resource( $this->dbh ) ) {
-					$error = mysql_error( $this->dbh );
+				} elseif ( function_exists( 'mysqli_connect_errno' ) ) {
+					if ( mysqli_connect_errno() ) {
+						$error = mysqli_connect_error();
+					}
 				} else {
-					$error = mysql_error();
+					$error = 'mysqli extension not enabled';
 				}
 			}
 

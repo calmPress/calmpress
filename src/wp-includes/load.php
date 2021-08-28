@@ -136,40 +136,11 @@ function wp_populate_basic_auth_from_authorization_header() {
  * Dies if requirements are not met.
  *
  * @since 3.0.0
+ * @since calmPress 1.0.0 Does nothing, kept around just for backward compatibility
+ *                        see https://github.com/calmPress/calmpress/issues/297
  * @access private
- *
- * @global string $required_php_version The required PHP version string.
  */
 function wp_check_php_mysql_versions() {
-	global $required_php_version;
-	$php_version = phpversion();
-
-	if ( version_compare( $required_php_version, $php_version, '>' ) ) {
-		$protocol = wp_get_server_protocol();
-		header( sprintf( '%s 500 Internal Server Error', $protocol ), true, 500 );
-		header( 'Content-Type: text/html; charset=utf-8' );
-		printf( 'Your server is running PHP version %1$s but calmPress %2$s requires at least %3$s.', $php_version, $wp_version, $required_php_version );
-		exit( 1 );
-	}
-
-	if ( ! extension_loaded( 'mysqli' ) && ! extension_loaded( 'mysqlnd' )
-		// This runs before default constants are defined, so we can't assume WP_CONTENT_DIR is set yet.
-		&& ( defined( 'WP_CONTENT_DIR' ) && ! file_exists( WP_CONTENT_DIR . '/db.php' )
-			|| ! file_exists( ABSPATH . 'wp-content/db.php' ) )
-	) {
-		require_once ABSPATH . WPINC . '/functions.php';
-		wp_load_translations_early();
-		$args = array(
-			'exit' => false,
-			'code' => 'mysql_not_found',
-		);
-		wp_die(
-			__( 'Your PHP installation appears to be missing the MySQL extension which is required by WordPress.' ),
-			__( 'Requirements Not Met' ),
-			$args
-		);
-		exit( 1 );
-	}
 }
 
 /**
