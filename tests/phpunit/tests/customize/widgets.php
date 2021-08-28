@@ -458,37 +458,6 @@ class Tests_WP_Customize_Widgets extends WP_UnitTestCase {
 	}
 
 	/**
-	 * There should NOT be a 'raw_instance' key when the block editor is enabled
-	 * but the widget does not support them because `show_instance_in_rest` on
-	 * the widget is set to false.
-	 *
-	 * @ticket 53489
-	 */
-	function test_sanitize_widget_instance_with_no_show_instance_in_rest() {
-		global $wp_widget_factory;
-
-		$this->do_customize_boot_actions();
-
-		$widget_object = $wp_widget_factory->get_widget_object( 'block' );
-		$widget_object->widget_options['show_instance_in_rest'] = false;
-
-		$block_instance = array(
-			'content' => '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->',
-		);
-
-		$sanitized_for_js = $this->manager->widgets->sanitize_widget_js_instance( $block_instance, 'block' );
-		$this->assertArrayHasKey( 'encoded_serialized_instance', $sanitized_for_js );
-		$this->assertTrue( is_serialized( base64_decode( $sanitized_for_js['encoded_serialized_instance'] ), true ) );
-		$this->assertSame( '', $sanitized_for_js['title'] );
-		$this->assertTrue( $sanitized_for_js['is_widget_customizer_js_value'] );
-		$this->assertArrayHasKey( 'instance_hash_key', $sanitized_for_js );
-		$this->assertArrayNotHasKey( 'raw_instance', $sanitized_for_js );
-
-		$unsanitized_from_js = $this->manager->widgets->sanitize_widget_instance( $sanitized_for_js );
-		$this->assertSame( $unsanitized_from_js, $block_instance );
-	}
-
-	/**
 	 * Empty instances, seen when inserting a new widget, should be left alone
 	 * when sanitized.
 	 *
