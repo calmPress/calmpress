@@ -5,19 +5,11 @@
  * Sets $pagenow global which is the current page. Checks
  * for the browser to set which one is currently being used.
  *
- * Detects which user environment WordPress is being used on.
- * Only attempts to check for Apache, Nginx and IIS -- three web
- * servers with known pretty permalink capability.
- *
- * Note: Though Nginx is detected, WordPress does not currently
- * generate rewrite rules for it. See https://wordpress.org/support/article/nginx/
- *
  * @package WordPress
  */
 
 global $pagenow,
-	$is_lynx, $is_gecko, $is_winIE, $is_macIE, $is_opera, $is_NS4, $is_safari, $is_chrome, $is_iphone, $is_IE, $is_edge,
-	$is_IIS, $is_iis7;
+	$is_lynx, $is_gecko, $is_winIE, $is_macIE, $is_opera, $is_NS4, $is_safari, $is_chrome, $is_iphone, $is_IE, $is_edge;
 
 // On which page are we?
 if ( is_admin() ) {
@@ -105,22 +97,6 @@ if ( $is_safari && stripos( $_SERVER['HTTP_USER_AGENT'], 'mobile' ) !== false ) 
 }
 
 $is_IE = ( $is_macIE || $is_winIE );
-
-// Server detection.
-
-/**
- * Whether the server software is IIS or something else
- *
- * @global bool $is_IIS
- */
-$is_IIS = ! is_apache() && ( strpos( $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS' ) !== false || strpos( $_SERVER['SERVER_SOFTWARE'], 'ExpressionDevServer' ) !== false );
-
-/**
- * Whether the server software is IIS 7.X or greater
- *
- * @global bool $is_iis7
- */
-$is_iis7 = $is_IIS && (int) substr( $_SERVER['SERVER_SOFTWARE'], strpos( $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS/' ) + 14 ) >= 7;
 
 /**
  * Test if the current browser runs on a mobile device (smart phone, tablet, etc.)

@@ -5375,42 +5375,6 @@ function apache_mod_loaded( $mod, $default = '' ) {
 }
 
 /**
- * Check if IIS 7+ supports pretty permalinks.
- *
- * @since 2.8.0
- *
- * @global bool $is_iis7
- *
- * @return bool Whether IIS7 supports permalinks.
- */
-function iis7_supports_permalinks() {
-	global $is_iis7;
-
-	$supports_permalinks = false;
-	if ( $is_iis7 ) {
-		/* First we check if the DOMDocument class exists. If it does not exist, then we cannot
-		 * easily update the xml configuration file, hence we just bail out and tell user that
-		 * pretty permalinks cannot be used.
-		 *
-		 * Next we check if the URL Rewrite Module 1.1 is loaded and enabled for the web site. When
-		 * URL Rewrite 1.1 is loaded it always sets a server variable called 'IIS_UrlRewriteModule'.
-		 * Lastly we make sure that PHP is running via FastCGI. This is important because if it runs
-		 * via ISAPI then pretty permalinks will not work.
-		 */
-		$supports_permalinks = class_exists( 'DOMDocument', false ) && isset( $_SERVER['IIS_UrlRewriteModule'] ) && ( 'cgi-fcgi' === PHP_SAPI );
-	}
-
-	/**
-	 * Filters whether IIS 7+ supports pretty permalinks.
-	 *
-	 * @since 2.8.0
-	 *
-	 * @param bool $supports_permalinks Whether IIS7 supports permalinks. Default false.
-	 */
-	return apply_filters( 'iis7_supports_permalinks', $supports_permalinks );
-}
-
-/**
  * Validates a file name and path against an allowed set of rules.
  *
  * A return value of `1` means the file path contains directory traversal.

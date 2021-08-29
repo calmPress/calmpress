@@ -489,77 +489,7 @@ define( 'BLOG_ID_CURRENT_SITE', 1 );
 </textarea>
 		</li>
 	<?php
-	if ( iis7_supports_permalinks() ) :
-		// IIS doesn't support RewriteBase, all your RewriteBase are belong to us.
-		$iis_subdir_match       = ltrim( $base, '/' ) . $subdir_match;
-		$iis_rewrite_base       = ltrim( $base, '/' ) . $rewrite_base;
-		$iis_subdir_replacement = $subdomain_install ? '' : '{R:1}';
-
-		$web_config_file = '<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <system.webServer>
-        <rewrite>
-            <rules>
-                <rule name="WordPress Rule 1" stopProcessing="true">
-                    <match url="^index\.php$" ignoreCase="false" />
-                    <action type="None" />
-                </rule>';
-		if ( is_multisite() && get_site_option( 'ms_files_rewriting' ) ) {
-			$web_config_file .= '
-                <rule name="WordPress Rule for Files" stopProcessing="true">
-                    <match url="^' . $iis_subdir_match . 'files/(.+)" ignoreCase="false" />
-                    <action type="Rewrite" url="' . $iis_rewrite_base . WPINC . '/ms-files.php?file={R:1}" appendQueryString="false" />
-                </rule>';
-		}
-			$web_config_file .= '
-                <rule name="WordPress Rule 2" stopProcessing="true">
-                    <match url="^' . $iis_subdir_match . 'wp-admin$" ignoreCase="false" />
-                    <action type="Redirect" url="' . $iis_subdir_replacement . 'wp-admin/" redirectType="Permanent" />
-                </rule>
-                <rule name="WordPress Rule 3" stopProcessing="true">
-                    <match url="^" ignoreCase="false" />
-                    <conditions logicalGrouping="MatchAny">
-                        <add input="{REQUEST_FILENAME}" matchType="IsFile" ignoreCase="false" />
-                        <add input="{REQUEST_FILENAME}" matchType="IsDirectory" ignoreCase="false" />
-                    </conditions>
-                    <action type="None" />
-                </rule>
-                <rule name="WordPress Rule 4" stopProcessing="true">
-                    <match url="^' . $iis_subdir_match . '(wp-(content|admin|includes).*)" ignoreCase="false" />
-                    <action type="Rewrite" url="' . $iis_rewrite_base . '{R:1}" />
-                </rule>
-                <rule name="WordPress Rule 5" stopProcessing="true">
-                    <match url="^' . $iis_subdir_match . '([_0-9a-zA-Z-]+/)?(.*\.php)$" ignoreCase="false" />
-                    <action type="Rewrite" url="' . $iis_rewrite_base . '{R:2}" />
-                </rule>
-                <rule name="WordPress Rule 6" stopProcessing="true">
-                    <match url="." ignoreCase="false" />
-                    <action type="Rewrite" url="index.php" />
-                </rule>
-            </rules>
-        </rewrite>
-    </system.webServer>
-</configuration>
-';
-
-			echo '<li><p>';
-			printf(
-				/* translators: 1: File name (.htaccess or web.config), 2: File path. */
-				__( 'Add the following to your %1$s file in %2$s, <strong>replacing</strong> other calmPress rules:' ),
-				'<code>web.config</code>',
-				'<code>' . $home_path . '</code>'
-			);
-		echo '</p>';
-		if ( ! $subdomain_install && WP_CONTENT_DIR !== ABSPATH . 'wp-content' ) {
-			echo '<p><strong>' . __( 'Warning:' ) . ' ' . __( 'Subdirectory networks may not be fully compatible with custom wp-content directories.' ) . '</strong></p>';
-		}
-		?>
-		<textarea class="code" readonly="readonly" cols="100" rows="20"><?php echo esc_textarea( $web_config_file ); ?></textarea>
-		</li>
-	</ol>
-
-		<?php
-	elseif ( is_nginx() ) : // End iis7_supports_permalinks(). Link to Nginx documentation instead:
+	if ( is_nginx() ) { // Link to Nginx documentation  of trying to generate rules:
 
 		echo '<li><p>';
 		printf(
@@ -569,7 +499,7 @@ define( 'BLOG_ID_CURRENT_SITE', 1 );
 		);
 		echo '</p></li>';
 
-	else : // End is_nginx(). Construct an .htaccess file instead:
+	} else { // End is_nginx(). Construct an .htaccess file instead:
 
 		$ms_files_rewriting = '';
 		if ( is_multisite() && get_site_option( 'ms_files_rewriting' ) ) {
@@ -644,7 +574,7 @@ EOF;
 	</ol>
 
 		<?php
-	endif; // End IIS/Nginx/Apache code branches.
+	} // End Nginx/Apache code branches.
 
 	if ( ! is_multisite() ) {
 		?>
