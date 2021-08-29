@@ -20,11 +20,39 @@ $tinymce_version = '49110-20201110';
 $required_php_version = '7.4';
 
 /**
+ * Holds the max supported PHP version.
+ *
+ * @var string $upto_php_version
+ */
+$upto_php_version = '8.1';
+
+/**
  * Holds the required MySQL version.
  *
  * @var string $required_mysql_version
  */
 $required_mysql_version = '5.7';
+
+/**
+ * Holds the max supported MySQL version.
+ *
+ * @var string $upto_mysql_version
+ */
+$upto_mysql_version = '8.0';
+
+/**
+ * Holds the required MariaDB version.
+ *
+ * @var string $required_mariadb_version
+ */
+$required_mariadb_version = '10.2';
+
+/**
+ * Holds the max supported MariaDB version.
+ *
+ * @var string $upto_mariadb_version
+ */
+$upto_mariadb_version = '10.6';
 
 /*
  * WordPress has a bad habit of including this file multiple times therefor some
