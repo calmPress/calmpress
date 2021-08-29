@@ -5352,31 +5352,23 @@ function is_lighttpd_before_150() {
 
 /**
  * Does the specified module exist in the Apache config?
+ * 
+ * It is actually impossible to know if PHP is not working under mod_php, so
+ * just do best effort and let the caller know if it is impossible to know.
  *
  * @since 2.5.0
  *
- * @global bool $is_apache
- *
  * @param string $mod     The module, e.g. mod_rewrite.
  * @param bool   $default Optional. The default return value if the module is not found. Default false.
- * @return bool Whether the specified module is loaded.
+ *
+ * @return bool|string true if the specified module is loaded, false if it is known to not be loaded
+ *                     and default value which is empty string if it is impossible to detect.
  */
-function apache_mod_loaded( $mod, $default = false ) {
+function apache_mod_loaded( $mod, $default = '' ) {
 
 	if ( function_exists( 'apache_get_modules' ) ) {
 		$mods = apache_get_modules();
-		if ( in_array( $mod, $mods, true ) ) {
-			return true;
-		}
-	} elseif ( false !== strpos( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) ) {
-		if ( in_array( $mod, [
-			'mod_rewrite',
-			'mod_deflate',
-			'mod_expires',
-			'mod_filter',
-		], true ) ) {
-			return true;
-		}
+		return ( in_array( $mod, $mods, true ) );
 	}
 
 	return $default;

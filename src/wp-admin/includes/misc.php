@@ -7,17 +7,16 @@
  */
 
 /**
- * Returns whether the server is running Apache with the mod_rewrite module loaded.
- * For calmPress it is an alias to detecting with an apache server is being used.
+ * Try to detect whether the server is running Apache with the mod_rewrite module loaded.
  *
  * @since 2.0.0
  * @since calmPress 1.0.0
  *
- * @return bool True if the server is Apache, false if it is not.
+ * @return bool|string true if the specified module is loaded, false if it is known to not be loaded
+ *                     and empty string if it is impossible to detect.
  */
 function got_mod_rewrite() {
-	$got_rewrite = apache_mod_loaded('mod_rewrite', true);
-	return $got_rewrite;
+	return apache_mod_loaded( 'mod_rewrite', '' );
 }
 
 /**
