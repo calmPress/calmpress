@@ -1022,13 +1022,12 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
  * @since 5.1.0
  *
  * @global wpdb $wpdb          WordPress database abstraction object.
- * @global int  $wp_db_version WordPress database version.
  *
  * @param int   $network_id Network ID to populate meta for.
  * @param array $meta       Optional. Custom meta $key => $value pairs to use. Default empty array.
  */
 function populate_network_meta( $network_id, array $meta = array() ) {
-	global $wpdb, $wp_db_version;
+	global $wpdb;
 
 	$network_id = (int) $network_id;
 

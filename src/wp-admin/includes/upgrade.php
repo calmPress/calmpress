@@ -575,6 +575,11 @@ if ( ! function_exists( 'wp_upgrade' ) ) :
 		$wp_current_db_version = __get_option('db_version');
 		$clampress_db_version = __get_option('calmpress_db_version');
 
+		// If empty, initialize $clampress_db_version to something that can be compared to other versions.
+		if ( ! $clampress_db_version ) {
+			$clampress_db_version = '0.1';
+		}
+		
 		// We are up-to-date. Nothing to do.
 		if ( empty ( $wp_current_db_version ) && calmpress_version() === $clampress_db_version ) {
 			return;
@@ -582,11 +587,6 @@ if ( ! function_exists( 'wp_upgrade' ) ) :
 
 		if ( ! is_blog_installed() ) {
 			return;
-		}
-
-		// If empty, initialize $clampress_db_version to something that can be compared to other versions.
-		if ( $clampress_db_version ) {
-			$clampress_db_version = '0.1';
 		}
 
 		wp_cache_flush();
@@ -598,7 +598,7 @@ if ( ! function_exists( 'wp_upgrade' ) ) :
 		wp_cache_flush();
 
 		if ( is_multisite() ) {
-			update_site_meta( get_current_blog_id(), 'db_version', $wp_db_version );
+			update_site_meta( get_current_blog_id(), 'db_version', calmpress_version() );
 			update_site_meta( get_current_blog_id(), 'db_last_updated', microtime() );
 		}
 
