@@ -136,7 +136,7 @@ if ( $iis7_permalinks ) {
 	} else {
 		$writable = false;
 	}
-} elseif ( $is_nginx ) {
+} elseif ( is_nginx() ) {
 	$writable = false;
 } else {
 	if ( ( ! file_exists( $home_path . '.htaccess' ) && is_writable( $home_path ) ) || is_writable( $home_path . '.htaccess' ) ) {
@@ -170,7 +170,7 @@ if ( $structure_updated ) {
 					'<code>web.config</code>'
 				);
 			}
-		} elseif ( ! $is_nginx && $htaccess_update_required && ! $writable ) {
+		} elseif ( ! is_nginx() && $htaccess_update_required && ! $writable ) {
 			$message = sprintf(
 				/* translators: %s: .htaccess */
 				__( 'You should update your %s file now.' ),

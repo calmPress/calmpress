@@ -17,7 +17,7 @@
 
 global $pagenow,
 	$is_lynx, $is_gecko, $is_winIE, $is_macIE, $is_opera, $is_NS4, $is_safari, $is_chrome, $is_iphone, $is_IE, $is_edge,
-	$is_IIS, $is_iis7, $is_nginx;
+	$is_IIS, $is_iis7;
 
 // On which page are we?
 if ( is_admin() ) {
@@ -107,13 +107,6 @@ if ( $is_safari && stripos( $_SERVER['HTTP_USER_AGENT'], 'mobile' ) !== false ) 
 $is_IE = ( $is_macIE || $is_winIE );
 
 // Server detection.
-
-/**
- * Whether the server software is Nginx or something else
- *
- * @global bool $is_nginx
- */
-$is_nginx = ( strpos( $_SERVER['SERVER_SOFTWARE'], 'nginx' ) !== false );
 
 /**
  * Whether the server software is IIS or something else

@@ -7877,3 +7877,12 @@ function wp_fuzzy_number_match( $expected, $actual, $precision = 1 ) {
 function is_apache() : bool {
 	return ( strpos( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) !== false || strpos( $_SERVER['SERVER_SOFTWARE'], 'LiteSpeed' ) !== false );
 }
+
+/**
+ * Detect whether the server software is Nginx.
+ *
+ * @return bool true if Nginx detected, false otherwise.
+ */
+function is_nginx() : bool {
+	return ( strpos( $_SERVER['SERVER_SOFTWARE'], 'nginx' ) !== false );
+}

@@ -376,12 +376,11 @@ function network_step1( $errors = false ) {
  * @since 3.0.0
  *
  * @global wpdb $wpdb     WordPress database abstraction object.
- * @global bool $is_nginx Whether the server software is Nginx or something else.
  *
  * @param false|WP_Error $errors Optional. Error object. Default false.
  */
 function network_step2( $errors = false ) {
-	global $wpdb, $is_nginx;
+	global $wpdb;
 
 	$hostname          = get_clean_basedomain();
 	$slashed_home      = trailingslashit( get_option( 'home' ) );
@@ -560,7 +559,7 @@ define( 'BLOG_ID_CURRENT_SITE', 1 );
 	</ol>
 
 		<?php
-	elseif ( $is_nginx ) : // End iis7_supports_permalinks(). Link to Nginx documentation instead:
+	elseif ( is_nginx() ) : // End iis7_supports_permalinks(). Link to Nginx documentation instead:
 
 		echo '<li><p>';
 		printf(
@@ -570,7 +569,7 @@ define( 'BLOG_ID_CURRENT_SITE', 1 );
 		);
 		echo '</p></li>';
 
-	else : // End $is_nginx. Construct an .htaccess file instead:
+	else : // End is_nginx(). Construct an .htaccess file instead:
 
 		$ms_files_rewriting = '';
 		if ( is_multisite() && get_site_option( 'ms_files_rewriting' ) ) {
