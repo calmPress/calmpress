@@ -154,7 +154,7 @@ require_once ABSPATH . WPINC . '/class-wp-locale-switcher.php';
 wp_not_installed();
 
 // calmPress autoloader.
-require( ABSPATH . WPINC . '/calmpress/autoloader.php' );
+require ABSPATH . WPINC . '/calmpress/autoloader.php';
 
 // Load most of WordPress.
 require ABSPATH . WPINC . '/class-wp-walker.php';
