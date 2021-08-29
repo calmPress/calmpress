@@ -292,8 +292,7 @@ $menu[80]                               = array( __( 'Settings' ), 'manage_optio
 		$submenu['options-general.php'][41] = array( __( 'wp-config.php' ), 'manage_options', 'options-wp-config.php' );
 	}
 
-	global $is_apache;
-	if ( $is_apache && is_super_admin() ) {
+	if ( is_apache() && is_super_admin() ) {
 		$submenu['options-general.php'][42] = array( __( '.htaccess' ), 'manage_options', 'options-htaccess.php' );
 	}
 	if ( is_super_admin() ) {
