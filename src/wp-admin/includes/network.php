@@ -105,12 +105,9 @@ function get_clean_basedomain() {
  *
  * @since 3.0.0
  *
- * @global bool $is_apache
- *
  * @param false|WP_Error $errors Optional. Error object. Default false.
  */
 function network_step1( $errors = false ) {
-	global $is_apache;
 
 	if ( defined( 'DO_NOT_UPGRADE_GLOBAL_TABLES' ) ) {
 		echo '<div class="error"><p><strong>' . __( 'Error:' ) . '</strong> ' . sprintf(
@@ -199,7 +196,7 @@ function network_step1( $errors = false ) {
 				'<code>mod_rewrite</code>'
 			);
 			echo '</p>';
-		} elseif ( $is_apache ) {
+		} elseif ( is_apache() ) {
 			echo '<div class="error inline"><p><strong>' . __( 'Warning:' ) . '</strong> ';
 			printf(
 				/* translators: %s: mod_rewrite */
@@ -209,7 +206,7 @@ function network_step1( $errors = false ) {
 			echo '</p>';
 		}
 
-		if ( $got_mod_rewrite || $is_apache ) { // Protect against mod_rewrite mimicry (but ! Apache).
+		if ( $got_mod_rewrite || is_apache() ) { // Protect against mod_rewrite mimicry (but ! Apache).
 			echo '<p>';
 			printf(
 				/* translators: 1: mod_rewrite, 2: mod_rewrite documentation URL, 3: Google search for mod_rewrite. */

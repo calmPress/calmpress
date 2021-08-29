@@ -7868,3 +7868,12 @@ function is_php_version_compatible( $required ) {
 function wp_fuzzy_number_match( $expected, $actual, $precision = 1 ) {
 	return abs( (float) $expected - (float) $actual ) <= $precision;
 }
+
+/**
+ * Detect whether the server software is Apache or lightspeed which is compatible.
+ *
+ * @return bool true if apache compatible, false otherwise.
+ */
+function is_apache() : bool {
+	return ( strpos( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) !== false || strpos( $_SERVER['SERVER_SOFTWARE'], 'LiteSpeed' ) !== false );
+}

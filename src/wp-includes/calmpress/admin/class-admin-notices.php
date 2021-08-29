@@ -28,9 +28,9 @@ class Admin_Notices {
 	 * @since 1.0.0
 	 */
 	public static function htaccess_update_nag() {
-		global $wp_rewrite, $is_apache;
+		global $wp_rewrite;
 
-		if ( ! is_multisite() && is_super_admin() && $is_apache ) {
+		if ( ! is_multisite() && is_super_admin() && is_apache() ) {
 			$home_path      = ABSPATH;
 			$existing_rules = array_filter( extract_from_markers( $home_path . '.htaccess', 'WordPress' ) );
 			$new_rules      = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );

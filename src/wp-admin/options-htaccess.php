@@ -16,9 +16,7 @@ if ( ! is_super_admin() ) {
 	wp_die( esc_html__( 'Sorry, you are not allowed to manage .htaccess for this site.' ) );
 }
 
-global $is_apache;
-
-if ( ! $is_apache ) {
+if ( ! is_apache() ) {
 	wp_die( esc_html__( 'Sorry, you are not using an apache web server.' ) );
 }
 

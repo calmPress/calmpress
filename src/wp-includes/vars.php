@@ -17,7 +17,7 @@
 
 global $pagenow,
 	$is_lynx, $is_gecko, $is_winIE, $is_macIE, $is_opera, $is_NS4, $is_safari, $is_chrome, $is_iphone, $is_IE, $is_edge,
-	$is_apache, $is_IIS, $is_iis7, $is_nginx;
+	$is_IIS, $is_iis7, $is_nginx;
 
 // On which page are we?
 if ( is_admin() ) {
@@ -109,13 +109,6 @@ $is_IE = ( $is_macIE || $is_winIE );
 // Server detection.
 
 /**
- * Whether the server software is Apache or something else
- *
- * @global bool $is_apache
- */
-$is_apache = ( strpos( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) !== false || strpos( $_SERVER['SERVER_SOFTWARE'], 'LiteSpeed' ) !== false );
-
-/**
  * Whether the server software is Nginx or something else
  *
  * @global bool $is_nginx
@@ -127,7 +120,7 @@ $is_nginx = ( strpos( $_SERVER['SERVER_SOFTWARE'], 'nginx' ) !== false );
  *
  * @global bool $is_IIS
  */
-$is_IIS = ! $is_apache && ( strpos( $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS' ) !== false || strpos( $_SERVER['SERVER_SOFTWARE'], 'ExpressionDevServer' ) !== false );
+$is_IIS = ! is_apache() && ( strpos( $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS' ) !== false || strpos( $_SERVER['SERVER_SOFTWARE'], 'ExpressionDevServer' ) !== false );
 
 /**
  * Whether the server software is IIS 7.X or greater
