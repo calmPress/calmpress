@@ -45,7 +45,6 @@ $_content_editor_dfw = false;
 
 if ( post_type_supports( $post_type, 'editor' )
 	&& ! wp_is_mobile()
-	&& ! ( $is_IE && preg_match( '/MSIE [5678]/', $_SERVER['HTTP_USER_AGENT'] ) )
 ) {
 	/**
 	 * Filters whether to enable the 'expand' functionality in the post editor.
@@ -569,7 +568,7 @@ if ( post_type_supports( $post_type, 'editor' ) ) {
 				'resize'                  => false,
 				'wp_autoresize_on'        => $_wp_editor_expand,
 				'add_unload_trigger'      => false,
-				'wp_keep_scroll_position' => ! $is_IE,
+				'wp_keep_scroll_position' => true,
 			),
 		)
 	);

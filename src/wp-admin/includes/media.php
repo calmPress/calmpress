@@ -1985,13 +1985,11 @@ function media_upload_header() {
  *
  * @global string $type
  * @global string $tab
- * @global bool   $is_IE
- * @global bool   $is_opera
  *
  * @param array $errors
  */
 function media_upload_form( $errors = null ) {
-	global $type, $tab, $is_IE, $is_opera;
+	global $type, $tab;
 
 	if ( ! _device_can_upload() ) {
 		echo '<p>' . __( 'The web browser on your device cannot be used to upload files.' ) . '</p>';
@@ -2077,19 +2075,6 @@ function media_upload_form( $errors = null ) {
 		'filters'          => array( 'max_file_size' => $max_upload_size . 'b' ),
 		'multipart_params' => $post_params,
 	);
-
-	/*
-	 * Currently only iOS Safari supports multiple files uploading,
-	 * but iOS 7.x has a bug that prevents uploading of videos when enabled.
-	 * See #29602.
-	 */
-	if (
-		wp_is_mobile() &&
-		strpos( $_SERVER['HTTP_USER_AGENT'], 'OS 7_' ) !== false &&
-		strpos( $_SERVER['HTTP_USER_AGENT'], 'like Mac OS X' ) !== false
-	) {
-		$plupload_init['multi_selection'] = false;
-	}
 
 	// Check if WebP images can be edited.
 	if ( ! wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) ) ) {

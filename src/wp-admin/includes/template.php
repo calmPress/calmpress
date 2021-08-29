@@ -1854,17 +1854,11 @@ function get_submit_button( $text = '', $type = 'primary large', $name = 'submit
 }
 
 /**
- * @global bool $is_IE
+ * 
  */
 function _wp_admin_html_begin() {
-	global $is_IE;
 
 	$admin_html_class = ( is_admin_bar_showing() ) ? 'wp-toolbar' : '';
-
-	if ( $is_IE ) {
-		header( 'X-UA-Compatible: IE=edge' );
-	}
-
 	?>
 <!DOCTYPE html>
 <html class="<?php echo $admin_html_class; ?>"
