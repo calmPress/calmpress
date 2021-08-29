@@ -1689,25 +1689,13 @@ class WP_Site_Health {
 
 		$result['status'] = 'recommended';
 
-		if ( ! function_exists( 'got_mod_rewrite' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/misc.php';
-		}
-
-		if ( got_mod_rewrite() ) {
-			$result['actions'] .= sprintf(
-				'<p><a href="%s">%s</a></p>',
-				esc_url( admin_url( 'options-permalink.php' ) ),
-				__( 'Flush permalinks' )
-			);
-		} else {
-			$result['actions'] .= sprintf(
-				'<p><a href="%s" target="_blank" rel="noopener">%s <span class="screen-reader-text">%s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a></p>',
-				__( 'https://developer.wordpress.org/rest-api/frequently-asked-questions/#why-is-authentication-not-working' ),
-				__( 'Learn how to configure the Authorization header.' ),
-				/* translators: Accessibility text. */
-				__( '(opens in a new tab)' )
-			);
-		}
+		$result['actions'] .= sprintf(
+			'<p><a href="%s" target="_blank" rel="noopener">%s <span class="screen-reader-text">%s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a></p>',
+			__( 'https://developer.wordpress.org/rest-api/frequently-asked-questions/#why-is-authentication-not-working' ),
+			__( 'Learn how to configure the Authorization header.' ),
+			/* translators: Accessibility text. */
+			__( '(opens in a new tab)' )
+		);
 
 		return $result;
 	}
