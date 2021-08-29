@@ -3343,23 +3343,6 @@ class wpdb {
 	}
 
 	/**
-	 * Determines whether MySQL database is at least the required minimum version.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @global string $required_mysql_version The required MySQL version string.
-	 * @return void|WP_Error
-	 */
-	public function check_database_version() {
-		global $required_mysql_version;
-		// Make sure the server has the required MySQL version
-		if ( version_compare($this->db_version(), $required_mysql_version, '<') ) {
-			/* translators: 1: calmPress version number, 2: Minimum required MySQL version number. */
-			return new WP_Error('database_version', sprintf( __( '<strong>ERROR</strong>: calmPress %1$s requires MySQL %2$s or higher' ), calmpress_version(), $required_mysql_version ));
-		}
-	}
-
-	/**
 	 * The database character collate.
 	 *
 	 * @since 3.5.0

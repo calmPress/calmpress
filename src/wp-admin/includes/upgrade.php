@@ -46,7 +46,6 @@ if ( ! function_exists( 'wp_install' ) ) :
 	 */
 	function wp_install( $blog_title, $user_name, $user_email, $public, $deprecated = '', $user_password = '', $language = '' ) {
 
-		wp_check_mysql_version();
 		wp_cache_flush();
 		make_db_current_silent();
 		populate_options();
@@ -590,7 +589,6 @@ if ( ! function_exists( 'wp_upgrade' ) ) :
 			$clampress_db_version = '0.1';
 		}
 
-		wp_check_mysql_version();
 		wp_cache_flush();
 		pre_schema_upgrade();
 		make_db_current_silent();
@@ -3058,21 +3056,6 @@ function translate_level_to_role( $level ) {
 		case 0:
 		default:
 			return 'subscriber';
-	}
-}
-
-/**
- * Checks the version of the installed MySQL binary.
- *
- * @since 2.1.0
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- */
-function wp_check_mysql_version() {
-	global $wpdb;
-	$result = $wpdb->check_database_version();
-	if ( is_wp_error( $result ) ) {
-		wp_die( $result );
 	}
 }
 

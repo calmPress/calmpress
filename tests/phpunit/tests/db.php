@@ -503,11 +503,6 @@ class Tests_DB extends WP_UnitTestCase {
 		);
 	}
 
-	function test_check_database_version() {
-		global $wpdb;
-		$this->assertEmpty( $wpdb->check_database_version() );
-	}
-
 	function test_bail() {
 		global $wpdb;
 
