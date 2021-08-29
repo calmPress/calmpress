@@ -196,12 +196,6 @@ if ( is_blog_installed() ) {
 	);
 }
 
-/**
- * @global string $required_php_version   The required PHP version string.
- * @global string $required_mysql_version The required MySQL version string.
- */
-global $required_php_version, $required_mysql_version;
-
 $php_version   = phpversion();
 $mysql_version = $wpdb->db_version();
 
@@ -226,6 +220,9 @@ if ( $annotation ) {
 	$php_update_message .= '</p><p><em>' . $annotation . '</em>';
 }
 $errors = [];
+
+// get current version data locally.
+require ABSPATH . WPINC . '/version.php';
 
 // Check PHP compatibility.
 $php_compat = version_compare( $php_version, $required_php_version, '>=' );
@@ -252,7 +249,37 @@ if ( ! $mysql_compat ) {
 
 // Check installed as https unless it is local.
 if ( ! is_ssl() && ! is_local_install() ) {
-	$errors[] = esc_html__( ' You do not use https: to access the site.' );
+	$errors[] = esc_html__( 'You do not use https: to access the site.' );
+}
+
+// Check for require php extensions.
+foreach ( $required_php_extensions as $extension ) {
+	if ( ! extension_loaded( $extension ) ) {
+		if ( isset( $alternative_php_extensions[ $extension ] ) ) {
+			// Check if an alternative can be found.
+			$found = false;
+			foreach ( $alternative_php_extensions[ $extension ] as $altenative ) {
+				if ( extension_loaded( $extension ) ) {
+					$found = true;
+				}
+			}
+			// No alternative found, set an error message.
+			if ( ! $found ) {
+				$errors[] = sprintf(
+					/* translators: 1: The name of the extension, 2: List of alternative extensions. */
+					esc_html__( 'The required PHP extension %1$s is not enabled. Possible alternatives: %2$s' ),
+					esc_html( $extension ),
+					esc_html( join( ', ', $alternative_php_extensions[ $extension ] ) )
+				);
+			}
+		} else {
+			$errors[] = sprintf(
+				/* translators: 1: The name of the extension. */
+				esc_html__( 'The required PHP extension %1$s is not enabled.' ),
+				esc_html( $extension )
+			);
+		}
+	}
 }
 
 if ( ! empty( $errors ) ) {

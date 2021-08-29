@@ -54,6 +54,20 @@ $required_mariadb_version = '10.2';
  */
 $upto_mariadb_version = '10.6';
 
+/**
+ * Holds the required PHP extensions.
+ *
+ * @var array $required_php_extensions
+ */
+$required_php_extensions = ['curl', 'exif', 'mysqli', 'openssl', 'gd', 'fileinfo', 'mbstring', 'dom', 'zip'];
+
+/**
+ * Holds the alternative PHP extensions.
+ *
+ * @var array $alternative_php_extensions
+ */
+$alternative_php_extensions = [ 'gd' => ['gd2', 'imagick'] ];
+
 /*
  * WordPress has a bad habit of including this file multiple times therefor some
  * protection is needed around function definitions.
