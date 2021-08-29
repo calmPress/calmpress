@@ -1005,7 +1005,6 @@ abstract class WP_UnitTestCase_Base extends PHPUnit\Framework\TestCase {
 			'is_tag',
 			'is_tax',
 			'is_time',
-			'is_trackback',
 			'is_year',
 		);
 

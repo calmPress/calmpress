@@ -55,7 +55,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		}
 	}
 
-	if ( is_admin() || is_search() || is_preview() || is_trackback() || is_favicon() ) {
+	if ( is_admin() || is_search() || is_preview() || is_favicon() ) {
 		return;
 	}
 
