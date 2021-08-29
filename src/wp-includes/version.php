@@ -57,16 +57,23 @@ $upto_mariadb_version = '10.6';
 /**
  * Holds the required PHP extensions.
  *
- * @var array $required_php_extensions
+ * @var string[] $required_php_extensions
  */
 $required_php_extensions = ['curl', 'exif', 'mysqli', 'openssl', 'gd', 'fileinfo', 'mbstring', 'dom', 'zip'];
 
 /**
  * Holds the alternative PHP extensions.
  *
- * @var array $alternative_php_extensions
+ * @var string[] $alternative_php_extensions
  */
 $alternative_php_extensions = [ 'gd' => ['gd2', 'imagick'] ];
+
+/**
+ * Holds the required Apache modules.
+ *
+ * @var string[] $required_apache_modules
+ */
+$required_apache_modules = [ 'mod_rewrite', 'mod_filter', 'mod_deflate', 'mod_expires' ];
 
 /*
  * WordPress has a bad habit of including this file multiple times therefor some

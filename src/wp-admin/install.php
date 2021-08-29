@@ -282,6 +282,19 @@ foreach ( $required_php_extensions as $extension ) {
 	}
 }
 
+// Check for require apache modules if it is being used.
+if ( is_apache() ) {
+	foreach ( $required_apache_modules as $module ) {
+		if ( false === apache_mod_loaded( $module, 'unknown' ) ) {
+			$errors[] = sprintf(
+				/* translators: 1: The name of the module. */
+				esc_html__( 'The required Apache module %1$s is not enabled.' ),
+				esc_html( $module )
+			);
+		}
+	}
+}
+
 if ( ! empty( $errors ) ) {
 	display_header();
 	$html = '<h1>' . esc_html__( 'Requirements Not Met' ) . '</h1><p>';
