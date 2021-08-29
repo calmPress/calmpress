@@ -15,7 +15,7 @@
  * @global int    $blog_id    The current site ID.
  */
 function wp_initial_constants() {
-	global $blog_id, $wp_version;
+	global $blog_id;
 
 	/**#@+
 	 * Constants for expressing human-readable data sizes in their respective number of bytes.

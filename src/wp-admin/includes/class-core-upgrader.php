@@ -179,35 +179,4 @@ class Core_Upgrader extends WP_Upgrader {
 
 		return $result;
 	}
-
-	/**
-	 * Determines if this WordPress Core version should update to an offered version or not.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @param string $offered_ver The offered version, of the format x.y.z.
-	 * @return bool True if we should update to the offered version, otherwise false.
-	 */
-	public static function should_update_to_version( $offered_ver ) {
-		require ABSPATH . WPINC . '/version.php'; // $wp_version; // x.y.z
-
-		$current_branch = implode( '.', array_slice( preg_split( '/[.-]/', $wp_version ), 0, 2 ) ); // x.y
-		$new_branch     = implode( '.', array_slice( preg_split( '/[.-]/', $offered_ver ), 0, 2 ) ); // x.y
-
-		$current_is_development_version = (bool) strpos( $wp_version, '-' );
-
-		// 1: If we're already on that version, not much point in updating?
-		if ( $offered_ver === $wp_version ) {
-			return false;
-		}
-
-		// 2: If we're running a newer version, that's a nope.
-		if ( version_compare( $wp_version, $offered_ver, '>' ) ) {
-			return false;
-		}
-
-		// If we're not sure, we don't want it.
-		return false;
-	}
-
 }

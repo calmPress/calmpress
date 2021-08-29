@@ -78,4 +78,4 @@ if ( ! function_exists( 'wordpress_core_version' ) ) {
 }
 
 // WordPress version as global for backward compatibility.
-$wp_version = wordpress_core_version();
+$wp_version = '5.8.0';
