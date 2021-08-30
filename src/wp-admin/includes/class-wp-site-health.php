@@ -111,11 +111,6 @@ class WP_Site_Health {
 		if ( 'site-health' === $screen->id && ( ! isset( $_GET['tab'] ) || empty( $_GET['tab'] ) ) ) {
 			$tests = WP_Site_Health::get_tests();
 
-			// Don't run https test on development environments.
-			if ( $this->is_development_environment() ) {
-				unset( $tests['async']['https_status'] );
-			}
-
 			foreach ( $tests['direct'] as $test ) {
 				if ( is_string( $test['test'] ) ) {
 					$test_function = sprintf(
@@ -1324,10 +1319,6 @@ class WP_Site_Health {
 					'label' => __( 'Database Server version' ),
 					'test'  => 'sql_server',
 				),
-				'https_status'              => array(
-					'label' => __( 'HTTPS status' ),
-					'test'  => 'https_status',
-				),
 				'ssl_support'               => array(
 					'label' => __( 'Secure communication' ),
 					'test'  => 'ssl_support',
@@ -1648,11 +1639,6 @@ class WP_Site_Health {
 			'recommended' => 0,
 			'critical'    => 0,
 		);
-
-		// Don't run https test on development environments.
-		if ( $this->is_development_environment() ) {
-			unset( $tests['async']['https_status'] );
-		}
 
 		foreach ( $tests['direct'] as $test ) {
 			if ( ! empty( $test['skip_cron'] ) ) {
