@@ -87,11 +87,6 @@ class WP_Debug_Data {
 					'value'   => get_bloginfo( 'url' ),
 					'private' => true,
 				),
-				'site_url'               => array(
-					'label'   => __( 'Site URL' ),
-					'value'   => get_bloginfo( 'wpurl' ),
-					'private' => true,
-				),
 				'permalink'              => array(
 					'label' => __( 'Permalink structure' ),
 					'value' => $permalink_structure,
