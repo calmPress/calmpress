@@ -1068,79 +1068,6 @@ class WP_Site_Health {
 	}
 
 	/**
-	 * Test if HTTP requests are blocked.
-	 *
-	 * It's possible to block all outgoing communication (with the possibility of allowing certain
-	 * hosts) via the HTTP API. This may create problems for users as many features are running as
-	 * services these days.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @return array The test results.
-	 */
-	public function get_test_http_requests() {
-		$result = array(
-			'label'       => __( 'HTTP requests seem to be working as expected' ),
-			'status'      => 'good',
-			'badge'       => array(
-				'label' => __( 'Performance' ),
-				'color' => 'blue',
-			),
-			'description' => sprintf(
-				'<p>%s</p>',
-				__( 'It is possible for site maintainers to block all, or some, communication to other sites and services. If set up incorrectly, this may prevent plugins and themes from working as intended.' )
-			),
-			'actions'     => '',
-			'test'        => 'http_requests',
-		);
-
-		$blocked = false;
-		$hosts   = array();
-
-		if ( defined( 'WP_HTTP_BLOCK_EXTERNAL' ) && WP_HTTP_BLOCK_EXTERNAL ) {
-			$blocked = true;
-		}
-
-		if ( defined( 'WP_ACCESSIBLE_HOSTS' ) ) {
-			$hosts = explode( ',', WP_ACCESSIBLE_HOSTS );
-		}
-
-		if ( $blocked && 0 === count( $hosts ) ) {
-			$result['status'] = 'critical';
-
-			$result['label'] = __( 'HTTP requests are blocked' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				sprintf(
-					/* translators: %s: Name of the constant used. */
-					__( 'HTTP requests have been blocked by the %s constant, with no allowed hosts.' ),
-					'<code>WP_HTTP_BLOCK_EXTERNAL</code>'
-				)
-			);
-		}
-
-		if ( $blocked && 0 < count( $hosts ) ) {
-			$result['status'] = 'recommended';
-
-			$result['label'] = __( 'HTTP requests are partially blocked' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				sprintf(
-					/* translators: 1: Name of the constant used. 2: List of allowed hostnames. */
-					__( 'HTTP requests have been blocked by the %1$s constant, with some allowed hosts: %2$s.' ),
-					'<code>WP_HTTP_BLOCK_EXTERNAL</code>',
-					implode( ',', $hosts )
-				)
-			);
-		}
-
-		return $result;
-	}
-
-
-	/**
 	 * Test if 'file_uploads' directive in PHP.ini is turned off.
 	 *
 	 * @since 5.5.0
@@ -1326,10 +1253,6 @@ class WP_Site_Health {
 				'scheduled_events'          => array(
 					'label' => __( 'Scheduled events' ),
 					'test'  => 'scheduled_events',
-				),
-				'http_requests'             => array(
-					'label' => __( 'HTTP Requests' ),
-					'test'  => 'http_requests',
 				),
 				'debug_enabled'             => array(
 					'label' => __( 'Debugging enabled' ),
