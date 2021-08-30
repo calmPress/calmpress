@@ -739,13 +739,6 @@ class WP_Debug_Data {
 			'debug' => $imagick_loaded,
 		);
 
-		// Pretty permalinks.
-		$info['wp-server']['fields']['pretty_permalinks'] = array(
-			'label' => __( 'Are pretty permalinks supported?' ),
-			'value' => ( $pretty_permalinks_supported ? __( 'Yes' ) : __( 'No' ) ),
-			'debug' => $pretty_permalinks_supported,
-		);
-
 		// Check if a .htaccess file exists.
 		if ( is_file( ABSPATH . '.htaccess' ) ) {
 			// If the file exists, grab the content of it.
