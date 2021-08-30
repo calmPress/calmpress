@@ -138,11 +138,9 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			'/wp/v2/widgets',
 			'/wp/v2/widgets/(?P<id>[\w\-]+)',
 			'/wp-site-health/v1',
-			'/wp-site-health/v1/tests/background-updates',
 			'/wp-site-health/v1/tests/loopback-requests',
 			'/wp-site-health/v1/tests/dotorg-communication',
 			'/wp-site-health/v1/tests/authorization-header',
-			'/wp-site-health/v1/directory-sizes',
 		);
 
 		$this->assertSameSets( $expected_routes, $routes );

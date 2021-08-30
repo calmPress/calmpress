@@ -122,21 +122,6 @@ class WP_REST_Site_Health_Controller extends WP_REST_Controller {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
-
-		register_rest_route(
-			$this->namespace,
-			sprintf(
-				'/%s',
-				'directory-sizes'
-			),
-			array(
-				'methods'             => 'GET',
-				'callback'            => array( $this, 'get_directory_sizes' ),
-				'permission_callback' => function() {
-					return $this->validate_request_permission( 'debug_enabled' ) && ! is_multisite();
-				},
-			)
-		);
 	}
 
 	/**
