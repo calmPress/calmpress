@@ -175,7 +175,7 @@ jQuery( function( $ ) {
 	 *
 	 * @since 5.2.0
 	 */
-	function recalculateProgression() {
+	 function recalculateProgression() {
 		var r, c, pct;
 		var $progress = $( '.site-health-progress' );
 		var $wrapper = $progress.closest( '.site-health-progress-wrapper' );
@@ -187,6 +187,16 @@ jQuery( function( $ ) {
 		var failedTests = ( parseInt( SiteHealth.site_status.issues.recommended, 0 ) * 0.5 ) +
 			( parseInt( SiteHealth.site_status.issues.critical, 0 ) * 1.5 );
 		var val = 100 - Math.ceil( ( failedTests / totalTests ) * 100 );
+
+		if ( 0 === totalTests ) {
+			$progress.addClass( 'hidden' );
+			return;
+		}
+
+		$wrapper.removeClass( 'loading' );
+
+		r = $circle.attr( 'r' );
+		c = Math.PI * ( r * 2 );
 
 		if ( 0 > val ) {
 			val = 0;
@@ -207,9 +217,16 @@ jQuery( function( $ ) {
 			$( '#health-check-issues-recommended' ).addClass( 'hidden' );
 		}
 
-		if ( 100 === val ) {
-			$( '.site-status-all-clear' ).removeClass( 'hide' );
-			$( '.site-status-has-issues' ).addClass( 'hide' );
+		if ( 80 <= val && 0 === parseInt( SiteHealth.site_status.issues.critical, 0 ) ) {
+			$wrapper.addClass( 'green' ).removeClass( 'orange' );
+
+			$progressLabel.text( __( 'Good' ) );
+			wp.a11y.speak( __( 'All site health tests have finished running. Your site is looking good, and the results are now available on the page.' ) );
+		} else {
+			$wrapper.addClass( 'orange' ).removeClass( 'green' );
+
+			$progressLabel.text( __( 'Should be improved' ) );
+			wp.a11y.speak( __( 'All site health tests have finished running. There are items that should be addressed, and the results are now available on the page.' ) );
 		}
 
 		if ( isStatusTab ) {
