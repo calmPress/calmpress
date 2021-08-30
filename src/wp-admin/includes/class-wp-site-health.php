@@ -910,49 +910,6 @@ class WP_Site_Health {
 	}
 
 	/**
-	 * Check if the HTTP API can handle SSL/TLS requests.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @return array The test results.
-	 */
-	public function get_test_ssl_support() {
-		$result = array(
-			'label'       => '',
-			'status'      => '',
-			'badge'       => array(
-				'label' => __( 'Security' ),
-				'color' => 'blue',
-			),
-			'description' => sprintf(
-				'<p>%s</p>',
-				__( 'Securely communicating between servers are needed for transactions such as fetching files, conducting sales on store sites, and much more.' )
-			),
-			'actions'     => '',
-			'test'        => 'ssl_support',
-		);
-
-		$supports_https = wp_http_supports( array( 'ssl' ) );
-
-		if ( $supports_https ) {
-			$result['status'] = 'good';
-
-			$result['label'] = __( 'Your site can communicate securely with other services' );
-		} else {
-			$result['status'] = 'critical';
-
-			$result['label'] = __( 'Your site is unable to communicate securely with other services' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				__( 'Talk to your web host about OpenSSL support for PHP.' )
-			);
-		}
-
-		return $result;
-	}
-
-	/**
 	 * Test if scheduled events run as intended.
 	 *
 	 * If scheduled events are not running, this may indicate something with WP_Cron is not working
@@ -1245,10 +1202,6 @@ class WP_Site_Health {
 				'sql_server'                => array(
 					'label' => __( 'Database Server version' ),
 					'test'  => 'sql_server',
-				),
-				'ssl_support'               => array(
-					'label' => __( 'Secure communication' ),
-					'test'  => 'ssl_support',
 				),
 				'scheduled_events'          => array(
 					'label' => __( 'Scheduled events' ),
