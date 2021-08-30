@@ -15,6 +15,105 @@ are styled in the Privacy section of edit.css */
 	text-align: center;
 }
 
+.site-health-progress-wrapper {
+	margin-bottom: 1rem;
+}
+
+.site-health-progress {
+	display: inline-block;
+	height: 20px;
+	width: 20px;
+	margin: 0;
+	border-radius: 100%;
+	position: relative;
+	font-weight: 600;
+	font-size: 0.4rem;
+}
+
+.site-health-progress-count {
+	position: absolute;
+	display: block;
+	height: 80px;
+	width: 80px;
+	left: 50%;
+	top: 50%;
+	margin-top: -40px;
+	margin-left: -40px;
+	border-radius: 100%;
+	line-height: 6.3;
+	font-size: 2em;
+}
+
+.loading .site-health-progress svg #bar {
+	stroke-dashoffset: 0;
+	stroke: #c3c4c7;
+	animation: loadingPulse 3s infinite ease-in-out;
+}
+
+.site-health-progress svg circle {
+	stroke-dashoffset: 0;
+	transition: stroke-dashoffset 1s linear;
+	stroke: #c3c4c7;
+	stroke-width: 2em;
+}
+
+.site-health-progress svg #bar {
+	stroke-dashoffset: 565;
+	stroke: #d63638;
+}
+
+.green .site-health-progress #bar {
+	stroke: #00a32a;
+}
+.green .site-health-progress .site-health-progress-label {
+	color: #00a32a;
+}
+
+.orange .site-health-progress #bar {
+	stroke: #dba617;
+}
+.orange .site-health-progress .site-health-progress-label {
+	color: #dba617;
+}
+
+.site-health-progress-label {
+	font-weight: 600;
+	line-height: 20px;
+	margin-left: 0.3rem;
+}
+
+@keyframes loadingPulse {
+	0% {
+		stroke: #c3c4c7;
+	}
+	50% {
+		stroke: #72aee6;
+	}
+	100% {
+		stroke: #c3c4c7;
+	}
+}
+
+.health-check-tabs-wrapper {
+	/* IE 11 */
+	display: -ms-inline-grid;
+	-ms-grid-columns: 1fr 1fr 1fr 1fr;
+	vertical-align: top;
+	/* modern browsers */
+	display: inline-grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.health-check-tabs-wrapper.tab-count-1 {
+	grid-template-columns: 1fr;
+}
+.health-check-tabs-wrapper.tab-count-2 {
+	grid-template-columns: 1fr 1fr;
+}
+.health-check-tabs-wrapper.tab-count-3 {
+	grid-template-columns: 1fr 1fr 1fr;
+}
+
 .health-check-tab {
 	display: block; /* IE 11 */
 	text-decoration: none;
