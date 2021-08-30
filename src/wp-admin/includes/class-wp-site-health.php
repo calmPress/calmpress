@@ -1144,111 +1144,6 @@ class WP_Site_Health {
 		return $result;
 	}
 
-	/**
-	 * Test if the REST API is accessible.
-	 *
-	 * Various security measures may block the REST API from working, or it may have been disabled in general.
-	 * This is required for the new block editor to work, so we explicitly test for this.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @return array The test results.
-	 */
-	public function get_test_rest_availability() {
-		$result = array(
-			'label'       => __( 'The REST API is available' ),
-			'status'      => 'good',
-			'badge'       => array(
-				'label' => __( 'Performance' ),
-				'color' => 'blue',
-			),
-			'description' => sprintf(
-				'<p>%s</p>',
-				__( 'The REST API is one way WordPress, and other applications, communicate with the server. One example is the block editor screen, which relies on this to display, and save, your posts and pages.' )
-			),
-			'actions'     => '',
-			'test'        => 'rest_availability',
-		);
-
-		$cookies = wp_unslash( $_COOKIE );
-		$timeout = 10;
-		$headers = array(
-			'Cache-Control' => 'no-cache',
-			'X-WP-Nonce'    => wp_create_nonce( 'wp_rest' ),
-		);
-		/** This filter is documented in wp-includes/class-wp-http-streams.php */
-		$sslverify = apply_filters( 'https_local_ssl_verify', false );
-
-		// Include Basic auth in loopback requests.
-		if ( isset( $_SERVER['PHP_AUTH_USER'] ) && isset( $_SERVER['PHP_AUTH_PW'] ) ) {
-			$headers['Authorization'] = 'Basic ' . base64_encode( wp_unslash( $_SERVER['PHP_AUTH_USER'] ) . ':' . wp_unslash( $_SERVER['PHP_AUTH_PW'] ) );
-		}
-
-		$url = rest_url( 'wp/v2/types/post' );
-
-		// The context for this is editing with the new block editor.
-		$url = add_query_arg(
-			array(
-				'context' => 'edit',
-			),
-			$url
-		);
-
-		$r = wp_remote_get( $url, compact( 'cookies', 'headers', 'timeout', 'sslverify' ) );
-
-		if ( is_wp_error( $r ) ) {
-			$result['status'] = 'critical';
-
-			$result['label'] = __( 'The REST API encountered an error' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				sprintf(
-					'%s<br>%s',
-					__( 'The REST API request failed due to an error.' ),
-					sprintf(
-						/* translators: 1: The WordPress error message. 2: The WordPress error code. */
-						__( 'Error: %1$s (%2$s)' ),
-						$r->get_error_message(),
-						$r->get_error_code()
-					)
-				)
-			);
-		} elseif ( 200 !== wp_remote_retrieve_response_code( $r ) ) {
-			$result['status'] = 'recommended';
-
-			$result['label'] = __( 'The REST API encountered an unexpected result' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				sprintf(
-					/* translators: 1: The HTTP error code. 2: The HTTP error message. */
-					__( 'The REST API call gave the following unexpected result: (%1$d) %2$s.' ),
-					wp_remote_retrieve_response_code( $r ),
-					esc_html( wp_remote_retrieve_body( $r ) )
-				)
-			);
-		} else {
-			$json = json_decode( wp_remote_retrieve_body( $r ), true );
-
-			if ( false !== $json && ! isset( $json['capabilities'] ) ) {
-				$result['status'] = 'recommended';
-
-				$result['label'] = __( 'The REST API did not behave correctly' );
-
-				$result['description'] .= sprintf(
-					'<p>%s</p>',
-					sprintf(
-						/* translators: %s: The name of the query parameter being tested. */
-						__( 'The REST API did not process the %s query parameter correctly.' ),
-						'<code>context</code>'
-					)
-				);
-			}
-		}
-
-		return $result;
-	}
 
 	/**
 	 * Test if 'file_uploads' directive in PHP.ini is turned off.
@@ -1444,11 +1339,6 @@ class WP_Site_Health {
 				'http_requests'             => array(
 					'label' => __( 'HTTP Requests' ),
 					'test'  => 'http_requests',
-				),
-				'rest_availability'         => array(
-					'label'     => __( 'REST API availability' ),
-					'test'      => 'rest_availability',
-					'skip_cron' => true,
 				),
 				'debug_enabled'             => array(
 					'label' => __( 'Debugging enabled' ),
