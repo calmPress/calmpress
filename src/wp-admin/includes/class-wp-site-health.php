@@ -403,7 +403,7 @@ class WP_Site_Health {
 	 */
 	public function get_test_theme_version() {
 		$result = array(
-			'label'       => __( 'Your themes are all up to date' ),
+			'label'       => __( 'The site does not have inactive themes' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => __( 'Security' ),
@@ -411,7 +411,7 @@ class WP_Site_Health {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'Themes add your site&#8217;s look and feel. It&#8217;s important to keep them up to date, to stay consistent with your brand and keep your site secure.' )
+				__( 'Themes add your site&#8217;s look and feel, but inactive ones just add attack targets.' )
 			),
 			'actions'     => sprintf(
 				'<p><a href="%s">%s</a></p>',
@@ -433,36 +433,13 @@ class WP_Site_Health {
 		$has_default_theme   = false;
 		$has_unused_themes   = false;
 		$show_unused_themes  = true;
-		$using_default_theme = false;
 
 		// Populate a list of all themes available in the install.
 		$all_themes   = wp_get_themes();
 		$active_theme = wp_get_theme();
 
-		// If WP_DEFAULT_THEME doesn't exist, fall back to the latest core default theme.
-		$default_theme = wp_get_theme( WP_DEFAULT_THEME );
-		if ( ! $default_theme->exists() ) {
-			$default_theme = WP_Theme::get_core_default_theme();
-		}
-
-		if ( $default_theme ) {
-			$has_default_theme = true;
-
-			if (
-				$active_theme->get_stylesheet() === $default_theme->get_stylesheet()
-			||
-				is_child_theme() && $active_theme->get_template() === $default_theme->get_template()
-			) {
-				$using_default_theme = true;
-			}
-		}
-
 		foreach ( $all_themes as $theme_slug => $theme ) {
 			$themes_total++;
-
-			if ( array_key_exists( $theme_slug, $theme_updates ) ) {
-				$themes_need_updates++;
-			}
 		}
 
 		// If this is a child theme, increase the allowed theme count by one, to account for the parent.
@@ -470,55 +447,9 @@ class WP_Site_Health {
 			$allowed_theme_count++;
 		}
 
-		// If there's a default theme installed and not in use, we count that as allowed as well.
-		if ( $has_default_theme && ! $using_default_theme ) {
-			$allowed_theme_count++;
-		}
-
 		if ( $themes_total > $allowed_theme_count ) {
 			$has_unused_themes = true;
 			$themes_inactive   = ( $themes_total - $allowed_theme_count );
-		}
-
-		// Check if any themes need to be updated.
-		if ( $themes_need_updates > 0 ) {
-			$result['status'] = 'critical';
-
-			$result['label'] = __( 'You have themes waiting to be updated' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				sprintf(
-					/* translators: %d: The number of outdated themes. */
-					_n(
-						'Your site has %d theme waiting to be updated.',
-						'Your site has %d themes waiting to be updated.',
-						$themes_need_updates
-					),
-					$themes_need_updates
-				)
-			);
-		} else {
-			// Give positive feedback about the site being good about keeping things up to date.
-			if ( 1 === $themes_total ) {
-				$result['description'] .= sprintf(
-					'<p>%s</p>',
-					__( 'Your site has 1 installed theme, and it is up to date.' )
-				);
-			} else {
-				$result['description'] .= sprintf(
-					'<p>%s</p>',
-					sprintf(
-						/* translators: %d: The number of themes. */
-						_n(
-							'Your site has %d installed theme, and it is up to date.',
-							'Your site has %d installed themes, and they are all up to date.',
-							$themes_total
-						),
-						$themes_total
-					)
-				);
-			}
 		}
 
 		if ( $has_unused_themes && $show_unused_themes && ! is_multisite() ) {
@@ -530,97 +461,46 @@ class WP_Site_Health {
 
 				$result['label'] = __( 'You should remove inactive themes' );
 
-				if ( $using_default_theme ) {
-					$result['description'] .= sprintf(
-						'<p>%s %s</p>',
-						sprintf(
-							/* translators: %d: The number of inactive themes. */
-							_n(
-								'Your site has %d inactive theme.',
-								'Your site has %d inactive themes.',
-								$themes_inactive
-							),
+				$result['description'] .= sprintf(
+					'<p>%s %s</p>',
+					sprintf(
+						/* translators: %d: The number of inactive themes. */
+						_n(
+							'Your site has %d inactive theme.',
+							'Your site has %d inactive themes.',
 							$themes_inactive
 						),
-						sprintf(
-							/* translators: 1: The currently active theme. 2: The active theme's parent theme. */
-							__( 'To enhance your site&#8217;s security, we recommend you remove any themes you&#8217;re not using. You should keep your current theme, %1$s, and %2$s, its parent theme.' ),
-							$active_theme->name,
-							$active_theme->parent()->name
-						)
-					);
-				} else {
-					$result['description'] .= sprintf(
-						'<p>%s %s</p>',
-						sprintf(
-							/* translators: %d: The number of inactive themes. */
-							_n(
-								'Your site has %d inactive theme.',
-								'Your site has %d inactive themes.',
-								$themes_inactive
-							),
-							$themes_inactive
-						),
-						sprintf(
-							/* translators: 1: The default theme for WordPress. 2: The currently active theme. 3: The active theme's parent theme. */
-							__( 'To enhance your site&#8217;s security, we recommend you remove any themes you&#8217;re not using. You should keep %1$s, the default WordPress theme, %2$s, your current theme, and %3$s, its parent theme.' ),
-							$default_theme ? $default_theme->name : WP_DEFAULT_THEME,
-							$active_theme->name,
-							$active_theme->parent()->name
-						)
-					);
-				}
+						$themes_inactive
+					),
+					sprintf(
+						/* translators: 1: The currently active theme. 2: The active theme's parent theme. */
+						__( 'To enhance your site&#8217;s security, we recommend you remove any themes you&#8217;re not using. You should keep %1$s, your current theme, and %2$s, its parent theme.' ),
+						$active_theme->name,
+						$active_theme->parent()->name
+					)
+				);
 			} else {
 				// Recommend removing all inactive themes.
 				$result['status'] = 'recommended';
 
 				$result['label'] = __( 'You should remove inactive themes' );
 
-				if ( $using_default_theme ) {
-					$result['description'] .= sprintf(
-						'<p>%s %s</p>',
-						sprintf(
-							/* translators: 1: The amount of inactive themes. 2: The currently active theme. */
-							_n(
-								'Your site has %1$d inactive theme, other than %2$s, your active theme.',
-								'Your site has %1$d inactive themes, other than %2$s, your active theme.',
-								$themes_inactive
-							),
-							$themes_inactive,
-							$active_theme->name
+				$result['description'] .= sprintf(
+					'<p>%s %s</p>',
+					sprintf(
+						/* translators: 1: The amount of inactive themes. 2: The default theme for WordPress. 3: The currently active theme. */
+						_n(
+							'Your site has %1$d inactive theme, other than %2$s, the default WordPress theme, and %3$s, your active theme.',
+							'Your site has %1$d inactive themes, other than %2$s, the default WordPress theme, and %3$s, your active theme.',
+							$themes_inactive
 						),
-						__( 'We recommend removing any unused themes to enhance your site&#8217;s security.' )
-					);
-				} else {
-					$result['description'] .= sprintf(
-						'<p>%s %s</p>',
-						sprintf(
-							/* translators: 1: The amount of inactive themes. 2: The default theme for WordPress. 3: The currently active theme. */
-							_n(
-								'Your site has %1$d inactive theme, other than %2$s, the default WordPress theme, and %3$s, your active theme.',
-								'Your site has %1$d inactive themes, other than %2$s, the default WordPress theme, and %3$s, your active theme.',
-								$themes_inactive
-							),
-							$themes_inactive,
-							$default_theme ? $default_theme->name : WP_DEFAULT_THEME,
-							$active_theme->name
-						),
-						__( 'We recommend removing any unused themes to enhance your site&#8217;s security.' )
-					);
-				}
+						$themes_inactive,
+						$default_theme ? $default_theme->name : WP_DEFAULT_THEME,
+						$active_theme->name
+					),
+					__( 'We recommend removing any inactive theme to enhance your site&#8217;s security.' )
+				);
 			}
-		}
-
-		// If no default Twenty* theme exists.
-		if ( ! $has_default_theme ) {
-			$result['status'] = 'recommended';
-
-			$result['label'] = __( 'Have a default theme available' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				__( 'Your site does not have any default theme. Default themes are used by WordPress automatically if anything is wrong with your chosen theme.' )
-			);
 		}
 
 		return $result;
