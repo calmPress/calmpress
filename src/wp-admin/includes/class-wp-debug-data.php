@@ -97,11 +97,6 @@ class WP_Debug_Data {
 					'value' => $permalink_structure,
 					'debug' => $permalink_structure,
 				),
-				'https_status'           => array(
-					'label' => __( 'Is this site using HTTPS?' ),
-					'value' => $is_ssl ? __( 'Yes' ) : __( 'No' ),
-					'debug' => $is_ssl,
-				),
 				'multisite'              => array(
 					'label' => __( 'Is this a multisite?' ),
 					'value' => $is_multisite ? __( 'Yes' ) : __( 'No' ),
