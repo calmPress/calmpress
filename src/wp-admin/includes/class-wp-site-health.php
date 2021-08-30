@@ -316,7 +316,7 @@ class WP_Site_Health {
 	 */
 	public function get_test_plugin_version() {
 		$result = array(
-			'label'       => __( 'Your plugins are all up to date' ),
+			'label'       => __( 'The site does not have inactive plugins' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => __( 'Security' ),
@@ -324,7 +324,7 @@ class WP_Site_Health {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'Plugins extend your site&#8217;s functionality with things like contact forms, ecommerce and much more. That means they have deep access to your site, so it&#8217;s vital to keep them up to date.' )
+				__( 'Plugins extend your site&#8217;s functionality, but it comes with the cost of extending possible attack targets. An inactive plugin can still be an attack target and it is better to remove it as soon as possible.' )
 			),
 			'actions'     => sprintf(
 				'<p><a href="%s">%s</a></p>',
@@ -355,52 +355,6 @@ class WP_Site_Health {
 			if ( array_key_exists( $plugin_path, $plugin_updates ) ) {
 				$plugins_need_update++;
 				$plugins_have_updates = true;
-			}
-		}
-
-		// Add a notice if there are outdated plugins.
-		if ( $plugins_need_update > 0 ) {
-			$result['status'] = 'critical';
-
-			$result['label'] = __( 'You have plugins waiting to be updated' );
-
-			$result['description'] .= sprintf(
-				'<p>%s</p>',
-				sprintf(
-					/* translators: %d: The number of outdated plugins. */
-					_n(
-						'Your site has %d plugin waiting to be updated.',
-						'Your site has %d plugins waiting to be updated.',
-						$plugins_need_update
-					),
-					$plugins_need_update
-				)
-			);
-
-			$result['actions'] .= sprintf(
-				'<p><a href="%s">%s</a></p>',
-				esc_url( network_admin_url( 'plugins.php?plugin_status=upgrade' ) ),
-				__( 'Update your plugins' )
-			);
-		} else {
-			if ( 1 === $plugins_active ) {
-				$result['description'] .= sprintf(
-					'<p>%s</p>',
-					__( 'Your site has 1 active plugin, and it is up to date.' )
-				);
-			} else {
-				$result['description'] .= sprintf(
-					'<p>%s</p>',
-					sprintf(
-						/* translators: %d: The number of active plugins. */
-						_n(
-							'Your site has %d active plugin, and it is up to date.',
-							'Your site has %d active plugins, and they are all up to date.',
-							$plugins_active
-						),
-						$plugins_active
-					)
-				);
 			}
 		}
 
