@@ -287,7 +287,7 @@ class WP_Debug_Data {
 
 		$info['wp-filesystem'] = array(
 			'label'       => __( 'Filesystem Permissions' ),
-			'description' => __( 'Shows whether calmPress is able to write to the directories it needs access to.' ),
+			'description' => __( 'Shows whether calmPress is able to write to various directories. In a good secured enviroment only the uploads directory should be writable.' ),
 			'fields'      => array(
 				'wordpress'  => array(
 					'label' => __( 'The main calmPress directory' ),
