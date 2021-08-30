@@ -59,7 +59,7 @@ $upto_mariadb_version = '10.6';
  *
  * @var string[] $required_php_extensions
  */
-$required_php_extensions = ['curl', 'exif', 'mysqli', 'openssl', 'gd', 'fileinfo', 'mbstring', 'dom', 'zip'];
+$required_php_extensions = ['exif', 'mysqli', 'openssl', 'gd', 'fileinfo', 'mbstring', 'dom', 'zip'];
 
 /**
  * Holds the alternative PHP extensions.
