@@ -331,7 +331,6 @@ printf( __( 'If you like, you may enter custom structures for your category and 
 	<p><label for="rules"><?php _e( 'Rewrite rules:' ); ?></label><br /><textarea rows="8" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="htaccess-description"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>
 </form>
 	<?php endif; ?>
-<?php endif; ?>
 <?php } // End if ! is_multisite(). ?>
 
 </div>
