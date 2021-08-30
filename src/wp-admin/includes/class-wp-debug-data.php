@@ -44,14 +44,14 @@ class WP_Debug_Data {
 		$blog_public            = get_option( 'blog_public' );
 		$default_comment_status = get_option( 'default_comment_status' );
 		$environment_type       = wp_get_environment_type();
-		$core_version           = get_bloginfo( 'version' );
+		$core_version           = calmpress_version();
 		$core_updates           = get_core_updates();
 		$core_update_needed     = '';
 
 		if ( is_array( $core_updates ) ) {
 			foreach ( $core_updates as $core => $update ) {
 				if ( 'upgrade' === $update->response ) {
-					/* translators: %s: Latest WordPress version number. */
+					/* translators: %s: Latest calmPress version number. */
 					$core_update_needed = ' ' . sprintf( __( '(Latest version: %s)' ), $update->version );
 				} else {
 					$core_update_needed = '';
