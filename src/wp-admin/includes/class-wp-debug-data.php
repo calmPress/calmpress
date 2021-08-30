@@ -740,8 +740,6 @@ class WP_Debug_Data {
 		);
 
 		// Pretty permalinks.
-		$pretty_permalinks_supported = got_url_rewrite();
-
 		$info['wp-server']['fields']['pretty_permalinks'] = array(
 			'label' => __( 'Are pretty permalinks supported?' ),
 			'value' => ( $pretty_permalinks_supported ? __( 'Yes' ) : __( 'No' ) ),
