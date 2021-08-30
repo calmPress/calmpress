@@ -47,24 +47,6 @@ class WP_REST_Site_Health_Controller extends WP_REST_Controller {
 	 * @see register_rest_route()
 	 */
 	public function register_routes() {
-		register_rest_route(
-			$this->namespace,
-			sprintf(
-				'/%s/%s',
-				$this->rest_base,
-				'background-updates'
-			),
-			array(
-				array(
-					'methods'             => 'GET',
-					'callback'            => array( $this, 'test_background_updates' ),
-					'permission_callback' => function () {
-						return $this->validate_request_permission( 'background_updates' );
-					},
-				),
-				'schema' => array( $this, 'get_public_item_schema' ),
-			)
-		);
 
 		register_rest_route(
 			$this->namespace,
