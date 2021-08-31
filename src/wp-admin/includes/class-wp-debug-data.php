@@ -754,10 +754,7 @@ class WP_Debug_Data {
 		}
 
 		// Populate the database debug fields.
-		if ( is_resource( $wpdb->dbh ) ) {
-			// Old mysql extension.
-			$extension = 'mysql';
-		} elseif ( is_object( $wpdb->dbh ) ) {
+		if ( is_object( $wpdb->dbh ) ) {
 			// mysqli or PDO.
 			$extension = get_class( $wpdb->dbh );
 		} else {
