@@ -556,7 +556,7 @@ class WP_Site_Health {
 				'color' => 'blue',
 			),
 			'description' => sprintf(
-				'<p>%s</p><p>%s</p>',
+				'<p>%s</p>',
 				__( 'PHP modules perform most of the tasks on the server that make your site run. Any changes to these must be made by your server administrator.' ),
 			),
 			'actions'     => '',
