@@ -558,28 +558,12 @@ class WP_Site_Health {
 			'description' => sprintf(
 				'<p>%s</p><p>%s</p>',
 				__( 'PHP modules perform most of the tasks on the server that make your site run. Any changes to these must be made by your server administrator.' ),
-				sprintf(
-					/* translators: 1: Link to the hosting group page about recommended PHP modules. 2: Additional link attributes. 3: Accessibility text. */
-					__( 'The WordPress Hosting Team maintains a list of those modules, both recommended and required, in <a href="%1$s" %2$s>the team handbook%3$s</a>.' ),
-					/* translators: Localized team handbook, if one exists. */
-					esc_url( __( 'https://make.wordpress.org/hosting/handbook/handbook/server-environment/#php-extensions' ) ),
-					'target="_blank" rel="noopener"',
-					sprintf(
-						' <span class="screen-reader-text">%s</span><span aria-hidden="true" class="dashicons dashicons-external"></span>',
-						/* translators: Accessibility text. */
-						__( '(opens in a new tab)' )
-					)
-				)
 			),
 			'actions'     => '',
 			'test'        => 'php_extensions',
 		);
 
 		$modules = array(
-			'curl'      => array(
-				'function' => 'curl_version',
-				'required' => false,
-			),
 			'dom'       => array(
 				'class'    => 'DOMNode',
 				'required' => false,
@@ -591,14 +575,6 @@ class WP_Site_Health {
 			'fileinfo'  => array(
 				'function' => 'finfo_file',
 				'required' => false,
-			),
-			'hash'      => array(
-				'function' => 'hash',
-				'required' => false,
-			),
-			'json'      => array(
-				'function' => 'json_last_error',
-				'required' => true,
 			),
 			'mbstring'  => array(
 				'function' => 'mb_check_encoding',
@@ -617,10 +593,6 @@ class WP_Site_Health {
 				'function' => 'openssl_encrypt',
 				'required' => false,
 			),
-			'pcre'      => array(
-				'function' => 'preg_match',
-				'required' => false,
-			),
 			'imagick'   => array(
 				'extension' => 'imagick',
 				'required'  => false,
@@ -633,38 +605,15 @@ class WP_Site_Health {
 				'class'    => 'ZipArchive',
 				'required' => false,
 			),
-			'filter'    => array(
-				'function' => 'filter_list',
-				'required' => false,
-			),
 			'gd'        => array(
 				'extension'    => 'gd',
 				'required'     => false,
 				'fallback_for' => 'imagick',
 			),
-			'iconv'     => array(
-				'function' => 'iconv',
-				'required' => false,
-			),
-			'mcrypt'    => array(
-				'extension'    => 'mcrypt',
-				'required'     => false,
-				'fallback_for' => 'libsodium',
-			),
 			'simplexml' => array(
 				'extension'    => 'simplexml',
 				'required'     => false,
 				'fallback_for' => 'mod_xml',
-			),
-			'xmlreader' => array(
-				'extension'    => 'xmlreader',
-				'required'     => false,
-				'fallback_for' => 'mod_xml',
-			),
-			'zlib'      => array(
-				'extension'    => 'zlib',
-				'required'     => false,
-				'fallback_for' => 'zip',
 			),
 		);
 
