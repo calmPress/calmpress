@@ -287,7 +287,7 @@ class WP_Debug_Data {
 
 		$info['wp-filesystem'] = array(
 			'label'       => __( 'Filesystem Permissions' ),
-			'description' => __( 'Shows whether calmPress is able to write to various directories. In a good secured enviroment only the uploads directory should be writable.' ),
+			'description' => __( 'Shows whether calmPress is able to write to various directories. As a rule of thumb only the uploads directory should be writable to increase security, but this depends on your specific configuration of the web server and virtual hosts.' ),
 			'fields'      => array(
 				'wordpress'  => array(
 					'label' => __( 'The main calmPress directory' ),
