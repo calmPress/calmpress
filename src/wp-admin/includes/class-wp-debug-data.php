@@ -357,21 +357,21 @@ class WP_Debug_Data {
 		}
 
 		// WordPress features requiring processing.
-		$wp_dotorg = wp_remote_get( 'https://wordpress.org', array( 'timeout' => 10 ) );
+		$wp_dotorg = wp_remote_get( 'https://calmpress.org', array( 'timeout' => 10 ) );
 
 		if ( ! is_wp_error( $wp_dotorg ) ) {
 			$info['wp-core']['fields']['dotorg_communication'] = array(
-				'label' => __( 'Communication with WordPress.org' ),
-				'value' => __( 'WordPress.org is reachable' ),
+				'label' => __( 'Communication with calmpress.org' ),
+				'value' => __( 'calmpress.org is reachable' ),
 				'debug' => 'true',
 			);
 		} else {
 			$info['wp-core']['fields']['dotorg_communication'] = array(
-				'label' => __( 'Communication with WordPress.org' ),
+				'label' => __( 'Communication with calmpress.org' ),
 				'value' => sprintf(
 					/* translators: 1: The IP address WordPress.org resolves to. 2: The error returned by the lookup. */
-					__( 'Unable to reach WordPress.org at %1$s: %2$s' ),
-					gethostbyname( 'wordpress.org' ),
+					__( 'Unable to reach calmpress.org at %1$s: %2$s' ),
+					gethostbyname( 'calmpress.org' ),
 					$wp_dotorg->get_error_message()
 				),
 				'debug' => $wp_dotorg->get_error_message(),

@@ -727,7 +727,7 @@ class WP_Site_Health {
 	 */
 	public function get_test_dotorg_communication() {
 		$result = array(
-			'label'       => __( 'Can communicate with WordPress.org' ),
+			'label'       => __( 'Can communicate with calmpress.org' ),
 			'status'      => '',
 			'badge'       => array(
 				'label' => __( 'Security' ),
@@ -735,14 +735,14 @@ class WP_Site_Health {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'Communicating with the WordPress servers is used to check for new versions, and to both install and update WordPress core, themes or plugins.' )
+				__( 'Communicating with the calmPress servers is used to check for new versions, and to both install and update calmPress core, themes or plugins.' )
 			),
 			'actions'     => '',
 			'test'        => 'dotorg_communication',
 		);
 
 		$wp_dotorg = wp_remote_get(
-			'https://api.wordpress.org',
+			'https://api.calmpress.org',
 			array(
 				'timeout' => 10,
 			)
@@ -752,7 +752,7 @@ class WP_Site_Health {
 		} else {
 			$result['status'] = 'critical';
 
-			$result['label'] = __( 'Could not reach WordPress.org' );
+			$result['label'] = __( 'Could not reach calmpress.org' );
 
 			$result['description'] .= sprintf(
 				'<p>%s</p>',
@@ -760,21 +760,12 @@ class WP_Site_Health {
 					'<span class="error"><span class="screen-reader-text">%s</span></span> %s',
 					__( 'Error' ),
 					sprintf(
-						/* translators: 1: The IP address WordPress.org resolves to. 2: The error returned by the lookup. */
-						__( 'Your site is unable to reach WordPress.org at %1$s, and returned the error: %2$s' ),
-						gethostbyname( 'api.wordpress.org' ),
+						/* translators: 1: The IP address calmpress.org resolves to. 2: The error returned by the lookup. */
+						__( 'Your site is unable to reach calmpress.org at %1$s, and returned the error: %2$s' ),
+						gethostbyname( 'api.calmpress.org' ),
 						$wp_dotorg->get_error_message()
 					)
 				)
-			);
-
-			$result['actions'] = sprintf(
-				'<p><a href="%s" target="_blank" rel="noopener">%s <span class="screen-reader-text">%s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a></p>',
-				/* translators: Localized Support reference. */
-				esc_url( __( 'https://wordpress.org/support' ) ),
-				__( 'Get help resolving this issue.' ),
-				/* translators: Accessibility text. */
-				__( '(opens in a new tab)' )
 			);
 		}
 
@@ -1167,7 +1158,7 @@ class WP_Site_Health {
 			),
 			'async'  => array(
 				'dotorg_communication' => array(
-					'label'             => __( 'Communication with WordPress.org' ),
+					'label'             => __( 'Communication with calmpress.org' ),
 					'test'              => rest_url( 'wp-site-health/v1/tests/dotorg-communication' ),
 					'has_rest'          => true,
 					'async_direct_test' => array( WP_Site_Health::get_instance(), 'get_test_dotorg_communication' ),
