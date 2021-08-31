@@ -740,10 +740,10 @@ class WP_Debug_Data {
 
 			if ( $filtered_htaccess_content ) {
 				/* translators: %s: .htaccess */
-				$htaccess_rules_string = sprintf( __( 'Custom rules have been added to your %s file.' ), '.htaccess' );
+				$htaccess_rules_string = sprintf( __( 'The %s file was manually editted, and rules added to it.' ), '.htaccess' );
 			} else {
 				/* translators: %s: .htaccess */
-				$htaccess_rules_string = sprintf( __( 'Your %s file contains only core WordPress features.' ), '.htaccess' );
+				$htaccess_rules_string = sprintf( __( 'The %s file contain only core rule and rule added via the admin.' ), '.htaccess' );
 			}
 
 			$info['wp-server']['fields']['htaccess_extra_rules'] = array(
