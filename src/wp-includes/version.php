@@ -20,7 +20,7 @@ $tinymce_version = '49110-20201110';
 $required_php_version = '7.4';
 
 /**
- * Holds the max supported PHP version.
+ * Holds the max minor supported PHP version including its pathches.
  *
  * @var string $upto_php_version
  */
@@ -34,7 +34,7 @@ $upto_php_version = '8.1';
 $required_mysql_version = '5.7';
 
 /**
- * Holds the max supported MySQL version.
+ * Holds the max minor supported MySQL version including its pathches.
  *
  * @var string $upto_mysql_version
  */
@@ -48,7 +48,7 @@ $upto_mysql_version = '8.0';
 $required_mariadb_version = '10.2';
 
 /**
- * Holds the max supported MariaDB version.
+ * Holds the max minor supported MariaDB version including its pathches.
  *
  * @var string $upto_mariadb_version
  */
