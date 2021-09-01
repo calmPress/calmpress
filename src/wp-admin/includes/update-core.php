@@ -281,8 +281,6 @@ function update_core( $from, $to ) {
 	global $wp_filesystem, $_old_files, $wpdb;
 
 	$calmpress_version      = '1.0.0-alpha18';
-	$required_php_version   = '7.4';
-	$required_mysql_version = '5.7';
 
 	set_time_limit( 300 );
 
@@ -305,6 +303,45 @@ function update_core( $from, $to ) {
 	 */
 	apply_filters( 'update_feedback', __( 'Verifying the unpacked files&#8230;' ) );
 
+	// Sanity check the unzipped distribution.
+	$distro = '';
+	$roots  = array( '/' );
+
+	foreach ( $roots as $root ) {
+		if ( $wp_filesystem->exists( $from . $root . 'readme.html' )
+			&& $wp_filesystem->exists( $from . $root . 'wp-includes/version.php' )
+		) {
+			$distro = $root;
+			break;
+		}
+	}
+
+	if ( ! $distro ) {
+		$wp_filesystem->delete( $from, true );
+
+		return new WP_Error( 'insane_distro', __( 'The update could not be unpacked' ) );
+	}
+
+	/*
+	 * Import $wp_version, $required_php_version, and $required_mysql_version from the new version.
+	 * DO NOT globalise any variables imported from `version-current.php` in this function.
+	 *
+	 * BC Note: $wp_filesystem->wp_content_dir() returned unslashed pre-2.8.
+	 */
+	$versions_file = trailingslashit( $wp_filesystem->wp_content_dir() ) . 'upgrade/version-current.php';
+
+	if ( ! $wp_filesystem->copy( $from . $distro . 'wp-includes/version.php', $versions_file ) ) {
+		$wp_filesystem->delete( $from, true );
+
+		return new WP_Error(
+			'copy_failed_for_version_file',
+			__( 'The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions.' ),
+			'wp-includes/version.php'
+		);
+	}
+
+	$wp_filesystem->chmod( $versions_file, FS_CHMOD_FILE );
+
 	/*
 	 * `wp_opcache_invalidate()` only exists in WordPress 5.5 or later,
 	 * so don't run it when upgrading from older versions.
@@ -313,19 +350,15 @@ function update_core( $from, $to ) {
 		wp_opcache_invalidate( $versions_file );
 	}
 
-	$php_version    = phpversion();
-	$mysql_version  = $wpdb->db_version();
-	$php_compat     = version_compare( $php_version, $required_php_version, '>=' );
+	// Load the requirements of the new version.
+	require WP_CONTENT_DIR . '/upgrade/version-current.php';
+	$wp_filesystem->delete( $versions_file );
 
-	/*
-	 * `wp_opcache_invalidate()` only exists in WordPress 5.5 or later,
-	 * so don't run it when upgrading from older versions.
-	 */
-	if ( function_exists( 'wp_opcache_invalidate' ) ) {
-		wp_opcache_invalidate( $versions_file );
-	}
+	$php_version   = phpversion();
+	$mysql_version = $wpdb->db_version();
+	$php_compat    = version_compare( $php_version, $required_php_version, '>=' );
 
-	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) ) {
+	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) ) {
 		$mysql_compat = true;
 	} else {
 		$mysql_compat = version_compare( $mysql_version, $required_mysql_version, '>=' );
