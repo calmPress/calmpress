@@ -356,70 +356,123 @@ function update_core( $from, $to ) {
 
 	$php_version   = phpversion();
 	$mysql_version = $wpdb->db_version();
-	$php_compat    = version_compare( $php_version, $required_php_version, '>=' );
 
-	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) ) {
-		$mysql_compat = true;
-	} else {
-		$mysql_compat = version_compare( $mysql_version, $required_mysql_version, '>=' );
+	$annotation = wp_get_update_php_annotation();
+
+	if ( $annotation ) {
+		$php_update_message .= '</p><p><em>' . $annotation . '</em>';
 	}
 
-	if ( ! $mysql_compat || ! $php_compat ) {
-		$wp_filesystem->delete( $from, true );
+	$errors = [];
+
+	$php_compat = version_compare( $php_version, $required_php_version, '>=' );
+	if ( ! $php_compat ) {
+		$errors[] = sprintf(
+			/* translators: 1: Minimum required PHP version number, 2: Current PHP version number. */
+			esc_html__( 'PHP version must be %1$s or higher. You are running version %2$s.' ),
+			esc_html( $required_php_version ),
+			esc_html( $php_version )
+		)
+		. $php_update_message;
 	}
-
-	$php_update_message = '';
-
-	if ( function_exists( 'wp_get_update_php_url' ) ) {
-		$php_update_message = '</p><p>' . sprintf(
-			/* translators: %s: URL to Update PHP page. */
-			__( '<a href="%s">Learn more about updating PHP</a>.' ),
-			esc_url( wp_get_update_php_url() )
+	
+	// Check PHP maximal compatibility.
+	if ( version_compare( $php_version, $upto_php_version . '.9999', '>' ) ) {
+		$errors[] = sprintf(
+			/* translators: 1: Maximal supported PHP version number, 2: Current PHP version number. */
+			esc_html__( 'PHP versions %1$s or higher are not supported. You are running version %2$s.' ),
+			esc_html( $required_php_version ),
+			esc_html( $php_version )
 		);
+	}
+	
+	if ( ! file_exists( WP_CONTENT_DIR . '/db.php' ) ) {
+		$db_server_name = 'MySQL';
+		$db_min_version = $required_mysql_version;
+		$db_max_version = $upto_mysql_version;
+		
+		// check if the DB is mariadb
+		$server_version = $wpdb->get_var( 'SELECT VERSION()' );
+		if ( stristr( $server_version, 'mariadb' ) ) {
+			$db_server_name = 'MariaDB';
+			$db_min_version = $required_mariadb_version;
+			$db_max_version = $upto_mariadb_version;
+		}
+		
+		$mysql_compat  = version_compare( $mysql_version, $db_min_version, '>=' );
+		if ( ! $mysql_compat ) {
+			$errors[] = sprintf( 
+				/* translators: 1: Name of DB server software, 2: Minimum required DB server version number, 3: Current DB server version number. */
+				esc_html__( '%1$s version must be %2$s or higher. You are running version %3$s.' ),
+				esc_html( $db_server_name ),
+				esc_html( $db_min_version ),
+				esc_html( $server_version )
+			);
+		}
+	
+		if ( version_compare( $mysql_version, $db_max_version . '9999', '>' ) ) {
+			$errors[] = sprintf( 
+				/* translators: 1: Name of DB server software, 2: Minimum required DB server version number, 3: Current DB server version number. */
+				esc_html__( '%1$s version must be no higher than %2$s. You are running version %3$s.' ),
+				esc_html( $db_server_name ),
+				esc_html( $db_max_version ),
+				esc_html( $server_version )
+			);
+		}
+	}
 
-		if ( function_exists( 'wp_get_update_php_annotation' ) ) {
-			$annotation = wp_get_update_php_annotation();
-
-			if ( $annotation ) {
-				$php_update_message .= '</p><p><em>' . $annotation . '</em>';
+	// Check for require php extensions.
+	foreach ( $required_php_extensions as $extension ) {
+		if ( ! extension_loaded( $extension ) ) {
+			if ( isset( $alternative_php_extensions[ $extension ] ) ) {
+				// Check if an alternative can be found.
+				$found = false;
+				foreach ( $alternative_php_extensions[ $extension ] as $altenative ) {
+					if ( extension_loaded( $extension ) ) {
+						$found = true;
+					}
+				}
+				// No alternative found, set an error message.
+				if ( ! $found ) {
+					$errors[] = sprintf(
+						/* translators: 1: The name of the extension, 2: List of alternative extensions. */
+						esc_html__( 'The required PHP extension %1$s is not enabled. Possible alternatives: %2$s' ),
+						esc_html( $extension ),
+						esc_html( join( ', ', $alternative_php_extensions[ $extension ] ) )
+					);
+				}
+			} else {
+				$errors[] = sprintf(
+					/* translators: 1: The name of the extension. */
+					esc_html__( 'The required PHP extension %1$s is not enabled.' ),
+					esc_html( $extension )
+				);
 			}
 		}
 	}
 
-	if ( ! $mysql_compat && ! $php_compat ) {
+	// Check for require apache modules if it is being used.
+	if ( is_apache() ) {
+		foreach ( $required_apache_modules as $module ) {
+			if ( false === apache_mod_loaded( $module, 'unknown' ) ) {
+				$errors[] = sprintf(
+					/* translators: 1: The name of the module. */
+					esc_html__( 'The required Apache module %1$s is not enabled.' ),
+					esc_html( $module )
+				);
+			}
+		}
+	}
+
+	if ( ! empty( $errors ) ) {
+		$error_msg = esc_html__( 'The update cannot be installed because of the following errors:' );
+		foreach ( $errors as $error ) {
+			$error_msg .= '<br />' . $error;
+		}
+
 		return new WP_Error(
-			'php_mysql_not_compatible',
-			sprintf(
-				/* translators: 1: calmPress version number, 2: Minimum required PHP version number, 3: Minimum required MySQL version number, 4: Current PHP version number, 5: Current MySQL version number. */
-				__( 'The update cannot be installed because calmPress %1$s requires PHP version %2$s or higher and MySQL version %3$s or higher. You are running PHP version %4$s and MySQL version %5$s.' ),
-				$calmpress_version,
-				$required_php_version,
-				$required_mysql_version,
-				$php_version,
-				$mysql_version
-			) . $php_update_message
-		);
-	} elseif ( ! $php_compat ) {
-		return new WP_Error(
-			'php_not_compatible',
-			sprintf(
-				/* translators: 1: calmPress version number, 2: Minimum required PHP version number, 3: Current PHP version number. */
-				__( 'The update cannot be installed because calmPress %1$s requires PHP version %2$s or higher. You are running version %3$s.' ),
-				$calmpress_version,
-				$required_php_version,
-				$php_version
-			) . $php_update_message
-		);
-	} elseif ( ! $mysql_compat ) {
-		return new WP_Error(
-			'mysql_not_compatible',
-			sprintf(
-				/* translators: 1: calmPress version number, 2: Minimum required MySQL version number, 3: Current MySQL version number. */
-				__( 'The update cannot be installed because calmPress %1$s requires MySQL version %2$s or higher. You are running version %3$s.' ),
-				$calmpress_version,
-				$required_mysql_version,
-				$mysql_version
-			)
+			'not_compatible',
+			$error_msg
 		);
 	}
 
