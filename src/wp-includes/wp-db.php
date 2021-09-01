@@ -3406,11 +3406,14 @@ class wpdb {
 	 * Retrieves the MySQL server version.
 	 *
 	 * @since 2.7.0
+	 * @since calmPress 1.0.0 Use version reported by the DB itself because of
+	 *                        https://github.com/joomla/joomla-cms/issues/9062#issuecomment-184742936
 	 *
 	 * @return string|null Version number on success, null on failure.
 	 */
 	public function db_version() {
-		return preg_replace( '/[^0-9.].*/', '', $this->db_server_info() );
+		$ver = $this->get_var( 'SELECT VERSION()' );
+		return preg_replace( '/[^0-9.].*/', '', $ver );
 	}
 
 	/**
