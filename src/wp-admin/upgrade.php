@@ -128,6 +128,7 @@ elseif ( ! $php_compat || ! $mysql_compat ) :
 
 	echo '<p>' . $message . '</p>';
 	?>
+	<?php
 else :
 switch ( $step ) :
 	case 0:
