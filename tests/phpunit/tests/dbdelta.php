@@ -30,6 +30,11 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	protected $bigint_display_width = '';
 
 	/**
+	 * Indicate if the server is mysql or mariadb.
+	 */
+	protected $server_type = 'mysql';
+
+	/**
 	 * Make sure the upgrade code is loaded before the tests are run.
 	 */
 	public static function setUpBeforeClass() {
@@ -46,14 +51,14 @@ class Tests_dbDelta extends WP_UnitTestCase {
 
 		global $wpdb;
 
-		$db_version = $wpdb->db_version();
+		$db_version   = $wpdb->db_version();
+		$full_version = $wpdb->get_var( 'SELECT VERSION()' );
 
-		if ( version_compare( $db_version, '5.7', '<' ) ) {
-			// Prior to MySQL 5.7, InnoDB did not support FULLTEXT indexes, so MyISAM is used instead.
-			$this->db_engine = 'ENGINE=MyISAM';
+		if ( stristr( $full_version, 'mariadb' ) ) {
+			$this->server_type = 'mariadb';
 		}
 
-		if ( version_compare( $db_version, '8.0.17', '<' ) ) {
+		if ( ( 'mysql' !== $this->server_type ) || version_compare( $db_version, '8.0.17', '<' ) ) {
 			// Prior to MySQL 8.0.17, default width of 20 digits was used: BIGINT(20).
 			$this->bigint_display_width = '(20)';
 		}
@@ -589,7 +594,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 
 		$geomcollection_name = 'geomcollection';
 
-		if ( version_compare( $db_version, '8.0.11', '<' ) ) {
+		if ( ( 'mysql' !== $this->server_type ) || version_compare( $db_version, '8.0.11', '<' ) ) {
 			// Prior to MySQL 8.0.11, GeometryCollection data type name was used.
 			$geomcollection_name = 'geometrycollection';
 		}
