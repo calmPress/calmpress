@@ -224,7 +224,7 @@ $errors = [];
 // get current version data locally.
 require ABSPATH . WPINC . '/version.php';
 
-// Check PHP compatibility.
+// Check PHP minimal compatibility.
 $php_compat = version_compare( $php_version, $required_php_version, '>=' );
 if ( ! $php_compat ) {
 	$errors[] = sprintf(
@@ -236,25 +236,50 @@ if ( ! $php_compat ) {
 	. $php_update_message;
 }
 
-$db_server_name = 'MySQL';
-$db_min_version = $required_mysql_version;
-// check if the DB is mariadb
-$server_version = $wpdb->get_var( 'SELECT VERSION()' );
-if ( stristr( $server_version, 'mariadb' ) ) {
-	$db_server_name = 'MariaDB';
-	$db_min_version = $required_mariadb_version;	
+// Check PHP maximal compatibility.
+if ( version_compare( $php_version, $upto_php_version . '.9999', '>' ) ) {
+	$errors[] = sprintf(
+		/* translators: 1: Maximal supported PHP version number, 2: Current PHP version number. */
+		esc_html__( 'PHP versions %1$s or higher are not supported. You are running version %2$s.' ),
+		esc_html( $required_php_version ),
+		esc_html( $php_version )
+	);
 }
 
-// Check MySQL compatibility.
-$mysql_compat  = version_compare( $db_min_version, $required_mysql_version, '>=' ) || file_exists( WP_CONTENT_DIR . '/db.php' );
-if ( ! $mysql_compat ) {
-	$errors[] = sprintf( 
-		/* translators: 1: Name of DB server software, 2: Minimum required DB server version number, 3: Current DB server version number. */
-		esc_html__( '%1$s version must be %2$s or higher. You are running version %3$s.' ),
-		esc_html( $db_server_name ),
-		esc_html( $db_min_version ),
-		esc_html( $server_version )
-	);
+// Check DB server compatibility. Skip check if using a replacement driver.
+if ( ! file_exists( WP_CONTENT_DIR . '/db.php' ) ) {
+	$db_server_name = 'MySQL';
+	$db_min_version = $required_mysql_version;
+	$db_max_version = $upto_mysql_version;
+	
+	// check if the DB is mariadb
+	$server_version = $wpdb->get_var( 'SELECT VERSION()' );
+	if ( stristr( $server_version, 'mariadb' ) ) {
+		$db_server_name = 'MariaDB';
+		$db_min_version = $required_mariadb_version;
+		$db_max_version = $upto_mariadb_version;
+	}
+	
+	$mysql_compat  = version_compare( $mysql_version, $db_min_version, '>=' );
+	if ( ! $mysql_compat ) {
+		$errors[] = sprintf( 
+			/* translators: 1: Name of DB server software, 2: Minimum required DB server version number, 3: Current DB server version number. */
+			esc_html__( '%1$s version must be %2$s or higher. You are running version %3$s.' ),
+			esc_html( $db_server_name ),
+			esc_html( $db_min_version ),
+			esc_html( $server_version )
+		);
+	}
+
+	if ( version_compare( $mysql_version, $db_max_version . '9999', '>' ) ) {
+		$errors[] = sprintf( 
+			/* translators: 1: Name of DB server software, 2: Minimum required DB server version number, 3: Current DB server version number. */
+			esc_html__( '%1$s version must be no higher than %2$s. You are running version %3$s.' ),
+			esc_html( $db_server_name ),
+			esc_html( $db_max_version ),
+			esc_html( $server_version )
+		);
+	}
 }
 
 // Check installed as https unless it is local.
