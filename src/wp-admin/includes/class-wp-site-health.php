@@ -1139,10 +1139,6 @@ class WP_Site_Health {
 					'label' => __( 'PHP Sessions' ),
 					'test'  => 'php_sessions',
 				),
-				'sql_server'                => array(
-					'label' => __( 'Database Server version' ),
-					'test'  => 'sql_server',
-				),
 				'scheduled_events'          => array(
 					'label' => __( 'Scheduled events' ),
 					'test'  => 'scheduled_events',
