@@ -27,8 +27,6 @@ $health_check_site_status = WP_Site_Health::get_instance();
 <div class="health-check-body health-check-debug-tab hide-if-no-js">
 	<?php
 
-	WP_Debug_Data::check_for_updates();
-
 	$info = WP_Debug_Data::debug_data();
 
 	?>

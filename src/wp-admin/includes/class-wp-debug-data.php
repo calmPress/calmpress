@@ -8,16 +8,6 @@
  */
 
 class WP_Debug_Data {
-	/**
-	 * Calls all core functions to check for updates.
-	 *
-	 * @since 5.2.0
-	 */
-	static function check_for_updates() {
-		wp_version_check();
-		wp_update_plugins();
-		wp_update_themes();
-	}
 
 	/**
 	 * Static function for generating site debug data when required.
