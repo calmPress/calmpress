@@ -64,6 +64,17 @@ $admin_title = apply_filters( 'admin_title', $admin_title, $title );
 
 wp_user_settings();
 
+/*
+ * The buffering around the generation of admin pages have two goals
+ * 1. Buffer the output to be able to add a noopener and noreferer
+ *    to links that open in new window.
+ * 2. Make it easier to do redirects or emit any other header
+ *    at any point during the generation of the HTML
+ *
+ * The buffer is being closed in the admin footer.
+ */
+ob_start();
+
 _wp_admin_html_begin();
 ?>
 <title><?php echo esc_html( $admin_title ); ?></title>
@@ -226,17 +237,6 @@ $admin_body_classes = ltrim( $admin_body_classes . ' ' . $admin_body_class );
 if ( current_user_can( 'customize' ) ) {
 	wp_customize_support_script();
 }
-
-/*
- * The buffering around the generation of admin pages have two goals
- * 1. Buffer the output to be able to add a noopener and noreferer
- *    to links that open in new window.
- * 2. Make it easier to do redirects or emit any other header
- *    at any point during the generation of the HTML
- *
- * The buffer is being closed in the admin footer.
- */
-ob_start();
 ?>
 
 <div id="wpwrap">
