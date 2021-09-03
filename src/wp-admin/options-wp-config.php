@@ -194,6 +194,8 @@ if ( empty( $errors ) ) {
 $writable = $wp_config->is_writable();
 $saved    = false;
 if ( $update_required ) {
+	// Regardless if we can save the new rule or not, clear the nag state to make sure it is updated.
+	\calmpress\admin\Admin_Notices::clear_wp_config_update_nag_state();
 
 	$creds = null;
 	if ( $writable ) {
