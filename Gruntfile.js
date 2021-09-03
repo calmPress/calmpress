@@ -727,6 +727,10 @@ module.exports = function(grunt) {
 				src: WORKING_DIR + 'wp-includes/js/imgareaselect/jquery.imgareaselect.js',
 				dest: WORKING_DIR + 'wp-includes/js/imgareaselect/jquery.imgareaselect.min.js'
 			},
+			moment: {
+				src: WORKING_DIR + 'wp-includes/js/dist/vendor/moment.js',
+				dest: WORKING_DIR + 'wp-includes/js/dist/vendor/moment.min.js'
+			},
 			dynamic: {
 				expand: true,
 				cwd: WORKING_DIR,
@@ -1226,6 +1230,7 @@ module.exports = function(grunt) {
 		'webpack:prod',
 		'jshint:corejs',
 		'uglify:imgareaselect',
+		'uglify:moment',
 		'qunit:compiled'
 	] );
 
@@ -1361,6 +1366,7 @@ module.exports = function(grunt) {
 		'uglify:embed',
 		'uglify:jquery-ui',
 		'uglify:imgareaselect',
+		'uglify:moment',
 	] );
 
 	grunt.registerTask( 'build:webpack', [
