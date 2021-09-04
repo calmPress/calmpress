@@ -32,22 +32,6 @@ class WP_Object_Cache {
 	private $cache = array();
 
 	/**
-	 * The amount of times the cache data was already stored in the cache.
-	 *
-	 * @since 2.5.0
-	 * @var int
-	 */
-	public $cache_hits = 0;
-
-	/**
-	 * Amount of times the cache did not have the request in cache.
-	 *
-	 * @since 2.0.0
-	 * @var int
-	 */
-	public $cache_misses = 0;
-
-	/**
 	 * List of global cache groups.
 	 *
 	 * @since 3.0.0
@@ -218,8 +202,6 @@ class WP_Object_Cache {
 	 * key in the cache group. If the cache is hit (success) then the contents
 	 * are returned.
 	 *
-	 * On failure, the number of cache misses will be incremented.
-	 *
 	 * @since 2.0.0
 	 *
 	 * @param int|string $key   The key under which the cache contents are stored.
@@ -241,7 +223,6 @@ class WP_Object_Cache {
 
 		if ( $this->_exists( $key, $group ) ) {
 			$found             = true;
-			$this->cache_hits += 1;
 			if ( is_object( $this->cache[ $group ][ $key ] ) ) {
 				return clone $this->cache[ $group ][ $key ];
 			} else {
@@ -250,7 +231,6 @@ class WP_Object_Cache {
 		}
 
 		$found               = false;
-		$this->cache_misses += 1;
 		return false;
 	}
 
