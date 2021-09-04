@@ -492,14 +492,15 @@ function wp_cache_get_server_list() {
 
 /**
  * Gets server pool statistics.
+ * 
+ * @since calmPress 1.0.0 does nothig, kept for compatibilty.
  *
  * @link https://www.php.net/manual/en/memcached.getstats.php
  *
- * @return array Array of server statistics, one entry per server.
+ * @return array An empty array.
  */
 function wp_cache_get_stats() {
-	global $wp_object_cache;
-	return $wp_object_cache->getStats();
+	return [];
 }
 
 /**
@@ -1580,17 +1581,6 @@ class WP_Object_Cache {
 	 */
 	public function getServerList() {
 		return $this->m->getServerList();
-	}
-
-	/**
-	 * Gets server pool statistics.
-	 *
-	 * @link https://www.php.net/manual/en/memcached.getstats.php
-	 *
-	 * @return array Array of server statistics, one entry per server.
-	 */
-	public function getStats() {
-		return $this->m->getStats();
 	}
 
 	/**

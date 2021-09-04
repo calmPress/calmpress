@@ -429,26 +429,6 @@ class WP_Object_Cache {
 	}
 
 	/**
-	 * Echoes the stats of the caching.
-	 *
-	 * Gives the cache hits, and cache misses. Also prints every cached group,
-	 * key and the data.
-	 *
-	 * @since 2.0.0
-	 */
-	public function stats() {
-		echo '<p>';
-		echo "<strong>Cache Hits:</strong> {$this->cache_hits}<br />";
-		echo "<strong>Cache Misses:</strong> {$this->cache_misses}<br />";
-		echo '</p>';
-		echo '<ul>';
-		foreach ( $this->cache as $group => $cache ) {
-			echo '<li><strong>Group:</strong> ' . esc_html( $group ) . ' - ( ' . number_format( strlen( serialize( $cache ) ) / KB_IN_BYTES, 2 ) . 'k )</li>';
-		}
-		echo '</ul>';
-	}
-
-	/**
 	 * Switches the internal blog ID.
 	 *
 	 * This changes the blog ID used to create keys in blog specific groups.
