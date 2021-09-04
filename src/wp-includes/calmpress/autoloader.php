@@ -50,6 +50,9 @@ const MAP = [
 	'calmpress\backup\Local_Backup'                     => __DIR__ . '/backup/class-local-backup.php',
 	'calmpress\calmpress\Paths'                         => __DIR__ . '/calmpress/class-paths.php',
 	'calmpress\wp_config\wp_config'                     => __DIR__ . '/wp_config/class-wp_config.php',
+	'Psr\SimpleCache\CacheInterface'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheInterface.php',
+	'Psr\SimpleCache\CacheException'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheException.php',
+	'Psr\SimpleCache\InvalidArgumentException'          => ABSPATH . 'wp-includes/Psr/SimpleCache/InvalidArgumentException.php',
 ];
 
 spl_autoload_register(
