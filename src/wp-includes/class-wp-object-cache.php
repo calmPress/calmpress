@@ -82,54 +82,6 @@ class WP_Object_Cache {
 	}
 
 	/**
-	 * Makes private properties readable for backward compatibility.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param string $name Property to get.
-	 * @return mixed Property.
-	 */
-	public function __get( $name ) {
-		return $this->$name;
-	}
-
-	/**
-	 * Makes private properties settable for backward compatibility.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param string $name  Property to set.
-	 * @param mixed  $value Property value.
-	 * @return mixed Newly-set property.
-	 */
-	public function __set( $name, $value ) {
-		return $this->$name = $value;
-	}
-
-	/**
-	 * Makes private properties checkable for backward compatibility.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param string $name Property to check if set.
-	 * @return bool Whether the property is set.
-	 */
-	public function __isset( $name ) {
-		return isset( $this->$name );
-	}
-
-	/**
-	 * Makes private properties un-settable for backward compatibility.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param string $name Property to unset.
-	 */
-	public function __unset( $name ) {
-		unset( $this->$name );
-	}
-
-	/**
 	 * Adds data to the cache if it doesn't already exist.
 	 *
 	 * @since 2.0.0
