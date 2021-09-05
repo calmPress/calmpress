@@ -110,6 +110,9 @@ require ABSPATH . WPINC . '/class-wp.php';
 require ABSPATH . WPINC . '/class-wp-error.php';
 require ABSPATH . WPINC . '/pomo/mo.php';
 
+// calmPress autoloader.
+require ABSPATH . WPINC . '/calmpress/autoloader.php';
+
 /**
  * @global wpdb $wpdb WordPress database abstraction object.
  * @since 0.71
@@ -152,9 +155,6 @@ require_once ABSPATH . WPINC . '/class-wp-locale-switcher.php';
 
 // Run the installer if WordPress is not installed.
 wp_not_installed();
-
-// calmPress autoloader.
-require ABSPATH . WPINC . '/calmpress/autoloader.php';
 
 // Load most of WordPress.
 require ABSPATH . WPINC . '/class-wp-walker.php';
