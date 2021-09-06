@@ -24,36 +24,69 @@
 class WP_Object_Cache {
 
 	/**
-	 * Holds the cached objects.
-	 *
-	 * @since 2.0.0
-	 * @var array
-	 */
-	private $cache = array();
-
-	/**
-	 * List of global cache groups.
+	 * List of global cache groups where the existance of a key with group name indicates its global.
 	 *
 	 * @since 3.0.0
+	 *
 	 * @var array
 	 */
-	protected $global_groups = array();
+	protected array $global_groups = [];
 
 	/**
-	 * The blog prefix to prepend to keys in non-global groups.
+	 * Holder for the cache per cache group. Global groups are in "top" array while
+	 * for the per blog the are collected in an array per blog, and that array is in the top array.
 	 *
-	 * @since 3.5.0
-	 * @var string
+	 * @since calmPress 1.0.0
+	 *
+	 * @var array
 	 */
-	private $blog_prefix;
+	protected array $cache_groups = [];
 
 	/**
-	 * Holds the value of is_multisite().
+	 * The blog id to use to differentiate between non-global groups in different blogs.
 	 *
-	 * @since 3.5.0
-	 * @var bool
+	 * @since calmPress 1.0.0
+	 * @var int
 	 */
-	private $multisite;
+	private int $blog_id;
+
+	/**
+	 * Fetch, while creating if does not exist yet, the memory cache for the current blog
+	 * and the specified group.
+	 *
+	 * @param string $group The group for which to fetch the cache.
+	 *
+	 * @return \Psr\SimpleCache\CacheInterface
+	 */
+	private function group_cache( $group ) {
+
+		// if it is a global group, it is not blog specific.
+		if ( isset( $this->global_groups[ $group ] ) ) {
+			if ( ! isset( $this->cache_groups[ $group ] ) ) {
+				$this->cache_groups[ $group ] = new \calmpress\object_cache\Memory( $group );
+			} 
+			return $this->cache_groups[ $group ];
+		}
+
+		// not global group, it is a per blog one.
+		$blog_id     = $this->blog_id;
+		$blog_groups = [];
+		
+		if ( ! isset( $this->cache_groups[ $blog_id ] ) ) {
+			$this->cache_groups[ $blog_id ] = [];
+		} else {
+			$blog_groups = $this->cache_groups[ $blog_id ];
+		}
+
+		if ( ! isset( $blog_groups[ $group ] ) ) {
+			$cache                                     = new \calmpress\object_cache\Memory( $group . '_' . $blog_id );
+			$this->cache_groups[ $blog_id ][ $group ] = $cache;
+		} else {
+			$cache = $blog_groups[ $group ];
+		}
+
+		return $cache;
+	}
 
 	/**
 	 * Sets up object properties; PHP 5 style constructor.
@@ -61,10 +94,9 @@ class WP_Object_Cache {
 	 * @since 2.0.8
 	 */
 	public function __construct() {
-		$this->multisite   = is_multisite();
-		$this->blog_prefix = $this->multisite ? get_current_blog_id() . ':' : '';
+		$this->blog_id = is_multisite() ? get_current_blog_id() : 1;
 	}
-
+	
 	/**
 	 * Adds data to the cache if it doesn't already exist.
 	 *
@@ -85,16 +117,17 @@ class WP_Object_Cache {
 			return false;
 		}
 
+		if ( is_int( $key ) ) {
+			$key = (string) $key;
+		}
+
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
 
-		$id = $key;
-		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
-			$id = $this->blog_prefix . $key;
-		}
+		$cache = $this->group_cache( $group );
 
-		if ( $this->_exists( $id, $group ) ) {
+		if ( '__NULL' !== $cache->get( $key, '__NULL' ) ) {
 			return false;
 		}
 
@@ -110,7 +143,7 @@ class WP_Object_Cache {
 	 */
 	public function add_global_groups( $groups ) {
 		$groups = (array) $groups;
-
+ 
 		$groups              = array_fill_keys( $groups, true );
 		$this->global_groups = array_merge( $this->global_groups, $groups );
 	}
@@ -130,27 +163,33 @@ class WP_Object_Cache {
 			$group = 'default';
 		}
 
-		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
-			$key = $this->blog_prefix . $key;
+		if ( is_int( $key ) ) {
+			$key = (string) $key;
 		}
+		
+		$cache = $this->group_cache( $group );
 
-		if ( ! $this->_exists( $key, $group ) ) {
+		$current = $cache->get( $key, '__NULL' );
+
+		if ( '__NULL' === $current ) {
 			return false;
 		}
 
-		if ( ! is_numeric( $this->cache[ $group ][ $key ] ) ) {
-			$this->cache[ $group ][ $key ] = 0;
+		if ( ! is_numeric( $current ) ) {
+			$current = 0;
 		}
 
 		$offset = (int) $offset;
 
-		$this->cache[ $group ][ $key ] -= $offset;
+		$current -= $offset;
 
-		if ( $this->cache[ $group ][ $key ] < 0 ) {
-			$this->cache[ $group ][ $key ] = 0;
+		if ( $current < 0 ) {
+			$current = 0;
 		}
 
-		return $this->cache[ $group ][ $key ];
+		$cache->set( $key, $current );
+
+		return $current;
 	}
 
 	/**
@@ -166,20 +205,17 @@ class WP_Object_Cache {
 	 * @return bool False if the contents weren't deleted and true on success.
 	 */
 	public function delete( $key, $group = 'default', $deprecated = false ) {
+		if ( is_int( $key ) ) {
+			$key = (string) $key;
+		}
+
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
 
-		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
-			$key = $this->blog_prefix . $key;
-		}
+		$cache = $this->group_cache( $group );
 
-		if ( ! $this->_exists( $key, $group ) ) {
-			return false;
-		}
-
-		unset( $this->cache[ $group ][ $key ] );
-		return true;
+		return $cache->delete( $key );
 	}
 
 	/**
@@ -190,7 +226,16 @@ class WP_Object_Cache {
 	 * @return true Always returns true.
 	 */
 	public function flush() {
-		$this->cache = array();
+		foreach ( $this->cache_groups as $groups ) {
+			if ( ! is_array( $groups ) ) {
+				// must be a global group cache.
+				$groups->clear();
+			} else {
+				foreach ( $groups as $cache ) {
+					$cache->clear();		
+				}
+			}
+		}
 
 		return true;
 	}
@@ -213,24 +258,27 @@ class WP_Object_Cache {
 	 * @return mixed|false The cache contents on success, false on failure to retrieve contents.
 	 */
 	public function get( $key, $group = 'default', $force = false, &$found = null ) {
+		if ( is_int( $key ) ) {
+			$key = (string) $key;
+		}
+		
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
 
-		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
-			$key = $this->blog_prefix . $key;
-		}
+		$cache = $this->group_cache( $group );
 
-		if ( $this->_exists( $key, $group ) ) {
-			$found             = true;
-			if ( is_object( $this->cache[ $group ][ $key ] ) ) {
-				return clone $this->cache[ $group ][ $key ];
+		$value = $cache->get( $key, '__NULL' );
+		if ( '__NULL' !== $value ) {
+			$found = true;
+			if ( is_object( $value ) ) {
+				return clone $value;
 			} else {
-				return $this->cache[ $group ][ $key ];
+				return $value;
 			}
 		}
 
-		$found               = false;
+		$found = false;
 		return false;
 	}
 
@@ -246,11 +294,15 @@ class WP_Object_Cache {
 	 * @return array Array of values organized into groups.
 	 */
 	public function get_multiple( $keys, $group = 'default', $force = false ) {
-		$values = array();
 
-		foreach ( $keys as $key ) {
-			$values[ $key ] = $this->get( $key, $group, $force );
-		}
+		// Convert integers to strings.
+		$keys = array_map( fn( $value ) => is_int( $value ) ? (string) $value : $value, $keys ); 
+
+		$cache  = $this->group_cache( $group );
+
+		// Sucks if you want to store false value and need to be able to know when they don't exist
+		// but that what tests expect.
+		$values = $cache->getMultiple( $keys, false );
 
 		return $values;
 	}
@@ -266,31 +318,36 @@ class WP_Object_Cache {
 	 * @return int|false The item's new value on success, false on failure.
 	 */
 	public function incr( $key, $offset = 1, $group = 'default' ) {
+		if ( is_int( $key ) ) {
+			$key = (string) $key;
+		}
+		
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
 
-		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
-			$key = $this->blog_prefix . $key;
-		}
+		$cache   = $this->group_cache( $group );
+		$current = $cache->get( $key, '__NULL' );
 
-		if ( ! $this->_exists( $key, $group ) ) {
+		if ( '__NULL' === $current ) {
 			return false;
 		}
 
-		if ( ! is_numeric( $this->cache[ $group ][ $key ] ) ) {
-			$this->cache[ $group ][ $key ] = 0;
+		if ( ! is_numeric( $current ) ) {
+			$current = 0;
 		}
 
 		$offset = (int) $offset;
 
-		$this->cache[ $group ][ $key ] += $offset;
+		$current += $offset;
 
-		if ( $this->cache[ $group ][ $key ] < 0 ) {
-			$this->cache[ $group ][ $key ] = 0;
+		if ( $current < 0 ) {
+			$current = 0;
 		}
 
-		return $this->cache[ $group ][ $key ];
+		$cache->set( $key, $current );
+
+		return $current;
 	}
 
 	/**
@@ -307,20 +364,20 @@ class WP_Object_Cache {
 	 * @return bool False if not exists, true if contents were replaced.
 	 */
 	public function replace( $key, $data, $group = 'default', $expire = 0 ) {
+		if ( is_int( $key ) ) {
+			$key = (string) $key;
+		}
+		
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
 
-		$id = $key;
-		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
-			$id = $this->blog_prefix . $key;
-		}
-
-		if ( ! $this->_exists( $id, $group ) ) {
+		$cache = $this->group_cache( $group );
+		if ( '__NULL' === $cache->get( $key, '__NULL' ) ) {
 			return false;
 		}
 
-		return $this->set( $key, $data, $group, (int) $expire );
+		return $cache->set( $key, $data, $group, (int) $expire );
 	}
 
 	/**
@@ -344,20 +401,20 @@ class WP_Object_Cache {
 	 * @return true Always returns true.
 	 */
 	public function set( $key, $data, $group = 'default', $expire = 0 ) {
+		if ( is_int( $key ) ) {
+			$key = (string) $key;
+		}
+		
 		if ( empty( $group ) ) {
 			$group = 'default';
-		}
-
-		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
-			$key = $this->blog_prefix . $key;
 		}
 
 		if ( is_object( $data ) ) {
 			$data = clone $data;
 		}
 
-		$this->cache[ $group ][ $key ] = $data;
-		return true;
+		$cache = $this->group_cache( $group );
+		return $cache->set( $key, $data, (int) $expire);
 	}
 
 	/**
@@ -366,12 +423,14 @@ class WP_Object_Cache {
 	 * This changes the blog ID used to create keys in blog specific groups.
 	 *
 	 * @since 3.5.0
+	 * @since calmPress 1.0.0 does nothing.
 	 *
 	 * @param int $blog_id Blog ID.
 	 */
 	public function switch_to_blog( $blog_id ) {
-		$blog_id           = (int) $blog_id;
-		$this->blog_prefix = $this->multisite ? $blog_id . ':' : '';
+		if ( is_multisite() ) {
+			$this->blog_id = (int) $blog_id;
+		}
 	}
 
 	/**
@@ -384,6 +443,11 @@ class WP_Object_Cache {
 	 * @return bool Whether the key exists in the cache for the given group.
 	 */
 	protected function _exists( $key, $group ) {
-		return isset( $this->cache[ $group ] ) && ( isset( $this->cache[ $group ][ $key ] ) || array_key_exists( $key, $this->cache[ $group ] ) );
+		if ( is_int( $key ) ) {
+			$key = (string) $key;
+		}
+		
+		$cache = $this->group_cache( $group );
+		return '__NULL' !== $cache->get( $key, '__NULL' );
 	}
 }

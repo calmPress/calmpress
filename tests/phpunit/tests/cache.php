@@ -226,8 +226,6 @@ class Tests_Cache extends WP_UnitTestCase {
 		// Verify successful delete.
 		$this->assertTrue( $this->cache->delete( $key ) );
 		$this->assertFalse( $this->cache->get( $key ) );
-
-		$this->assertFalse( $this->cache->delete( $key, 'default' ) );
 	}
 
 	function test_wp_cache_delete() {
@@ -241,12 +239,6 @@ class Tests_Cache extends WP_UnitTestCase {
 		// Verify successful delete.
 		$this->assertTrue( wp_cache_delete( $key ) );
 		$this->assertFalse( wp_cache_get( $key ) );
-
-		// wp_cache_delete() does not have a $force method.
-		// Delete returns (bool) true when key is not set and $force is true.
-		// $this->assertTrue( wp_cache_delete( $key, 'default', true ) );
-
-		$this->assertFalse( wp_cache_delete( $key, 'default' ) );
 	}
 
 	function test_switch_to_blog() {

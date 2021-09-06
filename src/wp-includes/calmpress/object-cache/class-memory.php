@@ -19,7 +19,14 @@ namespace calmpress\object_cache;
  */
 class Memory implements \Psr\SimpleCache\CacheInterface {
 
-	private $cache = [];
+	/**
+	 * LHolder of the values cache where the index is the key and the value is the value.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var array
+	 */
+	private array $cache = [];
 
 	/**
 	 * Helper that throws when a value is not string.
