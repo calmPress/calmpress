@@ -1,6 +1,6 @@
 <?php
 /**
- * Implementation of in seeion memory storage for object caching.
+ * Implementation of in session memory storage for object caching.
  *
  * @package calmPress
  * @since 1.0.0
@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace calmpress\object_cache;
 
 /**
- * Implemantation ov in session memory based object cached storage. This cache will exists only
+ * Implemantation of in session memory based object cached storage. This cache will exists only
  * during the HTTP session and will be destroyed automatically when it ends.
  * 
  * There are no type hinting to be compatible with the interface defined in PSR-16,
