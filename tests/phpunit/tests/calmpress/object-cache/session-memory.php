@@ -189,6 +189,53 @@ class WP_Test_Session_Memory extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that getMultiple returns default when key not in cache.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_getMultiple_uses_default_when_not_exist() {
+		$cache = new Session_Memory();
+		$this->assertSame( ['key1'=>'test', 'key2'=>'test'] , $cache->getMultiple( ['key1', 'key2'], 'test' ) );
+	}
+
+	/**
+	 * Test that setMultiple add the values to the cache.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_setMultiple() {
+		$cache = new Session_Memory();
+		$cache->setMultiple( ['key1' => 'value1', 'key2' => 'value2'] );
+		$this->assertSame( ['key1' => 'value1', 'key2' => 'value2'] , $cache->getMultiple( ['key1', 'key2'], 'test' ) );
+	}
+
+	/**
+	 * Test that deleteMultiple deletes the values from the cache.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_deleteMultiple() {
+		$cache = new Session_Memory();
+		$cache->setMultiple( ['key1' => 'value1', 'key2' => 'value2'] );
+		$cache->deleteMultiple( ['key1', 'key2'] );
+		$this->assertFalse( $cache->has( 'key1' ) );
+		$this->assertFalse( $cache->has( 'key2' ) );
+	}
+
+	/**
+	 * Test that clear deletes the cache.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_clear() {
+		$cache = new Session_Memory();
+		$cache->setMultiple( ['key1' => 'value1', 'key2' => 'value2'] );
+		$cache->clear();
+		$this->assertFalse( $cache->has( 'key1' ) );
+		$this->assertFalse( $cache->has( 'key2' ) );
+	}
+
+	/**
 	 * Bad keys data provider.
 	 * 
 	 * @since 1.0.0
