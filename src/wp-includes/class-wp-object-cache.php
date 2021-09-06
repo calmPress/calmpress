@@ -63,7 +63,7 @@ class WP_Object_Cache {
 		// if it is a global group, it is not blog specific.
 		if ( isset( $this->global_groups[ $group ] ) ) {
 			if ( ! isset( $this->cache_groups[ $group ] ) ) {
-				$this->cache_groups[ $group ] = new \calmpress\object_cache\Memory( $group );
+				$this->cache_groups[ $group ] = new \calmpress\object_cache\Session_Memory( $group );
 			} 
 			return $this->cache_groups[ $group ];
 		}
@@ -79,7 +79,7 @@ class WP_Object_Cache {
 		}
 
 		if ( ! isset( $blog_groups[ $group ] ) ) {
-			$cache                                     = new \calmpress\object_cache\Memory( $group . '_' . $blog_id );
+			$cache                                     = new \calmpress\object_cache\Session_Memory( $group . '_' . $blog_id );
 			$this->cache_groups[ $blog_id ][ $group ] = $cache;
 		} else {
 			$cache = $blog_groups[ $group ];
