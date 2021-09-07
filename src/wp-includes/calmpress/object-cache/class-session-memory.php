@@ -20,7 +20,7 @@ namespace calmpress\object_cache;
 class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 
 	/**
-	 * LHolder of the values cache where the index is the key and the value is the value.
+	 * Holder of the values cache where the index is the key and the value is the value.
 	 *
 	 * @since 1.0.0
 	 *
