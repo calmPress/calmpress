@@ -52,6 +52,7 @@ const MAP = [
 	'calmpress\wp_config\wp_config'                     => __DIR__ . '/wp_config/class-wp_config.php',
 	'calmpress\object_cache\Session_Memory'             => __DIR__ . '/object-cache/class-session-memory.php',
 	'calmpress\object_cache\Invalid_Argument_Exception' => __DIR__ . '/object-cache/class-invalid-argument-exception.php',
+	'calmpress\object_cache\Psr16_Parameter_Utils'      => __DIR__ . '/object-cache/trait-psr16-parameter-utils.php',
 	'Psr\SimpleCache\CacheInterface'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheInterface.php',
 	'Psr\SimpleCache\CacheException'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheException.php',
 	'Psr\SimpleCache\InvalidArgumentException'          => ABSPATH . 'wp-includes/Psr/SimpleCache/InvalidArgumentException.php',

@@ -19,6 +19,8 @@ namespace calmpress\object_cache;
  */
 class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 
+	use Psr16_Parameter_Utils;
+	
 	/**
 	 * Holder of the values cache where the index is the key and the value is the value.
 	 *
@@ -27,41 +29,6 @@ class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 	 * @var array
 	 */
 	private array $cache = [];
-
-	/**
-	 * Helper that throws when a value is not string.
-	 *
-	 * @param mixed $value The value to validate.
-	 *
-	 * @throws Invalid_argument_Exception If $value is not string
-	 */
-	private static function throw_if_not_string( $value ) {
-		if ( ! is_string( $value ) ) {
-			throw new Invalid_Argument_Exception( 'key is not a string' );
-		}
-	}
-
-	/**
-	 * Helper that throws when a value is not iterable with valid string keys.
-	 *
-	 * @param mixed $keys      The keys to validate.
-	 * @param bool  $check_key Indicates if the key should be check instead of the value.
-	 *
-	 * @throws Invalid_argument_Exception If $value is not string
-	 */
-	private static function throw_if_not_iterable( $keys, bool $check_key = false ) {
-		if ( ! is_iterable( $keys ) ) {
-			throw new Invalid_Argument_Exception( 'parameter is not iterable' );
-		}
-
-		foreach ( $keys as $key => $value ) {
-			if ( $check_key ) {
-				self::throw_if_not_string( $key );
-			} else {
-				self::throw_if_not_string( $value );
-			}
-		}
-	}
 
 	/**
 	 * Fetches a value from the cache.
