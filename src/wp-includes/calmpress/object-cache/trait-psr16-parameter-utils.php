@@ -55,30 +55,28 @@ trait Psr16_Parameter_Utils {
 	 *
 	 * @throws Invalid_argument_Exception If $value is not string
 	 */
-	protected static function throw_if_not_string( $value ) {
-		if ( ! is_string( $value ) ) {
-			throw new Invalid_Argument_Exception( 'key is not a string' );
+	protected static function throw_if_not_string_int( $value ) {
+		if ( ! is_string( $value ) && ! is_int( $value ) ) {
+			throw new Invalid_Argument_Exception( 'key is not a string nor integer' );
 		}
 	}
 
 	/**
 	 * Helper that throws when a value is not iterable with valid string keys.
 	 *
-	 * @param mixed $keys      The keys to validate.
-	 * @param bool  $check_key Indicates if the key should be check instead of the value.
+	 * @param mixed $keys        The keys to validate.
+	 * @param bool  $check_value Indicates if the values should be check for being int or string.
 	 *
 	 * @throws Invalid_argument_Exception If $value is not string
 	 */
-	protected static function throw_if_not_iterable( $keys, bool $check_key = false ) {
+	protected static function throw_if_not_iterable( $keys, bool $check_value = true ) {
 		if ( ! is_iterable( $keys ) ) {
 			throw new Invalid_Argument_Exception( 'parameter is not iterable' );
 		}
 
-		foreach ( $keys as $key => $value ) {
-			if ( $check_key ) {
-				static::throw_if_not_string( $key );
-			} else {
-				static::throw_if_not_string( $value );
+		if ( $check_value ) {
+			foreach ( $keys as $value ) {
+				static::throw_if_not_string_int( $value );
 			}
 		}
 	}

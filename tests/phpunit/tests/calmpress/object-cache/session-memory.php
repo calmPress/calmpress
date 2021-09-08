@@ -33,11 +33,11 @@ class Mock_Session_Memory extends Session_Memory {
 		self::$validation_iterable_called = 0;
 	}
 
-	protected static function throw_if_not_string( $key ) {
+	protected static function throw_if_not_string_int( $key ) {
 		self::$validation_key_called++;
 	}
 
-	protected static function throw_if_not_iterable( $keys ) {
+	protected static function throw_if_not_iterable( $keys, bool $check_values = true ) {
 		self::$validation_iterable_called++;
 	}
 }

@@ -42,7 +42,7 @@ class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 	 */
 	public function get( $key, $default = null ) {
 
-		static::throw_if_not_string( $key );
+		static::throw_if_not_string_int( $key );
 
 		if ( array_key_exists( $key, $this->cache ) ) {
 			return $this->cache[ $key ];
@@ -64,7 +64,7 @@ class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 	 * @throws \Psr\SimpleCache\InvalidArgumentException If $key is not string
 	 */
 	public function set( $key, $value, $ttl = null ) {
-		static::throw_if_not_string( $key );
+		static::throw_if_not_string_int( $key );
 		
 		$this->cache[ $key ] = $value;
 
@@ -81,7 +81,7 @@ class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 	 * @throws \Psr\SimpleCache\InvalidArgumentException If $key is not string
 	 */
 	public function delete( $key ) {
-		static::throw_if_not_string( $key );
+		static::throw_if_not_string_int( $key );
 
 		unset( $this->cache[ $key ] );
 
@@ -110,7 +110,7 @@ class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 	 * @throws \Psr\SimpleCache\InvalidArgumentException If $keys is not iterable or contain a non string key.
 	 */
 	public function getMultiple( $keys, $default = null ) {
-		static::throw_if_not_iterable( $keys );
+		static::throw_if_not_iterable( $keys, true );
 
 		$ret = [];
 		foreach ( $keys as $key ) {
@@ -132,7 +132,7 @@ class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 	 * @throws \Psr\SimpleCache\InvalidArgumentException If $values is not iterable or contain a non string key.
 	 */
 	public function setMultiple( $values, $ttl = null ) {
-		static::throw_if_not_iterable( $values, true );
+		static::throw_if_not_iterable( $values, false );
 
 		foreach ( $values as $key => $value ) {
 			$this->set( $key, $value );
@@ -154,7 +154,7 @@ class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 		static::throw_if_not_iterable( $keys );
 
 		foreach ( $keys as $key ) {
-			$this->delete( $key );
+			$this->delete( $key, true );
 		}
 
 		return true;
@@ -175,7 +175,7 @@ class Session_Memory implements \Psr\SimpleCache\CacheInterface {
 	 * @throws \Psr\SimpleCache\InvalidArgumentException If $key is not a string.
 	 */
 	public function has( $key ) {
-		static::throw_if_not_string( $key );
+		static::throw_if_not_string_int( $key );
 
 		return array_key_exists( $key, $this->cache );
 	}

@@ -50,6 +50,11 @@ class WP_Object_Cache {
 	 */
 	private int $blog_id;
 
+	private function create_aggregate_cache( string $namespace ) {
+		$session_memory = new \calmpress\object_cache\Session_Memory( $namespace );
+		return new \calmpress\object_cache\Chained_Caches( $session_memory );
+	}
+
 	/**
 	 * Fetch, while creating if does not exist yet, the memory cache for the current blog
 	 * and the specified group.
@@ -63,7 +68,7 @@ class WP_Object_Cache {
 		// if it is a global group, it is not blog specific.
 		if ( isset( $this->global_groups[ $group ] ) ) {
 			if ( ! isset( $this->cache_groups[ $group ] ) ) {
-				$this->cache_groups[ $group ] = new \calmpress\object_cache\Session_Memory( $group );
+				$this->cache_groups[ $group ] = static::create_aggregate_cache( $group );
 			} 
 			return $this->cache_groups[ $group ];
 		}
@@ -79,7 +84,7 @@ class WP_Object_Cache {
 		}
 
 		if ( ! isset( $blog_groups[ $group ] ) ) {
-			$cache                                     = new \calmpress\object_cache\Session_Memory( $group . '_' . $blog_id );
+			$cache                                    = static::create_aggregate_cache( $group . '_' . $blog_id );
 			$this->cache_groups[ $blog_id ][ $group ] = $cache;
 		} else {
 			$cache = $blog_groups[ $group ];
@@ -232,7 +237,7 @@ class WP_Object_Cache {
 				$groups->clear();
 			} else {
 				foreach ( $groups as $cache ) {
-					$cache->clear();		
+					$cache->clear();
 				}
 			}
 		}
@@ -258,6 +263,7 @@ class WP_Object_Cache {
 	 * @return mixed|false The cache contents on success, false on failure to retrieve contents.
 	 */
 	public function get( $key, $group = 'default', $force = false, &$found = null ) {
+	
 		if ( is_int( $key ) ) {
 			$key = (string) $key;
 		}
@@ -295,9 +301,6 @@ class WP_Object_Cache {
 	 */
 	public function get_multiple( $keys, $group = 'default', $force = false ) {
 
-		// Convert integers to strings.
-		$keys = array_map( fn( $value ) => is_int( $value ) ? (string) $value : $value, $keys ); 
-
 		$cache  = $this->group_cache( $group );
 
 		// Sucks if you want to store false value and need to be able to know when they don't exist
@@ -318,9 +321,6 @@ class WP_Object_Cache {
 	 * @return int|false The item's new value on success, false on failure.
 	 */
 	public function incr( $key, $offset = 1, $group = 'default' ) {
-		if ( is_int( $key ) ) {
-			$key = (string) $key;
-		}
 		
 		if ( empty( $group ) ) {
 			$group = 'default';
@@ -364,9 +364,6 @@ class WP_Object_Cache {
 	 * @return bool False if not exists, true if contents were replaced.
 	 */
 	public function replace( $key, $data, $group = 'default', $expire = 0 ) {
-		if ( is_int( $key ) ) {
-			$key = (string) $key;
-		}
 		
 		if ( empty( $group ) ) {
 			$group = 'default';
@@ -377,7 +374,7 @@ class WP_Object_Cache {
 			return false;
 		}
 
-		return $cache->set( $key, $data, $group, (int) $expire );
+		return $cache->set( $key, $data, (int) $expire );
 	}
 
 	/**
@@ -401,9 +398,6 @@ class WP_Object_Cache {
 	 * @return true Always returns true.
 	 */
 	public function set( $key, $data, $group = 'default', $expire = 0 ) {
-		if ( is_int( $key ) ) {
-			$key = (string) $key;
-		}
 		
 		if ( empty( $group ) ) {
 			$group = 'default';
@@ -443,10 +437,7 @@ class WP_Object_Cache {
 	 * @return bool Whether the key exists in the cache for the given group.
 	 */
 	protected function _exists( $key, $group ) {
-		if ( is_int( $key ) ) {
-			$key = (string) $key;
-		}
-		
+	
 		$cache = $this->group_cache( $group );
 		return '__NULL' !== $cache->get( $key, '__NULL' );
 	}

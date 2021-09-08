@@ -13,7 +13,7 @@ use calmpress\object_cache\Invalid_Argument_Exception;
 
 class trait_test {
 	use Psr16_Parameter_Utils {
-		throw_if_not_string as public;
+		throw_if_not_string_int as public;
 		throw_if_not_iterable as public;
 		ttl_to_seconds as public;
 	}
@@ -31,13 +31,13 @@ class WP_Test_Psr16_Parameter_Utils extends WP_UnitTestCase {
 	 * 
 	 * @dataProvider keys
 	 */
-	public function test_throw_if_not_string( $key, bool $throws ) {
+	public function throw_if_not_string_int( $key, bool $throws ) {
 
 		$trait = new trait_test();
 		
 		$thrown = false;
 		try {
-			$trait->throw_if_not_string( $key );
+			$trait->throw_if_not_string_int( $key );
 		} catch ( Invalid_argument_Exception $e ) {
 			$thrown = true;
 		}
@@ -60,7 +60,7 @@ class WP_Test_Psr16_Parameter_Utils extends WP_UnitTestCase {
 		
 		$thrown = false;
 		try {
-			$trait->throw_if_not_iterable( $keys );
+			$trait->throw_if_not_iterable( $keys, true );
 		} catch ( Invalid_argument_Exception $e ) {
 			$thrown = true;
 		}
@@ -114,12 +114,12 @@ class WP_Test_Psr16_Parameter_Utils extends WP_UnitTestCase {
 	 */
 	public function multiple_keys() {
 		return [
-			[34, true],
-			[[43], true],
-			[[43, '1', '2'], true],
-			[['1', 43, '2'], true],
-			[['1', '2', 43], true],
-			[['1', '2', '43'], false],
+			[[[]], true],
+			[[new \stdClass], true],
+			[[new \stdClass, '1', '2'], true],
+			[['1', new \stdClass, '2'], true],
+			[['1', '2', [43]], true],
+			[['1', '2', 43], false],
 			[['1'], false],
 		];
 	}
