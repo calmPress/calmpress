@@ -51,8 +51,13 @@ class WP_Object_Cache {
 	private int $blog_id;
 
 	private function create_aggregate_cache( string $namespace ) {
-		$session_memory = new \calmpress\object_cache\Session_Memory( $namespace );
-		return new \calmpress\object_cache\Chained_Caches( $session_memory );
+		$caches   = [];
+		$caches[] = new \calmpress\object_cache\Session_Memory( $namespace );
+		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
+			$connector = new \calmpress\object_cache\APCu_Connector( md5( NONCE_SALT ) );
+			$caches[]  = $connector->create_cache( $namespace );
+		}
+		return new \calmpress\object_cache\Chained_Caches( ...$caches );
 	}
 
 	/**
