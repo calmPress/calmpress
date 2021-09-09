@@ -64,7 +64,7 @@ class APCu_Connector {
 	 * @return bool true if it is active, otherwise false.
 	 */
 	public static function APCu_is_avaialable() : bool {
-		return function_exists( 'apcu_store' );
+		return function_exists( 'apcu_enabled' ) && apcu_enabled();
 	}
 
 	/**
@@ -76,22 +76,7 @@ class APCu_Connector {
 	 *
 	 * @return APCu The cache object.
 	 */
-	public  function create_global_group_cache( string $group ) : APCu {
-		return new APCu( $this, $group );
+	public  function create_cache( string $namespace ) : APCu {
+		return new APCu( $this, $namespace );
 	}
-
-	/**
-	 * Create an APCu cache object for a blog cache group.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param int    $blog_id The id of the blog.
-	 * @param string $group   The group name.
-	 *
-	 * @return APCu The cache object.
-	 */
-	public function create_blog_group_cache( int $blog_id, string $group ) : APCu{
-		return new APCu( $this, $blog_id . '_' . $group );
-	}
-
 }
