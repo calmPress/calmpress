@@ -103,7 +103,7 @@ function save_fail_notice() {
 	// Add admin notice that will report the error to the user.
 	add_action(
 		'admin_notices',
-		function () {
+		static function () {
 			$error = error_get_last();
 			?>
 			<div class="notice notice-error">
@@ -184,7 +184,7 @@ if ( $update_required ) {
 	if ( $saved ) {
 		add_action(
 			'admin_notices',
-			function () {
+			static function () {
 				?>
 				<div class='updated notice is-dismissible'>
 					<p>

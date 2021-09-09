@@ -144,7 +144,7 @@ add_filter( 'list_pages', '_wp_privacy_settings_filter_draft_page_titles', 10, 2
  */
 
  // Make sure the following actions are hooked only on front end admin pages.
-add_action( 'admin_head', function () {
+add_action( 'admin_head', static function () {
 
 	// .htacees needs update nag.
 	add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::htaccess_update_nag' );

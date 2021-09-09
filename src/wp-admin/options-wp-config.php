@@ -162,7 +162,7 @@ if ( ( 1 === count( $error_messages ) ) && ( 'success' === $error_messages[0]['t
 	if ( $sanitized !== $setting ) {
 		add_action(
 			'admin_notices',
-			function () {
+			static function () {
 				?>
 				<div class='notice notice-error is-dismissible'>
 					<p>
@@ -213,7 +213,7 @@ if ( $update_required ) {
 	} else {
 		add_action(
 			'admin_notices',
-			function () {
+			static function () {
 				?>
 				<div class='notice notice-error is-dismissible'>
 					<p>
@@ -245,7 +245,7 @@ if ( $update_required ) {
 	if ( $saved ) {
 		add_action(
 			'admin_notices',
-			function () {
+			static function () {
 				?>
 				<div class='updated notice is-dismissible'>
 					<p>

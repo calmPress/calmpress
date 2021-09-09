@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace calmpress\admin\robots_txt;
+namespace calmpress\object_caching\APCu_Controller;
 
 /** WordPress Administration Bootstrap */
 require_once dirname( __FILE__ ) . '/admin.php';
@@ -16,7 +16,7 @@ if ( ! is_super_admin() ) {
 	wp_die( esc_html__( 'Sorry, you are not allowed to manage robots.txt for this site.' ) );
 }
 
-$title       = __( 'robots.txt Settings' );
+$title       = __( 'Object Caching Settings' );
 $parent_file = 'options-general.php';
 
 get_current_screen()->add_help_tab(
@@ -65,25 +65,6 @@ and to add sitemaps in addition to the one appended automatically by the system.
 	<?php
 }
 
-// Show a notice if site is on subdirectory.
-if ( '/' !== wp_parse_url( site_url(), PHP_URL_PATH ) ) {
-	add_action(
-		'admin_notices',
-		static function () {
-			$error = error_get_last();
-			?>
-			<div class="notice notice-info">
-				<p>
-				<?php esc_html_e( 'The site is installed in a subdirectory therefor search engine are not going to read the file' ); ?>
-				</p>
-			</div>
-			<?php
-		},
-		9,
-		1
-	);
-}
-
 require ABSPATH . 'wp-admin/admin-header.php';
 
 ?>
@@ -92,8 +73,8 @@ require ABSPATH . 'wp-admin/admin-header.php';
 
 	<form method="post" action="options.php" novalidate="novalidate">
 		<?php
-		settings_fields( 'robots_txt' );
-		do_settings_sections( 'robots_txt' );
+		settings_fields( 'object_caching' );
+		do_settings_sections( 'object_caching' );
 		submit_button();
 		?>
 	</form>

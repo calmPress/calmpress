@@ -4549,7 +4549,7 @@ function sanitize_option( $option, $value ) {
 			// that as the performance impact is almost zero and it is easier to
 			// understand this way.
 			if ( $old_value != $value ) {
-				add_action( 'update_option_posts_per_rss', function () {
+				add_action( 'update_option_posts_per_rss', static function () {
 					flush_rewrite_rules( false );
 				}, 10, 3 );
 			}
@@ -4703,7 +4703,7 @@ function sanitize_option( $option, $value ) {
 
 			// We need to flush the rewrite rules every time the value changes.
 			if ( $old_value != $value ) {
-				add_action( 'update_option_calm_embedding_on', function () {
+				add_action( 'update_option_calm_embedding_on', static function () {
 					flush_rewrite_rules( false );
 				}, 10, 3 );
 			}
