@@ -53,6 +53,11 @@ class Mock_Chained_Caches extends Chained_Caches {
 	}
 }
 
+/**
+ * Tests for the chained caches objecy cache.
+ *
+ * @since 1.0.0
+ */
 class WP_Test_Chained_Caches extends WP_UnitTestCase {
 
 	// Holds the first priority session memory cache.
