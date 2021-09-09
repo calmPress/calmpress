@@ -3376,7 +3376,6 @@ class wpdb {
 	 * @return int|false Whether the database feature is supported, false otherwise.
 	 */
 	public function has_cap( $db_cap ) {
-		$version = $this->db_version();
 
 		switch ( strtolower( $db_cap ) ) {
 			case 'collation':    // @since 2.5.0
