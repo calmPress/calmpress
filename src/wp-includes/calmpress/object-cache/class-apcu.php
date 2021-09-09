@@ -114,7 +114,7 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	 * @return bool true if the cache was cleared, otherwise false.
 	 */
 	public function clear() {
-		return apcu_delete( APCUIterator('#^' . $this->prefix . '#' ) );
+		return apcu_delete( new \APCUIterator('#^' . $this->prefix . '#' ) );
 	}
 
 	/**
