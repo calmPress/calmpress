@@ -20,6 +20,18 @@ global $APCu_Mock_Cache;
 // The expected prefix of all keys.
 global $expected_prefix;
 
+// Protect against redefinition as this code is also used in the apcu specific testing.
+if ( ! function_exists( 'apcu_enabled' ) ) {
+	global $calmpress_apcu_enabled;
+	$calmpress_apcu_enabled = false;
+
+	function apcu_enabled(): bool {
+		global $calmpress_apcu_enabled;
+
+		return $calmpress_apcu_enabled;
+	}
+}
+
 /**
  * Validate the keys to have the expected prefix, throx runtime exception if not.
  * 
@@ -27,7 +39,7 @@ global $expected_prefix;
  *
  * @param $keys string|string[] The keys to validate.
  */
-function validate_prefix( $keys ) {
+function apcu_validate_prefix( $keys ) {
 	global $expected_prefix;
 
 	if ( ! is_array( $keys ) ) {
@@ -58,10 +70,10 @@ function apcu_store( $keys, $values, $ttl ) {
 	global $APCu_Mock_Cache;
 
 	if ( ! is_array( $keys ) ) {
-		validate_prefix( $keys );
+		apcu_validate_prefix( $keys );
 		return $APCu_Mock_Cache->set( $keys, $values, $ttl );
 	} else {
-		validate_prefix( array_keys( $keys ) );
+		apcu_validate_prefix( array_keys( $keys ) );
 		return $APCu_Mock_Cache->setMultiple( $keys, $ttl );
 	}
 }
@@ -82,7 +94,7 @@ function apcu_store( $keys, $values, $ttl ) {
 function apcu_fetch( $keys, &$exist ) {
 	global $APCu_Mock_Cache;
 
-	validate_prefix( $keys );
+	apcu_validate_prefix( $keys );
 	if ( ! is_array( $keys ) ) {
 		$ret   = $APCu_Mock_Cache->get( $keys, '__NULL' );
 		$exist = ( '__NULL' !== $ret );
@@ -111,7 +123,7 @@ function apcu_fetch( $keys, &$exist ) {
 function apcu_delete( $keys ) {
 	global $APCu_Mock_Cache;
 
-	validate_prefix( $keys );
+	apcu_validate_prefix( $keys );
 	if ( ! is_array( $keys ) ) {
 		return $APCu_Mock_Cache->delete( $keys );
 	} else {
@@ -131,7 +143,7 @@ function apcu_delete( $keys ) {
 function apcu_exists( $key ) {
 	global $APCu_Mock_Cache;
 
-	validate_prefix( $key );
+	apcu_validate_prefix( $key );
 	return $APCu_Mock_Cache->has( $key );
 }
 
@@ -141,7 +153,7 @@ function apcu_exists( $key ) {
  * @since 1.0.0
  */
 class Mock_APCu_Connector extends APCu_Connector {
-    public  function create_global_group_cache( string $group ) : APCu {
+    public  function create_cache( string $group ) : APCu {
         return new Mock_APCu( $this, $group );
     }
 }
@@ -201,6 +213,20 @@ class Mock_APCu extends APCu {
  */
 class WP_Test_APCu extends WP_UnitTestCase {
 
+	public function setUp() {
+		parent::setUp();
+
+		global $calmpress_apcu_enabled;
+		$calmpress_apcu_enabled = true;
+	}
+
+	public function tearDown() {
+		parent::tearDown();
+
+		global $calmpress_apcu_enabled;
+		$calmpress_apcu_enabled = false;
+	}
+
 	/**
 	 * Create a mock APCu cache.
 	 *
@@ -208,7 +234,7 @@ class WP_Test_APCu extends WP_UnitTestCase {
 	 */
 	private function create_mock_cache(): Mock_APCu {
 		$connector = new Mock_APCu_Connector( 'test' );
-		return $connector->create_global_group_cache( 'sub' );
+		return $connector->create_cache( 'sub' );
 	}
 
 	/**
