@@ -27,7 +27,7 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	 *
 	 * @var string
 	 */
-    protected string $prefix;
+	protected string $prefix;
 
 	/**
 	 * Construct a group cache over APCu.
@@ -39,9 +39,9 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	 * @param string         $sub_namespace The suffix of the general $connector prefix to be used for
 	 *                                  all keys in the group cache
 	 */
-    public function __construct( APCu_Connector $connector, string $sub_namespace ) {
-        $this->prefix = $connector->namespace() . '_' . $sub_namespace . '_';
-    }
+	public function __construct( APCu_Connector $connector, string $sub_namespace ) {
+		$this->prefix = $connector->namespace() . '_' . $sub_namespace . '_';
+	}
 
 	/**
 	 * Fetches a value from the cache.
@@ -60,10 +60,10 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 		static::throw_if_not_string_int( $key );
 
 		$exists = false;
-        $ret = apcu_fetch( $this->prefix . $key, $exists );
-        if ( ! $exists ) {
-            return $default;
-        }
+		$ret = apcu_fetch( $this->prefix . $key, $exists );
+		if ( ! $exists ) {
+			return $default;
+		}
 
 		return $ret;
 	}
@@ -132,9 +132,9 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	public function getMultiple( $keys, $default = null ) {
 		static::throw_if_not_iterable( $keys, true );
 
-        $apcu_keys = array_map( fn( $key ) => $this->prefix . $key, $keys );
+		$apcu_keys = array_map( fn( $key ) => $this->prefix . $key, $keys );
 
-        $fetched = apcu_fetch( $apcu_keys, $exists );
+		$fetched = apcu_fetch( $apcu_keys, $exists );
 
 		// Remove the prefix from the keys.
 		$ret = [];
@@ -142,14 +142,14 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 			$ret[ substr( $key, strlen( $this->prefix ) ) ] = $value;
 		}
 
-        // Check if all values were returned, set default for the ones that were not.
-        if ( count( $keys ) != count( $ret ) ) {
-            foreach ( $keys as $key ) {
-                if ( ! array_key_exists( $key, $ret ) ) {
-                    $ret[ $key ] = $default;
-                }
-            }
-        }
+		// Check if all values were returned, set default for the ones that were not.
+		if ( count( $keys ) != count( $ret ) ) {
+			foreach ( $keys as $key ) {
+				if ( ! array_key_exists( $key, $ret ) ) {
+					$ret[ $key ] = $default;
+				}
+			}
+		}
 
 		return $ret;
 	}
