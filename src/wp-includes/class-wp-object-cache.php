@@ -54,8 +54,9 @@ class WP_Object_Cache {
 		$caches   = [];
 		$caches[] = new \calmpress\object_cache\Session_Memory( $namespace );
 		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
-			$connector = new \calmpress\object_cache\APCu_Connector( md5( NONCE_SALT ) );
-			$caches[]  = $connector->create_cache( $namespace );
+			$apcu_namespace = defined( 'APCU_PREFIX') ? APCU_PREFIX : md5( NONCE_SALT );
+			$connector      = new \calmpress\object_cache\APCu_Connector( $apcu_namespace );
+			$caches[]       = $connector->create_cache( $namespace );
 		}
 		return new \calmpress\object_cache\Chained_Caches( ...$caches );
 	}

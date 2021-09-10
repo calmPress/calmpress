@@ -64,6 +64,10 @@ class APCu_Connector {
 	 * @return bool true if it is active, otherwise false.
 	 */
 	public static function APCu_is_avaialable() : bool {
+		if ( defined( 'APCU_DISABLED' ) && APCU_DISABLED ) {
+			return false;
+		}
+		
 		return function_exists( 'apcu_enabled' ) && apcu_enabled();
 	}
 
