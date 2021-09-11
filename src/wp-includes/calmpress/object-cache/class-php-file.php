@@ -383,7 +383,7 @@ class PHP_File implements \Psr\SimpleCache\CacheInterface {
 	 * @return bool true if enabled, otherwise false.
 	 */
 	public static function opcahce_enabled(): bool {
-		if ( function_exists( 'opcache_invalidate' ) ) {
+		if ( function_exists( 'opcache_get_status' ) ) {
 			// This check ensures that it is possible to use the api to do stuff,
 			// especially invalidate cache files. Without invalidation there is
 			// a potential of using stale values.
