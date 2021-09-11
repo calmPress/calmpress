@@ -217,7 +217,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 		?>
 	</form>
 	<?php
-	if ( ! $saved && $update_required ) {
+	if ( $update_required && ! $saved  ) {
 		?>
 		<p>
 			<?php
