@@ -23,6 +23,8 @@ trait Psr16_Parameter_Utils {
 	 * 
 	 * If no explicit ttl is set ( $ttl is null ) the expiry interval is set to a day.
 	 *
+	 * Wordpress uses ttl value of 0 to indicate "forever", in that case also limit to one day.
+	 *
 	 * @since 1.0.0
 	 * 
 	 * @param null|int|\DateInterval $ttl The value to convert.
@@ -30,12 +32,12 @@ trait Psr16_Parameter_Utils {
 	 * @return int The interval in seconds
 	 */
 	protected static function ttl_to_seconds( $ttl ) : int {
-		if ( is_int( $ttl ) ) {
-			return $ttl;
+		if ( null === $ttl || 0 === $ttl ) {
+			return DAY_IN_SECONDS;
 		}
 
-		if ( null === $ttl ) {
-			return DAY_IN_SECONDS;
+		if ( is_int( $ttl ) ) {
+			return $ttl;
 		}
 
 		if ( $ttl instanceof \DateInterval ) {
