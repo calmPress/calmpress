@@ -32,16 +32,22 @@ class APCu_Connector {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $namespace The name underwhich the keys related to this connector will be grouped.
+	 * @param ?string $namespace The name underwhich the keys related to this connector will be grouped.
+	 *                           If null is passed ( or parameter not specified ) a default prefix will be
+	 *                           used. It is either define in wp-config or derived from one of the salts.
 	 *
 	 * @throws \RuntimeException if APCu is not active.
 	 */
-	public function __construct( string $namespace ) {
+	public function __construct( ?string $namespace = null ) {
 
 		if ( ! static::APCu_is_avaialable() ) {
 			throw new \RuntimeException( 'APCu is not available' );
 		}
 
+		if ( null === $namespace ) {
+			$namespace = defined( 'APCU_PREFIX') ? APCU_PREFIX : md5( NONCE_SALT );
+		}
+		
 		$this->namespace = $namespace;
 	}
 
