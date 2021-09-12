@@ -52,6 +52,15 @@ class Mock_PHP_File extends PHP_File {
 	}
 
 	/**
+	 * Helper to expose the file path of a file which will be used for a key.
+	 * 
+	 * @since 1.0.0;
+	 */
+	public function file_for_key( string $key ) {
+		return parent::key_to_file( $key );
+	}
+
+	/**
 	 * Mock opcache to be enabled.
 	 */
 	public static function opcahce_enabled():bool {
@@ -89,15 +98,15 @@ class WP_Test_PHP_File extends WP_UnitTestCase {
 		$this->assertSame( 1, Mock_PHP_File::$validation_key_called );
 
 		// File contain "garbage".
-		file_put_contents( PHP_File::CACHE_ROOT_DIR . 'test/sub/key.php', 'garbage' );
+		file_put_contents( $cache->file_for_key( 'key' ), 'garbage' );
 		$this->assertSame( 'test', $cache->get( 'key', 'test' ) );
 
 		// File contain php with syntax error.
-		file_put_contents( PHP_File::CACHE_ROOT_DIR . 'test/sub/key.php', '<?php return [' .( time() + 1000 ) . ', 45]' );
+		file_put_contents( $cache->file_for_key( 'key' ), '<?php return [' .( time() + 1000 ) . ', 45]' );
 		$this->assertSame( 'test', $cache->get( 'key', 'test' ) );
 
 		// File contains expired value.
-		file_put_contents( PHP_File::CACHE_ROOT_DIR . 'test/sub/key.php', '<?php return [' . ( time() - 1000 ) . ', 45];' );
+		file_put_contents( $cache->file_for_key( 'key' ), '<?php return [' . ( time() - 1000 ) . ', 45];' );
 		$this->assertSame( 'test', $cache->get( 'key', 'test' ) );
 	}
 
@@ -110,15 +119,15 @@ class WP_Test_PHP_File extends WP_UnitTestCase {
 		$cache = new Mock_PHP_File( 'test/sub' );
 
 		// File contains integer.
-		file_put_contents( PHP_File::CACHE_ROOT_DIR . 'test/sub/key.php', '<?php return [' . ( time() + 1000 ) . ', 45];' );
+		file_put_contents( $cache->file_for_key( 'key' ), '<?php return [' . ( time() + 1000 ) . ', 45];' );
 		$this->assertSame( 45, $cache->get( 'key', 'test' ) );
 
 		// File contains string.
-		file_put_contents( PHP_File::CACHE_ROOT_DIR . 'test/sub/key.php', '<?php return [' . ( time() + 1000 ) . ', "str"];' );
+		file_put_contents( $cache->file_for_key( 'key' ), '<?php return [' . ( time() + 1000 ) . ', "str"];' );
 		$this->assertSame( 'str', $cache->get( 'key', 'test' ) );
 
 		// File contains array.
-		file_put_contents( PHP_File::CACHE_ROOT_DIR . 'test/sub/key.php', '<?php return [' . ( time() + 1000 ) . ', [1, "str"]];' );
+		file_put_contents( $cache->file_for_key( 'key' ), '<?php return [' . ( time() + 1000 ) . ', [1, "str"]];' );
 		$this->assertSame( [1, 'str'], $cache->get( 'key', 'test' ) );
 	}
 
@@ -142,7 +151,7 @@ class WP_Test_PHP_File extends WP_UnitTestCase {
 	 */
 	public function test_has() {
 		$cache = new Mock_PHP_File( 'test/sub' );
-		@unlink( PHP_File::CACHE_ROOT_DIR . 'test/sub/key.php' );
+		@unlink( $cache->file_for_key( 'key' ) );
 		$this->assertFalse( $cache->has( 'key' ) );
 
 		// two validation calls, one for the delete and one for the has.
@@ -166,7 +175,7 @@ class WP_Test_PHP_File extends WP_UnitTestCase {
 		// validation called twice, first for set, than for delete.
 		$this->assertSame( 2, Mock_PHP_File::$validation_key_called );
 		$this->assertFalse( $cache->has( 'key' ) );
-		$this->assertSame( PHP_File::CACHE_ROOT_DIR . 'test/sub/key.php', $opcache_invalidate_file );
+		$this->assertSame( $cache->file_for_key( 'key' ), $opcache_invalidate_file );
 	}
 
 	/**

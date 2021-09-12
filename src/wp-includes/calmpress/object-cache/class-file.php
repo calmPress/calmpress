@@ -37,7 +37,7 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	 *
 	 * @var string.
 	 */
-	private string $root_dir;
+	protected string $root_dir;
 
 	/**
 	 * Construct a group cache over a file cache.
@@ -47,13 +47,17 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	 * @param string $cache_directory The path of the directory in which to store the relevant file
 	 *                                relative to the general PHP file object caching root.
 	 *
-	 * @throws \RuntimeException if APCu is not active.
+	 * @throws \RuntimeException if cache path is not writable or can not be created.
 	 */
 	public function __construct( string $cache_directory ) {
 
 		$dir = self::CACHE_ROOT_DIR . $cache_directory;
 		if ( ! file_exists( $dir ) ) {
-			mkdir( $dir , 0755, true );
+			if ( ! @mkdir( $dir , 0755, true ) ) {
+				throw \RuntimeException( 'Can not create cache directory at ' . $dir );
+			}
+		} else if ( ! is_writable( $dir ) ) {
+			throw \RuntimeException( 'Cache directory is not writable directory at ' . $dir );
 		}
 		$this->root_dir = $dir . '/';
 	}
@@ -192,14 +196,14 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	 * @param mixed  $value  The value of the item to store. Must be serializable.
 	 * @param int    $expiry The unix time stamp in which the entry will expire.
 	 */
-	private function set_value( $key, $value, int $expiry ) {
+	protected function set_value( $key, $value, int $expiry ) {
 
 		$file = $this->key_to_file( (string) $key );
 
 		$entry = [ $expiry, $value ];
 		$content = serialize( $entry );
 
-		file_put_contents( $file, $content );
+		return false !== @file_put_contents( $file, $content );
 	}
 
 	/**
@@ -363,5 +367,16 @@ class File implements \Psr\SimpleCache\CacheInterface {
 		static::throw_if_not_string_int( $key );
 
 		return null !== $this->get( $key, null );
+	}
+
+	/**
+	 * Check if cache file can be written.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool true if enabled, otherwise false.
+	 */
+	public static function is_available(): bool {
+		return is_writable( self::CACHE_ROOT_DIR );
 	}
 }
