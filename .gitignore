@@ -32,6 +32,7 @@ wp-tests-config.php
 /artifacts
 
 # Files and folders that get created in wp-content
+/src/wp-content/.private
 /src/wp-content/blogs.dir
 /src/wp-content/languages
 /src/wp-content/mu-plugins
