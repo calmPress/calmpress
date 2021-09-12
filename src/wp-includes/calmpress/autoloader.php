@@ -57,6 +57,7 @@ const MAP = [
 	'calmpress\object_cache\APCu_Connector'             => __DIR__ . '/object-cache/class-apcu-connector.php',
 	'calmpress\object_cache\APCu'                       => __DIR__ . '/object-cache/class-apcu.php',
 	'calmpress\object_cache\PHP_File'                   => __DIR__ . '/object-cache/class-php-file.php',
+	'calmpress\object_cache\File'                       => __DIR__ . '/object-cache/class-file.php',
 	'calmpress\object_cache\Null_Cache'                 => __DIR__ . '/object-cache/class-null-cache.php',
 	'Psr\SimpleCache\CacheInterface'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheInterface.php',
 	'Psr\SimpleCache\CacheException'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheException.php',
