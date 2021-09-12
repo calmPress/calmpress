@@ -72,12 +72,12 @@ class WP_Test_File extends WP_UnitTestCase {
 		$this->assertSame( 1, Mock_File::$validation_key_called );
 
 		// File contain "garbage".
-		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.json', 'garbage' );
+		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.dat', 'garbage' );
 		$this->assertSame( 'test', $cache->get( 'key', 'test' ) );
 
 		// File contains expired value.
-		$data = json_encode( [ time() - 1000, 45] );
-		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.json', $data );
+		$data = serialize( [ time() - 1000, 45] );
+		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.dat', $data );
 		$this->assertSame( 'test', $cache->get( 'key', 'test' ) );
 	}
 
@@ -90,18 +90,18 @@ class WP_Test_File extends WP_UnitTestCase {
 		$cache = new Mock_File( 'test/sub' );
 
 		// File contains integer.
-		$data = json_encode( [ time() + 1000, 45] );
-		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.json', $data );
+		$data = serialize( [ time() + 1000, 45] );
+		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.dat', $data );
 		$this->assertSame( 45, $cache->get( 'key', 'test' ) );
 
 		// File contains string.
-		$data = json_encode( [ time() + 1000, 'str'] );
-		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.json', $data );
+		$data = serialize( [ time() + 1000, 'str'] );
+		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.dat', $data );
 		$this->assertSame( 'str', $cache->get( 'key', 'test' ) );
 
 		// File contains array.
-		$data = json_encode( [ time() + 1000, [1, 'str'] ] );
-		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.json', $data );
+		$data = serialize( [ time() + 1000, [1, 'str'] ] );
+		file_put_contents( File::CACHE_ROOT_DIR . 'test/sub/key.dat', $data );
 		$this->assertSame( [1, 'str'], $cache->get( 'key', 'test' ) );
 	}
 
@@ -125,7 +125,7 @@ class WP_Test_File extends WP_UnitTestCase {
 	 */
 	public function test_has() {
 		$cache = new Mock_File( 'test/sub' );
-		@unlink( File::CACHE_ROOT_DIR . 'test/sub/key.json' );
+		@unlink( File::CACHE_ROOT_DIR . 'test/sub/key.dat' );
 		$this->assertFalse( $cache->has( 'key' ) );
 
 		// two validation calls, one for the delete and one for the has.

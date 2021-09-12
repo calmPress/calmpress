@@ -72,17 +72,12 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	protected static function read_file( string $file ): array {
 		$ret = [];
 		if ( is_file( $file ) ) {
-			try {
-				$string = file_get_contents( $file );
-				$ret = json_decode($string, null, 512, JSON_THROW_ON_ERROR );
-				if ( ! is_array( $ret ) ) {
-					// the file supposed to contain an array, but it isn't so treat it like
-					// curropted file.
-					$ret = [];
-					static::purge_file( $file );
-				}
-			} catch (\JsonException $e) {
-				// Indicates there was problem with reading or parsing the file.
+			$string = file_get_contents( $file );
+			$ret = @unserialize( $string );
+			if ( ! is_array( $ret ) ) {
+				// the file supposed to contain an array, but it isn't so treat it like
+				// curropted file.
+				$ret = [];
 				static::purge_file( $file );
 			}
 		}
@@ -102,6 +97,29 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	}
 
 	/**
+	 * Utility to convert keys to file names, sanitizing them for spaces and
+	 * other unfreindly characters.
+	 * 
+	 * To make it simple even if it means a less readable file names, use md5 of the key
+	 * as the file name if bad characters are detected.
+	 * 
+	 * bad characters - space, forward and back slashes, :, <, >, |, ?, *
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $key The key to get the file path for.
+	 *
+	 * @return string A path to the file that stores the key related value.
+	 */
+	protected function key_to_file( string $key ): string {
+		if ( $key !== str_replace( [' ', '/', '\\', ':', '<', '>', '?', '*'], '', $key ) ) {
+			$key = md5( $key ); 
+		}
+
+		return $this->root_dir . $key . '.dat';
+	}
+
+	/**
 	 * Fetches a value from the cache. Helper function which do not do type validation.
 	 *
 	 * If the entry had expired it will be purged from the cache and the relevant file deleted.
@@ -115,7 +133,7 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	 *               bad file format, or cache entry expiry.
 	 */
 	private function get_value( $key, $default ) {
-		$file = $this->root_dir . $key . '.json';
+		$file = $this->key_to_file( (string) $key );
 		$value = static::read_file( $file );
 		if ( empty( $value ) ) {
 			return $default;
@@ -176,10 +194,10 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	 */
 	private function set_value( $key, $value, int $expiry ) {
 
-		$file = $this->root_dir . $key . '.json';
+		$file = $this->key_to_file( (string) $key );
 
 		$entry = [ $expiry, $value ];
-		$content = json_encode( $entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK  );
+		$content = serialize( $entry );
 
 		file_put_contents( $file, $content );
 	}
@@ -221,7 +239,7 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	public function delete( $key ) {
 		static::throw_if_not_string_int( $key );
 
-		$file = $this->root_dir . $key . '.json';
+		$file = $this->key_to_file( (string) $key );
 		if ( is_file( $file ) ) {
 			static::purge_file( $file );
 			return true;
@@ -318,7 +336,7 @@ class File implements \Psr\SimpleCache\CacheInterface {
 		static::throw_if_not_iterable( $keys, true );
 
 		foreach ( $keys as $key ) {
-			$file = $this->root_dir . $key . '.json';
+			$file = $this->key_to_file( (string) $key );
 			static::purge_file( $file );
 		}
 
@@ -345,29 +363,5 @@ class File implements \Psr\SimpleCache\CacheInterface {
 		static::throw_if_not_string_int( $key );
 
 		return null !== $this->get( $key, null );
-	}
-
-	/**
-	 * Check if opcache is enabled. Without it being enabled there is no point in having
-	 * this kind of cache.
-	 * 
-	 * Check done by checking that the relevant functions are avaiable and that it is enabled
-	 * in the PHP configuration.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return bool true if enabled, otherwise false.
-	 */
-	public static function opcahce_enabled(): bool {
-		if ( function_exists( 'opcache_get_status' ) ) {
-			// This check ensures that it is possible to use the api to do stuff,
-			// especially invalidate cache files. Without invalidation there is
-			// a potential of using stale values.
-			if ( false !== opcache_get_status() ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }
