@@ -125,6 +125,29 @@ class PHP_File implements \Psr\SimpleCache\CacheInterface {
 	}
 
 	/**
+	 * Utility to convert keys to file names, sanitizing them for spaces and
+	 * other unfreindly characters.
+	 * 
+	 * To make it simple even if it means a less readable file names, use md5 of the key
+	 * as the file name if bad characters are detected.
+	 * 
+	 * bad characters - space, forward and back slashes, :, <, >, |, ?, *
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $key The key to get the file path for.
+	 *
+	 * @return string A path to the file that stores the key related value.
+	 */
+	protected function key_to_file( string $key ): string {
+		if ( $key !== str_replace( [' ', '/', '\\', ':', '<', '>', '?', '*'], '', $key ) ) {
+			$key = md5( $key ); 
+		}
+
+		return $this->root_dir . $key . '.php';
+	}
+
+	/**
 	 * Fetches a value from the cache. Helper function which do not do type validation.
 	 *
 	 * If the entry had expired it will be purged from the cache and the relevant file deleted.
@@ -138,7 +161,7 @@ class PHP_File implements \Psr\SimpleCache\CacheInterface {
 	 *               bad file format, or cache entry expiry.
 	 */
 	private function get_value( $key, $default ) {
-		$file = $this->root_dir . $key . '.php';
+		$file = $this->key_to_file( $key );
 		$value = static::read_file( $file );
 		if ( empty( $value ) ) {
 			return $default;
@@ -199,7 +222,7 @@ class PHP_File implements \Psr\SimpleCache\CacheInterface {
 	 */
 	private function set_value( $key, $value, int $expiry ) {
 
-		$file = $this->root_dir . $key . '.php';
+		$file = $this->key_to_file( $key );
 
 		$content = sprintf( '<?php return [%d, %s];', $expiry, var_export( $value, true ) );
 
@@ -246,7 +269,8 @@ class PHP_File implements \Psr\SimpleCache\CacheInterface {
 	public function delete( $key ) {
 		static::throw_if_not_string_int( $key );
 
-		$file = $this->root_dir . $key . '.php';
+		$file = $this->key_to_file( $key );
+
 		if ( is_file( $file ) ) {
 			static::purge_file( $file );
 			return true;
@@ -343,7 +367,7 @@ class PHP_File implements \Psr\SimpleCache\CacheInterface {
 		static::throw_if_not_iterable( $keys, true );
 
 		foreach ( $keys as $key ) {
-			$file = $this->root_dir . $key . '.php';
+			$file = $this->key_to_file( $key );
 			static::purge_file( $file );
 		}
 
