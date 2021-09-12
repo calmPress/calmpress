@@ -50,14 +50,72 @@ class WP_Object_Cache {
 	 */
 	private int $blog_id;
 
-	private function create_aggregate_cache( string $namespace ) {
-		$caches   = [];
-		$caches[] = new \calmpress\object_cache\Session_Memory( $namespace );
-		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
-			$apcu_namespace = defined( 'APCU_PREFIX') ? APCU_PREFIX : md5( NONCE_SALT );
-			$connector      = new \calmpress\object_cache\APCu_Connector( $apcu_namespace );
-			$caches[]       = $connector->create_cache( $namespace );
+	/**
+	 * Create a cache for groups that have keys that are hit a lot of times. For them prefer APCu caching
+	 * after it PHP file caching and file caching as last resort.
+	 *
+	 * Session memory caching is used as the "front" for the selected cache to reduce the
+	 * amount of locking or other overhead when accessing the other caches.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $namespace The namespace to use to identify the cache for the specific group.
+	 *
+	 * @return \Psr\SimpleCache\CacheInterface The cache object
+	 */
+	private static function create_cache_for_static_groups( string $namespace ): \Psr\SimpleCache\CacheInterface {
+
+		$session_memory = new \calmpress\object_cache\Session_Memory();
+
+		// Don't bother with persistant cache when unit testing.
+		if ( defined( 'WP_TESTS_DOMAIN' ) ) {
+			return new $session_memory;
 		}
+
+		// If APCu enabled use it.
+		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
+			$connector  = new \calmpress\object_cache\APCu_Connector();
+			$apcu_cache = $connector->create_cache( $namespace );
+			return new \calmpress\object_cache\Chained_Caches( $session_memory, $apcu_cache );
+		}
+
+		// If PHP file caching available, use it.
+		if ( \calmpress\object_cache\PHP_File::opcahce_enabled() ) {
+			$php_cache = new \calmpress\object_cache\PHP_File( $namespace );
+			return new \calmpress\object_cache\Chained_Caches( $session_memory, $php_cache );
+		}
+
+		$file_cache = new \calmpress\object_cache\File( $namespace );
+		return new \calmpress\object_cache\Chained_Caches( $session_memory, $file_cache );
+	}
+
+	/**
+	 * Create a chained cache for groups in the default setup with session memory and apcu if exists.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $namespace The namespace to use to identify the cache for the specific group.
+	 *
+	 * @return \Psr\SimpleCache\CacheInterface The cache object
+	 */
+	private static function create_default_cache( string $namespace ) {
+		// Don't bother with persistant cache when unit testing.
+		if ( defined( 'WP_TESTS_DOMAIN' ) ) {
+			return new \calmpress\object_cache\Session_Memory();
+		}
+
+		$caches = [];
+		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
+			$connector = new \calmpress\object_cache\APCu_Connector();
+			$caches[]  = $connector->create_cache( $namespace );
+		} else {
+			$caches[] = new \calmpress\object_cache\File( $namespace );
+		}
+
+		if ( 1 === count( $caches ) ) {
+			return $caches[0];
+		}
+
 		return new \calmpress\object_cache\Chained_Caches( ...$caches );
 	}
 
@@ -74,7 +132,12 @@ class WP_Object_Cache {
 		// if it is a global group, it is not blog specific.
 		if ( isset( $this->global_groups[ $group ] ) ) {
 			if ( ! isset( $this->cache_groups[ $group ] ) ) {
-				$this->cache_groups[ $group ] = static::create_aggregate_cache( $group );
+			// Special treatment for mostly static groups which are relatively fetched a lot
+			// for the same keys.
+			if ( in_array( $group, ['users', 'userlogins', 'user_meta', 'useremail'], true ) ) {
+				$this->cache_groups[ $group ] = static::create_cache_for_static_groups( $group );
+			} else
+				$this->cache_groups[ $group ] = static::create_default_cache( $group );
 			} 
 			return $this->cache_groups[ $group ];
 		}
@@ -90,7 +153,13 @@ class WP_Object_Cache {
 		}
 
 		if ( ! isset( $blog_groups[ $group ] ) ) {
-			$cache                                    = static::create_aggregate_cache( $group . '_' . $blog_id );
+			// Special treatment for mostly static groups which are relatively fetched a lot
+			// for the same keys.
+			if ( in_array( $group, ['options'], true ) ) {
+				$cache = static::create_cache_for_static_groups( $blog_id . '/' . $group );
+			} else {
+				$cache = static::create_default_cache( $blog_id . '/' . $group );
+			}
 			$this->cache_groups[ $blog_id ][ $group ] = $cache;
 		} else {
 			$cache = $blog_groups[ $group ];
