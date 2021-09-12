@@ -138,7 +138,8 @@ class PHP_File implements \Psr\SimpleCache\CacheInterface {
 	 *               bad file format, or cache entry expiry.
 	 */
 	private function get_value( $key, $default ) {
-		$value = static::read_file( $this->root_dir . $key . '.php' );
+		$file = $this->root_dir . $key . '.php';
+		$value = static::read_file( $file );
 		if ( empty( $value ) ) {
 			return $default;
 		}
@@ -148,13 +149,13 @@ class PHP_File implements \Psr\SimpleCache\CacheInterface {
 		// If expiry is not an integer we most likely have bad file. Treat it like the file was not there
 		// and return the default.
 		if ( ! is_int( $expiry ) ) {
-			$this->delete( $key );
+			$this->purge_file( $file );
 			return $default;
 		}
 
 		// If value has expired return the default.
 		if ( $expiry < time() ) {
-			$this->delete( $key );
+			$this->purge_file( $file );
 			return $default;
 		}
 
