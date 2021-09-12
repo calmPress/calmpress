@@ -37,19 +37,7 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * The directory in which backup files are located relative to the
 	 * site's uploads directory.
 	 */
-	const PATH_RELATIVE_TO_UPLOADS = '.private/backup/';
-
-	/**
-	 * The directory in which backup files are located.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The directory path.
-	 */
-	protected function backup_dir() : string {
-		$data = wp_upload_dir( null, false );
-		return $data['basedir'] . '/' . self::PATH_RELATIVE_TO_UPLOADS;
-	}
+	const BACKUP_ROOT_DIR = WP_CONTENT_DIR . '/.private/backup/';
 
 	/**
 	 * Human redable description of the storage.
@@ -59,7 +47,7 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @return string The description text.
 	 */
 	public function description() : string {
-		return 'Backups located at ' . $this->backup_dir();
+		return 'Backups located at ' . static::BACKUP_ROOT_DIR;
 	}
 
 	/**
@@ -84,7 +72,7 @@ class Local_Backup_Storage implements Backup_Storage {
 	public function backups() : Backup_Container {
 		$container = new Backup_Container();
 
-		foreach ( glob( $this->backup_dir() . '*.meta' ) as $file ) {
+		foreach ( glob( static::BACKUP_ROOT_DIR . '*.meta' ) as $file ) {
 			try {
 				$local_backup = new Local_Backup( $file );
 			} catch ( Exception $e ) {
@@ -107,7 +95,7 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @throws \Exception if the backup fails.
 	 */
 	public function Backup( string $description ) {
-		Local_Backup::create_backup( $description, $this->backup_dir() );
+		Local_Backup::create_backup( $description, static::BACKUP_ROOT_DIR );
 	}
 
 }
