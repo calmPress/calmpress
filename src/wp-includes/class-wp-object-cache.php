@@ -69,9 +69,11 @@ class WP_Object_Cache {
 
 		// Don't bother with persistant cache when unit testing.
 		if ( defined( 'WP_TESTS_DOMAIN' ) ) {
-			return new $session_memory;
+			return $session_memory;
 		}
 
+		$caches[] = $session_memory;
+		
 		// If APCu enabled use it.
 		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
 			$connector  = new \calmpress\object_cache\APCu_Connector();
@@ -79,14 +81,46 @@ class WP_Object_Cache {
 			return new \calmpress\object_cache\Chained_Caches( $session_memory, $apcu_cache );
 		}
 
-		// If PHP file caching available, use it.
-		if ( \calmpress\object_cache\PHP_File::opcahce_enabled() ) {
-			$php_cache = new \calmpress\object_cache\PHP_File( $namespace );
-			return new \calmpress\object_cache\Chained_Caches( $session_memory, $php_cache );
+		// If PHP file caching available, use it, otherwise try to use file caching
+		try {
+			$caches[] = new \calmpress\object_cache\PHP_File( $namespace );
+		} catch ( \RuntimeException $e ) {}
+
+		if ( 1 === count( $caches ) ) {
+			try {
+				$caches[] = new \calmpress\object_cache\File( $namespace );
+			} catch ( \RuntimeException $e ) {}
 		}
 
-		$file_cache = new \calmpress\object_cache\File( $namespace );
-		return new \calmpress\object_cache\Chained_Caches( $session_memory, $file_cache );
+		if ( 1 === count( $caches ) ) {
+			return $caches[0];
+		} else {
+			return new \calmpress\object_cache\Chained_Caches( ...$caches );
+		}
+	}
+
+	/**
+	 * Create a cache for transient type of groups for which the entries need to be persistant.
+	 *
+	 * For persistance only APCu and file caching can be used as PHP file caching should be used
+	 * only sparingly.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $namespace The namespace to use to identify the cache for the specific group.
+	 *
+	 * @return \Psr\SimpleCache\CacheInterface The cache object
+	 */
+	private static function create_cache_for_transient_groups( string $namespace ): \Psr\SimpleCache\CacheInterface {
+
+		// If APCu enabled use it.
+		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
+			$connector  = new \calmpress\object_cache\APCu_Connector();
+			return $connector->create_cache( $namespace );
+		}
+
+		// ... Otherwise use file caching.
+		return new \calmpress\object_cache\File( $namespace );
 	}
 
 	/**
@@ -109,7 +143,11 @@ class WP_Object_Cache {
 			$connector = new \calmpress\object_cache\APCu_Connector();
 			$caches[]  = $connector->create_cache( $namespace );
 		} else {
-			$caches[] = new \calmpress\object_cache\File( $namespace );
+			try {
+				$caches[] = new \calmpress\object_cache\File( $namespace );
+			} catch ( \RuntimeException $e ) {
+				$catches[] = new \calmpress\object_cache\Null_Cache();
+			}
 		}
 
 		if ( 1 === count( $caches ) ) {
@@ -132,13 +170,16 @@ class WP_Object_Cache {
 		// if it is a global group, it is not blog specific.
 		if ( isset( $this->global_groups[ $group ] ) ) {
 			if ( ! isset( $this->cache_groups[ $group ] ) ) {
-			// Special treatment for mostly static groups which are relatively fetched a lot
-			// for the same keys.
-			if ( in_array( $group, ['users', 'userlogins', 'user_meta', 'useremail'], true ) ) {
-				$this->cache_groups[ $group ] = static::create_cache_for_static_groups( $group );
-			} else
-				$this->cache_groups[ $group ] = static::create_default_cache( $group );
-			} 
+				// Special treatment for mostly static groups which are relatively fetched a lot
+				// for the same keys.
+				if ( in_array( $group, ['users', 'userlogins', 'user_meta', 'useremail'], true ) ) {
+					$this->cache_groups[ $group ] = static::create_cache_for_static_groups( $group );
+				} elseif ( 'site-transient' === $group ) {
+					$cache = static::create_cache_for_transient_groups( $blog_id . '/' . $group );
+				} else {
+					$this->cache_groups[ $group ] = static::create_default_cache( $group );
+				}
+			}
 			return $this->cache_groups[ $group ];
 		}
 
@@ -155,8 +196,10 @@ class WP_Object_Cache {
 		if ( ! isset( $blog_groups[ $group ] ) ) {
 			// Special treatment for mostly static groups which are relatively fetched a lot
 			// for the same keys.
-			if ( in_array( $group, ['options'], true ) ) {
+			if ( 'options' === $group ) {
 				$cache = static::create_cache_for_static_groups( $blog_id . '/' . $group );
+			} elseif ( 'transient' === $group ) {
+				$cache = static::create_cache_for_transient_groups( $blog_id . '/' . $group );
 			} else {
 				$cache = static::create_default_cache( $blog_id . '/' . $group );
 			}
@@ -515,5 +558,26 @@ class WP_Object_Cache {
 	
 		$cache = $this->group_cache( $group );
 		return '__NULL' !== $cache->get( $key, '__NULL' );
+	}
+
+	/**
+	 * Detects if there is an enabled persistant cache between the options of
+	 * APCu and file cache.
+	 * 
+	 * PHP file cache is not relevant here as its use should be only for caching high impact
+	 * values as it is a limited resource.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return bool true if either APCu or file cache are enabled and tests are not running,
+	 *              otherwise false.
+	 */
+	public static function has_persistant_cache() {
+		if ( defined( 'WP_TESTS_DOMAIN' ) ) {
+			return false;
+		}
+
+		return ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ||
+				\calmpress\object_cache\File::is_available() );
 	}
 }

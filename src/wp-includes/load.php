@@ -521,6 +521,13 @@ function wp_set_wpdb_vars() {
  */
 function wp_using_ext_object_cache( $using = null ) {
 	global $_wp_using_ext_object_cache;
+
+	// This function can be called very early before all core files were included, therefor
+	// need extra protection.
+	if ( class_exists( 'WP_Object_Cache' ) && WP_Object_Cache::has_persistant_cache() ) {
+		return true;
+	}
+
 	$current_using = $_wp_using_ext_object_cache;
 	if ( null !== $using ) {
 		$_wp_using_ext_object_cache = $using;
