@@ -42,6 +42,9 @@ class Chained_Caches implements \Psr\SimpleCache\CacheInterface {
 	 *                                                fast to slow.
 	 */
 	public function __construct( \Psr\SimpleCache\CacheInterface ...$caches ) {
+		if ( empty( $caches ) ) {
+			throw new \RuntimeException( 'No caches were passed' );
+		}
 		$this->caches = $caches;
 	}
 
