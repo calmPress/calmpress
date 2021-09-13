@@ -615,6 +615,10 @@ class WP_Site_Health {
 				'required'     => false,
 				'fallback_for' => 'mod_xml',
 			),
+			'apcu'       => array(
+				'extension' => 'apcu',
+				'required'  => false,
+			),
 		);
 
 		/**
@@ -844,6 +848,117 @@ class WP_Site_Health {
 					)
 				);
 			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Test if debug information is enabled.
+	 *
+	 * When WP_DEBUG is enabled, errors and information may be disclosed to site visitors,
+	 * or logged to a publicly accessible file.
+	 *
+	 * Debugging is also frequently left enabled after looking for errors on a site,
+	 * as site owners do not understand the implications of this.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @return array The test results.
+	 */
+	public function get_test_object_cache() {
+		$result = array(
+			'label'       => esc_html__( 'Your site is not set to allow persistant object cache' ),
+			'status'      => 'critical',
+			'badge'       => array(
+				'label' => esc_html__( 'Performance' ),
+				'color' => 'blue',
+			),
+			'description' => sprintf(
+				'<p>%s</p>',
+				__( 'Persistant object cache helps in improving your overall site responsiveness by adding a storage area on your server which is used to keep frequently used values instead of getting the from the DataBase which is a slow operation.' )
+			),
+			'actions'     => '',
+			'test'        => 'object_cache',
+		);
+
+		$additional_messages = [];
+		$can_cache           = false;
+		
+		$opcode_cache_usable = false;
+		if ( function_exists( 'opcache_get_status' ) ) {
+			// This check ensures that it is possible to use the api to do stuff,
+			// especially invalidate cache files. Without invalidation there is
+			// a potential of using stale values.
+			if ( false !== opcache_get_status() ) {
+				$opcode_cache_usable = true;
+			}
+		}
+
+		// Check if APCu is used.
+		if ( function_exists( 'apcu_enabled' ) && apcu_enabled() ) {
+			if ( defined( 'APCU_DISABLED' ) && APCU_DISABLED ) {
+				$additional_messages[] = sprintf(
+					/* translators: 1: APCU_DISABLED define, 2: wp-config.php */
+					esc_html__(	'The APCu php extension is intalled and enabled but it is not used as %1$s is defined, probably in your  %2$s. APCu is the prefered solution for object cachin.' ),
+					'<code>APCU_DISABLED</code>',
+					'<code>wp-config.php</code>'
+				);
+			} else {
+				$can_cache = true;
+				$result['label'] = esc_html__( 'The APCu php extension for persistant object caching' );
+			}
+		}
+
+		// If not, check if file caching is possible
+		if ( ! $can_cache ) {
+			if ( wp_is_writable( \calmpress\object_cache\File::CACHE_ROOT_DIR ) ) {
+				$can_cache = true;
+				$result['label'] = esc_html__( 'Files are used for persistant object caching' );
+				if ( $opcode_cache_usable && ! wp_is_writable( \calmpress\object_cache\PHP_File::CACHE_ROOT_DIR ) ) {
+					$additional_messages[] = sprintf(
+						/* translators: 1: directory path */
+						esc_html__(	'Speed can be improved by making %s writable which will enable the usage of the PHP opcode caching for storing values in high demand.' ),
+						'<code>' . \calmpress\object_cache\PHP_File::PHP_File . '</code>'
+					);	
+				}
+			} else {
+				$additional_messages[] = sprintf(
+					/* translators: 1: directory path */
+					esc_html__(	'File based object caching can not be done because the %s directory is not writable.' ),
+					'<code>' . \calmpress\object_cache\File::CACHE_ROOT_DIR . '</code>'
+				);
+			}
+		}
+
+		if ( ! $can_cache ) {
+			if ( \calmpress\object_cache\PHP_File::is_available() ) {
+				$can_cache = true;
+				$result['label'] = esc_html__( 'Partial caching is available by utilizing PHP opcode caching for the most used values.' );
+				$additional_messages[] = esc_html__( 'The PHP opcode caching is used for storing values in high demand, but it is not a good enough caching solution by itself for the long run.' );
+			} else {
+				if ( ! $opcode_cache_usable ) {
+					$additional_messages[] = sprintf(
+					/* translators: 1: php.ini */
+					esc_html__( 'Your PHP uses opcode caching but settings in your %s file prevent this site from utilizing it for caching.' ),
+						'<code>php.ini</code>'
+					);
+				} else {
+					$additional_messages[] = sprintf(
+						/* translators: 1: directory path */
+						esc_html__(	'If the directory %s was writable PHP opcode caching would have been used for storing values in high demand.' ),
+						'<code>' . \calmpress\object_cache\PHP_File::PHP_File . '</code>'
+					);
+				}
+			}
+		}
+
+		if ( $can_cache ) {
+			$result['status'] = 'good';
+		}
+
+		foreach ( $additional_messages as $message ) {
+			$result['description'] .= '<p>' . $message . '</p>';
 		}
 
 		return $result;
@@ -1130,6 +1245,10 @@ class WP_Site_Health {
 				'php_extensions'            => array(
 					'label' => __( 'PHP Extensions' ),
 					'test'  => 'php_extensions',
+				),
+				'object_cache'      => array(
+					'label' => __( 'Object Cache' ),
+					'test'  => 'object_cache',
 				),
 				'php_default_timezone'      => array(
 					'label' => __( 'PHP Default Timezone' ),
