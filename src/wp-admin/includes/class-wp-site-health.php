@@ -900,7 +900,7 @@ class WP_Site_Health {
 			if ( defined( 'APCU_DISABLED' ) && APCU_DISABLED ) {
 				$additional_messages[] = sprintf(
 					/* translators: 1: APCU_DISABLED define, 2: wp-config.php */
-					esc_html__(	'The APCu php extension is intalled and enabled but it is not used as %1$s is defined, probably in your  %2$s. APCu is the prefered solution for object cachin.' ),
+					esc_html__(	'The APCu php extension is intalled and enabled but it is not used as %1$s is defined, probably in your  %2$s. APCu is the prefered solution for object caching.' ),
 					'<code>APCU_DISABLED</code>',
 					'<code>wp-config.php</code>'
 				);
@@ -934,7 +934,7 @@ class WP_Site_Health {
 		if ( ! $can_cache ) {
 			if ( \calmpress\object_cache\PHP_File::is_available() ) {
 				$can_cache = true;
-				$result['label'] = esc_html__( 'Partial caching is available by utilizing PHP opcode caching for the most used values.' );
+				$result['label'] = esc_html__( 'Partial object caching is available by utilizing PHP opcode caching for the most used values.' );
 				$additional_messages[] = esc_html__( 'The PHP opcode caching is used for storing values in high demand, but it is not a good enough caching solution by itself for the long run.' );
 			} else {
 				if ( ! $opcode_cache_usable ) {
