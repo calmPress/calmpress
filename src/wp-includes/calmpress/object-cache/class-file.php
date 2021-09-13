@@ -54,10 +54,10 @@ class File implements \Psr\SimpleCache\CacheInterface {
 		$dir = self::CACHE_ROOT_DIR . $cache_directory;
 		if ( ! file_exists( $dir ) ) {
 			if ( ! @mkdir( $dir , 0755, true ) ) {
-				throw \RuntimeException( 'Can not create cache directory at ' . $dir );
+				throw new \RuntimeException( 'Can not create cache directory at ' . $dir );
 			}
-		} else if ( ! is_writable( $dir ) ) {
-			throw \RuntimeException( 'Cache directory is not writable directory at ' . $dir );
+		} else if ( ! wp_is_writable( $dir ) ) {
+			throw new \RuntimeException( 'Cache directory is not writable directory at ' . $dir );
 		}
 		$this->root_dir = $dir . '/';
 	}
@@ -377,6 +377,6 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	 * @return bool true if enabled, otherwise false.
 	 */
 	public static function is_available(): bool {
-		return is_writable( self::CACHE_ROOT_DIR );
+		return wp_is_writable( self::CACHE_ROOT_DIR );
 	}
 }

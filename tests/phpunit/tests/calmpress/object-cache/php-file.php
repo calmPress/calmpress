@@ -230,4 +230,63 @@ class WP_Test_PHP_File extends WP_UnitTestCase {
 		$this->assertFalse( $cache->has( 'key1' ) );
 		$this->assertFalse( $cache->has( 'key2' ) );
 	}
+
+	/**
+	 * Test that the function properly detects when the relevant directory is not writable.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_is_available() {
+		
+		if ( PHP_OS_FAMILY === 'Windows' ) {
+			$this->markTestSkipped( 'Manipulating windows access permissions is too crazy');
+		}
+
+		// Test when the cache directory is writable.
+		chmod( Mock_File::CACHE_ROOT_DIR, 777 );
+		$this->assertTrue( Mock_File::is_available() );
+
+		// Test when the cache directory is writable.
+		chmod( Mock_File::CACHE_ROOT_DIR, 077 );
+		$this->assertFalse( Mock_File::is_available() );
+
+		chmod( Mock_File::CACHE_ROOT_DIR, 777 );
+	}
+
+	/**
+	 * Test that the constructor fails when directory nor writable.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_constructor_fails_on_not_writable() {
+		
+		if ( PHP_OS_FAMILY === 'Windows' ) {
+			$this->markTestSkipped( 'Manipulating windows access permissions is too crazy');
+		}
+
+		// Objects can be created when directories are writable.
+		chmod( Mock_File::CACHE_ROOT_DIR, 777 );
+
+		$thrown = false;
+		try {
+			new MocK_File( 'testi' );
+		} catch ( \RuntimeException $e ) {
+			$thrown = true;
+		}
+		$this->assertFalse( $thrown );
+
+		// Objects can not be created when directories are not writable.
+		chmod( Mock_File::CACHE_ROOT_DIR, 077 );
+
+		$thrown = false;
+		try {
+			new MocK_File( 'testi' );
+		} catch ( \RuntimeException $e ) {
+			$thrown = true;
+		}
+		$this->assertFalse( $thrown );
+
+		chmod( Mock_File::CACHE_ROOT_DIR, 777 );
+	}
+
 }
