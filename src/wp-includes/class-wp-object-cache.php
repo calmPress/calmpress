@@ -146,7 +146,7 @@ class WP_Object_Cache {
 			try {
 				$caches[] = new \calmpress\object_cache\File( $namespace );
 			} catch ( \RuntimeException $e ) {
-				$catches[] = new \calmpress\object_cache\Null_Cache();
+				$caches[] = new \calmpress\object_cache\Null_Cache();
 			}
 		}
 
