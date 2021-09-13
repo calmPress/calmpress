@@ -58,7 +58,7 @@ class PHP_File extends File {
 	 */
 	public function __construct( string $cache_directory ) {
 
-		if ( ! static::opcahce_enabled() ) {
+		if ( ! static::is_available() ) {
 			throw new \RuntimeException( 'Opcache is not available' );
 		}
 
