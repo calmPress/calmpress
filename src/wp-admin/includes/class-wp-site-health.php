@@ -947,7 +947,7 @@ class WP_Site_Health {
 					$additional_messages[] = sprintf(
 						/* translators: 1: directory path */
 						esc_html__(	'If the directory %s was writable PHP opcode caching would have been used for storing values in high demand.' ),
-						'<code>' . \calmpress\object_cache\PHP_File::PHP_File . '</code>'
+						'<code>' . \calmpress\object_cache\PHP_File::CACHE_ROOT_DIR . '</code>'
 					);
 				}
 			}
