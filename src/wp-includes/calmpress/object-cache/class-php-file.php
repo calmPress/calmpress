@@ -177,7 +177,7 @@ class PHP_File extends File {
 			// especially invalidate cache files. Without invalidation there is
 			// a potential of using stale values.
 			if ( false !== opcache_get_status() ) {
-				return is_writable( self::CACHE_ROOT_DIR );
+				return wp_is_writable( self::CACHE_ROOT_DIR );
 			}
 		}
 
