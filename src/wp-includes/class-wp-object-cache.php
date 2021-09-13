@@ -175,7 +175,7 @@ class WP_Object_Cache {
 				if ( in_array( $group, ['users', 'userlogins', 'user_meta', 'useremail'], true ) ) {
 					$this->cache_groups[ $group ] = static::create_cache_for_static_groups( $group );
 				} elseif ( 'site-transient' === $group ) {
-					$cache = static::create_cache_for_transient_groups( $blog_id . '/' . $group );
+					$this->cache_groups[ $group ] = static::create_cache_for_transient_groups( $group );
 				} else {
 					$this->cache_groups[ $group ] = static::create_default_cache( $group );
 				}
