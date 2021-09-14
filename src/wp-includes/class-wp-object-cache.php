@@ -33,6 +33,18 @@ class WP_Object_Cache {
 	protected array $global_groups = [];
 
 	/**
+	 * List of global cache non persistant groups where the existance of a key with group name
+	 * indicates its one of them. Non persistant group implemant the relevant caching APIs but do not
+	 * store value in any persistant storage (the value will have to be recalculated on next
+	 * http request).
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @var array
+	 */
+	protected array $global_non_persistant_groups = [];
+
+	/**
 	 * Holder for the cache per cache group. Global groups are in "top" array while
 	 * for the per blog the are collected in an array per blog, and that array is in the top array.
 	 *
@@ -183,6 +195,13 @@ class WP_Object_Cache {
 			return $this->cache_groups[ $group ];
 		}
 
+		if ( isset( $this->global_non_persistant_groups[ $group ] ) ) {
+			if ( ! isset( $this->cache_groups[ $group ] ) ) {
+				$this->cache_groups[ $group ] = new \calmpress\object_cache\Session_Memory();
+			}
+			return $this->cache_groups[ $group ];
+		}
+
 		// not global group, it is a per blog one.
 		$blog_id     = $this->blog_id;
 		$blog_groups = [];
@@ -269,6 +288,20 @@ class WP_Object_Cache {
  
 		$groups              = array_fill_keys( $groups, true );
 		$this->global_groups = array_merge( $this->global_groups, $groups );
+	}
+
+	/**
+	 * Sets the list of global non persistant groups.
+	 *
+	 * @since calmPress
+	 *
+	 * @param string|string[] $groups List of groups that are global.
+	 */
+	public function add_non_persistent_groups( $groups ) {
+		$groups = (array) $groups;
+ 
+		$groups              = array_fill_keys( $groups, true );
+		$this->global_non_persistant_groups = array_merge( $this->global_non_persistant_groups, $groups );
 	}
 
 	/**

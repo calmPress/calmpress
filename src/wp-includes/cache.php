@@ -259,9 +259,13 @@ function wp_cache_add_global_groups( $groups ) {
  * Adds a group or set of groups to the list of non-persistent groups.
  *
  * @since 2.6.0
+ * @since calmPress 1.0.0 Unlike in wordpress, default cache do persist therefor it needs
+ *                        to be told about those groups.
  *
  * @param string|string[] $groups A group or an array of groups to add.
  */
 function wp_cache_add_non_persistent_groups( $groups ) {
-	// Default cache doesn't persist so nothing to do here.
+	global $wp_object_cache;
+
+	$wp_object_cache->add_non_persistent_groups( $groups );
 }
