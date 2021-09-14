@@ -149,15 +149,6 @@ add_action( 'admin_head', static function () {
 	// .htacees needs update nag.
 	add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::htaccess_update_nag' );
 
-	// Clear the htaccess nag state after plugin (de)activation, theme switch, core upgrade
-	// and theme and plugin upgrade. Do not care about the specific plugin data
-	// and therefor do not handle the parameters of the hook.
-	add_action( 'activate_plugin', '\calmpress\admin\Admin_Notices::clear_htaccess_update_nag_state' );
-	add_action( 'deactivate_plugin', '\calmpress\admin\Admin_Notices::clear_htaccess_update_nag_state' );
-	add_action( 'theme_switch', '\calmpress\admin\Admin_Notices::clear_htaccess_update_nag_state' );
-	add_action( '_core_updated_successfully', '\calmpress\admin\Admin_Notices::clear_htaccess_update_nag_state' );
-	add_action( 'upgrader_process_complete', '\calmpress\admin\Admin_Notices::clear_htaccess_update_nag_state' );
-
 	// wp-config needs update nag.
 	add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::wp_config_update_nag' );
 	}

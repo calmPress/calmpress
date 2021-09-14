@@ -34,15 +34,7 @@ class Admin_Notices {
 	public static function htaccess_update_nag() {
 		global $wp_rewrite;
 
-		// should we ignore nagging based on the cookie
-		if ( isset( $_COOKIE['ht_nag'] ) && ( 'no' === $_COOKIE['ht_nag'] ) ) {
-			return;
-		}
-
 		$nag = false;
-		if ( isset( $_COOKIE['ht_nag'] ) ) {
-			$nag = true;
-		}
 
 		if ( ! is_multisite() && is_super_admin() && is_apache() && ! $nag ) {
 			$home_path      = ABSPATH;
@@ -72,23 +64,6 @@ class Admin_Notices {
 			}
 			echo "<div class='notice notice-error'><p>$msg</p></div>";
 		}
-
-		// If not set yet, set the nag state for 10 minutes.
-		if ( ! isset( $_COOKIE['ht_nag'] ) ) {
-			setcookie( 'ht_nag', $nag ? 'yes' : 'no', time() + 30 * MINUTE_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
-		}
-	}
-
-	/**
-	 * Remove the cookie associated with a nag state for htaccess nag.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function clear_htaccess_update_nag_state() {
-		setcookie( 'ht_nag', ' ', time() - 10000, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
-
-		// Make sure the nag is recalculated if this method was called before its generation.
-		unset( $_COOKIE['ht_nag'] );
 	}
 
 	/**
@@ -105,11 +80,6 @@ class Admin_Notices {
 	 * @since 1.0.0
 	 */
 	public static function wp_config_update_nag() {
-
-		// should we ignore nagging based on the cookie
-		if ( isset( $_COOKIE['wpc_nag'] ) && ( 'no' === $_COOKIE['wpc_nag'] ) ) {
-			return;
-		}
 
 		$nag = false;
 		if ( isset( $_COOKIE['wpc_nag'] ) ) {
@@ -144,22 +114,5 @@ class Admin_Notices {
 			}
 			echo "<div class='notice notice-error'><p>$msg</p></div>";
 		}
-
-		// If not set yet, set the nag state for 10 minutes.
-		if ( ! isset( $_COOKIE['wpc_nag'] ) ) {
-			setcookie( 'wpc_nag', $nag ? 'yes' : 'no', time() + 30 * MINUTE_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
-		}
-	}
-
-	/**
-	 * Remove the cookie associated with a nag state for wp-config nag.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function clear_wp_config_update_nag_state() {
-		setcookie( 'wpc_nag', ' ', time() - 10000, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
-
-		// Make sure the nag is recalculated if this method was called before its generation.
-		unset( $_COOKIE['wpc_nag'] );
 	}
 }

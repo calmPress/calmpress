@@ -157,8 +157,6 @@ function validation_error_notice( array $errors ) {
 
 if ( $update_required ) {
 
-	// Regardless if we can save the new rule or not, clear the nag state to make sure it is updated.
-	\calmpress\admin\Admin_Notices::clear_htaccess_update_nag_state();
 	$saved = false;
 	if ( $writable ) {
 		$saved = save_mod_rewrite_rules();
