@@ -906,7 +906,7 @@ class WP_Site_Health {
 				);
 			} else {
 				$can_cache = true;
-				$result['label'] = esc_html__( 'The APCu php extension for persistant object caching' );
+				$result['label'] = esc_html__( 'The APCu php extension is used for persistant object caching' );
 			}
 		}
 
