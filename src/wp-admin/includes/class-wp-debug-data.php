@@ -271,13 +271,14 @@ class WP_Debug_Data {
 
 		$is_writable_abspath            = wp_is_writable( ABSPATH );
 		$is_writable_wp_content_dir     = wp_is_writable( WP_CONTENT_DIR );
+		$is_writable_wp_content_private_dir = wp_is_writable( WP_CONTENT_DIR . '/.private' );
 		$is_writable_upload_dir         = wp_is_writable( $upload_dir['basedir'] );
 		$is_writable_wp_plugin_dir      = wp_is_writable( WP_PLUGIN_DIR );
 		$is_writable_template_directory = wp_is_writable( get_theme_root( get_template() ) );
 
 		$info['wp-filesystem'] = array(
 			'label'       => __( 'Filesystem Permissions' ),
-			'description' => __( 'Shows whether calmPress is able to write to various directories. As a rule of thumb only the uploads directory should be writable to increase security.' ),
+			'description' => __( 'Shows whether calmPress is able to write to various directories. As a rule of thumb only the uploads and the internal storage directories should be writable to increase security.' ),
 			'fields'      => array(
 				'wordpress'  => array(
 					'label' => __( 'The main calmPress directory' ),
@@ -286,6 +287,11 @@ class WP_Debug_Data {
 				),
 				'wp-content' => array(
 					'label' => __( 'The wp-content directory' ),
+					'value' => ( $is_writable_wp_content_dir ? __( 'Writable' ) : __( 'Not writable' ) ),
+					'debug' => ( $is_writable_wp_content_dir ? 'writable' : 'not writable' ),
+				),
+				'is_writable_wp_content_private_dir' => array(
+					'label' => __( 'The internal storage directory' ),
 					'value' => ( $is_writable_wp_content_dir ? __( 'Writable' ) : __( 'Not writable' ) ),
 					'debug' => ( $is_writable_wp_content_dir ? 'writable' : 'not writable' ),
 				),
@@ -376,6 +382,10 @@ class WP_Debug_Data {
 				'wordpress_path' => array(
 					'label' => __( 'calmPress directory location' ),
 					'value' => untrailingslashit( ABSPATH ),
+				),
+				'private_path'   => array(
+					'label' => __( 'The internal storage directory' ),
+					'value' => WP_CONTENT_DIR . '/.private',
 				),
 				'uploads_path'   => array(
 					'label' => __( 'Uploads directory location' ),
