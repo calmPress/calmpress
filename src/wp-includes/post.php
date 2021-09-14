@@ -2870,7 +2870,7 @@ function wp_count_posts( $type = 'post', $perm = '' ) {
 	}
 
 	$counts = (object) $counts;
-	wp_cache_set( $cache_key, $counts, 'counts' );
+	wp_cache_set( $cache_key, $counts, 'counts', 15 * MINUTE_IN_SECONDS );
 
 	/**
 	 * Modify returned post counts by status for the current post type.

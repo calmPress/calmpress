@@ -129,7 +129,7 @@ abstract class WP_Privacy_Requests_Table extends WP_List_Table {
 		}
 
 		$counts = (object) $counts;
-		wp_cache_set( $cache_key, $counts, 'counts' );
+		wp_cache_set( $cache_key, $counts, 'counts', 15 * MINUTE_IN_SECONDS );
 
 		return $counts;
 	}

@@ -540,7 +540,7 @@ function switch_to_blog( $new_blog_id, $deprecated = null ) {
 				wp_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta', 'user_meta', 'useremail', 'userslugs', 'site-transient', 'site-options', 'blog-lookup', 'blog-details', 'rss', 'global-posts', 'blog-id-cache', 'networks', 'sites', 'site-details', 'blog_meta' ) );
 			}
 
-			wp_cache_add_non_persistent_groups( array( 'counts', 'plugins' ) );
+			wp_cache_add_non_persistent_groups( array( 'plugins' ) );
 		}
 	}
 
@@ -611,7 +611,7 @@ function restore_current_blog() {
 				wp_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta', 'user_meta', 'useremail', 'userslugs', 'site-transient', 'site-options', 'blog-lookup', 'blog-details', 'rss', 'global-posts', 'blog-id-cache', 'networks', 'sites', 'site-details', 'blog_meta' ) );
 			}
 
-			wp_cache_add_non_persistent_groups( array( 'counts', 'plugins' ) );
+			wp_cache_add_non_persistent_groups( array( 'plugins' ) );
 		}
 	}
 

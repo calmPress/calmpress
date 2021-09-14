@@ -1314,7 +1314,7 @@ function wp_count_comments( $post_id = 0 ) {
 	unset( $stats['awaiting_moderation'] );
 
 	$stats_object = (object) $stats;
-	wp_cache_set( "comments-{$post_id}", $stats_object, 'counts' );
+	wp_cache_set( "comments-{$post_id}", $stats_object, 'counts', 15 * MINUTE_IN_SECONDS );
 
 	return $stats_object;
 }
