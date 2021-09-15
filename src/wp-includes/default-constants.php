@@ -297,19 +297,9 @@ function wp_cookie_constants() {
  * Defines SSL-related WordPress constants.
  *
  * @since 3.0.0
+ * @since calmPress 1.0.0 Does nothing.
  */
 function wp_ssl_constants() {
-	/**
-	 * @since 2.6.0
-	 */
-	if ( ! defined( 'FORCE_SSL_ADMIN' ) ) {
-		if ( 'https' === parse_url( get_option( 'home' ), PHP_URL_SCHEME ) ) {
-			define( 'FORCE_SSL_ADMIN', true );
-		} else {
-			define( 'FORCE_SSL_ADMIN', false );
-		}
-	}
-	force_ssl_admin( FORCE_SSL_ADMIN );
 }
 
 /**

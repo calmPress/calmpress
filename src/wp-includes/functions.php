@@ -5422,20 +5422,13 @@ function validate_file( $file, $allowed_files = array() ) {
  * Whether to force SSL used for the Administration Screens.
  *
  * @since 2.6.0
+ * @since calmPress 1.0.0 Always returns false.
  *
  * @param string|bool $force Optional. Whether to force SSL in admin screens. Default null.
  * @return bool True if forced, false if not forced.
  */
 function force_ssl_admin( $force = null ) {
-	static $forced = false;
-
-	if ( ! is_null( $force ) ) {
-		$old_forced = $forced;
-		$forced     = $force;
-		return $old_forced;
-	}
-
-	return $forced;
+	return false;
 }
 
 /**

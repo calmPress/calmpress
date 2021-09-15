@@ -1087,7 +1087,7 @@ if ( ! function_exists( 'auth_redirect' ) ) :
 	 * @since 1.5.0
 	 */
 	function auth_redirect() {
-		$secure = ( is_ssl() || force_ssl_admin() );
+		$secure = is_ssl();
 
 		/**
 		 * Filters whether to use a secure authentication redirect.
@@ -1128,17 +1128,6 @@ if ( ! function_exists( 'auth_redirect' ) ) :
 			 * @param int $user_id User ID.
 			 */
 			do_action( 'auth_redirect', $user_id );
-
-			// If the user wants ssl but the session is not ssl, redirect.
-			if ( ! $secure && get_user_option( 'use_ssl', $user_id ) && false !== strpos( $_SERVER['REQUEST_URI'], 'wp-admin' ) ) {
-				if ( 0 === strpos( $_SERVER['REQUEST_URI'], 'http' ) ) {
-					wp_redirect( set_url_scheme( $_SERVER['REQUEST_URI'], 'https' ) );
-					exit;
-				} else {
-					wp_redirect( 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
-					exit;
-				}
-			}
 
 			return; // The cookie is good, so we're done.
 		}

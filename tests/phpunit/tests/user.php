@@ -314,7 +314,6 @@ class Tests_User extends WP_UnitTestCase {
 		$user = new WP_User( self::$author_id );
 		$this->assertSame( 'author_login', $user->get( 'user_login' ) );
 		$this->assertSame( 'author@email.com', $user->get( 'user_email' ) );
-		$this->assertEquals( 0, $user->get( 'use_ssl' ) );
 		$this->assertSame( '', $user->get( 'field_that_does_not_exist' ) );
 
 		update_user_meta( self::$author_id, 'dashed-key', 'abcdefg' );
@@ -324,7 +323,6 @@ class Tests_User extends WP_UnitTestCase {
 	function test_has_prop() {
 		$user = new WP_User( self::$author_id );
 		$this->assertTrue( $user->has_prop( 'user_email' ) );
-		$this->assertTrue( $user->has_prop( 'use_ssl' ) );
 		$this->assertFalse( $user->has_prop( 'field_that_does_not_exist' ) );
 
 		update_user_meta( self::$author_id, 'dashed-key', 'abcdefg' );
@@ -366,7 +364,7 @@ class Tests_User extends WP_UnitTestCase {
 
 		// Test update of fields in _get_additional_user_keys().
 		$user_data = array(
-			'ID' => self::$author_id, 'use_ssl' => 1, 'show_admin_bar_front' => 1,
+			'ID' => self::$author_id, 'show_admin_bar_front' => 1,
 			'syntax_highlighting' => 1, 'first_name' => 'first', 'last_name' => 'last',
 			'comment_shortcuts' => 'true', 'admin_color' => 'classic',
 			'description' => 'describe'

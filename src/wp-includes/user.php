@@ -1629,7 +1629,7 @@ function validate_username( $username ) {
  * Insert a user into the database.
  *
  * Most of the `$userdata` array fields have filters associated with the values. Exceptions are
- * 'ID', 'syntax_highlighting', 'comment_shortcuts', 'admin_color', 'use_ssl',
+ * 'ID', 'syntax_highlighting', 'comment_shortcuts', 'admin_color',
  * 'user_registered', 'user_activation_key', 'spam', and 'role'. The filters have the prefix
  * 'pre_user_' followed by the field name. An example using 'description' would have the filter
  * called, 'pre_user_description' that can be hooked into.
@@ -1669,8 +1669,6 @@ function validate_username( $username ) {
  *                                        shortcuts for the user. Accepts 'true' or 'false'
  *                                        as a string literal, not boolean. Default 'false'.
  *     @type string $admin_color          Admin color scheme for the user. Default 'fresh'.
- *     @type bool   $use_ssl              Whether the user should always access the admin over
- *                                        https. Default false.
  *     @type string $user_registered      Date the user registered. Format is 'Y-m-d H:i:s'.
  *     @type string $user_activation_key  Password reset key. Default empty.
  *     @type bool   $spam                 Multisite only. Whether the user is marked as spam.
@@ -1894,8 +1892,6 @@ function wp_insert_user( $userdata ) {
 	$admin_color         = empty( $userdata['admin_color'] ) ? 'fresh' : $userdata['admin_color'];
 	$meta['admin_color'] = preg_replace( '|[^a-z0-9 _.\-@]|i', '', $admin_color );
 
-	$meta['use_ssl'] = empty( $userdata['use_ssl'] ) ? 0 : (bool) $userdata['use_ssl'];
-
 	$meta['show_admin_bar_front'] = empty( $userdata['show_admin_bar_front'] ) ? 'true' : $userdata['show_admin_bar_front'];
 
 	$meta['locale'] = isset( $userdata['locale'] ) ? $userdata['locale'] : '';
@@ -1973,8 +1969,6 @@ function wp_insert_user( $userdata ) {
 	 *     @type string   $syntax_highlighting  Whether to enable the rich code editor for the user. Default 'true'.
 	 *     @type string   $comment_shortcuts    Whether to enable keyboard shortcuts for the user. Default 'false'.
 	 *     @type string   $admin_color          The color scheme for a user's admin screen. Default 'fresh'.
-	 *     @type int|bool $use_ssl              Whether to force SSL on the user's admin area. 0|false if SSL
-	 *                                          is not forced.
 	 *     @type string   $show_admin_bar_front Whether to show the admin bar on the front end for the user.
 	 *                                          Default 'true'.
 	 *     @type string   $locale               User's locale. Default empty.
@@ -2344,7 +2338,7 @@ function wp_create_user( $username, $password, $email = '' ) {
  * @return string[] List of user keys to be populated in wp_update_user().
  */
 function _get_additional_user_keys( $user ) {
-	$keys = array( 'first_name', 'last_name', 'nickname', 'description', 'syntax_highlighting', 'comment_shortcuts', 'admin_color', 'use_ssl', 'show_admin_bar_front', 'locale' );
+	$keys = array( 'first_name', 'last_name', 'nickname', 'description', 'syntax_highlighting', 'comment_shortcuts', 'admin_color', 'show_admin_bar_front', 'locale' );
 	return array_merge( $keys, array_keys( wp_get_user_contact_methods( $user ) ) );
 }
 

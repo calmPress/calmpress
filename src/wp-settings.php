@@ -347,9 +347,6 @@ if ( is_multisite() ) {
 // Define constants after multisite is loaded.
 wp_cookie_constants();
 
-// Define and enforce our SSL constants.
-wp_ssl_constants();
-
 // Create common globals.
 require ABSPATH . WPINC . '/vars.php';
 

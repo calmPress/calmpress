@@ -309,31 +309,6 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 	/**
 	 * @ticket 15928
 	 *
-	 * This situation (current request is non-SSL but siteurl is https) should never arise.
-	 */
-	public function test_wp_get_attachment_url_should_not_force_https_when_current_page_is_non_ssl_and_siteurl_is_ssl() {
-		$siteurl = get_option( 'home' );
-		update_option( 'home', set_url_scheme( $siteurl, 'https' ) );
-
-		$filename = DIR_TESTDATA . '/images/test-image.jpg';
-		$contents = file_get_contents( $filename );
-
-		$upload = wp_upload_bits( wp_basename( $filename ), null, $contents );
-		$this->assertTrue( empty( $upload['error'] ) );
-
-		// Set attachment ID.
-		$attachment_id = $this->_make_attachment( $upload );
-
-		$_SERVER['HTTPS'] = 'off';
-
-		$url = wp_get_attachment_url( $attachment_id );
-
-		$this->assertSame( 'http', parse_url( $url, PHP_URL_SCHEME ) );
-	}
-
-	/**
-	 * @ticket 15928
-	 *
 	 * Canonical siteurl is non-SSL, but SSL support is available/optional.
 	 */
 	public function test_wp_get_attachment_url_should_force_https_with_https_on_same_host_when_siteurl_is_non_ssl_but_ssl_is_available() {

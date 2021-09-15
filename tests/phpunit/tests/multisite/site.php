@@ -1004,17 +1004,15 @@ if ( is_multisite() ) :
 		 * @ticket 33620
 		 * @dataProvider data_new_blog_url_schemes
 		 */
-		function test_new_blog_url_schemes( $home_scheme, $siteurl_scheme, $force_ssl_admin ) {
+		function test_new_blog_url_schemes( $home_scheme, $siteurl_scheme ) {
 			$current_site = get_current_site();
 
 			$home    = get_option( 'home' );
 			$siteurl = get_site_option( 'siteurl' );
-			$admin   = force_ssl_admin();
 
 			// Setup:
 			update_option( 'home', set_url_scheme( $home, $home_scheme ) );
 			update_site_option( 'siteurl', set_url_scheme( $siteurl, $siteurl_scheme ) );
-			force_ssl_admin( $force_ssl_admin );
 
 			// Install:
 			$new = wpmu_create_blog( $current_site->domain, '/new-blog/', 'New Blog', get_current_user_id() );
@@ -1022,7 +1020,6 @@ if ( is_multisite() ) :
 			// Reset:
 			update_option( 'home', $home );
 			update_site_option( 'siteurl', $siteurl );
-			force_ssl_admin( $admin );
 
 			// Assert:
 			$this->assertNotWPError( $new );
@@ -1035,27 +1032,18 @@ if ( is_multisite() ) :
 				array(
 					'https',
 					'https',
-					false,
 				),
 				array(
 					'http',
 					'https',
-					false,
 				),
 				array(
 					'https',
 					'http',
-					false,
 				),
 				array(
 					'http',
 					'http',
-					false,
-				),
-				array(
-					'http',
-					'http',
-					true,
 				),
 			);
 		}

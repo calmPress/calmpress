@@ -120,11 +120,6 @@ function edit_user( $user_id = 0 ) {
 
 	$user->comment_shortcuts = isset( $_POST['comment_shortcuts'] ) && 'true' === $_POST['comment_shortcuts'] ? 'true' : '';
 
-	$user->use_ssl = 0;
-	if ( ! empty( $_POST['use_ssl'] ) ) {
-		$user->use_ssl = 1;
-	}
-
 	if ( isset( $_POST['calm_avatar_image_attachement_id'] ) ) {
 		$user->avatar_attachment_id = wp_unslash( $_POST['calm_avatar_image_attachement_id'] );
 	}
@@ -507,24 +502,6 @@ jQuery(document).ready( function($) {
 	});
 });
 </script>
-	<?php
-}
-
-/**
- * Optional SSL preference that can be turned on by hooking to the 'personal_options' action.
- *
- * See the {@see 'personal_options'} action.
- *
- * @since 2.7.0
- *
- * @param WP_User $user User data object.
- */
-function use_ssl_preference( $user ) {
-	?>
-	<tr class="user-use-ssl-wrap">
-		<th scope="row"><?php _e( 'Use https' ); ?></th>
-		<td><label for="use_ssl"><input name="use_ssl" type="checkbox" id="use_ssl" value="1" <?php checked( '1', $user->use_ssl ); ?> /> <?php _e( 'Always use https when visiting the admin' ); ?></label></td>
-	</tr>
 	<?php
 }
 

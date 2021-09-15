@@ -1168,6 +1168,7 @@ function wp_installing( $is_installing = null ) {
  *
  * @since 2.6.0
  * @since 4.6.0 Moved from functions.php to load.php.
+ * @since calmPress 1.0.0 Check also the site URL.
  *
  * @return bool True if SSL, otherwise false.
  */
@@ -1183,7 +1184,10 @@ function is_ssl() {
 	} elseif ( isset( $_SERVER['SERVER_PORT'] ) && ( '443' == $_SERVER['SERVER_PORT'] ) ) {
 		return true;
 	}
-	return false;
+
+	// The site might be behind a proxy which terminates HTTPS and communicate with the "app server"
+	// over HTTP so look also if the site is configured to be HTTPS.
+	return 'https' === parse_url( get_option( 'home' ), PHP_URL_SCHEME );
 }
 
 /**

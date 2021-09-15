@@ -3108,8 +3108,7 @@ function get_site_url( $blog_id = null, $path = '', $scheme = null ) {
  * @since 2.6.0
  *
  * @param string $path   Optional. Path relative to the admin URL. Default 'admin'.
- * @param string $scheme The scheme to use. Default is 'admin', which obeys force_ssl_admin() and is_ssl().
- *                       'http' or 'https' can be passed to force those schemes.
+ * @param string $scheme The scheme to use. Default is 'admin'.
  * @return string Admin URL link with optional path appended.
  */
 function admin_url( $path = '', $scheme = 'admin' ) {
@@ -3124,8 +3123,7 @@ function admin_url( $path = '', $scheme = 'admin' ) {
  * @param int|null $blog_id Optional. Site ID. Default null (current site).
  * @param string   $path    Optional. Path relative to the admin URL. Default empty.
  * @param string   $scheme  Optional. The scheme to use. Accepts 'http' or 'https',
- *                          to force those schemes. Default 'admin', which obeys
- *                          force_ssl_admin() and is_ssl().
+ *                          to force those schemes. Default 'admin'.
  * @return string Admin URL link with optional path appended.
  */
 function get_admin_url( $blog_id = null, $path = '', $scheme = 'admin' ) {
@@ -3145,7 +3143,7 @@ function get_admin_url( $blog_id = null, $path = '', $scheme = 'admin' ) {
 	 * @param string      $path    Path relative to the admin area URL. Blank string if no path is specified.
 	 * @param int|null    $blog_id Site ID, or null for the current site.
 	 * @param string|null $scheme  The scheme to use. Accepts 'http', 'https',
-	 *                             'admin', or null. Default 'admin', which obeys force_ssl_admin() and is_ssl().
+	 *                             'admin', or null. Default 'admin'.
 	 */
 	return apply_filters( 'admin_url', $url, $path, $blog_id, $scheme );
 }
@@ -3365,8 +3363,7 @@ function network_home_url( $path = '', $scheme = null ) {
  * @since 3.0.0
  *
  * @param string $path   Optional path relative to the admin URL. Default empty.
- * @param string $scheme Optional. The scheme to use. Default is 'admin', which obeys force_ssl_admin()
- *                       and is_ssl(). 'http' or 'https' can be passed to force those schemes.
+ * @param string $scheme Optional. The scheme to use. Default is 'admin'.
  * @return string Admin URL link with optional path appended.
  */
 function network_admin_url( $path = '', $scheme = 'admin' ) {
@@ -3390,7 +3387,7 @@ function network_admin_url( $path = '', $scheme = 'admin' ) {
 	 * @param string      $path   Path relative to the network admin URL. Blank string if
 	 *                            no path is specified.
 	 * @param string|null $scheme The scheme to use. Accepts 'http', 'https',
-	 *                            'admin', or null. Default is 'admin', which obeys force_ssl_admin() and is_ssl().
+	 *                            'admin', or null. Default is 'admin'.
 	 */
 	return apply_filters( 'network_admin_url', $url, $path, $scheme );
 }
@@ -3401,8 +3398,7 @@ function network_admin_url( $path = '', $scheme = 'admin' ) {
  * @since 3.0.0
  *
  * @param string $path   Optional. Path relative to the admin URL. Default empty.
- * @param string $scheme Optional. The scheme to use. Default is 'admin', which obeys force_ssl_admin()
- *                       and is_ssl(). 'http' or 'https' can be passed to force those schemes.
+ * @param string $scheme Optional. The scheme to use. Default is 'admin'.
  * @return string Admin URL link with optional path appended.
  */
 function user_admin_url( $path = '', $scheme = 'admin' ) {
@@ -3422,7 +3418,7 @@ function user_admin_url( $path = '', $scheme = 'admin' ) {
 	 * @param string      $path   Path relative to the URL. Blank string if
 	 *                            no path is specified.
 	 * @param string|null $scheme The scheme to use. Accepts 'http', 'https',
-	 *                            'admin', or null. Default is 'admin', which obeys force_ssl_admin() and is_ssl().
+	 *                            'admin', or null. Default is 'admin'.
 	 */
 	return apply_filters( 'user_admin_url', $url, $path, $scheme );
 }
@@ -3433,8 +3429,7 @@ function user_admin_url( $path = '', $scheme = 'admin' ) {
  * @since 3.1.0
  *
  * @param string $path   Optional. Path relative to the admin URL. Default empty.
- * @param string $scheme Optional. The scheme to use. Default is 'admin', which obeys force_ssl_admin()
- *                       and is_ssl(). 'http' or 'https' can be passed to force those schemes.
+ * @param string $scheme Optional. The scheme to use. Default is 'admin'.
  * @return string Admin URL link with optional path appended.
  */
 function self_admin_url( $path = '', $scheme = 'admin' ) {
@@ -3475,7 +3470,7 @@ function set_url_scheme( $url, $scheme = null ) {
 	if ( ! $scheme ) {
 		$scheme = is_ssl() ? 'https' : 'http';
 	} elseif ( 'admin' === $scheme || 'login' === $scheme || 'login_post' === $scheme || 'rpc' === $scheme ) {
-		$scheme = is_ssl() || force_ssl_admin() ? 'https' : 'http';
+		$scheme = is_ssl() ? 'https' : 'http';
 	} elseif ( 'http' !== $scheme && 'https' !== $scheme && 'relative' !== $scheme ) {
 		$scheme = is_ssl() ? 'https' : 'http';
 	}
@@ -3519,8 +3514,7 @@ function set_url_scheme( $url, $scheme = null ) {
  * @param int    $user_id Optional. User ID. Defaults to current user.
  * @param string $path    Optional path relative to the dashboard. Use only paths known to
  *                        both site and user admins. Default empty.
- * @param string $scheme  The scheme to use. Default is 'admin', which obeys force_ssl_admin()
- *                        and is_ssl(). 'http' or 'https' can be passed to force those schemes.
+ * @param string $scheme  The scheme to use. Default is 'admin'.
  * @return string Dashboard URL link with optional path appended.
  */
 function get_dashboard_url( $user_id = 0, $path = '', $scheme = 'admin' ) {
@@ -3567,8 +3561,7 @@ function get_dashboard_url( $user_id = 0, $path = '', $scheme = 'admin' ) {
  * @since 3.1.0
  *
  * @param int    $user_id Optional. User ID. Defaults to current user.
- * @param string $scheme  Optional. The scheme to use. Default is 'admin', which obeys force_ssl_admin()
- *                        and is_ssl(). 'http' or 'https' can be passed to force those schemes.
+ * @param string $scheme  Optional. The scheme to use. Default is 'admin'.
  * @return string Dashboard URL link with optional path appended.
  */
 function get_edit_profile_url( $user_id = 0, $scheme = 'admin' ) {

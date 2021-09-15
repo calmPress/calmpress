@@ -11,17 +11,6 @@
 /** Make sure that the WordPress bootstrap has run before continuing. */
 require __DIR__ . '/wp-load.php';
 
-// Redirect to HTTPS login if forced to use SSL.
-if ( force_ssl_admin() && ! is_ssl() ) {
-	if ( 0 === strpos( $_SERVER['REQUEST_URI'], 'http' ) ) {
-		wp_safe_redirect( set_url_scheme( $_SERVER['REQUEST_URI'], 'https' ) );
-		exit;
-	} else {
-		wp_safe_redirect( 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
-		exit;
-	}
-}
-
 /**
  * Output the login page header.
  *
@@ -906,19 +895,6 @@ switch ( $action ) {
 
 		if ( $customize_login ) {
 			wp_enqueue_script( 'customize-base' );
-		}
-
-		// If the user wants SSL but the session is not SSL, force a secure cookie.
-		if ( ! empty( $_POST['log'] ) && ! force_ssl_admin() ) {
-			$user_name = sanitize_user( wp_unslash( $_POST['log'] ) );
-			$user      = get_user_by( 'email', $user_name );
-
-			if ( $user ) {
-				if ( get_user_option( 'use_ssl', $user->ID ) ) {
-					$secure_cookie = true;
-					force_ssl_admin( true );
-				}
-			}
 		}
 
 		if ( isset( $_REQUEST['redirect_to'] ) ) {
