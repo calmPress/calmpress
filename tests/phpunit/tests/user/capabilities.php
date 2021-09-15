@@ -112,6 +112,8 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'view_site_health_checks' => array( 'administrator' ),
 			'backup'                  => array( 'administrator' ),
 			'safe_mode'               => array( 'administrator' ),
+			'maintenance_mode'        => array( 'administrator' ),
+			
 
 			'moderate_comments'       => array( 'administrator', 'editor' ),
 			'manage_categories'       => array( 'administrator', 'editor' ),
@@ -182,6 +184,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'view_site_health_checks' => array(),
 			'backup'                  => array(),
 			'safe_mode'               => array(),
+			'maintenance_mode'        => array(),
 
 			'edit_theme_options'      => array( 'administrator' ),
 			'export'                  => array( 'administrator' ),
@@ -539,6 +542,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			$expected['delete_app_password'],
 			$expected['backup'],
 			$expected['safe_mode'],
+			$expected['maintenance_mode'],
 		);
 
 		$expected = array_keys( $expected );

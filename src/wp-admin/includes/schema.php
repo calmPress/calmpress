@@ -834,6 +834,7 @@ function populate_roles_cp_100() {
 		if ( ! empty( $role ) ) {
 			$role->add_cap( 'backup' );
 			$role->add_cap( 'safe_mode' );
+			$role->add_cap( 'maintenance_mode' );
 		}
 	}
 }
