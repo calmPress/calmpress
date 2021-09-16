@@ -365,6 +365,9 @@ function create_initial_post_types() {
 		)
 	);
 
+
+	\calmpress\calmpress\Maintenance_Mode::register_post_type();
+
 	register_post_status(
 		'publish',
 		array(

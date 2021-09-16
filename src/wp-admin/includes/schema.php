@@ -493,6 +493,7 @@ function populate_options( array $options = array() ) {
 		// calmPress 1.0.0
 		'calm_embedding_on'               => 0,
 		'robots_txt'                      => 'User-agent: *',
+		'calm_maintenance_mode_type'      => '',
 	);
 
 	// 3.0.0 multisite.

@@ -59,6 +59,7 @@ const MAP = [
 	'calmpress\object_cache\PHP_File'                   => __DIR__ . '/object-cache/class-php-file.php',
 	'calmpress\object_cache\File'                       => __DIR__ . '/object-cache/class-file.php',
 	'calmpress\object_cache\Null_Cache'                 => __DIR__ . '/object-cache/class-null-cache.php',
+	'calmpress\calmpress\Maintenance_Mode'              => __DIR__ . '/calmpress/class-maintenance-mode.php',
 	'Psr\SimpleCache\CacheInterface'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheInterface.php',
 	'Psr\SimpleCache\CacheException'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheException.php',
 	'Psr\SimpleCache\InvalidArgumentException'          => ABSPATH . 'wp-includes/Psr/SimpleCache/InvalidArgumentException.php',

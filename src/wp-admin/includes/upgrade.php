@@ -766,6 +766,7 @@ function upgrade_all() {
 
 	if ( version_compare( $calmpress_db_version, '1.0.0-alpha19', '<' ) ) {
 		add_option( 'robots_txt', 'User-agent: *', '', 'no' );
+		add_option( 'calm_maintenance_mode_type', '', '', 'yes' );
 	}
 
 	delete_option( 'db_version' );
