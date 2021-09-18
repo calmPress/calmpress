@@ -1185,6 +1185,12 @@ function is_ssl() {
 		return true;
 	}
 
+	// When site is not installed yet this might be called while deceding what to do next,
+	// and not all the code and DB might be available yet. 
+	if ( ! function_exists( 'apply_filters' ) ) {
+		return false;
+	}
+
 	// The site might be behind a proxy which terminates HTTPS and communicate with the "app server"
 	// over HTTP so look also if the site is configured to be HTTPS.
 	return 'https' === parse_url( get_option( 'home' ), PHP_URL_SCHEME );
