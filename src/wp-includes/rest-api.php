@@ -333,6 +333,11 @@ function rest_api_loaded() {
 		return;
 	}
 
+	// If in maintenance mode and user do not have the capability, send a 503 code.
+	if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
+		die( 503 );
+	}
+
 	/**
 	 * Whether this is a REST Request.
 	 *

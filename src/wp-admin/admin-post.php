@@ -22,6 +22,10 @@ if ( defined( 'ABSPATH' ) ) {
 /** Allow for cross-domain requests (from the front end). */
 send_origin_headers();
 
+if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
+	wp_die( '0', 503 );
+}
+
 require_once ABSPATH . 'wp-admin/includes/admin.php';
 
 nocache_headers();

@@ -32,6 +32,10 @@ if ( empty( $_REQUEST['action'] ) ) {
 	wp_die( '0', 400 );
 }
 
+if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
+	wp_die( '0', 503 );
+}
+
 /** Load WordPress Administration APIs */
 require_once ABSPATH . 'wp-admin/includes/admin.php';
 

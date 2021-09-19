@@ -1,4 +1,28 @@
 <?php
+
+// If in maintenace mode just echo the maintenance mode text and 503 code.
+// Only exception is the favicon that is handled normally.
+if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
+	if ( is_favicon() ) {
+		/**
+		 * Fired when the template loader determines a favicon.ico request.
+		 *
+		 * @since 5.4.0
+		 */
+		do_action( 'do_favicon' );
+		return;
+	}
+
+	header( 'Retry-After: ' . \calmpress\calmpress\Maintenance_Mode::projected_time_till_end() );
+	status_header( 503 );
+	if ( is_feed() ) {
+		return;	
+	}
+
+	echo \calmpress\calmpress\Maintenance_Mode::render_html();
+	return;
+}
+
 /**
  * Loads the correct template based on the visitor's url
  *

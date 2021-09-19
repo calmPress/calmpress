@@ -46,11 +46,18 @@ class Maintenance_Mode {
 	const OPTION_NAME = 'calm_maintenance_mode_type';
 
 	/**
-	 * The option value in the option that indicates that maintenace mode is active.
+	 * The type value in the option that indicates that maintenace mode is active.
 	 *
 	 * @since 1.0.0
 	 */
-	const OPTION_VALUE = 'maintenance_mode';
+	const TYPE_VALUE = 'maintenance_mode';
+
+	/**
+	 * The name of the cookie and URL parameter that might include the bypass code.
+	 *
+	 * @since 1.0.0
+	 */
+	const BYPASS_NAME = '_maintenance_mode';
 
 	/**
 	 * Register the post type that will be used for storing the maintenance mode related text.
@@ -134,22 +141,134 @@ class Maintenance_Mode {
 	}
 
 	/**
-	 * Activate the maintenance mode.
+	 * Activate the maintenance mode and generate a 4 digit bypass code.
 	 *
 	 * @since 1.0.0
 	 */
 	public static function activate() {
-		update_option( self::OPTION_NAME, self::OPTION_VALUE );
+		update_option(
+			self::OPTION_NAME,
+			[
+				'type'        => self::TYPE_VALUE,
+				'bypass_code' => rand( 1000, 9999 ),
+			]
+		);
 	}
 
 	/**
 	 * Indicate if maintenance mode is active.
+	 * 
+	 * It is active when the maintenance mode option type has a maintenance mode value.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return bool true if maintenance mode is active, false otherwise.
 	 */
-	public static function is_active() {
-		return self::OPTION_VALUE === get_option( self::OPTION_NAME, '' );
+	public static function is_active(): bool {
+		$opt = get_option( self::OPTION_NAME, '' );
+		if ( ! is_array( $opt ) ) {
+			return false;
+		}
+
+		if ( isset( $opt['type'] ) && self::TYPE_VALUE === $opt['type'] ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Retrieve the maintenance mode bypass code.
+	 * 
+	 * Is meaningful only when maintenance mode is active.
+	 * 
+	 * @since 1.0.0
+	 *
+	 * @return string The maintenance mode bypass code or empty string if not configured.
+	 */
+	public static function bypass_code(): string {
+		$opt = get_option( self::OPTION_NAME, '' );
+		if ( ! is_array( $opt ) ) {
+			return '';
+		}
+
+		if ( isset( $opt['type'] ) && self::TYPE_VALUE !== $opt['type'] ) {
+			return '';
+		}
+
+		return $opt['bypass_code'];
+	}
+
+	/**
+	 * Indicate if maintenance mode is active and current user do not have a permission to read or
+	 * login to the site when its in such a state.
+	 *
+	 * Blocked users are ones that do not have the maintenance_mode capability, to not have
+	 * the bypass cookie set, and not using a bypass url parameter. For the later, set the cookie.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool true if maintenance mode is active for the user, false otherwise.
+	 */
+	public static function current_user_blocked():bool {
+
+		// If not enabled, no reason to block.
+		if ( ! self::is_active() ) {
+			return false;
+		}
+
+		// Users with the capability are not blocked.
+		if ( current_user_can( 'maintenance_mode') ) {
+			return false;
+		}
+
+		// Users with the cookie set with the correct bypass code are not blocked.
+		if ( isset( $_COOKIE[ self::BYPASS_NAME ] ) &&
+			( $_COOKIE[ self::BYPASS_NAME ] === self::bypass_code() ) ) {
+			return false;
+		}
+
+		// Users with the url parameter set with the correct bypass code are not blocked.
+		if ( isset( $_GET[ self::BYPASS_NAME ] ) &&
+			( $_GET[ self::BYPASS_NAME ] === self::bypass_code() ) ) {
+			// Set the cookie only for the session.
+			setcookie( self::BYPASS_NAME, self::bypass_code(), 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl() );
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get the maintenance page HTML.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The HTML.
+	 */
+	public static function page_html(): string {
+
+	}
+
+	/**
+	 * Get the maintenance page Title.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The HTML.
+	 */
+	public static function page_title(): string {
+
+	}
+
+	/**
+	 * Get the time in seconds until the maintenance mode is expected to end.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The HTML.
+	 */
+	public static function projected_time_till_end(): int {
+
 	}
 }

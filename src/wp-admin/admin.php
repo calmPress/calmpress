@@ -104,6 +104,14 @@ if ( ! wp_next_scheduled( 'delete_expired_transients' ) && ! wp_installing() ) {
 	wp_schedule_event( time(), 'daily', 'delete_expired_transients' );
 }
 
+// If in maintenance mode and user do not have the capability, redirect to login page.
+if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
+	nocache_headers();
+	$redirect = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+	$login_url = wp_login_url( $redirect, true );
+	wp_redirect( $login_url );
+}
+
 set_screen_options();
 
 $date_format = __( 'F j, Y' );

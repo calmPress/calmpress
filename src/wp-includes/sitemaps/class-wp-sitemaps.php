@@ -178,6 +178,13 @@ class WP_Sitemaps {
 			return;
 		}
 
+		// If in maintenance mode and user do not have the capability, send a 503 code.
+		if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
+			header( 'Retry-After: ' . \calmpress\calmpress\Maintenance_Mode::projected_time_till_end() );
+			status_header( 503 );
+			die();
+		}
+
 		// Render stylesheet if this is stylesheet route.
 		if ( $stylesheet_type ) {
 			$stylesheet = new WP_Sitemaps_Stylesheet();
