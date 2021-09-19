@@ -1,0 +1,21 @@
+/* Styling for the maintenance mode tools page. */
+.hndle {
+    cursor: auto;
+    border-bottom: 1px solid #ccd0d4;
+}
+
+.status_line {
+    font-weight: bold;
+}
+
+.status_line.active {
+    color: red;
+}
+
+input.hours {
+    width:calc(3ch + 40px );
+}
+
+input.minutes {
+    width:calc(2ch + 40px );
+}
