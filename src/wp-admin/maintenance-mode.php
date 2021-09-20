@@ -94,13 +94,13 @@ require ABSPATH . 'wp-admin/admin-header.php';
 				<input name='action' type="hidden" value='maintenance_mode_content'>
 				<?php wp_nonce_field( 'maintenance_mode_content' );	?>
 				<table class="form-table">
-					<tr><th><label for="page_title"><?php esc_html_e( 'Page title' ); ?></label></th><td><input id="page_title" name="page_title"></td></tr>
-					<tr><th><label for="text_title"><?php esc_html_e( 'Text title' ); ?></label></th><td><input id="text_title" name="text_title"></td></tr>
-					<tr><th><label for="theme_page"><?php esc_html_e( 'Use normal header and footer' ); ?></label></th><td><input id="theme_page" name="theme_page" type="checkbox"></td></tr>
+					<tr><th><label for="page_title"><?php esc_html_e( 'Page title' ); ?></label></th><td><input id="page_title" name="page_title" value="<?php echo esc_attr( Maintenance_Mode::page_title() ); ?>"></td></tr>
+					<tr><th><label for="text_title"><?php esc_html_e( 'Text title' ); ?></label></th><td><input id="text_title" name="text_title" value="<?php echo esc_attr( Maintenance_Mode::text_title() ); ?>"></td></tr>
+					<tr><th><label for="theme_page"><?php esc_html_e( 'Use normal header and footer' ); ?></label></th><td><input id="theme_page" name="theme_page" type="checkbox" <?php checked( Maintenance_Mode::theme_frame_used() ); ?>></td></tr>
 					<tr><th><label><?php esc_html_e( 'Message text' ); ?></label></th></tr>
 					<tr><td colspan="2">
 						<?php
-						$content   = '';
+						$content   = Maintenance_Mode::content();
 						$editor_id = 'message_text';
 						$settings  = [
 							'media_buttons' => true,

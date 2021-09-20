@@ -265,18 +265,6 @@ class Maintenance_Mode {
 	}
 
 	/**
-	 * Get the maintenance page Title.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The HTML.
-	 */
-	public static function page_title(): string {
-		$p     = static::text_holder_post();
-		$title = get_post_meta( $p->ID, 'title', true );
-	}
-
-	/**
 	 * Set the server time in seconds when the maintenance mode is expected to end.
 	 *
 	 * @since 1.0.0
@@ -305,6 +293,110 @@ class Maintenance_Mode {
 		}
 
 		return $interval;
+	}
+
+	/**
+	 * Set the text used in the title element of the maintenance mode page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $title The text to set to.
+	 */
+	public static function set_page_title( string $title ) {
+		$p = static::text_holder_post();
+		update_post_meta( $p->ID, 'page_title', wp_slash( $title ) );
+	}
+
+	/**
+	 * Get the text used in the title element of the maintenance mode page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The text that will be used.
+	 */
+	public static function page_title():string {
+		$p     = static::text_holder_post();
+		$title = (string) get_post_meta( $p->ID, 'page_title', true );
+
+		return $title;
+	}
+
+	/**
+	 * Set the text used in the h1 element of the maintenance mode page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $title The text to set to.
+	 */
+	public static function set_text_title( string $title ) {
+		$p = static::text_holder_post();
+		update_post_meta( $p->ID, 'text_title', wp_slash( $title ) );
+	}
+
+	/**
+	 * Get the text used in the h1 element of the maintenance mode page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The text that will be used.
+	 */
+	public static function text_title():string {
+		$p     = static::text_holder_post();
+		$title = (string) get_post_meta( $p->ID, 'text_title', true );
+
+		return $title;
+	}
+
+	/**
+	 * Set wheather the active theme is used when rendering the maintenance mode page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool $use true if the theme should be used, false when it should not.
+	 */
+	public static function set_use_theme_frame( bool $use ) {
+		$p = static::text_holder_post();
+		update_post_meta( $p->ID, 'use_theme', (int) $use );
+	}
+
+	/**
+	 * Get wheather the active theme is used when rendering the maintenance mode page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool true if theme is used, otherwise false.
+	 */
+	public static function theme_frame_used():bool {
+		$p    = static::text_holder_post();
+		$used = (int) get_post_meta( $p->ID, 'use_theme', true );
+
+		return 0 !== $used;
+	}
+
+	/**
+	 * Set the content to use in the maintenance mode page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $content The text to set to.
+	 */
+	public static function set_content( string $content ) {
+		$p = static::text_holder_post();
+		update_post_meta( $p->ID, 'content', wp_slash( $content ) );
+	}
+
+	/**
+	 * Get the content that will be used in the maintenance mode page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The text that will be used.
+	 */
+	public static function content():string {
+		$p     = static::text_holder_post();
+		$content = (string) get_post_meta( $p->ID, 'content', true );
+
+		return $content;
 	}
 
 	/**
@@ -337,7 +429,24 @@ class Maintenance_Mode {
 	 * @since 1.0.0
 	 */
 	public static function handle_content_change_post() {
+		$errors = [];
 		static::verify_post_request( 'maintenance_mode_content' );
+
+		if ( ! isset( $_POST['page_title'] ) || ! isset( $_POST['text_title'] ) || ! isset( $_POST['message_text'] ) ) {
+			$errors[] = esc_html__( 'Something went wrong, please try again' );
+		} else {
+			static::set_page_title( wp_unslash( $_POST['page_title'] ) );
+			static::set_text_title( wp_unslash( $_POST['text_title'] ) );
+			static::set_content( wp_unslash( $_POST['message_text'] ) );
+			static::set_use_theme_frame( isset( $_POST['theme_page'] ) );
+		}
+
+		set_transient( 'maintenance_mode_errors', $errors, 30 );	
+	
+		// Redirect back to the settings page that was submitted.
+		$goback = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
+		wp_redirect( $goback );
+		exit;			
 	}
 
 	/**
