@@ -32,7 +32,7 @@ class Maintenance_Mode {
 	const POST_ID_CACHE_KEY = '_calmpress_maintenance_mode_post_id';
 
 	/**
-	 * The inteval for which the maintenance mode content post id should be stored in cache.
+	 * The interval for which the maintenance mode content post id should be stored in cache.
 	 *
 	 * @since 1.0.0
 	 */
@@ -107,7 +107,11 @@ class Maintenance_Mode {
 	 * @return \WP_Post The Post.
 	 */
 	public static function text_holder_post() : \WP_Post {
-		$post_id = wp_cache_get( self::POST_ID_CACHE_KEY, 'transient', 0 );
+		$post_id = wp_cache_get( self::POST_ID_CACHE_KEY, 'transient' );
+		if ( false === $post_id ) {
+			$post_id = 0;
+		}
+
 		if ( 0 !== $post_id ) {
 			$post = get_post( $post_id );
 			// Make sure we didn't get some garbage value.
@@ -120,12 +124,13 @@ class Maintenance_Mode {
 			[
 				'numberposts' => 1,
 				'post_type'   => self::POST_TYPE_NAME,
-				'post_status' => 'any',
+				'post_status' => 'publish',
 			]
 		);
 
 		if ( ! empty( $posts ) ) {
 			// There should be only one...
+			wp_cache_set( self::POST_ID_CACHE_KEY, $posts[0]->ID,  'transient', self::POST_ID_CACHE_INTERVAL );
 			return $posts[0];
 		}
 
@@ -153,6 +158,15 @@ class Maintenance_Mode {
 				'bypass_code' => rand( 1000, 9999 ),
 			]
 		);
+	}
+
+	/**
+	 * deactivate the maintenance mode..
+	 *
+	 * @since 1.0.0
+	 */
+	public static function deactivate() {
+		update_option( self::OPTION_NAME, '' );
 	}
 
 	/**
@@ -258,17 +272,111 @@ class Maintenance_Mode {
 	 * @return string The HTML.
 	 */
 	public static function page_title(): string {
-
+		$p     = static::text_holder_post();
+		$title = get_post_meta( $p->ID, 'title', true );
 	}
 
 	/**
-	 * Get the time in seconds until the maintenance mode is expected to end.
+	 * Set the server time in seconds when the maintenance mode is expected to end.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string The HTML.
+	 * @param int $time The time.
+	 */
+	public static function set_projected_end_time( int $time ) {
+		$p = static::text_holder_post();
+		update_post_meta( $p->ID, 'end_time', $time );
+	}
+
+	/**
+	 * Get the time in seconds until the maintenance mode is expected to end. If the configured time
+	 * is less than 30 minute in the future, will retun 30 minutes.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int The time.
 	 */
 	public static function projected_time_till_end(): int {
+		$p        = static::text_holder_post();
+		$end_time = (int) get_post_meta( $p->ID, 'end_time', true );
+		$interval = $end_time - time();
+		if ( $interval < 10 * MINUTE_IN_SECONDS ) {
+			$interval = 10 * MINUTE_IN_SECONDS;
+		}
 
+		return $interval;
+	}
+
+	/**
+	 * Verify capability, nonce, and validitty of referer data a POST request. Die if the
+	 * user is not allowed to changed maintenance mode related data, or nonce/referer include
+	 * bad data. 
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $action The name of the action expected to be used for generating the nonce
+	 *                       and admin referer fields in the request.
+	 */
+	private static function verify_post_request( string $action ) {
+		if ( ! current_user_can( 'maintenance_mode' ) ) {
+			wp_die(
+				'<h1>' . __( 'You need additional permission.' ) . '</h1>' .
+				'<p>' . __( 'Sorry, you are not allowed to manage maintenance mode for this site.' ) . '</p>',
+				403
+			);
+		}
+		check_admin_referer( $action );
+	}
+
+	/**
+	 * Handles the form post regarding content related maintenance page changes. Updates the
+	 * post holding the content data.
+	 *
+	 * Used as a hook on admin-post.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function handle_content_change_post() {
+		static::verify_post_request( 'maintenance_mode_content' );
+	}
+
+	/**
+	 * Handle the form post regarding maintenance mode (de)activation. Updates the activation state
+	 * and/or the interval till expected end of it.
+	 *
+	 * Used as a hook on admin-post.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function handle_status_change_post() {
+		$errors = [];
+		static::verify_post_request( 'maintenance_mode_status' );
+
+		// Check basic validity.
+		if ( ! isset( $_POST['hours'] ) || ! isset( $_POST['minutes'] ) ) {
+			$errors[] = esc_html__( 'Something went wrong, please try again' );
+		} else {
+			// Not putting much effort in validating the values as out of expected range
+			// values can not do any harm.
+			$hours    = (int) wp_unslash( $_POST['hours'] );
+			$minutes  = (int) wp_unslash( $_POST['minutes'] );
+			$end_time = time() + ( 60 * $hours + $minutes ) * 60;
+			static::set_projected_end_time( $end_time );
+
+			if ( isset( $_POST['enter'] ) ) {
+				static::activate();
+			}
+
+			if ( isset( $_POST['exit'] ) ) {
+				static::deactivate();
+			}
+		}
+
+		set_transient( 'maintenance_mode_errors', $errors, 30 );	
+	
+		// Redirect back to the settings page that was submitted.
+		$goback = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
+		wp_redirect( $goback );
+		exit;			
 	}
 }

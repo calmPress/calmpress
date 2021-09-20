@@ -153,3 +153,7 @@ add_action( 'admin_head', static function () {
 	add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::wp_config_update_nag' );
 	}
 );
+
+// Maintenance page form submittion.
+add_action( 'admin_post_maintenance_mode_content', '\calmpress\calmpress\Maintenance_Mode::handle_content_change_post' );
+add_action( 'admin_post_maintenance_mode_status', '\calmpress\calmpress\Maintenance_Mode::handle_status_change_post' );

@@ -19,3 +19,7 @@ input.hours {
 input.minutes {
     width:calc(2ch + 40px );
 }
+
+#exit {
+    margin-right:10px;
+}
