@@ -4304,45 +4304,6 @@ function wp_enqueue_media( $args = array() ) {
 	}
 
 	/**
-	 * Allows overriding the list of months displayed in the media library.
-	 *
-	 * By default (if this filter does not return an array), a query will be
-	 * run to determine the months that have media items.  This query can be
-	 * expensive for large media libraries, so it may be desirable for sites to
-	 * override this behavior.
-	 *
-	 * @since 4.7.4
-	 *
-	 * @link https://core.trac.wordpress.org/ticket/31071
-	 *
-	 * @param array|null $months An array of objects with `month` and `year`
-	 *                           properties, or `null` (or any other non-array value)
-	 *                           for default behavior.
-	 */
-	$months = apply_filters( 'media_library_months_with_files', null );
-	if ( ! is_array( $months ) ) {
-		$months = $wpdb->get_results(
-			$wpdb->prepare(
-				"
-			SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
-			FROM $wpdb->posts
-			WHERE post_type = %s
-			ORDER BY post_date DESC
-		",
-				'attachment'
-			)
-		);
-	}
-	foreach ( $months as $month_year ) {
-		$month_year->text = sprintf(
-			/* translators: 1: Month, 2: Year. */
-			__( '%1$s %2$d' ),
-			$wp_locale->get_month( $month_year->month ),
-			$month_year->year
-		);
-	}
-
-	/**
 	 * Filters whether the Media Library grid has infinite scrolling. Default `false`.
 	 *
 	 * @since 5.8.0
@@ -4372,7 +4333,6 @@ function wp_enqueue_media( $args = array() ) {
 		'embedExts'         => $exts,
 		'embedMimes'        => $ext_mimes,
 		'contentWidth'      => $content_width,
-		'months'            => $months,
 		'mediaTrash'        => MEDIA_TRASH ? 1 : 0,
 		'infiniteScrolling' => ( $infinite_scrolling ) ? 1 : 0,
 	);

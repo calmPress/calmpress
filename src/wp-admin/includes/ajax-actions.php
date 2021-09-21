@@ -2405,7 +2405,7 @@ function wp_ajax_query_attachments() {
 	$query = isset( $_REQUEST['query'] ) ? (array) $_REQUEST['query'] : array();
 	$keys = array(
 		's', 'order', 'orderby', 'posts_per_page', 'paged', 'post_mime_type',
-		'post_parent', 'author', 'post__in', 'post__not_in', 'year', 'monthnum'
+		'post_parent', 'author', 'post__in', 'post__not_in'
 	);
 
 	foreach ( get_taxonomies_for_attachments( 'objects' ) as $t ) {

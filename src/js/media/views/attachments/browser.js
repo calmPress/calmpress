@@ -22,8 +22,6 @@ var View = wp.media.View,
  *                                                 Accepts 'uploaded' and 'all'.
  * @param {boolean}        [options.search=true]   Whether to show the search interface in the
  *                                                 browser's toolbar.
- * @param {boolean}        [options.date=true]     Whether to show the date filter in the
- *                                                 browser's toolbar.
  * @param {boolean}        [options.display=false] Whether to show the attachments display settings
  *                                                 view in the sidebar.
  * @param {boolean|string} [options.sidebar=true]  Whether to create a sidebar for the browser.
@@ -184,7 +182,7 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 			priority: -20
 		}) );
 
-		if ( showFilterByType || this.options.date ) {
+		if ( showFilterByType ) {
 			/*
 			 * Create a h2 heading before the select elements that filter attachments.
 			 * This heading is visible in the modal and visually hidden in the grid.
@@ -238,20 +236,6 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 			this.toolbar.set( 'libraryViewSwitcher', new LibraryViewSwitcher({
 				controller: this.controller,
 				priority: -90
-			}).render() );
-
-			// DateFilter is a <select>, a visually hidden label element needs to be rendered before.
-			this.toolbar.set( 'dateFilterLabel', new wp.media.view.Label({
-				value: l10n.filterByDate,
-				attributes: {
-					'for': 'media-attachment-date-filters'
-				},
-				priority: -75
-			}).render() );
-			this.toolbar.set( 'dateFilter', new wp.media.view.DateFilter({
-				controller: this.controller,
-				model:      this.collection.props,
-				priority: -75
 			}).render() );
 
 			// BulkSelection is a <div> with subviews, including screen reader text.
@@ -361,20 +345,6 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 				}).render() );
 			}
 
-		} else if ( this.options.date ) {
-			// DateFilter is a <select>, a visually hidden label element needs to be rendered before.
-			this.toolbar.set( 'dateFilterLabel', new wp.media.view.Label({
-				value: l10n.filterByDate,
-				attributes: {
-					'for': 'media-attachment-date-filters'
-				},
-				priority: -75
-			}).render() );
-			this.toolbar.set( 'dateFilter', new wp.media.view.DateFilter({
-				controller: this.controller,
-				model:      this.collection.props,
-				priority: -75
-			}).render() );
 		}
 
 		if ( this.options.search ) {

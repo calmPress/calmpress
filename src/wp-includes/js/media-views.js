@@ -1997,8 +1997,6 @@ var View = wp.media.View,
  *                                                 Accepts 'uploaded' and 'all'.
  * @param {boolean}        [options.search=true]   Whether to show the search interface in the
  *                                                 browser's toolbar.
- * @param {boolean}        [options.date=true]     Whether to show the date filter in the
- *                                                 browser's toolbar.
  * @param {boolean}        [options.display=false] Whether to show the attachments display settings
  *                                                 view in the sidebar.
  * @param {boolean|string} [options.sidebar=true]  Whether to create a sidebar for the browser.
@@ -2159,7 +2157,7 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 			priority: -20
 		}) );
 
-		if ( showFilterByType || this.options.date ) {
+		if ( showFilterByType ) {
 			/*
 			 * Create a h2 heading before the select elements that filter attachments.
 			 * This heading is visible in the modal and visually hidden in the grid.
@@ -2213,20 +2211,6 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 			this.toolbar.set( 'libraryViewSwitcher', new LibraryViewSwitcher({
 				controller: this.controller,
 				priority: -90
-			}).render() );
-
-			// DateFilter is a <select>, a visually hidden label element needs to be rendered before.
-			this.toolbar.set( 'dateFilterLabel', new wp.media.view.Label({
-				value: l10n.filterByDate,
-				attributes: {
-					'for': 'media-attachment-date-filters'
-				},
-				priority: -75
-			}).render() );
-			this.toolbar.set( 'dateFilter', new wp.media.view.DateFilter({
-				controller: this.controller,
-				model:      this.collection.props,
-				priority: -75
 			}).render() );
 
 			// BulkSelection is a <div> with subviews, including screen reader text.
@@ -2336,20 +2320,6 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 				}).render() );
 			}
 
-		} else if ( this.options.date ) {
-			// DateFilter is a <select>, a visually hidden label element needs to be rendered before.
-			this.toolbar.set( 'dateFilterLabel', new wp.media.view.Label({
-				value: l10n.filterByDate,
-				attributes: {
-					'for': 'media-attachment-date-filters'
-				},
-				priority: -75
-			}).render() );
-			this.toolbar.set( 'dateFilter', new wp.media.view.DateFilter({
-				controller: this.controller,
-				model:      this.collection.props,
-				priority: -75
-			}).render() );
 		}
 
 		if ( this.options.search ) {
@@ -2915,7 +2885,6 @@ var Library = wp.media.controller.Library,
  * @param {boolean}                    [attributes.multiple=false]        Whether multi-select is enabled.
  * @param {boolean}                    [attributes.searchable=false]      Whether the library is searchable.
  * @param {boolean}                    [attributes.sortable=true]         Whether the Attachments should be sortable. Depends on the orderby property being set to menuOrder on the attachments collection.
- * @param {boolean}                    [attributes.date=true]             Whether to show the date filter in the browser's toolbar.
  * @param {string|false}               [attributes.content=browse]        Initial mode for the content region.
  * @param {string|false}               [attributes.toolbar=image-details] Initial mode for the toolbar region.
  * @param {boolean}                    [attributes.describe=true]         Whether to offer UI to describe attachments - e.g. captioning images in a gallery.
@@ -5387,7 +5356,6 @@ var Library = wp.media.controller.Library,
  * @param {string}                     attributes.menu                   Initial mode for the menu region. @todo this needs a better explanation.
  * @param {boolean}                    [attributes.searchable=false]     Whether the library is searchable.
  * @param {boolean}                    [attributes.sortable=true]        Whether the Attachments should be sortable. Depends on the orderby property being set to menuOrder on the attachments collection.
- * @param {boolean}                    [attributes.date=true]            Whether to show the date filter in the browser's toolbar.
  * @param {boolean}                    [attributes.describe=true]        Whether to offer UI to describe the attachments - e.g. captioning images in a gallery.
  * @param {boolean}                    [attributes.dragInfo=true]        Whether to show instructional text about the attachments being sortable.
  * @param {boolean}                    [attributes.dragInfoText]         Instructional text about the attachments being sortable.
@@ -6976,54 +6944,6 @@ Cropper = View.extend(/** @lends wp.media.view.Cropper.prototype */{
 });
 
 module.exports = Cropper;
-
-
-/***/ }),
-
-/***/ "VkcK":
-/***/ (function(module, exports) {
-
-var l10n = wp.media.view.l10n,
-	DateFilter;
-
-/**
- * A filter dropdown for month/dates.
- *
- * @memberOf wp.media.view.AttachmentFilters
- *
- * @class
- * @augments wp.media.view.AttachmentFilters
- * @augments wp.media.View
- * @augments wp.Backbone.View
- * @augments Backbone.View
- */
-DateFilter = wp.media.view.AttachmentFilters.extend(/** @lends wp.media.view.AttachmentFilters.Date.prototype */{
-	id: 'media-attachment-date-filters',
-
-	createFilters: function() {
-		var filters = {};
-		_.each( wp.media.view.settings.months || {}, function( value, index ) {
-			filters[ index ] = {
-				text: value.text,
-				props: {
-					year: value.year,
-					monthnum: value.month
-				}
-			};
-		});
-		filters.all = {
-			text:  l10n.allDates,
-			props: {
-				monthnum: false,
-				year:  false
-			},
-			priority: 10
-		};
-		this.filters = filters;
-	}
-});
-
-module.exports = DateFilter;
 
 
 /***/ }),
@@ -10298,7 +10218,6 @@ media.view.Attachment.EditLibrary = __webpack_require__( "EvXF" );
 media.view.Attachments = __webpack_require__( "ojD6" );
 media.view.Search = __webpack_require__( "ZgZ7" );
 media.view.AttachmentFilters = __webpack_require__( "1S4+" );
-media.view.DateFilter = __webpack_require__( "VkcK" );
 media.view.AttachmentFilters.Uploaded = __webpack_require__( "4jjk" );
 media.view.AttachmentFilters.All = __webpack_require__( "KerO" );
 media.view.AttachmentsBrowser = __webpack_require__( "72mI" );
