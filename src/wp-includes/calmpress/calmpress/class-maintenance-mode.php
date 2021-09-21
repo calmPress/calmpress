@@ -217,7 +217,7 @@ class Maintenance_Mode {
 			return '';
 		}
 
-		return $opt['bypass_code'];
+		return (string) $opt['bypass_code'];
 	}
 
 	/**

@@ -51,7 +51,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 				?>
 				<br>
 				<input class="hours" type="number" min="0" max="999" name="hours" value="0"> :
-				<input class="minutes" type="number" min="0" max="59" name="minutes" value="0">
+				<input class="minutes" type="number" min="0" max="59" name="minutes" value="00">
 				<?php esc_html_e( 'Hours' ); ?>
 				<?php
 				echo '</p>';
@@ -59,16 +59,34 @@ require ABSPATH . 'wp-admin/admin-header.php';
 				submit_button( __( 'Activate maintenance mode' ), 'primary', 'enter' );
 			} else {
 				echo '<p class="status_line active">' . esc_html__( 'In maintenance mode' ) . '</p>';
+				$bypass_url = site_url() . '?' . Maintenance_Mode::BYPASS_NAME . '=' . Maintenance_Mode::bypass_code();
+				?>
+				<p>
+					<?php
+					printf(
+						/* translators: 1: shortcode */
+						esc_html__( 'Bypass maintenance mode with the fillowing URL: %1$s' ),
+						'<code>' . esc_html( $bypass_url ) . '</code>'
+					);
+					?>
+					<br />
+					<span class="description">
+					<?php
+					esc_html_e( 'Once the URL is used, a cookie is set and the user will automatically bypass the maintenance mode for the rest of the session. The URL changes with every maintenance mode activation.' );
+					?>
+					</span>
+				</p>
+				<?php
 				$lasts_for = Maintenance_Mode::projected_time_till_end();
 
 				$hours   = '0';
-				$minutes = '0';
+				$minutes = '00';
 				if ( $lasts_for <= 10 * MINUTE_IN_SECONDS ) {
 					echo '<p>' . esc_html__( 'Seems like the initialy configured time had passed, try to estimate again.' ) . '<p>';
 				} else {
 					echo '<p>' . esc_html__( 'Configured to last for another :' );
 					$hours   = intdiv( $lasts_for, 60 * MINUTE_IN_SECONDS );
-					$minutes = intdiv( $lasts_for % ( 60 * MINUTE_IN_SECONDS ), 60);
+					$minutes = sprintf('%02d', intdiv( $lasts_for % ( 60 * MINUTE_IN_SECONDS ), 60 ) );
 				}
 				?>
 				<br>
