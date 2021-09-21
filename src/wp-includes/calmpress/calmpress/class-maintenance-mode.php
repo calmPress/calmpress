@@ -254,14 +254,62 @@ class Maintenance_Mode {
 	}
 
 	/**
-	 * Get the maintenance page HTML.
+	 * Generate the maintenance mode page HTML.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return string The HTML.
 	 */
-	public static function page_html(): string {
+	public static function render_html() {
+		global $wp_query;
+		add_filter(	'document_title', __NAMESPACE__ . '\Maintenance_Mode::page_title', 999 );
+		
+		add_filter(
+			'body_class',
+			static function ( $classes ) {
+				$classes[] = 'maintenance_mode';
+				return $classes;
+			}
+		);
 
+		if ( static::theme_frame_used() ) {
+			$template = get_query_template( 'page', ['page.php'] );
+			include $template;
+		} else {
+			?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?> class="no-js no-svg">
+<head>
+<meta charset="<?php bloginfo( 'charset' ); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<?php wp_head(); ?>
+</head>
+<body class="maintenance_mode">
+	<div class="message_container" style="max-width:600px; text-align:center; margin:10px auto">
+			<?php
+			$h1  = static::text_title();
+			if ( $h1 ) {
+				echo '<h1>' . esc_html( $h1 ) . '</h1>';
+			}
+			echo apply_filters( 'the_content', static::content() );
+			wp_footer();
+			?>
+	</div>
+</body>
+</html>
+			<?php
+		}
+	}
+
+	public static function setup_wp_query( $posts, &$query ) {
+
+		if ( $query->is_main_query() ) {
+			if ( ! $query->is_feed && ! $query->is_favicon ) {
+				$query->is_home = false;
+				$query->is_page = true;
+			}
+			return [ static::text_holder_post() ];
+		}
+
+		return $posts;
 	}
 
 	/**
@@ -330,7 +378,12 @@ class Maintenance_Mode {
 	 */
 	public static function set_text_title( string $title ) {
 		$p = static::text_holder_post();
-		update_post_meta( $p->ID, 'text_title', wp_slash( $title ) );
+		wp_update_post(
+			[
+				'ID' => $p->ID,
+				'post_title' => $title,
+			]
+		);
 	}
 
 	/**
@@ -341,10 +394,9 @@ class Maintenance_Mode {
 	 * @return string The text that will be used.
 	 */
 	public static function text_title():string {
-		$p     = static::text_holder_post();
-		$title = (string) get_post_meta( $p->ID, 'text_title', true );
+		$p = static::text_holder_post();
 
-		return $title;
+		return $p->post_title;
 	}
 
 	/**
@@ -382,7 +434,15 @@ class Maintenance_Mode {
 	 */
 	public static function set_content( string $content ) {
 		$p = static::text_holder_post();
-		update_post_meta( $p->ID, 'content', wp_slash( $content ) );
+		if ( ! current_user_can( 'unfiltered_html' ) ) {
+			$content =  wp_kses_post( $content );
+		}
+		wp_update_post(
+			[
+				'ID' => $p->ID,
+				'post_content' => $content,
+			]
+		);
 	}
 
 	/**
@@ -393,10 +453,9 @@ class Maintenance_Mode {
 	 * @return string The text that will be used.
 	 */
 	public static function content():string {
-		$p     = static::text_holder_post();
-		$content = (string) get_post_meta( $p->ID, 'content', true );
+		$p = static::text_holder_post();
 
-		return $content;
+		return $p->post_content;
 	}
 
 	/**

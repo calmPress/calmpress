@@ -16,10 +16,10 @@ if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
 	header( 'Retry-After: ' . \calmpress\calmpress\Maintenance_Mode::projected_time_till_end() );
 	status_header( 503 );
 	if ( is_feed() ) {
-		return;	
+		return;
 	}
 
-	echo \calmpress\calmpress\Maintenance_Mode::render_html();
+	\calmpress\calmpress\Maintenance_Mode::render_html();
 	return;
 }
 

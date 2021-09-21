@@ -104,8 +104,8 @@ require ABSPATH . 'wp-admin/admin-header.php';
 						$editor_id = 'message_text';
 						$settings  = [
 							'media_buttons' => true,
-							'wpautop'       => false,
-							'quicktags'     => false,
+							'wpautop'       => true,
+							'quicktags'     => true,
 							'textarea_rows' => 5,
 						];
 						wp_editor( $content, $editor_id, $settings );

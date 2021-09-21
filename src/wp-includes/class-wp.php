@@ -710,6 +710,12 @@ class WP {
 		$this->init();
 		$this->parse_request( $query_args );
 		$this->send_headers();
+
+		// if the current user should get a 503 and maintenance page set the query to
+		// have only the maintenance post in the loop.
+		if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
+			add_filter( 'posts_pre_query', '\calmpress\calmpress\Maintenance_Mode::setup_wp_query', 10, 2 );
+		}
 		$this->query_posts();
 		$this->handle_404();
 		$this->register_globals();
