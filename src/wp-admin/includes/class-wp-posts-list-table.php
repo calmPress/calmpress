@@ -465,11 +465,14 @@ class WP_Posts_List_Table extends WP_List_Table {
 				'show_count'      => 0,
 				'orderby'         => 'name',
 				'selected'        => $cat,
+				'echo'            => false,
 			);
 
-			echo '<label class="screen-reader-text" for="cat">' . get_taxonomy( 'category' )->labels->filter_by_item . '</label>';
-
-			wp_dropdown_categories( $dropdown_options );
+			$dropdown = wp_dropdown_categories( $dropdown_options );
+			if ( false !== strpos( $dropdown, 'option' ) ) {
+				echo '<label class="screen-reader-text" for="cat">' . get_taxonomy( 'category' )->labels->filter_by_item . '</label>';
+				echo $dropdown;
+			}
 		}
 	}
 
