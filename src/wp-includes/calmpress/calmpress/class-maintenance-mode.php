@@ -60,6 +60,13 @@ class Maintenance_Mode {
 	const BYPASS_NAME = '_maintenance_mode';
 
 	/**
+	 * The name of the url parameter and nonce action used in the preview URL.
+	 *
+	 * @since 1.0.0
+	 */
+	const PREVIEW_PARAM = 'maintenance_mode_preview';
+
+	/**
 	 * Register the post type that will be used for storing the maintenance mode related text.
 	 *
 	 * @since 1.0.0
@@ -217,8 +224,10 @@ class Maintenance_Mode {
 	 * Indicate if maintenance mode is active and current user do not have a permission to read or
 	 * login to the site when its in such a state.
 	 *
-	 * Blocked users are ones that do not have the maintenance_mode capability, to not have
+	 * Blocked users are ones that do not have the maintenance_mode capability, or not have
 	 * the bypass cookie set, and not using a bypass url parameter. For the later, set the cookie.
+	 *
+	 * In addition, detection of the maintenance mode preview will get request to be treated as blocked.
 	 *
 	 * @since 1.0.0
 	 *
@@ -226,8 +235,13 @@ class Maintenance_Mode {
 	 */
 	public static function current_user_blocked():bool {
 
-		// If not enabled, no reason to block.
+		// If not enabled, check that it is not a preview URL. If neither true, the user is not blocked.
 		if ( ! self::is_active() ) {
+			if ( isset( $_GET[ static::PREVIEW_PARAM ] ) &&
+				wp_verify_nonce( $_GET[ static::PREVIEW_PARAM ], static::PREVIEW_PARAM ) ) {
+				return true;
+			}
+
 			return false;
 		}
 
@@ -299,10 +313,26 @@ class Maintenance_Mode {
 		}
 	}
 
-	public static function setup_wp_query( $posts, &$query ) {
+	/**
+	 * Set the main loop to include the maintenance mode post if not processing feeds or favicon.
+	 *
+	 * Supposed to be called by the posts_pre_query filter when in maintenance mode.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post[] $posts The array current posts probably from previous runs of the filter.
+	 *                          If there are any they are overriden.
+	 * @param \WP_Query  $query The query for which the filter is run.
+	 *
+	 * @return \WP_Post[] The maintenance mode post in an array.
+	 */
+	public static function setup_wp_query( $posts, $query ):array {
 
+		// Handle only on the main query to avoid recurssion when getting
+		// the maintenance mode post.
 		if ( $query->is_main_query() ) {
 			if ( ! $query->is_feed && ! $query->is_favicon ) {
+				// Needed at least for calmSeventeen to produce the same design on all pages.
 				$query->is_home = false;
 				$query->is_page = true;
 			}

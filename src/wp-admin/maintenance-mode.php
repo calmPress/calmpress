@@ -89,10 +89,10 @@ require ABSPATH . 'wp-admin/admin-header.php';
 	<div id="message" class="postbox">
 		<h3 class="hndle"><?php esc_html_e( 'Page content' ); ?></h3>
 		<div class="inside">
-			<p><a href="<?php echo esc_url( admin_url( 'maintenance-mode.php?preview=1' ) ); ?>"><?php esc_html_e( 'Preview page' ); ?></a></p>
+			<p><a target="_blank" href="<?php echo esc_url( wp_nonce_url( site_url(), Maintenance_Mode::PREVIEW_PARAM, Maintenance_Mode::PREVIEW_PARAM ) ); ?>"><?php esc_html_e( 'Preview page' ); ?></a></p>
 			<form action="admin-post.php" method="post">
 				<input name='action' type="hidden" value='maintenance_mode_content'>
-				<?php wp_nonce_field( 'maintenance_mode_content' );	?>
+				<?php wp_nonce_field( 'maintenance_mode_content' ); ?>
 				<table class="form-table">
 					<tr><th><label for="page_title"><?php esc_html_e( 'Page title' ); ?></label></th><td><input id="page_title" name="page_title" value="<?php echo esc_attr( Maintenance_Mode::page_title() ); ?>"></td></tr>
 					<tr><th><label for="text_title"><?php esc_html_e( 'Text title' ); ?></label></th><td><input id="text_title" name="text_title" value="<?php echo esc_attr( Maintenance_Mode::text_title() ); ?>"></td></tr>
