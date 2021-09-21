@@ -143,14 +143,18 @@ add_filter( 'list_pages', '_wp_privacy_settings_filter_draft_page_titles', 10, 2
  * calmPress related.
  */
 
- // Make sure the following actions are hooked only on front end admin pages.
-add_action( 'admin_head', static function () {
+// Make sure the following actions are hooked only on front end admin pages.
+add_action(
+	'admin_head',
+	static function () {
+		// .htacees needs update nag.
+		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::htaccess_update_nag' );
 
-	// .htacees needs update nag.
-	add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::htaccess_update_nag' );
+		// wp-config needs update nag.
+		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::wp_config_update_nag' );
 
-	// wp-config needs update nag.
-	add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::wp_config_update_nag' );
+		// maintenance mode is active nag.
+		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::maintenance_mode_active_nag' );
 	}
 );
 

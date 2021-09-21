@@ -25,10 +25,6 @@ class Admin_Notices {
 	 * The notice is not displayed on multisite setup, and it is displayed only
 	 * for admins when the site uses apache.
 	 *
-	 * To avoid getting the data from the DB on every admin page load, the status of the nagging
-	 * will be stored in a cookie for 10 minutes and the cookie will be used to determine if a nag should
-	 * be displayed on additional page loads.
-	 *
 	 * @since 1.0.0
 	 */
 	public static function htaccess_update_nag() {
@@ -36,7 +32,7 @@ class Admin_Notices {
 
 		$nag = false;
 
-		if ( ! is_multisite() && is_super_admin() && is_apache() && ! $nag ) {
+		if ( ! is_multisite() && is_super_admin() && is_apache() ) {
 			$home_path      = ABSPATH;
 			$existing_rules = array_filter( extract_from_markers( $home_path . '.htaccess', 'WordPress' ) );
 			$new_rules      = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );
@@ -73,20 +69,13 @@ class Admin_Notices {
 	 *
 	 * The notice is not displayed on multisite setup.
 	 *
-	 * To avoid getting the data from the DB on every admin page load, the status of the nagging
-	 * will be stored in a cookie for 10 minutes and the cookie will be used to determine if a nag should
-	 * be displayed on additional page loads.
-	 *
 	 * @since 1.0.0
 	 */
 	public static function wp_config_update_nag() {
 
 		$nag = false;
-		if ( isset( $_COOKIE['wpc_nag'] ) ) {
-			$nag = true;
-		}
 
-		if ( ! is_multisite() && is_super_admin() && ! $nag ) {
+		if ( ! is_multisite() && is_super_admin() ) {
 			$wp_config      = \calmpress\wp_config\wp_config::current_wp_config();
 			$existing_rules = $wp_config->user_section_in_file();
 			$new_rules      = get_option( 'wp_config_user_section' );
@@ -113,6 +102,35 @@ class Admin_Notices {
 				);
 			}
 			echo "<div class='notice notice-error'><p>$msg</p></div>";
+		}
+	}
+
+	/**
+	 * Output an "Maintenance mode is active" admin notice when maintenance mode is active.
+	 *
+	 * The notice is displayed only to users which can deactivate maintenance mode.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function maintenance_mode_active_nag() {
+
+		$nag = false;
+
+		if ( \calmpress\calmpress\Maintenance_Mode::is_active() ) {
+			$nag = true;
+		}
+
+		if ( $nag ) {
+			$screen = get_current_screen();
+			if ( $screen && ( 'maintenance-mode' !== $screen->id ) ) {
+				$msg = sprintf(
+					/* translators: 1: Openning link to Maintenance mode page, 2: Closing </a> */
+					esc_html__( 'The site is in maintenance mode. You can deactivate it in the %1$sMaintenance mode page%2$s.' ),
+					'<a href="' . esc_url( admin_url( 'maintenance-mode.php' ) ) . '">',
+					'</a>'
+				);
+				echo "<div class='notice notice-error'><p>$msg</p></div>";
+			}
 		}
 	}
 }
