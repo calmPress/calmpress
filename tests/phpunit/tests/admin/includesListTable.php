@@ -242,20 +242,6 @@ class Tests_Admin_includesListTable extends WP_UnitTestCase {
 	/**
 	 * @ticket 37407
 	 */
-	function test_months_dropdown_should_not_be_shown_if_there_are_no_posts() {
-		// Set post type to a non-existent one.
-		$this->table->screen->post_type = 'foo';
-
-		ob_start();
-		$this->table->extra_tablenav( 'top' );
-		$output = ob_get_clean();
-
-		$this->assertNotContains( 'id="filter-by-date"', $output );
-	}
-
-	/**
-	 * @ticket 37407
-	 */
 	function test_category_dropdown_should_not_be_shown_if_there_are_no_posts() {
 		// Set post type to a non-existent one.
 		$this->table->screen->post_type = 'foo';

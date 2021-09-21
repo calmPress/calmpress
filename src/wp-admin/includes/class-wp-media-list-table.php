@@ -191,10 +191,6 @@ class WP_Media_List_Table extends WP_List_Table {
 		?>
 		<div class="actions">
 			<?php
-			if ( ! $this->is_trash ) {
-				$this->months_dropdown( 'attachment' );
-			}
-
 			/** This action is documented in wp-admin/includes/class-wp-posts-list-table.php */
 			do_action( 'restrict_manage_posts', $this->screen->post_type, $which );
 

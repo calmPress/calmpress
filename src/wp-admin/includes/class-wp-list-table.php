@@ -97,7 +97,6 @@ class WP_List_Table {
 		'get_bulk_actions',
 		'bulk_actions',
 		'row_actions',
-		'months_dropdown',
 		'view_switcher',
 		'comments_bubble',
 		'get_items_per_page',
@@ -572,106 +571,6 @@ class WP_List_Table {
 		$out .= '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __( 'Show more details' ) . '</span></button>';
 
 		return $out;
-	}
-
-	/**
-	 * Displays a dropdown for filtering items in the list table by month.
-	 *
-	 * @since 3.1.0
-	 *
-	 * @global wpdb      $wpdb      WordPress database abstraction object.
-	 * @global WP_Locale $wp_locale WordPress date and time locale object.
-	 *
-	 * @param string $post_type The post type.
-	 */
-	protected function months_dropdown( $post_type ) {
-		global $wpdb, $wp_locale;
-
-		/**
-		 * Filters whether to remove the 'Months' drop-down from the post list table.
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param bool   $disable   Whether to disable the drop-down. Default false.
-		 * @param string $post_type The post type.
-		 */
-		if ( apply_filters( 'disable_months_dropdown', false, $post_type ) ) {
-			return;
-		}
-
-		/**
-		 * Filters to short-circuit performing the months dropdown query.
-		 *
-		 * @since 5.7.0
-		 *
-		 * @param object[]|false $months   'Months' drop-down results. Default false.
-		 * @param string         $post_type The post type.
-		 */
-		$months = apply_filters( 'pre_months_dropdown_query', false, $post_type );
-
-		if ( ! is_array( $months ) ) {
-			$extra_checks = "AND post_status != 'auto-draft'";
-			if ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) {
-				$extra_checks .= " AND post_status != 'trash'";
-			} elseif ( isset( $_GET['post_status'] ) ) {
-				$extra_checks = $wpdb->prepare( ' AND post_status = %s', $_GET['post_status'] );
-			}
-
-			$months = $wpdb->get_results(
-				$wpdb->prepare(
-					"
-				SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
-				FROM $wpdb->posts
-				WHERE post_type = %s
-				$extra_checks
-				ORDER BY post_date DESC
-			",
-					$post_type
-				)
-			);
-		}
-
-		/**
-		 * Filters the 'Months' drop-down results.
-		 *
-		 * @since 3.7.0
-		 *
-		 * @param object[] $months    Array of the months drop-down query results.
-		 * @param string   $post_type The post type.
-		 */
-		$months = apply_filters( 'months_dropdown_results', $months, $post_type );
-
-		$month_count = count( $months );
-
-		if ( ! $month_count || ( 1 == $month_count && 0 == $months[0]->month ) ) {
-			return;
-		}
-
-		$m = isset( $_GET['m'] ) ? (int) $_GET['m'] : 0;
-		?>
-		<label for="filter-by-date" class="screen-reader-text"><?php echo get_post_type_object( $post_type )->labels->filter_by_date; ?></label>
-		<select name="m" id="filter-by-date">
-			<option<?php selected( $m, 0 ); ?> value="0"><?php _e( 'All dates' ); ?></option>
-		<?php
-		foreach ( $months as $arc_row ) {
-			if ( 0 == $arc_row->year ) {
-				continue;
-			}
-
-			$month = zeroise( $arc_row->month, 2 );
-			$year  = $arc_row->year;
-
-			printf(
-				"<option %s value='%s'>%s</option>\n",
-				selected( $m, $year . $month, false ),
-				esc_attr( $arc_row->year . $month ),
-				/* translators: 1: Month name, 2: 4-digit year. */
-				sprintf( __( '%1$s %2$d' ), $wp_locale->get_month( $month ), $year )
-			);
-		}
-		?>
-		</select>
-		<?php
 	}
 
 	/**

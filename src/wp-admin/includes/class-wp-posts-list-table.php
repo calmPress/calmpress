@@ -483,7 +483,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 		if ( 'top' === $which ) {
 			ob_start();
 
-			$this->months_dropdown( $this->screen->post_type );
 			$this->categories_dropdown( $this->screen->post_type );
 
 			/**
