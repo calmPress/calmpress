@@ -55,7 +55,8 @@ require ABSPATH . 'wp-admin/admin-header.php';
 				<?php esc_html_e( 'Hours' ); ?>
 				<?php
 				echo '</p>';
-				echo '<p class="description>' . esc_html__( 'If no value is given, a 30 minutes value will be assumed. If maintenance mode is still active after this time it will be prolonged everytime by 30 minutes untile it is exited.' ) . '</p>';
+				echo '<p class="description">' . esc_html__( 'If no value is given, a 10 minutes value will be assumed. If maintenance mode is still active after the expected time it will be prolonged by 10 minutes untile it is deactivated.' ) . '</p>';
+				echo '<p><b>' . esc_html__( 'Before activating maintenance mode you might want to consider changing the setting of your analytics or any other plugin that assume "live" content as plugins keep operating fully.' ) . '</b></p>'; 
 				submit_button( __( 'Activate maintenance mode' ), 'primary', 'enter' );
 			} else {
 				echo '<p class="status_line active">' . esc_html__( 'In maintenance mode' ) . '</p>';
@@ -83,11 +84,10 @@ require ABSPATH . 'wp-admin/admin-header.php';
 				$minutes = '00';
 				if ( $lasts_for <= 10 * MINUTE_IN_SECONDS ) {
 					echo '<p>' . esc_html__( 'Seems like the initialy configured time had passed, try to estimate again.' ) . '<p>';
-				} else {
-					echo '<p>' . esc_html__( 'Configured to last for another :' );
-					$hours   = intdiv( $lasts_for, 60 * MINUTE_IN_SECONDS );
-					$minutes = sprintf('%02d', intdiv( $lasts_for % ( 60 * MINUTE_IN_SECONDS ), 60 ) );
 				}
+				echo '<p>' . esc_html__( 'Configured to last for another :' );
+				$hours   = intdiv( $lasts_for, 60 * MINUTE_IN_SECONDS );
+				$minutes = sprintf('%02d', intdiv( $lasts_for % ( 60 * MINUTE_IN_SECONDS ), 60 ) );
 				?>
 				<br>
 				<input class="hours" type="number" min="0" max="999" name="hours" value="<?php echo esc_attr( $hours ); ?>"> :
@@ -96,7 +96,8 @@ require ABSPATH . 'wp-admin/admin-header.php';
 				<?php
 				echo '</p>';
 				echo '<p>';
-				echo get_submit_button( esc_html__( 'Exit maintenance mode' ), 'primary', 'exit', false );
+				echo '<p><b>' . esc_html__( 'Before deactivating maintenance mode you might want to change back the settings that were changed before activation.' ) . '</b><p>'; 
+				echo get_submit_button( esc_html__( 'Deactivate maintenance mode' ), 'primary', 'exit', false );
 				echo get_submit_button( esc_html__( 'Change remaining time' ), 'large', 'change_time', false );
 				echo '</p>';
 			}
