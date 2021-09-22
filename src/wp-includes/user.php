@@ -98,6 +98,13 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 		return $user;
 	}
 
+	// Deny login when site is in maintenance mode and user do not have the capability to use it.
+	if ( \calmpress\calmpress\Maintenance_Mode::is_active() ) {
+		if ( ! user_can( $user, 'maintenance_mode' ) ) {
+			return new WP_Error( 'maintenance_mode', 'Site is in maintenance mode and you do not have the permission to login in such state.' );
+		}
+	}
+
 	wp_set_auth_cookie( $user->ID, $credentials['remember'], $secure_cookie );
 	/**
 	 * Fires after the user has successfully logged in.
