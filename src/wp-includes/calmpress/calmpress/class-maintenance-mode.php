@@ -356,19 +356,25 @@ class Maintenance_Mode {
 	 *                          If there are any they are overriden.
 	 * @param \WP_Query  $query The query for which the filter is run.
 	 *
-	 * @return \WP_Post[] The maintenance mode post in an array.
+	 * @return null|\WP_Post[]  The maintenance mode post in an array if $query is the main query,
+	 *                          otherwise whatever was passed in $posts.
 	 */
-	public static function setup_wp_query( $posts, $query ):array {
+	public static function setup_wp_query( $posts, $query ) {
 
 		// Handle only on the main query to avoid recurssion when getting
 		// the maintenance mode post.
 		if ( $query->is_main_query() ) {
+			$maintenance_post = static::text_holder_post();
 			if ( ! $query->is_feed && ! $query->is_favicon ) {
 				// Needed at least for calmSeventeen to produce the same design on all pages.
 				$query->is_home = false;
 				$query->is_page = true;
+
+				// Set the queried object to avoid php errors when it is being checked.
+				$query->queried_object    = $maintenance_post;
+				$query->queried_object_id = (int) $maintenance_post->ID;
 			}
-			return [ static::text_holder_post() ];
+			return [ $maintenance_post ];
 		}
 
 		return $posts;
