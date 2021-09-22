@@ -221,6 +221,16 @@ class Maintenance_Mode {
 	}
 
 	/**
+	 * Helper function to set the bypass cookie, exists mainly to be able to avoid headers
+	 * already sent type of errors during testing.
+	 *
+	 * @since 1.0.0
+	 */
+	protected static function set_bypass_cookie() {
+		setcookie( self::BYPASS_NAME, self::bypass_code(), 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl() );
+	}
+
+	/**
 	 * Indicate if maintenance mode is active and current user do not have a permission to read or
 	 * login to the site when its in such a state.
 	 *
@@ -260,7 +270,7 @@ class Maintenance_Mode {
 		if ( isset( $_GET[ self::BYPASS_NAME ] ) &&
 			( $_GET[ self::BYPASS_NAME ] === self::bypass_code() ) ) {
 			// Set the cookie only for the session.
-			setcookie( self::BYPASS_NAME, self::bypass_code(), 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl() );
+			static::set_bypass_cookie();
 			return false;
 		}
 
