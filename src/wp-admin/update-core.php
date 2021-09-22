@@ -254,22 +254,22 @@ function list_plugin_updates() {
 			}
 		}
 
-		// Get plugin compat for running version of calmPress.
+		// Get plugin compat for running version of the base WordPress.
 		if ( isset( $plugin_data->update->tested ) && version_compare( $plugin_data->update->tested, $cur_version, '>=') ) {
-			/* translators: %s: calmPress version. */
-			$compat = '<br />' . sprintf( __(' Compatibility with calmPress %1$s: 100%% (according to its author)' ), $cur_version );
+			/* translators: %s: WordPress version. */
+			$compat = '<br />' . sprintf( __(' Compatibility with the underlying WordPress version %1$s: 100%% (according to its author)' ), $cur_version );
 		} else {
-			/* translators: %s: calmPress version. */
-			$compat = '<br />' . sprintf( __('Compatibility with calmPress %1$s: Unknown' ), $cur_version );
+			/* translators: %s: WordPress version. */
+			$compat = '<br />' . sprintf( __('Compatibility with the underlying WordPress version %1$s: Unknown' ), $cur_version );
 		}
 		// Get plugin compat for updated version of calmPress.
 		if ( $core_update_version ) {
 			if ( isset( $plugin_data->update->tested ) && version_compare( $plugin_data->update->tested, $core_update_version, '>=' ) ) {
-				/* translators: %s: calmPress version. */
-				$compat .= '<br />' . sprintf( __( 'Compatibility with calmPress %s: 100%% (according to its author)' ), $core_update_version );
+				/* translators: %s: WordPress version. */
+				$compat .= '<br />' . sprintf( __( 'Compatibility with the underlying WordPress version %s: 100%% (according to its author)' ), $core_update_version );
 			} else {
-				/* translators: %s: calmPress version. */
-				$compat .= '<br />' . sprintf( __( 'Compatibility with calmPress %s: Unknown' ), $core_update_version );
+				/* translators: %s: WordPress version. */
+				$compat .= '<br />' . sprintf( __( 'Compatibility with the underlying WordPress version %s: Unknown' ), $core_update_version );
 			}
 		}
 
