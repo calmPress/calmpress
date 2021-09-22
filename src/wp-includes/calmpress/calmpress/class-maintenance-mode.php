@@ -268,14 +268,43 @@ class Maintenance_Mode {
 	}
 
 	/**
+	 * A shortcode callback for the maintenance_left short code. Returns the expected time left
+	 * in the maintenance mode as a localized string.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function maintenance_left_shortcode( $attributes ) {
+		$lasts_for = static::projected_time_till_end();
+		$hours     = intdiv( $lasts_for, 60 * MINUTE_IN_SECONDS );
+		$minutes   = sprintf( '%02d', intdiv( $lasts_for % ( 60 * MINUTE_IN_SECONDS ), 60 ) );
+
+		$human_readable_duration = [];
+
+		// Add the hour part to the string if not zero.
+		if ( 0 !== $hours ) {
+			/* translators: %s: Time duration in hour or hours. */
+			$human_readable_duration[] = sprintf( _n( '%s hour', '%s hours', $hours ), $hours );
+		}
+	
+		// Add the minute part to the string.
+		/* translators: %s: Time duration in minute or minutes. */
+		$human_readable_duration[] = sprintf( _n( '%s minute', '%s minutes', $minutes ), $minutes );
+	
+		return implode( ', ', $human_readable_duration );
+	}
+
+	/**
 	 * Generate the maintenance mode page HTML.
 	 *
 	 * @since 1.0.0
 	 */
 	public static function render_html() {
 		global $wp_query;
+
+		// Make sure page title is set based on configuration.
 		add_filter(	'document_title', __NAMESPACE__ . '\Maintenance_Mode::page_title', 999 );
 		
+		// Add maintenance_mode class to body to allow styling.
 		add_filter(
 			'body_class',
 			static function ( $classes ) {
@@ -283,6 +312,9 @@ class Maintenance_Mode {
 				return $classes;
 			}
 		);
+
+		// Add shortcode to insert projected time left in maintenance mode.
+		add_shortcode( 'maintenance_left' , __NAMESPACE__ . '\Maintenance_Mode::maintenance_left_shortcode' );
 
 		if ( static::theme_frame_used() ) {
 			$template = get_query_template( 'page', ['page.php'] );
