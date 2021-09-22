@@ -137,6 +137,10 @@ require ABSPATH . 'wp-admin/admin-header.php';
 								'<code>[maintenance_left]</code>'
 							);
 							?>
+							<br/>
+							<?php
+								esc_html_e( 'Other shortcodes can be used as well but you will need to check if they work as expected.' );
+							?>
 						</p>
 					</td></tr>
 				</table>
