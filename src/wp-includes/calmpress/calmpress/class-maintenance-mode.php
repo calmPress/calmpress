@@ -272,6 +272,10 @@ class Maintenance_Mode {
 	 * in the maintenance mode as a localized string.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param string[] $attributes The attributes supplied with the shortcode (ignored here).
+	 *
+	 * @return string The text that shows the remaining time until maintenance mode expires.
 	 */
 	public static function maintenance_left_shortcode( $attributes ) {
 		$lasts_for = static::projected_time_till_end();
@@ -449,7 +453,7 @@ class Maintenance_Mode {
 		wp_update_post(
 			[
 				'ID' => $p->ID,
-				'post_title' => $title,
+				'post_title' => wp_slash( $title ),
 			]
 		);
 	}
@@ -508,7 +512,7 @@ class Maintenance_Mode {
 		wp_update_post(
 			[
 				'ID' => $p->ID,
-				'post_content' => $content,
+				'post_content' => wp_slash( $content ),
 			]
 		);
 	}
