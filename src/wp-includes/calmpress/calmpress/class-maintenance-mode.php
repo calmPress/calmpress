@@ -235,13 +235,13 @@ class Maintenance_Mode {
 	 */
 	public static function current_user_blocked():bool {
 
+		if ( isset( $_GET[ static::PREVIEW_PARAM ] ) &&
+			wp_verify_nonce( $_GET[ static::PREVIEW_PARAM ], static::PREVIEW_PARAM ) ) {
+			return true;
+		}
+
 		// If not enabled, check that it is not a preview URL. If neither true, the user is not blocked.
 		if ( ! self::is_active() ) {
-			if ( isset( $_GET[ static::PREVIEW_PARAM ] ) &&
-				wp_verify_nonce( $_GET[ static::PREVIEW_PARAM ], static::PREVIEW_PARAM ) ) {
-				return true;
-			}
-
 			return false;
 		}
 
