@@ -308,7 +308,14 @@ $menu[85]                       = array( __( 'Backups' ), 'backup', 'backups.php
 	$submenu['backups.php'][15] = array( __( 'Create New' ), 'backup', 'backup-new.php' );
 }
 
-$_wp_last_utility_menu = 85; // The index of the last top-level menu in the utility menu group.
+if ( ! is_multisite() ) {
+	$menu[90]                     = array( __( 'Debug tools' ), 'safe_mode', 'safe-mode.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-database' );
+	if ( \calmpress\calmpress\Safe_Mode::current_user_in_safe_mode() ) {
+		$submenu['safe-mode.php'][10] = array( __( 'Safe Mode' ), 'safe_mode', 'safe-mode.php' );
+	}
+}
+
+$_wp_last_utility_menu = 90; // The index of the last top-level menu in the utility menu group.
 
 $menu[999] = array( '', 'read', 'separator-last', '', 'wp-menu-separator' );
 
