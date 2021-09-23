@@ -256,7 +256,7 @@ class Maintenance_Mode {
 		}
 
 		// Users with the capability are not blocked.
-		if ( current_user_can( 'maintenance_mode') ) {
+		if ( current_user_can( 'maintenance_mode' ) ) {
 			return false;
 		}
 
