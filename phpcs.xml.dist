@@ -63,8 +63,6 @@
 				<element value="authorAndUri"/>
 				<element value="Name"/>
 				<element value="Version"/>
-				<!-- From the result of wp_xmlrpc_server::wp_getPageList(). -->
-				<element value="dateCreated"/>
 
 				<!-- From DOMDocument. -->
 				<element value="childNodes"/>
@@ -237,7 +235,6 @@
 				<element value="WP_Test_REST_TestCase"/>
 				<element value="WP_Test_REST_Controller_Testcase"/>
 				<element value="WP_Test_REST_Post_Type_Controller_Testcase"/>
-				<element value="WP_XMLRPC_UnitTestCase"/>
 				<element value="WP_Filesystem_UnitTestCase"/>
 				<element value="WP_Image_UnitTestCase"/>
 				<element value="WP_HTTP_UnitTestCase"/>
@@ -321,13 +318,11 @@
 		<exclude-pattern>/src/wp-admin/includes/class-wp-filesystem-ftpsockets\.php</exclude-pattern>
 		<exclude-pattern>/src/wp-includes/class-wp-oembed\.php</exclude-pattern>
 		<exclude-pattern>/src/wp-includes/class-wp-oembed-controller\.php</exclude-pattern>
-		<exclude-pattern>/src/wp-includes/class-wp-xmlrpc-server\.php</exclude-pattern>
 		<exclude-pattern>/src/wp-includes/class-wp-text-diff-renderer-inline\.php</exclude-pattern>
 	</rule>
 	<rule ref="PEAR.NamingConventions.ValidClassName.StartWithCapital">
 		<exclude-pattern>/src/wp-admin/includes/class-wp-list-table-compat\.php</exclude-pattern>
 		<exclude-pattern>/src/wp-includes/class-wp-editor\.php</exclude-pattern>
-		<exclude-pattern>/src/wp-includes/class-wp-xmlrpc-server\.php</exclude-pattern>
 		<exclude-pattern>/src/wp-includes/wp-db\.php</exclude-pattern>
 		<exclude-pattern>/src/wp-includes/class-wp-dependency\.php</exclude-pattern>
 	</rule>

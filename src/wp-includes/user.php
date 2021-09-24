@@ -259,7 +259,7 @@ function wp_authenticate_application_password( $input_user, $username, $password
 		return $input_user;
 	}
 
-	$is_api_request = ( ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) );
+	$is_api_request = ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 
 	/**
 	 * Filters whether this is an API request that Application Passwords can be used on.
@@ -3038,11 +3038,6 @@ function _wp_get_current_user() {
 
 		// $current_user has a junk value. Force to WP_User with ID 0.
 		$current_user = null;
-		wp_set_current_user( 0 );
-		return $current_user;
-	}
-
-	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
 		wp_set_current_user( 0 );
 		return $current_user;
 	}
