@@ -177,7 +177,7 @@ class WP_Test_Maintenance_Mode extends WP_UnitTestCase {
 		Maintenance_Mode::set_projected_end_time( $end_time );
 		$result   = Maintenance_Mode::maintenance_left_shortcode( [] );
 
-		$this->assertSame( '1 hour, 10 minutes', $result );
+		$this->assertTrue( in_array( $result, ['1 hour, 10 minutes', '1 hour, 09 minutes' ], true ) );
 	}
 
 	/**
