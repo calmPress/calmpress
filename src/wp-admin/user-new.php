@@ -37,12 +37,8 @@ if ( isset( $_REQUEST['action'] ) && 'adduser' === $_REQUEST['action'] ) {
 	if ( false !== strpos( $user_email, '@' ) ) {
 		$user_details = get_user_by( 'email', $user_email );
 	} else {
-		if ( current_user_can( 'manage_network_users' ) ) {
-			$user_details = get_user_by( 'login', $user_email );
-		} else {
-			wp_redirect( add_query_arg( array( 'update' => 'enter_email' ), 'user-new.php' ) );
-			die();
-		}
+		wp_redirect( add_query_arg( array( 'update' => 'enter_email' ), 'user-new.php' ) );
+		die();
 	}
 
 	if ( ! $user_details ) {

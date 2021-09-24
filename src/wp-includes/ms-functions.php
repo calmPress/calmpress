@@ -952,7 +952,7 @@ function wpmu_signup_blog_notification( $domain, $path, $title, $user_login, $us
 	$from_name       = ( '' !== get_site_option( 'site_name' ) ) ? esc_html( get_site_option( 'site_name' ) ) : 'calmPress';
 	$message_headers = "From: \"{$from_name}\" <{$admin_email}>\n" . 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . "\"\n";
 
-	$user            = get_user_by( 'login', $user_login );
+	$user            = get_user_by( 'email', $user_email );
 	$switched_locale = switch_to_locale( get_user_locale( $user ) );
 
 	$message = sprintf(
@@ -1066,7 +1066,7 @@ function wpmu_signup_user_notification( $user_login, $user_email, $key, $meta = 
 		return false;
 	}
 
-	$user            = get_user_by( 'login', $user_login );
+	$user            = get_user_by( 'email', $user_email );
 	$switched_locale = switch_to_locale( get_user_locale( $user ) );
 
 	// Send email with activation link.
@@ -2364,17 +2364,13 @@ function fix_phpmailer_messageid( $phpmailer ) {
  *
  * @since MU (3.0.0)
  *
- * @param string|WP_User $user Optional. Defaults to current user. WP_User object,
- *                             or user login name as a string.
+ * @param null|WP_User $user Optional. Defaults to current user. WP_User object,
+ *                      or user login name as a string.
  * @return bool
  */
 function is_user_spammy( $user = null ) {
-	if ( ! ( $user instanceof WP_User ) ) {
-		if ( $user ) {
-			$user = get_user_by( 'login', $user );
-		} else {
-			$user = wp_get_current_user();
-		}
+	if ( null === $user ) {
+		$user = wp_get_current_user();
 	}
 
 	return $user && isset( $user->spam ) && 1 == $user->spam;

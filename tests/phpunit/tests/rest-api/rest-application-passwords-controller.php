@@ -956,7 +956,7 @@ class WP_Test_REST_Application_Passwords_Controller extends WP_Test_REST_Control
 	private function setup_app_password_authenticated_request() {
 		list( $password, $item ) = WP_Application_Passwords::create_new_application_password( self::$admin, array( 'name' => 'Test' ) );
 
-		$_SERVER['PHP_AUTH_USER'] = get_userdata( self::$admin )->user_login;
+		$_SERVER['PHP_AUTH_USER'] = get_userdata( self::$admin )->user_email;
 		$_SERVER['PHP_AUTH_PW']   = $password;
 
 		$GLOBALS['current_user'] = null;

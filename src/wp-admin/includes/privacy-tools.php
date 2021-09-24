@@ -108,10 +108,9 @@ function _wp_personal_data_handle_actions() {
 						'error'
 					);
 				}
-				$action_type               = sanitize_text_field( wp_unslash( $_POST['type_of_action'] ) );
-				$username_or_email_address = sanitize_text_field( wp_unslash( $_POST['username_or_email_for_privacy_request'] ) );
-				$email_address             = '';
-				$status                    = 'pending';
+				$action_type   = sanitize_text_field( wp_unslash( $_POST['type_of_action'] ) );
+				$email_address = sanitize_text_field( wp_unslash( $_POST['username_or_email_for_privacy_request'] ) );
+				$status        = 'pending';
 
 				if ( ! isset( $_POST['send_confirmation_email'] ) ) {
 					$status = 'confirmed';
@@ -126,23 +125,14 @@ function _wp_personal_data_handle_actions() {
 					);
 				}
 
-				if ( ! is_email( $username_or_email_address ) ) {
-					$user = get_user_by( 'login', $username_or_email_address );
-					if ( ! $user instanceof WP_User ) {
-						add_settings_error(
-							'username_or_email_for_privacy_request',
-							'username_or_email_for_privacy_request',
-							__( 'Unable to add this request. A valid email address or username must be supplied.' ),
-							'error'
-						);
-					} else {
-						$email_address = $user->user_email;
-					}
-				} else {
-					$email_address = $username_or_email_address;
-				}
-
-				if ( empty( $email_address ) ) {
+				$user = get_user_by( 'email', $email_address );
+				if ( ! $user instanceof WP_User ) {
+					add_settings_error(
+						'username_or_email_for_privacy_request',
+						'username_or_email_for_privacy_request',
+						__( 'Unable to add this request. A valid email address or username must be supplied.' ),
+						'error'
+					);
 					break;
 				}
 

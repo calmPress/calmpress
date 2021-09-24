@@ -113,7 +113,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 		<table class="form-table">
 				<tr>
 					<th scope="row">
-						<label for="username_or_email_for_privacy_request"><?php esc_html_e( 'Username or email address' ); ?></label>
+						<label for="username_or_email_for_privacy_request"><?php esc_html_e( 'Email address' ); ?></label>
 					</th>
 					<td>
 						<input type="text" required class="regular-text ltr" id="username_or_email_for_privacy_request" name="username_or_email_for_privacy_request" />

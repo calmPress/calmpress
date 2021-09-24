@@ -23,6 +23,7 @@ class Tests_Auth extends WP_UnitTestCase {
 		self::$_user = $factory->user->create_and_get(
 			array(
 				'user_login' => 'password-tests',
+				'user_email' => 'password-tests@example.com',
 			)
 		);
 
@@ -210,7 +211,7 @@ class Tests_Auth extends WP_UnitTestCase {
 		$key  = get_password_reset_key( $user );
 
 		// A correctly saved key should be accepted.
-		$check = check_password_reset_key( $key, $this->user->user_login );
+		$check = check_password_reset_key( $key, $this->user->user_email );
 		$this->assertNotWPError( $check );
 		$this->assertInstanceOf( 'WP_User', $check );
 		$this->assertSame( $this->user->ID, $check->ID );
@@ -235,22 +236,22 @@ class Tests_Auth extends WP_UnitTestCase {
 		clean_user_cache( $this->user );
 
 		// A valid key should be accepted.
-		$check = check_password_reset_key( $key, $this->user->user_login );
+		$check = check_password_reset_key( $key, $this->user->user_email );
 		$this->assertNotWPError( $check );
 		$this->assertInstanceOf( 'WP_User', $check );
 		$this->assertSame( $this->user->ID, $check->ID );
 
 		// An invalid key should be rejected.
-		$check = check_password_reset_key( 'key', $this->user->user_login );
+		$check = check_password_reset_key( 'key', $this->user->user_email );
 		$this->assertInstanceOf( 'WP_Error', $check );
 
 		// An empty key should be rejected.
-		$check = check_password_reset_key( '', $this->user->user_login );
+		$check = check_password_reset_key( '', $this->user->user_email );
 		$this->assertInstanceOf( 'WP_Error', $check );
 
 		// A truncated key should be rejected.
 		$partial = substr( $key, 0, 10 );
-		$check   = check_password_reset_key( $partial, $this->user->user_login );
+		$check   = check_password_reset_key( $partial, $this->user->user_email );
 		$this->assertInstanceOf( 'WP_Error', $check );
 	}
 
@@ -341,11 +342,11 @@ class Tests_Auth extends WP_UnitTestCase {
 		clean_user_cache( $this->user );
 
 		// A plaintext user_activation_key should not allow an otherwise valid key to be accepted.
-		$check = check_password_reset_key( $key, $this->user->user_login );
+		$check = check_password_reset_key( $key, $this->user->user_email );
 		$this->assertInstanceOf( 'WP_Error', $check );
 
 		// A plaintext user_activation_key should not allow an empty key to be accepted.
-		$check = check_password_reset_key( '', $this->user->user_login );
+		$check = check_password_reset_key( '', $this->user->user_email );
 		$this->assertInstanceOf( 'WP_Error', $check );
 	}
 
@@ -391,6 +392,7 @@ class Tests_Auth extends WP_UnitTestCase {
 		$user_id = $this->factory()->user->create(
 			array(
 				'user_login' => 'http_auth_login',
+				'user_email' => 'http_auth_login@example.com',
 				'user_pass'  => 'http_auth_pass', // Shouldn't be allowed for API login.
 			)
 		);
@@ -403,7 +405,7 @@ class Tests_Auth extends WP_UnitTestCase {
 		add_filter( 'wp_is_application_passwords_available', '__return_true' );
 
 		// Fake an HTTP Auth request with the regular account password first.
-		$_SERVER['PHP_AUTH_USER'] = 'http_auth_login';
+		$_SERVER['PHP_AUTH_USER'] = 'http_auth_login@example.com';
 		$_SERVER['PHP_AUTH_PW']   = 'http_auth_pass';
 
 		$this->assertNull(
@@ -447,7 +449,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		$error = wp_authenticate_application_password( null, 'idonotexist', 'password' );
 		$this->assertWPError( $error );
-		$this->assertSame( 'invalid_username', $error->get_error_code() );
+		$this->assertSame( 'incorrect_password', $error->get_error_code() );
 	}
 
 	/**
@@ -458,7 +460,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		$error = wp_authenticate_application_password( null, 'idonotexist@example.org', 'password' );
 		$this->assertWPError( $error );
-		$this->assertSame( 'invalid_email', $error->get_error_code() );
+		$this->assertSame( 'incorrect_password', $error->get_error_code() );
 	}
 
 	/**
@@ -470,7 +472,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		$error = wp_authenticate_application_password( null, self::$_user->user_login, 'password' );
 		$this->assertWPError( $error );
-		$this->assertSame( 'application_passwords_disabled', $error->get_error_code() );
+		$this->assertSame( 'incorrect_password', $error->get_error_code() );
 	}
 
 	/**
@@ -483,7 +485,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		$error = wp_authenticate_application_password( null, self::$_user->user_login, 'password' );
 		$this->assertWPError( $error );
-		$this->assertSame( 'application_passwords_disabled_for_user', $error->get_error_code() );
+		$this->assertSame( 'incorrect_password', $error->get_error_code() );
 	}
 
 	/**
@@ -514,7 +516,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		list( $password ) = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'phpunit' ) );
 
-		$error = wp_authenticate_application_password( null, self::$_user->user_login, $password );
+		$error = wp_authenticate_application_password( null, self::$_user->user_email, $password );
 		$this->assertWPError( $error );
 		$this->assertSame( 'my_code', $error->get_error_code() );
 	}
@@ -528,7 +530,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		list( $password ) = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'phpunit' ) );
 
-		$user = wp_authenticate_application_password( null, self::$_user->user_login, $password );
+		$user = wp_authenticate_application_password( null, self::$_user->user_email, $password );
 		$this->assertInstanceOf( WP_User::class, $user );
 		$this->assertSame( self::$user_id, $user->ID );
 	}
