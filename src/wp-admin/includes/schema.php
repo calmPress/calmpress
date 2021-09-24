@@ -829,14 +829,11 @@ function populate_roles_300() {
  * @since calmPress 1.0.0
  */
 function populate_roles_cp_100() {
+	$role = get_role( 'administrator' );
+	$role->add_cap( 'maintenance_mode' );
 	if ( ! is_multisite() ) {
-		$role = get_role( 'administrator' );
-
-		if ( ! empty( $role ) ) {
-			$role->add_cap( 'backup' );
-			$role->add_cap( 'safe_mode' );
-			$role->add_cap( 'maintenance_mode' );
-		}
+		$role->add_cap( 'backup' );
+		$role->add_cap( 'safe_mode' );
 	}
 }
 
