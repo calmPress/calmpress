@@ -1067,17 +1067,6 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertTrue( in_array( (string) self::$contrib_id, $users, true ) );
 	}
 
-	public function test_search_users_url() {
-		$users = get_users(
-			array(
-				'search' => '*tacos*',
-				'fields' => 'ID',
-			)
-		);
-
-		$this->assertTrue( in_array( (string) self::$contrib_id, $users, true ) );
-	}
-
 	public function test_search_users_email() {
 		$users = get_users(
 			array(

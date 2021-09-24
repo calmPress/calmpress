@@ -290,7 +290,6 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 				'slug'            => 'user_nicename',
 				'include_slugs'   => 'nicename__in',
 				'email'           => 'user_email',
-				'url'             => 'user_url',
 			);
 			$prepared_args['orderby'] = $orderby_possibles[ $request['orderby'] ];
 		}

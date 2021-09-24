@@ -372,31 +372,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertSame( $low_id, $data[0]['id'] );
 	}
 
-	public function test_get_items_orderby_url() {
-		wp_set_current_user( self::$user );
-
-		$low_id  = $this->factory->user->create( array( 'user_url' => 'http://a.com' ) );
-		$high_id = $this->factory->user->create( array( 'user_url' => 'http://b.com' ) );
-
-		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
-		$request->set_param( 'orderby', 'url' );
-		$request->set_param( 'order', 'desc' );
-		$request->set_param( 'per_page', 1 );
-		$request->set_param( 'include', array( $low_id, $high_id ) );
-		$response = rest_get_server()->dispatch( $request );
-		$data     = $response->get_data();
-		$this->assertSame( $high_id, $data[0]['id'] );
-
-		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
-		$request->set_param( 'orderby', 'url' );
-		$request->set_param( 'order', 'asc' );
-		$request->set_param( 'per_page', 1 );
-		$request->set_param( 'include', array( $low_id, $high_id ) );
-		$response = rest_get_server()->dispatch( $request );
-		$data     = $response->get_data();
-		$this->assertSame( $low_id, $data[0]['id'] );
-	}
-
 	public function test_get_items_orderby_slug() {
 		wp_set_current_user( self::$user );
 

@@ -1492,7 +1492,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$comment = get_comment( $data['id'] );
 		$this->assertSame( $author->display_name, $comment->comment_author );
 		$this->assertSame( $author->user_email, $comment->comment_author_email );
-		$this->assertSame( $author->user_url, $comment->comment_author_url );
+		$this->assertSame( site_url(), $comment->comment_author_url );
 	}
 
 	public function test_create_comment_other_user() {
@@ -1935,7 +1935,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->assertSame( self::$author_id, $result['author'] );
 		$this->assertSame( 'Sea Captain', $result['author_name'] );
 		$this->assertSame( 'captain@thefryingdutchman.com', $result['author_email'] );
-		$this->assertSame( 'http://thefryingdutchman.com', $result['author_url'] );
+		$this->assertSame( site_url(), $result['author_url'] );
 	}
 
 	public function test_create_comment_two_times() {

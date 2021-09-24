@@ -1134,13 +1134,12 @@ function count_users( $strategy = 'time', $site_id = null ) {
  * @global int     $user_level    The level of the user
  * @global int     $user_ID       The ID of the user
  * @global string  $user_email    The email address of the user
- * @global string  $user_url      The url in the user's profile
  * @global string  $user_identity The display name of the user
  *
  * @param int $for_user_id Optional. User ID to set up global data. Default 0.
  */
 function setup_userdata( $for_user_id = 0 ) {
-	global $user_login, $userdata, $user_level, $user_ID, $user_email, $user_url, $user_identity;
+	global $user_login, $userdata, $user_level, $user_ID, $user_email, $user_identity;
 
 	if ( ! $for_user_id ) {
 		$for_user_id = get_current_user_id();
@@ -1153,7 +1152,6 @@ function setup_userdata( $for_user_id = 0 ) {
 		$userdata      = null;
 		$user_login    = '';
 		$user_email    = '';
-		$user_url      = '';
 		$user_identity = '';
 		return;
 	}
@@ -1163,7 +1161,6 @@ function setup_userdata( $for_user_id = 0 ) {
 	$userdata      = $user;
 	$user_login    = $user->user_login;
 	$user_email    = $user->user_email;
-	$user_url      = $user->user_url;
 	$user_identity = $user->display_name;
 }
 
@@ -1456,10 +1453,6 @@ function sanitize_user_field( $field, $value, $user_id, $context ) {
 			 */
 			$value = apply_filters( "user_{$field}", $value, $user_id, $context );
 		}
-	}
-
-	if ( 'user_url' === $field ) {
-		$value = esc_url( $value );
 	}
 
 	if ( 'attribute' === $context ) {

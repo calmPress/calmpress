@@ -1046,7 +1046,7 @@ function wp_ajax_replyto_comment( $action ) {
 		$user_ID              = $user->ID;
 		$comment_author       = wp_slash( $user->display_name );
 		$comment_author_email = wp_slash( $user->user_email );
-		$comment_author_url   = wp_slash( $user->user_url );
+		$comment_author_url   = wp_slash( site_url() );
 		$comment_content      = trim( $_POST['content'] );
 		$comment_type         = isset( $_POST['comment_type'] ) ? trim( $_POST['comment_type'] ) : 'comment';
 

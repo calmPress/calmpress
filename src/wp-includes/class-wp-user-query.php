@@ -160,14 +160,14 @@ class WP_User_Query {
 	 *                                             When `$search_columns` is left empty, it tries to determine which
 	 *                                             column to search in based on search string. Default empty.
 	 *     @type string[]     $search_columns      Array of column names to be searched. Accepts 'ID', 'user_login',
-	 *                                             'user_email', 'user_url', 'user_nicename', 'display_name'.
+	 *                                             'user_email', 'user_nicename', 'display_name'.
 	 *                                             Default empty array.
 	 *     @type string|array $orderby             Field(s) to sort the retrieved users by. May be a single value,
 	 *                                             an array of values, or a multi-dimensional array with fields as
 	 *                                             keys and orders ('ASC' or 'DESC') as values. Accepted values are
 	 *                                             'ID', 'display_name' (or 'name'), 'include', 'user_login'
 	 *                                             (or 'login'), 'login__in', 'user_nicename' (or 'nicename'),
-	 *                                             'nicename__in', 'user_email (or 'email'), 'user_url' (or 'url'),
+	 *                                             'nicename__in', 'user_email (or 'email'),
 	 *                                             'user_registered' (or 'registered'), 'post_count', 'meta_value',
 	 *                                             'meta_value_num', the value of `$meta_key`, or an array key of
 	 *                                             `$meta_query`. To use 'meta_value' or 'meta_value_num', `$meta_key`
@@ -188,7 +188,7 @@ class WP_User_Query {
 	 *                                             Default true.
 	 *     @type string|array $fields              Which fields to return. Single or all fields (string), or array
 	 *                                             of fields. Accepts 'ID', 'display_name', 'user_login',
-	 *                                             'user_nicename', 'user_email', 'user_url', 'user_registered'.
+	 *                                             'user_nicename', 'user_email', 'user_registered'.
 	 *                                             Use 'all' for all fields and 'all_with_meta' to include
 	 *                                             meta fields. Default 'all'.
 	 *     @type string       $who                 Type of users to query. Accepts 'authors'.
@@ -520,17 +520,15 @@ class WP_User_Query {
 
 			$search_columns = array();
 			if ( $qv['search_columns'] ) {
-				$search_columns = array_intersect( $qv['search_columns'], array( 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', 'display_name' ) );
+				$search_columns = array_intersect( $qv['search_columns'], array( 'ID', 'user_login', 'user_email', 'user_nicename', 'display_name' ) );
 			}
 			if ( ! $search_columns ) {
 				if ( false !== strpos( $search, '@' ) ) {
 					$search_columns = array( 'user_email' );
 				} elseif ( is_numeric( $search ) ) {
 					$search_columns = array( 'user_login', 'ID' );
-				} elseif ( preg_match( '|^https?://|', $search ) && ! ( is_multisite() && wp_is_large_network( 'users' ) ) ) {
-					$search_columns = array( 'user_url' );
 				} else {
-					$search_columns = array( 'user_login', 'user_url', 'user_email', 'user_nicename', 'display_name' );
+					$search_columns = array( 'user_login', 'user_email', 'user_nicename', 'display_name' );
 				}
 			}
 
@@ -538,7 +536,7 @@ class WP_User_Query {
 			 * Filters the columns to search in a WP_User_Query search.
 			 *
 			 * The default columns depend on the search term, and include 'ID', 'user_login',
-			 * 'user_email', 'user_url', 'user_nicename', and 'display_name'.
+			 * 'user_email', 'user_nicename', and 'display_name'.
 			 *
 			 * @since 3.6.0
 			 *
@@ -757,7 +755,7 @@ class WP_User_Query {
 		$_orderby = '';
 		if ( in_array( $orderby, array( 'login', 'nicename', 'email', 'url', 'registered' ), true ) ) {
 			$_orderby = 'user_' . $orderby;
-		} elseif ( in_array( $orderby, array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered' ), true ) ) {
+		} elseif ( in_array( $orderby, array( 'user_login', 'user_nicename', 'user_email', 'user_registered' ), true ) ) {
 			$_orderby = $orderby;
 		} elseif ( 'name' === $orderby || 'display_name' === $orderby ) {
 			$_orderby = 'display_name';

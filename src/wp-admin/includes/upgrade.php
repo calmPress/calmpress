@@ -93,7 +93,6 @@ if ( ! function_exists( 'wp_install' ) ) :
 		$user->set_role( 'administrator' );
 
 		if ( $user_created ) {
-			$user->user_url = $guessurl;
 			wp_update_user( $user );
 		}
 

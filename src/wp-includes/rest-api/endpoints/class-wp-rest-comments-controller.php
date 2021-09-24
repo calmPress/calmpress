@@ -616,7 +616,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			$prepared_comment['user_id']              = $user->ID;
 			$prepared_comment['comment_author']       = $user->display_name;
 			$prepared_comment['comment_author_email'] = $user->user_email;
-			$prepared_comment['comment_author_url']   = $user->user_url;
+			$prepared_comment['comment_author_url']   = site_url();
 		}
 
 		// Honor the discussion setting that requires a name and email address of the comment author.
@@ -1300,7 +1300,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 				$prepared_comment['user_id']              = $user->ID;
 				$prepared_comment['comment_author']       = $user->display_name;
 				$prepared_comment['comment_author_email'] = $user->user_email;
-				$prepared_comment['comment_author_url']   = $user->user_url;
+				$prepared_comment['comment_author_url']   = site_url();
 			} else {
 				return new WP_Error(
 					'rest_comment_author_invalid',
