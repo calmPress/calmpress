@@ -191,8 +191,8 @@ if ( is_multisite() ) :
 				)
 			);
 
-			$this->assertTrue( is_user_spammy( $spam_username ) );
-			$this->assertFalse( is_user_spammy( 'testuser1' ) );
+			$this->assertTrue( is_user_spammy( get_user_by( 'id', $spam_user_id ) ) );
+			$this->assertFalse( is_user_spammy( get_user_by( 'id', $user_id ) ) );
 		}
 
 		/**
