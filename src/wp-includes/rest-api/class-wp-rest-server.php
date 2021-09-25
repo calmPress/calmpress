@@ -1198,10 +1198,15 @@ class WP_REST_Server {
 			'home'            => home_url(),
 			'gmt_offset'      => get_option( 'gmt_offset' ),
 			'timezone_string' => get_option( 'timezone_string' ),
-			'namespaces'      => array_keys( $this->namespaces ),
 			'authentication'  => array(),
-			'routes'          => $this->get_data_for_routes( $this->get_routes(), $request['context'] ),
 		);
+
+		// More detailed information is displayed to users which are logged in, which requires
+		// that the relevant nonce is set.
+		if ( is_user_logged_in() ) {
+			$available['namespaces'] = array_keys( $this->namespaces );
+			$available['routes']     = $this->get_data_for_routes( $this->get_routes(), $request['context'] );
+		}
 
 		$response = new WP_REST_Response( $available );
 		$response->add_link( 'help', 'https://developer.wordpress.org/rest-api/' );
