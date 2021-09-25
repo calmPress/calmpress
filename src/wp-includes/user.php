@@ -4327,15 +4327,18 @@ function wp_get_user_request( $request_id ) {
 /**
  * Checks if Application Passwords is globally available.
  *
- * By default, Application Passwords is available to all sites using SSL or to local environments.
- * Use {@see 'wp_is_application_passwords_available'} to adjust its availability.
+ * By default, Application Passwords is available to all sites.
+ *
+ * (wordpress had it disabled on HTTP sites which are not explicitly marked as development sites,
+ * but calmPress should not have such sites).
  *
  * @since 5.6.0
+ * @since calmPress 1.0.0 Enabled by default
  *
  * @return bool
  */
 function wp_is_application_passwords_available() {
-	$available = is_ssl() || 'local' === wp_get_environment_type();
+	$available = true;
 
 	/**
 	 * Filters whether Application Passwords is available.
