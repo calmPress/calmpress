@@ -947,7 +947,25 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 			)
 		);
 
+		// For unauthenticated user return the must have info.
 		$request = new WP_REST_Request( 'GET', '/' );
+		$index   = $server->dispatch( $request );
+		$data    = $index->get_data();
+
+		$this->assertArrayHasKey( 'name', $data );
+		$this->assertArrayHasKey( 'description', $data );
+		$this->assertArrayHasKey( 'url', $data );
+		$this->assertArrayHasKey( 'home', $data );
+		$this->assertArrayHasKey( 'gmt_offset', $data );
+		$this->assertArrayHasKey( 'timezone_string', $data );
+		$this->assertArrayHasKey( 'authentication', $data );
+
+		// Namespaces and routes are returned only for authenticated users.
+ 
+		$user = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		wp_set_current_user( $user );
+
+		$request = new WP_REST_Request( 'GET', '/', array() );
 		$index   = $server->dispatch( $request );
 		$data    = $index->get_data();
 
