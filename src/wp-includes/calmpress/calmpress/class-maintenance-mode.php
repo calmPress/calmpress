@@ -573,9 +573,7 @@ class Maintenance_Mode {
 		$errors = [];
 		static::verify_post_request( 'maintenance_mode_content' );
 
-		if ( ! current_user_can( 'maintenance_mode' ) ) {
-			$errors[] = esc_html__( 'You do not have permission to do this' );
-		} elseif ( ! isset( $_POST['page_title'] ) || ! isset( $_POST['text_title'] ) || ! isset( $_POST['message_text'] ) ) {
+		if ( ! isset( $_POST['page_title'] ) || ! isset( $_POST['text_title'] ) || ! isset( $_POST['message_text'] ) ) {
 			$errors[] = esc_html__( 'Something went wrong, please try again' );
 		} else {
 			static::set_page_title( wp_unslash( $_POST['page_title'] ) );
@@ -605,9 +603,7 @@ class Maintenance_Mode {
 		static::verify_post_request( 'maintenance_mode_status' );
 
 		// Check basic validity.
-		if ( ! current_user_can( 'maintenance_mode' ) ) {
-			$errors[] = esc_html__( 'You do not have permission to do this' );
-		} elseif ( ! isset( $_POST['hours'] ) || ! isset( $_POST['minutes'] ) ) {
+		if ( ! isset( $_POST['hours'] ) || ! isset( $_POST['minutes'] ) ) {
 			$errors[] = esc_html__( 'Something went wrong, please try again' );
 		} else {
 			// Not putting much effort in validating the values as out of expected range
