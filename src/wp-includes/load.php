@@ -339,7 +339,7 @@ function timer_stop( $display = 0, $precision = 3 ) {
  * When `WP_DEBUG_LOG` is true, errors will be logged to `wp-content/debug.log`.
  * When `WP_DEBUG_LOG` is a valid path, errors will be logged to the specified file.
  *
- * Errors are never displayed for XML-RPC, REST, and Ajax requests.
+ * Errors are never displayed for REST, and Ajax requests.
  *
  * @since 3.0.0
  * @since 5.1.0 `WP_DEBUG_LOG` can be a file path.

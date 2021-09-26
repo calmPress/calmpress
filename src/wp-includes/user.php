@@ -264,7 +264,7 @@ function wp_authenticate_application_password( $input_user, $username, $password
 	/**
 	 * Filters whether this is an API request that Application Passwords can be used on.
 	 *
-	 * By default, Application Passwords is available for the REST API and XML-RPC.
+	 * By default, Application Passwords is available for the REST API.
 	 *
 	 * @since 5.6.0
 	 *

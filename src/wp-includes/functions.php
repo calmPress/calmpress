@@ -3249,7 +3249,7 @@ function wp_nonce_ays( $action ) {
  * @global WP_Query $wp_query WordPress Query object.
  *
  * @param string|WP_Error  $message Optional. Error message. If this is a WP_Error object,
- *                                  and not an Ajax or XML-RPC request, the error's messages are used.
+ *                                  and not an Ajax request, the error's messages are used.
  *                                  Default empty.
  * @param string|int       $title   Optional. Error title. If `$message` is a `WP_Error` object,
  *                                  error data with the key 'title' may be used to specify the title.
