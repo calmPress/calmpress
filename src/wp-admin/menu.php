@@ -275,6 +275,11 @@ $menu[75]                     = array( __( 'Tools' ), 'edit_posts', 'tools.php',
 	$submenu['tools.php'][20] = array( __( 'Site Health' ), 'view_site_health_checks', 'site-health.php' );
 	$submenu['tools.php'][25] = array( __( 'Export Personal Data' ), 'export_others_personal_data', 'export-personal-data.php' );
 	$submenu['tools.php'][30] = array( __( 'Erase Personal Data' ), 'erase_others_personal_data', 'erase-personal-data.php' );
+if ( ! is_multisite() ) {
+	if ( \calmpress\calmpress\Safe_Mode::current_user_in_safe_mode() ) {
+		$submenu['tools.php'][35] = array( __( 'Safe Mode' ), 'safe_mode', 'safe-mode.php' );
+	}
+}
 if ( is_multisite() && ! is_main_site() ) {
 	$submenu['tools.php'][35] = array( __( 'Delete Site' ), 'delete_site', 'ms-delete-site.php' );
 }
@@ -306,13 +311,6 @@ if ( ! is_multisite() ) {
 $menu[85]                       = array( __( 'Backups' ), 'backup', 'backups.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-database' );
 	$submenu['backups.php'][10] = array( __( 'Backups' ), 'backup', 'backups.php' );
 	$submenu['backups.php'][15] = array( __( 'Create New' ), 'backup', 'backup-new.php' );
-}
-
-if ( ! is_multisite() ) {
-	$menu[90]                     = array( __( 'Debug tools' ), 'safe_mode', 'safe-mode.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-database' );
-	if ( \calmpress\calmpress\Safe_Mode::current_user_in_safe_mode() ) {
-		$submenu['safe-mode.php'][10] = array( __( 'Safe Mode' ), 'safe_mode', 'safe-mode.php' );
-	}
 }
 
 $_wp_last_utility_menu = 90; // The index of the last top-level menu in the utility menu group.
