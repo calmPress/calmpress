@@ -705,32 +705,6 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 	/**
 	 * @ticket 48838
 	 */
-	public function test_link_embedding_clears_cache() {
-		$post_id = self::factory()->post->create();
-
-		$response = new WP_REST_Response();
-		$response->add_link( 'post', rest_url( 'wp/v2/posts/' . $post_id ), array( 'embeddable' => true ) );
-
-		$data = rest_get_server()->response_to_data( $response, true );
-		$this->assertArrayHasKey( 'post', $data['_embedded'] );
-		$this->assertCount( 1, $data['_embedded']['post'] );
-
-		wp_update_post(
-			array(
-				'ID'         => $post_id,
-				'post_title' => 'My Awesome Title',
-			)
-		);
-
-		$data = rest_get_server()->response_to_data( $response, true );
-		$this->assertArrayHasKey( 'post', $data['_embedded'] );
-		$this->assertCount( 1, $data['_embedded']['post'] );
-		$this->assertSame( 'My Awesome Title', $data['_embedded']['post'][0]['title']['rendered'] );
-	}
-
-	/**
-	 * @ticket 48838
-	 */
 	public function test_link_embedding_cache() {
 		$response = new WP_REST_Response(
 			array(

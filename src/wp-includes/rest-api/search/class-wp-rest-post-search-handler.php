@@ -152,7 +152,6 @@ class WP_REST_Post_Search_Handler extends WP_REST_Search_Handler {
 		if ( ! empty( $item_route ) ) {
 			$links['self'] = array(
 				'href'       => rest_url( $item_route ),
-				'embeddable' => true,
 			);
 		}
 

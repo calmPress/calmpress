@@ -264,6 +264,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 	public function test_get_value() {
 		add_post_meta( self::$post_id, 'test_single', 'testvalue' );
 
+		$this->grant_write_permission();
+
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
 
@@ -283,6 +285,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 	public function test_get_multi_value() {
 		add_post_meta( self::$post_id, 'test_multi', 'value1' );
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
+
+		$this->grant_write_permission();
 
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertSame( 200, $response->get_status() );
@@ -311,6 +315,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 		add_post_meta( self::$post_id, 'test_unregistered', 'value1' );
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 
+		$this->grant_write_permission();
+
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertSame( 200, $response->get_status() );
 
@@ -326,6 +332,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 		add_post_meta( self::$post_id, 'test_no_rest', 'for_the_wicked' );
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 
+		$this->grant_write_permission();
+
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertSame( 200, $response->get_status() );
 
@@ -340,6 +348,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 	public function test_get_registered_api_disabled() {
 		add_post_meta( self::$post_id, 'test_rest_disabled', 'sleepless_nights' );
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
+
+		$this->grant_write_permission();
 
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertSame( 200, $response->get_status() );
@@ -387,6 +397,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 		add_post_meta( self::$post_id, 'test_number', '42' );
 		add_post_meta( self::$post_id, 'test_bool', 1 );
 
+		$this->grant_write_permission();
+
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertSame( 200, $response->get_status() );
@@ -409,6 +421,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 
 	public function test_get_value_custom_name() {
 		add_post_meta( self::$post_id, 'test_custom_name', 'janet' );
+
+		$this->grant_write_permission();
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
@@ -1264,6 +1278,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 
 		add_post_meta( $post_id, $meta_key, $meta_value );
 
+		$this->grant_write_permission();
+
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/%s/%d', $endpoint, $post_id ) );
 		$response = rest_get_server()->dispatch( $request );
 
@@ -1415,6 +1431,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 		add_post_meta( self::$post_id, 'test\'slashed\'key', 'Hello' );
 
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
+
+		$this->grant_write_permission();
 
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
@@ -1722,6 +1740,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 		$basic->project = 'WordPress';
 		update_post_meta( self::$post_id, 'object', $basic );
 
+		$this->grant_write_permission();
+
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
@@ -1757,6 +1777,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 		$basic->project = 'WordPress';
 		add_post_meta( self::$post_id, 'object', array( 'project' => 'bbPress' ) );
 		add_post_meta( self::$post_id, 'object', $basic );
+
+		$this->grant_write_permission();
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
@@ -1794,6 +1816,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 		);
 
 		update_post_meta( self::$post_id, 'object', new JsonSerializable_Object( array( 'project' => 'WordPress' ) ) );
+
+		$this->grant_write_permission();
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
@@ -2046,6 +2070,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 
 		update_post_meta( self::$post_id, 'email', 'invalid_meta_value' );
 
+		$this->grant_write_permission();
+
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
 
@@ -2069,6 +2095,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 		);
 
 		update_post_meta( self::$post_id, 'safe', $stored );
+
+		$this->grant_write_permission();
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
@@ -2872,6 +2900,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 
 		$this->assertTrue( $registered );
 
+		$this->grant_write_permission();
+
 		// Check for default value.
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
@@ -3040,6 +3070,8 @@ class WP_Test_REST_Post_Meta_Fields extends WP_Test_REST_TestCase {
 				),
 			)
 		);
+
+		$this->grant_write_permission();
 
 		$response = rest_do_request( '/wp/v2/posts/' . self::$post_id );
 		$this->assertSame( 'Hello World', $response->get_data()['meta']['greeting'] );

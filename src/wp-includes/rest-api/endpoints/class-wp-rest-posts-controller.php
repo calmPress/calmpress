@@ -1476,6 +1476,11 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 	 * @return bool Whether the post can be read.
 	 */
 	public function check_read_permission( $post ) {
+
+		if ( ! current_user_can( 'edit_post', $post ) ) {
+			return false;
+		}
+
 		$post_type = get_post_type_object( $post->post_type );
 		if ( ! $this->check_is_post_type_allowed( $post_type ) ) {
 			return false;

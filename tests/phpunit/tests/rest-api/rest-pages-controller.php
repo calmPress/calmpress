@@ -107,6 +107,15 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			)
 		);
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/pages' );
+
+		// Test when user can't edit pages
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertSame( 0, count( $data ) );
+
+		// Accessable to users with edit permission.
+		wp_set_current_user( self::$editor_id );
+
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertSame( 1, count( $data ) );
@@ -127,6 +136,8 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 				'post_parent' => $id1,
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
 
 		// No parent.
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/pages' );
@@ -175,6 +186,8 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			)
 		);
 
+		wp_set_current_user( self::$editor_id );
+
 		// No parent.
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/pages' );
 		$response = rest_get_server()->dispatch( $request );
@@ -203,6 +216,8 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 				'post_parent' => $id1,
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
 
 		// No parent.
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/pages' );
@@ -251,6 +266,8 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 				'menu_order'  => 1,
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
 
 		// No parent.
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/pages' );
@@ -354,6 +371,9 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 				'post_type' => 'page',
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
+
 		$request = new WP_REST_Request( 'GET', '/wp/v2/pages' );
 		$request->set_param( 'after', '2016-01-15T00:00:00Z' );
 		$request->set_param( 'before', '2016-01-17T00:00:00Z' );
@@ -399,6 +419,9 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->update_post_modified( $post1, '2016-01-15 00:00:00' );
 		$this->update_post_modified( $post2, '2016-01-16 00:00:00' );
 		$this->update_post_modified( $post3, '2016-01-17 00:00:00' );
+
+		wp_set_current_user( self::$editor_id );
+
 		$request = new WP_REST_Request( 'GET', '/wp/v2/pages' );
 		$request->set_param( 'modified_after', '2016-01-15T00:00:00Z' );
 		$request->set_param( 'modified_before', '2016-01-17T00:00:00Z' );
@@ -558,6 +581,9 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 				'per_page' => 4,
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
+
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );

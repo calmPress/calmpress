@@ -54,7 +54,6 @@ class WP_Test_REST_Search_Controller extends WP_Test_REST_Controller_Testcase {
 	 * @param WP_UnitTest_Factory $factory Helper that lets us create fake data.
 	 */
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
-		add_theme_support( 'post-formats', array( 'aside' ) );
 
 		self::$my_title_post_ids = $factory->post->create_many(
 			4,
@@ -100,7 +99,6 @@ class WP_Test_REST_Search_Controller extends WP_Test_REST_Controller_Testcase {
 	 * Delete our fake data after our tests run.
 	 */
 	public static function wpTearDownAfterClass() {
-		remove_theme_support( 'post-formats' );
 
 		$post_ids = array_merge(
 			self::$my_title_post_ids,
@@ -541,20 +539,6 @@ class WP_Test_REST_Search_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertSame( 'test', $params[ WP_REST_Search_Controller::PROP_TYPE ]['default'] );
 		$this->assertSameSets( array( 'test' ), $params[ WP_REST_Search_Controller::PROP_TYPE ]['enum'] );
 		$this->assertSameSets( array( 'test_first_type', 'test_second_type', WP_REST_Search_Controller::TYPE_ANY ), $params[ WP_REST_Search_Controller::PROP_SUBTYPE ]['items']['enum'] );
-	}
-
-	/**
-	 * @ticket 47684
-	 */
-	public function test_search_result_links_are_embedded() {
-		$response = $this->do_request_with_params( array( 'per_page' => 1 ) );
-		$data     = rest_get_server()->response_to_data( $response, true )[0];
-
-		$this->assertArrayHasKey( '_embedded', $data );
-		$this->assertArrayHasKey( 'self', $data['_embedded'] );
-		$this->assertCount( 1, $data['_embedded']['self'] );
-		$this->assertArrayHasKey( WP_REST_Search_Controller::PROP_ID, $data['_embedded']['self'][0] );
-		$this->assertSame( $data[ WP_REST_Search_Controller::PROP_ID ], $data['_embedded']['self'][0][ WP_REST_Search_Controller::PROP_ID ] );
 	}
 
 	/**

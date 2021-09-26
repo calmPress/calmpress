@@ -1752,21 +1752,21 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			return false;
 		}
 
-		$posts_controller = $post_type->get_rest_controller();
-
-		// Ensure the posts controller is specifically a WP_REST_Posts_Controller instance
-		// before using methods specific to that controller.
-		if ( ! $posts_controller instanceof WP_REST_Posts_Controller ) {
-			$posts_controller = new WP_REST_Posts_Controller( $post->post_type );
+		if ( empty( $post_type->show_in_rest ) ) {
+			return false;
 		}
 
-		// Only check password if a specific post was queried for or a single comment
-		$requested_post    = ! empty( $request['post'] ) && ( ! is_array( $request['post'] ) || 1 === count( $request['post'] ) );
-		$requested_comment = ! empty( $request['id'] );
+		// Is the post readable?
+		if ( 'publish' === $post->post_status || current_user_can( 'read_post', $post->ID ) ) {
+			return true;
+		}
 
-		$result = $posts_controller->check_read_permission( $post );
+		$post_status_obj = get_post_status_object( $post->post_status );
+		if ( $post_status_obj && $post_status_obj->public ) {
+			return true;
+		}
 
-		return $result;
+		return false;
 	}
 
 	/**

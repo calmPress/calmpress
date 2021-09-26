@@ -260,9 +260,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$response = rest_get_server()->dispatch( $request );
 		$response = apply_filters( 'rest_post_dispatch', $response, rest_get_server(), $request );
 		$headers  = $response->get_headers();
-
-		$this->assertNotEmpty( $headers['Allow'] );
-		$this->assertSame( $headers['Allow'], 'GET' );
+		$this->assertEmpty( $headers );
 
 		wp_set_current_user( self::$editor_id );
 		$request  = new WP_REST_Request( 'OPTIONS', sprintf( '/wp/v2/media/%d', $id1 ) );
@@ -274,6 +272,10 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$this->assertSame( $headers['Allow'], 'GET, POST, PUT, PATCH, DELETE' );
 	}
 
+	/**
+	 * Test get media items with unauthenticated user, which should not have access to
+	 * the data.
+	 */
 	public function test_get_items() {
 		wp_set_current_user( 0 );
 		$id1            = $this->factory->attachment->create_object(
@@ -305,11 +307,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$request        = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$response       = rest_get_server()->dispatch( $request );
 		$data           = $response->get_data();
-		$this->assertCount( 2, $data );
-		$ids = wp_list_pluck( $data, 'id' );
-		$this->assertTrue( in_array( $id1, $ids, true ) );
-		$this->assertFalse( in_array( $id2, $ids, true ) );
-		$this->assertTrue( in_array( $id3, $ids, true ) );
+		$this->assertCount( 0, $data );
 		$this->check_get_posts_response( $response );
 	}
 
@@ -353,6 +351,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 	}
 
 	public function test_get_items_media_type() {
+		wp_set_current_user( self::$editor_id );
 		$id1      = $this->factory->attachment->create_object(
 			$this->test_file,
 			0,
@@ -376,6 +375,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 	}
 
 	public function test_get_items_mime_type() {
+		wp_set_current_user( self::$editor_id );
 		$id1      = $this->factory->attachment->create_object(
 			$this->test_file,
 			0,
@@ -416,7 +416,34 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 				'post_excerpt'   => 'A sample caption',
 			)
 		);
-		// All attachments.
+
+		// test with unauthenticated user should not return any attachments. 
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( 0, count( $response->get_data() ) );
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		// Attachments without a parent.
+		$request->set_param( 'parent', 0 );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertSame( 0, count( $data ) );
+		// Attachments with parent=post_id.
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'parent', $post_id );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertSame( 0, count( $data ) );
+		// Attachments with invalid parent.
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'parent', REST_TESTS_IMPOSSIBLY_HIGH_NUMBER );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertSame( 0, count( $data ) );
+
+		// Now test with authenticated editor.
+		$user = self::factory()->user->create_and_get( array( 'role' => 'editor' ) );
+		wp_set_current_user( $user->ID );
+
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertSame( 2, count( $response->get_data() ) );
@@ -558,6 +585,19 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 				'post_excerpt'   => 'A sample caption',
 			)
 		);
+
+		// Unauthintecated users should get nothing
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'after', '2016-01-15T00:00:00Z' );
+		$request->set_param( 'before', '2016-01-17T00:00:00Z' );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertCount( 0, $data );
+
+		// Editor should get the relevant posts.
+		$user = self::factory()->user->create_and_get( array( 'role' => 'editor' ) );
+		wp_set_current_user( $user->ID );
+
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$request->set_param( 'after', '2016-01-15T00:00:00Z' );
 		$request->set_param( 'before', '2016-01-17T00:00:00Z' );
@@ -615,6 +655,15 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$request->set_param( 'modified_after', '2016-01-15T00:00:00Z' );
 		$request->set_param( 'modified_before', '2016-01-17T00:00:00Z' );
+
+		// Users not being able to edit the posts should get nothing
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertCount( 0, $data );
+
+		// While authorized users should.
+		wp_set_current_user( self::$editor_id );
+
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertCount( 1, $data );
@@ -631,6 +680,15 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 			)
 		);
 		update_post_meta( $attachment_id, '_wp_attachment_image_alt', 'Sample alt text' );
+
+		// Unauthorized users should fail.
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/media/' . $attachment_id );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( 401, $response->get_status() );
+
+		// While authorized users should.
+		wp_set_current_user( self::$editor_id );
+
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/media/' . $attachment_id );
 		$response = rest_get_server()->dispatch( $request );
 		$this->check_get_post_response( $response );
@@ -655,6 +713,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		add_image_size( 'rest-api-test', 119, 119, true );
 		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $this->test_file ) );
 
+		wp_set_current_user( self::$editor_id );
 		$request            = new WP_REST_Request( 'GET', '/wp/v2/media/' . $attachment_id );
 		$response           = rest_get_server()->dispatch( $request );
 		$data               = $response->get_data();
@@ -688,6 +747,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 
 		add_filter( 'wp_get_attachment_image_src', '__return_false' );
 
+		wp_set_current_user( self::$editor_id );
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/media/' . $attachment_id );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
@@ -723,6 +783,17 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 				'post_excerpt'   => 'A sample caption',
 			)
 		);
+
+		// Unauthorized user gets nothing
+		$request       = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $attachment_id ) );
+		$response      = rest_get_server()->dispatch( $request );
+		$data          = $response->get_data();
+
+		$this->assertSame( 401, $response->get_status() );
+
+		// But authorized gets the attachment.
+		wp_set_current_user( self::$editor_id );
+
 		$request       = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $attachment_id ) );
 		$response      = rest_get_server()->dispatch( $request );
 		$data          = $response->get_data();
@@ -1408,6 +1479,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		);
 
 		$attachment = get_post( $attachment_id );
+		wp_set_current_user( self::$editor_id );
 		$request    = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $attachment_id ) );
 		$response   = rest_get_server()->dispatch( $request );
 		$data       = $response->get_data();
@@ -1514,6 +1586,8 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 			)
 		);
 
+		wp_set_current_user( self::$editor_id );
+
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media/' . $attachment_id );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -1584,6 +1658,17 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		);
 
 		$filename = wp_basename( $this->test_file2 );
+
+		// Unauthorized users get nothing
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'search', $filename );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertCount( 0, $data );
+
+		// Authorized users get proper response.
+		wp_set_current_user( self::$editor_id );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$request->set_param( 'search', $filename );
