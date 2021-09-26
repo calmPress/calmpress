@@ -305,6 +305,10 @@ p,
 	margin: 1em 0;
 }
 
+p {
+	max-width:90ch;
+}
+
 blockquote {
 	margin: 1em;
 }
