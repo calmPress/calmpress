@@ -93,6 +93,7 @@ class Tests_User_WpDropdownUsers extends WP_UnitTestCase {
 			array(
 				'user_login'   => 'foo',
 				'display_name' => 'Foo Person',
+				'user_email'   => 'foo@examlpe.com',
 			)
 		);
 
@@ -104,7 +105,7 @@ class Tests_User_WpDropdownUsers extends WP_UnitTestCase {
 			)
 		);
 
-		$expected = "<option value='$u'>Foo Person (foo)</option>";
+		$expected = "<option value='$u'>Foo Person (foo@examlpe.com)</option>";
 
 		$this->assertContains( $expected, $found );
 	}

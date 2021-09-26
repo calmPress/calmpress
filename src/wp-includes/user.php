@@ -1259,6 +1259,7 @@ function wp_dropdown_users( $args = '' ) {
 	$show = ! empty( $parsed_args['show'] ) ? $parsed_args['show'] : 'display_name';
 	if ( 'display_name_with_login' === $show ) {
 		$fields[] = 'display_name';
+		$fields[] = 'user_email';
 	} else {
 		$fields[] = $show;
 	}
@@ -1321,12 +1322,12 @@ function wp_dropdown_users( $args = '' ) {
 
 		foreach ( (array) $users as $user ) {
 			if ( 'display_name_with_login' === $show ) {
-				/* translators: 1: User's display name, 2: User login. */
-				$display = sprintf( _x( '%1$s (%2$s)', 'user dropdown' ), $user->display_name, $user->user_login );
+				/* translators: 1: User's display name, 2: User email. */
+				$display = sprintf( _x( '%1$s (%2$s)', 'user dropdown' ), $user->display_name, $user->user_email );
 			} elseif ( ! empty( $user->$show ) ) {
 				$display = $user->$show;
 			} else {
-				$display = '(' . $user->user_login . ')';
+				$display = '(' . $user->user_email . ')';
 			}
 
 			$_selected = selected( $user->ID, $parsed_args['selected'], false );
