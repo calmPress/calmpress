@@ -161,3 +161,6 @@ add_action(
 // Maintenance page form submittion.
 add_action( 'admin_post_maintenance_mode_content', '\calmpress\calmpress\Maintenance_Mode::handle_content_change_post' );
 add_action( 'admin_post_maintenance_mode_status', '\calmpress\calmpress\Maintenance_Mode::handle_status_change_post' );
+
+// Switch User form submittion.
+add_action( 'admin_post_switch_user', '\calmpress\user\Switch_User::handle_user_switch' );

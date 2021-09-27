@@ -275,16 +275,19 @@ $menu[75]                     = array( __( 'Tools' ), 'edit_posts', 'tools.php',
 	$submenu['tools.php'][20] = array( __( 'Site Health' ), 'view_site_health_checks', 'site-health.php' );
 	$submenu['tools.php'][25] = array( __( 'Export Personal Data' ), 'export_others_personal_data', 'export-personal-data.php' );
 	$submenu['tools.php'][30] = array( __( 'Erase Personal Data' ), 'erase_others_personal_data', 'erase-personal-data.php' );
-if ( ! is_multisite() ) {
-	if ( \calmpress\calmpress\Safe_Mode::current_user_in_safe_mode() ) {
-		$submenu['tools.php'][35] = array( __( 'Safe Mode' ), 'safe_mode', 'safe-mode.php' );
-	}
-}
 if ( is_multisite() && ! is_main_site() ) {
 	$submenu['tools.php'][35] = array( __( 'Delete Site' ), 'delete_site', 'ms-delete-site.php' );
 }
 if ( ! is_multisite() && defined( 'WP_ALLOW_MULTISITE' ) && WP_ALLOW_MULTISITE ) {
 	$submenu['tools.php'][50] = array( __( 'Network Setup' ), 'setup_network', 'network.php' );
+}
+if ( ! is_multisite() ) {
+	if ( \calmpress\calmpress\Safe_Mode::current_user_in_safe_mode() ) {
+		$submenu['tools.php'][55] = array( __( 'Safe Mode' ), 'safe_mode', 'safe-mode.php' );
+	}
+}
+if ( ! is_multisite() ) { 
+	$submenu['tools.php'][56] = array( __( 'Switch user' ), 'delete_users', 'switch-user.php' );
 }
 
 $menu[80]                               = array( __( 'Settings' ), 'manage_options', 'options-general.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-admin-settings' );
