@@ -280,7 +280,7 @@ switch ( $wp_list_table->current_action() ) {
 
 		/**
 		 * Filters whether the users being deleted have additional content
-		 * associated with them outside of the `post_author` and `link_owner` relationships.
+		 * associated with them outside of the `post_author` relationships.
 		 *
 		 * @since 5.2.0
 		 *
@@ -291,8 +291,6 @@ switch ( $wp_list_table->current_action() ) {
 
 		if ( $userids && ! $users_have_content ) {
 			if ( $wpdb->get_var( "SELECT ID FROM {$wpdb->posts} WHERE post_author IN( " . implode( ',', $userids ) . ' ) LIMIT 1' ) ) {
-				$users_have_content = true;
-			} elseif ( $wpdb->get_var( "SELECT link_id FROM {$wpdb->links} WHERE link_owner IN( " . implode( ',', $userids ) . ' ) LIMIT 1' ) ) {
 				$users_have_content = true;
 			}
 		}
@@ -328,10 +326,10 @@ switch ( $wp_list_table->current_action() ) {
 			$user = get_userdata( $id );
 			if ( $id == $current_user->ID ) {
 				/* translators: 1: User ID, 2: User login. */
-				echo '<li>' . sprintf( __( 'ID #%1$s: %2$s <strong>The current user will not be deleted.</strong>' ), $id, $user->user_login ) . "</li>\n";
+				echo '<li>' . sprintf( __( 'ID #%1$s: %2$s <strong>The current user will not be deleted.</strong>' ), $id, $user->user_email ) . "</li>\n";
 			} else {
 				/* translators: 1: User ID, 2: User login. */
-				echo '<li><input type="hidden" name="users[]" value="' . esc_attr( $id ) . '" />' . sprintf( __( 'ID #%1$s: %2$s' ), $id, $user->user_login ) . "</li>\n";
+				echo '<li><input type="hidden" name="users[]" value="' . esc_attr( $id ) . '" />' . sprintf( __( 'ID #%1$s: %2$s' ), $id, $user->user_email ) . "</li>\n";
 				$go_delete++;
 			}
 		}
