@@ -439,6 +439,19 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		// Build $allcaps from role caps, overlay user's $caps.
 		$this->allcaps = array();
 		foreach ( (array) $this->roles as $role ) {
+			// if the user is an administrator check if it should mock another role
+			if ( 'administrator' === $role ) {
+				$mock   = get_user_meta( $this->ID, 'mock_role', true );
+				$expiry = (int) get_user_meta( $this->ID, 'mock_role_expiry', true );
+				if ( ! empty( $mock ) && $expiry > time() ) {
+					if ( 'editor' === $mock ) {
+						$role = 'editor';
+					}
+					if ( 'author' === $mock ) {
+						$role = 'author';
+					}
+				}
+			}
 			$the_role      = $wp_roles->get_role( $role );
 			$this->allcaps = array_merge( (array) $this->allcaps, (array) $the_role->capabilities );
 		}
