@@ -415,7 +415,56 @@ endif;
 <p><?php _e( 'Super admin privileges cannot be removed because this user has the network admin email.' ); ?></p>
 <?php endif; ?>
 </td></tr>
-		<?php } ?>
+			<?php
+		}
+
+		if ( in_array( 'administrator', $profileuser->roles, true ) ) {
+			?>
+<tr id="mock-role-wrap" class="user-mock-role-wrap"><th><label for="mock-role"><?php esc_html_e( 'Behave like the role' ); ?></label></th>
+<td><select name="mock_role" id="mock-role">
+			<?php
+			$current_behave = '';
+			$mock = get_user_meta( $profileuser->ID, 'mock_role', true );
+			// mock_role might not be set after user creation or role change.
+			if ( $mock ) {
+				if ( 'editor' === $mock ) {
+					$current_behave = 'editor';
+				} elseif ( 'author' === $mock ) {
+					$current_behave = 'author';
+				}
+			}
+			foreach (
+				[
+					'' => 'Administrator',
+					'editor' => 'Editor',
+					'author' => 'Author',
+				]
+				as $key => $role ) {
+				echo '<option value="' . esc_attr( $key ) . '" ' . selected( $key, $current_behave, false ) .'>' . esc_html(  translate_user_role( $role ) ) . '</option>';
+			}
+			?>
+	</select>
+			<?php
+			$expiry = (int) get_user_meta( $profileuser->ID, 'mock_role_expiry', true );
+			if ( '' !== $current_behave && $expiry > time() ) {
+				?>
+	<p>
+				<?php
+				printf(
+					/* translators: %s: Time until behaviour expires. */
+					esc_html__( 'the current behaviour will last for another %s.' ),
+					human_time_diff( $expiry, time() )
+				);
+				?>
+	</p>
+			<?php } ?>
+	<p class="description"><?php esc_html_e( 'The account can be set to behave like an Editor or Author instead of Administrator.' ); ?></p>
+	<p class="description"><?php esc_html_e( 'This can be used to reduce the admin clutter if the account is used for content editting.' ); ?></p>
+	<p class="description"><?php esc_html_e( 'The behaviour will last 14 days from the time is set, or until it is set to Administrator.' ); ?></p>
+</td></tr>
+			<?php
+		}
+		?>
 
 <tr class="user-display-name-wrap">
 	<th><label for="display_name"><?php esc_html_e( 'Display name publicly as' ); ?> <span class="description"><?php esc_html_e( '(required)' ); ?></span></label></th>

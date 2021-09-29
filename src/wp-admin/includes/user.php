@@ -29,7 +29,7 @@ function add_user() {
  */
 function edit_user( $user_id = 0 ) {
 	$wp_roles = wp_roles();
-	$user     = new stdClass;
+	$user     = new stdClass();
 	$user_id  = (int) $user_id;
 	if ( $user_id ) {
 		$update           = true;
@@ -122,6 +122,21 @@ function edit_user( $user_id = 0 ) {
 
 	if ( isset( $_POST['calm_avatar_image_attachement_id'] ) ) {
 		$user->avatar_attachment_id = wp_unslash( $_POST['calm_avatar_image_attachement_id'] );
+	}
+
+	if ( $update && isset( $_POST['mock_role'] ) ) {
+		$mock_role = wp_unslash( $_POST['mock_role'] );
+		if ( ! in_array( $mock_role, [ 'editor', 'author' ], true ) ) {
+			$mock_role = '';
+		}
+		$last_mock       = '';
+		if ( isset( $userdata->mock_role ) ) {
+			$last_mock = $userdata->mock_role;
+		}
+		$user->mock_role = $mock_role;
+		if ( '' === $last_mock && '' !== $mock_role ) {
+			$user->mock_role_expiry = time() + 14 * DAY_IN_SECONDS;
+		}
 	}
 
 	$errors = new WP_Error();

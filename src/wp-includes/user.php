@@ -1421,7 +1421,7 @@ function sanitize_user_field( $field, $value, $user_id, $context ) {
 			 *
 			 * The dynamic portion of the hook name, `$field`, refers to the prefixed user
 			 * field being filtered, such as 'user_login', 'user_email', etc.
- 			 *
+			 *
 			 * @since 2.9.0
 			 *
 			 * @param mixed $value Value of the prefixed user field.
@@ -1892,6 +1892,14 @@ function wp_insert_user( $userdata ) {
 	$meta['show_admin_bar_front'] = empty( $userdata['show_admin_bar_front'] ) ? 'true' : $userdata['show_admin_bar_front'];
 
 	$meta['locale'] = isset( $userdata['locale'] ) ? $userdata['locale'] : '';
+
+	if ( isset( $userdata['mock_role'] ) ) {
+		$meta['mock_role'] =  $userdata['mock_role'];
+	}
+
+	if ( isset( $userdata['mock_role_expiry'] ) ) {
+		$meta['mock_role_expiry'] =  $userdata['mock_role_expiry'];
+	}
 
 	$compacted = compact( 'user_pass', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_activation_key', 'display_name' );
 	$data      = wp_unslash( $compacted );
