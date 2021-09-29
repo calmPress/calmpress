@@ -47,7 +47,6 @@ class Switch_User {
 	 * @since 1.0.0
 	 */
 	public static function handle_user_switch() {
-		$errors = [];
 		static::verify_post_request( 'switch_user' );
 
 		if ( ! isset( $_POST['user'] ) ) {
