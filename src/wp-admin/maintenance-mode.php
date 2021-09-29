@@ -66,8 +66,9 @@ require ABSPATH . 'wp-admin/admin-header.php';
 				<p>
 					<?php
 					printf(
-						/* translators: 1: shortcode */
-						esc_html__( 'Bypass maintenance mode with the fillowing URL: %1$s' ),
+						/* translators: 1: br, 2: Bypass URL */
+						esc_html__( 'Bypass maintenance mode with the fillowing URL:%1$s%2$s' ),
+						'<br>',
 						'<code>' . esc_html( $bypass_url ) . '</code>'
 					);
 					?>
