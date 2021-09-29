@@ -35,6 +35,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 
 ?>
 <div class="wrap metabox-holder">
+<?php settings_errors(); ?>
 	<h1><?php echo esc_html( $title ); ?></h1>
 
 	<div id="status" class="postbox">

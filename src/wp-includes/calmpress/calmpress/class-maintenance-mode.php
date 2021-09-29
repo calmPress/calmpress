@@ -570,19 +570,30 @@ class Maintenance_Mode {
 	 * @since 1.0.0
 	 */
 	public static function handle_content_change_post() {
-		$errors = [];
+
 		static::verify_post_request( 'maintenance_mode_content' );
 
 		if ( ! isset( $_POST['page_title'] ) || ! isset( $_POST['text_title'] ) || ! isset( $_POST['message_text'] ) ) {
-			$errors[] = esc_html__( 'Something went wrong, please try again' );
+			add_settings_error(
+				'maintenance_mode_content',
+				'maintenance_mode_content',
+				esc_html__( 'Something went wrong, please try again' ),
+				'error'
+			);
 		} else {
 			static::set_page_title( wp_unslash( $_POST['page_title'] ) );
 			static::set_text_title( wp_unslash( $_POST['text_title'] ) );
 			static::set_content( wp_unslash( $_POST['message_text'] ) );
 			static::set_use_theme_frame( isset( $_POST['theme_page'] ) );
+			add_settings_error(
+				'maintenance_mode_content',
+				'settings_updated',
+				__( 'Settings saved.' ),
+				'success'
+			);
 		}
 
-		set_transient( 'maintenance_mode_errors', $errors, 30 );	
+		set_transient( 'settings_errors', get_settings_errors(), 30 );	
 	
 		// Redirect back to the settings page that was submitted.
 		$goback = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
@@ -599,12 +610,16 @@ class Maintenance_Mode {
 	 * @since 1.0.0
 	 */
 	public static function handle_status_change_post() {
-		$errors = [];
 		static::verify_post_request( 'maintenance_mode_status' );
 
 		// Check basic validity.
 		if ( ! isset( $_POST['hours'] ) || ! isset( $_POST['minutes'] ) ) {
-			$errors[] = esc_html__( 'Something went wrong, please try again' );
+			add_settings_error(
+				'maintenance_mode_status',
+				'maintenance_mode_status',
+				esc_html__( 'Something went wrong, please try again' ),
+				'error'
+			);
 		} else {
 			// Not putting much effort in validating the values as out of expected range
 			// values can not do any harm.
@@ -620,9 +635,16 @@ class Maintenance_Mode {
 			if ( isset( $_POST['exit'] ) ) {
 				static::deactivate();
 			}
+			
+			add_settings_error(
+				'maintenance_mode_status',
+				'settings_updated',
+				__( 'Staus updated.' ),
+				'success'
+			);
 		}
 
-		set_transient( 'maintenance_mode_errors', $errors, 30 );	
+		set_transient( 'settings_errors', get_settings_errors(), 30 );	
 	
 		// Redirect back to the settings page that was submitted.
 		$goback = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
