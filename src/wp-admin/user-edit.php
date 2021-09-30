@@ -423,16 +423,7 @@ endif;
 <tr id="mock-role-wrap" class="user-mock-role-wrap"><th><label for="mock-role"><?php esc_html_e( 'Behave like the role' ); ?></label></th>
 <td><select name="mock_role" id="mock-role">
 			<?php
-			$current_behave = '';
-			$mock = get_user_meta( $profileuser->ID, 'mock_role', true );
-			// mock_role might not be set after user creation or role change.
-			if ( $mock ) {
-				if ( 'editor' === $mock ) {
-					$current_behave = 'editor';
-				} elseif ( 'author' === $mock ) {
-					$current_behave = 'author';
-				}
-			}
+			$current_behave = $profileuser->mocked_role( );
 			foreach (
 				[
 					'' => 'Administrator',

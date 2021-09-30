@@ -133,4 +133,31 @@ class Admin_Notices {
 			}
 		}
 	}
+
+	/**
+	 * Suggest admins to switch to editor or author role or dedicated user if they are
+	 * creating new content.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function suggest_reduce_admin_role() {
+
+		$screen = get_current_screen();
+
+		// Check if on new post page as admin.
+		if ( 'post' === $screen->base && 'add' === $screen->action && current_user_can( 'administrator' ) ) {
+			// Give notice if role is not already switched.
+			$user = wp_get_current_user();
+			if ( '' === $user->mocked_role() ) {
+				$msg = sprintf(
+					/* translators: 1: Openning link to profile page, 2: Closing </a> */
+					esc_html__( 'It seems like you are using the administrator user to create content. You should probably create a dediated user for that, alternatively to reduce the admin clutter you can make your account to behave like editor or author in your %1$sprofile settings page%2$s.' ),
+					'<a href="' . esc_url( admin_url( 'profile.php' ) ) . '#mock-role-wrap">',
+					'</a>'
+				);
+				echo "<div class='notice notice-warning'><p>$msg</p></div>";
+			}
+		}
+
+	}
 }

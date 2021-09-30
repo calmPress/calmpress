@@ -441,15 +441,9 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		foreach ( (array) $this->roles as $role ) {
 			// if the user is an administrator check if it should mock another role
 			if ( 'administrator' === $role ) {
-				$mock   = get_user_meta( $this->ID, 'mock_role', true );
-				$expiry = (int) get_user_meta( $this->ID, 'mock_role_expiry', true );
-				if ( ! empty( $mock ) && $expiry > time() ) {
-					if ( 'editor' === $mock ) {
-						$role = 'editor';
-					}
-					if ( 'author' === $mock ) {
-						$role = 'author';
-					}
+				$mock = $this->mocked_role();
+				if ( '' !== $mock ) {
+					$role = $mock;
 				}
 			}
 			$the_role      = $wp_roles->get_role( $role );
@@ -836,12 +830,38 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 *
 	 * @return \calmpress\avatar\Avatar
 	 */
-	public function avatar() : \calmpress\avatar\Avatar {
+	public function avatar(): \calmpress\avatar\Avatar {
 		$attachment_id = get_user_meta( $this->ID, self::AVATAR_ATTACHMENT_ID, true );
 		if ( $attachment_id ) {
 			return new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
 		} else {
 			return new \calmpress\avatar\Text_Based_Avatar( $this->display_name, $this->user_email );
 		}
+	}
+
+	/**
+	 * The user's mocked role if one set and active.
+	 *
+	 * Only administrators can have a mocked role, but it is the reponsability of the caller
+	 * to verify that this is an administrator. Mocked roles can be only 'editor' and 'author'.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string Empty string if mock role is inactive, or user is not administrator,
+	 *                otherwise the mocked role name.
+	 */
+	public function mocked_role(): string {
+		$mock   = get_user_meta( $this->ID, 'mock_role', true );
+		$expiry = (int) get_user_meta( $this->ID, 'mock_role_expiry', true );
+		if ( ! empty( $mock ) && $expiry > time() ) {
+			if ( 'editor' === $mock ) {
+				$role = 'editor';
+			}
+			if ( 'author' === $mock ) {
+				$role = 'author';
+			}
+		}
+
+		return $mock;
 	}
 }

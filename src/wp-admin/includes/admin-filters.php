@@ -155,6 +155,9 @@ add_action(
 
 		// maintenance mode is active nag.
 		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::maintenance_mode_active_nag' );
+
+		// reduce admin role nag.
+		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::suggest_reduce_admin_role' );
 	}
 );
 
