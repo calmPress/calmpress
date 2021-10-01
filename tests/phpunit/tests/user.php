@@ -1698,6 +1698,58 @@ class Tests_User extends WP_UnitTestCase {
 	 }
 
 	/**
+	 * Test the mocked_role method.
+	 *
+	 * Verify that the role return by it matches mock role and expiry settings.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	function test_mocked_role() {
+		$user_id = wp_insert_user(
+			[
+				'user_login' => rand_str(),
+				'user_pass'  => 'password',
+				'user_email' => 'taco@burrito.com',
+			]
+		);
+		$user = get_user_by( 'id', $user_id );
+
+		// No meta either role, or eixpiry should return ''.
+		$this->assertSame( '', $user->mocked_role() );
+
+		update_user_meta( $user_id, 'mock_role', 'editor' );
+		$this->assertSame( '', $user->mocked_role() );
+
+		delete_user_meta( $user_id, 'mock_role' );
+		update_user_meta( $user_id, 'mock_role_expiry', time() + 1000 );
+		$this->assertSame( '', $user->mocked_role() );
+
+		// Test editor and author roles returned when set and expiry in the future.
+		update_user_meta( $user_id, 'mock_role', 'editor' );
+		update_user_meta( $user_id, 'mock_role_expiry', time() + 1000 );
+		$this->assertSame( 'editor', $user->mocked_role() );
+
+		update_user_meta( $user_id, 'mock_role', 'author' );
+		update_user_meta( $user_id, 'mock_role_expiry', time() + 1000 );
+		$this->assertSame( 'author', $user->mocked_role() );
+
+		// Test '' returned when role is '' or not editor nor author and expiry in the future.
+		update_user_meta( $user_id, 'mock_role', '' );
+		update_user_meta( $user_id, 'mock_role_expiry', time() + 1000 );
+		$this->assertSame( '', $user->mocked_role() );
+
+		update_user_meta( $user_id, 'mock_role', 'test' );
+		update_user_meta( $user_id, 'mock_role_expiry', time() + 1000 );
+		$this->assertSame( '', $user->mocked_role() );
+
+		// Test '' returned when expiry in the past.
+
+		update_user_meta( $user_id, 'mock_role', 'editor' );
+		update_user_meta( $user_id, 'mock_role_expiry', time() - 1000 );
+		$this->assertSame( '', $user->mocked_role() );
+	}
+
+	/**
 	 * Testing the `wp_user_personal_data_exporter()` function
 	 * with Session Tokens data.
 	 *

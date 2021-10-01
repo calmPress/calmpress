@@ -851,8 +851,10 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 *                otherwise the mocked role name.
 	 */
 	public function mocked_role(): string {
+		$role   = '';
 		$mock   = get_user_meta( $this->ID, 'mock_role', true );
 		$expiry = (int) get_user_meta( $this->ID, 'mock_role_expiry', true );
+
 		if ( ! empty( $mock ) && $expiry > time() ) {
 			if ( 'editor' === $mock ) {
 				$role = 'editor';
@@ -862,6 +864,6 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 			}
 		}
 
-		return $mock;
+		return $role;
 	}
 }
