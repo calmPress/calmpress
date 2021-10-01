@@ -155,7 +155,7 @@ class Admin_Notices {
 					'<a href="' . esc_url( admin_url( 'profile.php' ) ) . '#mock-role-wrap">',
 					'</a>'
 				);
-				echo "<div class='notice notice-warning'><p>$msg</p></div>";
+				echo "<div class='notice notice-warning is-dismissible'><p>$msg</p></div>";
 			}
 		}
 
