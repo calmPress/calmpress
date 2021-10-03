@@ -747,13 +747,16 @@ endif;
 
 			if ( ! wp_is_site_protected_by_basic_auth( 'front' ) ) {
 				?>
-			<div class="create-application-password form-wrap">
-				<div class="form-field">
-					<label for="new_application_password_name"><?php _e( 'New Application Password Name' ); ?></label>
-					<input type="text" size="30" id="new_application_password_name" name="new_application_password_name" placeholder="<?php esc_attr_e( 'WordPress App on My Phone' ); ?>" class="input" aria-required="true" aria-describedby="new_application_password_name_desc" />
-					<p class="description" id="new_application_password_name_desc"><?php _e( 'Required to create an Application Password, but not to update the user.' ); ?></p>
-				</div>
-
+			<table class="create-application-password form-table">
+				<tr>
+					<th class="form-field">
+						<label for="new_application_password_name"><?php _e( 'New Application Password Name' ); ?></label>
+					</th>
+					<td>
+						<input type="text" size="30" id="new_application_password_name" name="new_application_password_name" placeholder="<?php esc_attr_e( 'WordPress App on My Phone' ); ?>" class="input" aria-required="true" aria-describedby="new_application_password_name_desc" />
+						<p class="description" id="new_application_password_name_desc"><?php _e( 'Required to create an Application Password, but not to update the user.' ); ?></p>
+					</td>
+				</tr>
 				<?php
 				/**
 				 * Fires in the create Application Passwords form.
@@ -765,8 +768,8 @@ endif;
 				do_action( 'wp_create_application_password_form', $profileuser );
 				?>
 
-				<button type="button" name="do_new_application_password" id="do_new_application_password" class="button button-secondary"><?php _e( 'Add New Application Password' ); ?></button>
-			</div>
+				<tr><td><button type="button" name="do_new_application_password" id="do_new_application_password" class="button button-secondary"><?php _e( 'Add New Application Password' ); ?></button></td></tr>
+			</table>
 		<?php } else { ?>
 			<div class="notice notice-error inline">
 				<p><?php _e( 'Your website appears to use Basic Authentication, which is not currently compatible with Application Passwords.' ); ?></p>

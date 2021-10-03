@@ -860,20 +860,6 @@ table.form-table td .updated p {
 	cursor: pointer;
 }
 
-.create-application-password .form-field {
-	max-width: 25em;
-}
-
-.create-application-password label {
-	font-weight: 600;
-}
-
-.create-application-password p.submit {
-	margin-bottom: 0;
-	padding-bottom: 0;
-	display: block;
-}
-
 #application-passwords-section .notice {
 	margin-top: 20px;
 	margin-bottom: 0;
