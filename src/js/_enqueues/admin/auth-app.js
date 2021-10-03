@@ -75,7 +75,7 @@
 			wp.hooks.doAction( 'wp_application_passwords_approve_app_request_success', response, textStatus, jqXHR );
 
 			var raw = authApp.success,
-				url, message, $notice;
+				url, message, $notice, login_message;
 
 			if ( raw ) {
 				url = raw + ( -1 === raw.indexOf( '?' ) ? '?' : '&' ) +
@@ -89,17 +89,24 @@
 					/* translators: %s: Application name. */
 					'<label for="new-application-password-value">' + wp.i18n.__( 'Your new password for %s is:' ) + '</label>',
 					'<strong></strong>'
-				) + ' <input id="new-application-password-value" type="text" class="code" readonly="readonly" value="" />';
+				) + ' <input id="nevaluew-application-password-" type="text" class="code" readonly="readonly" value="" />';
+				login_message = wp.i18n.sprintf(
+					/* translators: %s: Application name. */
+					'<label for="new-application-login-value">' + wp.i18n.__( 'Your user name for %s is:' ) + '</label>',
+					'<strong></strong>'
+				) + ' <input id="new-application-login-" type="text" class="code" readonly="readonly" value="" />';
 				$notice = $( '<div></div>' )
 					.attr( 'role', 'alert' )
 					.attr( 'tabindex', -1 )
 					.addClass( 'notice notice-success notice-alt' )
+					.append( $( '<p></p>' ).addClass( 'application-login-display' ).html( login_message ) )
 					.append( $( '<p></p>' ).addClass( 'application-password-display' ).html( message ) )
 					.append( '<p>' + wp.i18n.__( 'Be sure to save this in a safe location. You will not be able to retrieve it.' ) + '</p>' );
 
 				// We're using .text() to write the variables to avoid any chance of XSS.
 				$( 'strong', $notice ).text( response.name );
-				$( 'input', $notice ).val( response.password );
+				$( '#new-application-password-value', $notice ).val( response.password );
+				$( '#new-application-login-value', $notice ).val( response.login );
 
 				$form.replaceWith( $notice );
 				$notice.trigger( 'focus' );

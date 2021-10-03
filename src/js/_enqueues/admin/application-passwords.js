@@ -58,7 +58,8 @@
 
 			$newAppPassForm.after( tmplNewAppPass( {
 				name: response.name,
-				password: response.password
+				password: response.password,
+				login: response.login
 			} ) );
 			$( '.new-application-password-notice' ).trigger( 'focus' );
 

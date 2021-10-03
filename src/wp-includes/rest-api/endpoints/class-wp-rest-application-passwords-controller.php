@@ -614,6 +614,7 @@ class WP_REST_Application_Passwords_Controller extends WP_REST_Controller {
 			'uuid'      => $item['uuid'],
 			'app_id'    => empty( $item['app_id'] ) ? '' : $item['app_id'],
 			'name'      => $item['name'],
+			'login'     => $user->user_email,
 			'created'   => gmdate( 'Y-m-d\TH:i:s', $item['created'] ),
 			'last_used' => $item['last_used'] ? gmdate( 'Y-m-d\TH:i:s', $item['last_used'] ) : null,
 			'last_ip'   => $item['last_ip'] ? $item['last_ip'] : null,
@@ -800,6 +801,12 @@ class WP_REST_Application_Passwords_Controller extends WP_REST_Controller {
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'minLength'   => 1,
 					'pattern'     => '.*\S.*',
+				),
+				'login'  => array(
+					'description' => __( 'The generated login. Only available after adding an application.' ),
+					'type'        => 'string',
+					'context'     => array( 'edit' ),
+					'readonly'    => true,
 				),
 				'password'  => array(
 					'description' => __( 'The generated password. Only available after adding an application.' ),

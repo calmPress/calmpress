@@ -749,7 +749,7 @@ endif;
 				?>
 			<table class="create-application-password form-table">
 				<tr>
-					<th class="form-field">
+					<th>
 						<label for="new_application_password_name"><?php _e( 'New Application Password Name' ); ?></label>
 					</th>
 					<td>
@@ -875,6 +875,18 @@ endif;
 <?php if ( isset( $application_passwords_list_table ) ) : ?>
 	<script type="text/html" id="tmpl-new-application-password">
 		<div class="notice notice-success is-dismissible new-application-password-notice" role="alert" tabindex="-1">
+			<p class="application-login-display">
+				<label for="new-application-login-value">
+					<?php
+					printf(
+						/* translators: %s: Application name. */
+						__( 'Your user name for %s is:' ),
+						'<strong>{{ data.name }}</strong>'
+					);
+					?>
+				</label>
+				<input id="new-application-login-value" type="text" class="code" readonly="readonly" value="{{ data.login }}" />
+			</p>
 			<p class="application-password-display">
 				<label for="new-application-password-value">
 					<?php
