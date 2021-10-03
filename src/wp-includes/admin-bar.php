@@ -754,18 +754,6 @@ function wp_admin_bar_edit_menu( $wp_admin_bar ) {
 					)
 				);
 			}
-		} elseif ( 'user-edit' === $current_screen->base && isset( $user_id ) ) {
-			$user_object = get_userdata( $user_id );
-			$view_link   = get_author_posts_url( $user_object->ID );
-			if ( $user_object->exists() && $view_link ) {
-				$wp_admin_bar->add_node(
-					array(
-						'id'    => 'view',
-						'title' => __( 'View User' ),
-						'href'  => $view_link,
-					)
-				);
-			}
 		}
 	} else {
 		$current_object = $wp_the_query->get_queried_object();
