@@ -2200,4 +2200,33 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertSame( 333, $roles->get_site_id() );
 	}
 
+	/**
+	 * Check that when a mocked role is set to editor and author capabilities
+	 * reserved to "higher" roles are not available.
+	 *
+	 * @since calmPress 1.0.0 
+	 */
+	function test_mocked_role_change_capabilities() {
+		$admin = self::$users['administrator'];
+
+		// When set to editor should not have maintenance mode cap.
+		update_user_meta( $admin->ID, 'mock_role', 'editor' );
+		update_user_meta( $admin->ID, 'mock_role_expiry', time() + 1000 );
+
+		// Capabilities are initiated at user object creation.
+		$u = get_user_by( 'id', $admin->ID );
+		$this->assertFalse( $u->has_cap( 'maintenance_mode' ) );
+		
+		// When set to author should not have moderate comments cap.
+		update_user_meta( $admin->ID, 'mock_role', 'author' );
+		update_user_meta( $admin->ID, 'mock_role_expiry', time() + 1000 );
+
+		// Capabilities are initiated at user object creation.
+		$u = get_user_by( 'id', $admin->ID );
+		$this->assertFalse( $u->has_cap( 'moderate_comments' ) );
+		
+		// cleanup.
+		delete_user_meta( $admin->ID, 'mock_role' );
+		delete_user_meta( $admin->ID, 'mock_role_expiry' );
+	}
 }
