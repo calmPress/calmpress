@@ -277,13 +277,20 @@ function wp_authenticate_application_password( $input_user, $username, $password
 	}
 
 	$error = null;
-	$user = get_user_by( 'email', $username );
 
-	// If the login name is invalid, short circuit.
+	// Decrypt the username to get the user id.
+	$user_id = WP_Application_Passwords::get_user_from_login( $username );
+	if ( 0 === $user_id ) {
+		$user = null;
+	} else {
+		$user = get_user_by( 'id', $user_id );
+	}
+
+	// If the user id is invalid, short circuit.
 	if ( ! $user ) {
 		$error = new WP_Error(
-			'invalid_email',
-			__( '<strong>Error</strong>: Unknown email address. Check again or try your username.' )
+			'invalid_login',
+			__( '<strong>Error</strong>: Unknown login name.' )
 		);
 	} elseif ( ! wp_is_application_passwords_available() ) {
 		$error = new WP_Error(

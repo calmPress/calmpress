@@ -405,7 +405,7 @@ class Tests_Auth extends WP_UnitTestCase {
 		add_filter( 'wp_is_application_passwords_available', '__return_true' );
 
 		// Fake an HTTP Auth request with the regular account password first.
-		$_SERVER['PHP_AUTH_USER'] = 'http_auth_login@example.com';
+		$_SERVER['PHP_AUTH_USER'] = WP_Application_Passwords::get_user_application_login( $user_id );
 		$_SERVER['PHP_AUTH_PW']   = 'http_auth_pass';
 
 		$this->assertNull(
@@ -516,7 +516,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		list( $password ) = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'phpunit' ) );
 
-		$error = wp_authenticate_application_password( null, self::$_user->user_email, $password );
+		$error = wp_authenticate_application_password( null, WP_Application_Passwords::get_user_application_login( self::$user_id ), $password );
 		$this->assertWPError( $error );
 		$this->assertSame( 'my_code', $error->get_error_code() );
 	}
@@ -530,7 +530,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		list( $password ) = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'phpunit' ) );
 
-		$user = wp_authenticate_application_password( null, self::$_user->user_email, $password );
+		$user = wp_authenticate_application_password( null, WP_Application_Passwords::get_user_application_login( self::$user_id ), $password );
 		$this->assertInstanceOf( WP_User::class, $user );
 		$this->assertSame( self::$user_id, $user->ID );
 	}
@@ -544,7 +544,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		list( $password ) = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'phpunit' ) );
 
-		$user = wp_authenticate_application_password( null, self::$_user->user_email, $password );
+		$user = wp_authenticate_application_password( null, WP_Application_Passwords::get_user_application_login( self::$user_id ), $password );
 		$this->assertInstanceOf( WP_User::class, $user );
 		$this->assertSame( self::$user_id, $user->ID );
 	}
@@ -558,7 +558,7 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		list( $password ) = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'phpunit' ) );
 
-		$user = wp_authenticate_application_password( null, self::$_user->user_email, WP_Application_Passwords::chunk_password( $password ) );
+		$user = wp_authenticate_application_password( null, WP_Application_Passwords::get_user_application_login( self::$user_id ), WP_Application_Passwords::chunk_password( $password ) );
 		$this->assertInstanceOf( WP_User::class, $user );
 		$this->assertSame( self::$user_id, $user->ID );
 	}
@@ -584,7 +584,7 @@ class Tests_Auth extends WP_UnitTestCase {
 		add_filter( 'application_password_is_api_request', '__return_true' );
 		add_filter( 'wp_is_application_passwords_available', '__return_true' );
 
-		$_SERVER['PHP_AUTH_USER'] = self::$_user->user_login;
+		$_SERVER['PHP_AUTH_USER'] = WP_Application_Passwords::get_user_application_login( self::$user_id );
 		unset( $_SERVER['PHP_AUTH_PW'] );
 
 		$this->assertNull( wp_validate_application_password( null ) );

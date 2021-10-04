@@ -876,11 +876,12 @@ class WP_Test_REST_Application_Passwords_Controller extends WP_Test_REST_Control
 		$this->assertArrayHasKey( 'uuid', $properties );
 		$this->assertArrayHasKey( 'app_id', $properties );
 		$this->assertArrayHasKey( 'name', $properties );
+		$this->assertArrayHasKey( 'login', $properties );
 		$this->assertArrayHasKey( 'password', $properties );
 		$this->assertArrayHasKey( 'created', $properties );
 		$this->assertArrayHasKey( 'last_used', $properties );
 		$this->assertArrayHasKey( 'last_ip', $properties );
-		$this->assertCount( 7, $properties );
+		$this->assertCount( 8, $properties );
 	}
 
 	/**
@@ -956,7 +957,7 @@ class WP_Test_REST_Application_Passwords_Controller extends WP_Test_REST_Control
 	private function setup_app_password_authenticated_request() {
 		list( $password, $item ) = WP_Application_Passwords::create_new_application_password( self::$admin, array( 'name' => 'Test' ) );
 
-		$_SERVER['PHP_AUTH_USER'] = get_userdata( self::$admin )->user_email;
+		$_SERVER['PHP_AUTH_USER'] = WP_Application_Passwords::get_user_application_login( self::$admin );
 		$_SERVER['PHP_AUTH_PW']   = $password;
 
 		$GLOBALS['current_user'] = null;

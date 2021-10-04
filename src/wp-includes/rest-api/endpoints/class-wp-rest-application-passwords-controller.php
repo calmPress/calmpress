@@ -614,7 +614,7 @@ class WP_REST_Application_Passwords_Controller extends WP_REST_Controller {
 			'uuid'      => $item['uuid'],
 			'app_id'    => empty( $item['app_id'] ) ? '' : $item['app_id'],
 			'name'      => $item['name'],
-			'login'     => $user->user_email,
+			'login'     => WP_Application_Passwords::get_user_application_login( $user->ID ),
 			'created'   => gmdate( 'Y-m-d\TH:i:s', $item['created'] ),
 			'last_used' => $item['last_used'] ? gmdate( 'Y-m-d\TH:i:s', $item['last_used'] ) : null,
 			'last_ip'   => $item['last_ip'] ? $item['last_ip'] : null,
