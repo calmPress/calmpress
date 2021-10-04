@@ -89,12 +89,12 @@
 					/* translators: %s: Application name. */
 					'<label for="new-application-password-value">' + wp.i18n.__( 'Your new password for %s is:' ) + '</label>',
 					'<strong></strong>'
-				) + ' <input id="nevaluew-application-password-" type="text" class="code" readonly="readonly" value="" />';
+				) + ' <input id="new-application-password-value" type="text" class="code" readonly="readonly" value="" />';
 				login_message = wp.i18n.sprintf(
 					/* translators: %s: Application name. */
 					'<label for="new-application-login-value">' + wp.i18n.__( 'Your user name for %s is:' ) + '</label>',
 					'<strong></strong>'
-				) + ' <input id="new-application-login-" type="text" class="code" readonly="readonly" value="" />';
+				) + ' <input id="new-application-login-value" type="text" class="code" readonly="readonly" value="" />';
 				$notice = $( '<div></div>' )
 					.attr( 'role', 'alert' )
 					.attr( 'tabindex', -1 )
