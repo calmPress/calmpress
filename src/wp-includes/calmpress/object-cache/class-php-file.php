@@ -108,7 +108,7 @@ class PHP_File extends File {
 	 * @param string $file The file from which the value should be fetched.
 	 */
 	protected static function purge_file( string $file ) {
-		opcache_invalidate( $file, true );
+		\calmpress\opcache\Opcache_Connector::invalidate_file( $file );
 		unlink( $file );
 	}
 
@@ -155,7 +155,7 @@ class PHP_File extends File {
 		file_put_contents( $file, $content );
 
 		// Invalidate whatever is in cache right now.
-		opcache_invalidate( $file, true );
+		\calmpress\opcache\Opcache_Connector::invalidate_file( $file );
 	}
 
 	/**
@@ -172,13 +172,8 @@ class PHP_File extends File {
 	 * @return bool true if enabled, otherwise false.
 	 */
 	public static function is_available(): bool {
-		if ( function_exists( 'opcache_get_status' ) ) {
-			// This check ensures that it is possible to use the api to do stuff,
-			// especially invalidate cache files. Without invalidation there is
-			// a potential of using stale values.
-			if ( false !== opcache_get_status() ) {
+		if ( \calmpress\opcache\Opcache_Connector::api_is_avaialable() ) {
 				return wp_is_writable( self::CACHE_ROOT_DIR );
-			}
 		}
 
 		return false;
