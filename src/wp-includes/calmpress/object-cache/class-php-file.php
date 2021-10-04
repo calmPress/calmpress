@@ -108,7 +108,7 @@ class PHP_File extends File {
 	 * @param string $file The file from which the value should be fetched.
 	 */
 	protected static function purge_file( string $file ) {
-		\calmpress\opcache\Opcache_Connector::invalidate_file( $file );
+		\calmpress\opcache\Opcache::invalidate_file( $file );
 		unlink( $file );
 	}
 
@@ -155,7 +155,7 @@ class PHP_File extends File {
 		file_put_contents( $file, $content );
 
 		// Invalidate whatever is in cache right now.
-		\calmpress\opcache\Opcache_Connector::invalidate_file( $file );
+		\calmpress\opcache\Opcache::invalidate_file( $file );
 	}
 
 	/**
@@ -172,7 +172,7 @@ class PHP_File extends File {
 	 * @return bool true if enabled, otherwise false.
 	 */
 	public static function is_available(): bool {
-		if ( \calmpress\opcache\Opcache_Connector::api_is_avaialable() ) {
+		if ( \calmpress\opcache\Opcache::api_is_avaialable() ) {
 				return wp_is_writable( self::CACHE_ROOT_DIR );
 		}
 

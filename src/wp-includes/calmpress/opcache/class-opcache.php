@@ -15,10 +15,46 @@ namespace calmpress\opcache;
  *
  * @since 1.0.0
  */
-class Opcache_Connector {
+class Opcache {
+
+	/**
+	 * Construct a connector to the opcache fuctionality.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws \RuntimeException if opcache API is not available.
+	 */
+	public function __construct() {
+
+		if ( ! static::api_is_avaialable() ) {
+			throw new \RuntimeException( 'Opcache API is not available' );
+		}
+	}
+
+	/**
+	 * Get the opcache stats.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return Stats An object serving as an interface to get the stats.
+	 */
+	public function stats(): Stats {
+		return new Stats( opcache_get_status() );
+	}
+
+	/**
+	 * Reset the opcache.
+	 *
+	 * @since 1.0.0
+	 */
+	public function reset(): Stats {
+		opcache_reset();
+	}
 
 	/**
 	 * Signal to the opcache to invalidate a file in the cache.
+	 *
+	 * It is the calling code responsability to make sure the api is available.
 	 *
 	 * @since 1.0.0
 	 *
