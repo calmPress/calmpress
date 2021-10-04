@@ -198,4 +198,29 @@ class Test_WP_Application_Passwords extends WP_UnitTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test user login generation and decryption.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_get_user_application_login() {
+
+		// The user number do not actually need to be of a valid user
+		$login = WP_Application_Passwords::get_user_application_login( 1000 );
+
+		$this->assertSame( 1000, WP_Application_Passwords::get_user_from_login( $login ) );
+	}
+
+	/**
+	 * Test user login decryption with "bad" input
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_get_user_from_login() {
+
+		// Junk string.
+		$this->assertSame( 0, WP_Application_Passwords::get_user_from_login( '12345678' ) );
+	}
+
 }
