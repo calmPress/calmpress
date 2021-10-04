@@ -731,26 +731,17 @@ class wpdb {
 			return compact( 'charset', 'collate' );
 		}
 
-		if ( 'utf8' === $charset && $this->has_cap( 'utf8mb4' ) ) {
-			$charset = 'utf8mb4';
-		}
+		$charset = 'utf8mb4';
 
-		if ( 'utf8mb4' === $charset && ! $this->has_cap( 'utf8mb4' ) ) {
-			$charset = 'utf8';
-			$collate = str_replace( 'utf8mb4_', 'utf8_', $collate );
-		}
-
-		if ( 'utf8mb4' === $charset ) {
-			// _general_ is outdated, so we can upgrade it to _unicode_, instead.
-			if ( ! $collate || 'utf8_general_ci' === $collate ) {
-				$collate = 'utf8mb4_unicode_ci';
-			} else {
-				$collate = str_replace( 'utf8_', 'utf8mb4_', $collate );
-			}
+		// _general_ is outdated, so we can upgrade it to _unicode_, instead.
+		if ( ! $collate || 'utf8_general_ci' === $collate ) {
+			$collate = 'utf8mb4_unicode_ci';
+		} else {
+			$collate = str_replace( 'utf8_', 'utf8mb4_', $collate );
 		}
 
 		// _unicode_520_ is a better collation, we should use that when it's available.
-		if ( $this->has_cap( 'utf8mb4_520' ) && 'utf8mb4_unicode_ci' === $collate ) {
+		if ( 'utf8mb4_unicode_ci' === $collate ) {
 			$collate = 'utf8mb4_unicode_520_ci';
 		}
 
@@ -773,12 +764,10 @@ class wpdb {
 		if ( ! isset( $collate ) ) {
 			$collate = $this->collate;
 		}
-		if ( $this->has_cap( 'collation' ) && ! empty( $charset ) ) {
+		if ( ! empty( $charset ) ) {
 			$set_charset_succeeded = true;
 
-			if ( function_exists( 'mysqli_set_charset' ) && $this->has_cap( 'set_charset' ) ) {
-				$set_charset_succeeded = mysqli_set_charset( $dbh, $charset );
-			}
+			$set_charset_succeeded = mysqli_set_charset( $dbh, $charset );
 
 			if ( $set_charset_succeeded ) {
 				$query = $this->prepare( 'SET NAMES %s', $charset );
@@ -2606,11 +2595,6 @@ class wpdb {
 			if ( ! empty( $column->Collation ) ) {
 				list( $charset ) = explode( '_', $column->Collation );
 
-				// If the current connection can't support utf8mb4 characters, let's only send 3-byte utf8 characters.
-				if ( 'utf8mb4' === $charset && ! $this->has_cap( 'utf8mb4' ) ) {
-					$charset = 'utf8';
-				}
-
 				$charsets[ strtolower( $charset ) ] = true;
 			}
 
@@ -3292,12 +3276,10 @@ class wpdb {
 			if ( $this->use_mysqli ) {
 				if ( $this->dbh instanceof mysqli ) {
 					$error = mysqli_error( $this->dbh );
-				} elseif ( function_exists( 'mysqli_connect_errno' ) ) {
+				} else {
 					if ( mysqli_connect_errno() ) {
 						$error = mysqli_connect_error();
 					}
-				} else {
-					$error = 'mysqli extension not enabled';
 				}
 			}
 
