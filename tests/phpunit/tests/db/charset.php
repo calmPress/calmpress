@@ -488,10 +488,6 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 			$new_charset = $data[0]['charset'];
 		}
 
-		if ( 'utf8mb4' === $new_charset && ! self::$_wpdb->has_cap( 'utf8mb4' ) ) {
-			$this->markTestSkipped( "The current MySQL server doesn't support the utf8mb4 character set." );
-		}
-
 		if ( 'big5' === $new_charset && 'byte' === $data[0]['length']['type'] && false !== strpos( self::$server_info, 'MariaDB' ) ) {
 			$this->markTestSkipped( "MariaDB doesn't support this data set. See https://core.trac.wordpress.org/ticket/33171." );
 		}
@@ -760,11 +756,6 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 	function test_get_table_charset( $drop, $create, $table, $expected_charset ) {
 		self::$_wpdb->query( $drop );
 
-		if ( ! self::$_wpdb->has_cap( 'utf8mb4' ) && preg_match( '/utf8mb[34]/i', $create ) ) {
-			$this->markTestSkipped( "This version of MySQL doesn't support utf8mb4." );
-			return;
-		}
-
 		self::$_wpdb->query( $create );
 
 		$charset = self::$_wpdb->get_table_charset( $table );
@@ -802,11 +793,6 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 	function test_get_column_charset( $drop, $create, $table, $expected_charset ) {
 		self::$_wpdb->query( $drop );
 
-		if ( ! self::$_wpdb->has_cap( 'utf8mb4' ) && preg_match( '/utf8mb[34]/i', $create ) ) {
-			$this->markTestSkipped( "This version of MySQL doesn't support utf8mb4." );
-			return;
-		}
-
 		self::$_wpdb->query( $create );
 
 		foreach ( $expected_charset as $column => $charset ) {
@@ -825,11 +811,6 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 	 */
 	function test_get_column_charset_non_mysql( $drop, $create, $table, $columns ) {
 		self::$_wpdb->query( $drop );
-
-		if ( ! self::$_wpdb->has_cap( 'utf8mb4' ) && preg_match( '/utf8mb[34]/i', $create ) ) {
-			$this->markTestSkipped( "This version of MySQL doesn't support utf8mb4." );
-			return;
-		}
 
 		self::$_wpdb->is_mysql = false;
 
@@ -853,11 +834,6 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 	 */
 	function test_get_column_charset_is_mysql_undefined( $drop, $create, $table, $columns ) {
 		self::$_wpdb->query( $drop );
-
-		if ( ! self::$_wpdb->has_cap( 'utf8mb4' ) && preg_match( '/utf8mb[34]/i', $create ) ) {
-			$this->markTestSkipped( "This version of MySQL doesn't support utf8mb4." );
-			return;
-		}
 
 		unset( self::$_wpdb->is_mysql );
 
@@ -914,11 +890,6 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 	 */
 	function test_strip_invalid_text_from_query( $create, $query, $expected, $drop ) {
 		self::$_wpdb->query( $drop );
-
-		if ( ! self::$_wpdb->has_cap( 'utf8mb4' ) && preg_match( '/utf8mb[34]/i', $create ) ) {
-			$this->markTestSkipped( "This version of MySQL doesn't support utf8mb4." );
-			return;
-		}
 
 		self::$_wpdb->query( $create );
 

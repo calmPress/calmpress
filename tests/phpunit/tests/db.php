@@ -485,24 +485,6 @@ class Tests_DB extends WP_UnitTestCase {
 		$this->assertSame( $called, end( $calls ) );
 	}
 
-	function test_has_cap() {
-		global $wpdb;
-		$this->assertTrue( $wpdb->has_cap( 'collation' ) );
-		$this->assertTrue( $wpdb->has_cap( 'group_concat' ) );
-		$this->assertTrue( $wpdb->has_cap( 'subqueries' ) );
-		$this->assertTrue( $wpdb->has_cap( 'COLLATION' ) );
-		$this->assertTrue( $wpdb->has_cap( 'GROUP_CONCAT' ) );
-		$this->assertTrue( $wpdb->has_cap( 'SUBQUERIES' ) );
-		$this->assertSame(
-			version_compare( $wpdb->db_version(), '5.0.7', '>=' ),
-			$wpdb->has_cap( 'set_charset' )
-		);
-		$this->assertSame(
-			version_compare( $wpdb->db_version(), '5.0.7', '>=' ),
-			$wpdb->has_cap( 'SET_CHARSET' )
-		);
-	}
-
 	function test_bail() {
 		global $wpdb;
 
@@ -1253,10 +1235,6 @@ class Tests_DB extends WP_UnitTestCase {
 	function test_charset_switched_to_utf8mb4() {
 		global $wpdb;
 
-		if ( ! $wpdb->has_cap( 'utf8mb4' ) ) {
-			$this->markTestSkipped( 'This test requires utf8mb4 support.' );
-		}
-
 		$charset = 'utf8';
 		$collate = 'utf8_general_ci';
 
@@ -1272,10 +1250,6 @@ class Tests_DB extends WP_UnitTestCase {
 	function test_collate_switched_to_utf8mb4_520() {
 		global $wpdb;
 
-		if ( ! $wpdb->has_cap( 'utf8mb4_520' ) ) {
-			$this->markTestSkipped( 'This test requires utf8mb4_520 support.' );
-		}
-
 		$charset = 'utf8';
 		$collate = 'utf8_general_ci';
 
@@ -1290,10 +1264,6 @@ class Tests_DB extends WP_UnitTestCase {
 	 */
 	function test_non_unicode_collations() {
 		global $wpdb;
-
-		if ( ! $wpdb->has_cap( 'utf8mb4' ) ) {
-			$this->markTestSkipped( 'This test requires utf8mb4 support.' );
-		}
 
 		$charset = 'utf8';
 		$collate = 'utf8_swedish_ci';
