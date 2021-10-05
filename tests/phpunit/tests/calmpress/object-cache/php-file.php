@@ -63,7 +63,7 @@ class Mock_PHP_File extends PHP_File {
 	/**
 	 * Mock opcache to be enabled.
 	 */
-	public static function is_available():bool {
+	public static function api_is_available():bool {
 		return true;
 	}
 }

@@ -50,15 +50,30 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	 * @throws \RuntimeException if cache path is not writable or can not be created.
 	 */
 	public function __construct( string $cache_directory ) {
+		$this->set_cache_root_dir( self::CACHE_ROOT_DIR . $cache_directory );
+	}
 
-		$dir = self::CACHE_ROOT_DIR . $cache_directory;
+	/**
+	 * Helper function to create the cache directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $dir The path of the directory in which to store the relevant files.
+	 *
+	 * @throws \RuntimeException if cache path is not writable or can not be created.
+	 */
+	protected function set_cache_root_dir( string $dir ) {
+
 		if ( ! file_exists( $dir ) ) {
 			if ( ! @mkdir( $dir , 0755, true ) ) {
 				throw new \RuntimeException( 'Can not create cache directory at ' . $dir );
 			}
-		} else if ( ! wp_is_writable( $dir ) ) {
+		} 
+		
+		if ( ! wp_is_writable( $dir ) ) {
 			throw new \RuntimeException( 'Cache directory is not writable directory at ' . $dir );
 		}
+
 		$this->root_dir = $dir . '/';
 	}
 
@@ -370,13 +385,23 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	}
 
 	/**
-	 * Check if cache file can be written.
+	 * Check if cache files can be written on the root cache directory.
+	 *
+	 * As trying to detect permission if the directory do not exists proves to be a complex
+	 * task which will require first creating the paths, something which is already attempted
+	 * at the constructor, the code will just try to create an object and observe if creation fails.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return bool true if enabled, otherwise false.
 	 */
 	public static function is_available(): bool {
-		return wp_is_writable( self::CACHE_ROOT_DIR );
+		$available = false;
+		try {
+			new File( '' );
+			$available = true;
+		} catch ( \Exception $e ) {}
+
+		return $available;
 	}
 }

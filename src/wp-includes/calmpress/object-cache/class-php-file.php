@@ -58,11 +58,11 @@ class PHP_File extends File {
 	 */
 	public function __construct( string $cache_directory ) {
 
-		if ( ! static::is_available() ) {
-			throw new \RuntimeException( 'Opcache is not available' );
+		if ( ! static::api_is_available() ) {
+			throw new \RuntimeException( 'Opcache API is not available' );
 		}
 
-		parent::__construct( $cache_directory );
+		$this->set_cache_root_dir( self::CACHE_ROOT_DIR . $cache_directory );
 	}
 
 	/**
@@ -167,15 +167,35 @@ class PHP_File extends File {
 	 * 
 	 * In addition check that it is possible to write cache files.
 	 *
+	 * As trying to detect permission if the directory do not exists proves to be a complex
+	 * task which will require first creating the paths, something which is already attempted
+	 * at the constructor, the code will just try to create an object and observe if creation fails.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return bool true if enabled, otherwise false.
 	 */
 	public static function is_available(): bool {
-		if ( \calmpress\opcache\Opcache::api_is_avaialable() ) {
-				return wp_is_writable( self::CACHE_ROOT_DIR );
-		}
+		$available = false;
+		try {
+			new PHP_File( '' );
+			$available = true;
+		} catch ( \Exception $e ) {}
 
-		return false;
+		return $available;
+	}
+
+	/**
+	 * Check if opcache is enabled. Without it being enabled there is no point in having
+	 * this kind of cache.
+	 * 
+	 * A testing helper.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool true if enabled, otherwise false.
+	 */
+	public static function api_is_available(): bool {
+		return \calmpress\opcache\Opcache::api_is_avaialable();
 	}
 }
