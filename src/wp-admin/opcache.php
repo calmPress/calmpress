@@ -24,7 +24,7 @@ get_current_screen()->add_help_tab(
 		'id'      => 'overview',
 		'title'   => __( 'Overview' ),
 		'content' =>
-			'<p>' . esc_html__( 'The Opcode cache (opcache) is used by PHP make script execute faster and may be used for object caching.' ) . '</p>',
+			'<p>' . esc_html__( 'The Opcode Cache (opcache) is used by PHP make script execute faster and may be used for object caching.' ) . '</p>',
 	]
 );
 
@@ -36,12 +36,13 @@ require ABSPATH . 'wp-admin/admin-header.php';
 	<h1><?php echo esc_html( $title ); ?></h1>
 	<?php
 	if ( ! Opcache::api_is_available() ) {
-		echo '<p>' . esc_html__( 'The Opcode cache API is not available to this site.' ) . '</p>';
+		echo '<p>' . esc_html__( 'The Opcode Cache API is not available to this site.' ) . '</p>';
 	} else {
 		$opcache = new Opcache();
 		$stats   = $opcache->stats();
 		?>
 	<h2><?php esc_html_e( 'Stats' ); ?></h2>
+	<p><?php esc_html_e( 'The Opcode Cache stats are an aggregation for all the sites hosted on the webserver hosting this site. If there are other sites any issue being detected might be related to them.' ); ?></p>
 	<table class="form-table" role="presentation">
 		<tr>
 			<th><?php esc_html_e( 'Total hits' ); ?></th>
@@ -83,7 +84,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			<td>
 				<?php echo esc_html( number_format( $stats->cached_keys_usage(), 2 ) . '%' ); ?>
 				<p class="description">
-					<?php esc_html_e( 'If close to full, opcache might not be able to cache new scripts.' ); ?>
+					<?php esc_html_e( 'If close to full, opcthe opcode cache might not be able to cache new scripts.' ); ?>
 				</p>
 			</td>
 		</tr>
@@ -92,11 +93,19 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			<td>
 				<?php echo esc_html( number_format( $stats->memory_usage(), 2 ) . '%' ); ?>
 				<p class="description">
-					<?php esc_html_e( 'If close to full, opcache might not be able to cache new scripts.' ); ?>
+					<?php esc_html_e( 'If close to full, the opcode cache might not be able to cache new scripts.' ); ?>
 				</p>
 			</td>
 		</tr>
 	</table>
+	<form action="admin-post.php" method="post">
+		<p><strong><?php esc_html_e( 'Before restarting you should keep in mind that the Opcode Cache might serve other sites as well which will be impacted by the retart.' ); ?></strong></p>
+		<input name='action' type="hidden" value='opcache_reset'>
+		<?php
+		wp_nonce_field( 'opcache_reset' );
+		submit_button( __( 'Restart the Opcode Cache' ), 'primary', 'restart' );
+		?>
+	</form>
 	<?php } ?>
 </div>
 

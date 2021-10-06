@@ -170,3 +170,6 @@ add_action( 'admin_post_maintenance_mode_status', '\calmpress\calmpress\Maintena
 
 // Switch User form submittion.
 add_action( 'admin_post_switch_user', '\calmpress\user\Switch_User::handle_user_switch' );
+
+// Opcache restart form submittion.
+add_action( 'admin_post_opcache_reset', '\calmpress\opcache\Opcache::handle_opcache_reset' );
