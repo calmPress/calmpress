@@ -43,7 +43,8 @@ class Opcache {
 	}
 
 	/**
-	 * Reset the opcache.
+	 * Tries to reset the opcache. A reset might actually put the opcache into "reset pending"
+	 * state and actually happen later. The request will fail if there is already a pending reset request.
 	 *
 	 * @since 1.0.0
 	 */
@@ -82,5 +83,62 @@ class Opcache {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Verify capability, nonce, and validitty of referer data a POST request. Die if the
+	 * user is not allowed to manage opcache, or nonce/referer include
+	 * bad data. 
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $action The name of the action expected to be used for generating the nonce
+	 *                       and admin referer fields in the request.
+	 */
+	private static function verify_post_request( string $action ) {
+		if ( ! current_user_can( 'opcache' ) ) {
+			wp_die(
+				'<h1>' . __( 'You need additional permission.' ) . '</h1>' .
+				'<p>' . __( 'Sorry, you are not allowed to manage opcache at this site.' ) . '</p>',
+				403
+			);
+		}
+		check_admin_referer( $action );
+	}
+
+	/**
+	 * Handles the form post regarding opcache reset., tries to reset the opcache if the request is valid.
+	 *
+	 * Used as a hook on admin-post.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function handle_opcache_reset() {
+		static::verify_post_request( 'opcache_reset' );
+
+		try {
+			$opcache = new Opcache();
+			$opcache->reset();
+			add_settings_error(
+				'opcache_reset',
+				'settings_updated',
+				__( 'Opcode Cache reset was initiated.' ),
+				'success'
+			);	
+		} catch ( \Throwable $e ) {
+			add_settings_error(
+				'opcache_reset',
+				'opcache_reset',
+				esc_html__( 'Something went wrong, please try again' ),
+				'error'
+			);
+		}
+
+		set_transient( 'settings_errors', get_settings_errors(), 30 );	
+	
+		// Redirect back to the page from which the form was submitted.
+		$goback = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
+		wp_redirect( $goback );
+		exit;			
 	}
 }
