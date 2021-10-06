@@ -84,7 +84,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			<td>
 				<?php echo esc_html( number_format( $stats->cached_keys_usage(), 2 ) . '%' ); ?>
 				<p class="description">
-					<?php esc_html_e( 'If close to full, opcthe opcode cache might not be able to cache new scripts.' ); ?>
+					<?php esc_html_e( 'If close to full, the opcode cache might not be able to cache new scripts.' ); ?>
 				</p>
 			</td>
 		</tr>

@@ -123,7 +123,7 @@ class Opcache {
 	}
 
 	/**
-	 * Handles the form post regarding opcache reset., tries to reset the opcache if the request is valid.
+	 * Handles the form post regarding opcache reset, tries to reset the opcache if the request is valid.
 	 *
 	 * Used as a hook on admin-post.
 	 *
