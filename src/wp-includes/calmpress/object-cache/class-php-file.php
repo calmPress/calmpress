@@ -59,7 +59,7 @@ class PHP_File extends File {
 	public function __construct( string $cache_directory ) {
 
 		if ( ! static::api_is_available() ) {
-			throw new \RuntimeException( 'Opcache API is not available' );
+			throw new \RuntimeException( 'Opcache API is not availableor it is inactive' );
 		}
 
 		$this->set_cache_root_dir( self::CACHE_ROOT_DIR . $cache_directory );
@@ -188,7 +188,7 @@ class PHP_File extends File {
 	}
 
 	/**
-	 * Check if opcache is enabled. Without it being enabled there is no point in having
+	 * Check if opcache is enabled and active. Without it being enabled there is no point in having
 	 * this kind of cache.
 	 *
 	 * A testing helper.
@@ -198,6 +198,6 @@ class PHP_File extends File {
 	 * @return bool true if enabled, otherwise false.
 	 */
 	public static function api_is_available(): bool {
-		return \calmpress\opcache\Opcache::api_is_available();
+		return \calmpress\opcache\Opcache::is_active();
 	}
 }

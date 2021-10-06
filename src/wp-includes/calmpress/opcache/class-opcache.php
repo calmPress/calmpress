@@ -66,6 +66,22 @@ class Opcache {
 	}
 
 	/**
+	 * Check if the Opcache is active (implies API is available).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool true if it can, otherwise false.
+	 */
+	public static function is_active() : bool {
+		if ( static::api_is_available() ) {
+			$state = opcache_get_status( false );
+			return $state['opcache_enabled'];
+		}
+
+		return false;
+	}
+
+	/**
 	 * Check if the Opcache API can be used.
 	 *
 	 * @since 1.0.0
@@ -77,7 +93,7 @@ class Opcache {
 			// This check ensures that it is possible to use the api to do stuff,
 			// especially invalidate cache files. Without invalidation there is
 			// a potential of using stale values.
-			if ( false !== opcache_get_status( false ) ) {	
+			if ( false !== opcache_get_status( false ) ) {
 				return true;
 			}
 		}
