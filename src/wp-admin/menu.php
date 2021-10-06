@@ -273,7 +273,7 @@ $menu[75]                     = array( __( 'Tools' ), 'tools', 'tools.php', '', 
 	$submenu['tools.php'][15] = array( __( 'Export' ), 'export', 'export.php' );
 	$submenu['tools.php'][20] = array( __( 'Site Health' ), 'view_site_health_checks', 'site-health.php' );
 	if ( ! is_multisite() ) {
-		$submenu['tools.php'][21] = array( __( 'Opcache State' ), 'opcache', 'opcache.php' );
+		$submenu['tools.php'][21] = array( __( 'Opcode Cache' ), 'opcache', 'opcache.php' );
 	}
 	$submenu['tools.php'][25] = array( __( 'Export Personal Data' ), 'export_others_personal_data', 'export-personal-data.php' );
 	$submenu['tools.php'][30] = array( __( 'Erase Personal Data' ), 'erase_others_personal_data', 'erase-personal-data.php' );
