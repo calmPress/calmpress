@@ -158,6 +158,9 @@ add_action(
 
 		// reduce admin role nag.
 		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::suggest_reduce_admin_role' );
+
+		// opcache miss rate.
+		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::opcache_miss_rate' );
 	}
 );
 

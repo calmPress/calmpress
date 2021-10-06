@@ -26,7 +26,7 @@ class Opcache {
 	 */
 	public function __construct() {
 
-		if ( ! static::api_is_avaialable() ) {
+		if ( ! static::api_is_available() ) {
 			throw new \RuntimeException( 'Opcache API is not available' );
 		}
 	}
@@ -71,7 +71,7 @@ class Opcache {
 	 *
 	 * @return bool true if it can, otherwise false.
 	 */
-	public static function api_is_avaialable() : bool {
+	public static function api_is_available() : bool {
 		if ( function_exists( 'opcache_get_status' ) ) {
 			// This check ensures that it is possible to use the api to do stuff,
 			// especially invalidate cache files. Without invalidation there is

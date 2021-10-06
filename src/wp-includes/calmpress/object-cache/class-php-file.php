@@ -33,9 +33,9 @@ namespace calmpress\object_cache;
  * used for values which are required for almost every request and change very rarely.
  *
  * Extends the File class as they have many coomon areas with regard to managing files.
- * 
+ *
  * @since 1.0.0
- * 
+ *
  * There are no type hinting to be compatible with the interface defined in PSR-16,
  * instead there are type checks.
  */
@@ -54,7 +54,7 @@ class PHP_File extends File {
 	 * @param string $cache_directory The path of the directory in which to store the relevant file
 	 *                                relative to the general PHP file object caching root.
 	 *
-	 * @throws \RuntimeException if APCu is not active.
+	 * @throws \RuntimeException If APCu is not active.
 	 */
 	public function __construct( string $cache_directory ) {
 
@@ -90,7 +90,7 @@ class PHP_File extends File {
 					$ret = [];
 					static::purge_file( $file );
 				}
-			} catch (\Throwable  $e) {
+			} catch ( \Throwable  $e ) {
 				ob_end_clean();
 				// Indicates there was problem with reading or parsing the file.
 				static::purge_file( $file );
@@ -115,10 +115,10 @@ class PHP_File extends File {
 	/**
 	 * Utility to convert keys to file names, sanitizing them for spaces and
 	 * other unfreindly characters.
-	 * 
+	 *
 	 * To make it simple even if it means a less readable file names, use md5 of the key
 	 * as the file name if bad characters are detected.
-	 * 
+	 *
 	 * bad characters - space, forward and back slashes, :, <, >, |, ?, *
 	 *
 	 * @since 1.0.0
@@ -128,8 +128,8 @@ class PHP_File extends File {
 	 * @return string A path to the file that stores the key related value.
 	 */
 	protected function key_to_file( string $key ): string {
-		if ( $key !== str_replace( [' ', '/', '\\', ':', '<', '>', '?', '*'], '', $key ) ) {
-			$key = md5( $key ); 
+		if ( str_replace( [ ' ', '/', '\\', ':', '<', '>', '?', '*' ], '', $key ) !== $key ) {
+			$key = md5( $key );
 		}
 
 		return $this->root_dir . $key . '.php';
@@ -161,10 +161,10 @@ class PHP_File extends File {
 	/**
 	 * Check if opcache is enabled. Without it being enabled there is no point in having
 	 * this kind of cache.
-	 * 
+	 *
 	 * Check done by checking that the relevant functions are avaiable and that it is enabled
 	 * in the PHP configuration.
-	 * 
+	 *
 	 * In addition check that it is possible to write cache files.
 	 *
 	 * As trying to detect permission if the directory do not exists proves to be a complex
@@ -180,7 +180,9 @@ class PHP_File extends File {
 		try {
 			new PHP_File( '' );
 			$available = true;
-		} catch ( \Exception $e ) {}
+		} catch ( \Exception $e ) {
+			// Do nothing as we already in "fail" state.
+		}
 
 		return $available;
 	}
@@ -188,7 +190,7 @@ class PHP_File extends File {
 	/**
 	 * Check if opcache is enabled. Without it being enabled there is no point in having
 	 * this kind of cache.
-	 * 
+	 *
 	 * A testing helper.
 	 *
 	 * @since 1.0.0
@@ -196,6 +198,6 @@ class PHP_File extends File {
 	 * @return bool true if enabled, otherwise false.
 	 */
 	public static function api_is_available(): bool {
-		return \calmpress\opcache\Opcache::api_is_avaialable();
+		return \calmpress\opcache\Opcache::api_is_available();
 	}
 }

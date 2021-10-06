@@ -35,7 +35,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 <?php settings_errors(); ?>
 	<h1><?php echo esc_html( $title ); ?></h1>
 	<?php
-	if ( ! Opcache::api_is_avaialable() ) {
+	if ( ! Opcache::api_is_available() ) {
 		echo '<p>' . esc_html__( 'The Opcode cache API is not available to this site.' ) . '</p>';
 	} else {
 		$opcache = new Opcache();

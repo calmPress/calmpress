@@ -160,4 +160,30 @@ class Admin_Notices {
 		}
 
 	}
+
+	/**
+	 * Notify admin when opcache miss rate is too high (above 5%) after a statistically meaningful
+	 * amount of hits (10k).
+	 *
+	 * @since 1.0.0
+	 */
+	public static function opcache_miss_rate() {
+
+		$screen = get_current_screen();
+		if ( $screen && ( 'opcache' !== $screen->id ) ) {
+			if ( current_user_can( 'opcache' ) && \calmpress\opcache\Opcache::api_is_available() ) {
+				$opcache = new \calmpress\opcache\Opcache();
+				$stats   = $opcache->stats();
+				if ( 5.0 < $stats->miss_rate() && 10000 < $stats->hits() ) {
+					$msg = sprintf(
+						/* translators: 1: Openning link to opcache page, 2: Closing </a> */
+						esc_html__( 'The Opcode Cache has a poor performance, you should look for the reason in the %1$sOpcode Cache page%2$s and notify you server`s administrator.' ),
+						'<a href="' . esc_url( admin_url( 'opcache.php' ) ) . '">',
+						'</a>'
+					);
+					echo "<div class='notice notice-error'><p>$msg</p></div>";
+				}
+			}
+		}
+	}
 }
