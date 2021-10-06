@@ -890,7 +890,7 @@ class WP_Site_Health {
 			// This check ensures that it is possible to use the api to do stuff,
 			// especially invalidate cache files. Without invalidation there is
 			// a potential of using stale values.
-			if ( false !== opcache_get_status() ) {
+			if ( false !== opcache_get_status( false ) ) {
 				$opcode_cache_usable = true;
 			}
 		}
