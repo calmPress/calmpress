@@ -39,7 +39,7 @@ class Opcache {
 	 * @return Stats An object serving as an interface to get the stats.
 	 */
 	public function stats(): Stats {
-		return new Stats( opcache_get_status() );
+		return new Stats( opcache_get_status( false ) );
 	}
 
 	/**
@@ -47,7 +47,7 @@ class Opcache {
 	 *
 	 * @since 1.0.0
 	 */
-	public function reset(): Stats {
+	public function reset() {
 		opcache_reset();
 	}
 

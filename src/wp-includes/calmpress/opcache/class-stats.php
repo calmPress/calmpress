@@ -24,7 +24,7 @@ class Stats {
 	 *
 	 * @var array
 	 */
-	private array $stats;
+	private array $stats = [];
 
 	/**
 	 * Create a stats object with the stats at the time of creation.
@@ -33,7 +33,7 @@ class Stats {
 	 *
 	 * @param array $stats. An array structured like what opcache_get_status returns.
 	 */
-	public function __constructor( array $stats ) {
+	public function __construct( array $stats ) {
 		$this->stats = $stats;
 	}
 
@@ -68,6 +68,28 @@ class Stats {
 	}
 
 	/**
+	 * Number of system initiated restarts. Lamps together out of memory and out of cache.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int The number restarts.
+	 */
+	public function system_restarts(): int {
+		return $this->stats['opcache_statistics']['oom_restarts'] + $this->stats['opcache_statistics']['hash_restarts'];
+	}
+
+	/**
+	 * Number of initiated restarts via the API.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int The number restarts.
+	 */
+	public function external_restarts(): int {
+		return $this->stats['opcache_statistics']['manual_restarts'];
+	}
+
+	/**
 	 * Get miss rate.
 	 *
 	 * @since 1.0.0
@@ -76,5 +98,29 @@ class Stats {
 	 */
 	public function miss_rate(): float {
 		return 100.0 - $this->stats['opcache_statistics']['opcache_hit_rate'];
+	}
+
+	/**
+	 * The precentage of cached keys used out of the max possible number.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return float The precentage.
+	 */
+	public function cached_keys_usage(): float {
+		return $this->stats['opcache_statistics']['num_cached_keys'] / $this->stats['opcache_statistics']['max_cached_keys'] * 100.0;
+	}
+
+	/**
+	 * The precentage of memory used out of the max possible.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return float The precentage.
+	 */
+	public function memory_usage(): float {
+		$used  = $this->stats['memory_usage']['used_memory'] + $this->stats['memory_usage']['wasted_memory'];
+		$total = $used + $this->stats['memory_usage']['free_memory'];
+		return $used / $total * 100.0;
 	}
 }
