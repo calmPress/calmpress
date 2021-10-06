@@ -7,8 +7,8 @@
 
 declare(strict_types=1);
 
-require_once ABSPATH . 'wp-admin\includes\misc.php';
-require_once ABSPATH . 'wp-admin\includes\file.php';
+require_once ABSPATH . 'wp-admin/includes/misc.php';
+require_once ABSPATH . 'wp-admin/includes/file.php';
 
 class Tests_Functions_Markers extends WP_UnitTestCase {
 

@@ -4,11 +4,11 @@
  * @group admin
  */
 
- require_once ABSPATH . 'wp-admin\includes\plugin.php';
- require_once ABSPATH . 'wp-admin\includes\class-wp-screen.php';
- require_once ABSPATH . 'wp-admin\includes\screen.php';
- require_once ABSPATH . 'wp-admin\includes\user.php';
- require_once ABSPATH . 'wp-admin\includes\file.php';
+ require_once ABSPATH . 'wp-admin/includes/plugin.php';
+ require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+ require_once ABSPATH . 'wp-admin/includes/screen.php';
+ require_once ABSPATH . 'wp-admin/includes/user.php';
+ require_once ABSPATH . 'wp-admin/includes/file.php';
 
 class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( $factory ) {

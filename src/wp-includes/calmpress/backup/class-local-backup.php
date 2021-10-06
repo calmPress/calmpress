@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace calmpress\backup;
 
 // This is need for accessing get_plugins API.
-require_once ABSPATH . 'wp-admin\includes\plugin.php';
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 /**
  * A local backup class for backups consisting of two files as expect by the Local_Backup_Storage

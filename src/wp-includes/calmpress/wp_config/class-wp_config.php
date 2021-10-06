@@ -193,7 +193,7 @@ class wp_config {
 		 * in order to keep merging easy we need to use this hack.
 		 */
 		if ( ! function_exists( 'extract_from_markers' ) ) {
-			require_once ABSPATH . 'wp-admin\includes\misc.php';
+			require_once ABSPATH . 'wp-admin/includes/misc.php';
 		}
 
 		$lock  = new \calmpress\filesystem\Path_Lock( $this->filename );
@@ -223,7 +223,7 @@ class wp_config {
 		 * in order to keep merging easy we need to use this hack.
 		 */
 		if ( ! function_exists( 'insert_with_markers' ) ) {
-			require_once ABSPATH . 'wp-admin\includes\misc.php';
+			require_once ABSPATH . 'wp-admin/includes/misc.php';
 		}
 
 		$stream = $credentials->stream_url_from_path( $this->filename );
