@@ -19,7 +19,7 @@ class Switch_User {
 
 	/**
 	 * Verify capability, nonce, and validitty of referer data a POST request. Die if the
-	 * user is not allowed to changed maintenance mode related data, or nonce/referer include
+	 * user is not allowed to change users, or nonce/referer include
 	 * bad data. 
 	 *
 	 * @since 1.0.0
@@ -39,7 +39,7 @@ class Switch_User {
 	}
 
 	/**
-	 * Handles the form post regarding user switching. Updates the aythentication cookies
+	 * Handles the form post regarding user switching. Updates the authentication cookies
 	 * to authenticate the current login session with as the user being switched to.
 	 *
 	 * Used as a hook on admin-post.
