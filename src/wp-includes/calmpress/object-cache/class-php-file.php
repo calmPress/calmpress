@@ -54,12 +54,12 @@ class PHP_File extends File {
 	 * @param string $cache_directory The path of the directory in which to store the relevant file
 	 *                                relative to the general PHP file object caching root.
 	 *
-	 * @throws \RuntimeException If APCu is not active.
+	 * @throws \RuntimeException If opcache API is not available.
 	 */
 	public function __construct( string $cache_directory ) {
 
 		if ( ! static::api_is_available() ) {
-			throw new \RuntimeException( 'Opcache API is not availableor it is inactive' );
+				throw new \RuntimeException( 'Opcache API is not available or it is inactive' );
 		}
 
 		$this->set_cache_root_dir( self::CACHE_ROOT_DIR . $cache_directory );
