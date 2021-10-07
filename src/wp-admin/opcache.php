@@ -16,7 +16,7 @@ if ( ! current_user_can( 'opcache' ) ) {
 	wp_die( esc_html__( 'Sorry, you are not allowed to manage the opcode cache for this site.' ) );
 }
 
-$title       = __( 'Opcode Cache' );
+$title       = __( 'Opcode Cache (opcache)' );
 $parent_file = 'tools.php';
 
 get_current_screen()->add_help_tab(
@@ -24,7 +24,7 @@ get_current_screen()->add_help_tab(
 		'id'      => 'overview',
 		'title'   => __( 'Overview' ),
 		'content' =>
-			'<p>' . esc_html__( 'The Opcode Cache (opcache) is used by PHP make script execute faster and may be used for object caching.' ) . '</p>',
+			'<p>' . esc_html__( 'The Opcode Cache is used by PHP make script execute faster and may be used for object caching.' ) . '</p>',
 	]
 );
 
@@ -66,7 +66,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			<td>
 				<?php echo esc_html( $stats->system_restarts() ); ?>
 				<p class="description">
-					<?php esc_html_e( 'This value should be zero. A much higher number indicates that you might need to allocated more memory to the opcache.' ); ?>
+					<?php esc_html_e( 'This value should be zero. A much higher number indicates that you might need to allocated more memory to opcache in the PHP\'s .ini files.' ); ?>
 				</p>
 			</td>
 		</tr>
@@ -98,14 +98,19 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			</td>
 		</tr>
 	</table>
-	<form action="admin-post.php" method="post">
-		<p><strong><?php esc_html_e( 'Before restarting you should keep in mind that the Opcode Cache might serve other sites as well which will be impacted by the retart.' ); ?></strong></p>
-		<input name='action' type="hidden" value='opcache_reset'>
-		<?php
-		wp_nonce_field( 'opcache_reset' );
-		submit_button( __( 'Restart the Opcode Cache' ), 'primary', 'restart' );
-		?>
-	</form>
+	<h2><?php esc_html_e( 'Restart' ); ?></h2>
+		<?php if ( PHP_OS_FAMILY === 'Windows' ) { ?>
+		<p><strong><?php esc_html_e( 'The best way to restart the Opcode Cache on windows is to restart the web server.' ); ?></strong></p>
+		<?php } else { ?>
+		<form action="admin-post.php" method="post">
+			<p><strong><?php esc_html_e( 'Before restarting you should keep in mind that the Opcode Cache might serve other sites as well which will be impacted by the retart.' ); ?></strong></p>
+			<input name='action' type="hidden" value='opcache_reset'>
+			<?php
+			wp_nonce_field( 'opcache_reset' );
+			submit_button( __( 'Restart the Opcode Cache' ), 'primary', 'restart' );
+			?>
+		</form>
+		<?php } ?>
 	<?php } ?>
 </div>
 
