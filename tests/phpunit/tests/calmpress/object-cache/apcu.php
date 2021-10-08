@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 use calmpress\object_cache\Session_Memory;
 use calmpress\object_cache\APCu;
-use calmpress\object_cache\APCu_Connector;
 
 // Mocks for APCu API
 
@@ -148,13 +147,13 @@ function apcu_exists( $key ) {
 }
 
 /**
- * Mock APCu_Connector that returns Mock_ACPu caches.
+ * Mock APCu connector that returns Mock_ACPu caches.
  *
  * @since 1.0.0
  */
-class Mock_APCu_Connector extends APCu_Connector {
-    public  function create_cache( string $group ) : APCu {
-        return new Mock_APCu( $this, $group );
+class Mock_APCu_Connector extends \calmpress\apcu\APCu {
+    public  function create_cache( string $namespace ) : APCu {
+        return new Mock_APCu( $this, $namespace );
     }
 }
 
@@ -180,7 +179,7 @@ class Mock_APCu extends APCu {
 	 * Zero out the cache and counters as we start new test, set the expected prefix to match
 	 * the cache prefix.
 	 */
-	public function __construct(  APCu_Connector $connector, string $sub_namespace ) {
+	public function __construct( \calmpress\apcu\APCu $connector, string $sub_namespace ) {
 		parent::__construct( $connector, $sub_namespace );
 		global $APCu_Mock_Cache;
 		global $expected_prefix;

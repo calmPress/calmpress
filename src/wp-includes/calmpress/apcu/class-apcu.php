@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace calmpress\object_cache;
+namespace calmpress\apcu;
 
 /**
  * Implementation of a connector to the APCu extension. Provised general information regarding
@@ -16,7 +16,7 @@ namespace calmpress\object_cache;
  *
  * @since 1.0.0
  */
-class APCu_Connector {
+class APCu {
 
 	/**
 	 * Holder of the namespace used for keys in the part of cache controlled by the connector.
@@ -78,7 +78,7 @@ class APCu_Connector {
 	}
 
 	/**
-	 * Create an APCu cache object for a global cache group.
+	 * Create an APCu object cache object for a global cache group.
 	 *
 	 * @since 1.0.0
 	 *
@@ -86,7 +86,7 @@ class APCu_Connector {
 	 *
 	 * @return APCu The cache object.
 	 */
-	public  function create_cache( string $namespace ) : APCu {
-		return new APCu( $this, $namespace );
+	public function create_cache( string $namespace ): \calmpress\object_cache\APCu {
+		return new \calmpress\object_cache\APCu( $this, $namespace );
 	}
 }

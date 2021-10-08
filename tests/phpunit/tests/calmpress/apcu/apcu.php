@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests covering the APCu_Connector class.
+ * Unit tests covering the APCu class.
  *
  * @package calmPress
  * @since 1.0.0
@@ -8,8 +8,7 @@
 
 declare(strict_types=1);
 
-use calmpress\object_cache\APCu_Connector;
-use calmpress\object_cache\APCu;
+use calmpress\apcu\APCu;
 
 // Protect against redefinition as this code is also used in the apcu specific testing.
 if ( ! function_exists( 'apcu_enabled' ) ) {
@@ -24,13 +23,13 @@ if ( ! function_exists( 'apcu_enabled' ) ) {
 }
 
 /**
- * Test the APCu_Connector
+ * Test the APCu class
  *
  * APCu should not be enabled for this test.
  *
  * @since 1.0.0
  */
-class WP_Test_APCu_Connector extends WP_UnitTestCase {
+class WP_Test_APCu_connector extends WP_UnitTestCase {
 
 	/**
 	 * APCu_is_avaialable should return false when APCu is not active.
@@ -38,7 +37,7 @@ class WP_Test_APCu_Connector extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	public function test_APCu_is_avaialable_when_it_is_not() {
-		$this->assertFalse( APCu_Connector::APCu_is_avaialable() );
+		$this->assertFalse( APCu::APCu_is_avaialable() );
 	}
 
 	/**
@@ -49,7 +48,7 @@ class WP_Test_APCu_Connector extends WP_UnitTestCase {
 	public function test_constructor_throws_when_apcu_not_active() {
 		$thrown = false;
 		try {
-			new APCu_Connector( '' );
+			new APCu( '' );
 		} catch ( \RuntimeException $e ) {
 			$thrown = true;
 		}
@@ -63,7 +62,7 @@ class WP_Test_APCu_Connector extends WP_UnitTestCase {
 		global $calmpress_apcu_enabled;
 		$calmpress_apcu_enabled = true;
 
-		$this->assertTrue( APCu_Connector::APCu_is_avaialable() );
+		$this->assertTrue( APCu::APCu_is_avaialable() );
 		$calmpress_apcu_enabled = false;
 	}
 
@@ -74,7 +73,7 @@ class WP_Test_APCu_Connector extends WP_UnitTestCase {
 		global $calmpress_apcu_enabled;
 		$calmpress_apcu_enabled = true;
 
-		$connector = new APCu_Connector( 'test' );
+		$connector = new APCu( 'test' );
 
 		$this->assertSame( 'test', $connector->namespace() );
 		$calmpress_apcu_enabled = false;
@@ -87,7 +86,7 @@ class WP_Test_APCu_Connector extends WP_UnitTestCase {
 		global $calmpress_apcu_enabled;
 		$calmpress_apcu_enabled = true;
 
-		$connector = new APCu_Connector( 'test' );
+		$connector = new APCu( 'test' );
 		$cache     = $connector->create_cache( 'test' );
 		$this->assertTrue( is_a( $cache, '\calmpress\object_cache\APCu' ) );
 		$calmpress_apcu_enabled = false;

@@ -87,8 +87,8 @@ class WP_Object_Cache {
 		$caches[] = $session_memory;
 		
 		// If APCu enabled use it.
-		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
-			$connector  = new \calmpress\object_cache\APCu_Connector();
+		if ( \calmpress\apcu\APCu::APCu_is_avaialable() ) {
+			$connector  = new \calmpress\apcu\APCu();
 			$apcu_cache = $connector->create_cache( $namespace );
 			return new \calmpress\object_cache\Chained_Caches( $session_memory, $apcu_cache );
 		}
@@ -126,8 +126,8 @@ class WP_Object_Cache {
 	private static function create_cache_for_transient_groups( string $namespace ): \Psr\SimpleCache\CacheInterface {
 
 		// If APCu enabled use it.
-		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
-			$connector  = new \calmpress\object_cache\APCu_Connector();
+		if ( \calmpress\apcu\APCu::APCu_is_avaialable() ) {
+			$connector  = new \calmpress\apcu\APCu();
 			return $connector->create_cache( $namespace );
 		}
 
@@ -151,8 +151,8 @@ class WP_Object_Cache {
 		}
 
 		$caches = [];
-		if ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ) {
-			$connector = new \calmpress\object_cache\APCu_Connector();
+		if ( \calmpress\apcu\APCu::APCu_is_avaialable() ) {
+			$connector = new \calmpress\apcu\APCu();
 			$caches[]  = $connector->create_cache( $namespace );
 		} else {
 			try {
@@ -610,7 +610,7 @@ class WP_Object_Cache {
 			return false;
 		}
 
-		return ( \calmpress\object_cache\APCu_Connector::APCu_is_avaialable() ||
+		return ( \calmpress\apcu\APCu::APCu_is_avaialable() ||
 				\calmpress\object_cache\File::is_available() );
 	}
 }

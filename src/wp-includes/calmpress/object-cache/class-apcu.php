@@ -34,12 +34,12 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param APCu_Connector $connector An object which hold information about the APCu and the part
+	 * @param \calmpress\apcu\APCu $connector An object which hold information about the APCu and the part
 	 *                                  of it which can be used for the group cache.
 	 * @param string         $sub_namespace The suffix of the general $connector prefix to be used for
 	 *                                  all keys in the group cache
 	 */
-	public function __construct( APCu_Connector $connector, string $sub_namespace ) {
+	public function __construct( \calmpress\apcu\APCu $connector, string $sub_namespace ) {
 		$this->prefix = $connector->namespace() . '_' . $sub_namespace . '_';
 	}
 
