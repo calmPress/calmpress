@@ -278,6 +278,7 @@ $menu[75]                     = array( __( 'Tools' ), 'tools', 'tools.php', '', 
 	if ( ! is_multisite() && \calmpress\apcu\APCu::APCu_is_avaialable() ) {
 		$submenu['tools.php'][22] = array( __( 'APCu Cache' ), 'manage_server', 'apcu.php' );
 	}
+	$submenu['tools.php'][23] = array( __( 'Object Cache' ), 'manage_server', 'object-cache.php' );
 	$submenu['tools.php'][25] = array( __( 'Export Personal Data' ), 'export_others_personal_data', 'export-personal-data.php' );
 	$submenu['tools.php'][30] = array( __( 'Erase Personal Data' ), 'erase_others_personal_data', 'erase-personal-data.php' );
 if ( is_multisite() && ! is_main_site() ) {

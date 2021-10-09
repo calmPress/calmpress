@@ -177,5 +177,8 @@ add_action( 'admin_post_switch_user', '\calmpress\user\Switch_User::handle_user_
 // Opcache restart form submittion.
 add_action( 'admin_post_opcache_reset', '\calmpress\opcache\Opcache::handle_opcache_reset' );
 
-// Opcache restart form submittion.
+// APCu restart form submittion.
 add_action( 'admin_post_apcu_reset', '\calmpress\apcu\APCu::handle_apcu_reset' );
+
+// Object cache restart form submittion.
+add_action( 'admin_post_object_cache_reset', '\calmpress\object_cache\Utils::handle_object_cache_reset' );
