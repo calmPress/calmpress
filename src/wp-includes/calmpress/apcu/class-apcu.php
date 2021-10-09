@@ -157,7 +157,7 @@ class APCu {
 	 *                       and admin referer fields in the request.
 	 */
 	private static function verify_post_request( string $action ) {
-		if ( ! current_user_can( 'administrator' ) ) {
+		if ( ! current_user_can( 'manage_server' ) ) {
 			wp_die(
 				'<h1>' . __( 'You need additional permission.' ) . '</h1>' .
 				'<p>' . __( 'Sorry, you are not allowed to manage APCu at this site.' ) . '</p>',
