@@ -833,7 +833,7 @@ function populate_roles_cp_100() {
 	$role->add_cap( 'maintenance_mode' );
 	if ( ! is_multisite() ) {
 		$role->add_cap( 'backup' );
-		$role->add_cap( 'opcache' );
+		$role->add_cap( 'manage_server' );
 		$role->add_cap( 'safe_mode' );
 	}
 }

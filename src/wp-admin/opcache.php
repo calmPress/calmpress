@@ -12,7 +12,7 @@ namespace calmpress\opcache;
 /** WordPress Administration Bootstrap */
 require_once dirname( __FILE__ ) . '/admin.php';
 
-if ( ! current_user_can( 'opcache' ) ) {
+if ( ! current_user_can( 'manage_server' ) ) {
 	wp_die( esc_html__( 'Sorry, you are not allowed to manage the opcode cache for this site.' ) );
 }
 

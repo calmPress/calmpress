@@ -113,7 +113,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'backup'                  => array( 'administrator' ),
 			'safe_mode'               => array( 'administrator' ),
 			'maintenance_mode'        => array( 'administrator' ),
-			'opcache'                 => array( 'administrator' ),
+			'manage_server'           => array( 'administrator' ),
 			
 
 			'moderate_comments'       => array( 'administrator', 'editor' ),
@@ -185,7 +185,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'view_site_health_checks' => array(),
 			'backup'                  => array(),
 			'safe_mode'               => array(),
-			'opcache'                 => array(),
+			'manage_server'           => array(),
 
 			'edit_theme_options'      => array( 'administrator' ),
 			'export'                  => array( 'administrator' ),
@@ -545,7 +545,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			$expected['backup'],
 			$expected['safe_mode'],
 			$expected['maintenance_mode'],
-			$expected['opcache'],
+			$expected['manage_server'],
 		);
 
 		$expected = array_keys( $expected );

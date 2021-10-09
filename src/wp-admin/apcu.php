@@ -12,7 +12,7 @@ namespace calmpress\apcu;
 /** WordPress Administration Bootstrap */
 require_once dirname( __FILE__ ) . '/admin.php';
 
-if ( ! current_user_can( 'administrator' ) ) {
+if ( ! current_user_can( 'manage_server' ) ) {
 	wp_die( esc_html__( 'Sorry, you are not allowed to manage the APCu cache for this site.' ) );
 }
 

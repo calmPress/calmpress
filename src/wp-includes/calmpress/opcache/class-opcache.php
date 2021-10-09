@@ -112,7 +112,7 @@ class Opcache {
 	 *                       and admin referer fields in the request.
 	 */
 	private static function verify_post_request( string $action ) {
-		if ( ! current_user_can( 'opcache' ) ) {
+		if ( ! current_user_can( 'manage_server' ) ) {
 			wp_die(
 				'<h1>' . __( 'You need additional permission.' ) . '</h1>' .
 				'<p>' . __( 'Sorry, you are not allowed to manage opcache at this site.' ) . '</p>',

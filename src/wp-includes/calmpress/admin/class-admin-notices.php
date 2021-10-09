@@ -171,7 +171,7 @@ class Admin_Notices {
 
 		$screen = get_current_screen();
 		if ( $screen && ( 'opcache' !== $screen->id ) ) {
-			if ( current_user_can( 'opcache' ) && \calmpress\opcache\Opcache::api_is_available() ) {
+			if ( current_user_can( 'manage_server' ) && \calmpress\opcache\Opcache::api_is_available() ) {
 				$opcache = new \calmpress\opcache\Opcache();
 				$stats   = $opcache->stats();
 				if ( 5.0 < $stats->miss_rate() && 10000 < $stats->hits() ) {
@@ -196,7 +196,7 @@ class Admin_Notices {
 
 		$screen = get_current_screen();
 		if ( $screen && ( 'apcu' !== $screen->id ) ) {
-			if ( current_user_can( 'apcu' ) && \calmpress\apcu\APCu::APCu_is_avaialable() ) {
+			if ( current_user_can( 'manage_server' ) && \calmpress\apcu\APCu::APCu_is_avaialable() ) {
 				$apcu = new \calmpress\apcu\APCu();
 				if ( 5 <= $apcu->recent_store_failures() ) {
 					$msg = sprintf(
