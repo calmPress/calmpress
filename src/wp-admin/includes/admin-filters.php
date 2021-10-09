@@ -161,6 +161,9 @@ add_action(
 
 		// opcache miss rate.
 		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::opcache_miss_rate' );
+
+		// APCu store failures.
+		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::apcu_store_failures' );
 	}
 );
 

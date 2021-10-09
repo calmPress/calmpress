@@ -186,4 +186,28 @@ class Admin_Notices {
 			}
 		}
 	}
+
+	/**
+	 * Notify admin when APCu has 5 or more apcu_store errors.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function apcu_store_failures() {
+
+		$screen = get_current_screen();
+		if ( $screen && ( 'apcu' !== $screen->id ) ) {
+			if ( current_user_can( 'apcu' ) && \calmpress\apcu\APCu::APCu_is_avaialable() ) {
+				$apcu = new \calmpress\apcu\APCu();
+				if ( 5 <= $apcu->recent_store_failures() ) {
+					$msg = sprintf(
+						/* translators: 1: Openning link to apcu page, 2: Closing </a> */
+						esc_html__( 'More than 5 writes to the APCu Cache had failed in the last hour, you might need to reset it at %1$APCu page%2$s and notify you server`s administrator.' ),
+						'<a href="' . esc_url( admin_url( 'apcu.php' ) ) . '">',
+						'</a>'
+					);
+					echo "<div class='notice notice-error'><p>$msg</p></div>";
+				}
+			}
+		}
+	}
 }

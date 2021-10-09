@@ -30,6 +30,15 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	protected string $prefix;
 
 	/**
+	 * The APCu "connector" object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var \calmpress\apcu\APCu
+	 */
+	protected \calmpress\apcu\APCu $connector;
+
+	/**
 	 * Construct a group cache over APCu.
 	 *
 	 * @since 1.0.0
@@ -40,7 +49,8 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	 *                                  all keys in the group cache
 	 */
 	public function __construct( \calmpress\apcu\APCu $connector, string $sub_namespace ) {
-		$this->prefix = $connector->namespace() . '_' . $sub_namespace . '_';
+		$this->connector = $connector;
+		$this->prefix    = $connector->namespace() . '_' . $sub_namespace . '_';
 	}
 
 	/**
@@ -71,6 +81,8 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	/**
 	 * Persists data in the cache, uniquely referenced by a key with an optional expiration TTL time.
 	 *
+	 * If the insertion of data fails reprt to the APCu controller.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param string                 $key   The key of the item to store.
@@ -86,7 +98,8 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	public function set( $key, $value, $ttl = null ) {
 		static::throw_if_not_string_int( $key );
 		
-		return apcu_store( $this->prefix . $key, $value, static::ttl_to_seconds( $ttl ) );
+		$success = apcu_store( $this->prefix . $key, $value, static::ttl_to_seconds( $ttl ) );
+		return $success;
 	}
 
 	/**
@@ -157,6 +170,8 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 	/**
 	 * Persists a set of key => value pairs in the cache, with an optional TTL.
 	 *
+	 * If insertion of the value fails, report it to the APCu controller.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param iterable               $values A list of key => value pairs for a multiple-set operation.
@@ -176,7 +191,8 @@ class APCu implements \Psr\SimpleCache\CacheInterface {
 			$pairs[ $this->prefix . $key ] = $value;
 		}
 
-		return false !== apcu_store( $pairs, null, static::ttl_to_seconds( $ttl ) );
+		$success = apcu_store( $pairs, null, static::ttl_to_seconds( $ttl ) );
+		return $success;
 	}
 
 	/**
