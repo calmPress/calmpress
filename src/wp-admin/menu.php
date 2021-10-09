@@ -275,6 +275,9 @@ $menu[75]                     = array( __( 'Tools' ), 'tools', 'tools.php', '', 
 	if ( ! is_multisite() ) {
 		$submenu['tools.php'][21] = array( __( 'Opcode Cache' ), 'opcache', 'opcache.php' );
 	}
+	if ( ! is_multisite() && \calmpress\apcu\APCu::APCu_is_avaialable() ) {
+		$submenu['tools.php'][22] = array( __( 'APCu Cache' ), 'administrator', 'apcu.php' );
+	}
 	$submenu['tools.php'][25] = array( __( 'Export Personal Data' ), 'export_others_personal_data', 'export-personal-data.php' );
 	$submenu['tools.php'][30] = array( __( 'Erase Personal Data' ), 'erase_others_personal_data', 'erase-personal-data.php' );
 if ( is_multisite() && ! is_main_site() ) {
