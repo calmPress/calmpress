@@ -269,8 +269,6 @@ if ( current_user_can( 'list_users' ) ) {
 
 $menu[75]                     = array( __( 'Tools' ), 'tools', 'tools.php', '', 'menu-top menu-icon-tools', 'menu-tools', 'dashicons-admin-tools' );
 	$submenu['tools.php'][5]  = array( __( 'Maintenance Mode' ), 'maintenance_mode', 'maintenance-mode.php' );
-	$submenu['tools.php'][10] = array( __( 'Import' ), 'import', 'import.php' );
-	$submenu['tools.php'][15] = array( __( 'Export' ), 'export', 'export.php' );
 	$submenu['tools.php'][20] = array( __( 'Site Health' ), 'view_site_health_checks', 'site-health.php' );
 	if ( ! is_multisite() ) {
 		$submenu['tools.php'][21] = array( __( 'Opcode Cache' ), 'manage_server', 'opcache.php' );

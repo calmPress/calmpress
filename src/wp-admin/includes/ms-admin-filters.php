@@ -28,9 +28,6 @@ add_filter( 'get_term', 'sync_category_tag_slugs', 10, 2 );
 // Post hooks.
 add_filter( 'wp_insert_post_data', 'avoid_blog_page_permalink_collision', 10, 2 );
 
-// Tools hooks.
-add_filter( 'import_allow_create_users', 'check_import_new_users' );
-
 // Notices hooks.
 add_action( 'admin_notices', 'site_admin_notice' );
 add_action( 'network_admin_notices', 'site_admin_notice' );

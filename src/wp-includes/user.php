@@ -1810,7 +1810,6 @@ function wp_insert_user( $userdata ) {
 	 * accordingly.
 	 */
 	if ( ( ! $update || ( ! empty( $old_user_data ) && 0 !== strcasecmp( $user_email, $old_user_data->user_email ) ) )
-		&& ! defined( 'WP_IMPORTING' )
 		&& email_exists( $user_email )
 	) {
 		return new WP_Error( 'existing_user_email', __( 'Sorry, that email address is already used!' ) );

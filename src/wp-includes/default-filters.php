@@ -346,7 +346,6 @@ add_action( 'wp_privacy_delete_old_export_files', 'wp_privacy_delete_old_export_
 // Cron tasks.
 add_action( 'wp_scheduled_delete', 'wp_scheduled_delete' );
 add_action( 'wp_scheduled_auto_draft_delete', 'wp_delete_auto_drafts' );
-add_action( 'importer_scheduled_cleanup', 'wp_delete_attachment' );
 add_action( 'upgrader_scheduled_cleanup', 'wp_delete_attachment' );
 add_action( 'delete_expired_transients', 'delete_expired_transients' );
 

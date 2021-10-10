@@ -683,54 +683,6 @@ function wp_dropdown_roles( $selected = '' ) {
 }
 
 /**
- * Outputs the form used by the importers to accept the data to be imported
- *
- * @since 2.0.0
- *
- * @param string $action The action attribute for the form.
- */
-function wp_import_upload_form( $action ) {
-
-	/**
-	 * Filters the maximum allowed upload size for import files.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @see wp_max_upload_size()
-	 *
-	 * @param int $max_upload_size Allowed upload size. Default 1 MB.
-	 */
-	$bytes      = apply_filters( 'import_upload_size_limit', wp_max_upload_size() );
-	$size       = size_format( $bytes );
-	$upload_dir = wp_upload_dir();
-	if ( ! empty( $upload_dir['error'] ) ) :
-		?>
-		<div class="error"><p><?php _e( 'Before you can upload your import file, you will need to fix the following error:' ); ?></p>
-		<p><strong><?php echo $upload_dir['error']; ?></strong></p></div>
-		<?php
-	else :
-		?>
-<form enctype="multipart/form-data" id="import-upload-form" method="post" class="wp-upload-form" action="<?php echo esc_url( wp_nonce_url( $action, 'import-upload' ) ); ?>">
-<p>
-		<?php
-		printf(
-			'<label for="upload">%s</label> (%s)',
-			__( 'Choose a file from your computer:' ),
-			/* translators: %s: Maximum allowed file size. */
-			sprintf( __( 'Maximum size: %s' ), $size )
-		);
-		?>
-<input type="file" id="upload" name="import" size="25" />
-<input type="hidden" name="action" value="save" />
-<input type="hidden" name="max_file_size" value="<?php echo $bytes; ?>" />
-</p>
-		<?php submit_button( __( 'Upload file and import' ), 'primary' ); ?>
-</form>
-		<?php
-	endif;
-}
-
-/**
  * Adds a meta box to one or more screens.
  *
  * @since 2.5.0

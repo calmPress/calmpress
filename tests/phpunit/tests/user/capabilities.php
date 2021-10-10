@@ -101,8 +101,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'update_plugins'          => array( 'administrator' ),
 			'update_themes'           => array( 'administrator' ),
 			'edit_theme_options'      => array( 'administrator' ),
-			'export'                  => array( 'administrator' ),
-			'import'                  => array( 'administrator' ),
 			'list_users'              => array( 'administrator' ),
 			'manage_options'          => array( 'administrator' ),
 			'promote_users'           => array( 'administrator' ),
@@ -188,8 +186,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'manage_server'           => array(),
 
 			'edit_theme_options'      => array( 'administrator' ),
-			'export'                  => array( 'administrator' ),
-			'import'                  => array( 'administrator' ),
 			'list_users'              => array( 'administrator' ),
 			'manage_options'          => array( 'administrator' ),
 			'promote_users'           => array( 'administrator' ),

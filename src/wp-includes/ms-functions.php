@@ -2166,7 +2166,7 @@ function redirect_this_site( $deprecated = '' ) {
  * @return string|array If the upload is under the size limit, $upload is returned. Otherwise returns an error message.
  */
 function upload_is_file_too_big( $upload ) {
-	if ( ! is_array( $upload ) || defined( 'WP_IMPORTING' ) || get_site_option( 'upload_space_check_disabled' ) ) {
+	if ( ! is_array( $upload ) || get_site_option( 'upload_space_check_disabled' ) ) {
 		return $upload;
 	}
 

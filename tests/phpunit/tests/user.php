@@ -602,9 +602,7 @@ class Tests_User extends WP_UnitTestCase {
 			)
 		);
 
-		if ( ! defined( 'WP_IMPORTING' ) ) {
-			$this->assertWPError( $id2 );
-		}
+		$this->assertWPError( $id2 );
 
 		update_user_meta( $id2, 'key', 'value' );
 
@@ -650,9 +648,7 @@ class Tests_User extends WP_UnitTestCase {
 				)
 			);
 
-			if ( ! defined( 'WP_IMPORTING' ) ) {
-				$this->assertWPError( $return );
-			}
+			$this->assertWPError( $return );
 		}
 	}
 

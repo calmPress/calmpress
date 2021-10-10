@@ -24,10 +24,6 @@ function check_upload_size( $file ) {
 		return $file;
 	}
 
-	if ( defined( 'WP_IMPORTING' ) ) {
-		return $file;
-	}
-
 	$space_left = get_upload_space_available();
 
 	$file_size = filesize( $file['tmp_name'] );
@@ -251,22 +247,6 @@ function display_space_usage() {
 	?>
 	</strong>
 	<?php
-}
-
-/**
- * Get the remaining upload space for this site.
- *
- * @since MU (3.0.0)
- *
- * @param int $size Current max size in bytes
- * @return int Max size in bytes
- */
-function fix_import_form_size( $size ) {
-	if ( upload_is_user_over_quota( false ) ) {
-		return 0;
-	}
-	$available = get_upload_space_available();
-	return min( $size, $available );
 }
 
 /**
@@ -604,23 +584,6 @@ function _access_denied_splash() {
 
 	wp_die( $output, 403 );
 }
-
-/**
- * Checks if the current user has permissions to import new users.
- *
- * @since 3.0.0
- *
- * @param string $permission A permission to be checked. Currently not used.
- * @return bool True if the user has proper permissions, false if they do not.
- */
-function check_import_new_users( $permission ) {
-	if ( ! current_user_can( 'manage_network_users' ) ) {
-		return false;
-	}
-
-	return true;
-}
-// See "import_allow_fetch_attachments" and "import_attachment_size_limit" filters too.
 
 /**
  * Generates and displays a drop-down of available languages.

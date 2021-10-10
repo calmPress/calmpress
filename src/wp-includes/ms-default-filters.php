@@ -94,7 +94,6 @@ unset( $action );
 
 // Files.
 add_filter( 'wp_upload_bits', 'upload_is_file_too_big' );
-add_filter( 'import_upload_size_limit', 'fix_import_form_size' );
 add_filter( 'upload_mimes', 'check_upload_mimes' );
 add_filter( 'upload_size_limit', 'upload_size_limit_filter' );
 add_action( 'upload_ui_over_quota', 'multisite_over_quota_message' );
@@ -107,7 +106,6 @@ add_filter( 'enable_update_services_configuration', '__return_false' );
 if ( ! defined( 'EDIT_ANY_USER' ) || ! EDIT_ANY_USER ) { // Back compat constant.
 	add_filter( 'enable_edit_any_user_configuration', '__return_false' );
 }
-add_filter( 'force_filtered_html_on_import', '__return_true' );
 
 // WP_HOME and WP_SITEURL should not have any effect in MS.
 remove_filter( 'option_siteurl', '_config_wp_siteurl' );

@@ -624,7 +624,6 @@ function populate_roles_160() {
 	$role->add_cap( 'moderate_comments' );
 	$role->add_cap( 'manage_categories' );
 	$role->add_cap( 'upload_files' );
-	$role->add_cap( 'import' );
 	$role->add_cap( 'unfiltered_html' );
 	$role->add_cap( 'edit_posts' );
 	$role->add_cap( 'edit_others_posts' );
@@ -819,7 +818,6 @@ function populate_roles_300() {
 		$role->add_cap( 'promote_users' );
 		$role->add_cap( 'edit_theme_options' );
 		$role->add_cap( 'delete_themes' );
-		$role->add_cap( 'export' );
 	}
 }
 
