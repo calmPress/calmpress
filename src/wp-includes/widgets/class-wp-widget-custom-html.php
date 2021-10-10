@@ -148,7 +148,7 @@ class WP_Widget_Custom_HTML extends WP_Widget {
 		$content = apply_filters( 'widget_text', $instance['content'], $simulated_text_widget_instance, $this );
 
 		// Adds 'noopener' relationship, without duplicating values, to all HTML A elements that have a target.
-		$content = wp_targeted_link_rel( $content );
+		$content = $content;
 
 		/**
 		 * Filters the content of the Custom HTML widget.
