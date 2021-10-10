@@ -895,7 +895,6 @@ class Tests_WP_Customize_Manager extends WP_UnitTestCase {
 
 		$this->assertSame( 10, has_filter( 'wp_robots', 'wp_robots_no_robots' ) );
 		$this->assertSame( 10, has_action( 'wp_head', array( $wp_customize, 'remove_frameless_preview_messenger_channel' ) ) );
-		$this->assertSame( 10, has_filter( 'wp_headers', array( $wp_customize, 'filter_iframe_security_headers' ) ) );
 		$this->assertSame( 10, has_filter( 'wp_redirect', array( $wp_customize, 'add_state_query_params' ) ) );
 		$this->assertTrue( wp_script_is( 'customize-preview', 'enqueued' ) );
 		$this->assertSame( 10, has_action( 'wp_head', array( $wp_customize, 'customize_preview_loading_style' ) ) );
@@ -920,22 +919,6 @@ class Tests_WP_Customize_Manager extends WP_UnitTestCase {
 		}
 		$this->assertNotNull( $exception );
 		$this->assertContains( 'Unauthorized', $exception->getMessage() );
-	}
-
-	/**
-	 * Test WP_Customize_Manager::filter_iframe_security_headers().
-	 *
-	 * @ticket 30937
-	 * @ticket 40020
-	 * @covers WP_Customize_Manager::filter_iframe_security_headers
-	 */
-	function test_filter_iframe_security_headers() {
-		$wp_customize = new WP_Customize_Manager();
-		$headers      = $wp_customize->filter_iframe_security_headers( array() );
-		$this->assertArrayHasKey( 'X-Frame-Options', $headers );
-		$this->assertArrayHasKey( 'Content-Security-Policy', $headers );
-		$this->assertSame( 'SAMEORIGIN', $headers['X-Frame-Options'] );
-		$this->assertSame( "frame-ancestors 'self'", $headers['Content-Security-Policy'] );
 	}
 
 	/**

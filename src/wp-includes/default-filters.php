@@ -295,6 +295,9 @@ add_action( 'login_head', 'wp_site_icon', 99 );
 add_action( 'login_footer', 'wp_print_footer_scripts', 20 );
 add_action( 'login_init', 'send_frame_options_header', 10, 0 );
 
+// Prevent embeding front end as iframe in other sites.
+add_action( 'template_redirect', 'send_frame_options_header', 10, 0 );
+
 // Feed Site Icon.
 add_action( 'rss2_head', 'rss2_site_icon' );
 

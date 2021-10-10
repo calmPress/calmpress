@@ -6203,11 +6203,9 @@ function wp_find_hierarchy_loop_tortoise_hare( $callback, $start, $override = ar
  * Send a HTTP header to limit rendering of pages to same origin iframes.
  *
  * @since 3.1.3
- *
- * @see https://developer.mozilla.org/en/the_x-frame-options_response_header
  */
 function send_frame_options_header() {
-	header( 'X-Frame-Options: SAMEORIGIN' );
+	header( "Content-Security-Policy: frame-ancestors 'self'" );
 }
 
 /**

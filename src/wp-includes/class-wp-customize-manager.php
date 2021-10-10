@@ -1858,7 +1858,6 @@ class WP_Customize_Manager {
 			header( 'X-Robots: noindex, nofollow, noarchive' );
 		}
 		add_filter( 'wp_robots', 'wp_robots_no_robots' );
-		add_filter( 'wp_headers', array( $this, 'filter_iframe_security_headers' ) );
 
 		/*
 		 * If preview is being served inside the customizer preview iframe, and
@@ -1897,20 +1896,6 @@ class WP_Customize_Manager {
 		 * @param WP_Customize_Manager $this WP_Customize_Manager instance.
 		 */
 		do_action( 'customize_preview_init', $this );
-	}
-
-	/**
-	 * Filters the X-Frame-Options and Content-Security-Policy headers to ensure frontend can load in customizer.
-	 *
-	 * @since 4.7.0
-	 *
-	 * @param array $headers Headers.
-	 * @return array Headers.
-	 */
-	public function filter_iframe_security_headers( $headers ) {
-		$headers['X-Frame-Options']         = 'SAMEORIGIN';
-		$headers['Content-Security-Policy'] = "frame-ancestors 'self'";
-		return $headers;
 	}
 
 	/**
