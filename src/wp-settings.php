@@ -280,6 +280,7 @@ require ABSPATH . WPINC . '/sitemaps/class-wp-sitemaps-renderer.php';
 require ABSPATH . WPINC . '/sitemaps/class-wp-sitemaps-stylesheet.php';
 require ABSPATH . WPINC . '/sitemaps/providers/class-wp-sitemaps-posts.php';
 require ABSPATH . WPINC . '/sitemaps/providers/class-wp-sitemaps-taxonomies.php';
+require ABSPATH . WPINC . '/class-wp-block-parser.php';
 require ABSPATH . WPINC . '/blocks.php';
 
 $GLOBALS['wp_embed'] = new WP_Embed();
