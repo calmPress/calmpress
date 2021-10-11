@@ -1393,6 +1393,91 @@ function wp_default_styles( &$styles ) {
 	$styles->add( 'thickbox', '/wp-includes/js/thickbox/thickbox.css', array( 'dashicons' ) );
 	$styles->add( 'wp-codemirror', '/wp-includes/js/codemirror/codemirror.min.css', array(), '5.29.1-alpha-ee20357' );
 
+	$block_library_theme_path = WPINC . "/css/dist/block-library/theme$suffix.css";
+	$styles->add( 'wp-block-library-theme', "/$block_library_theme_path" );
+	$styles->add_data( 'wp-block-library-theme', 'path', ABSPATH . $block_library_theme_path );
+
+	$styles->add(
+		'wp-reset-editor-styles',
+		"/wp-includes/css/dist/block-library/reset$suffix.css",
+		array( 'common', 'forms' ) // Make sure the reset is loaded after the default WP Admin styles.
+	);
+
+	$styles->add(
+		'wp-editor-classic-layout-styles',
+		"/wp-includes/css/dist/edit-post/classic$suffix.css",
+		array()
+	);
+
+	$wp_edit_blocks_dependencies = array(
+		'wp-components',
+		'wp-editor',
+		// This need to be added before the block library styles,
+		// The block library styles override the "reset" styles.
+		'wp-reset-editor-styles',
+		'wp-block-library',
+		'wp-reusable-blocks',
+	);
+
+	$styles->add(
+		'wp-edit-blocks',
+		"/wp-includes/css/dist/block-library/editor$suffix.css",
+		$wp_edit_blocks_dependencies
+	);
+
+	$package_styles = array(
+		'block-editor'         => array( 'wp-components' ),
+		'block-library'        => array(),
+		'block-directory'      => array(),
+		'components'           => array(),
+		'edit-post'            => array(
+			'wp-components',
+			'wp-block-editor',
+			'wp-editor',
+			'wp-edit-blocks',
+			'wp-block-library',
+			'wp-nux',
+		),
+		'editor'               => array(
+			'wp-components',
+			'wp-block-editor',
+			'wp-nux',
+			'wp-reusable-blocks',
+		),
+		'format-library'       => array(),
+		'list-reusable-blocks' => array( 'wp-components' ),
+		'reusable-blocks'      => array( 'wp-components' ),
+		'nux'                  => array( 'wp-components' ),
+		'widgets'              => array(
+			'wp-components',
+		),
+		'edit-widgets'         => array(
+			'wp-widgets',
+			'wp-block-editor',
+			'wp-edit-blocks',
+			'wp-block-library',
+			'wp-reusable-blocks',
+		),
+		'customize-widgets'    => array(
+			'wp-widgets',
+			'wp-block-editor',
+			'wp-edit-blocks',
+			'wp-block-library',
+			'wp-reusable-blocks',
+		),
+	);
+
+	foreach ( $package_styles as $package => $dependencies ) {
+		$handle = 'wp-' . $package;
+		$path   = "/wp-includes/css/dist/$package/style$suffix.css";
+
+		if ( 'block-library' === $package && wp_should_load_separate_core_block_assets() ) {
+			$path = "/wp-includes/css/dist/$package/common$suffix.css";
+		}
+		$styles->add( $handle, $path, $dependencies );
+		$styles->add_data( $handle, 'path', ABSPATH . $path );
+	}
+
 	// RTL CSS.
 	$rtl_styles = array(
 		// Admin CSS.
@@ -1425,6 +1510,24 @@ function wp_default_styles( &$styles ) {
 		'media-views',
 		'wp-pointer',
 		'wp-jquery-ui-dialog',
+		// Package styles.
+		'wp-reset-editor-styles',
+		'wp-editor-classic-layout-styles',
+		'wp-block-library-theme',
+		'wp-edit-blocks',
+		'wp-block-editor',
+		'wp-block-library',
+		'wp-block-directory',
+		'wp-components',
+		'wp-customize-widgets',
+		'wp-edit-post',
+		'wp-edit-widgets',
+		'wp-editor',
+		'wp-format-library',
+		'wp-list-reusable-blocks',
+		'wp-reusable-blocks',
+		'wp-nux',
+		'wp-widgets',
 	);
 
 	foreach ( $rtl_styles as $rtl_style ) {
