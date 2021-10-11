@@ -44,7 +44,7 @@ $title = sprintf(
 	( isset( $tabs[ $current_tab ] ) ? esc_html( $tabs[ $current_tab ] ) : esc_html( reset( $tabs ) ) )
 );
 
-if ( ! current_user_can( 'view_site_health_checks' ) ) {
+if ( ! current_user_can( 'manage_server' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to access site health information.' ), '', 403 );
 }
 

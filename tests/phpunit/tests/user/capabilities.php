@@ -107,7 +107,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'remove_users'            => array( 'administrator' ),
 			'switch_themes'           => array( 'administrator' ),
 			'edit_dashboard'          => array( 'administrator' ),
-			'view_site_health_checks' => array( 'administrator' ),
 			'backup'                  => array( 'administrator' ),
 			'safe_mode'               => array( 'administrator' ),
 			'maintenance_mode'        => array( 'administrator' ),
@@ -180,7 +179,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'update_core'             => array(),
 			'update_plugins'          => array(),
 			'update_themes'           => array(),
-			'view_site_health_checks' => array(),
 			'backup'                  => array(),
 			'safe_mode'               => array(),
 			'manage_server'           => array(),
@@ -445,8 +443,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			$actual['author'],
 			$actual['subscriber'],
 			$actual['contributor'],
-			// The following are granted via `user_has_cap`:
-			$actual['view_site_health_checks']
 		);
 
 		unset(

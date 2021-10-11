@@ -4584,7 +4584,7 @@ function wp_ajax_wp_privacy_erase_personal_data() {
 function wp_ajax_health_check_site_status_result() {
 	check_ajax_referer( 'health-check-site-status-result' );
 
-	if ( ! current_user_can( 'view_site_health_checks' ) ) {
+	if ( ! current_user_can( 'manage_server' ) ) {
 		wp_send_json_error();
 	}
 

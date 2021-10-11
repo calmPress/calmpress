@@ -115,7 +115,7 @@ class WP_REST_Site_Health_Controller extends WP_REST_Controller {
 	 * @return bool
 	 */
 	protected function validate_request_permission( $check ) {
-		$default_capability = 'view_site_health_checks';
+		$default_capability = 'manage_server';
 
 		/**
 		 * Filters the capability needed to run a given Site Health check.
