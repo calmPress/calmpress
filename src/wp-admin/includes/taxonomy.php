@@ -344,6 +344,6 @@ function calm_save_author( $term_id, $taxonomy ) {
 			$author->set_image( $image );
 		}
 	} elseif ( 0 === $attachment_id ) {
-		$author->remove_image( $image );
+		$author->remove_image();
 	}
 }
