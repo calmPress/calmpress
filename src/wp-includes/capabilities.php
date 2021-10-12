@@ -951,6 +951,30 @@ function wp_maybe_grant_install_languages_cap( $allcaps ) {
 	return $allcaps;
 }
 
+/**
+ * Filters the user capabilities to grant the 'tools_menu' capability as necessary.
+ *
+ * A user must have at least one out of the 'maintenance_mode', 'manage_server',
+ * 'export_others_personal_data', 'erase_others_personal_data', 'delete_site', 'safe_mode',
+ * 'setup_network', 'delete_users'
+ * capabilities to qualify for 'tools_menu'.
+ *
+ * @since calmpress 1.0.0
+ *
+ * @param bool[] $allcaps An array of all the user's capabilities.
+ * @return bool[] Filtered array of the user's capabilities.
+ */
+function wp_maybe_tools_menu_cap( $allcaps ) {
+	foreach ( ['maintenance_mode', 'manage_server',	'export_others_personal_data', 'erase_others_personal_data', 'delete_site', 'safe_mode', 'setup_network', 'delete_users'] as $cap ) {
+		if ( ! empty( $allcaps[ $cap ] ) ) {
+			$allcaps['tools_menu'] = true;
+			return $allcaps;
+		}
+	}
+	
+	return $allcaps;
+}
+
 return;
 
 // Dummy gettext calls to get strings in the catalog.

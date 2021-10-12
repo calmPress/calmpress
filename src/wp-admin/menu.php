@@ -267,9 +267,9 @@ if ( current_user_can( 'list_users' ) ) {
 	}
 }
 
-$menu[75]                     = array( __( 'Tools' ), 'tools_menu', '', '', 'menu-top menu-icon-tools', 'menu-tools', 'dashicons-admin-tools' );
-	$submenu['tools.php'][5]  = array( __( 'Maintenance Mode' ), 'maintenance_mode', 'maintenance-mode.php' );
-	$submenu['tools.php'][20] = array( __( 'Site Health' ), 'manage_server', 'site-health.php' );
+$menu[75]                     = array( __( 'Tools' ), 'tools_menu', 'tools.php', '', 'menu-top menu-icon-tools', 'menu-tools', 'dashicons-admin-tools' );
+	$submenu['tools.php'][10] = array( __( 'Site Health' ), 'manage_server', 'site-health.php' );
+	$submenu['tools.php'][20]  = array( __( 'Maintenance Mode' ), 'maintenance_mode', 'maintenance-mode.php' );
 	if ( ! is_multisite() ) {
 		$submenu['tools.php'][21] = array( __( 'Opcode Cache' ), 'manage_server', 'opcache.php' );
 	}
