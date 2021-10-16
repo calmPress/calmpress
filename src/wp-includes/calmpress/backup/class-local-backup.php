@@ -238,7 +238,7 @@ class Local_Backup implements Backup {
 			static::Backup_Directory( static::installation_paths()->wp_admin_directory(), $tmp_backup_dir . '/wp-admin' );
 
 			// Copy core code files located at root directory.
-			foreach ( static::installation_paths()->core_root_files() as $file ) {
+			foreach ( static::installation_paths()->core_root_file_names() as $file ) {
 				static::copy( static::installation_paths()->root_directory() . $file, $tmp_backup_dir . '/' . $file );
 			}
 
@@ -265,7 +265,7 @@ class Local_Backup implements Backup {
 	 */
 	protected static function Backup_MU_Plugins( string $source, string $backup_dir ) {
 
-		// If the mu-plugins directory dop not exist there is nothing to backup and
+		// If the mu-plugins directory does not exist there is nothing to backup and
 		// Backup_Directory requires an existing directory.
 		if ( is_dir( $source ) ) {
 			static::Backup_Directory( $source, $backup_dir );
@@ -286,7 +286,7 @@ class Local_Backup implements Backup {
 	 */
 	protected static function Backup_Languages( string $source, string $backup_dir ) {
 
-		// If the mu-plugins directory dop not exist there is nothing to backup and
+		// If the languages directory does not exist there is nothing to backup and
 		// Backup_Directory requires an existing directory.
 		if ( is_dir( $source ) ) {
 			static::Backup_Directory( $source, $backup_dir );
@@ -484,6 +484,7 @@ class Local_Backup implements Backup {
 		$relative_dir = basename( $source ) . '/' . $version;
 		$backup_dir   = $plugins_backup_dir . $relative_dir;
 		$plugin_dir   = $plugins_backup_dir . basename( $source );
+
 		/*
 		 * If the backup directory exists it means we already have a backup of the version,
 		 * If not we need to create a directory and copy into it the plugin files.
@@ -629,7 +630,7 @@ class Local_Backup implements Backup {
 			
 			$plugin_dir = static::Backup_Plugin_Directory(
 				$backup_root . static::RELATIVE_PLUGINS_BACKUP_PATH,
-				$dirname,
+				WP_PLUGIN_DIR . '/' . $dirname,
 				$version
 			);
 
@@ -779,12 +780,12 @@ class Local_Backup implements Backup {
 
 		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . time() . '/';
 		$mu_dir     = $backup_root . $mu_rel_dir;
-		$meta['mu_plugins'] = static::Backup_MU_Plugins( $backup_root, static::installation_paths()->mu_plugins_directory() );
+		$meta['mu_plugins'] = static::Backup_MU_Plugins( static::installation_paths()->mu_plugins_directory(), $mu_dir );
 		$meta['mu_plugins']['directory'] = $mu_rel_dir;
 
 		$lang_rel_dir = static::RELATIVE_LANGUAGES_BACKUP_PATH . time() . '/';
 		$lang_dir     = $backup_root . $lang_rel_dir;
-		$meta['languages'] = static::Backup_Languages( $backup_root, static::installation_paths()->languages_directory() );
+		$meta['languages'] = static::Backup_Languages( static::installation_paths()->languages_directory(), $lang_dir );
 		$meta['languages']['directory'] = $lang_rel_dir;
 
 		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . time() . '/';

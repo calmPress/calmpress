@@ -18,8 +18,8 @@ $title = __( 'Backups' );
 get_current_screen()->add_help_tab(
 	array(
 		'id'      => 'overview',
-		'title'   => __('Overview'),
-		'content' => '<p>' . __( 'This screen lists importers installed at the site. Importers are a functionality provided by plugins, and if you need a specific type of importer you should look for a plugin that implements it.') . '</p>'
+		'title'   => esc_html__( 'Overview' ),
+		'content' => '<p>' . __( 'This screen lists backups of the site.  You can delete unneeded ones.') . '</p>'
 	)
 );
 
@@ -56,7 +56,6 @@ class Backup_List extends WP_List_Table {
 				'date'        => __( 'Date' ),
 				'description' => __( 'Description' ),
 				'type'        => __( 'Type' ),
-				'storage'     => __( 'Storage' ),
 			],
 			array(),
 			array(),
@@ -91,7 +90,6 @@ class Backup_List extends WP_List_Table {
 			'date'        => __( 'Date' ),
 			'description' => __( 'Description' ),
 			'type'        => __( 'Type' ),
-			'storage'     => __( 'Storage' ),
 		];
 	}
 
@@ -107,13 +105,11 @@ class Backup_List extends WP_List_Table {
 				'date'       => 'now',
 				'description' => 'desc 1',
 				'type'       => 'minimal',
-				'storage'    => 'default',
 			],
 			[
 				'date'       => 'one day ago',
 				'description' => 'desc 2',
 				'type'       => 'minimal',
-				'storage'    => 'S3',
 			],
 		];
 	}
@@ -136,8 +132,8 @@ class Backup_List extends WP_List_Table {
 
 		$actions = [];
 
-		$actions['fullinfo'] = '<a href="#">' . __( 'Full info' ) . '</a>';
-		$actions['delete'] = '<a href="#">' . __( 'Delete' ) . '</a>';
+		$actions['fullinfo'] = '<a href="#">' . esc_html__( 'Full info' ) . '</a>';
+		$actions['delete'] = '<a href="#">' . esc_html__( 'Delete' ) . '</a>';
 
 		return $this->row_actions( $actions );
 	}
@@ -212,7 +208,9 @@ $parent_file = 'backups.php';
 ?>
 
 <div class="wrap">
-	<h1><?php echo esc_html( $title ); ?></h1>
+	<h1 class="wp-heading-inline"><?php echo esc_html( $title ); ?></h1>
+	<a href="backup-new.php" class="page-title-action"><?php echo esc_html_x( 'Add New', 'backup' ); ?></a>
+	<hr class="wp-header-end">
 	<div class="backups-list-table-wrapper">
 		<?php
 		$backups_list_table = new Backup_List();

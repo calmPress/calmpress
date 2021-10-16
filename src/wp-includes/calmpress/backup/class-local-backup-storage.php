@@ -94,7 +94,7 @@ class Local_Backup_Storage implements Backup_Storage {
 	 *
 	 * @throws \Exception if the backup fails.
 	 */
-	public function Backup( string $description ) {
+	public function create_backup( string $description ) {
 		Local_Backup::create_backup( $description, static::BACKUP_ROOT_DIR );
 	}
 
