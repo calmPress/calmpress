@@ -86,8 +86,6 @@ class Managed_Backup {
 				'success'
 			);	
 		} catch ( \Throwable $e ) {
-			var_dump($e);
-			die();
 			add_settings_error(
 				'new_backup',
 				'new_backup',

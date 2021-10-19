@@ -211,9 +211,6 @@ class Local_Backup implements Backup {
 	 *
 	 * @param string $core_dir The root directory for the core backup files.
 	 *
-	 * @return string The path to the backup directory relative to the backup
-	 *                root directory.
-	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
 	protected static function Backup_Core( string $core_dir ) : string {
@@ -446,7 +443,7 @@ class Local_Backup implements Backup {
 				$theme_dir = static::Backup_Theme( $themes_backup_dir . static::RELATIVE_THEMES_BACKUP_PATH, $theme );
 				$meta[ $theme->get_stylesheet() ] = [
 					'version'   => $theme->get( 'Version' ),
-					'directory' => static::RELATIVE_THEMES_BACKUP_PATH . $theme_dir,
+					'directory' => static::RELATIVE_THEMES_BACKUP_PATH . $theme_dir . '/',
 				];
 			}
 		}
@@ -636,7 +633,7 @@ class Local_Backup implements Backup {
 
 			$meta[ $dirname ] = [
 				'version'   => $version,
-				'directory' => static::RELATIVE_PLUGINS_BACKUP_PATH . $plugin_dir,
+				'directory' => static::RELATIVE_PLUGINS_BACKUP_PATH . $plugin_dir .'/',
 				'type'      => 'directory',
 			];
 		}
@@ -766,10 +763,10 @@ class Local_Backup implements Backup {
 		$meta['time']        = time();
 		$meta['description'] = $description;
 
-		$core_directory = static::Backup_Core( $backup_root . static::RELATIVE_CORE_BACKUP_PATH );
+		static::Backup_Core( $backup_root . static::RELATIVE_CORE_BACKUP_PATH );
 		$meta['core'] = [
 			'version'   => calmpress_version(),
-			'directory' => $core_directory,
+			'directory' => static::RELATIVE_CORE_BACKUP_PATH,
 		];
 
 		// Backup all themes that are in standard theme location, which can be activated (no errors).
@@ -802,6 +799,12 @@ class Local_Backup implements Backup {
 		$options_dir = $backup_root . $options_rel_dir;
 		static::Backup_Options( $options_dir );
 		$meta['options']['directory'] = $options_rel_dir;
+		
+		$json = json_encode( $meta );
+		$file = $backup_root . 'meta-' . time() . '.json';
+		if ( false === file_put_contents( $file, $json ) ) {
+			throw new \Exception( 'Failed writing to ', $file );
+		}
 	}
 
 	/**
