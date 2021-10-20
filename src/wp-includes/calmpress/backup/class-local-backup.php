@@ -130,6 +130,21 @@ class Local_Backup implements Backup {
 	}
 
 	/**
+	 * Throw a timeout exception if the current time is later than the parameter.
+	 *
+	 * @param int $time_to_check The unix time to compare against.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws \calmpress\calmpress\Timeout_Exception if current time is later than $time_to_check.
+	 */
+	static function throw_if_out_of_time( int $time_to_check ) {
+		if ( time() > $time_to_check ) {
+			throw new \calmpress\calmpress\Timeout_Exception();
+		}
+	}
+
+	/**
 	 * A utility function to create a directory and raise exceptions if it fails.
 	 * 
 	 * Directory creation is recursive if needed.
@@ -408,6 +423,7 @@ class Local_Backup implements Backup {
 	 * @since 1.0.0
 	 *
 	 * @param string $themes_backup_dir The root directory for the tehemes backup directories.
+	 * @param int    $max_end_time      The last second in which a theme backup can start.
 	 *
 	 * @return array Array of arrays containing meta information about the themes' backups
 	 *               Each sub array is indexed by the relevant theme's directory and has the
@@ -418,7 +434,7 @@ class Local_Backup implements Backup {
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Themes( string $themes_backup_dir ) : array {
+	protected static function Backup_Themes( string $themes_backup_dir, int $max_end_time ) : array {
 		global $wp_theme_directories;
 		$directory_change = false;
 
@@ -438,6 +454,9 @@ class Local_Backup implements Backup {
 		$themes = wp_get_themes();
 		$meta   = []; 
 		foreach ( $themes as $theme ) {
+
+			static::throw_if_out_of_time( $max_end_time );
+				
 			// skip themes without a version.
 			if ( $theme->get( 'Version' ) ) {
 				$theme_dir = static::Backup_Theme( $themes_backup_dir . static::RELATIVE_THEMES_BACKUP_PATH, $theme );
@@ -560,7 +579,8 @@ class Local_Backup implements Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $plugins_backup_dir The root directory for the plugins backup files.
+	 * @param string $backup_root  The root directory for the plugins backup files.
+	 * @param int    $max_end_time The last second in which a plugin backup can start.
 	 *
 	 * @return array Array of arrays containing meta information about the plugins' backups
 	 *               Each sub array is indexed by the relevant plugin's directory and has the
@@ -574,7 +594,7 @@ class Local_Backup implements Backup {
 	 * 
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Plugins( string $backup_root ) : array {
+	protected static function Backup_Plugins( string $backup_root, int $max_end_time ) : array {
 
 		// Plugins are in principal just a file with a plugin header and you can have
 		// a one file plugin in the plugins directory, or two plugin files in one directory
@@ -614,6 +634,8 @@ class Local_Backup implements Backup {
 		}
 
 		foreach ( $plugindirs as $dirname => $dir_data ) {
+			static::throw_if_out_of_time( $max_end_time );
+
 			// For directories with two plugins make the version a combination
 			// of the versions of both plugins.
 			// The version generation code relies on get_plugins and the code processing the data
@@ -758,6 +780,8 @@ class Local_Backup implements Backup {
 	 * @throws \Exception if the backup creation fails.
 	 */
 	public static function create_backup( string $description, string $backup_root ) {
+		$max_end_time = time() + 15; // After this time backup process should end, completed or not.
+
 		$meta = [];
 
 		$meta['time']        = time();
@@ -769,17 +793,25 @@ class Local_Backup implements Backup {
 			'directory' => static::RELATIVE_CORE_BACKUP_PATH,
 		];
 
+		static::throw_if_out_of_time( $max_end_time );
+
 		// Backup all themes that are in standard theme location, which can be activated (no errors).
 		// Ignore everything else in the themes directories.
-		$meta['themes'] = static::Backup_Themes( $backup_root );
+		$meta['themes'] = static::Backup_Themes( $backup_root, $max_end_time );
 
-		$meta['plugins'] = static::Backup_Plugins( $backup_root );
+		static::throw_if_out_of_time( $max_end_time );
+		
+		$meta['plugins'] = static::Backup_Plugins( $backup_root, $max_end_time );
 
+		static::throw_if_out_of_time( $max_end_time );
+		
 		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . time() . '/';
 		$mu_dir     = $backup_root . $mu_rel_dir;
 		$meta['mu_plugins'] = static::Backup_MU_Plugins( static::installation_paths()->mu_plugins_directory(), $mu_dir );
 		$meta['mu_plugins']['directory'] = $mu_rel_dir;
 
+		static::throw_if_out_of_time( $max_end_time );
+		
 		$lang_rel_dir = static::RELATIVE_LANGUAGES_BACKUP_PATH . time() . '/';
 		$lang_dir     = $backup_root . $lang_rel_dir;
 		$meta['languages'] = static::Backup_Languages( static::installation_paths()->languages_directory(), $lang_dir );

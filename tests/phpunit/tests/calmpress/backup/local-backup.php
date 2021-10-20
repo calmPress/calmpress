@@ -583,7 +583,7 @@ class Local_Backup_Test extends WP_UnitTestCase {
 			'
 		);
 
-		$meta = $method->invoke( null, $test_dir . '/themes/' );
+		$meta = $method->invoke( null, $test_dir . '/themes/', time() + 10 );
 
 		// there should be only two themes.
 		$this->AssertSame( 2, count( $meta ) );
@@ -594,9 +594,9 @@ class Local_Backup_Test extends WP_UnitTestCase {
 			$this->AssertTrue( array_key_exists( 'directory', $meta[ $theme_dir ] ) );
 		}
 		$this->AssertSame( '1.1', $meta['parent']['version'] );
-		$this->AssertSame( 'themes/parent/1.1', $meta['parent']['directory'] );
+		$this->AssertSame( 'themes/parent/1.1/', $meta['parent']['directory'] );
 		$this->AssertSame( '1.0', $meta['child']['version'] );
-		$this->AssertSame( 'themes/child/1.0', $meta['child']['directory'] );
+		$this->AssertSame( 'themes/child/1.0/', $meta['child']['directory'] );
 
 		$this->rmdir( $paths->root_directory() );
 		$this->rmdir( $test_dir . '/themes/' );
@@ -678,7 +678,7 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$dest_dir = $test_dir . '/dest/';
 		$this->rmdir( $dest_dir );
 		mkdir( $dest_dir );
-		$meta = $method->invoke( null, $dest_dir );
+		$meta = $method->invoke( null, $dest_dir, time() + 10 );
 
 		foreach ( [ 'hello.php', 'single_plugin_directory', 'double_plugin_directory' ] as $plugin ) {
 			$this->AssertTrue( array_key_exists( $plugin, $meta ) );
@@ -689,11 +689,11 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$this->AssertSame( 'root_file', $meta['hello.php']['type'] );
 
 		$this->AssertSame( '1.0a', $meta['single_plugin_directory']['version'] );
-		$this->AssertSame( 'plugins/single_plugin_directory/1.0a', $meta['single_plugin_directory']['directory'] );
+		$this->AssertSame( 'plugins/single_plugin_directory/1.0a/', $meta['single_plugin_directory']['directory'] );
 		$this->AssertSame( 'directory', $meta['single_plugin_directory']['type'] );
 
 		$this->AssertSame( '1.1b-1.2c', $meta['double_plugin_directory']['version'] );
-		$this->AssertSame( 'plugins/double_plugin_directory/1.1b-1.2c', $meta['double_plugin_directory']['directory'] );
+		$this->AssertSame( 'plugins/double_plugin_directory/1.1b-1.2c/', $meta['double_plugin_directory']['directory'] );
 		$this->AssertSame( 'directory', $meta['double_plugin_directory']['type'] );
 
 		$this->rmdir( $dest_dir );
