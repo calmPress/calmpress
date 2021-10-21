@@ -16,5 +16,5 @@ namespace calmpress\calmpress;
  *
  * @since 1.0.0
  */
-class Timeout_Exception extends \RuntimeException{
+class Timeout_Exception extends \RuntimeException {
 }
