@@ -133,6 +133,7 @@ class Backup_List extends WP_List_Table {
 		$actions = [];
 
 		$actions['fullinfo'] = '<a href="#">' . esc_html__( 'Full info' ) . '</a>';
+		$actions['restore'] = '<a href="#">' . esc_html__( 'Restore' ) . '</a>';
 		$actions['delete'] = '<a href="#">' . esc_html__( 'Delete' ) . '</a>';
 
 		return $this->row_actions( $actions );

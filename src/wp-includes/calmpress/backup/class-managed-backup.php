@@ -45,61 +45,44 @@ class Managed_Backup {
 	}
 
 	/**
-	 * Verify capability, nonce, and validitty of referer data a POST request. Die if the
-	 * user is not allowed to manage backups, or nonce/referer include
-	 * bad data. 
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $action The name of the action expected to be used for generating the nonce
-	 *                       and admin referer fields in the request.
-	 */
-	private static function verify_post_request( string $action ) {
-		if ( ! current_user_can( 'backup' ) ) {
-			wp_die(
-				'<h1>' . __( 'You need additional permission.' ) . '</h1>' .
-				'<p>' . __( 'Sorry, you are not allowed to manage backups at this site.' ) . '</p>',
-				403
-			);
-		}
-		check_admin_referer( $action );
-	}
-
-	/**
 	 * Handle user initiated backup.
 	 *
-	 * Used as action callback for 'admin-post'.
+	 * Used as action callback for the calmpress/create_backup rest route.
+	 *
+     * Create backup request should include the fields 'nonce' which contain the nonce for the
+     * request and a field 'description' which contains the textual description of the reason
+     * for the backup (might be empty but required).
+     *
+     * The reply contains a field named 'status' which can have one the values of
+     * - 'incomplete' which indicates that the backup was not finished and the request should
+     * be sent as is again.
+     *
+     * - 'failed' which indicates that there was a problem with performing the backup. In that case
+     * the field 'message' will include an unescaped textual description of the problem.
+     * 
+     * - 'complete' which indicates that the backup was fully completed.
 	 *
 	 * @since 1.0.0
 	 */
-	public static function handle_backup_request() {
-		static::verify_post_request( 'new_backup' );
+	public static function handle_backup_request( \WP_REST_Request $request ): array {
 
-		$description = wp_unslash( $_POST['description'] );
+		$ret = [
+			'status'  => 'complete',
+			'message' => '',
+		];
+
+		$description = $request['description'];
 		try {
 			$storage = new Local_Backup_Storage();
 			$storage->create_backup( $description );
-			add_settings_error(
-				'new_backup',
-				'settings_updated',
-				__( 'Backup was created.' ),
-				'success'
-			);	
+			return $ret;
+		} catch ( \calmpress\calmpress\Timeout_Exception $e ) {
+			$ret['status'] = 'incomplete';
+			return $ret;
 		} catch ( \Throwable $e ) {
-			add_settings_error(
-				'new_backup',
-				'new_backup',
-				esc_html__( 'Something went wrong, reported cause is: ' )  . esc_html( $e->getMessage() ),
-				'error'
-			);
+			$ret['status']  = 'failed';
+			$ret['message'] = $e->getMessage();
+			return $ret;
 		}
-
-		set_transient( 'settings_errors', get_settings_errors(), 30 );	
-	
-		// Redirect back to the page from which the form was submitted.
-		$goback = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
-		wp_redirect( $goback );
-		exit;			
-
 	}
 }
