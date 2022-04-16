@@ -33,8 +33,10 @@ if ( wp_is_application_passwords_available_for_user( $user_id ) ) {
 }
 
 if ( IS_PROFILE_PAGE ) {
+	// Used in the HTML title tag.
 	$title = __( 'Profile' );
 } else {
+	// Used in the HTML title tag.
 	/* translators: %s: User's display name. */
 	$title = __( 'Edit User %s' );
 }
@@ -512,12 +514,12 @@ endif;
 			/**
 			 * Filters a user contactmethod label.
 			 *
-			 * The dynamic portion of the filter hook, `$name`, refers to
-			 * each of the keys in the contactmethods array.
+			 * The dynamic portion of the hook name, `$name`, refers to
+			 * each of the keys in the contact methods array.
 			 *
 			 * @since 2.9.0
 			 *
-			 * @param string $desc The translatable label for the contactmethod.
+			 * @param string $desc The translatable label for the contact method.
 			 */
 			echo apply_filters( "user_{$name}_label", $desc );
 			?>
@@ -716,11 +718,11 @@ endif;
 
 	</table>
 
-
-		<?php if ( wp_is_application_passwords_available_for_user( $user_id ) ) : ?>
+<?php if ( wp_is_application_passwords_available_for_user( $user_id ) || ! wp_is_application_passwords_supported() ) : // phpcs:disable Generic.WhiteSpace.ScopeIndent ?>
 	<div class="application-passwords hide-if-no-js" id="application-passwords-section">
 		<h2><?php _e( 'Application Passwords' ); ?></h2>
 		<p><?php _e( 'Application passwords allow authentication via non-interactive systems, such as the REST API, without providing your actual password. Application passwords can be easily revoked. They cannot be used for traditional logins to your website.' ); ?></p>
+		<?php if ( wp_is_application_passwords_available_for_user( $user_id ) ) : ?>
 			<?php
 			if ( is_multisite() ) {
 				$blogs       = get_blogs_of_user( $user_id, true );
@@ -783,8 +785,20 @@ endif;
 			$application_passwords_list_table->display();
 			?>
 		</div>
+		<?php elseif ( ! wp_is_application_passwords_supported() ) : ?>
+			<p><?php _e( 'The application password feature requires HTTPS, which is not enabled on this site.' ); ?></p>
+			<p>
+				<?php
+				printf(
+					/* translators: %s: Documentation URL. */
+					__( 'If this is a development website you can <a href="%s" target="_blank">set the environment type accordingly</a> to enable application passwords.' ),
+					__( 'https://wordpress.org/support/article/editing-wp-config-php/#wp_environment_type' )
+				);
+				?>
+			</p>
+		<?php endif; ?>
 	</div>
-<?php endif; ?>
+<?php endif; // phpcs:enable Generic.WhiteSpace.ScopeIndent ?>
 
 		<?php
 		if ( IS_PROFILE_PAGE ) {

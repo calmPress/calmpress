@@ -26,20 +26,20 @@ class Tests_User_Author_Template extends WP_UnitTestCase {
 			array(
 				'post_author'  => self::$author_id,
 				'post_status'  => 'publish',
-				'post_content' => rand_str(),
-				'post_title'   => rand_str(),
+				'post_content' => 'content',
+				'post_title'   => 'title',
 				'post_type'    => 'post',
 			)
 		);
 	}
 
-	function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		setup_postdata( get_post( self::$post_id ) );
 	}
 
-	function test_get_the_author() {
+	public function test_get_the_author() {
 		$author_name = get_the_author();
 		$user        = new WP_User( self::$author_id );
 
@@ -47,10 +47,10 @@ class Tests_User_Author_Template extends WP_UnitTestCase {
 		$this->assertEquals( '', $author_name );
 	}
 
-	function test_get_the_author_meta() {
-		$this->assertEquals( 'test_author', get_the_author_meta( 'login' ) );
-		$this->assertEquals( 'test_author', get_the_author_meta( 'user_login' ) );
-		$this->assertEquals( 'Test Author', get_the_author_meta( 'display_name' ) );
+	public function test_get_the_author_meta() {
+		$this->assertSame( 'test_author', get_the_author_meta( 'login' ) );
+		$this->assertSame( 'test_author', get_the_author_meta( 'user_login' ) );
+		$this->assertSame( 'Test Author', get_the_author_meta( 'display_name' ) );
 
 		$this->assertSame( 'test_author', trim( get_the_author_meta( 'description' ) ) );
 		$this->assertSame( 'test_author', get_the_author_meta( 'user_description' ) );
@@ -68,7 +68,7 @@ class Tests_User_Author_Template extends WP_UnitTestCase {
 		$this->assertSame( '', get_the_author_meta( 'does_not_exist' ) );
 	}
 
-	function test_get_the_author_meta_no_authordata() {
+	public function test_get_the_author_meta_no_authordata() {
 		unset( $GLOBALS['authordata'] );
 		$this->assertSame( '', get_the_author_meta( 'id' ) );
 		$this->assertSame( '', get_the_author_meta( 'user_login' ) );

@@ -8,7 +8,7 @@
  *
  * @group feed
  */
-class Tests_Feeds_RSS2 extends WP_UnitTestCase {
+class Tests_Feed_RSS2 extends WP_UnitTestCase {
 	public static $user_id;
 	public static $posts;
 	public static $category;
@@ -76,8 +76,8 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	/**
 	 * Setup.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$this->post_count   = (int) get_option( 'posts_per_rss' );
 		$this->excerpt_only = get_option( 'rss_use_excerpt' );
@@ -89,7 +89,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	/**
 	 * This is a bit of a hack used to buffer feed content.
 	 */
-	function do_rss2() {
+	private function do_rss2() {
 		ob_start();
 		// Nasty hack! In the future it would better to leverage do_feed( 'rss2' ).
 		global $post;
@@ -117,14 +117,14 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		$rss = xml_find( $xml, 'rss' );
 
 		// There should only be one <rss> child element.
-		$this->assertSame( 1, count( $rss ) );
+		$this->assertCount( 1, $rss );
 
 		$this->assertSame( '2.0', $rss[0]['attributes']['version'] );
 		$this->assertSame( 'http://purl.org/rss/1.0/modules/content/', $rss[0]['attributes']['xmlns:content'] );
 		$this->assertSame( 'http://purl.org/dc/elements/1.1/', $rss[0]['attributes']['xmlns:dc'] );
 
 		// RSS should have exactly one child element (channel).
-		$this->assertSame( 1, count( $rss[0]['child'] ) );
+		$this->assertCount( 1, $rss[0]['child'] );
 	}
 
 	/**
@@ -141,7 +141,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		$channel = xml_find( $xml, 'rss', 'channel' );
 
 		// The channel should be free of attributes.
-		$this->assertTrue( empty( $channel[0]['attributes'] ) );
+		$this->assertArrayNotHasKey( 'attributes', $channel[0] );
 
 		// Verify the channel is present and contains a title child element.
 		$title = xml_find( $xml, 'rss', 'channel', 'title' );
@@ -162,7 +162,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 *
 	 * @ticket 39141
 	 */
-	function test_channel_pubdate_element_translated() {
+	public function test_channel_pubdate_element_translated() {
 		$original_locale = $GLOBALS['wp_locale'];
 		/* @var WP_Locale $locale */
 		$locale = clone $GLOBALS['wp_locale'];
@@ -182,7 +182,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 
 		// Verify the date is untranslated.
 		$pubdate = xml_find( $xml, 'rss', 'channel', 'lastBuildDate' );
-		$this->assertNotContains( 'Tue_Translated', $pubdate[0]['content'] );
+		$this->assertStringNotContainsString( 'Tue_Translated', $pubdate[0]['content'] );
 	}
 
 	function test_item_elements() {
@@ -280,7 +280,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	/**
 	 * @ticket 9134
 	 */
-	function test_items_comments_closed() {
+	public function test_items_comments_closed() {
 		add_filter( 'comments_open', '__return_false' );
 
 		$this->go_to( '/feed/rss2' );
@@ -310,7 +310,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 *
 	 * @ticket 30210
 	 */
-	function test_valid_home_feed_endpoint() {
+	public function test_valid_home_feed_endpoint() {
 		// An example of a valid home feed endpoint.
 		$this->go_to( 'feed/rss2' );
 
@@ -329,7 +329,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		$rss = xml_find( $xml, 'rss' );
 
 		// There should only be one <rss> child element.
-		$this->assertSame( 1, count( $rss ) );
+		$this->assertCount( 1, $rss );
 	}
 
 	/*
@@ -338,7 +338,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 	 *
 	 * @ticket 30210
 	 */
-	function test_valid_taxonomy_feed_endpoint() {
+	public function test_valid_taxonomy_feed_endpoint() {
 		// An example of an valid taxonomy feed endpoint.
 		$this->go_to( 'category/foo/feed/rss2' );
 
@@ -357,7 +357,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		$rss = xml_find( $xml, 'rss' );
 
 		// There should only be one <rss> child element.
-		$this->assertSame( 1, count( $rss ) );
+		$this->assertCount( 1, $rss );
 	}
 
 	/*
@@ -384,7 +384,7 @@ class Tests_Feeds_RSS2 extends WP_UnitTestCase {
 		$rss = xml_find( $xml, 'rss' );
 
 		// There should only be one <rss> child element.
-		$this->assertSame( 1, count( $rss ) );
+		$this->assertCount( 1, $rss );
 	}
 
 	/**

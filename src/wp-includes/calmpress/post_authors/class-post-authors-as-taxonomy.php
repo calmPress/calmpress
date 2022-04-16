@@ -95,6 +95,7 @@ class Post_Authors_As_Taxonomy {
 			'public'            => true,
 			'hierarchical'      => false,
 			'show_in_rest'      => true,
+			'rest_base'         => 'calm_authors',
 			'rewrite'           => $rewrite,
 			'show_admin_column' => true,
 			'show_in_menu'      => false,

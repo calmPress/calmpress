@@ -284,6 +284,7 @@ function get_theme_update_available( $theme ) {
  * @since 5.5.0 Added 'Block Editor Patterns', 'Block Editor Styles',
  *              and 'Full Site Editing' features.
  * @since 5.5.0 Added 'Wide Blocks' layout option.
+ * @since 5.8.1 Added 'Template Editing' feature.
  *
  * @param bool $api Optional. Whether try to fetch tags from the WordPress.org API. Defaults to true.
  * @return array Array of features keyed by category with translations keyed by slug.
@@ -317,6 +318,7 @@ function get_theme_feature_list( $api = true ) {
 			'full-site-editing'     => __( 'Full Site Editing' ),
 			'full-width-template'   => __( 'Full Width Template' ),
 			'sticky-post'           => __( 'Sticky Post' ),
+			'template-editing'      => __( 'Template Editing' ),
 			'theme-options'         => __( 'Theme Options' ),
 		),
 
@@ -500,7 +502,7 @@ function themes_api( $action, $args = array() ) {
 	/**
 	 * Filters whether to override the WordPress.org Themes API.
 	 *
-	 * Passing a non-false value will effectively short-circuit the WordPress.org API request.
+	 * Returning a non-false value will effectively short-circuit the WordPress.org API request.
 	 *
 	 * If `$action` is 'query_themes', 'theme_information', or 'feature_list', an object MUST
 	 * be passed. If `$action` is 'hot_tags', an array should be passed.
@@ -581,15 +583,18 @@ function themes_api( $action, $args = array() ) {
 			}
 		}
 
-		// Back-compat for info/1.2 API, upgrade the theme objects in query_themes to objects.
-		if ( 'query_themes' === $action ) {
-			foreach ( $res->themes as $i => $theme ) {
-				$res->themes[ $i ] = (object) $theme;
+		if ( ! is_wp_error( $res ) ) {
+			// Back-compat for info/1.2 API, upgrade the theme objects in query_themes to objects.
+			if ( 'query_themes' === $action ) {
+				foreach ( $res->themes as $i => $theme ) {
+					$res->themes[ $i ] = (object) $theme;
+				}
 			}
-		}
-		// Back-compat for info/1.2 API, downgrade the feature_list result back to an array.
-		if ( 'feature_list' === $action ) {
-			$res = (array) $res;
+
+			// Back-compat for info/1.2 API, downgrade the feature_list result back to an array.
+			if ( 'feature_list' === $action ) {
+				$res = (array) $res;
+			}
 		}
 	}
 
@@ -598,10 +603,10 @@ function themes_api( $action, $args = array() ) {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param array|object|WP_Error $res    WordPress.org Themes API response.
-	 * @param string                $action Requested action. Likely values are 'theme_information',
-	 *                                      'feature_list', or 'query_themes'.
-	 * @param object                $args   Arguments used to query for installer pages from the WordPress.org Themes API.
+	 * @param array|stdClass|WP_Error $res    WordPress.org Themes API response.
+	 * @param string                  $action Requested action. Likely values are 'theme_information',
+	 *                                        'feature_list', or 'query_themes'.
+	 * @param stdClass                $args   Arguments used to query for installer pages from the WordPress.org Themes API.
 	 */
 	return apply_filters( 'themes_api_result', $res, $action, $args );
 }
@@ -675,7 +680,11 @@ function wp_prepare_themes_for_js( $themes = null ) {
 		}
 
 		$customize_action = null;
-		if ( current_user_can( 'edit_theme_options' ) && current_user_can( 'customize' ) ) {
+
+		$can_edit_theme_options = current_user_can( 'edit_theme_options' );
+		$can_customize          = current_user_can( 'customize' );
+
+		if ( $can_customize && $can_edit_theme_options ) {
 			$customize_action = esc_url(
 				add_query_arg(
 					array(
@@ -714,6 +723,7 @@ function wp_prepare_themes_for_js( $themes = null ) {
 				'customize'  => $customize_action,
 				'delete'     => ( ! is_multisite() && current_user_can( 'delete_themes' ) ) ? wp_nonce_url( admin_url( 'themes.php?action=delete&amp;stylesheet=' . $encoded_slug ), 'delete-theme_' . $slug ) : null,
 			),
+			'blockTheme'     => false,
 		);
 	}
 
@@ -936,6 +946,21 @@ function customize_themes_print_templates() {
 								?>
 							<# } #>
 						</p></div>
+					<# } else if ( ! data.active && data.blockTheme ) { #>
+						<div class="notice notice-error notice-alt notice-large"><p>
+						<?php
+							_e( 'This theme doesn\'t support Customizer.' );
+						?>
+						<# if ( data.actions.activate ) { #>
+							<?php
+							printf(
+								/* translators: %s: URL to the themes page (also it activates the theme). */
+								' ' . __( 'However, you can still <a href="%s">activate this theme</a>, and use the Site Editor to customize it.' ),
+								'{{{ data.actions.activate }}}'
+							);
+							?>
+						<# } #>
+						</p></div>
 					<# } #>
 
 					<p class="theme-description">{{{ data.description }}}</p>
@@ -956,10 +981,20 @@ function customize_themes_print_templates() {
 						<# } #>
 					<?php } ?>
 
-					<# if ( data.compatibleWP && data.compatiblePHP ) { #>
-						<button type="button" class="button button-primary preview-theme" data-slug="{{ data.id }}"><?php _e( 'Live Preview' ); ?></button>
+					<# if ( data.blockTheme ) { #>
+						<?php
+							/* translators: %s: Theme name. */
+							$aria_label = sprintf( _x( 'Activate %s', 'theme' ), '{{ data.name }}' );
+						?>
+						<# if ( data.compatibleWP && data.compatiblePHP && data.actions.activate ) { #>
+							<a href="{{{ data.actions.activate }}}" class="button button-primary activate" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( 'Activate' ); ?></a>
+						<# } #>
 					<# } else { #>
-						<button class="button button-primary disabled"><?php _e( 'Live Preview' ); ?></button>
+						<# if ( data.compatibleWP && data.compatiblePHP ) { #>
+							<button type="button" class="button button-primary preview-theme" data-slug="{{ data.id }}"><?php _e( 'Live Preview' ); ?></button>
+						<# } else { #>
+							<button class="button button-primary disabled"><?php _e( 'Live Preview' ); ?></button>
+						<# } #>
 					<# } #>
 				<# } else { #>
 					<# if ( data.compatibleWP && data.compatiblePHP ) { #>

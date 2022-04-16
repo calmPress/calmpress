@@ -7,7 +7,7 @@
  */
 class Tests_Basic extends WP_UnitTestCase {
 
-	function test_license() {
+	public function test_license() {
 		// This test is designed to only run on trunk/master.
 		$this->skipOnAutomatedBranches();
 
@@ -19,7 +19,7 @@ class Tests_Basic extends WP_UnitTestCase {
 
 	// Test some helper utility functions.
 
-	function test_strip_ws() {
+	public function test_strip_ws() {
 		$this->assertSame( '', strip_ws( '' ) );
 		$this->assertSame( 'foo', strip_ws( 'foo' ) );
 		$this->assertSame( '', strip_ws( "\r\n\t  \n\r\t" ) );
@@ -46,7 +46,7 @@ class Tests_Basic extends WP_UnitTestCase {
 
 	}
 
-	function test_mask_input_value() {
+	public function test_mask_input_value() {
 		$in = <<<EOF
 <h2>Assign Authors</h2>
 <p>To make it easier for you to edit and save the imported posts and drafts, you may want to change the name of the author of the posts. For example, you may want to import all the entries as <code>admin</code>s entries.</p>

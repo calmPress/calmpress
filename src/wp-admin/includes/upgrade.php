@@ -190,6 +190,10 @@ if ( ! function_exists( 'wp_install_defaults' ) ) :
 			)
 		);
 
+		if ( is_multisite() ) {
+			update_posts_count();
+		}
+
 		// Default comment.
 		if ( is_multisite() ) {
 			$first_comment_author = get_site_option( 'first_comment_author' );
@@ -1423,8 +1427,8 @@ function upgrade_280() {
 		$start = 0;
 		while ( $rows = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options ORDER BY option_id LIMIT $start, 20" ) ) {
 			foreach ( $rows as $row ) {
-				$value = $row->option_value;
-				if ( ! @unserialize( $value ) ) {
+				$value = maybe_unserialize( $row->option_value );
+				if ( $value === $row->option_value ) {
 					$value = stripslashes( $value );
 				}
 				if ( $value !== $row->option_value ) {
@@ -1984,6 +1988,28 @@ function upgrade_560() {
 		if ( ! empty( $results ) ) {
 			$network_id = get_main_network_id();
 			update_network_option( $network_id, WP_Application_Passwords::OPTION_KEY_IN_USE, 1 );
+		}
+	}
+}
+
+/**
+ * Executes changes made in WordPress 5.9.0.
+ *
+ * @ignore
+ * @since 5.9.0
+ *
+ * @global int $wp_current_db_version The old (current) database version.
+ */
+function upgrade_590() {
+	global $wp_current_db_version;
+
+	if ( $wp_current_db_version < 51917 ) {
+		$crons = _get_cron_array();
+
+		if ( $crons && is_array( $crons ) ) {
+			// Remove errant `false` values, see #53950, #54906.
+			$crons = array_filter( $crons );
+			_set_cron_array( $crons );
 		}
 	}
 }

@@ -24,7 +24,7 @@ $required_php_version = '7.4';
  *
  * @var string $upto_php_version
  */
-$upto_php_version = '8.1';
+$upto_php_version = '8.2';
 
 /**
  * Holds the required MySQL version.

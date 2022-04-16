@@ -11,21 +11,46 @@ class Tests_Link_GetAdjacentPostLink extends WP_UnitTestCase {
 	protected $post_ids;
 	protected $cat_id;
 
-	public function setUp() {
-		parent::setUp();
-		$prime_cat_id = self::factory()->category->create( array( 'name' => 'Uncategorized' ) );
-		$this->cat_id = self::factory()->category->create( array( 'name' => 'other' ) );
-		$this->post_ids = array();
-		$this->post_ids[] = self::factory()->post->create( array( 'post_type' => 'post', 'post_date' => '2014-10-26 05:32:29' ) );
-		wp_set_object_terms( $this->post_ids[0], $prime_cat_id, 'category', false );
-		$this->post_ids[] = self::factory()->post->create( array( 'post_type' => 'post', 'post_date' => '2014-10-26 04:32:29' ) );
-		wp_set_object_terms( $this->post_ids[1], $this->cat_id, 'category', false );
-		$this->post_ids[] = self::factory()->post->create( array( 'post_type' => 'post', 'post_date' => '2014-10-26 03:32:29' ) );
-		wp_set_object_terms( $this->post_ids[2], $prime_cat_id, 'category', false );
-		$this->post_ids[] = self::factory()->post->create( array( 'post_type' => 'post', 'post_date' => '2014-10-26 02:32:29' ) );
-		wp_set_object_terms( $this->post_ids[3], $this->cat_id, 'category', false );
-		$this->post_ids[] = self::factory()->post->create( array( 'post_type' => 'post', 'post_date' => '2014-10-26 01:32:29' ) );
-		wp_set_object_terms( $this->post_ids[4], $prime_cat_id, 'category', false );
+	public function set_up() {
+		parent::set_up();
+		$prime_cat_id     = self::factory()->category->create( array( 'name' => 'Uncategorized' ) );
+		$this->cat_id     = self::factory()->category->create( array( 'name' => 'other' ) );
+		$this->post_ids   = array();
+		$this->post_ids[] = self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_date'   => '2014-10-26 05:32:29',
+				'category_id' => 1,
+			)
+		);
+		$this->post_ids[] = self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_date'   => '2014-10-26 04:32:29',
+				'category_id' => $this->cat_id,
+			)
+		);
+		$this->post_ids[] = self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_date'   => '2014-10-26 03:32:29',
+				'category_id' => 1,
+			)
+		);
+		$this->post_ids[] = self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_date'   => '2014-10-26 02:32:29',
+				'category_id' => $this->cat_id,
+			)
+		);
+		$this->post_ids[] = self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_date'   => '2014-10-26 01:32:29',
+				'category_id' => 1,
+			)
+		);
 
 		// Set current post (has 2 on each end).
 		global $GLOBALS;

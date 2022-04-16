@@ -1138,12 +1138,14 @@ function wp_check_invalid_utf8( $string, $strip = false ) {
  * Encode the Unicode values to be used in the URI.
  *
  * @since 1.5.0
+ * @since 5.8.3 Added the `encode_ascii_characters` parameter.
  *
- * @param string $utf8_string
- * @param int    $length Max  length of the string
+ * @param string $utf8_string             String to encode.
+ * @param int    $length                  Max length of the string
+ * @param bool   $encode_ascii_characters Whether to encode ascii characters such as < " '
  * @return string String with Unicode encoded for URI.
  */
-function utf8_uri_encode( $utf8_string, $length = 0 ) {
+function utf8_uri_encode( $utf8_string, $length = 0, $encode_ascii_characters = false ) {
 	$unicode        = '';
 	$values         = array();
 	$num_octets     = 1;
@@ -1158,11 +1160,14 @@ function utf8_uri_encode( $utf8_string, $length = 0 ) {
 		$value = ord( $utf8_string[ $i ] );
 
 		if ( $value < 128 ) {
-			if ( $length && ( $unicode_length >= $length ) ) {
+			$char                = chr( $value );
+			$encoded_char        = $encode_ascii_characters ? rawurlencode( $char ) : $char;
+			$encoded_char_length = strlen( $encoded_char );
+			if ( $length && ( $unicode_length + $encoded_char_length ) > $length ) {
 				break;
 			}
-			$unicode .= chr( $value );
-			$unicode_length++;
+			$unicode        .= $encoded_char;
+			$unicode_length += $encoded_char_length;
 		} else {
 			if ( count( $values ) == 0 ) {
 				if ( $value < 224 ) {
@@ -2132,23 +2137,26 @@ function sanitize_user( $username, $strict = false ) {
  *
  * @since 3.0.0
  *
- * @param string $key String key
- * @return string Sanitized key
+ * @param string $key String key.
+ * @return string Sanitized key.
  */
 function sanitize_key( $key ) {
-	$raw_key = $key;
-	$key     = strtolower( $key );
-	$key     = preg_replace( '/[^a-z0-9_\-]/', '', $key );
+	$sanitized_key = '';
+
+	if ( is_scalar( $key ) ) {
+		$sanitized_key = strtolower( $key );
+		$sanitized_key = preg_replace( '/[^a-z0-9_\-]/', '', $sanitized_key );
+	}
 
 	/**
 	 * Filters a sanitized key string.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $key     Sanitized key.
-	 * @param string $raw_key The key prior to sanitization.
+	 * @param string $sanitized_key Sanitized key.
+	 * @param string $key           The key prior to sanitization.
 	 */
-	return apply_filters( 'sanitize_key', $key, $raw_key );
+	return apply_filters( 'sanitize_key', $sanitized_key, $key );
 }
 
 /**
@@ -2288,8 +2296,42 @@ function sanitize_title_with_dashes( $title, $raw_title = '', $context = 'displa
 				'%cc%80',
 				'%cc%84',
 				'%cc%8c',
+				// Non-visible characters that display without a width.
+				'%e2%80%8b',
+				'%e2%80%8c',
+				'%e2%80%8d',
+				'%e2%80%8e',
+				'%e2%80%8f',
+				'%e2%80%aa',
+				'%e2%80%ab',
+				'%e2%80%ac',
+				'%e2%80%ad',
+				'%e2%80%ae',
+				'%ef%bb%bf',
 			),
 			'',
+			$title
+		);
+
+		// Convert non-visible characters that display with a width to hyphen.
+		$title = str_replace(
+			array(
+				'%e2%80%80',
+				'%e2%80%81',
+				'%e2%80%82',
+				'%e2%80%83',
+				'%e2%80%84',
+				'%e2%80%85',
+				'%e2%80%86',
+				'%e2%80%87',
+				'%e2%80%88',
+				'%e2%80%89',
+				'%e2%80%8a',
+				'%e2%80%a8',
+				'%e2%80%a9',
+				'%e2%80%af',
+			),
+			'-',
 			$title
 		);
 
@@ -2460,9 +2502,9 @@ function force_balance_tags( $text ) {
 	$tagqueue  = '';
 	$newtext   = '';
 	// Known single-entity/self-closing tags.
-	$single_tags = array( 'area', 'base', 'basefont', 'br', 'col', 'command', 'embed', 'frame', 'hr', 'img', 'input', 'isindex', 'link', 'meta', 'param', 'source' );
+	$single_tags = array( 'area', 'base', 'basefont', 'br', 'col', 'command', 'embed', 'frame', 'hr', 'img', 'input', 'isindex', 'link', 'meta', 'param', 'source', 'track', 'wbr' );
 	// Tags that can be immediately nested within themselves.
-	$nestable_tags = array( 'blockquote', 'div', 'object', 'q', 'span' );
+	$nestable_tags = array( 'article', 'aside', 'blockquote', 'details', 'div', 'figure', 'object', 'q', 'section', 'span' );
 
 	// WP bug fix for comments - in case you REALLY meant to type '< !--'.
 	$text = str_replace( '< !--', '<    !--', $text );
@@ -2700,15 +2742,15 @@ function untrailingslashit( $string ) {
 }
 
 /**
- * Adds slashes to escape strings.
+ * Adds slashes to a string or recursively adds slashes to strings within an array.
  *
  * Slashes will first be removed if magic_quotes_gpc is set, see {@link
  * https://www.php.net/magic_quotes} for more details.
  *
  * @since 0.71
  *
- * @param string $gpc The string returned from HTTP request data.
- * @return string Returns a string escaped with slashes.
+ * @param string|array $gpc String or array of data to slash.
+ * @return string|array Slashed `$gpc`.
  */
 function addslashes_gpc( $gpc ) {
 	return wp_slash( $gpc );
@@ -3093,7 +3135,7 @@ function wp_rel_nofollow( $text ) {
 	$text = stripslashes( $text );
 	$text = preg_replace_callback(
 		'|<a (.+?)>|i',
-		function( $matches ) {
+		static function( $matches ) {
 			return wp_rel_callback( $matches, 'nofollow' );
 		},
 		$text
@@ -3114,7 +3156,7 @@ function wp_rel_ugc( $text ) {
 	$text = stripslashes( $text );
 	$text = preg_replace_callback(
 		'|<a (.+?)>|i',
-		function( $matches ) {
+		static function( $matches ) {
 			return wp_rel_callback( $matches, 'nofollow ugc' );
 		},
 		$text
@@ -3377,8 +3419,8 @@ function get_gmt_from_date( $string, $format = 'Y-m-d H:i:s' ) {
 /**
  * Given a date in UTC or GMT timezone, returns that date in the timezone of the site.
  *
- * Requires and returns a date in the Y-m-d H:i:s format.
- * Return format can be overridden using the $format parameter.
+ * Requires a date in the Y-m-d H:i:s format.
+ * Default return format of 'Y-m-d H:i:s' can be overridden using the `$format` parameter.
  *
  * @since 1.2.0
  *
@@ -4242,7 +4284,7 @@ function esc_url( $url, $protocols = null, $_context = 'display' ) {
 }
 
 /**
- * Performs esc_url() for database usage.
+ * Performs esc_url() for database or redirect usage.
  *
  * @since 2.8.0
  *
@@ -4255,6 +4297,26 @@ function esc_url( $url, $protocols = null, $_context = 'display' ) {
  */
 function esc_url_raw( $url, $protocols = null ) {
 	return esc_url( $url, $protocols, 'db' );
+}
+
+/**
+ * Performs esc_url() for database or redirect usage.
+ *
+ * This function is an alias for esc_url_raw().
+ *
+ * @since 2.3.1
+ * @since 2.8.0 Deprecated in favor of esc_url_raw().
+ * @since 5.9.0 Restored (un-deprecated).
+ *
+ * @see esc_url_raw()
+ *
+ * @param string   $url       The URL to be cleaned.
+ * @param string[] $protocols Optional. An array of acceptable protocols.
+ *                            Defaults to return value of wp_allowed_protocols().
+ * @return string The cleaned URL after esc_url() is run with the 'db' context.
+ */
+function sanitize_url( $url, $protocols = null ) {
+	return esc_url_raw( $url, $protocols );
 }
 
 /**
@@ -4488,7 +4550,7 @@ function sanitize_option( $option, $value ) {
 	global $wpdb;
 
 	$original_value = $value;
-	$error          = '';
+	$error          = null;
 
 	switch ( $option ) {
 		case 'admin_email':
@@ -4677,7 +4739,9 @@ function sanitize_option( $option, $value ) {
 				$value = str_replace( 'http://', '', $value );
 			}
 
-			if ( 'permalink_structure' === $option && '' !== $value && ! preg_match( '/%[^\/%]+%/', $value ) ) {
+			if ( 'permalink_structure' === $option && null === $error
+				&& '' !== $value && ! preg_match( '/%[^\/%]+%/', $value )
+			) {
 				$error = sprintf(
 					/* translators: %s: Documentation URL. */
 					__( 'A structure tag is required when using custom permalinks. <a href="%s">Learn more</a>' ),
@@ -4710,7 +4774,12 @@ function sanitize_option( $option, $value ) {
 			break;
 	}
 
-	if ( ! empty( $error ) ) {
+	if ( null !== $error ) {
+		if ( '' === $error && is_wp_error( $value ) ) {
+			/* translators: 1: Option name, 2: Error code. */
+			$error = sprintf( __( 'Could not sanitize the %1$s option. Error code: %2$s' ), $option, $value->get_error_code() );
+		}
+
 		$value = get_option( $option );
 		if ( function_exists( 'add_settings_error' ) ) {
 			add_settings_error( $option, "invalid_{$option}", $error );
@@ -4767,12 +4836,12 @@ function map_deep( $value, $callback ) {
  * @param array  $array  Variables will be stored in this array.
  */
 function wp_parse_str( $string, &$array ) {
-	parse_str( $string, $array );
+	parse_str( (string) $string, $array );
 
 	/**
 	 * Filters the array of variables derived from a parsed string.
 	 *
-	 * @since 2.3.0
+	 * @since 2.2.1
 	 *
 	 * @param array $array The array populated with variables.
 	 */
@@ -4798,7 +4867,7 @@ function wp_pre_kses_less_than( $text ) {
  *
  * @since 2.3.0
  *
- * @param array $matches Populated by matches to preg_replace.
+ * @param string[] $matches Populated by matches to preg_replace.
  * @return string The text returned after esc_html if needed.
  */
 function wp_pre_kses_less_than_callback( $matches ) {
@@ -5262,7 +5331,7 @@ function sanitize_mime_type( $mime_type ) {
  * @since 5.5.0 Non-string values are left untouched.
  *
  * @param string|array $value String or array of data to slash.
- * @return string|array Slashed $value.
+ * @return string|array Slashed `$value`.
  */
 function wp_slash( $value ) {
 	if ( is_array( $value ) ) {
@@ -5285,7 +5354,7 @@ function wp_slash( $value ) {
  * @since 3.6.0
  *
  * @param string|array $value String or array of data to unslash.
- * @return string|array Unslashed $value.
+ * @return string|array Unslashed `$value`.
  */
 function wp_unslash( $value ) {
 	return stripslashes_deep( $value );

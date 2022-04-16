@@ -202,7 +202,7 @@ function _wp_dashboard_control_callback( $dashboard, $meta_box ) {
 	wp_dashboard_trigger_widget_control( $meta_box['id'] );
 	wp_nonce_field( 'edit-dashboard-widget_' . $meta_box['id'], 'dashboard-widget-nonce' );
 	echo '<input type="hidden" name="widget_id" value="' . esc_attr( $meta_box['id'] ) . '" />';
-	submit_button( __( 'Submit' ) );
+	submit_button( __( 'Save Changes' ) );
 	echo '</form>';
 }
 
@@ -1258,10 +1258,15 @@ function wp_dashboard_empty() {}
  * Displays a welcome panel to introduce users to WordPress.
  *
  * @since 3.3.0
+ * @since 5.9.0 Send users to the Site Editor if the current theme is block-based.
  */
 function wp_welcome_panel() {
+	list( $display_version ) = explode( '-', get_bloginfo( 'version' ) );
+	$can_customize           = current_user_can( 'customize' );
+	$is_block_theme          = wp_is_block_theme();
 	?>
 	<div class="welcome-panel-content">
+<<<<<<< HEAD
 	<h2><?php _e( 'Welcome to calmPress!' ); ?></h2>
 	<p class="about-description"><?php _e( 'We&#8217;ve assembled some links to get you started:' ); ?></p>
 	<div class="welcome-panel-column-container">
@@ -1312,7 +1317,38 @@ function wp_welcome_panel() {
 			<li><?php printf( '<a href="%s" class="welcome-icon welcome-comments">' . __( 'Turn comments on or off' ) . '</a>', admin_url( 'options-discussion.php' ) ); ?></li>
 		<?php endif; ?>
 		</ul>
+=======
+	<div class="welcome-panel-header">
+		<h2><?php _e( 'Welcome to WordPress!' ); ?></h2>
+		<p>
+			<a href="<?php echo esc_url( admin_url( 'about.php' ) ); ?>">
+			<?php
+				/* translators: %s: Current WordPress version. */
+				printf( __( 'Learn more about the %s version.' ), $display_version );
+			?>
+			</a>
+		</p>
+>>>>>>> 0ea7a38664746f9ad4f402768975c66928817531
 	</div>
+	<div class="welcome-panel-column-container">
+		<div class="welcome-panel-column">
+			<div class="welcome-panel-icon-pages"></div>
+			<div class="welcome-panel-column-content">
+				<h3><?php _e( 'Author rich content with blocks and patterns' ); ?></h3>
+				<p><?php _e( 'Block patterns are pre-configured block layouts. Use them to get inspired or create new pages in a flash.' ); ?></p>
+				<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=page' ) ); ?>"><?php _e( 'Add a new page' ); ?></a>
+			</div>
+		</div>
+		<div class="welcome-panel-column">
+			<div class="welcome-panel-icon-layout"></div>
+			<div class="welcome-panel-column-content">
+			<h3><?php _e( 'Start Customizing' ); ?></h3>
+			<p><?php _e( 'Configure your site&#8217;s logo, header, menus, and more in the Customizer.' ); ?></p>
+			<?php if ( $can_customize ) : ?>
+				<a class="load-customize hide-if-no-customize" href="<?php echo wp_customize_url(); ?>"><?php _e( 'Open the Customizer' ); ?></a>
+			<?php endif; ?>
+			</div>
+		</div>
 	</div>
 	</div>
 	<?php

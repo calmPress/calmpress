@@ -12,8 +12,8 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 	private $old_wp_styles;
 	private $old_wp_scripts;
 
-	function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		if ( empty( $GLOBALS['wp_styles'] ) ) {
 			$GLOBALS['wp_styles'] = null;
@@ -37,14 +37,14 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 		$GLOBALS['wp_scripts']->default_version = calm_version_hash( calmpress_version() );
 	}
 
-	function tearDown() {
+	public function tear_down() {
 		$GLOBALS['wp_styles']  = $this->old_wp_styles;
 		$GLOBALS['wp_scripts'] = $this->old_wp_scripts;
 
 		add_action( 'wp_default_styles', 'wp_default_styles' );
 		add_action( 'wp_print_styles', 'print_emoji_styles' );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 	 *
 	 * @ticket 11315
 	 */
-	function test_wp_enqueue_style() {
+	public function test_wp_enqueue_style() {
 		wp_enqueue_style( 'no-deps-no-version', 'example.com' );
 		wp_enqueue_style( 'no-deps-version', 'example.com', array(), 1.2 );
 		wp_enqueue_style( 'no-deps-null-version', 'example.com', array(), null );
@@ -72,7 +72,7 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 	/**
 	 * @ticket 42804
 	 */
-	function test_wp_enqueue_style_with_html5_support_does_not_contain_type_attribute() {
+	public function test_wp_enqueue_style_with_html5_support_does_not_contain_type_attribute() {
 		add_theme_support( 'html5', array( 'style' ) );
 
 		$GLOBALS['wp_styles']                  = new WP_Styles();
@@ -250,7 +250,7 @@ CSS;
 	 *
 	 * @ticket 31126
 	 */
-	function test_wp_register_style() {
+	public function test_wp_register_style() {
 		$this->assertTrue( wp_register_style( 'duplicate-handler', 'http://example.com' ) );
 		$this->assertFalse( wp_register_style( 'duplicate-handler', 'http://example.com' ) );
 	}
@@ -258,7 +258,7 @@ CSS;
 	/**
 	 * @ticket 35229
 	 */
-	function test_wp_add_inline_style_for_handle_without_source() {
+	public function test_wp_add_inline_style_for_handle_without_source() {
 		$style = 'a { color: blue; }';
 
 		$expected  = "<link rel='stylesheet' id='handle-one-css'  href='http://example.com?ver=1' type='text/css' media='all' />\n";
@@ -281,12 +281,12 @@ CSS;
 	 * @ticket 35921
 	 * @dataProvider data_styles_with_media
 	 */
-	function test_wp_enqueue_style_with_media( $expected, $media ) {
+	public function test_wp_enqueue_style_with_media( $expected, $media ) {
 		wp_enqueue_style( 'handle', 'http://example.com', array(), 1, $media );
-		$this->assertContains( $expected, get_echo( 'wp_print_styles' ) );
+		$this->assertStringContainsString( $expected, get_echo( 'wp_print_styles' ) );
 	}
 
-	function data_styles_with_media() {
+	public function data_styles_with_media() {
 		return array(
 			array(
 				"media='all'",

@@ -22,14 +22,14 @@
 		<?php
 		if ( 'post' === get_post_type() ) {
 			echo '<div class="entry-meta">';
-				if ( is_single() ) {
-					calmseventeen_posted_on();
-				} else {
-					echo calmseventeen_time_link();
-					calmseventeen_edit_link();
-				};
+			if ( is_single() ) {
+				calmseventeen_posted_on();
+			} else {
+				echo calmseventeen_time_link();
+				calmseventeen_edit_link();
+			}
 			echo '</div><!-- .entry-meta -->';
-		};
+		}
 
 		if ( is_single() ) {
 			the_title( '<h1 class="entry-title">', '</h1>' );

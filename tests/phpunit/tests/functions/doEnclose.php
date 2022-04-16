@@ -23,9 +23,9 @@ class Tests_Functions_DoEnclose extends WP_UnitTestCase {
 	 *
 	 * @since 5.3.0
 	 */
-	public function setUp() {
-		parent::setUp();
-		add_filter( 'pre_http_request', array( $this, 'fake_http_request' ), 10, 3 );
+	public function set_up() {
+		parent::set_up();
+		add_filter( 'pre_http_request', array( $this, 'mock_http_request' ), 10, 3 );
 	}
 
 	/**
@@ -250,17 +250,16 @@ class Tests_Functions_DoEnclose extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Fake the HTTP request response.
+	 * Mock the HTTP request response.
 	 *
 	 * @since 5.3.0
 	 *
 	 * @param bool   $false     False.
 	 * @param array  $arguments Request arguments.
 	 * @param string $url       Request URL.
-	 *
 	 * @return array            Header.
 	 */
-	public function fake_http_request( $false, $arguments, $url ) {
+	public function mock_http_request( $false, $arguments, $url ) {
 
 		// Video and audio headers.
 		$fake_headers = array(
@@ -280,7 +279,7 @@ class Tests_Functions_DoEnclose extends WP_UnitTestCase {
 
 		$path = parse_url( $url, PHP_URL_PATH );
 
-		if ( false !== $path ) {
+		if ( is_string( $path ) ) {
 			$extension = pathinfo( $path, PATHINFO_EXTENSION );
 			if ( isset( $fake_headers[ $extension ] ) ) {
 				return $fake_headers[ $extension ];

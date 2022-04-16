@@ -26,7 +26,7 @@ class Tests_Post_wpPublishPost extends WP_UnitTestCase {
 	 *
 	 * @ticket 51292
 	 */
-	function test_wp_publish_post_respects_current_categories() {
+	public function test_wp_publish_post_respects_current_categories() {
 		$post_id     = self::$auto_draft_id;
 		$category_id = $this->factory->term->create( array( 'taxonomy' => 'category' ) );
 		wp_set_post_categories( $post_id, $category_id );
@@ -47,7 +47,7 @@ class Tests_Post_wpPublishPost extends WP_UnitTestCase {
 	 * @covers ::wp_publish_post
 	 * @ticket 51292
 	 */
-	function test_wp_publish_post_respects_current_terms() {
+	public function test_wp_publish_post_respects_current_terms() {
 		// Create custom taxonomy to test with.
 		register_taxonomy(
 			'tax_51292',

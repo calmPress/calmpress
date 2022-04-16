@@ -22,14 +22,14 @@
 		<?php
 		if ( 'post' === get_post_type() ) {
 			echo '<div class="entry-meta">';
-				if ( is_single() ) {
-					calmseventeen_posted_on();
-				} else {
-					echo calmseventeen_time_link();
-					calmseventeen_edit_link();
-				};
+			if ( is_single() ) {
+				calmseventeen_posted_on();
+			} else {
+				echo calmseventeen_time_link();
+				calmseventeen_edit_link();
+			}
 			echo '</div><!-- .entry-meta -->';
-		};
+		}
 
 		if ( is_single() ) {
 			the_title( '<h1 class="entry-title">', '</h1>' );
@@ -59,9 +59,8 @@
 				echo '<div class="entry-gallery">';
 					echo get_post_gallery();
 				echo '</div>';
-			};
-
-		};
+			}
+		}
 
 		if ( is_single() || ! get_post_gallery() ) {
 
@@ -73,14 +72,15 @@
 				)
 			);
 
-			wp_link_pages( array(
-				'before'      => '<div class="page-links">' . __( 'Pages:', 'calmseventeen' ),
-				'after'       => '</div>',
-				'link_before' => '<span class="page-number">',
-				'link_after'  => '</span>',
-			) );
-
-		};
+			wp_link_pages(
+				array(
+					'before'      => '<div class="page-links">' . __( 'Pages:', 'calmseventeen' ),
+					'after'       => '</div>',
+					'link_before' => '<span class="page-number">',
+					'link_after'  => '</span>',
+				)
+			);
+		}
 		?>
 
 	</div><!-- .entry-content -->

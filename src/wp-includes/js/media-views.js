@@ -3404,7 +3404,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	isImageAttachment: function( attachment ) {
 		// If uploading, we know the filename but not the mime type.
 		if ( attachment.get('uploading') ) {
-			return /\.(jpe?g|png|gif)$/i.test( attachment.get('filename') );
+			return /\.(jpe?g|png|gif|webp)$/i.test( attachment.get('filename') );
 		}
 
 		return attachment.get('type') === 'image';
@@ -4003,7 +4003,6 @@ FeaturedImage = Library.extend(/** @lends wp.media.controller.FeaturedImage.prot
 	 * @since 3.5.0
 	 */
 	activate: function() {
-		this.updateSelection();
 		this.frame.on( 'open', this.updateSelection, this );
 
 		Library.prototype.activate.apply( this, arguments );
@@ -7356,8 +7355,18 @@ ReplaceImage = Library.extend(/** @lends wp.media.controller.ReplaceImage.protot
 	 * @since 3.9.0
 	 */
 	activate: function() {
-		this.updateSelection();
+		this.frame.on( 'content:render:browse', this.updateSelection, this );
+
 		Library.prototype.activate.apply( this, arguments );
+	},
+
+	/**
+	 * @since 5.9.0
+	 */
+	deactivate: function() {
+		this.frame.off( 'content:render:browse', this.updateSelection, this );
+
+		Library.prototype.deactivate.apply( this, arguments );
 	},
 
 	/**
@@ -7967,8 +7976,8 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 		// Enable page scrolling.
 		$( 'body' ).removeClass( 'modal-open' );
 
-		// Hide modal and remove restricted media modal tab focus once it's closed.
-		this.$el.hide().off( 'keydown' );
+		// Hide the modal element by adding display:none.
+		this.$el.hide();
 
 		/*
 		 * Make visible again to assistive technologies all body children that

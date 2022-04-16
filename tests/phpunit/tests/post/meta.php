@@ -23,8 +23,8 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 			array(
 				'post_author'  => self::$author->ID,
 				'post_status'  => 'publish',
-				'post_content' => rand_str(),
-				'post_title'   => rand_str(),
+				'post_content' => 'content',
+				'post_title'   => 'title',
 			)
 		);
 
@@ -32,8 +32,8 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 			array(
 				'post_author'  => self::$author->ID,
 				'post_status'  => 'publish',
-				'post_content' => rand_str(),
-				'post_title'   => rand_str(),
+				'post_content' => 'content',
+				'post_title'   => 'title',
 			)
 		);
 	}
@@ -44,9 +44,9 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 		self::delete_user( self::$author );
 	}
 
-	function test_unique_postmeta() {
+	public function test_unique_postmeta() {
 		// Add a unique post meta item.
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'unique', 'value', true ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'unique', 'value', true ) );
 
 		// Check unique is enforced.
 		$this->assertFalse( add_post_meta( self::$post_id, 'unique', 'another value', true ) );
@@ -67,10 +67,10 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 
 	}
 
-	function test_nonunique_postmeta() {
+	public function test_nonunique_postmeta() {
 		// Add two non-unique post meta items.
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'nonunique', 'value' ) );
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'nonunique', 'another value' ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'nonunique', 'value' ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'nonunique', 'another value' ) );
 
 		// Check they exist.
 		$this->assertSame( 'value', get_post_meta( self::$post_id, 'nonunique', true ) );
@@ -87,7 +87,7 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 		$this->assertSame( array( 'another value' ), get_post_meta( self::$post_id, 'nonunique', false ) );
 
 		// Add a third one.
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'nonunique', 'someother value' ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'nonunique', 'someother value' ) );
 
 		// Check they exist.
 		$expected = array(
@@ -95,7 +95,7 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 			'another value',
 		);
 		sort( $expected );
-		$this->assertTrue( in_array( get_post_meta( self::$post_id, 'nonunique', true ), $expected, true ) );
+		$this->assertContains( get_post_meta( self::$post_id, 'nonunique', true ), $expected );
 		$actual = get_post_meta( self::$post_id, 'nonunique', false );
 		sort( $actual );
 		$this->assertSame( $expected, $actual );
@@ -104,13 +104,13 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 		$this->assertTrue( delete_post_meta_by_key( 'nonunique' ) );
 	}
 
-	function test_update_post_meta() {
+	public function test_update_post_meta() {
 		// Add a unique post meta item.
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'unique_update', 'value', true ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'unique_update', 'value', true ) );
 
 		// Add two non-unique post meta items.
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'nonunique_update', 'value' ) );
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'nonunique_update', 'another value' ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'nonunique_update', 'value' ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'nonunique_update', 'another value' ) );
 
 		// Check they exist.
 		$this->assertSame( 'value', get_post_meta( self::$post_id, 'unique_update', true ) );
@@ -131,10 +131,10 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 
 	}
 
-	function test_delete_post_meta() {
+	public function test_delete_post_meta() {
 		// Add two unique post meta items.
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'unique_delete', 'value', true ) );
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id_2, 'unique_delete', 'value', true ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'unique_delete', 'value', true ) );
+		$this->assertIsInt( add_post_meta( self::$post_id_2, 'unique_delete', 'value', true ) );
 
 		// Check they exist.
 		$this->assertSame( 'value', get_post_meta( self::$post_id, 'unique_delete', true ) );
@@ -148,10 +148,10 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 
 	}
 
-	function test_delete_post_meta_by_key() {
+	public function test_delete_post_meta_by_key() {
 		// Add two unique post meta items.
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'unique_delete_by_key', 'value', true ) );
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id_2, 'unique_delete_by_key', 'value', true ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'unique_delete_by_key', 'value', true ) );
+		$this->assertIsInt( add_post_meta( self::$post_id_2, 'unique_delete_by_key', 'value', true ) );
 
 		// Check they exist.
 		$this->assertSame( 'value', get_post_meta( self::$post_id, 'unique_delete_by_key', true ) );
@@ -168,7 +168,7 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 	/**
 	 * @ticket 12860
 	 */
-	function test_funky_post_meta() {
+	public function test_funky_post_meta() {
 		$classy          = new StdClass();
 		$classy->ID      = 1;
 		$classy->stringy = 'I love slashes\\\\';
@@ -180,7 +180,7 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 		$funky_meta[]    = $classy;
 
 		// Add a post meta item.
-		$this->assertInternalType( 'integer', add_post_meta( self::$post_id, 'test_funky_post_meta', $funky_meta, true ) );
+		$this->assertIsInt( add_post_meta( self::$post_id, 'test_funky_post_meta', $funky_meta, true ) );
 
 		// Check it exists.
 		$this->assertEquals( $funky_meta, get_post_meta( self::$post_id, 'test_funky_post_meta', true ) );
@@ -256,7 +256,7 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 
 		wp_cache_delete( 'last_changed', 'posts' );
 
-		$this->assertInternalType( 'integer', add_metadata( 'post', $post_id, 'foo', 'bar' ) );
+		$this->assertIsInt( add_metadata( 'post', $post_id, 'foo', 'bar' ) );
 		$this->assertNotFalse( wp_cache_get_last_changed( 'posts' ) );
 	}
 
@@ -268,7 +268,7 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 
 		wp_cache_delete( 'last_changed', 'posts' );
 
-		$this->assertInternalType( 'integer', update_metadata( 'post', $post_id, 'foo', 'bar' ) );
+		$this->assertIsInt( update_metadata( 'post', $post_id, 'foo', 'bar' ) );
 		$this->assertNotFalse( wp_cache_get_last_changed( 'posts' ) );
 	}
 

@@ -2,7 +2,8 @@
 /**
  * @group admin
  */
-class Tests_Admin_includesTemplate extends WP_UnitTestCase {
+class Tests_Admin_IncludesTemplate extends WP_UnitTestCase {
+
 	protected static $cat_id;
 
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
@@ -15,7 +16,7 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 51147
+	 * @ticket 51137
 	 */
 	public function test_wp_terms_checklist_with_selected_cats() {
 		$output = wp_terms_checklist(
@@ -26,11 +27,11 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 			)
 		);
 
-		$this->assertContains( "checked='checked'", $output );
+		$this->assertStringContainsString( "checked='checked'", $output );
 	}
 
 	/**
-	 * @ticket 51147
+	 * @ticket 51137
 	 */
 	public function test_wp_terms_checklist_with_popular_cats() {
 		$output = wp_terms_checklist(
@@ -41,7 +42,7 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 			)
 		);
 
-		$this->assertContains( 'class="popular-category"', $output );
+		$this->assertStringContainsString( 'class="popular-category"', $output );
 	}
 
 	public function test_add_meta_box() {
@@ -186,8 +187,8 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 
 		$expected = sprintf( 'notice %s settings-error is-dismissible', $expected );
 
-		$this->assertContains( $expected, $output );
-		$this->assertNotContains( 'notice-notice-', $output );
+		$this->assertStringContainsString( $expected, $output );
+		$this->assertStringNotContainsString( 'notice-notice-', $output );
 	}
 
 	public function settings_errors_css_classes_provider() {
@@ -226,8 +227,6 @@ class Tests_Admin_includesTemplate extends WP_UnitTestCase {
 
 		// This doesn't actually get removed due to the invalid priority.
 		remove_meta_box( 'dashboard2', 'dashboard', 'normal' );
-
-		set_current_screen( 'front' );
 	}
 
 }

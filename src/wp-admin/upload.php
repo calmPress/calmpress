@@ -209,6 +209,7 @@ if ( $doaction ) {
 
 $wp_list_table->prepare_items();
 
+// Used in the HTML title tag.
 $title       = __( 'Media Library' );
 $parent_file = 'upload.php';
 
@@ -286,7 +287,7 @@ if ( ! empty( $_GET['posted'] ) ) {
 
 if ( ! empty( $_GET['deleted'] ) && absint( $_GET['deleted'] ) ) {
 	$deleted = absint( $_GET['deleted'] );
-	if ( 1 == $deleted ) {
+	if ( 1 === $deleted ) {
 		$message = __( 'Media file permanently deleted.' );
 	} else {
 		/* translators: %s: Number of media files. */
@@ -298,7 +299,7 @@ if ( ! empty( $_GET['deleted'] ) && absint( $_GET['deleted'] ) ) {
 
 if ( ! empty( $_GET['trashed'] ) && absint( $_GET['trashed'] ) ) {
 	$trashed = absint( $_GET['trashed'] );
-	if ( 1 == $trashed ) {
+	if ( 1 === $trashed ) {
 		$message = __( 'Media file moved to the Trash.' );
 	} else {
 		/* translators: %s: Number of media files. */
@@ -311,7 +312,7 @@ if ( ! empty( $_GET['trashed'] ) && absint( $_GET['trashed'] ) ) {
 
 if ( ! empty( $_GET['untrashed'] ) && absint( $_GET['untrashed'] ) ) {
 	$untrashed = absint( $_GET['untrashed'] );
-	if ( 1 == $untrashed ) {
+	if ( 1 === $untrashed ) {
 		$message = __( 'Media file restored from the Trash.' );
 	} else {
 		/* translators: %s: Number of media files. */

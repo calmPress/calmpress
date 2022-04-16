@@ -44,7 +44,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		self::$fred_url = $post_author->posts_url();
 	}
 
-	function test_wp_list_authors_default() {
+	public function test_wp_list_authors_default() {
 		$expected['default'] =
 			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
 			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
@@ -53,7 +53,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		$this->assertSame( $expected['default'], wp_list_authors( array( 'echo' => false ) ) );
 	}
 
-	function test_wp_list_authors_orderby() {
+	public function test_wp_list_authors_orderby() {
 		$expected['post_count'] =
 			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>' .
 			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
@@ -70,7 +70,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		);
 	}
 
-	function test_wp_list_authors_optioncount() {
+	public function test_wp_list_authors_optioncount() {
 		$expected['optioncount'] =
 			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a> (2)</li>' .
 			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a> (3)</li>' .
@@ -87,7 +87,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		);
 	}
 
-	function test_wp_list_authors_hide_empty() {
+	public function test_wp_list_authors_hide_empty() {
 		$fred_id = self::$fred_id;
 		$fred_term = get_term( $fred_id, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$fred_author = new calmpress\post_authors\Taxonomy_Based_Post_Author( $fred_term );
@@ -110,7 +110,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		);
 	}
 
-	function test_wp_list_authors_echo() {
+	public function test_wp_list_authors_echo() {
 		$expected['echo'] =
 			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
 			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
@@ -120,7 +120,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		wp_list_authors( array( 'echo' => true ) );
 	}
 
-	function test_wp_list_authors_style() {
+	public function test_wp_list_authors_style() {
 		$expected['style'] =
 			'<a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a>, ' .
 			'<a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a>, ' .
@@ -137,7 +137,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		);
 	}
 
-	function test_wp_list_authors_html() {
+	public function test_wp_list_authors_html() {
 		$expected['html'] = 'bob, paul, zack';
 
 		$this->assertSame(

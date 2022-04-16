@@ -33,6 +33,7 @@
  * @property string $deleted
  * @property string $locale
  * @property string $syntax_highlighting
+ * @property string $use_ssl
  */
 class WP_User implements \calmpress\avatar\Has_Avatar {
 	/**

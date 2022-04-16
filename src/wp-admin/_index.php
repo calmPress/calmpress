@@ -29,10 +29,12 @@ if ( wp_is_mobile() ) {
 	wp_enqueue_script( 'jquery-touch-punch' );
 }
 
+// Used in the HTML title tag.
 $title       = __( 'Dashboard' );
 $parent_file = 'index.php';
 
-$help = '<p>' . __( 'Welcome to your calmPress Dashboard! This is the screen you will see when you log in to your site, and gives you access to all the site management features of calmPress. You can get help for any screen by clicking the Help tab above the screen title.' ) . '</p>';
+$help  = '<p>' . __( 'Welcome to your calmPress Dashboard!' ) . '</p>';
+$help .= '<p>' . __( 'The Dashboard is the first place you will come to every time you log into your site. It is where you will find all your calmPress tools. If you need help, just click the &#8220;Help&#8221; tab above the screen title.' ) . '</p>';
 
 $screen = get_current_screen();
 
@@ -96,7 +98,7 @@ $screen->add_help_tab(
 
 unset( $help );
 
-include( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 
 <div class="wrap">

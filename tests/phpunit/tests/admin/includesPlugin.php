@@ -19,7 +19,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		self::_restore_mu_plugins();
 	}
 
-	function test_get_plugin_data() {
+	public function test_get_plugin_data() {
 		$data = get_plugin_data( DIR_TESTDATA . '/plugins/hello.php' );
 
 		$default_headers = array(
@@ -34,15 +34,15 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 			'DomainPath'  => '',
 		);
 
-		$this->assertTrue( is_array( $data ) );
+		$this->assertIsArray( $data );
 
 		foreach ( $default_headers as $name => $value ) {
-			$this->assertTrue( isset( $data[ $name ] ) );
+			$this->assertArrayHasKey( $name, $data );
 			$this->assertSame( $value, $data[ $name ] );
 		}
 	}
 
-	function test_menu_page_url() {
+	public function test_menu_page_url() {
 		$current_user = get_current_user_id();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 
@@ -83,7 +83,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 *
 	 * @dataProvider data_submenu_position
 	 */
-	function test_submenu_position( $position, $expected_position ) {
+	public function test_submenu_position( $position, $expected_position ) {
 		global $submenu;
 		global $menu;
 		$current_user = get_current_user_id();
@@ -103,8 +103,6 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 
 		// Clean up the temporary user.
 		wp_delete_user( $admin_user );
-		// Reset current screen.
-		set_current_screen( 'front' );
 
 		// Verify the menu was inserted at the expected position.
 		$this->assertSame( 'custom-position', $submenu[ $parent ][ $expected_position ][2] );
@@ -133,7 +131,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 *
 	 * @dataProvider data_submenu_position
 	 */
-	function test_submenu_helpers_position( $position, $expected_position ) {
+	public function test_submenu_helpers_position( $position, $expected_position ) {
 		global $submenu;
 		global $menu;
 
@@ -209,8 +207,6 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 
 		// Clean up the temporary user.
 		wp_delete_user( $admin_user );
-		// Reset current screen.
-		set_current_screen( 'front' );
 
 		foreach ( $actual_positions as $test => $actual_position ) {
 			// Verify the menu was inserted at the expected position.
@@ -233,7 +229,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 *     }
 	 * }
 	 */
-	function submenus_to_add() {
+	private function submenus_to_add() {
 		return array(
 			array( 'Submenu Position', 'Submenu Position', 'manage_options', 'sub-page', '' ),
 			array( 'Submenu Position 2', 'Submenu Position 2', 'manage_options', 'sub-page2', '' ),
@@ -255,7 +251,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 *     }
 	 * }
 	 */
-	function data_submenu_position() {
+	public function data_submenu_position() {
 		$menu_count = count( $this->submenus_to_add() );
 		return array(
 			array( null, $menu_count ),        // Insert at the end of the menu if null is passed. Default behavior.
@@ -274,7 +270,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 *
 	 * @ticket 48599
 	 */
-	function test_position_when_parent_slug_child_slug_are_the_same() {
+	public function test_position_when_parent_slug_child_slug_are_the_same() {
 		global $submenu, $menu;
 
 		// Reset menus.
@@ -294,8 +290,6 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		// Clean up the temporary user.
 		wp_set_current_user( $current_user );
 		wp_delete_user( $admin_user );
-		// Reset current screen.
-		set_current_screen( 'front' );
 
 		// Verify the menu was inserted at the expected position.
 		$this->assertSame( 'main_slug', $submenu['main_slug'][0][2] );
@@ -308,7 +302,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 *
 	 * @ticket 48599
 	 */
-	function test_passing_string_as_position_fires_doing_it_wrong() {
+	public function test_passing_string_as_position_fires_doing_it_wrong() {
 		$this->setExpectedIncorrectUsage( 'add_submenu_page' );
 		global $submenu, $menu;
 
@@ -327,14 +321,12 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		// Clean up the temporary user.
 		wp_set_current_user( $current_user );
 		wp_delete_user( $admin_user );
-		// Reset current screen.
-		set_current_screen( 'front' );
 
 		// Verify the menu was inserted at the expected position.
 		$this->assertSame( 'submenu_page_1', $submenu['main_slug'][1][2] );
 	}
 
-	function test_is_plugin_active_true() {
+	public function test_is_plugin_active_true() {
 		activate_plugin( 'hello.php' );
 		$test = is_plugin_active( 'hello.php' );
 		$this->assertTrue( $test );
@@ -342,19 +334,19 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		deactivate_plugins( 'hello.php' );
 	}
 
-	function test_is_plugin_active_false() {
+	public function test_is_plugin_active_false() {
 		deactivate_plugins( 'hello.php' );
 		$test = is_plugin_active( 'hello.php' );
 		$this->assertFalse( $test );
 	}
 
-	function test_is_plugin_inactive_true() {
+	public function test_is_plugin_inactive_true() {
 		deactivate_plugins( 'hello.php' );
 		$test = is_plugin_inactive( 'hello.php' );
 		$this->assertTrue( $test );
 	}
 
-	function test_is_plugin_inactive_false() {
+	public function test_is_plugin_inactive_false() {
 		activate_plugin( 'hello.php' );
 		$test = is_plugin_inactive( 'hello.php' );
 		$this->assertFalse( $test );
@@ -376,7 +368,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	public function test_get_plugin_files_folder() {
 		$plugin_dir = WP_PLUGIN_DIR . '/list_files_test_plugin';
 		@mkdir( $plugin_dir );
-		$plugin = $this->_create_plugin( null, 'list_files_test_plugin.php', $plugin_dir );
+		$plugin = $this->_create_plugin( '', 'list_files_test_plugin.php', $plugin_dir );
 
 		$sub_dir = trailingslashit( dirname( $plugin[1] ) ) . 'subdir';
 		mkdir( $sub_dir );
@@ -413,7 +405,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 * @covers ::get_mu_plugins
 	 */
 	public function test_get_mu_plugins_when_mu_plugins_directory_does_not_exist() {
-		$this->assertFileNotExists( WPMU_PLUGIN_DIR );
+		$this->assertFileDoesNotExist( WPMU_PLUGIN_DIR );
 		$this->assertSame( array(), get_mu_plugins() );
 	}
 
@@ -497,10 +489,11 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		$p2 = $this->_create_plugin( "<?php\n//Test", 'not-a-dropin.php', WP_CONTENT_DIR );
 
 		$dropins = get_dropins();
-		$this->assertSame( array( 'advanced-cache.php' ), array_keys( $dropins ) );
 
 		unlink( $p1[1] );
 		unlink( $p2[1] );
+
+		$this->assertSame( array( 'advanced-cache.php' ), array_keys( $dropins ) );
 
 		// Clean up.
 		$this->_restore_drop_ins();
@@ -523,9 +516,11 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	public function test_is_network_only_plugin() {
 		$p = $this->_create_plugin( "<?php\n/*\nPlugin Name: test\nNetwork: true" );
 
-		$this->assertTrue( is_network_only_plugin( $p[0] ) );
+		$network_only = is_network_only_plugin( $p[0] );
 
 		unlink( $p[1] );
+
+		$this->assertTrue( $network_only );
 	}
 
 	/**
@@ -558,7 +553,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		unlink( $plugin[1] );
 
 		$result = validate_active_plugins();
-		$this->assertTrue( isset( $result[ $plugin[0] ] ) );
+		$this->assertArrayHasKey( $plugin[0], $result );
 	}
 
 	/**
@@ -585,12 +580,14 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		$uninstallable_plugins[ $plugin[0] ] = true;
 		update_option( 'uninstall_plugins', $uninstallable_plugins );
 
-		$this->assertTrue( is_uninstallable_plugin( $plugin[0] ) );
+		$is_uninstallable = is_uninstallable_plugin( $plugin[0] );
 
 		unset( $uninstallable_plugins[ $plugin[0] ] );
 		update_option( 'uninstall_plugins', $uninstallable_plugins );
 
 		unlink( $plugin[1] );
+
+		$this->assertTrue( $is_uninstallable );
 	}
 
 	/**
@@ -609,14 +606,15 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	 */
 	private function _create_plugin( $data = "<?php\n/*\nPlugin Name: Test\n*/", $filename = false, $dir_path = false ) {
 		if ( false === $filename ) {
-			$filename = rand_str() . '.php';
+			$filename = __FUNCTION__ . '.php';
 		}
 
 		if ( false === $dir_path ) {
 			$dir_path = WP_PLUGIN_DIR;
 		}
 
-		$full_name = $dir_path . '/' . wp_unique_filename( $dir_path, $filename );
+		$filename  = wp_unique_filename( $dir_path, $filename );
+		$full_name = $dir_path . '/' . $filename;
 
 		$file = fopen( $full_name, 'w' );
 		fwrite( $file, $data );

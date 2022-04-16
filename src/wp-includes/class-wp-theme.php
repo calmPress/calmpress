@@ -44,6 +44,16 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * Default themes.
 	 *
+	 * @since 3.4.0
+	 * @since 3.5.0 Added the Twenty Twelve theme.
+	 * @since 3.6.0 Added the Twenty Thirteen theme.
+	 * @since 3.8.0 Added the Twenty Fourteen theme.
+	 * @since 4.1.0 Added the Twenty Fifteen theme.
+	 * @since 4.4.0 Added the Twenty Sixteen theme.
+	 * @since 4.7.0 Added the Twenty Seventeen theme.
+	 * @since 5.0.0 Added the Twenty Nineteen theme.
+	 * @since 5.3.0 Added the Twenty Twenty theme.
+	 * @since 5.6.0 Added the Twenty Twenty-One theme.
 	 * @var array
 	 */
 	private static $default_themes = array(
@@ -53,6 +63,7 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * Renamed theme tags.
 	 *
+	 * @since 3.8.0
 	 * @var array
 	 */
 	private static $tag_map = array(
@@ -63,6 +74,7 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * Absolute path to the theme root, usually wp-content/themes
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	private $theme_root;
@@ -70,6 +82,7 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * Header data from the theme's style.css file.
 	 *
+	 * @since 3.4.0
 	 * @var array
 	 */
 	private $headers = array();
@@ -77,6 +90,7 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * Header data from the theme's style.css file after being sanitized.
 	 *
+	 * @since 3.4.0
 	 * @var array
 	 */
 	private $headers_sanitized;
@@ -86,6 +100,7 @@ class WP_Theme implements ArrayAccess {
 	 *
 	 * Cached due to sorting functions running over the translated name.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	private $name_translated;
@@ -93,6 +108,7 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * Errors encountered when initializing the theme.
 	 *
+	 * @since 3.4.0
 	 * @var WP_Error
 	 */
 	private $errors;
@@ -103,6 +119,7 @@ class WP_Theme implements ArrayAccess {
 	 * In the case of a child theme, this is directory name of the child theme.
 	 * Otherwise, 'stylesheet' is the same as 'template'.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	private $stylesheet;
@@ -113,6 +130,7 @@ class WP_Theme implements ArrayAccess {
 	 * In the case of a child theme, this is the directory name of the parent theme.
 	 * Otherwise, 'template' is the same as 'stylesheet'.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	private $template;
@@ -120,6 +138,7 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * A reference to the parent theme, in the case of a child theme.
 	 *
+	 * @since 3.4.0
 	 * @var WP_Theme
 	 */
 	private $parent;
@@ -127,6 +146,7 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * URL to the theme root, usually an absolute URL to wp-content/themes
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	private $theme_root_uri;
@@ -134,6 +154,7 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * Flag for whether the theme's textdomain is loaded.
 	 *
+	 * @since 3.4.0
 	 * @var bool
 	 */
 	private $textdomain_loaded;
@@ -141,6 +162,7 @@ class WP_Theme implements ArrayAccess {
 	/**
 	 * Stores an md5 hash of the theme root, to function as the cache key.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	private $cache_hash;
@@ -150,6 +172,7 @@ class WP_Theme implements ArrayAccess {
 	 *
 	 * Default is false. Can be set with the {@see 'wp_cache_themes_persistently'} filter.
 	 *
+	 * @since 3.4.0
 	 * @var bool
 	 */
 	private static $persistently_cache;
@@ -159,6 +182,7 @@ class WP_Theme implements ArrayAccess {
 	 *
 	 * By default the bucket is not cached, so this value is useless.
 	 *
+	 * @since 3.4.0
 	 * @var bool
 	 */
 	private static $cache_expiration = 1800;
@@ -516,6 +540,7 @@ class WP_Theme implements ArrayAccess {
 	 * @param mixed $offset
 	 * @param mixed $value
 	 */
+	#[ReturnTypeWillChange]
 	public function offsetSet( $offset, $value ) {}
 
 	/**
@@ -525,6 +550,7 @@ class WP_Theme implements ArrayAccess {
 	 *
 	 * @param mixed $offset
 	 */
+	#[ReturnTypeWillChange]
 	public function offsetUnset( $offset ) {}
 
 	/**
@@ -535,6 +561,7 @@ class WP_Theme implements ArrayAccess {
 	 * @param mixed $offset
 	 * @return bool
 	 */
+	#[ReturnTypeWillChange]
 	public function offsetExists( $offset ) {
 		static $keys = array(
 			'Name',
@@ -576,6 +603,7 @@ class WP_Theme implements ArrayAccess {
 	 * @param mixed $offset
 	 * @return mixed
 	 */
+	#[ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		switch ( $offset ) {
 			case 'Name':
@@ -1168,8 +1196,8 @@ class WP_Theme implements ArrayAccess {
 	 * @since 4.7.0
 	 * @since 5.8.0 Include block templates.
 	 *
-	 * @return string[] Array of page templates, keyed by filename and post type,
-	 *                  with the value of the translated header name.
+	 * @return array[] Array of page template arrays, keyed by post type and filename,
+	 *                 with the value of the translated header name.
 	 */
 	public function get_post_templates() {
 		// If you screw up your current theme and we invalidate your parent, most things still work. Let it slide.
@@ -1404,6 +1432,57 @@ class WP_Theme implements ArrayAccess {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns whether this theme is a block-based theme or not.
+	 *
+	 * @since 5.9.0
+	 *
+	 * @return bool
+	 */
+	public function is_block_theme() {
+		$paths_to_index_block_template = array(
+			$this->get_file_path( '/block-templates/index.html' ),
+			$this->get_file_path( '/templates/index.html' ),
+		);
+
+		foreach ( $paths_to_index_block_template as $path_to_index_block_template ) {
+			if ( is_file( $path_to_index_block_template ) && is_readable( $path_to_index_block_template ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Retrieves the path of a file in the theme.
+	 *
+	 * Searches in the stylesheet directory before the template directory so themes
+	 * which inherit from a parent theme can just override one file.
+	 *
+	 * @since 5.9.0
+	 *
+	 * @param string $file Optional. File to search for in the stylesheet directory.
+	 * @return string The path of the file.
+	 */
+	public function get_file_path( $file = '' ) {
+		$file = ltrim( $file, '/' );
+
+		$stylesheet_directory = $this->get_stylesheet_directory();
+		$template_directory   = $this->get_template_directory();
+
+		if ( empty( $file ) ) {
+			$path = $stylesheet_directory;
+		} elseif ( file_exists( $stylesheet_directory . '/' . $file ) ) {
+			$path = $stylesheet_directory . '/' . $file;
+		} else {
+			$path = $template_directory . '/' . $file;
+		}
+
+		/** This filter is documented in wp-includes/link-template.php */
+		return apply_filters( 'theme_file_path', $path, $file );
 	}
 
 	/**

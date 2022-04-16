@@ -9,15 +9,15 @@
  */
 class Tests_Category extends WP_UnitTestCase {
 
-	function tearDown() {
+	public function tear_down() {
 		_unregister_taxonomy( 'test_tax_cat' );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
 	 * Validate get_category_by_slug function
 	 */
-	function test_get_category_by_slug() {
+	public function test_get_category_by_slug() {
 
 		// Create test categories.
 		$testcat  = self::factory()->category->create_and_get(
@@ -47,7 +47,7 @@ class Tests_Category extends WP_UnitTestCase {
 	/**
 	 * Validate _make_cat_compat function
 	 */
-	function test__make_cat_compat() {
+	public function test__make_cat_compat() {
 
 		// Create test categories and array representations.
 		$testcat_array            = array(
@@ -124,7 +124,7 @@ class Tests_Category extends WP_UnitTestCase {
 	/**
 	 * Validate get_cat_name function
 	 */
-	function test_get_cat_name() {
+	public function test_get_cat_name() {
 
 		// Create test category.
 		$testcat = self::factory()->category->create_and_get(
@@ -144,7 +144,7 @@ class Tests_Category extends WP_UnitTestCase {
 	/**
 	 * Validate get_cat_name function
 	 */
-	function test_get_cat_ID() {
+	public function test_get_cat_ID() {
 
 		// Create test category.
 		$testcat = self::factory()->category->create_and_get(
@@ -164,7 +164,7 @@ class Tests_Category extends WP_UnitTestCase {
 	/**
 	 * Validate get_category_by_path function
 	 */
-	function test_get_category_by_path() {
+	public function test_get_category_by_path() {
 
 		// Create test categories.
 		$root_id           = self::factory()->category->create(

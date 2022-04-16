@@ -37,9 +37,9 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * Make sure the upgrade code is loaded before the tests are run.
 	 */
-	public static function setUpBeforeClass() {
+	public static function set_up_before_class() {
 
-		parent::setUpBeforeClass();
+		parent::set_up_before_class();
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	}
@@ -47,7 +47,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * Create a custom table to be used in each test.
 	 */
-	public function setUp() {
+	public function set_up() {
 
 		global $wpdb;
 
@@ -86,17 +86,17 @@ class Tests_dbDelta extends WP_UnitTestCase {
 
 		// This has to be called after the `CREATE TABLE` above as the `_create_temporary_tables` filter
 		// causes it to create a temporary table, and a temporary table cannot use a FULLTEXT index.
-		parent::setUp();
+		parent::set_up();
 	}
 
 	/**
 	 * Delete the custom table on teardown.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 
 		global $wpdb;
 
-		parent::tearDown();
+		parent::tear_down();
 
 		// This has to be called after the parent `tearDown()` method.
 		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}dbdelta_test" );
@@ -410,7 +410,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 31869
 	 */
-	function test_truncated_index() {
+	public function test_truncated_index() {
 		global $wpdb;
 
 		// This table needs to be actually created.
@@ -446,7 +446,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 36748
 	 */
-	function test_dont_downsize_text_fields() {
+	public function test_dont_downsize_text_fields() {
 		global $wpdb;
 
 		$result = dbDelta(
@@ -471,7 +471,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 36748
 	 */
-	function test_dont_downsize_blob_fields() {
+	public function test_dont_downsize_blob_fields() {
 		global $wpdb;
 
 		$result = dbDelta(
@@ -496,7 +496,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 36748
 	 */
-	function test_upsize_text_fields() {
+	public function test_upsize_text_fields() {
 		global $wpdb;
 
 		$result = dbDelta(
@@ -527,7 +527,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 36748
 	 */
-	function test_upsize_blob_fields() {
+	public function test_upsize_blob_fields() {
 		global $wpdb;
 
 		$result = dbDelta(
@@ -558,7 +558,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 20263
 	 */
-	function test_query_with_backticks_does_not_throw_an_undefined_index_warning() {
+	public function test_query_with_backticks_does_not_throw_an_undefined_index_warning() {
 		global $wpdb;
 
 		$schema = "
@@ -583,7 +583,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 36948
 	 */
-	function test_spatial_indices() {
+	public function test_spatial_indices() {
 		global $wpdb;
 
 		$db_version = $wpdb->db_version();
@@ -640,7 +640,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 20263
 	 */
-	function test_query_with_backticks_does_not_cause_a_query_to_alter_all_columns_and_indices_to_run_even_if_none_have_changed() {
+	public function test_query_with_backticks_does_not_cause_a_query_to_alter_all_columns_and_indices_to_run_even_if_none_have_changed() {
 		global $wpdb;
 
 		$schema = "
@@ -669,7 +669,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 20263
 	 */
-	function test_index_with_a_reserved_keyword_can_be_created() {
+	public function test_index_with_a_reserved_keyword_can_be_created() {
 		global $wpdb;
 
 		$updates = dbDelta(
@@ -705,7 +705,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 20263
 	 */
-	function test_wp_get_db_schema_does_no_alter_queries_on_existing_install() {
+	public function test_wp_get_db_schema_does_no_alter_queries_on_existing_install() {
 		$updates = dbDelta( wp_get_db_schema() );
 
 		$this->assertEmpty( $updates );
@@ -714,7 +714,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 20263
 	 */
-	function test_key_and_index_and_fulltext_key_and_fulltext_index_and_unique_key_and_unique_index_indicies() {
+	public function test_key_and_index_and_fulltext_key_and_fulltext_index_and_unique_key_and_unique_index_indicies() {
 		global $wpdb;
 
 		$schema = "
@@ -752,7 +752,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 20263
 	 */
-	function test_index_and_key_are_synonyms_and_do_not_recreate_indices() {
+	public function test_index_and_key_are_synonyms_and_do_not_recreate_indices() {
 		global $wpdb;
 
 		$updates = dbDelta(
@@ -776,7 +776,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 20263
 	 */
-	function test_indices_with_prefix_limits_are_created_and_do_not_recreate_indices() {
+	public function test_indices_with_prefix_limits_are_created_and_do_not_recreate_indices() {
 		global $wpdb;
 
 		$schema = "
@@ -810,7 +810,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 34959
 	 */
-	function test_index_col_names_with_order_do_not_recreate_indices() {
+	public function test_index_col_names_with_order_do_not_recreate_indices() {
 		global $wpdb;
 
 		$updates = dbDelta(
@@ -834,7 +834,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 34873
 	 */
-	function test_primary_key_with_single_space_does_not_recreate_index() {
+	public function test_primary_key_with_single_space_does_not_recreate_index() {
 		global $wpdb;
 
 		$updates = dbDelta(
@@ -858,7 +858,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 34869
 	 */
-	function test_index_definitions_with_spaces_do_not_recreate_indices() {
+	public function test_index_definitions_with_spaces_do_not_recreate_indices() {
 		global $wpdb;
 
 		$updates = dbDelta(
@@ -882,7 +882,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 34871
 	 */
-	function test_index_types_are_not_case_sensitive_and_do_not_recreate_indices() {
+	public function test_index_types_are_not_case_sensitive_and_do_not_recreate_indices() {
 		global $wpdb;
 
 		$updates = dbDelta(
@@ -906,7 +906,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 34874
 	 */
-	function test_key_names_are_not_case_sensitive_and_do_not_recreate_indices() {
+	public function test_key_names_are_not_case_sensitive_and_do_not_recreate_indices() {
 		global $wpdb;
 
 		$updates = dbDelta(
@@ -931,7 +931,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 34870
 	 */
-	function test_unchanged_key_lengths_do_not_recreate_index() {
+	public function test_unchanged_key_lengths_do_not_recreate_index() {
 		global $wpdb;
 
 		$updates = dbDelta(
@@ -956,7 +956,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 34870
 	 */
-	function test_changed_key_lengths_do_not_recreate_index() {
+	public function test_changed_key_lengths_do_not_recreate_index() {
 		global $wpdb;
 
 		$updates = dbDelta(
@@ -1040,7 +1040,7 @@ class Tests_dbDelta extends WP_UnitTestCase {
 	/**
 	 * @ticket 31679
 	 */
-	function test_column_type_change_with_hyphens_in_name() {
+	public function test_column_type_change_with_hyphens_in_name() {
 		global $wpdb;
 
 		$schema = "

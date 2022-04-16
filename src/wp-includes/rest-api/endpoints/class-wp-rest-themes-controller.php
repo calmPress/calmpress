@@ -17,6 +17,12 @@
 class WP_REST_Themes_Controller extends WP_REST_Controller {
 
 	/**
+	 * Matches theme's directory: `/themes/<subdirectory>/<theme>/` or `/themes/<theme>/`.
+	 * Excludes invalid directory name characters: `/:<>*?"|`.
+	 */
+	const PATTERN = '[^\/:<>\*\?"\|]+(?:\/[^\/:<>\*\?"\|]+)?';
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 5.0.0
@@ -50,12 +56,13 @@ class WP_REST_Themes_Controller extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<stylesheet>[\w-]+)',
+			sprintf( '/%s/(?P<stylesheet>%s)', $this->rest_base, self::PATTERN ),
 			array(
 				'args'   => array(
 					'stylesheet' => array(
-						'description' => __( "The theme's stylesheet. This uniquely identifies the theme." ),
-						'type'        => 'string',
+						'description'       => __( "The theme's stylesheet. This uniquely identifies the theme." ),
+						'type'              => 'string',
+						'sanitize_callback' => array( $this, '_sanitize_stylesheet_callback' ),
 					),
 				),
 				array(
@@ -66,6 +73,18 @@ class WP_REST_Themes_Controller extends WP_REST_Controller {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
+	}
+
+	/**
+	 * Sanitize the stylesheet to decode endpoint.
+	 *
+	 * @since 5.9.0
+	 *
+	 * @param string $stylesheet The stylesheet name.
+	 * @return string Sanitized stylesheet.
+	 */
+	public function _sanitize_stylesheet_callback( $stylesheet ) {
+		return urldecode( $stylesheet );
 	}
 
 	/**
@@ -204,12 +223,15 @@ class WP_REST_Themes_Controller extends WP_REST_Controller {
 	 * Prepares a single theme output for response.
 	 *
 	 * @since 5.0.0
+	 * @since 5.9.0 Renamed `$theme` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
-	 * @param WP_Theme        $theme   Theme object.
+	 * @param WP_Theme        $item    Theme object.
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
-	public function prepare_item_for_response( $theme, $request ) {
+	public function prepare_item_for_response( $item, $request ) {
+		// Restores the more descriptive, specific name for use within this method.
+		$theme  = $item;
 		$data   = array();
 		$fields = $this->get_fields_for_response( $request );
 

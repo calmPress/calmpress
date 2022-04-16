@@ -3,7 +3,8 @@
 /**
  * @group sitemaps
  */
-class Test_Sitemaps_Functions extends WP_UnitTestCase {
+class Tests_Sitemaps_Functions extends WP_UnitTestCase {
+
 	/**
 	 * Test getting the correct number of URLs for a sitemap.
 	 */
@@ -54,7 +55,7 @@ class Test_Sitemaps_Functions extends WP_UnitTestCase {
 		$this->assertSame( array_keys( $expected ), array_keys( $sitemaps ), 'Unable to confirm default sitemap types are registered.' );
 
 		foreach ( $expected as $name => $provider ) {
-			$this->assertTrue( is_a( $sitemaps[ $name ], $provider ), "Default $name sitemap is not a $provider object." );
+			$this->assertInstanceOf( $provider, $sitemaps[ $name ], "Default $name sitemap is not a $provider object." );
 		}
 	}
 
@@ -72,7 +73,7 @@ class Test_Sitemaps_Functions extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data provider for test_get_sitemap_url_pretty_permalinks
+	 * Data provider for test_get_sitemap_url_pretty_permalinks.
 	 *
 	 * @return array[] {
 	 *     Data to test with.
@@ -83,7 +84,7 @@ class Test_Sitemaps_Functions extends WP_UnitTestCase {
 	 *     @type string|false $4 Sitemap URL.
 	 * }
 	 */
-	function pretty_permalinks_provider() {
+	public function pretty_permalinks_provider() {
 		return array(
 			array( 'posts', 'post', 1, home_url( '/wp-sitemap-posts-post-1.xml' ) ),
 			array( 'posts', 'post', 0, home_url( '/wp-sitemap-posts-post-1.xml' ) ),

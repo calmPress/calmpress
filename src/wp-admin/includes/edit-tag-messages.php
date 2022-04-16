@@ -54,7 +54,7 @@ $messages[ \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME ] = a
  *
  * @since 3.7.0
  *
- * @param array $messages The messages to be displayed.
+ * @param array[] $messages Array of arrays of messages to be displayed, keyed by taxonomy name.
  */
 $messages = apply_filters( 'term_updated_messages', $messages );
 

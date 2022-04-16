@@ -439,7 +439,7 @@ class Theme_Upgrader extends WP_Upgrader {
 				)
 			);
 
-			$results[ $theme ] = $this->result;
+			$results[ $theme ] = $result;
 
 			// Prevent credentials auth screen from displaying multiple times.
 			if ( false === $result ) {
