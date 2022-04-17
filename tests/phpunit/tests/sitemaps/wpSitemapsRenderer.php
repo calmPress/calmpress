@@ -5,13 +5,6 @@
  */
 class Tests_Sitemaps_wpSitemapsRenderer extends WP_Test_XML_TestCase {
 
-	public function test_get_sitemap_stylesheet_url() {
-		$sitemap_renderer = new WP_Sitemaps_Renderer();
-		$stylesheet_url   = $sitemap_renderer->get_sitemap_stylesheet_url();
-
-		$this->assertStringEndsWith( '/?sitemap-stylesheet=sitemap', $stylesheet_url );
-	}
-
 	public function test_get_sitemap_stylesheet_url_pretty_permalinks() {
 		// Set permalinks for testing.
 		$this->set_permalink_structure( '/%year%/%postname%/' );
