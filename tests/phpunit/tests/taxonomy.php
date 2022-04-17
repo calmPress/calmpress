@@ -8,7 +8,7 @@ require_once ABSPATH . '/wp-admin/includes/post.php';
  */
 class Tests_Taxonomy extends WP_UnitTestCase {
 	public function test_get_post_taxonomies() {
-		$this->assertSame( array( 'category', 'post_tag', 'post_format' ), get_object_taxonomies( 'post' ), \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		$this->assertSame( array( 'category', 'post_tag', 'post_format', 'calm_authors' ), get_object_taxonomies( 'post' ), \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 	}
 
 	/**
@@ -28,7 +28,7 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 			// Should return an object with the correct taxonomy object type.
 			$this->assertIsObject( $tax );
 			$this->assertIsArray( $tax->object_type );
-			$this->assertSame( array( 'post' ), $tax->object_type );
+			$this->assertContains( 'post', $tax->object_type );
 		}
 	}
 
