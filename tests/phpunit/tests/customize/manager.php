@@ -5,6 +5,10 @@
  * @package WordPress
  */
 
+require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+require_once ABSPATH . 'wp-admin/includes/screen.php';
+require_once ABSPATH . 'wp-admin/includes/post.php';
+
 /**
  * Tests for the WP_Customize_Manager class.
  *
@@ -1241,6 +1245,14 @@ class Tests_WP_Customize_Manager extends WP_UnitTestCase {
 			)
 		);
 
+		// Tests assume there is a capital_P_dangit hooking.
+		add_filter(
+			'content_save_pre',
+			static function ( $content ) {
+				return str_replace( 'Wordpress', 'WordPress', $content );
+			}
+		);
+		
 		add_filter( 'map_meta_cap', array( $this, 'filter_map_meta_cap_to_disallow_unfiltered_html' ), 10, 2 );
 		kses_init();
 		add_post_type_support( 'customize_changeset', 'revisions' );
@@ -1320,14 +1332,6 @@ class Tests_WP_Customize_Manager extends WP_UnitTestCase {
 			)
 		);
 
-		// Tests assume there is a capital_P_dangit hooking.
-		add_filter(
-			'content_save_pre',
-			static function ( $content ) {
-				return str_replace( 'Wordpress', 'WordPress', $content );
-			}
-		);
-		
 		// User saved as one who can bypass content_save_pre filter.
 		$this->assertStringContainsString( '<script>', get_option( 'custom_html_1' ) );
 		$this->assertStringContainsString( 'Wordpress', get_option( 'custom_html_1' ) ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
