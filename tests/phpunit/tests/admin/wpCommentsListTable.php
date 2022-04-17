@@ -29,53 +29,6 @@ class Tests_Admin_wpCommentsListTable extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 40188
-	 *
-	 * @covers WP_Comments_List_Table::extra_tablenav
-	 */
-	public function test_filter_button_should_be_shown_if_there_are_comments() {
-		$post_id    = self::factory()->post->create();
-		$comment_id = self::factory()->comment->create(
-			array(
-				'comment_post_ID'  => $post_id,
-				'comment_approved' => '1',
-			)
-		);
-
-		$this->table->prepare_items();
-
-		ob_start();
-		$this->table->extra_tablenav( 'top' );
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'id="post-query-submit"', $output );
-	}
-
-	/**
-	 * @ticket 40188
-	 *
-	 * @covers WP_Comments_List_Table::extra_tablenav
-	 */
-	public function test_filter_comment_type_dropdown_should_be_shown_if_there_are_comments() {
-		$post_id    = self::factory()->post->create();
-		$comment_id = self::factory()->comment->create(
-			array(
-				'comment_post_ID'  => $post_id,
-				'comment_approved' => '1',
-			)
-		);
-
-		$this->table->prepare_items();
-
-		ob_start();
-		$this->table->extra_tablenav( 'top' );
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'id="filter-by-comment-type"', $output );
-		$this->assertStringContainsString( "<option value='comment'>", $output );
-	}
-
-	/**
 	 * @ticket 38341
 	 *
 	 * @covers WP_Comments_List_Table::extra_tablenav
