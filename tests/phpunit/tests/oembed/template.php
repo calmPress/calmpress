@@ -269,6 +269,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 	/** @covers ::wp_maybe_enqueue_oembed_host_js() */
 	public function test_wp_maybe_enqueue_oembed_host_js() {
+		update_option( 'calm_embedding_on', 1 );
 		$scripts = wp_scripts();
 
 		$this->assertFalse( $scripts->query( 'wp-embed', 'enqueued' ) );
@@ -285,6 +286,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 	/** @covers ::wp_maybe_enqueue_oembed_host_js() */
 	public function test_wp_maybe_enqueue_oembed_host_js_without_wp_head_action() {
+		update_option( 'calm_embedding_on', 1 );
 		$scripts = wp_scripts();
 
 		remove_action( 'wp_head', 'wp_oembed_add_host_js' );
