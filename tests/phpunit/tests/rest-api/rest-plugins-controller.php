@@ -86,9 +86,15 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 	}
 
 	public function tear_down() {
+		/*
+		calmPress tests run on the gitted directories, not a good idea to delete files from there
+		without some more file moving logic implemented yet which is not worth the bother as rest
+		for managing plugins have no real value at this point"
+		
 		if ( file_exists( WP_PLUGIN_DIR . '/test-plugin/test-plugin.php' ) ) {
 			$this->rmdir( WP_PLUGIN_DIR . '/test-plugin' );
 		}
+		*/
 		if ( file_exists( DIR_TESTDATA . '/link-manager.zip' ) ) {
 			unlink( DIR_TESTDATA . '/link-manager.zip' );
 		}
