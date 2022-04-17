@@ -610,7 +610,7 @@ class Tests_Auth extends WP_UnitTestCase {
 			2
 		);
 
-		$_SERVER['PHP_AUTH_USER'] = $user->user_login;
+		$_SERVER['PHP_AUTH_USER'] = WP_Application_Passwords::get_user_application_login( $user->ID );
 		$_SERVER['PHP_AUTH_PW']   = $password;
 
 		unset( $GLOBALS['current_user'] );
