@@ -661,7 +661,6 @@ class Tests_Widgets extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 2, $option_value );
 		$instance = $option_value[2];
 		$this->assertIsArray( $instance );
-		$this->assertArrayHasKey( 'content', $instance );
 		unset( $option_value['_multiwidget'] );
 
 		// Pretend this widget is new.
