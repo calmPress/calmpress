@@ -203,8 +203,8 @@ if ( ! function_exists( 'wp_install_defaults' ) ) :
 		}
 
 		$first_comment_author = ! empty( $first_comment_author ) ? $first_comment_author : __( 'A calmPress Commenter' );
-		$first_comment_email  = ! empty( $first_comment_email ) ? $first_comment_email : 'wapuu@wordpress.example';
-		$first_comment_url    = ! empty( $first_comment_url ) ? $first_comment_url : 'https://wordpress.org/';
+		$first_comment_email  = ! empty( $first_comment_email ) ? $first_comment_email : 'calm@calmpress.example';
+		$first_comment_url    = ! empty( $first_comment_url ) ? $first_comment_url : 'https://calmpress.org/';
 		$first_comment        = ! empty( $first_comment ) ? $first_comment : __(
 			'Hi, this is a comment.
 To get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard.'
