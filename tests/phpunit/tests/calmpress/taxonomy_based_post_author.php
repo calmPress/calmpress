@@ -6,6 +6,8 @@
  * @since 1.0.0
  */
 
+require_once ABSPATH . '/wp-admin/includes/image.php';
+
 use calmpress\post_authors;
 
 class WP_Test_Taxonomy_Based_Post_Author extends WP_UnitTestCase {
@@ -109,6 +111,9 @@ class WP_Test_Taxonomy_Based_Post_Author extends WP_UnitTestCase {
 		// Test image removal.
 		$author->remove_image();
 		$this->assertNull( $author->image() );
+
+		// Cleanup.
+		wp_delete_post( $attachment_id, true );
 	}
 
 	/**

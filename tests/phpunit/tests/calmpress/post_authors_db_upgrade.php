@@ -108,6 +108,9 @@ class WP_Test_Post_Authors_As_Taxonomy_Db_Upgrade extends WP_UnitTestCase {
 
 		// Check that the draft was ignored.
 		$this->assertFalse( in_array( $draft, $posts ) );
+
+		// Cleanup.
+		wp_delete_post( $attachment_id, true );
 	}
 
 	/**
@@ -239,5 +242,9 @@ class WP_Test_Post_Authors_As_Taxonomy_Db_Upgrade extends WP_UnitTestCase {
 		// Check that the draft was ignored.
 		$this->assertFalse( in_array( $draft, $posts ) );
 		$this->assertTrue( in_array( $page1, $posts ) );
+
+		// Cleanup.
+		wp_delete_post( $attachment_id, true );
+
 	}
 }

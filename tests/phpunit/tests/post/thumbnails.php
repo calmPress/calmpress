@@ -1,5 +1,7 @@
 <?php
 
+require_once ABSPATH . '/wp-admin/includes/image.php';
+
 /**
  * @group post
  * @group media

@@ -1705,6 +1705,9 @@ class Tests_User extends WP_UnitTestCase {
 			]
 		);
 		$this->assertNull( $user->avatar()->attachment() );
+
+		// Cleanup.
+		wp_delete_post( $attachment_id, true );
 	 }
 
 	/**

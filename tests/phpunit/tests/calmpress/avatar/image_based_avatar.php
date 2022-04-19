@@ -7,6 +7,7 @@
  */
 
 require_once __DIR__ . '/html_parameter_validation.php';
+require_once ABSPATH . '/wp-admin/includes/image.php';
 
 class Image_Based_Avatar_Test extends WP_UnitTestCase {
 	use Html_Parameter_Validation_Test;
@@ -17,11 +18,17 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 	 *
 	 * @since 1.0.0
 	 */
-	function setUp() {
+	function set_up() {
+		parent::set_up();
 		$file = DIR_TESTDATA . '/images/canola.jpg';
 		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
 		$this->attachment = $attachment_id;
 		$this->avatar = new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
+	}
+
+	function tear_down() {
+		wp_delete_post( $this->attachment, true );
+		parent::tear_down();
 	}
 
 	/**

@@ -17,6 +17,11 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 		self::$icon_id = $factory->attachment->create_upload_object( $filename );
 	}
 
+	public static function tear_down_after_class() {
+		wp_delete_post( self::$icon_id, true );
+		parent::tear_down_after_class();
+	}
+
 	public function set_up() {
 		parent::set_up();
 

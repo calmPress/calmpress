@@ -807,6 +807,10 @@ class Tests_WP_Customize_Manager extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'waffles', get_background_image() );
 		$this->assertSame( 'waffles', get_post( $posts_by_name['waffles'] )->post_name );
 		$this->assertEmpty( get_post_meta( $posts_by_name['waffles'], '_customize_draft_post_name', true ) );
+
+		// Cleanup.
+		wp_delete_post( $posts_by_name['waffles'], true );
+		wp_delete_post( $posts_by_name['canola'], true );
 	}
 
 	/**

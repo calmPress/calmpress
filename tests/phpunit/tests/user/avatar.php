@@ -1,5 +1,7 @@
 <?php
 
+require_once ABSPATH . '/wp-admin/includes/image.php';
+
 /**
  * @group user
  */
@@ -45,6 +47,9 @@ class Tests_User_Avatar extends WP_UnitTestCase {
 		// Test avatar removal.
 		$user->remove_avatar();
 		$avatar = $user->avatar();
-		$this->assertEquals( $text_avatar->html(50,50), $avatar->html( 50, 50 ) );		
+		$this->assertEquals( $text_avatar->html(50,50), $avatar->html( 50, 50 ) );
+		
+		// Cleanup.
+		wp_delete_post( $attachment_id, true );
 	}
 }

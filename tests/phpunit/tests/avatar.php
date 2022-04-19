@@ -60,6 +60,9 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$comment    = get_comment( $comment_id );
 		$url2       = get_avatar_url( $comment );
 		$this->assertSame( $avatar_url, $url2 );
+
+		// cleanup.
+		wp_delete_post( $attachment_id, true );
 	}
 
 	protected $fake_url;

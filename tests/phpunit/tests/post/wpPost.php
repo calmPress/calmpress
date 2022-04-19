@@ -1,5 +1,7 @@
 <?php
 
+require_once ABSPATH . '/wp-admin/includes/image.php';
+
 /**
  * @group post
  */
@@ -93,5 +95,8 @@ class Tests_Post_wpPost extends WP_UnitTestCase {
 		$author->set_image( get_post( $attachment_id ) );
 		$image_avatar = new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
 		$this->assertEquals( $image_avatar->html( 50, 50 ), $post->avatar()->html( 50, 50 ) );
+
+		// Cleanup.
+		wp_delete_post( $attachment_id, true );
 	}
 }

@@ -1,4 +1,8 @@
 <?php
+
+require_once ABSPATH . '/wp-admin/includes/image.php';
+require_once ABSPATH . '/wp-admin/includes/media.php';
+
 /**
  * @group themes
  */
@@ -17,6 +21,11 @@ class Tests_Theme_CustomHeader extends WP_UnitTestCase {
 
 		$file                  = DIR_TESTDATA . '/uploads/small-video.mp4';
 		self::$header_video_id = $factory->attachment->create_upload_object( $file );
+	}
+
+	public static function tear_down_after_class() {
+		wp_delete_post( self::$header_video_id, true );
+		parent::tear_down_after_class();
 	}
 
 	public function set_up() {
