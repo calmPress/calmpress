@@ -1,5 +1,6 @@
 <?php
 
+require_once ABSPATH . 'wp-admin/includes/template.php';
 /**
  * @group option
  */
@@ -146,7 +147,7 @@ class Tests_Sanitize_Option extends WP_UnitTestCase {
 			array( '/%postname%/', '/%postname%/', true ),
 			array( '/%year%/%monthnum%/%day%/%postname%/', '/%year%/%monthnum%/%day%/%postname%/', true ),
 			array( '/%year/%postname%/', '/%year/%postname%/', true ),
-			array( new WP_Error( 'wpdb_get_table_charset_failure' ), false, false ), // @ticket 53986
+			array( new WP_Error( 'wpdb_get_table_charset_failure' ), '/%year%/%monthnum%/%day%/%postname%/', false ), // @ticket 53986
 		);
 	}
 
