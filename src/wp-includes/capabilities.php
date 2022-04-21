@@ -549,6 +549,7 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			break;
 		case 'backup':
 		case 'safe_mode':
+		case 'manage_server':
 				if ( is_multisite() && ! is_super_admin( $user_id ) ) {
 				$caps[] = 'do_not_allow';
 			} else {
