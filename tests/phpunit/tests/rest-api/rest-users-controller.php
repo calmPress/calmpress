@@ -2553,7 +2553,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
 		$request->set_body_params( array( 'first_name' => 'New Name' ) );
 		$response = rest_get_server()->dispatch( $request );
-		$this->assertErrorResponse( 'rest_user_invalid_id', $response, 404 );
+		$this->assertErrorResponse( 'rest_cannot_edit', $response, 403 );
 	}
 
 	/**
