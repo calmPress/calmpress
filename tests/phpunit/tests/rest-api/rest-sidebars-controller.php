@@ -305,7 +305,6 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$data     = $this->remove_links( $data );
-		$data     = $this->remove_inactive( $data );
 		$this->assertSame(
 			array(
 				array(
