@@ -285,57 +285,6 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 	}
 
 	/**
-	 * @ticket 53915
-	 */
-	public function test_get_items_without_show_in_rest_are_removed_from_the_list() {
-		wp_set_current_user( self::$author_id );
-		$this->setup_widget(
-			'text',
-			1,
-			array(
-				'text' => 'Custom text test',
-			)
-		);
-		$this->setup_sidebar(
-			'sidebar-1',
-			array(
-				'name'         => 'Test sidebar 1',
-				'show_in_rest' => true,
-			),
-			array( 'text-1', 'testwidget' )
-		);
-		$this->setup_sidebar(
-			'sidebar-2',
-			array(
-				'name'         => 'Test sidebar 2',
-				'show_in_rest' => false,
-			),
-			array( 'text-1', 'testwidget' )
-		);
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/widgets' );
-		$response = rest_get_server()->dispatch( $request );
-		$data     = $response->get_data();
-		$data     = $this->remove_links( $data );
-		$this->assertSameIgnoreEOL(
-			array(
-				array(
-					'id'       => 'text-1',
-					'id_base'  => 'text',
-					'sidebar'  => 'sidebar-1',
-					'rendered' => '<div class="textwidget">Custom text test</div>',
-				),
-				array(
-					'id'       => 'testwidget',
-					'id_base'  => 'testwidget',
-					'sidebar'  => 'sidebar-1',
-					'rendered' => '<h1>Default id</h1><span>Default text</span>',
-				),
-			),
-			$data
-		);
-	}
-
-	/**
 	 * @ticket 41683
 	 */
 	public function test_get_items_wrong_permission_author() {
@@ -527,42 +476,6 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/widgets/text-1' );
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_cannot_manage_widgets', $response, 403 );
-	}
-
-	/**
-	 * @ticket 53915
-	 */
-	public function test_get_item_no_permission_show_in_rest() {
-		wp_set_current_user( 0 );
-
-		$this->setup_widget(
-			'text',
-			1,
-			array(
-				'text' => 'Custom text test',
-			)
-		);
-		$this->setup_sidebar(
-			'sidebar-1',
-			array(
-				'name'         => 'Test sidebar',
-				'show_in_rest' => true,
-			),
-			array( 'text-1' )
-		);
-
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/widgets/text-1' );
-		$response = rest_get_server()->dispatch( $request );
-		$data     = $response->get_data();
-		$this->assertSameSets(
-			array(
-				'id'       => 'text-1',
-				'id_base'  => 'text',
-				'sidebar'  => 'sidebar-1',
-				'rendered' => '<div class="textwidget">Custom text test</div>',
-			),
-			$data
-		);
 	}
 
 	/**
