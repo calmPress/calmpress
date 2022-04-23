@@ -335,7 +335,6 @@ add_action( 'transition_post_status', '_transition_post_status', 5, 3 );
 add_action( 'transition_post_status', '_update_term_count_on_transition_post_status', 10, 3 );
 add_action( 'comment_form', 'wp_comment_form_unfiltered_html_nonce' );
 add_action( 'admin_init', 'send_frame_options_header', 10, 0 );
-add_action( 'welcome_panel', 'wp_welcome_panel' );
 
 // Privacy.
 add_action( 'user_request_action_confirmed', '_wp_privacy_account_request_confirmed' );

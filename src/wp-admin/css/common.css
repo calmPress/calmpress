@@ -766,7 +766,6 @@ ul.striped > :nth-child(odd),
 }
 
 /* @todo can we combine these into a class or use an existing dashicon one? */
-.welcome-panel .welcome-panel-close:before,
 .tagchecklist .ntdelbutton .remove-tag-icon:before,
 #bulk-titles div a:before,
 .notice-dismiss:before {
@@ -781,10 +780,6 @@ ul.striped > :nth-child(odd),
 	width: 20px;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-}
-
-.welcome-panel .welcome-panel-close:before {
-	margin: 0;
 }
 
 #bulk-titles div a:before {

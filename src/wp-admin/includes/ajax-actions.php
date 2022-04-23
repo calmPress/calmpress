@@ -1424,23 +1424,6 @@ function wp_ajax_hidden_columns() {
 }
 
 /**
- * Ajax handler for updating whether to display the welcome panel.
- *
- * @since 3.1.0
- */
-function wp_ajax_update_welcome_panel() {
-	check_ajax_referer( 'welcome-panel-nonce', 'welcomepanelnonce' );
-
-	if ( ! current_user_can( 'edit_theme_options' ) ) {
-		wp_die( -1 );
-	}
-
-	update_user_meta( get_current_user_id(), 'show_welcome_panel', empty( $_POST['visible'] ) ? 0 : 1 );
-
-	wp_die( 1 );
-}
-
-/**
  * Ajax handler for retrieving menu meta boxes.
  *
  * @since 3.1.0

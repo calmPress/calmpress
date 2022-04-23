@@ -13,45 +13,6 @@ window.communityEventsData = window.communityEventsData || {};
  * @since 2.7.0
  */
 jQuery( function($) {
-	var welcomePanel = $( '#welcome-panel' ),
-		welcomePanelHide = $('#wp_welcome_panel-hide'),
-		updateWelcomePanel;
-
-	/**
-	 * Saves the visibility of the welcome panel.
-	 *
-	 * @since 3.3.0
-	 *
-	 * @param {boolean} visible Should it be visible or not.
-	 *
-	 * @return {void}
-	 */
-	updateWelcomePanel = function( visible ) {
-		$.post( ajaxurl, {
-			action: 'update-welcome-panel',
-			visible: visible,
-			welcomepanelnonce: $( '#welcomepanelnonce' ).val()
-		});
-	};
-
-	// Unhide the welcome panel if the Welcome Option checkbox is checked.
-	if ( welcomePanel.hasClass('hidden') && welcomePanelHide.prop('checked') ) {
-		welcomePanel.removeClass('hidden');
-	}
-
-	// Hide the welcome panel when the dismiss button or close button is clicked.
-	$('.welcome-panel-close, .welcome-panel-dismiss a', welcomePanel).on( 'click', function(e) {
-		e.preventDefault();
-		welcomePanel.addClass('hidden');
-		updateWelcomePanel( 0 );
-		$('#wp_welcome_panel-hide').prop('checked', false);
-	});
-
-	// Set welcome panel visibility based on Welcome Option checkbox value.
-	welcomePanelHide.on( 'click', function() {
-		welcomePanel.toggleClass('hidden', ! this.checked );
-		updateWelcomePanel( this.checked ? 1 : 0 );
-	});
 
 	postboxes.add_postbox_toggles(pagenow);
 
