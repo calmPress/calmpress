@@ -88,7 +88,7 @@ if ( ! function_exists( 'calmpress_version' ) ) {
 	 * @return string The version string.
 	 */
 	function calmpress_version() {
-		return '1.0.0-alpha20';
+		return '1.0.0-alpha21';
 	}
 }
 
@@ -122,9 +122,9 @@ if ( ! function_exists( 'wordpress_core_version' ) ) {
 	 * @return string The version string.
 	 */
 	function wordpress_core_version() {
-		return '5.8.0';
+		return '5.9.3';
 	}
 }
 
 // WordPress version as global for backward compatibility.
-$wp_version = '5.8.0';
+$wp_version = '5.9.3';
