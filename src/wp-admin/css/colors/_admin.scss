@@ -491,7 +491,7 @@ ul#adminmenu > li.current > a.current:after {
 
 /* Admin Bar: my account */
 
-#wpadminbar .quicklinks li#wp-admin-bar-my-account.with-avatar > a img {
+#wpadminbar .quicklinks li#wp-admin-bar-my-account > a img {
 	border-color: $adminbar-avatar-frame;
 	background-color: $adminbar-avatar-frame;
 }
