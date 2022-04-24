@@ -120,8 +120,23 @@ function edit_user( $user_id = 0 ) {
 
 	$user->comment_shortcuts = isset( $_POST['comment_shortcuts'] ) && 'true' === $_POST['comment_shortcuts'] ? 'true' : '';
 
-	if ( isset( $_POST['calm_avatar_image_attachement_id'] ) ) {
-		$user->avatar_attachment_id = wp_unslash( $_POST['calm_avatar_image_attachement_id'] );
+	$errors = new WP_Error();
+
+	if ( $user_id && isset( $_POST['calm_avatar_image_attachement_id'] ) ) {
+		$avatar_attachment_id = wp_unslash( $_POST['calm_avatar_image_attachement_id'] );
+		$avatar_attachment_id = filter_var( $avatar_attachment_id, FILTER_VALIDATE_INT );
+		if ( false !== $avatar_attachment_id ) {
+			$wp_user = new \WP_User( $user_id );
+			if ( 0 === $avatar_attachment_id ) {
+				$wp_user->remove_avatar();
+			} elseif ( current_user_can( 'upload_files') ) {
+				$wp_user->set_avatar( get_post( $avatar_attachment_id ) );
+			} else {
+				$errors->add( 'can_not_set_avatar', __( '<strong>Error</strong>: You do not have the permission to set avatars.' ) );
+			}
+		} else {
+			$errors->add( 'can_not_set_avatar', __( '<strong>Error</strong>: Failed setting the avatar.' ) );
+		}
 	}
 
 	if ( $update && isset( $_POST['mock_role'] ) ) {
@@ -138,8 +153,6 @@ function edit_user( $user_id = 0 ) {
 			$user->mock_role_expiry = time() + 14 * DAY_IN_SECONDS;
 		}
 	}
-
-	$errors = new WP_Error();
 
 	/**
 	 * Fires before the password and confirm password fields are checked for congruity.

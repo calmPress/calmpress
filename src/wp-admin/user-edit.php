@@ -578,15 +578,16 @@ endif;
 			</div>
 			<div>
 				<?php
+				$disabled = '';
+				if ( ! $avatar->attachment() ) {
+					$disabled = ' disabled=""';
+				}
 				if ( current_user_can( 'upload_files' ) ) {
-					$disabled = '';
-					if ( ! $avatar->attachment() ) {
-						$disabled = ' disabled=""';
-					}
 					echo '<button type="button" class="button" id="select_avatar_image" style="margin:0 5px">' . esc_html__( 'Use a Different Image' ) . '</button>';
-					echo '<button type="button" class="button" id="revert_avatar_image"' . $disabled . '>' . esc_html__( 'Revert to the Site`s Default' ) . '</button>';
-				} else {
-					esc_html_e( 'You do not have the permissions required to change it.' );
+				}
+				echo '<button type="button" class="button" id="revert_avatar_image"' . $disabled . '>' . esc_html__( 'Revert to the Site`s Default' ) . '</button>';
+				if ( ! current_user_can( 'upload_files' ) ) {
+					echo '<p>' . esc_html__( 'You do not have the permissions required to upload a new avatar image.' ) . '</p>';
 				}
 				?>
 			</div>
