@@ -1316,6 +1316,24 @@ function wp_default_scripts( $scripts ) {
 			'selectText'   => esc_html__( "Set as the author's image" ),
 		) );
 
+		$scripts->add( 'calm-backup', "/wp-admin/js/backup$suffix.js", ['jquery'], false, 1 );
+		did_action( 'init' ) && $scripts->add_inline_script(
+			'calm-backup',
+			sprintf(
+				'var calmBackupData = %s;',
+				wp_json_encode(
+					[
+						'rest_end_point'       => rest_url( 'calmpress/create_backup' ),
+						'success_message'      => esc_html__( 'Backup successful' ),
+						'in_progress_message'  => esc_html__( 'Backup in progress, do not navigate away.' ),
+						'backup_fail_message'  => esc_html__( 'Backup failed. Reported reason is: ' ),
+						'generic_fail_message' => esc_html__( 'Communication failure, refresh and try again. Reported reason is: ' ),
+					]
+				)
+			),
+			'before'
+		);
+	
 		$scripts->add( 'svg-painter', '/wp-admin/js/svg-painter.js', array( 'jquery' ), false, 1 );
 	}
 }

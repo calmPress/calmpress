@@ -962,6 +962,7 @@ module.exports = function(grunt) {
 						WORKING_DIR + 'wp-{admin,includes}/**/*.js',
 						WORKING_DIR + 'wp-content/themes/calm*/**/*.js',
 						'!' + WORKING_DIR + 'wp-includes/js/dist/**/*.js',
+						'!' + WORKING_DIR + 'wp-admin/js/backup.*js', // Fails on fetch related syntax.
 					]
 				}
 			},

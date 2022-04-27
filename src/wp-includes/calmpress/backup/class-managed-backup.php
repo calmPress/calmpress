@@ -43,46 +43,4 @@ class Managed_Backup {
 	public function storage() : Backup_Storage {
 		return $this->backup->storage();
 	}
-
-	/**
-	 * Handle user initiated backup.
-	 *
-	 * Used as action callback for the calmpress/create_backup rest route.
-	 *
-     * Create backup request should include the fields 'nonce' which contain the nonce for the
-     * request and a field 'description' which contains the textual description of the reason
-     * for the backup (might be empty but required).
-     *
-     * The reply contains a field named 'status' which can have one the values of
-     * - 'incomplete' which indicates that the backup was not finished and the request should
-     * be sent as is again.
-     *
-     * - 'failed' which indicates that there was a problem with performing the backup. In that case
-     * the field 'message' will include an unescaped textual description of the problem.
-     * 
-     * - 'complete' which indicates that the backup was fully completed.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function handle_backup_request( \WP_REST_Request $request ): array {
-
-		$ret = [
-			'status'  => 'complete',
-			'message' => '',
-		];
-
-		$description = $request['description'];
-		try {
-			$storage = new Local_Backup_Storage();
-			$storage->create_backup( $description );
-			return $ret;
-		} catch ( \calmpress\calmpress\Timeout_Exception $e ) {
-			$ret['status'] = 'incomplete';
-			return $ret;
-		} catch ( \Throwable $e ) {
-			$ret['status']  = 'failed';
-			$ret['message'] = $e->getMessage();
-			return $ret;
-		}
-	}
 }

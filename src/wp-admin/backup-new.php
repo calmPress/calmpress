@@ -15,6 +15,8 @@ if ( ! current_user_can( 'backup' ) ) {
 	);
 }
 
+wp_enqueue_script( 'calm-backup' );
+
 $title       = esc_html__( 'Create Backup' );
 $parent_file = 'backups.php';
 
@@ -30,13 +32,14 @@ get_current_screen()->add_help_tab(
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
+
 <div class="wrap">
-<?php settings_errors(); ?>
 <h1 id="create-backup">
 <?php
 	esc_html_e( 'Create Backup' );
 ?>
 </h1>
+<div id="notifications"><p></p></div>
 
 <?php if ( isset( $errors ) && is_wp_error( $errors ) ) : ?>
 	<div class="error">
@@ -68,21 +71,25 @@ if ( ! empty( $messages ) ) {
 	</div>
 <?php endif; ?>
 
+<?php
+	// A form is used here but the actual request is handled by sending a REST API message
+	// based on the data in the form.
+?>
 <form method="post" action="admin-post.php">
-<input name="action" type="hidden" value="new_backup" />
-	<?php wp_nonce_field( 'new_backup' ); ?>
+	<?php wp_nonce_field( 'wp_rest' ); ?>
 
-<table class="form-table" role="presentation">
-	<tr class="form-field">
-		<th scope="row"><label for="description"><?php esc_html_e( 'Description' ); ?></label></th>
-		<td>
-			<textarea name="description" id="description"  rows="5" cols="50" class="large-text"></textarea>
-			<p class="description"><?php esc_html_e( 'A general description of the reason for the backup, that will be associated with the backup when displayed in the backups list' ); ?></p>
-		</td>
-	</tr>
-</table>
+	<table class="form-table" role="presentation">
+		<tr class="form-field">
+			<th scope="row"><label for="description"><?php esc_html_e( 'Description' ); ?></label></th>
+			<td>
+				<textarea name="description" id="description"  rows="5" cols="50" class="large-text"></textarea>
+				<p class="description"><?php esc_html_e( 'A general description of the reason for the backup, that will be associated with the backup when displayed in the backups list' ); ?></p>
+			</td>
+		</tr>
+	</table>
 	<?php submit_button( __( 'Create' ) ); ?>
 </form>
 </div>
+
 <?php
 require_once ABSPATH . 'wp-admin/admin-footer.php';

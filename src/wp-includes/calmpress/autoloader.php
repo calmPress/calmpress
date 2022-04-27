@@ -48,6 +48,7 @@ const MAP = [
 	'calmpress\backup\Backup_Storage'                   => __DIR__ . '/backup/class-backup-storage.php',
 	'calmpress\backup\Local_Backup_Storage'             => __DIR__ . '/backup/class-local-backup-storage.php',
 	'calmpress\backup\Local_Backup'                     => __DIR__ . '/backup/class-local-backup.php',
+	'calmpress\backup\Utils'                            => __DIR__ . '/backup/class-utils.php',
 	'calmpress\calmpress\Paths'                         => __DIR__ . '/calmpress/class-paths.php',
 	'calmpress\calmpress\Timeout_Exception'             => __DIR__ . '/calmpress/class-timeout-exception.php',
 	'calmpress\wp_config\wp_config'                     => __DIR__ . '/wp_config/class-wp_config.php',

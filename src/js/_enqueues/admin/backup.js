@@ -1,95 +1,113 @@
-/* global calmAuthorL10N */
+/* Handle Ajaxifying the backup creation. */
+
 jQuery( document ).ready( function( $ ) {
     'use strict';
 
-	/* Globals */
-	var author_images_modal;
-
-	$( '#addtag, #edittag' )
-
-		/**
-		 * Invoke the media modal
-		 *
-		 * @param {object} event The event
-		 */
-		.on( 'click', '.featured-image-choose', function ( event ) {
-			author_show_media_modal( this, event );
-		} )
-
-		/**
-		 * Remove image
-		 *
-		 * @param {object} event The event
-		 */
-		.on( 'click', '.featured-image-remove', function ( event ) {
-			author_images_reset( this, event );
-		} );
-
 	/**
-	 * Reset the form on submit.
+	 * Update the notification area with a specific type of message.
+	 * 
+	 * @param string status Can be either 
+	 *                      'failure' Indicating bad network or response before backup even started.
+	 *                      'backup_failed' Indicating a failure during backup.
+	 *                      'success' Indicating backup was finished
+	 *                      'in_progress' Indication backup still being done.
 	 *
-	 * Since the form is never *actually* submitted (but instead serialized on
-	 * #submit being clicked), we'll have to do the same.
-	 *
-	 * @see wp-admin/js/tags.js
-	 * @link https://core.trac.wordpress.org/ticket/36956
-	 *
-	 * @param {object} event The event.
+	 * @param string message Provides additional information text for the failures
 	 */
-	$( document ).on( 'term-added', function ( event ) {
-		author_images_reset( $( '#addtag #submit' ), event );
-	} );
+	function update_status_notification( status, message ) {
+		const notification_el   = document.getElementById( 'notifications' );
+		const notification_p_el = notification_el.querySelector( 'p' );
 
-	/**
-	 * Shows media modal, and sets image in placeholder
-	 *
-	 * @param {type} element
-	 * @param {type} event
-	 * @returns {void}
-	 */
-	function author_show_media_modal( element, event ) {
-		event.preventDefault();
-
-		// Initialize the modal the first time.
-		if ( ! author_images_modal ) {
-			author_images_modal = wp.media.frames.author_images_modal || wp.media( {
-				title:    calmAuthorL10N.mediaTitle,
-				button:   { text: calmAuthorL10N.selectText },
-				library:  { type: 'image' },
-				multiple: false
-			} );
-
-			// Picking an image
-			author_images_modal.on( 'select', function () {
-
-				// Get the image URL
-				var image = author_images_modal.state().get( 'selection' ).first().toJSON();
-
-				if ( '' !== image ) {
-					$( '#featured-image-id' ).val( image.id );
-					$( '#featured-image' ).attr( 'src', image.url ).show();
-					$( '.featured-image-remove' ).show();
-				}
-			} );
+		notification_el.classList.remove( 'notice-info' );
+		notification_el.classList.add( 'notice' );
+		switch ( status ) {
+			case 'in_progress' :
+				notification_el.classList.add( 'notice-info' );
+				notification_p_el.innerText = calmBackupData.in_progress_message;
+				break;
+			case 'failure' :
+				notification_el.classList.add( 'notice-error' );
+				notification_p_el.innerText = calmBackupData.generic_fail_message + message;
+				break;
+			case 'backup_failed' :
+				notification_el.classList.add( 'notice-error' );
+				notification_p_el.innerText = calmBackupData.backup_fail_message + message;
+				break;
+			case 'success' :
+				notification_el.classList.add( 'notice-success' );
+				notification_p_el.innerText = calmBackupData.success_message;
+				break;
+			default:
+				console.log( 'bad status was passed: ' + status );
+				break;
 		}
-
-		// Open the modal
-		author_images_modal.open();
 	}
+
+	async function send_new_backup_request( nonce, description ) {
+		let url = calmBackupData.rest_end_point;
+		fetch(
+			url,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': nonce,
+				},
+				credentials: 'same-origin',
+				body: JSON.stringify(
+					{
+						description : description,
+					}
+				),
+			}
+		)
+		.then( response =>
+			{
+				if ( 200 != response.status ) {
+					throw new Error( 'Server rejected request' );
+				}
+				return response.json();
+			}
+		)
+		.then( data =>
+			{
+				switch ( data.status ) {
+					case 'complete':
+						update_status_notification( 'success', '' );
+						break;
+					case 'incomplete':
+						// Not finished, send another rfequest.
+						send_new_backup_request( nonce, description );
+						break;
+					case 'failed' :
+						update_status_notification( 'backup_failed', data.message );
+						break;
+					default:
+						throw new Error( 'Server send unknow state ' + data.status );
+				}
+			}
+		)
+		.catch( error =>
+			{
+				update_status_notification( 'failure', error.message );
+			}
+		)
+	}
+
+	$( 'form' )
 
 	/**
-	 * Reset the add-tag form
+	 * Turn a submition into ajax request
 	 *
-	 * @param {element} element
-	 * @param {event} event
-	 * @returns {void}
+	 * @param {object} event The event
 	 */
-	function author_images_reset( element, event ) {
+	.on( 'submit', function ( event ) {
 		event.preventDefault();
+		let nonce = document.getElementById( '_wpnonce' ).value;
+		let description = document.getElementById( 'description' ).value;
+		update_status_notification( 'in_progress' );
+		send_new_backup_request( nonce, description );
+		description = document.getElementById( 'submit' ).setAttribute( 'disabled', 'disabled' );
+	} )
 
-		// Clear image metadata
-		$( '#featured-image-id' ).val( 0 );
-		$( '#featured-image' ).attr( 'src', '' ).hide();
-		$( '.featured-image-remove' ).hide();
-	}
 } );

@@ -19,23 +19,22 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\create_routes', 2 );
  */
 function create_routes() {
 
+	/*
+	 * Route to create a new backup by a POST request. The expected parameters are the nonce and
+	 * description.
+	 */
 	register_rest_route(
 		'calmpress',
 		'create_backup',
 		[
 			[
 				'methods'             => 'POST',
-				'callback'            => '\calmpress\backup\Managed_Backup::handle_backup_request',
+				'callback'            => '\calmpress\backup\Utils::handle_backup_request',
 				'permission_callback' => function () {
+
 					return current_user_can( 'backup' );
 				},
 				'args'                => [
-					'nonce'       => [
-						'required'          => true,
-						'validate_callback' => function( $param, $request, $key ) {
-							return wp_verify_nonce( $request['nonce'], 'create_backup' );
-						}
-					],
 					'description' => [
 						'required' => true,
 					],
