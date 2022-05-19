@@ -2069,8 +2069,12 @@ function get_temp_dir() {
 		return trailingslashit( $temp );
 	}
 
-	$temp = WP_CONTENT_DIR . '/';
-	if ( is_dir( $temp ) && wp_is_writable( $temp ) ) {
+	$temp = WP_CONTENT_DIR . '/.private/tmp/';
+	if ( ! file_exists( $temp ) ) {
+		@mkdir( $temp, 0777, true );
+	}
+
+	if ( @is_dir( $temp ) && wp_is_writable( $temp ) ) {
 		return $temp;
 	}
 
