@@ -70,7 +70,6 @@ if ( '/' !== wp_parse_url( site_url(), PHP_URL_PATH ) ) {
 	add_action(
 		'admin_notices',
 		static function () {
-			$error = error_get_last();
 			?>
 			<div class="notice notice-info">
 				<p>

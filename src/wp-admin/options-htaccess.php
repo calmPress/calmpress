@@ -104,7 +104,6 @@ function save_fail_notice() {
 	add_action(
 		'admin_notices',
 		static function () {
-			$error = error_get_last();
 			?>
 			<div class="notice notice-error">
 				<p>
@@ -113,7 +112,7 @@ function save_fail_notice() {
 					/* translators: 1: Name the .htaccess file 2: The exception error message in blockquote */
 					esc_html__( 'Failed writing to the %1$s file. The text of the system error message is: %2$s' ),
 					'<code>.htaccess</code>',
-					'<br><blockquote>' . esc_html( $error['message'] ) . '</blockquote>'
+					'<br><blockquote>' . esc_html( \calmpress\utils\last_error_message() ) . '</blockquote>'
 				);
 				?>
 				</p>

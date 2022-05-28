@@ -230,8 +230,7 @@ class wp_config {
 		$lock   = new \calmpress\filesystem\Path_Lock( $this->filename );
 		if ( ! insert_with_markers( $stream, self::USER_SECTION_MARKER, $sanitized, self::USER_SECTION_PREFIX, $credentials->stream_context() ) ) {
 			// Write failed.
-			$error = error_get_last();
-			throw new \Exception( $error['message'] );
+			throw new \Exception( \calmpress\utils\last_error_message() );
 		}
 	}
 

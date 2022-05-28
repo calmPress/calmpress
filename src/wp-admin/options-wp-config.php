@@ -82,8 +82,6 @@ function code_input() {
  * An handler for when saving the rules in to the wp-config.php file fails. Responsible
  * to give the user a proper notification.
  *
- * The raeson for the failure is extracted by using the error_get_last() PHP function.
- *
  * @since 1.0.0
  *
  * @param \Exception $exception The exception containing iformation about the cause.

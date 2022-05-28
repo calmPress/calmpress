@@ -116,6 +116,9 @@ require ABSPATH . WPINC . '/calmpress/autoloader.php';
 // calmPress rest api routes.
 require ABSPATH . WPINC . '/calmpress/rest-endpoints.php';
 
+// calmPress utility functions.
+require ABSPATH . WPINC . '/calmpress/utils.php';
+
 /**
  * @global wpdb $wpdb WordPress database abstraction object.
  * @since 0.71
