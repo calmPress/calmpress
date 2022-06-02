@@ -16,9 +16,15 @@ namespace calmpress\backup;
  * @since 1.0.0
  */
 class Backup_Container {
-    private $container = [];
 
-    public function add( calmpress\backup\Backup $backup ) {
+    /**
+     * Holds the backup objects.
+     *
+     * @var Backup[]
+     */
+    private array $container = [];
+
+    public function add( Backup $backup ) {
         $this->container[] = $backup;
     }
 

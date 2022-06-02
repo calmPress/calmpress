@@ -31,7 +31,7 @@ interface Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return int The description.
+	 * @return string The description.
 	 */
 	public function description() : string;
 
@@ -44,8 +44,6 @@ interface Backup {
 	 */
 	public function storage() : Backup_Storage;
 
-    public function type() : string;
-
 	/**
 	 * Restore the backup.
 	 *
@@ -56,4 +54,13 @@ interface Backup {
 	 * @since 1.0.0
 	 */
 	public function restore( restore_engines $engines );
+
+	/**
+	 * The data about the engines and their data which were used to create the backup.
+	 * 
+	 * The array index is the engine identifier, and the value is the actual data.
+	 *
+	 * @return array
+	 */
+	public function engines_data(): array;
 }

@@ -53,11 +53,18 @@ class Utils {
 
 		try {
 			$description = $request['description'];
-			$storage = new Local_Backup_Storage();
-			$storage->create_backup( $description );
+			$storage     = $request['storage'];
+			$engines     = $request['engines'];
+			$manager     = new \calmpress\backup\Backup_Manager();
+			$manager->create_backup( $description, $storage, 15, ...explode( ',', $engines ) );
 			return $ret;
 		} catch ( \calmpress\calmpress\Timeout_Exception $e ) {
 			$ret['status'] = 'incomplete';
+			return $ret;
+		} catch ( \Error $e ) {
+			// PHP execution exceptions. Add more debugging info.
+			$ret['status']  = 'failed';
+			$ret['message'] = $e->getMessage() . ' type: ' . get_class( $e ) . ' file: ' . $e->getFile() . ' line: ' . $e->getLine();
 			return $ret;
 		} catch ( \Throwable $e ) {
 			$ret['status']  = 'failed';

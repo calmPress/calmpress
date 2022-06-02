@@ -6,6 +6,8 @@
  * @since 1.0.0
  */
 
+ require_once ABSPATH . 'wp-admin/includes/file.php';
+
  /**
   * Mock of the Paths class with directory structure rooted in the uploads directory.
   */
@@ -45,42 +47,23 @@ class mock_paths extends \calmpress\calmpress\Paths {
 }
 
 /**
- * Mock the paths object for local backup tests to be able to override the paths.
- * 
- * @since 1.0.0
- */
-class mock_local_backup extends \calmpress\backup\Local_Backup {
-
-	/**
-	 * Overide the paths object used to indicate where core file are to adjust
-	 * to test enviroment.
-	 */
-	protected static function installation_paths() : \calmpress\calmpress\Paths {
-		static $cache;
-
-		if ( ! isset ( $cache ) ) {
-			$cache = new mock_paths();
-		}
-		return $cache;
-	}
-
-}
-
-/**
  * Mock the Local_Backup's Backup_Site_Options method to be able to test the
  * Backup_Options method.
  * 
  * @since 1.0.0
  */
-class mock_backup_options extends \calmpress\backup\Local_Backup {
+class mock_backup_options extends \calmpress\backup\Core_Backup_Engine {
 	public static $paths;
 
 	/**
 	 * Overide the Backup_Site_Options method to collect information on the site ids
 	 * it is called with.
 	 */
-	protected static function Backup_Site_Options( string $directory, $site_id ) {
-		self::$paths[ $site_id ] = $directory;
+	protected static function Backup_Site_Options( \calmpress\backup\Temporary_Backup_Storage $storage, $site_id ) {
+		$property = new ReflectionProperty( $storage, 'dest_root_path' );
+		$property->setAccessible(true);
+
+		self::$paths[ $site_id ] = $property->getValue( $storage );
 	}
 }
 
@@ -143,22 +126,24 @@ class mock_theme extends WP_Theme {
  * 
  * @since 1.0.0
  */
-class mock_backup_theme extends \calmpress\backup\Local_Backup {
+class mock_backup_theme extends \calmpress\backup\Core_Backup_Engine {
 	
-	public static $called;
+	public static bool $called = false;
+	public static string $called_source = '';
+	public static string $called_dest = '';
 
 	/**
 	 * Overide the Backup_Directory method to skip having files being copied.
 	 *
-	 * The mocked version just creates the directory.
+	 * The mocked version verifies the expected parameters and indicates the function was properly called if they match.
 	 *
 	 * @since 1.0.0
 	 */
-	protected static function Backup_Directory( string $source, string $destination ) {
-		static::$called = true;
+	protected static function Backup_Directory( string $source, calmpress\backup\Temporary_Backup_Storage $staging, string $destination ) {
 
-		// To complete the mocking, create the directory.
-		mkdir( $destination, 0755, true );
+		static::$called = true;
+		static::$called_source = $source;
+		static::$called_dest === $destination;
 	}
 }
 
@@ -168,7 +153,7 @@ class mock_backup_theme extends \calmpress\backup\Local_Backup {
  * 
  * @since 1.0.0
  */
-class mock_backup_themes extends \calmpress\backup\Local_Backup {
+class mock_backup_themes extends \calmpress\backup\Core_Backup_Engine {
 	
 	/**
 	 * Overide the paths object used to indicate where core file are to adjust
@@ -186,12 +171,9 @@ class mock_backup_themes extends \calmpress\backup\Local_Backup {
 	/**
 	 * Overide the Backup_Directory method to skip having files being copied.
 	 *
-	 * The mocked version just creates the directory.
-	 *
 	 * @since 1.0.0
 	 */
-	protected static function Backup_Directory( string $source, string $destination ) {
-		mkdir( $destination, 0755, true );
+	protected static function Backup_Directory( string $source, calmpress\backup\Temporary_Backup_Storage $staging, string $destination ) {
 	}
 }
 
@@ -200,7 +182,55 @@ class mock_backup_themes extends \calmpress\backup\Local_Backup {
  *
  * @since 1.0.0
  */
-class Local_Backup_Test extends WP_UnitTestCase {
+class Core_Backup_Engine_Test extends WP_UnitTestCase {
+
+	/**
+	 * (Local) Storage to use for testing
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var \calmpress\backup\Backup_Storage
+	 */
+	private \calmpress\backup\Backup_Storage $storage;
+
+	/**
+	 * the root directory of the test storage.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string
+	 */
+	private string $storage_root;
+
+	/**
+	 * Cleanup storage after tests.
+	 *
+	 * @since 1.0.0
+	 */
+	public function tear_down() {
+		$this->cleanup();
+		parent::tear_down();
+	}
+
+	/**
+	 * Utility function to cleanup the storage.
+	 *
+	 * @since 1.0.0
+	 */
+	private function cleanup() {
+		$this->rm_dir( $this->storage_root );
+	}
+
+	/**
+	 * Cleanup storage before test runs.
+	 *
+	 * @since 1.0.0
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->storage_root = get_temp_dir() . uniqid();
+		$this->storage = new \calmpress\backup\Local_Backup_Storage( $this->storage_root, 'test_storage' );
+	}
 
 	/**
 	 * Remove directory and its file "recuresively".
@@ -209,7 +239,7 @@ class Local_Backup_Test extends WP_UnitTestCase {
 	 * 
 	 * @param string $dir The directory to remove.
 	 */
-	function rmdir( $dir ) {
+	private static function rm_dir( $dir ) {
 		if ( ! file_exists( $dir ) ) {
 			return;
 		}
@@ -223,74 +253,13 @@ class Local_Backup_Test extends WP_UnitTestCase {
 			if ( $fileinfo->isDir() ) {
 				rmdir( $fileinfo->getRealPath() );
 			} elseif ( $fileinfo->isLink() && ( PHP_OS_FAMILY === 'Windows' ) ) {
-				@unlink( $fileinfo->getRealPath() );
+				unlink( $fileinfo->getPath() . '/' . $fileinfo->getFileName() );
 			} else {
 				unlink( $fileinfo->getRealPath() );
 			}
 		}
 		
-		rmdir($dir);
-	}
-
-	/**
-	 * Test the mkdir method.
-	 * 
-	 * @since 1.0.0
-	 */
-	function test_mkdir() {
-
-		$upload_dir = wp_upload_dir();
-		$test_dir = $upload_dir['basedir'];
-
-		$method = new ReflectionMethod( '\calmpress\backup\Local_Backup', 'mkdir' );
-		$method->setAccessible(true);
-
-		// create a directory under an existing one.
-		$this->rmdir( $test_dir . '/test1' );
-		$method->invoke( null, $test_dir . '/test1' );
-		$this->AssertTrue( is_dir( $test_dir . '/test1' ) );
-
-		// create a directory heirarchy.
-		$this->rmdir( $test_dir . '/test2' );
-		$method->invoke( null, $test_dir . '/test2/test1' );
-		$this->AssertTrue( is_dir( $test_dir . '/test2/test1' ) );
-		$this->rmdir( $test_dir . '/test2' );
-
-		// Test exception when directory already exists.
-		$exception = false;
-		try {
-			$method->invoke( null, $test_dir . '/test1' );
-		} catch ( \Exception $e ) {
-			$exception = true;
-		}
-		$this->AssertTrue( $exception );
-
-		$this->rmdir( $test_dir . '/test1' );
-	}
-
-	/**
-	 * Test the copy method.
-	 * 
-	 * @since 1.0.0
-	 */
-	function test_copy() {
-
-		$upload_dir = wp_upload_dir();
-		$test_dir = $upload_dir['basedir'];
-
-		$method = new ReflectionMethod( '\calmpress\backup\Local_Backup', 'copy' );
-		$method->setAccessible(true);
-
-		// copy a file (this test file).
-		@unlink( $test_dir . '/test.file' );
-		$method->invoke( null, __FILE__, $test_dir . '/test.file' );
-		$this->AssertTrue( is_file( $test_dir . '/test.file' ) );
-		$this->AssertSame( filesize( __FILE__ ), filesize( $test_dir . '/test.file' ) );
-		@unlink( $test_dir . '/test.file' );
-
-		// Test exception when directory do not exist.
-		$this->expectException( '\Exception' );
-		$method->invoke( null, __FILE__, $test_dir . '/no/test.file' );
+		rmdir( $dir );
 	}
 
 	/**
@@ -300,15 +269,12 @@ class Local_Backup_Test extends WP_UnitTestCase {
 	 */
 	function test_backup_directory() {
 
-		$upload_dir = wp_upload_dir();
-		$test_dir = $upload_dir['basedir'];
-
-		$method = new ReflectionMethod( '\calmpress\backup\Local_Backup', 'Backup_Directory' );
+		$method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Directory' );
 		$method->setAccessible(true);
 
 		// copy a file (this test file).
-		$this->rmdir( $test_dir . '/source' );
-		mkdir( $test_dir . '/source' );
+		$test_dir = get_temp_dir() . uniqid();
+		mkdir( $test_dir . '/source', 0755, true );
 		copy( __FILE__, $test_dir . '/source/file1' );
 		copy( __FILE__, $test_dir . '/source/file2' );
 		mkdir( $test_dir . '/source/subdir' );
@@ -317,23 +283,20 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		if ( ! @symlink( $test_dir . '/source/file1', $test_dir . '/source/subdir/sym' ) ) {
 			$this->markTestIncomplete(' failed creating the symlink. On windows you will need to run the tests as administrator');
 		}
-		$this->rmdir( $test_dir . '/dest' );
 
-		$method->invoke( null, $test_dir . '/source', $test_dir . '/dest' );
-		$this->AssertTrue( is_file( $test_dir . '/dest/file1' ) );
-		$this->AssertEquals( filesize( __FILE__ ), filesize( $test_dir . '/dest/file1' ) );
-		$this->AssertTrue( is_file( $test_dir . '/dest/file2' ) );
-		$this->AssertTrue( is_dir( $test_dir . '/dest/subdir' ) );
-		$this->AssertTrue( is_file( $test_dir . '/dest/subdir/file1' ) );
-		$this->AssertTrue( is_file( $test_dir . '/dest/subdir/file2' ) );
-		$this->AssertFalse( file_exists( $test_dir . '/dest/subdir/sym' ) );
+		$staging = $this->storage->section_working_area_storage( 'dest' );
+		$method->invoke( null, $test_dir . '/source', $staging, '' );
+		$staging->store();
 
-		// windows sucks in deleting symlinks.
-		unlink($test_dir . '/source/file1');
-		unlink($test_dir . '/source/subdir/sym');
+		$this->AssertTrue( is_file( $this->storage_root . '/dest/file1' ) );
+		$this->AssertEquals( filesize( __FILE__ ), filesize( $this->storage_root . '/dest/file1' ) );
+		$this->AssertTrue( is_file( $this->storage_root . '/dest/file2' ) );
+		$this->AssertTrue( is_dir( $this->storage_root . '/dest/subdir' ) );
+		$this->AssertTrue( is_file( $this->storage_root . '/dest/subdir/file1' ) );
+		$this->AssertTrue( is_file( $this->storage_root . '/dest/subdir/file2' ) );
+		$this->AssertFalse( file_exists( $this->storage_root . '/dest/subdir/sym' ) );
 
-		$this->rmdir( $test_dir . '/source' );
-		$this->rmdir( $test_dir . '/dest' );
+		$this->rm_dir( $test_dir );
 	}
 
 	/**
@@ -345,37 +308,30 @@ class Local_Backup_Test extends WP_UnitTestCase {
 	 */
 	function test_backup_root() {
 
-		$paths       = new mock_paths();
-		$content_dir = $paths->root_directory();
-		
-		$method = new ReflectionMethod( 'mock_local_backup', 'Backup_Root' );
+		$method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Root' );
 		$method->setAccessible(true);
 
-		$upload_dir = wp_upload_dir();
-		$test_dir = $upload_dir['basedir'];
+		$test_dir = get_temp_dir() . uniqid() . '/';
 
 		// copy a file (this test file).
-		$this->rmdir( $content_dir );
-		mkdir( $content_dir, 0777, true );
-		copy( __FILE__, $content_dir . 'wp-cron.php' );
-		copy( __FILE__, $content_dir . 'wp-login.php' );
-		copy( __FILE__, $content_dir . '.htaccess' );
-		copy( __FILE__, $content_dir . 'none.php' );
+		mkdir( $test_dir, 0777, true );
+		copy( __FILE__, $test_dir . 'wp-cron.php' );
+		copy( __FILE__, $test_dir . 'wp-login.php' );
+		copy( __FILE__, $test_dir . '.htaccess' );
+		copy( __FILE__, $test_dir . 'none.php' );
 
-		$this->rmdir( $test_dir . '/dest' );
-		$method->invoke( null, $test_dir . '/dest/' );
+		$method->invoke( null, $this->storage, $test_dir, '/dest' );
 
 		// Check that files that are non core files were copied
-		$this->AssertTrue( is_file( $test_dir . '/dest/.htaccess' ) );
-		$this->AssertEquals( filesize( __FILE__ ), filesize( $test_dir . '/dest/.htaccess' ) );
-		$this->AssertTrue( is_file( $test_dir . '/dest/none.php' ) );
+		$this->AssertTrue( is_file( $this->storage_root . '/dest/.htaccess' ) );
+		$this->AssertEquals( filesize( __FILE__ ), filesize( $this->storage_root . '/dest/.htaccess' ) );
+		$this->AssertTrue( is_file( $this->storage_root . '/dest/none.php' ) );
 
 		// ... but no other file.
-		$files = new FilesystemIterator( $test_dir . '/dest', FilesystemIterator::SKIP_DOTS );
+		$files = new FilesystemIterator( $this->storage_root . '/dest', FilesystemIterator::SKIP_DOTS );
 		$this->AssertEquals( 2, iterator_count( $files ) );
 
-		$this->rmdir( $content_dir );
-		$this->rmdir( $test_dir . '/dest' );
+		self::rm_dir( $test_dir );
 	}
 
 	/**
@@ -387,11 +343,8 @@ class Local_Backup_Test extends WP_UnitTestCase {
 	 */
 	function test_backup_site_options() {
 
-		$method = new ReflectionMethod( 'mock_local_backup', 'Backup_Site_Options' );
+		$method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Site_Options' );
 		$method->setAccessible(true);
-
-		$upload_dir = wp_upload_dir();
-		$test_dir = $upload_dir['basedir'];
 
 		// for multisite testing we want to test the blog switch functionality of the function
 		if ( is_multisite() ) {
@@ -413,12 +366,13 @@ class Local_Backup_Test extends WP_UnitTestCase {
 			restore_current_blog();
 		}
 		
-		$this->rmdir( $test_dir . '/dest' );
-		mkdir( $test_dir . '/dest/' );
-		$method->invoke( null, $test_dir . '/dest/', $blog_id );
+		$staging = $this->storage->section_working_area_storage( 'dest' );
+
+		$method->invoke( null, $staging, $blog_id );
+		$staging->store();
 
 		// Check file was created.
-		$file = $test_dir . '/dest/' . $blog_id . '-options.json';
+		$file = $this->storage_root . '/dest/' . $blog_id . '-options.json';
 		$this->AssertTrue( file_exists( $file ) );
 
 		// Test content
@@ -441,8 +395,6 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$this->AssertSame( 'yes', $ar['test2']['a'] );
 
 		$this->AssertFalse( array_key_exists( '_transient_trantest', $ar ) );
-
-		$this->rmdir( $test_dir . '/dest' );
 	}
 
 	/**
@@ -456,9 +408,6 @@ class Local_Backup_Test extends WP_UnitTestCase {
 
 		$method = new ReflectionMethod( 'mock_backup_options', 'Backup_Options' );
 		$method->setAccessible(true);
-
-		$upload_dir = wp_upload_dir();
-		$test_dir = $upload_dir['basedir'];
 
 		$expected_blogs[] = get_current_blog_id();
 		// for multisite testing we want to test that all sites are used in the call
@@ -476,18 +425,17 @@ class Local_Backup_Test extends WP_UnitTestCase {
 			);
 		}
 
-		$this->rmdir( $test_dir . '/options' );
-		$method->invoke( null, $test_dir . '/options' );
+		$method->invoke( null, $this->storage, 'options' );
 
 		// test that the directory was created.
-		$this->AssertTrue( is_dir( $test_dir . '/options' ) );
+		$this->AssertTrue( is_dir( $this->storage_root . '/options' ) );
 
 		// test correct calls to backup_site_options for all sites.
 		foreach ( $expected_blogs as $blog_id ) {
 			$this->AssertTrue( array_key_exists( $blog_id, mock_backup_options::$paths ) );
-			$this->AssertSame( $test_dir . '/options', mock_backup_options::$paths[ $blog_id ] );
+			$this->AssertSame( $this->storage_root . '/options/', mock_backup_options::$paths[ $blog_id ] );
 		}
-		$this->rmdir( $test_dir . '/options' );
+		self::rm_dir( $this->storage_root . '/options' );
 	}
 
 	/**
@@ -500,25 +448,23 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$method = new ReflectionMethod( 'mock_backup_theme', 'Backup_Theme' );
 		$method->setAccessible(true);
 
-		$upload_dir = wp_upload_dir();
-		$test_dir   = $upload_dir['basedir'];
+		$theme_dir = $this->storage_root . '/theme';
 
-		$theme_dir = $test_dir . '/theme';
-
-		$dest_dir = $test_dir . '/dest/';
-		$this->rmdir( $dest_dir );
-		mkdir( $dest_dir );
+		$dest_dir = $this->storage_root . '/themes/';
 		$theme = new mock_theme( $theme_dir, '1.0' );
-		$ret = $method->invoke( null, $dest_dir, $theme );
 
-		$this->AssertTrue( is_dir( $dest_dir . 'theme/1.0' ) );
+		$ret = $method->invoke( null, $this->storage, 'themes', $theme );
+		$this->AssertTrue( mock_backup_theme::$called );
+
+		// The expected call has the root directory of the theme, mapped to the staging root.
+		$this->AssertSame( $theme_dir, mock_backup_theme::$called_source );
+		$this->AssertSame( '', mock_backup_theme::$called_dest );
 		$this->AssertSame( 'theme/1.0', $ret );
 
 		// Test directory backup is not done if directory already exists.
 		mock_backup_theme::$called = false;
-		$ret = $method->invoke( null, $dest_dir, $theme );
+		$ret = $method->invoke( null, $this->storage, 'themes', $theme );
 		$this->AssertFalse( mock_backup_theme::$called );
-		$this->rmdir( $dest_dir );
 	}
 
 	/**
@@ -542,7 +488,7 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		// and an invalid one (there are files but no style.css).
 		$paths = $paths_method->invoke( null );
 		$source_dir = $paths->themes_directory();
-		$this->rmdir( $source_dir );
+		self::rm_dir( $source_dir );
 		mkdir( $source_dir, 0755, true );
 
 		// Valid parent theme.
@@ -583,7 +529,7 @@ class Local_Backup_Test extends WP_UnitTestCase {
 			'
 		);
 
-		$meta = $method->invoke( null, $test_dir . '/themes/', time() + 10 );
+		$meta = $method->invoke( null, $this->storage, time() + 10 );
 
 		// there should be only two themes.
 		$this->AssertSame( 2, count( $meta ) );
@@ -598,8 +544,8 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$this->AssertSame( '1.0', $meta['child']['version'] );
 		$this->AssertSame( 'themes/child/1.0/', $meta['child']['directory'] );
 
-		$this->rmdir( $paths->root_directory() );
-		$this->rmdir( $test_dir . '/themes/' );
+		self::rm_dir( $paths->root_directory() );
+		self::rm_dir( $test_dir . '/themes/' );
 	}
 
 	/**
@@ -612,24 +558,24 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$method = new ReflectionMethod( 'mock_backup_theme', 'Backup_Plugin_Directory' );
 		$method->setAccessible(true);
 
-		$upload_dir = wp_upload_dir();
-		$test_dir   = $upload_dir['basedir'];
+		$test_dir = get_temp_dir() . uniqid();
 
-		$plugin_dir = $test_dir . '/plugin';
+		$plugin_dir = $test_dir . '/test_plugin';
+		mkdir( $plugin_dir, 0777, true );
+		
+		$dest_dir = $this->storage_root . '/dest/';
+		$ret = $method->invoke( null, $this->storage, 'dest', $plugin_dir, '52-3.45' );
 
-		$dest_dir = $test_dir . '/dest/';
-		$this->rmdir( $dest_dir );
-		mkdir( $dest_dir );
-		$ret = $method->invoke( null, $dest_dir, 'test_plugin', '52-3.45' );
-
-		$this->AssertTrue( is_dir( $dest_dir . 'test_plugin/52-3.45' ) );
+		$this->AssertTrue( mock_backup_theme::$called );
+		$this->AssertSame( $plugin_dir, mock_backup_theme::$called_source );
+		$this->AssertSame( '', mock_backup_theme::$called_dest );
 		$this->AssertSame( 'test_plugin/52-3.45', $ret );
 
 		// Test directory backup is not done if directory already exists.
 		mock_backup_theme::$called = false;
-		$ret = $method->invoke( null, $dest_dir, 'test_plugin', '52-3.45' );
+		$ret = $method->invoke( null, $this->storage, 'dest', $plugin_dir, '52-3.45' );
 		$this->AssertFalse( mock_backup_theme::$called );
-		$this->rmdir( $dest_dir );
+		$this->AssertSame( 'test_plugin/52-3.45', $ret );
 	}
 
 	/**
@@ -641,23 +587,16 @@ class Local_Backup_Test extends WP_UnitTestCase {
 	 */
 	function test_backup_root_single_file_plugin() {
 
-		$method = new ReflectionMethod( '\calmpress\backup\Local_Backup', 'Backup_Root_Single_File_Plugin' );
+		$method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Root_Single_File_Plugin' );
 		$method->setAccessible(true);
 
-		$upload_dir = wp_upload_dir();
-		$test_dir   = $upload_dir['basedir'];
+		$dest_dir = $this->storage_root . 'dest/';
+		$ret = $method->invoke( null, $this->storage, 'dest', WP_PLUGIN_DIR . '/hello.php', '2.3' );
 
-		$dest_dir = $test_dir . '/dest/';
-		$this->rmdir( $dest_dir );
-		mkdir( $dest_dir );
-		$ret = $method->invoke( null, $dest_dir, WP_PLUGIN_DIR . '/hello.php', '2.3' );
-
-		$this->AssertTrue( is_dir( $dest_dir . 'hello.php/2.3' ) );
-		$this->AssertTrue( is_file( $dest_dir . 'hello.php/2.3/hello.php' ) );
-		$this->AssertSame( filesize( WP_PLUGIN_DIR . '/hello.php' ), filesize( $dest_dir . 'hello.php/2.3/hello.php' ) );
+		$this->AssertTrue( is_dir( $this->storage_root . '/dest/hello.php/2.3' ) );
+		$this->AssertTrue( is_file( $this->storage_root . '/dest/hello.php/2.3/hello.php' ) );
+		$this->AssertSame( filesize( WP_PLUGIN_DIR . '/hello.php' ), filesize( $this->storage_root . '/dest/hello.php/2.3/hello.php' ) );
 		$this->AssertSame( 'hello.php/2.3', $ret );
-
-		$this->rmdir( $dest_dir );
 	}
 
 	/**
@@ -675,10 +614,8 @@ class Local_Backup_Test extends WP_UnitTestCase {
 
 		$plugin_dir = $test_dir . '/plugin';
 
-		$dest_dir = $test_dir . '/dest/';
-		$this->rmdir( $dest_dir );
-		mkdir( $dest_dir );
-		$meta = $method->invoke( null, $dest_dir, time() + 10 );
+		$dest_dir = $this->storage_root . '/dest/';
+		$meta = $method->invoke( null, $this->storage, time() + 10 );
 
 		foreach ( [ 'hello.php', 'single_plugin_directory', 'double_plugin_directory' ] as $plugin ) {
 			$this->AssertTrue( array_key_exists( $plugin, $meta ) );
@@ -695,8 +632,6 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$this->AssertSame( '1.1b-1.2c', $meta['double_plugin_directory']['version'] );
 		$this->AssertSame( 'plugins/double_plugin_directory/1.1b-1.2c/', $meta['double_plugin_directory']['directory'] );
 		$this->AssertSame( 'directory', $meta['double_plugin_directory']['type'] );
-
-		$this->rmdir( $dest_dir );
 	}
 
 	/**
@@ -709,27 +644,15 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$method = new ReflectionMethod( 'mock_backup_theme', 'Backup_MU_Plugins' );
 		$method->setAccessible(true);
 
-		$upload_dir = wp_upload_dir();
-		$test_dir = $upload_dir['basedir'];
-
-		// Test non existing mu-plugins directory creates a backup directory.
-		$this->rmdir( $test_dir . '/source/' );
-		$this->rmdir( $test_dir . '/dest' );
-		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
-
-		$this->AssertTrue( file_exists( $test_dir . '/dest/' ) );
-		$this->AssertTrue( is_dir( $test_dir . '/dest/' ) );
+		$test_dir = get_temp_dir() . uniqid();
+		mkdir( $test_dir . '/source/', 0777, true );
 
 		// Test Backup_Directory is invoked when directory exists.
-		$this->rmdir( $test_dir . '/dest' );
-		mkdir( $test_dir . '/source/', 0777, true );
 		mock_backup_theme::$called = false;
-		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
+		$method->invoke( null, $this->storage, $test_dir . '/source/', 'dest' );
 		$this->AssertTrue( mock_backup_theme::$called );
-		$this->AssertTrue( is_dir( $test_dir . '/dest/' ) );
 
-		$this->rmdir( $test_dir . '/source/' );
-		$this->rmdir( $test_dir . '/dest' );
+		self::rm_dir( $test_dir );
 	}
 
 	/**
@@ -742,27 +665,12 @@ class Local_Backup_Test extends WP_UnitTestCase {
 		$method = new ReflectionMethod( 'mock_backup_theme', 'Backup_Languages' );
 		$method->setAccessible(true);
 
-		$upload_dir = wp_upload_dir();
-		$test_dir = $upload_dir['basedir'];
-
-		// Test non existing languages directory creates a backup directory.
-		$this->rmdir( $test_dir . '/source/' );
-		$this->rmdir( $test_dir . '/dest' );
-		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
-
-		$this->AssertTrue( file_exists( $test_dir . '/dest/' ) );
-		$this->AssertTrue( is_dir( $test_dir . '/dest/' ) );
-
-		// Test Backup_Directory is invoked when directory exists.
-		$this->rmdir( $test_dir . '/dest' );
+		$test_dir = get_temp_dir() . uniqid();
 		mkdir( $test_dir . '/source/', 0777, true );
-		mock_backup_theme::$called = false;
-		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
-		$this->AssertTrue( mock_backup_theme::$called );
-		$this->AssertTrue( is_dir( $test_dir . '/dest/' ) );
 
-		$this->rmdir( $test_dir . '/source/' );
-		$this->rmdir( $test_dir . '/dest' );
+		mock_backup_theme::$called = false;
+		$method->invoke( null, $this->storage, $test_dir . '/source/', 'dest' );
+		$this->AssertTrue( mock_backup_theme::$called );
 	}
 
 	/**
@@ -772,49 +680,40 @@ class Local_Backup_Test extends WP_UnitTestCase {
 	 */
 	function test_backup_dropins() {
 
-		$method = new ReflectionMethod( '\calmpress\backup\Local_Backup', 'Backup_Dropins' );
+		$method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Dropins' );
 		$method->setAccessible(true);
 
-		$upload_dir = wp_upload_dir();
-		$test_dir = $upload_dir['basedir'];
+		$test_dir = get_temp_dir() . uniqid();
+		mkdir( $test_dir . '/source', 0777, true );
 
 		$paths = new \calmpress\calmpress\Paths();
-
-		// copy a file (this test file).
-		$this->rmdir( $test_dir . '/source' );
-		$this->rmdir( $test_dir . '/dest' );
-		mkdir( $test_dir . '/source' );
 
 		// test all dropins are backuped, but not other files.
 		foreach ( $paths->dropin_files_name() as $filename ) {
 			copy( __FILE__, $test_dir . '/source/' . $filename );
 		}
 		touch( $test_dir . '/source/test.test' );
-		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
+
+		$method->invoke( null, $this->storage, $test_dir . '/source/', 'dest' );
 		foreach ( $paths->dropin_files_name() as $filename ) {
-			$this->AssertTrue( is_file( $test_dir . '/dest/' . $filename ) );
-			$this->AssertSame( filesize( __FILE__ ), filesize( $test_dir . '/dest/' . $filename ) );
+			$this->AssertTrue( is_file( $this->storage_root . '/dest/' . $filename ) );
+			$this->AssertSame( filesize( __FILE__ ), filesize( $this->storage_root . '/dest/' . $filename ) );
 		}
-		$this->AssertFalse( file_exists( $test_dir . '/dest/test.test' ) );
+		$this->AssertFalse( file_exists( $this->storage_root . '/dest/test.test' ) );
 
 		// Test symlink not copied even when their name is valid dropin name.
-		$this->rmdir( $test_dir . '/source' );
-		$this->rmdir( $test_dir . '/dest' );
-		mkdir( $test_dir . '/source' );
+		$this->rm_dir( $test_dir . '/source' );
+		$this->rm_dir( $this->storage_root . '/dest' );
+		mkdir( $test_dir . '/source', 0777, true );
 		touch( $test_dir . '/source/test.test' );
 		if ( ! @symlink( $test_dir . '/source/test.test', $test_dir . '/source/db.php' ) ) {
 			$this->markTestIncomplete(' failed creating the symlink. On windows you will need to run the tests as administrator');
 		}
-		$method->invoke( null, $test_dir . '/source/', $test_dir . '/dest/' );
-		$files = new FilesystemIterator( $test_dir . '/dest', FilesystemIterator::SKIP_DOTS );
+		$method->invoke( null, $this->storage, $test_dir . '/source/', 'dest' );
+		$files = new FilesystemIterator( $this->storage_root . '/dest', FilesystemIterator::SKIP_DOTS );
 		$this->AssertEquals( 0, iterator_count( $files ) );
 
-		// windows sucks in deleting symlinks.
-		unlink( $test_dir . '/source/test.test' );
-		unlink( $test_dir . '/source/db.php' );
-
-		$this->rmdir( $test_dir . '/source' );
-		$this->rmdir( $test_dir . '/dest' );
+		$this->rm_dir( $test_dir );
 	}
 
 	/**
@@ -822,7 +721,7 @@ class Local_Backup_Test extends WP_UnitTestCase {
 	 */
 	public function test_throw_if_out_of_time() {
 
-		$method = new ReflectionMethod( '\calmpress\backup\Local_Backup', 'throw_if_out_of_time' );
+		$method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'throw_if_out_of_time' );
 		$method->setAccessible(true);
 
 		// Test exception when time passed is in the past.

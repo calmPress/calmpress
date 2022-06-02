@@ -1,7 +1,7 @@
 <?php
 /**
  * An implementation of the backup storage located at the 
- * default backup location on the disk.
+ * a backup location accessable via "normal" file paths.
  *
  * @package calmPress
  * @since 1.0.0
@@ -12,8 +12,13 @@ declare(strict_types=1);
 namespace calmpress\backup;
 
 /**
- * An implementation of the backup storage located at the
- * default backup location on the disk.
+ * An implementation of the backup storage located at the 
+ * a backup location accessable via "normal" file paths.
+ *
+ * The name "local" refers to either backups on the same disk where the app is located,
+ * or disks attached via network protocols (NFS and similar).
+ * Can be used to RAM based disk volume and other non persistant storage,
+ * but that is obviously not recommended.
  *
  * The files in the directory should be only the zipped files and meta files named *.meta
  * which contains information about the backup.
@@ -34,10 +39,41 @@ namespace calmpress\backup;
 class Local_Backup_Storage implements Backup_Storage {
 
 	/**
-	 * The directory in which backup files are located relative to the
-	 * site's uploads directory.
+	 * The root directory at which backups are stored.
+	 * Defaults to wp-content/.private/backup/ (in the constructor).
+	 *
+	 * @var string
+	 *
+	 * @since 1.0.0
 	 */
-	const BACKUP_ROOT_DIR = WP_CONTENT_DIR . '/.private/backup/';
+	protected string $root;
+
+	/**
+	 * The identifier of the storage.
+	 * Defaults to "default_local_storage".
+	 *
+	 * @var string
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $id;
+
+	/**
+	 * Create a storage object based at specific root directory.
+	 *
+	 * When using this constructor from outside core code, use explicit and different
+	 * parameter values. Using same $id will cause problems at some point. Same $root might work but
+	 * unlikely to make sense.
+	 * 
+	 * @since 1.0.0
+	 *
+	 * @param string $root The absolute path of the backups root directory.
+	 * @param string $id   The identifier to be used when internally identifying the storage.
+	 */
+	public function __construct( string $root = WP_CONTENT_DIR . '/.private/backup/', $id = 'default_local_storage' ) {
+		$this->root = $root;
+		$this->id   = $id;
+	}
 
 	/**
 	 * Human redable description of the storage.
@@ -47,19 +83,18 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @return string The description text.
 	 */
 	public function description() : string {
-		return 'Backups located at ' . static::BACKUP_ROOT_DIR;
+		return sprintf( __( 'Backups located at %s' ), $this->root );
 	}
 
 	/**
-	 * A unique identifier of the storage. Anything may be used
-	 * as long as it is consistant between page reloads.
+	 * A unique identifier of the storage.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return string The identifier.
 	 */
 	public function identifier() : string {
-		return 'default_local';
+		return $this->id;
 	}
 
 	/**
@@ -72,11 +107,12 @@ class Local_Backup_Storage implements Backup_Storage {
 	public function backups() : Backup_Container {
 		$container = new Backup_Container();
 
-		foreach ( glob( static::BACKUP_ROOT_DIR . '*.meta' ) as $file ) {
+		foreach ( glob( $this->root . 'meta-*.json' ) as $file ) {
 			try {
-				$local_backup = new Local_Backup( $file );
-			} catch ( Exception $e ) {
-				// Failed to create an object for the backup, move on to the next.
+				$local_backup = new Local_Backup( $file, $this );
+			} catch ( \Exception $e ) {
+				// Failed to create an object for the backup, log it and move on to the next.
+				trigger_error( 'Failed parsing the backup meta file ' . $file . ' because: ' . $e->getMessage() );
 				continue;
 			}
 			$container->Add( $local_backup );
@@ -86,16 +122,97 @@ class Local_Backup_Storage implements Backup_Storage {
 	}
 
 	/**
-	 * Do a local backup.
+	 * Check if a specific backup section. A section in the context of this storage is a directory.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $description The description to be used for the backup.
+	 * @param string $uri The path to check relative to the storage's root.
 	 *
-	 * @throws \Exception if the backup fails.
+	 * @return bool true if the directory exists, otherwise false.
 	 */
-	public function create_backup( string $description ) {
-		Local_Backup::create_backup( $description, static::BACKUP_ROOT_DIR );
+	public function section_exists( string $uri ): bool {
+		$dir = $this->root . $uri;
+		if ( ! file_exists( $dir ) ) {
+			return false;
+		}
+
+		return is_dir( $dir );
 	}
 
+	/**
+	 * Copy a file to storage.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $source   The absolute path to the file to copy.
+	 * @param string $dest_uri The copied file's path relative to storage root.
+	 *
+	 * @throws \Exception If source file do not exist or dest could not be created.
+	 */
+	public function copy_file( string $source, string $dest_path ) {
+		$dest = $this->root . $dest_path;
+
+		$dir = dirname( $dest_uri );
+		\calmpress\utils\ensure_dir_exists( $dir );
+
+		if ( ! is_file( $source ) ) {
+			throw new \Exception( sprintf( __( '%s is not a file or do not exist', $source ) ) );
+		}
+
+		$res = @copy( $source, $dest_uri );
+		if ( ! $res) {
+			throw new \Exception( sprintf( __( 'copy of %1s to %2s reason is %3s', $source, $dest_uri, \calmpress\utils\last_error_message() ) ) );
+		}
+	}
+
+	/**
+	 * Gets a "Read Only" file handler that provides access to reading a file.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $relative_path The file's path relative to storage root.
+	 * 
+	 * @return \calmpress\filesystem\Read_Only_File An read only file representation that enables read
+	 *                                              access to the file.
+	 */
+	public function read_handler_for( string $relative_path ): \calmpress\filesystem\Read_Only_File {
+		return new \calmpress\filesystem\Read_Only_File( $this->root . $relative_path );
+	}
+
+	/**
+	 * Store a backup meta information at the root backup directory
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $description  The description of the speific backup.
+	 * @param int    $time         The UTC time at which the backup creation was completed.
+	 * @param array  $engines_data The engine specific data for the backup. The keys are the engine identifiers
+	 *                             and the value contains the actual datya.
+	 */
+	public function store_backup_meta( string $description, int $time, array $engines_data ) {
+		$data = [
+			'description' => $description,
+			'time'        => $time,
+			'engines'     => $engines_data,
+		];
+
+		file_put_contents( $this->root . 'meta-' . $time . '.json', json_encode( $data ) );
+	}
+
+	/**
+	 * Get a temporary storage intended to be used to create working area for backed files
+	 * under a specific section. Once the backup reaches some atomic integrety
+	 * (have all the relevant files assembeled) at which it can be "committed" as proper 
+	 * part of the backup.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $dest_uri The relative directory to which the files should be committed once
+	 *                         all files are assembled. Relative path to the storeage root.
+	 *
+	 * @return Temporary_Backup_Storage A temporary storage instance.
+	 */
+	public function section_working_area_storage( string $dest_uri ): Temporary_Backup_Storage {
+		return new Local_Storage_Temporary_Backup_Storage( $this->root . $dest_uri );
+	}
 }
