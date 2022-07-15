@@ -60,6 +60,9 @@ wp-tests-config.php
 /src/wp-content/php-error.php
 /src/wp-content/sunrise.php
 
+#js files required for testing which usually are part of distribution.
+/src/wp-includes/js/wp-embed.min.js
+
 # Files and folders relating to wp-content build tools.
 /src/wp-content/themes/twentynineteen/node_modules
 /src/wp-content/themes/twentytwentyone/node_modules
