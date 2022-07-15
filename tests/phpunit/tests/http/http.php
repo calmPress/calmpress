@@ -427,7 +427,7 @@ class Tests_HTTP_HTTP extends WP_UnitTestCase {
 	public function data_wp_http_validate_url_should_validate() {
 		return array(
 			'no port specified'                 => array(
-				'url' => 'http://example.com/caniload.php',
+				'url' => 'http://calmpress.org/caniload.php',
 			),
 			'an external request when allowed'  => array(
 				'url'           => 'http://172.20.0.123/caniload.php',
@@ -435,10 +435,10 @@ class Tests_HTTP_HTTP extends WP_UnitTestCase {
 				'external_host' => true,
 			),
 			'a port considered safe by default' => array(
-				'url' => 'https://example.com:8080/caniload.php',
+				'url' => 'https://calmpress.org:8080/caniload.php',
 			),
 			'a port considered safe by filter'  => array(
-				'url'           => 'https://example.com:81/caniload.php',
+				'url'           => 'https://calmpress.org:81/caniload.php',
 				'cb_safe_ports' => 'callback_custom_safe_ports',
 			),
 		);
