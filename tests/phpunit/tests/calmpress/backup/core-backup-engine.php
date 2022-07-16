@@ -1,16 +1,16 @@
 <?php
 /**
- * Unit tests covering Local_Backup functionality
+ * Unit tests covering Core_Backup_Engine functionality
  *
  * @package calmPress
  * @since 1.0.0
  */
 
- require_once ABSPATH . 'wp-admin/includes/file.php';
+require_once ABSPATH . 'wp-admin/includes/file.php';
 
- /**
-  * Mock of the Paths class with directory structure rooted in the uploads directory.
-  */
+/**
+ * Mock of the Paths class with directory structure rooted in the uploads directory.
+ */
 class mock_paths extends \calmpress\calmpress\Paths {
 
 	var $root_dir;
@@ -47,7 +47,7 @@ class mock_paths extends \calmpress\calmpress\Paths {
 }
 
 /**
- * Mock the Local_Backup's Backup_Site_Options method to be able to test the
+ * Mock the Core_Backup_Engine's Backup_Site_Options method to be able to test the
  * Backup_Options method.
  * 
  * @since 1.0.0
@@ -121,7 +121,7 @@ class mock_theme extends WP_Theme {
 }
 
 /**
- * Mock the Local_Backup's Backup_Directory method to be able to test the
+ * Mock the Core_Backup_Engine's Backup_Directory method to be able to test the
  * Backup_Theme method.
  * 
  * @since 1.0.0
@@ -148,7 +148,7 @@ class mock_backup_theme extends \calmpress\backup\Core_Backup_Engine {
 }
 
 /**
- * Mock the Local_Backup's Backup_Directory method to be able to test the
+ * Mock the Core_Backup_Engine's Backup_Directory method to be able to test the
  * Backup_Themes method faster and change paths to testable ones.
  * 
  * @since 1.0.0
@@ -178,7 +178,7 @@ class mock_backup_themes extends \calmpress\backup\Core_Backup_Engine {
 }
 
 /**
- * Test cases to test the Local_Backup class.
+ * Test cases to test the Core_Backup_Engine class.
  *
  * @since 1.0.0
  */
