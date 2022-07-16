@@ -175,7 +175,7 @@ class Backup_Manager {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string[] The registered engines.
+	 * @return string[] The class names of the registered engines.
 	 */
 	public function available_engines(): array {
 		return $this->engines;

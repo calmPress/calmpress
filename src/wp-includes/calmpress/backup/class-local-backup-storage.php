@@ -131,7 +131,8 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @return bool true if the directory exists, otherwise false.
 	 */
 	public function section_exists( string $uri ): bool {
-		$dir = $this->root . $uri;
+		$dir = $this->root . '/' . ltrim( $uri, '/' );
+
 		if ( ! file_exists( $dir ) ) {
 			return false;
 		}
@@ -213,6 +214,6 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @return Temporary_Backup_Storage A temporary storage instance.
 	 */
 	public function section_working_area_storage( string $dest_uri ): Temporary_Backup_Storage {
-		return new Local_Storage_Temporary_Backup_Storage( $this->root . $dest_uri );
+		return new Local_Storage_Temporary_Backup_Storage( $this->root . '/' . $dest_uri );
 	}
 }

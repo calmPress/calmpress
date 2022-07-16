@@ -43,7 +43,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 	}
 
-	async function send_new_backup_request( nonce, description ) {
+	async function send_new_backup_request( nonce, description, storage, engines ) {
 		let url = calmBackupData.rest_end_point;
 		fetch(
 			url,
@@ -57,6 +57,8 @@ jQuery( document ).ready( function( $ ) {
 				body: JSON.stringify(
 					{
 						description : description,
+						storage : storage,
+						engines : engines,
 					}
 				),
 			}
@@ -77,7 +79,7 @@ jQuery( document ).ready( function( $ ) {
 						break;
 					case 'incomplete':
 						// Not finished, send another rfequest.
-						send_new_backup_request( nonce, description );
+						send_new_backup_request( nonce, description, storage, engines );
 						break;
 					case 'failed' :
 						update_status_notification( 'backup_failed', data.message );
@@ -105,8 +107,10 @@ jQuery( document ).ready( function( $ ) {
 		event.preventDefault();
 		let nonce = document.getElementById( '_wpnonce' ).value;
 		let description = document.getElementById( 'description' ).value;
+		let storage = document.getElementById( 'storage' ).value;
+		let engines = document.getElementById( 'engines' ).value;
 		update_status_notification( 'in_progress' );
-		send_new_backup_request( nonce, description );
+		send_new_backup_request( nonce, description, storage, engines );
 		description = document.getElementById( 'submit' ).setAttribute( 'disabled', 'disabled' );
 	} )
 

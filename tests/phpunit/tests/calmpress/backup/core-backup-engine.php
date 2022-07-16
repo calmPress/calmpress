@@ -588,7 +588,7 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 	function test_backup_root_single_file_plugin() {
 
 		$method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Root_Single_File_Plugin' );
-		$method->setAccessible(true);
+		$method->setAccessible( true );
 
 		$dest_dir = $this->storage_root . 'dest/';
 		$ret = $method->invoke( null, $this->storage, 'dest', WP_PLUGIN_DIR . '/hello.php', '2.3' );

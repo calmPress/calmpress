@@ -72,6 +72,8 @@ if ( ! empty( $messages ) ) {
 <?php endif; ?>
 
 <?php
+	$backup_manager = new \calmpress\backup\Backup_Manager();
+
 	// A form is used here but the actual request is handled by sending a REST API message
 	// based on the data in the form.
 ?>
@@ -84,6 +86,45 @@ if ( ! empty( $messages ) ) {
 			<td>
 				<textarea name="description" id="description"  rows="5" cols="50" class="large-text"></textarea>
 				<p class="description"><?php esc_html_e( 'A general description of the reason for the backup, that will be associated with the backup when displayed in the backups list' ); ?></p>
+			</td>
+		</tr>
+		<tr  class="form-field">
+			<th scope="row"><label for="storage"><?php esc_html_e( 'Store at' ); ?></label></th>
+			<td>
+				<?php
+				$available_storage = $backup_manager->available_storages();
+				if ( count( $available_storage ) === 1 ) {
+					$storage = reset( $available_storage );
+					echo '<input type="hidden" id="storage" value="' . esc_attr( $storage->identifier() ) . '" />';
+					echo esc_html( $storage->description() );
+				} else {
+					echo '<select id="storage">';
+					foreach ( $available_storage as $storage ) {
+						echo '<option value="' . esc_attr( $storage->identifier() ) . '">' . esc_html( $storage->description() ) . '</option>'; 
+					}
+					echo '</select>';
+				}
+				?>
+				<p class="description"><?php esc_html_e( 'The storage meduim on which the backup will be stored.' ); ?></p>
+			</td>
+		</tr>
+		<tr  class="form-field">
+			<th scope="row"><label for="storage"><?php esc_html_e( 'What to backup' ); ?></label></th>
+			<td>
+				<?php
+				$available_engines = $backup_manager->available_engines();
+				if ( count( $available_engines ) === 1 ) {
+					$engine = reset( $available_engines );
+					echo '<input type="hidden" id="engines" value="' . esc_attr( $engine::identifier() ) . '" />';
+					echo esc_html( $engine::description() );
+				} else {
+					echo '<select id="storage" multiple="multiple">';
+					foreach ( $available_engines as $engine ) {
+						echo '<option value="' . esc_attr( $engine::identifier() ) . '">' . esc_html( $engine::description() ) . '</option>'; 
+					}
+					echo '</select>';
+				}
+				?>
 			</td>
 		</tr>
 	</table>

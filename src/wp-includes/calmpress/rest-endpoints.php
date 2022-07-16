@@ -38,6 +38,12 @@ function create_routes() {
 					'description' => [
 						'required' => true,
 					],
+					'storage' => [
+						'required' => true,
+					],
+					'engines' => [
+						'required' => true,
+					],
 				],
 			],
 		]

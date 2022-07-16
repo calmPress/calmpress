@@ -390,12 +390,14 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_MU_Plugins( string $source, string $backup_dir ) {
+	protected static function Backup_MU_Plugins( Backup_Storage $storage, string $source, string $backup_dir ) {
 
 		// If the mu-plugins directory does not exist there is nothing to backup and
 		// Backup_Directory requires an existing directory.
 		if ( is_dir( $source ) ) {
-			static::Backup_Directory( $source, $backup_dir );
+			$staging = $storage->section_working_area_storage( $backup_dir );
+			static::Backup_Directory( $source, $staging, '' );
+			$staging->store();
 		}
 	}
 
@@ -463,12 +465,12 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Root( $storage, string $backup_dir ) {
+	protected static function Backup_Root( Backup_Storage $storage, string $source_dir, string $backup_dir ) {
 
 		$staging    = $storage->section_working_area_storage( $backup_dir );
 		$core_files = static::installation_paths()->core_root_file_names();
 
-		foreach ( new \DirectoryIterator( static::installation_paths()->root_directory() ) as $file ) {
+		foreach ( new \DirectoryIterator( $source_dir ) as $file ) {
 			if ( $file->isDot() || $file->isLink() || ! $file->isFile() ) {
 				continue;
 			}
@@ -646,7 +648,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
 	protected static function Backup_Root_Single_File_Plugin( Backup_Storage $storage, string $plugins_backup_dir, string $source, string $version ) : string {
-		$relative_dir = $plugins_backup_dir . basename( $source ) . '/' . $version;
+		$relative_dir = $plugins_backup_dir . '/' . basename( $source ) . '/' . $version;
 
 		/*
 		 * If the backup section exists it means we already have a backup of the version,
@@ -659,7 +661,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			// Copy the file to the staging area.
 			$staging->copy_file( $source, basename( $source ) );
 
-			$staging.store();
+			$staging->store();
 		}
 
 		return basename( $source ) . '/' . $version;
@@ -810,7 +812,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		);
 
 		$json = json_encode( $options );
-		$file = $backup_dir . $site_id . '-options.json';
+		$file = $site_id . '-options.json';
 		if ( false === $staging->file_put_contents( $file, $json ) ) {
 			throw new \Exception( 'Failed writing to ' . $file );
 		}
@@ -869,11 +871,11 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $backup_root The storage to which to write files.
-	 * @param int            $max_time    The maximum amount of time in second th backup
-	 *                                    should last before terminating.
-	 *                                    In practice the amount of time after which no new atomic
-	 *                                    type of backup should start.
+	 * @param Backup_Storage $storage  The storage to which to write files.
+	 * @param int            $max_time The maximum amount of time in second th backup
+	 *                                 should last before terminating.
+	 *                                 In practice the amount of time after which no new atomic
+	 *                                 type of backup should start.
 	 *
 	 * @return array An unstructured data that the engine need for restoring the backup.
 	 *
@@ -911,7 +913,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		$meta['dropins']['directory'] = $dropins_rel_dir;
 
 		$root_dir_rel_dir = static::RELATIVE_ROOTDIR_BACKUP_PATH . time();
-		static::Backup_Root( $storage, $root_dir_rel_dir );
+		static::Backup_Root( $storage, static::installation_paths()->root_directory(), $root_dir_rel_dir );
 		$meta['root_directory']['directory'] = $root_dir_rel_dir;
 
 		$options_rel_dir = static::RELATIVE_OPTIONS_BACKUP_PATH . time();
