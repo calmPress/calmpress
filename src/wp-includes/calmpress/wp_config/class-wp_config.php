@@ -235,17 +235,6 @@ class wp_config {
 	}
 
 	/**
-	 * Check if the file can be written to by the current process.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return bool True if it can be written to, otherwise false.
-	 */
-	public function is_writable() : bool {
-		return is_writable( $this->filename );
-	}
-
-	/**
 	 * The content of the file that will result from applying the user settings.
 	 *
 	 * @since 1.0.0
