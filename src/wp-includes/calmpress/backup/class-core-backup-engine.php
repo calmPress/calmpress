@@ -66,225 +66,6 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	const RELATIVE_OPTIONS_BACKUP_PATH = 'db/options/';
 
 	/**
-	 * The storage engine used to hold (save to) the backup.
-	 *
-	 * @var Backup_Storage
-	 *
-	 * @since 1.0.0
-	 */
-	protected Backup_Storage $storage;
-
-	/**
-	 * The versions of calmpress core.
-	 *
-	 * @var string
-	 *
-	 * @since 1.0.0
-	 */
-	protected string $version = '';
-
-	/**
-	 * The directory in which the mu_plugin backup resides.
-	 *
-	 * @var string
-	 *
-	 * @since 1.0.0
-	 */
-	protected string $mu_plugins_directory = '';
-
-	/**
-	 * The directory in which the languages backup resides.
-	 *
-	 * @var string
-	 *
-	 * @since 1.0.0
-	 */
-	protected string $languages_directory = '';
-
-	/**
-	 * The directory in which the dropins backup resides.
-	 *
-	 * @var string
-	 *
-	 * @since 1.0.0
-	 */
-	protected string $dropins_directory = '';
-
-	/**
-	 * The directory in which the root directory backup resides.
-	 *
-	 * @var string
-	 *
-	 * @since 1.0.0
-	 */
-	protected string $root_directory = '';
-
-	/**
-	 * The directory in which the options table backup resides.
-	 *
-	 * @var string
-	 *
-	 * @since 1.0.0
-	 */
-	protected string $options_db_directory = '';
-
-	/**
-	 * Data related to the backedup themes. An array where key is theme's directory name.
-	 * 
-	 * @var Struct_Versioned_Data[]
-	 *
-	 * @since 1.0.0
-	 */
-	protected array $themes = [];
-
-	/**
-	 * Data related to the backedup plugin. An array where key is plugin's directory or file name.
-	 * 
-	 * @var Struct_Plugin_Data[]
-	 *
-	 * @since 1.0.0
-	 */
-	protected array $plugins = [];
-
-	/**
-	 * Get the relative path of a directory for a backup directory.
-	 *
-	 * Main functionality is to validate the data structure and existance of the directory.
-	 *
-	 * @param mixed  $data The array which should contain a "directory" element.
-	 * @param string $root_dir The full path to the root directory of the backup.
-	 *
-	 * @return string The full path to the directory.
-	 *
-	 * @throws \Exception If $data is not an array, if it does not have a "directory" element, if it is
-	 *                    not a string or if the indicated directory do not actually exist. 
-	 */
-	private function directory_info_for_field( $data, string $root_dir ): string {
-		if ( ! is_array( $data ) ) {
-			throw new \Exception( 'not an array' );
-		}
-		
-		if ( ! isset( $data['directory'] ) ) {
-			throw new \Exception( 'do not have directory item' );
-		}
-
-		if ( ! is_scalar( $data['directory'] ) ) {
-			throw new \Exception( 'directory is not a string' );
-		}
-
-		$path = $root_dir . '/' . $data['directory'];
-		if ( ! @is_dir( $path ) ) {
-			throw new \Exception( 'directory do not exists' );
-		}
-
-		return $data['directory'];
-	}
-
-	/**
-	 * Get the path of a directory for a backup directory based
-	 * on the expected structure of the backup meta json file.
-	 *
-	 * Main functionality is to validate the data structure and existance of the directory.
-	 *
-	 * @param mixed $data The array which should contain a "directory" element.
-	 * @param string $root_dir The full path to the directory where the meta file is.
-	 *
-	 * @return string The full path to the directory.
-	 *
-	 * @throws \Exception If $data is not an array, if it does not have a "directory" elsement, if it is
-	 *                    not a string or if the indicated directory do not actually exist. 
-	 */
-	private function versioned_data_for_field( $data, string $root_dir ): Struct_Versioned_Data {
-		$directory = $this->directory_info_for_field( $data, $root_dir );
-		
-		if ( ! isset( $data['version'] ) ) {
-			throw new \Exception( 'version not found' );
-		}
-
-		if ( ! is_scalar( $data['version'] ) ) {
-			throw new \Exception( 'version not a string' );
-		}
-
-		return new Struct_Versioned_Data( $data['version'], $directory );
-	}
-
-	/**
-	 * Get the path of a directory for a backup directory based
-	 * on the expected structure of the backup meta json file.
-	 *
-	 * Main functionality is to validate the data structure and existance of the directory.
-	 *
-	 * @param mixed $data The array which should contain a "directory" element.
-	 * @param string $root_dir The full path to the directory where the meta file is.
-	 *
-	 * @return string The full path to the directory.
-	 *
-	 * @throws \Exception If $data is not an array, if it does not have a "directory" elsement, if it is
-	 *                    not a string or if the indicated directory do not actually exist. 
-	 */
-	private function plugin_data_for_field( $data, string $root_dir ): Struct_Plugin_Data {
-		$directory = $this->directory_info_for_field( $data, $root_dir );
-		
-		if ( ! isset( $data['version'] ) ) {
-			throw new \Exception( 'version not found' );
-		}
-
-		if ( ! is_scalar( $data['version'] ) ) {
-			throw new \Exception( 'version not a string' );
-		}
-
-		if ( ! isset( $data['type'] ) ) {
-			throw new \Exception( 'type not found' );
-		}
-
-		if ( 'root_file' !== $data['type'] && 'directory' !== $data['type'] ) {
-			throw new \Exception( 'type not an expected value' );
-		}
-
-		return new Struct_Plugin_Data( $data['version'], $directory, 'root_file' === $data['type'] );
-	}
-
-	/**
-	 * Constructor of the core specific backup.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param Backup_Storage $storage The storage of which the backup (should) resides.
-	 * @param array          $data    The backup data. An empty array indicates that there is no actual backup.
-	 */
-	public function __construct( Backup_Storage $storage, array $data=[] ) {
-
-		$this->storage = $storage;
-
-		if ( ! empty( $data ) ) {
-			$this->mu_plugins_directory = $this->directory_info_for_field( $data['mu_plugins'], $root_dir );
-			$this->languages_directory  = $this->directory_info_for_field( $data['languages'], $root_dir );
-			$this->dropins_directory    = $this->directory_info_for_field( $data['dropins'], $root_dir );
-			$this->root_directory       = $this->directory_info_for_field( $data['root_directory'], $root_dir );
-			$this->options_db_directory = $this->directory_info_for_field( $data['options'], $root_dir );
-			$this->core_data            = $this->versioned_data_for_field( $data['core'], $root_dir );
-
-			$this->themes=[];
-			if ( ! is_array( $data['themes'] ) ) {
-				throw new \Exception( '"themes" is not an array' );
-			}
-
-			foreach ( $data['themes'] as $name => $theme_data ) {
-				$this->themes[ $name ] = $this->versioned_data_for_field( $theme_data, $root_dir );
-			}
-
-			$this->plugins=[];
-			if ( ! is_array( $data['plugins'] ) ) {
-				throw new \Exception( '"plugins" is not an array' );
-			}
-
-			foreach ( $data['plugins'] as $name => $plugin_data ) {
-				$this->plugins['plugins'] = $this->plugin_data_for_field( $plugin_data, $root_dir );
-			}
-		}
-	}
-
-	/**
 	 * Throw a timeout exception if the current time is later than the parameter.
 	 *
 	 * @param int $time_to_check The unix time to compare against.
@@ -871,11 +652,11 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $storage  The storage to which to write files.
-	 * @param int            $max_time The maximum amount of time in second th backup
-	 *                                 should last before terminating.
-	 *                                 In practice the amount of time after which no new atomic
-	 *                                 type of backup should start.
+	 * @param Backup_Storage $backup_root The storage to which to write files.
+	 * @param int            $max_time    The maximum amount of time in seconds the backup
+	 *                                    should run before terminating.
+	 *                                    In practice the amount of time after which no new atomic
+	 *                                    type of backup should start.
 	 *
 	 * @return array An unstructured data that the engine need for restoring the backup.
 	 *
@@ -899,7 +680,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		
 		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . time() . '/';
 		$mu_dir     = $backup_root . $mu_rel_dir;
-		$meta['mu_plugins'] = static::Backup_MU_Plugins( static::installation_paths()->mu_plugins_directory(), $mu_dir );
+		$meta['mu_plugins'] = static::Backup_MU_Plugins( $storage, static::installation_paths()->mu_plugins_directory(), $mu_dir );
 		$meta['mu_plugins']['directory'] = $mu_rel_dir;
 
 		static::throw_if_out_of_time( $max_end_time );
@@ -924,46 +705,159 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	}
 
 	/**
-	 * A freeform array containing data that can be used to reconstruct the object.
-	 * This data is likely to be stored as part of the whole backup meta file and used for
-	 * when a restore or display of backup details are needed.
+	 * Verify the data fields relating to directory information is valid. Throws if it is not.
 	 *
-	 * @since 1.0.0
+	 * @param array  $data            The data as an array.
+	 * @param string $directory_field The field in $data to veify.
 	 *
-	 * @return array Data to reconstruct the object.
+	 * @throws \Restore_Exception If content $data[$directory_field] do not exist or do not contain expected
+	 *                            information in the expected format.
 	 */
-	public function data(): array {
-		$ret = [];
-
-		$ret['version'] = $this->version;
-
-		$themes = [];
-		foreach ( $this->themes as $directory => $theme_data ) {
-			$themes[ $directory ][ 'version']       = $theme_data->version();
-			$themes[ $directory ][ 'rel_directory'] = $theme_data->directory();
+	protected static function verify_directory_info_for_field( array $data, string $directory_field, int $expected_num_fields ) {
+		if ( ! array_key_exists( $directory_field, $data ) ) {
+			throw new Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'no ' . $directory_field . ' data is given' );
 		}
-		$ret['themes'] = $themes;
 
-		$plugins = [];
-		foreach ( $this->plugins as $directory => $theme_data ) {
-			$plugins[ $directory ][ 'version']       = $theme_data->version();
-			$plugins[ $directory ][ 'rel_directory'] = $theme_data->directory();
+		if ( ! is_array( $data[ $directory_field ] ) ) {
+			throw new Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'curropted ' . $directory_field . ' data is given' );
 		}
-		$ret['plugins'] = $plugins;
+		
+		if ( ! isset( $data[ $directory_field ]['directory'] ) ) {
+			throw new Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'directory name do not exists for ' . $directory_field );
+		}
 
-		return $ret;
+		if ( ! is_scalar( $data[ $directory_field ]['directory'] ) ) {
+			throw new Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'curropted directory name for ' . $directory_field );
+		}
+
+		if ( $expected_num_fields !== array_keys( $data[ $directory_field ] ) ) {
+			throw new \Restore_Exception( static::identifier(), Restore_Exception::MISMATCHED_DATA_VERSION, 'Data contains unexpected fields for ' . $directory_field);
+		}
 	}
 
+	/**
+	 * Verify the data fields relating to directory information and version information
+	 * are valid. Throws if it is not.
+	 *
+	 * @param array  $data            The data as an array.
+	 * @param string $field The field in $data to veify.
+	 *
+	 * @throws \Restore_Exception If content $data[$directory_field] do not exist or do not contain expected
+	 *                            information in the expected format.
+	 */
+	protected static function verify_versioned_directory_info_for_field( array $data, string $field ) {
+
+		static::verify_directory_info_for_field( $data, $field, 2 );
+
+		if ( ! isset( $data[$field]['version'] ) ) {
+			throw new \Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'missing version name for ' . $field );
+		}
+
+		if ( ! is_scalar( $data[$field]['version'] ) ) {
+			throw new \Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'curropted version name for ' . $field );
+		}
+	}
 
 	/**
-	 * Restore a backup.
+	 * An helpre function to validate that a data passes to the related restore functions is in
+	 * the expected format. I fit is not, throws an exception.
+	 *
+	 * @param array $data An unstructured data to validate that it matches what the engine expects
+	 *                    for restoring a backup.
+	 *
+	 * @throws Restore_Exception If restore process fails.
+	 */
+	protected static function validate_data( array $data ) {
+		if ( empty( $data ) ) {
+			throw new Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'no data is given' );
+		}
+
+		foreach ( [
+			'mu_plugins',
+			'languages',
+			'dropins',
+			'root_directory',
+			'options',
+		] as $directory_field ) {
+			static::verify_directory_info_for_field( $data, $directory_field, 1 );
+		}
+
+		static::verify_directory_info_for_field( 'core' );
+
+		// Validate theme related info.
+		if ( ! array_key_exists( 'themes', $data ) ) {
+			throw new \Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'Themes field not found' );
+		}
+
+		if ( ! is_array( $data['themes'] ) ) {
+			throw new \Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'curropted themes field' );
+		}
+
+		foreach ( $data['themes'] as $name => $theme_data ) {
+			static::versioned_data_for_field( $data['themes'], $name );
+		}
+
+		// Validate plugin relatred info.
+		if ( ! array_key_exists( 'plugins', $data ) ) {
+			throw new \Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'Plugins field not found' );
+		}
+
+		if ( ! is_array( $data['plugins'] ) ) {
+			throw new \Restore_Exception( static::identifier(), Restore_Exception::CURROPTED_DATA, 'curropted plugins field' );
+		}
+
+		foreach ( $data['plugins'] as $name => $plugin_data ) {
+			static::versioned_data_for_field( $data['plugins'], $name );
+		}
+
+		// Check if there is unexpected data. There should be only 9 fields which validity was checked before.
+		if ( 9 !== array_keys( $data ) ) {
+			throw new \Restore_Exception( static::identifier(), Restore_Exception::MISMATCHED_DATA_VERSION, 'Data contains unexpected fields' );
+		}
+	}
+
+	/**
+	 * Prepare to restore data by doing data validation, permission checks, and whatever
+	 * else can be done before the restore is run to have a better chance that the restore itself will succeed
+	 * and complete faster.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $backup_root The storage to which to write files.
+	 * \calmpress\credentials\Credentials $write_credentials The credentials with which it should be possible
+	 *                                    to write into code directories.
+	 * @param Backup_Storage $storage     The storage from which to retrieve the backuped files.
 	 * @param array          $data        An unstructured data that the engine need for restoring the backup.
+	 * @param int            $max_time    The maximum amount of time in seconds the function
+	 *                                    should run before terminating.
+	 *                                    In practice the amount of time after which no new atomic
+	 *                                    type of preperations should start.
+	 * 
+	 * @throws Restore_Exception If restore process fails.
+	 * @throws Timeout_Exception If the backup timeed out and need more "time slices" to complete.
 	 */
-	public static function restore( Backup_Storage $storage, array $data ) {
+	public static function prepare_restore( \calmpress\credentials\Credentials $write_credentials,
+	                                        Backup_Storage $storage,
+											array $data,
+											int $max_time ) {
+		
+		static::validate_data( $data );
+	}
+
+	/**
+	 * Restore from a backup based on the engine specific data.
+	 *
+	 * @since 1.0.0
+	 *
+	 * \calmpress\credentials\Credentials $write_credentials The credentials with which it should be possible
+	 *                                    to write into code directories.
+	 * @param Backup_Storage $storage     The storage from which to retrieve the backuped files.
+	 * @param array          $data        An unstructured data that the engine need for restoring the backup.
+	 * 
+	 * @throws Restore_Exception If restore process fails.
+	 */
+	public static function restore( \calmpress\credentials\Credentials $write_credentials,
+	                                Backup_Storage $storage,
+									array $data ) {
 
 	}
 

@@ -100,18 +100,7 @@ class Backup_List extends WP_List_Table {
 	 */
 	public function prepare_items() {
 		$manager = new \calmpress\backup\Backup_Manager();
-		$this->items = [
-			[
-				'date'       => 'now',
-				'description' => 'desc 1',
-				'type'       => 'minimal',
-			],
-			[
-				'date'       => 'one day ago',
-				'description' => 'desc 2',
-				'type'       => 'minimal',
-			],
-		];
+		$this->items = $manager->existing_backups();
 	}
 
 	/**
@@ -148,58 +137,98 @@ class Backup_List extends WP_List_Table {
 	 */
 	public function column_cb( $item ) {
 		?>
-		<label class="screen-reader-text" for="backup_<?php echo $item['date']; ?>">
+		<label class="screen-reader-text" for="cb_<?php echo esc_attr( $item->identifier() ); ?>">
 			<?php
-			/* translators: %s: User login. */
-			printf( __( 'Select %s' ), $item['date'] );
+			/* translators: 1: Post date, 2: Post time. */
+			$text = sprintf(
+				/* translators: 1: Post date, 2: Post time. */
+				__( '%1$s at %2$s' ),
+				/* translators: Post date format. See https://www.php.net/manual/datetime.format.php */
+				wp_date( __( 'Y/m/d' ), $item->time_created() ),
+				/* translators: Post time format. See https://www.php.net/manual/datetime.format.php */
+				wp_date( __( 'g:i a' ), $item->time_created() )
+			);
+			printf( esc_html__( 'Select %s' ), $text );
 			?>
 		</label>
-		<input type="checkbox" id="backup_<?php echo $item['date']; ?>" name="backups[]" value="<?php echo esc_attr( $item['date'] ); ?>" />
+		<input type="checkbox" id="cb_<?php echo esc_attr( $item->identifier() ); ?>" name="backups[]" value="<?php echo esc_attr( $item->identifier() ); ?>" />
 		<?php
 	}
 
 	/**
 	 * Handles the date column output.
+	 * 
+	 * @param \calmpress\backup\Backup $item The backup item for which to output the date.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param array $item The current backup item.
 	 */
-	public function column_date( array $item ) {
-		echo esc_html( $item['date'] );
+	public function column_date( \calmpress\backup\Backup $item ) {
+			/* translators: 1: Post date, 2: Post time. */
+			$text = sprintf(
+				/* translators: 1: Post date, 2: Post time. */
+				__( '%1$s at %2$s' ),
+				/* translators: Post date format. See https://www.php.net/manual/datetime.format.php */
+				wp_date( __( 'Y/m/d' ), $item->time_created() ),
+				/* translators: Post time format. See https://www.php.net/manual/datetime.format.php */
+				wp_date( __( 'g:i a' ), $item->time_created() )
+			);
+		echo esc_html( $text );
 	}
 
 	/**
 	 * Handles the description column output.
 	 *
+	 * @param \calmpress\backup\Backup $item The backup item for which to output the dadescriptionte.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param array $item The current backup item.
 	 */
-	public function column_description( array $item ) {
-		echo esc_html( $item['description'] );
+	public function column_description( \calmpress\backup\Backup $item ) {
+		echo esc_html( $item->description());
 	}
 
 	/**
-	 * Handles the type column output.
+	 * Handles the type column output. Displays the list of engines which were used
+	 * in the backup creation.
+	 *
+	 * @param \calmpress\backup\Backup $item The backup item for which to output the list of engines.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param array $item The current backup item.
 	 */
-	public function column_type( array $item ) {
-		echo esc_html( $item['type'] );
+	public function column_type( \calmpress\backup\Backup $item ) {
+		$engines = $item->engines();
+		$manager = new \calmpress\backup\Backup_Manager();
+		
+		$backup_engines = [];
+		foreach ( $engines as $engine ) {
+			$engine_class  = $manager->registered_engine_by_id( $engine );
+			if ( '' === $engine_class ) {
+				/* translators: 1: The backup engine identifier. */
+				$backup_engines[] = esc_html( sprintf( __( 'Unregistered backup type of: %s', $engine ) ) );
+			} else {
+				$backup_engines[] = esc_html( $engine_class::description() );
+			}
+		}
+
+		echo esc_html( join( '<br>', $backup_engines ) );
 	}
 
 	/**
 	 * Handles the storage column output.
+	 *
+	 * @param \calmpress\backup\Backup $item The backup item for which to output the storage name.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param array $item The current backup item.
 	 */
 	public function column_storage( array $item ) {
-		echo esc_html( $item['storage'] );
+		echo esc_html( $item->storage->description() );
 	}
 
 }

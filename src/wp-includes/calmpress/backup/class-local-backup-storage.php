@@ -109,13 +109,19 @@ class Local_Backup_Storage implements Backup_Storage {
 
 		foreach ( glob( $this->root . 'meta-*.json' ) as $file ) {
 			try {
-				$local_backup = new Local_Backup( $file, $this );
+				$meta = @file_get_contents( $file );
+				if ( $meta === false ) {
+					// could not read the file, log the even and continue to next file. 
+					trigger_error( calmpress\utils\last_error_message() );
+					continue;
+				} 
+				$backup = new Backup( $meta, $this );
 			} catch ( \Exception $e ) {
 				// Failed to create an object for the backup, log it and move on to the next.
 				trigger_error( 'Failed parsing the backup meta file ' . $file . ' because: ' . $e->getMessage() );
 				continue;
 			}
-			$container->Add( $local_backup );
+			$container->Add( $backup );
 		}
 
 		return $container;
@@ -181,23 +187,15 @@ class Local_Backup_Storage implements Backup_Storage {
 	}
 
 	/**
-	 * Store a backup meta information at the root backup directory
+	 * Store a backup meta information at the location where such information is stored on the
+	 * specific storage.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $description  The description of the speific backup.
-	 * @param int    $time         The UTC time at which the backup creation was completed.
-	 * @param array  $engines_data The engine specific data for the backup. The keys are the engine identifiers
-	 *                             and the value contains the actual datya.
+	 * @param string $meta The meta information of a backup to be stored.
 	 */
-	public function store_backup_meta( string $description, int $time, array $engines_data ) {
-		$data = [
-			'description' => $description,
-			'time'        => $time,
-			'engines'     => $engines_data,
-		];
-
-		file_put_contents( $this->root . 'meta-' . $time . '.json', json_encode( $data ) );
+	public function store_backup_meta( string $meta ) {
+		file_put_contents( $this->root . 'meta-' . current_time( 'U', true ) . '.json', $meta );
 	}
 
 	/**

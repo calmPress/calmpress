@@ -112,10 +112,7 @@ interface Backup_Storage {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $description  The description of the speific backup.
-	 * @param int    $time         The UTC time at which the backup creation was completed.
-	 * @param array  $engines_data The engine specific data for the backup. The keys are the engine identifiers
-	 *                             and the value contains the actual datya.
+	 * @param string $meta The meta information of a backup to be stored.
 	 */
-	public function store_backup_meta( string $description, int $time, array $engines_data );
+	public function store_backup_meta( string $meta );
 }

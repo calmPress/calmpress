@@ -45,3 +45,7 @@ function ensure_dir_exists( string $path ) {
 		throw new \Exception( sprintf( __( '%s exists but is not a directory' ), $path ) );
 	}
 }
+
+function utc_timestamp_to_local_human( string $format, int $timestamp ) : string {
+	$date = new DateTimeImmutable( '@' . $timestamp, 'UTC' );
+}

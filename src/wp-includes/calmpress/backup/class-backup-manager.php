@@ -175,13 +175,19 @@ class Backup_Manager {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string[] The class names of the registered engines.
+	 * @return string[] The class names of the registered engines. The key is the identifier of
+	 *                  the engine.
 	 */
 	public function available_engines(): array {
 		return $this->engines;
 	}
 
-	public function existing_backups() {
+	/**
+	 * Get all the available backs in all of the registered storages.
+	 *
+	 * @return \calmpress\backup\Backup[] An array containing all the backups.
+	 */
+	public function existing_backups() : array {
 		$backups = [];
 
 		foreach ( $this->storages as $storage ) {
@@ -192,6 +198,29 @@ class Backup_Manager {
 		}
 
 		return $backups;
+	}
+
+	/**
+	 * Get a specific backup base on its identifier.
+	 *
+	 * @param string $id The identifier.
+	 *
+	 * @return \calmpress\backup\Backup The backup, or null if non is found.
+	 *
+	 * @throws \Exception If a backup with such id could not be found.
+	 */
+	public function backup_by_id( string $id ) : \calmpress\backup\Backup {
+
+		foreach ( $this->storages as $storage ) {
+			$bks = $storage->backups()->as_array();
+			foreach ( $bks as $backup ) {
+				if ( $id === $bk->identifier() ) {
+					return $backup;
+				}
+			}
+		}
+
+		throw new \Exception( 'Such a backup do not exists' );
 	}
 
 	/**
@@ -229,12 +258,12 @@ class Backup_Manager {
 			$engines[ $engine_id ] = $engine;
 		}
 
-		$engines_data = []; 
+		$engines_data = [];
 		foreach ( $engines as $id => $engine ) {
 			$engines_data[ $id ] = $engine::backup( $storage, $timeout );
 		}
 
-		$storage->store_backup_meta( $description, current_time( 'U', true ), $engines_data );
+		$storage->store_backup_meta( Backup::new_backup_meta( $description, $engines_data ) );
 	}
 
 	public function backups() {

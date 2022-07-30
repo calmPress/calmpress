@@ -20,8 +20,9 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\create_routes', 2 );
 function create_routes() {
 
 	/*
-	 * Route to create a new backup by a POST request. The expected parameters are the nonce and
-	 * description.
+	 * Route to create a new backup by a POST request. The expected parameters are the nonce,
+	 * description, storage id identifying the storage on which to store the backup and engines
+	 * to be used in backup creation.
 	 */
 	register_rest_route(
 		'calmpress',
@@ -42,6 +43,30 @@ function create_routes() {
 						'required' => true,
 					],
 					'engines' => [
+						'required' => true,
+					],
+				],
+			],
+		]
+	);
+
+	/*
+	 * Route to restore a backup by a POST request. The expected parameters are the nonce and
+	 * the backup id.
+	 */
+	register_rest_route(
+		'calmpress',
+		'restore_backup',
+		[
+			[
+				'methods'             => 'POST',
+				'callback'            => '\calmpress\backup\Utils::handle_restore_backup_request',
+				'permission_callback' => function () {
+
+					return current_user_can( 'backup' );
+				},
+				'args'                => [
+					'backup_id' => [
 						'required' => true,
 					],
 				],

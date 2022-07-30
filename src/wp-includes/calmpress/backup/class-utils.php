@@ -72,4 +72,64 @@ class Utils {
 			return $ret;
 		}
 	}
+
+	/**
+	 * Handle user initiated backup restore.
+	 *
+	 * Used as action callback for the calmpress/restore_backup rest route.
+	 *
+     * Restore backup request should include the fields 'nonce' which contain the nonce for the
+     * request and a field 'id' which contains backup identifier.
+     *
+     * The reply contains a field named 'status' which can have one the values of
+     * - 'incomplete' which indicates that the restore was not finished and the request should
+     * be sent as is again.
+     *
+     * - 'data_mismatch' which indicates that the data that the backup contains cannot be
+	 * processed by the current code. This can happen due to actual data curroption, missing engine
+	 * that was used in the backup creation, or mismatching versions between the engine used to create
+	 * the backup and the "current" engine.
+	 * The response will also include an "engine_ids' field which will contain a comma separated list
+	 * of the engine identifiers for which the failure happened.
+     * 
+     * - 'failed' which indicates that there was a problem with performing the restore. In that case
+     * the field 'message' will include an unescaped textual description of the problem.
+     * 
+     * - 'complete' which indicates that the restore was fully completed.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param WP_REST_Request $request The request. It is assumed it was sanitized and validated
+	 *                                 That it includes a description field.
+	 *
+	 * @return string[] An array which includes a status field and a message where status field values
+	 *                  are described above, and message field is untranslated and unescaped
+	 *                  addition information to enhance the meaning of the status field.
+	 */
+	public static function handle_restore_backup_request( \WP_REST_Request $request ): array {
+
+		$ret = [
+			'status'  => 'complete',
+			'message' => '',
+		];
+
+		try {
+			$backup_id = $request['backup_id'];
+			$manager   = new \calmpress\backup\Backup_Manager();
+			$backup    = $manager->backup_by_id( $backup_id );
+			return $ret;
+		} catch ( \calmpress\calmpress\Timeout_Exception $e ) {
+			$ret['status'] = 'incomplete';
+			return $ret;
+		} catch ( \Error $e ) {
+			// PHP execution exceptions. Add more debugging info.
+			$ret['status']  = 'failed';
+			$ret['message'] = $e->getMessage() . ' type: ' . get_class( $e ) . ' file: ' . $e->getFile() . ' line: ' . $e->getLine();
+			return $ret;
+		} catch ( \Throwable $e ) {
+			$ret['status']  = 'failed';
+			$ret['message'] = $e->getMessage();
+			return $ret;
+		}
+	}
 }
