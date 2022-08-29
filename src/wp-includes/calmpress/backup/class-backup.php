@@ -25,6 +25,15 @@ class Backup {
 	protected Backup_Storage $storage;
 
 	/**
+	 * A unique identifier of the backup in the storage.
+	 *
+	 * @var string
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $in_storage_id;
+
+	/**
 	 * The unix time in which the backup was created.
 	 *
 	 * @var int
@@ -67,14 +76,16 @@ class Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string         $json_data The "meta" data about the backup in a json format.
-	 * @param Backup_Storage $storage   The storage on which the backup resides.
+	 * @param string         $json_data     The "meta" data about the backup in a json format.
+	 * @param Backup_Storage $storage       The storage on which the backup resides.
+	 * @param string         $in_storage_id The unique id of the backup in the storage.
 	 *
 	 * @throws \Exception If the $json_data is malformed json or do not contain all the info
 	 *                    in the expected format.
 	 */
-	public function __construct( string $json_data, Backup_Storage $storage ) {
-		$this->storage = $storage;
+	public function __construct( string $json_data, Backup_Storage $storage, string $in_storage_id ) {
+		$this->storage       = $storage;
+		$this->in_storage_id = $in_storage_id;
 
 		$data = json_decode( $json_data, true );
 		if ( null === $data ) {
@@ -227,9 +238,21 @@ class Backup {
 	}
 
 	/**
+	 * Delete the backup's meta in the storage.
+	 * 
+	 * @since 1.0.0
+	 */
+	public function delete() {
+
+		$this->storage->delete_backup_meta( $this->in_storage_id );
+	}
+
+	/**
 	 * The data about the engines and their data which were used to create the backup.
 	 * 
 	 * The array index is the engine identifier, and the value is the actual data.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return array
 	 */
@@ -239,6 +262,8 @@ class Backup {
 
 	/**
 	 * The engines which were used in creating the backup.
+	 * 
+	 * @since 1.0.0
 	 *
 	 * @return string[]
 	 */

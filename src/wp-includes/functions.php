@@ -1157,6 +1157,7 @@ function wp_removable_query_args() {
 		'update',
 		'updated',
 		'wp-post-new-reload',
+		'cp-action-result',
 	);
 
 	/**

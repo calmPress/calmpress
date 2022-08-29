@@ -115,4 +115,14 @@ interface Backup_Storage {
 	 * @param string $meta The meta information of a backup to be stored.
 	 */
 	public function store_backup_meta( string $meta );
+
+	/**
+	 * Delete the backup meta information of a specific backup
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id The storage internal id of the backup's meta. Usually will be the
+	 *                   file name or URI.
+	 */
+	public function delete_backup_meta( string $id );
 }

@@ -132,4 +132,48 @@ class Utils {
 			return $ret;
 		}
 	}
+
+	/**
+	 * Handle delete backup action.
+	 *
+	 * Expect the following values in the request (most likely A GET),
+	 * _wp_nonce - The nonce verifying the request
+	 * backup    - The ID of the backup to delete.
+	 */
+	public static function handle_delete_backup() {
+
+		if  ( ! array_key_exists( 'backup', $_REQUEST ) ) {
+			wp_die(
+				esc_html__( 'Something went wrong, backup to delete is not given.' ),
+				__( 'Error' ),
+				[ 'response' => 404 ]
+			);
+		}
+
+		$id = $_REQUEST[ 'backup' ];
+
+		// Check nonce and capability.
+		if  ( ! array_key_exists( '_wpnonce', $_REQUEST ) || 
+		      ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'delete_backup' ) ||
+			  ! current_user_can( 'backup' ) ) {
+			wp_die(
+				esc_html__( 'Missing credentials to perform the delete, refresh and try again.' ),
+				__( 'Error' ),
+				[ 'response' => 403 ]
+			);
+		}
+
+		$notices = new \calmpress\admin\Admin_Notices_Handler();
+
+		$backup_manager = new \calmpress\backup\Backup_Manager();
+		try {
+			$backup_manager->delete_backup( $id );
+			$notices->add_success_message( esc_html__( 'Delete completed' ) );
+		} catch ( \Exception $e ) {
+			$notices->add_error_message(
+				sprintf( esc_html__( 'Delete had failed. The reported reason is: %s' ), $e->message )
+			);
+		}
+		\calmpress\utils\redirect_admin_with_action_results( admin_url( 'backups.php' ), $notices );
+	}
 }

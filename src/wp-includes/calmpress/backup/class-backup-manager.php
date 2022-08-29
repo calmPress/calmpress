@@ -214,7 +214,7 @@ class Backup_Manager {
 		foreach ( $this->storages as $storage ) {
 			$bks = $storage->backups()->as_array();
 			foreach ( $bks as $backup ) {
-				if ( $id === $bk->identifier() ) {
+				if ( $id === $backup->identifier() ) {
 					return $backup;
 				}
 			}
@@ -266,7 +266,25 @@ class Backup_Manager {
 		$storage->store_backup_meta( Backup::new_backup_meta( $description, $engines_data ) );
 	}
 
-	public function backups() {
+	/**
+	 * Delete a backup from whatever storage it is on.
+	 * 
+	 * No failure if the backup did not exist.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id The identifier indentifying the specific backup.
+	 *
+	 * @throws \Exception If backup do not exist or deletion had failed.
+	 */
+	public function delete_backup( string $id ) {
+		try {
+			$backup = $this->backup_by_id( $id );
+		} catch ( \Exception $e ) {
+			// Backup do not exist is as good as it being deleted.
+			return;
+		}
 
+		$backup->delete();
 	}
 }

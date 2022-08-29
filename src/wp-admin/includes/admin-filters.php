@@ -183,5 +183,8 @@ add_action( 'admin_post_apcu_reset', '\calmpress\apcu\APCu::handle_apcu_reset' )
 // Object cache restart form submittion.
 add_action( 'admin_post_object_cache_reset', '\calmpress\object_cache\Utils::handle_object_cache_reset' );
 
+// Backup delete "GET" (link) action.
+add_action( 'admin_post_delete_backup', '\calmpress\backup\Utils::handle_delete_backup' );
+
 // tools menu capabilities.
 add_filter( 'user_has_cap', 'wp_maybe_tools_menu_cap', 1 );

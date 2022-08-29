@@ -67,15 +67,13 @@ class Backup_List extends WP_List_Table {
 		return [ 'delete' => __( 'Delete' ) ];
 	}
 
-	public function delete_backup() {}
-
 	/**
 	 * Text displayed when no backups are found.
 	 * 
 	 * @since 1.0.0
 	 */
 	public function no_items() {
-		_e( 'No Backups avaliable.' );
+		esc_html_e( 'No Backups avaliable.' );
 	}
 
 	/**
@@ -87,9 +85,9 @@ class Backup_List extends WP_List_Table {
 	 */
 	public function get_columns() {
 		return [
-			'date'        => __( 'Date' ),
-			'description' => __( 'Description' ),
-			'type'        => __( 'Type' ),
+			'date'        => esc_html__( 'Date' ),
+			'description' => esc_html__( 'Description' ),
+			'type'        => esc_html__( 'Type' ),
 		];
 	}
 
@@ -123,7 +121,19 @@ class Backup_List extends WP_List_Table {
 
 		$actions['fullinfo'] = '<a href="#">' . esc_html__( 'Full info' ) . '</a>';
 		$actions['restore'] = '<a href="#">' . esc_html__( 'Restore' ) . '</a>';
-		$actions['delete'] = '<a href="#">' . esc_html__( 'Delete' ) . '</a>';
+
+		$delete_url = add_query_arg( 'action', 'delete_backup', admin_url( 'admin-post.php' ) );
+
+		// Add the ID.
+		$delete_url = add_query_arg( 'backup', $item->identifier(), $delete_url );
+
+		$actions['delete'] = sprintf(
+			'<a href="%s" aria-label="%s">%s</a>',
+			wp_nonce_url( $delete_url , 'delete_backup' ),
+			/* translators: %s: Buckup's description. */
+			esc_attr( sprintf( __( 'Delete &#8220;%s&#8221;' ), $item->description() ) ),
+			esc_html__( 'Delete' )
+		);
 
 		return $this->row_actions( $actions );
 	}
@@ -232,6 +242,8 @@ class Backup_List extends WP_List_Table {
 	}
 
 }
+
+\calmpress\utils\display_previous_action_results();
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 $parent_file = 'backups.php';

@@ -115,7 +115,7 @@ class Local_Backup_Storage implements Backup_Storage {
 					trigger_error( calmpress\utils\last_error_message() );
 					continue;
 				} 
-				$backup = new Backup( $meta, $this );
+				$backup = new Backup( $meta, $this, $file );
 			} catch ( \Exception $e ) {
 				// Failed to create an object for the backup, log it and move on to the next.
 				trigger_error( 'Failed parsing the backup meta file ' . $file . ' because: ' . $e->getMessage() );
@@ -196,6 +196,17 @@ class Local_Backup_Storage implements Backup_Storage {
 	 */
 	public function store_backup_meta( string $meta ) {
 		file_put_contents( $this->root . 'meta-' . current_time( 'U', true ) . '.json', $meta );
+	}
+
+	/**
+	 * Delete the backup meta information of a specific backup
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id In this storage it is expected to be the full path to the meta file.
+	 */
+	public function delete_backup_meta( string $id ) {
+		unlink( $id );
 	}
 
 	/**
