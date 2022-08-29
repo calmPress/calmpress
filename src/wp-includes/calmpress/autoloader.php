@@ -23,6 +23,7 @@ const MAP = [
 	'calmpress\post_authors\Post_Authors_As_Taxonomy_Db_Upgrade' => __DIR__ . '/post_authors/class-post-authors-as-taxonomy-db-upgrade.php',
 	'calmpress\post_authors\Taxonomy_Based_Post_Author' => __DIR__ . '/post_authors/class-taxonomy-based-post-author.php',
 	'calmpress\admin\Admin_Notices'                     => __DIR__ . '/admin/class-admin-notices.php',
+	'calmpress\admin\Admin_Notices_Handler'             => __DIR__ . '/admin/class-admin-notices-handler.php',
 	'calmpress\filesystem\Path_Lock'                    => __DIR__ . '/filesystem/class-path-lock.php',
 	'calmpress\credentials\FTP_Credentials'             => __DIR__ . '/credentials/class-ftp-credentials.php',
 	'calmpress\credentials\Credentials'                 => __DIR__ . '/credentials/class-credentials.php',
