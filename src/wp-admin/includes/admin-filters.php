@@ -186,5 +186,8 @@ add_action( 'admin_post_object_cache_reset', '\calmpress\object_cache\Utils::han
 // Backup delete "GET" (link) action.
 add_action( 'admin_post_delete_backup', '\calmpress\backup\Utils::handle_delete_backup' );
 
+// Backup delete "GET" (link) action.
+add_action( 'admin_post_bulk_backup', '\calmpress\backup\Utils::handle_bulk_backup' );
+
 // tools menu capabilities.
 add_filter( 'user_has_cap', 'wp_maybe_tools_menu_cap', 1 );

@@ -139,6 +139,8 @@ class Utils {
 	 * Expect the following values in the request (most likely A GET),
 	 * _wp_nonce - The nonce verifying the request
 	 * backup    - The ID of the backup to delete.
+	 *
+	 * @since 1.0.0
 	 */
 	public static function handle_delete_backup() {
 
@@ -172,6 +174,60 @@ class Utils {
 		} catch ( \Exception $e ) {
 			$notices->add_error_message(
 				sprintf( esc_html__( 'Delete had failed. The reported reason is: %s' ), $e->message )
+			);
+		}
+		\calmpress\utils\redirect_admin_with_action_results( admin_url( 'backups.php' ), $notices );
+	}
+
+	/**
+	 * Handle bulk backup actions.
+	 *
+	 * Expect the following values in the request (most likely A GET),
+	 * _wp_nonce - The nonce verifying the request
+	 * backup    - The ID of the backup to delete.
+	 */
+	public static function handle_bulk_backup() {
+
+		// Check nonce and capability.
+		if  ( ! array_key_exists( '_wpnonce', $_POST ) || 
+				! wp_verify_nonce( $_POST['_wpnonce'], 'bulk-backups' ) ||
+				! current_user_can( 'backup' ) ) {
+			wp_die(
+				esc_html__( 'Missing credentials to perform the operation, refresh and try again.' ),
+				__( 'Error' ),
+				[ 'response' => 403 ]
+			);
+		}
+
+		if ( 'delete' !== $_POST['subaction'] || 0 === count( $_POST['backups'] ) ) {
+			wp_redirect( admin_url( 'backups.php' ) );
+			die();
+		}
+
+		$notices        = new \calmpress\admin\Admin_Notices_Handler();
+		$backup_manager = new \calmpress\backup\Backup_Manager();
+		$success        = 0;
+		foreach ( $_POST['backups'] as $id ) {
+			try {
+				$backup_manager->delete_backup( $id );
+				$success++;
+			} catch ( \Exception $e ) {
+				$backup = $backup_manager->backup_by_id( $id );
+				$notices->add_error_message(
+					/* translators: 1: backup description, 2: internal error message. */
+					sprintf( esc_html__( 'Delete of %1$s had failed. The reported reason is: %2$s' ), $backup->description(), $e->message )
+				);
+			}
+		}
+		if ( 0 !== $success ) {
+			$notices->add_success_message(
+				esc_html(
+					sprintf(
+						/* translators: %s: Number deleted backups. */
+						_n( '%s backup deleted.', '%s backups deleted.', $success ),
+						number_format_i18n( $success )
+					)
+				)
 			);
 		}
 		\calmpress\utils\redirect_admin_with_action_results( admin_url( 'backups.php' ), $notices );

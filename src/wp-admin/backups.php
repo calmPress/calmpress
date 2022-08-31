@@ -10,7 +10,7 @@
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'backup' ) ) {
-	wp_die( __( 'Sorry, you are not allowed to backup this site.' ) );
+	wp_die( __( 'Sorry, you are not allowed to manage backups at this site.' ) );
 }
 
 $title = __( 'Backups' );
@@ -26,12 +26,18 @@ get_current_screen()->add_help_tab(
 require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 class Backup_List extends WP_List_Table {
+
+	/**
+	 * Construct the table object.
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct() {
 
 		parent::__construct(
 			[
-				'singular' => __( 'Backup' ),
-				'plural'   => __( 'Backups' ),
+				'singular' => 'backup',
+				'plural'   => 'backups',
 				'screen'   => 'backups',
 				'ajax'     => false,
 			]
@@ -45,10 +51,17 @@ class Backup_List extends WP_List_Table {
 	 *
 	 * @return string Name of the default primary column, in this case, 'date'.
 	 */
-	protected function get_default_primary_column_name() {
+	protected function get_default_primary_column_name(): string {
 		return 'date';
 	}
 
+	/**
+	 * Gets the columns description.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array.
+	 */
 	protected function get_column_info() {
 		return array(
 			[
@@ -63,6 +76,35 @@ class Backup_List extends WP_List_Table {
 		);
 	}
 
+	/**
+	 * Generate the bulk actions dropdown.
+	 *
+	 * Use the parents implementation but overide the name of the select input so it
+	 * will not collide with other inputs on the page.
+	 *
+	 * @see WP_List_Table::bulk_actions
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $which The location of the bulk actions: 'top' or 'bottom'.
+	 *                      This is designated as optional for backward compatibility.
+	 */
+	protected function bulk_actions( $which = '' ) {
+		ob_start();
+		parent::bulk_actions( $which );
+		$output = ob_get_clean();
+		echo str_replace( '<select name="action', '<select name="subaction', $output );
+	}
+
+	/**
+	 * Retrieves the list of bulk actions available for this table.
+	 *
+	 * @see WP_List_Table::get_bulk_actions
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @return array Where key is the value of the option and the value is the human text.
+	 */
 	protected function get_bulk_actions() {
 		return [ 'delete' => __( 'Delete' ) ];
 	}
@@ -253,13 +295,16 @@ $parent_file = 'backups.php';
 	<h1 class="wp-heading-inline"><?php echo esc_html( $title ); ?></h1>
 	<a href="backup-new.php" class="page-title-action"><?php echo esc_html_x( 'Add New', 'backup' ); ?></a>
 	<hr class="wp-header-end">
-	<div class="backups-list-table-wrapper">
-		<?php
-		$backups_list_table = new Backup_List();
-		$backups_list_table->prepare_items();
-		$backups_list_table->display();
-		?>
-	</div>
+	<form id="backup-list" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+		<input type="hidden" name="action" value="bulk_backup">
+		<div class="backups-list-table-wrapper">
+			<?php
+			$backups_list_table = new Backup_List();
+			$backups_list_table->prepare_items();
+			$backups_list_table->display();
+			?>
+		</div>
+	</form>
 </div>
 <?php
 	require_once ABSPATH . 'wp-admin/admin-footer.php';
