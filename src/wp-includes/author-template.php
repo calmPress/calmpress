@@ -292,13 +292,18 @@ function the_author_posts() {
  * of each of them.
  *
  * @since 4.4.0
- * @since calmPress 1.0.0
+ * @since calmPress 1.0.0 $title_format parameter was added to be able to costumize
+ *                        the link's title text.
  *
  * @global WP_Post $post The current post's DB object.
  *
+ * @param string $title_format A sprintf style format for the link's title, where the value
+ *                             %s will be replaced with the author's display name.
+ *                             Defaults to some text in english.
+ *
  * @return string An HTML with link(s) to the author post page(s).
  */
-function get_the_author_posts_link() {
+function get_the_author_posts_link( string $title_format = 'Posts by %s' ) {
 	global $post;
 	if ( ! is_object( $post ) ) {
 		return '';
@@ -313,7 +318,7 @@ function get_the_author_posts_link() {
 	   return sprintf( '<a href="%1$s" title="%2$s" rel="author">%3$s</a>',
 	   		esc_url( $author->posts_url() ),
 	   		/* translators: %s: author's display name */
-	   		esc_attr( sprintf( __( 'Posts by %s' ), $author->name() ) ),
+	   		esc_attr( sprintf( $title_format, $author->name() ) ),
 	   		esc_html( $author->name() )
 	   	);
    }, $authors );
@@ -326,9 +331,15 @@ function get_the_author_posts_link() {
  *
  * @since 1.2.0
  * @since 4.4.0 Converted into a wrapper for get_the_author_posts_link()
+ * @since calmPress 1.0.0 $title_format parameter was added to be able to costumize
+ *                        the link's title text.
+ *
+ * @param string $title_format A sprintf style format for the link's title, where the value
+ *                             %s will be replaced with the author's display name.
+ *                             Defualts to some english text.
  */
-function the_author_posts_link() {
-	echo get_the_author_posts_link();
+function the_author_posts_link( string $title_format = 'Posts by %s' ) {
+	echo get_the_author_posts_link( $title_format );
 }
 
 /**
@@ -374,7 +385,7 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
  * @link https://developer.wordpress.org/reference/functions/wp_list_authors/
  *
  * @since 1.2.0
- * @since calmPress 1.0.0
+ * @since calmPress 1.0.0 Added $title_format option
  *
  * @param string|array $args {
  *     Optional. Array or string of default arguments.
@@ -391,22 +402,26 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
  *     @type bool         $html          Whether to list the items in HTML form or plaintext. Default true.
  *     @type int[]|string $exclude       Array or comma/space-separated list of author IDs to exclude. Default empty.
  *     @type int[]|string $include       Array or comma/space-separated list of author IDs to include. Default empty.
+ *     @type string       $title_format  A sprintf style format for the link's title, where the value
+ *                                       %s will be replaced with the author's display name.
+ *                                       Defaults to some text in english.
  * }
  * @return void|string Void if 'echo' argument is true, list of authors if 'echo' is false.
  */
 function wp_list_authors( $args = '' ) {
 
 	$defaults = [
-		'orderby'     => 'name',
-		'order'       => 'ASC',
-		'number'      => '',
-		'optioncount' => false,
-		'hide_empty'  => true,
-		'echo'        => true,
-		'style'       => 'list',
-		'html'        => true,
-		'exclude'     => '',
-		'include'     => '',
+		'orderby'      => 'name',
+		'order'        => 'ASC',
+		'number'       => '',
+		'optioncount'  => false,
+		'hide_empty'   => true,
+		'echo'         => true,
+		'style'        => 'list',
+		'html'         => true,
+		'exclude'      => '',
+		'include'      => '',
+		'title_format' => 'Posts by %s',
 	];
 
 	$args = wp_parse_args( $args, $defaults );
@@ -467,8 +482,7 @@ function wp_list_authors( $args = '' ) {
 		$link = sprintf(
 			'<a href="%1$s" title="%2$s">%3$s</a>',
 			esc_url( $author->posts_url() ),
-			/* translators: %s: Author's display name. */
-			esc_attr( sprintf( __( 'Posts by %s' ), $name ) ),
+			esc_attr( sprintf( $args['title_format'], $name ) ),
 			$name
 		);
 
