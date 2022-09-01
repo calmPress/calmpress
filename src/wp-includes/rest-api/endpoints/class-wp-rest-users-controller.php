@@ -71,7 +71,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the user.' ),
+						'description' => 'Unique identifier for the user.',
 						'type'        => 'integer',
 					),
 				),
@@ -97,11 +97,11 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 						'force'    => array(
 							'type'        => 'boolean',
 							'default'     => false,
-							'description' => __( 'Required to be true, as users do not support trashing.' ),
+							'description' => 'Required to be true, as users do not support trashing.',
 						),
 						'reassign' => array(
 							'type'              => 'integer',
-							'description'       => __( 'Reassign the deleted user\'s posts and links to this user ID.' ),
+							'description'       => 'Reassign the deleted user\'s posts and links to this user ID.',
 							'required'          => true,
 							'sanitize_callback' => array( $this, 'check_reassign' ),
 						),
@@ -137,11 +137,11 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 						'force'    => array(
 							'type'        => 'boolean',
 							'default'     => false,
-							'description' => __( 'Required to be true, as users do not support trashing.' ),
+							'description' => 'Required to be true, as users do not support trashing.',
 						),
 						'reassign' => array(
 							'type'              => 'integer',
-							'description'       => __( 'Reassign the deleted user\'s posts and links to this user ID.' ),
+							'description'       => 'Reassign the deleted user\'s posts and links to this user ID.',
 							'required'          => true,
 							'sanitize_callback' => array( $this, 'check_reassign' ),
 						),
@@ -1335,13 +1335,13 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                 => array(
-					'description' => __( 'Unique identifier for the user.' ),
+					'description' => 'Unique identifier for the user.',
 					'type'        => 'integer',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'username'           => array(
-					'description' => __( 'Login name for the user.' ),
+					'description' => 'Login name for the user.',
 					'type'        => 'string',
 					'context'     => array( 'edit' ),
 					'required'    => true,
@@ -1350,7 +1350,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 					),
 				),
 				'name'               => array(
-					'description' => __( 'Display name for the user.' ),
+					'description' => 'Display name for the user.',
 					'type'        => 'string',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'arg_options' => array(
@@ -1358,7 +1358,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 					),
 				),
 				'first_name'         => array(
-					'description' => __( 'First name for the user.' ),
+					'description' => 'First name for the user.',
 					'type'        => 'string',
 					'context'     => array( 'edit' ),
 					'arg_options' => array(
@@ -1366,7 +1366,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 					),
 				),
 				'last_name'          => array(
-					'description' => __( 'Last name for the user.' ),
+					'description' => 'Last name for the user.',
 					'type'        => 'string',
 					'context'     => array( 'edit' ),
 					'arg_options' => array(
@@ -1374,38 +1374,38 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 					),
 				),
 				'email'              => array(
-					'description' => __( 'The email address for the user.' ),
+					'description' => 'The email address for the user.',
 					'type'        => 'string',
 					'format'      => 'email',
 					'context'     => array( 'edit' ),
 					'required'    => true,
 				),
 				'url'                => array(
-					'description' => __( 'URL of the user.' ),
+					'description' => 'URL of the user.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'embed', 'view', 'edit' ),
 				),
 				'description'        => array(
-					'description' => __( 'Description of the user.' ),
+					'description' => 'Description of the user.',
 					'type'        => 'string',
 					'context'     => array( 'embed', 'view', 'edit' ),
 				),
 				'link'               => array(
-					'description' => __( 'Author URL of the user.' ),
+					'description' => 'Author URL of the user.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'locale'             => array(
-					'description' => __( 'Locale for the user.' ),
+					'description' => 'Locale for the user.',
 					'type'        => 'string',
 					'enum'        => array_merge( array( '', 'en_US' ), get_available_languages() ),
 					'context'     => array( 'edit' ),
 				),
 				'slug'               => array(
-					'description' => __( 'An alphanumeric identifier for the user.' ),
+					'description' => 'An alphanumeric identifier for the user.',
 					'type'        => 'string',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'arg_options' => array(
@@ -1413,14 +1413,14 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 					),
 				),
 				'registered_date'    => array(
-					'description' => __( 'Registration date for the user.' ),
+					'description' => 'Registration date for the user.',
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'roles'              => array(
-					'description' => __( 'Roles assigned to the user.' ),
+					'description' => 'Roles assigned to the user.',
 					'type'        => 'array',
 					'items'       => array(
 						'type' => 'string',
@@ -1428,7 +1428,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 					'context'     => array( 'edit' ),
 				),
 				'password'           => array(
-					'description' => __( 'Password for the user (never included).' ),
+					'description' => 'Password for the user (never included).',
 					'type'        => 'string',
 					'context'     => array(), // Password is never displayed.
 					'required'    => true,
@@ -1437,13 +1437,13 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 					),
 				),
 				'capabilities'       => array(
-					'description' => __( 'All capabilities assigned to the user.' ),
+					'description' => 'All capabilities assigned to the user.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'extra_capabilities' => array(
-					'description' => __( 'Any extra capabilities assigned to the user.' ),
+					'description' => 'Any extra capabilities assigned to the user.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
@@ -1458,8 +1458,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 
 			foreach ( $avatar_sizes as $size ) {
 				$avatar_properties[ $size ] = array(
-					/* translators: %d: Avatar image size in pixels. */
-					'description' => sprintf( __( 'Avatar URL with image size of %d pixels.' ), $size ),
+					'description' => sprintf( 'Avatar URL with image size of %d pixels.', $size ),
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'embed', 'view', 'edit' ),
@@ -1467,7 +1466,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			}
 
 			$schema['properties']['avatar_urls'] = array(
-				'description' => __( 'Avatar URLs for the user.' ),
+				'description' => 'Avatar URLs for the user.',
 				'type'        => 'object',
 				'context'     => array( 'embed', 'view', 'edit' ),
 				'readonly'    => true,
@@ -1495,7 +1494,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		$query_params['context']['default'] = 'view';
 
 		$query_params['exclude'] = array(
-			'description' => __( 'Ensure result set excludes specific IDs.' ),
+			'description' => 'Ensure result set excludes specific IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1504,7 +1503,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['include'] = array(
-			'description' => __( 'Limit result set to specific IDs.' ),
+			'description' => 'Limit result set to specific IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1513,20 +1512,20 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['offset'] = array(
-			'description' => __( 'Offset the result set by a specific number of items.' ),
+			'description' => 'Offset the result set by a specific number of items.',
 			'type'        => 'integer',
 		);
 
 		$query_params['order'] = array(
 			'default'     => 'asc',
-			'description' => __( 'Order sort attribute ascending or descending.' ),
+			'description' => 'Order sort attribute ascending or descending.',
 			'enum'        => array( 'asc', 'desc' ),
 			'type'        => 'string',
 		);
 
 		$query_params['orderby'] = array(
 			'default'     => 'name',
-			'description' => __( 'Sort collection by user attribute.' ),
+			'description' => 'Sort collection by user attribute.',
 			'enum'        => array(
 				'id',
 				'include',
@@ -1541,7 +1540,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['slug'] = array(
-			'description' => __( 'Limit result set to users with one or more specific slugs.' ),
+			'description' => 'Limit result set to users with one or more specific slugs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',
@@ -1549,7 +1548,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['roles'] = array(
-			'description' => __( 'Limit result set to users matching at least one specific role provided. Accepts csv list or single role.' ),
+			'description' => 'Limit result set to users matching at least one specific role provided. Accepts csv list or single role.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',
@@ -1557,7 +1556,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['capabilities'] = array(
-			'description' => __( 'Limit result set to users matching at least one specific capability provided. Accepts csv list or single capability.' ),
+			'description' => 'Limit result set to users matching at least one specific capability provided. Accepts csv list or single capability.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',
@@ -1565,7 +1564,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['who'] = array(
-			'description' => __( 'Limit result set to users who are considered authors.' ),
+			'description' => 'Limit result set to users who are considered authors.',
 			'type'        => 'string',
 			'enum'        => array(
 				'authors',
@@ -1573,7 +1572,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['has_published_posts'] = array(
-			'description' => __( 'Limit result set to users who have published posts.' ),
+			'description' => 'Limit result set to users who have published posts.',
 			'type'        => array( 'boolean', 'array' ),
 			'items'       => array(
 				'type' => 'string',

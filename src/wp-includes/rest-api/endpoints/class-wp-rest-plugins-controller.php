@@ -52,11 +52,11 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 						'slug'   => array(
 							'type'        => 'string',
 							'required'    => true,
-							'description' => __( 'WordPress.org plugin directory slug.' ),
+							'description' => 'WordPress.org plugin directory slug.',
 							'pattern'     => '[\w\-]+',
 						),
 						'status' => array(
-							'description' => __( 'The plugin activation status.' ),
+							'description' => 'The plugin activation status.',
 							'type'        => 'string',
 							'enum'        => is_multisite() ? array( 'inactive', 'active', 'network-active' ) : array( 'inactive', 'active' ),
 							'default'     => 'inactive',
@@ -642,7 +642,7 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 		$plugins = get_plugins();
 
 		if ( ! isset( $plugins[ $plugin ] ) ) {
-			return new WP_Error( 'rest_plugin_not_found', __( 'Plugin not found.' ), array( 'status' => 404 ) );
+			return new WP_Error( 'rest_plugin_not_found', 'Plugin not found.', array( 'status' => 404 ) );
 		}
 
 		$data          = $plugins[ $plugin ];
@@ -874,86 +874,86 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'plugin'       => array(
-					'description' => __( 'The plugin file.' ),
+					'description' => 'The plugin file.',
 					'type'        => 'string',
 					'pattern'     => self::PATTERN,
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'status'       => array(
-					'description' => __( 'The plugin activation status.' ),
+					'description' => 'The plugin activation status.',
 					'type'        => 'string',
 					'enum'        => is_multisite() ? array( 'inactive', 'active', 'network-active' ) : array( 'inactive', 'active' ),
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'name'         => array(
-					'description' => __( 'The plugin name.' ),
+					'description' => 'The plugin name.',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'plugin_uri'   => array(
-					'description' => __( 'The plugin\'s website address.' ),
+					'description' => 'The plugin\'s website address.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author'       => array(
-					'description' => __( 'The plugin author.' ),
+					'description' => 'The plugin author.',
 					'type'        => 'object',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author_uri'   => array(
-					'description' => __( 'Plugin author\'s website address.' ),
+					'description' => 'Plugin author\'s website address.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'  => array(
-					'description' => __( 'The plugin description.' ),
+					'description' => 'The plugin description.',
 					'type'        => 'object',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 					'properties'  => array(
 						'raw'      => array(
-							'description' => __( 'The raw plugin description.' ),
+							'description' => 'The raw plugin description.',
 							'type'        => 'string',
 						),
 						'rendered' => array(
-							'description' => __( 'The plugin description formatted for display.' ),
+							'description' => 'The plugin description formatted for display.',
 							'type'        => 'string',
 						),
 					),
 				),
 				'version'      => array(
-					'description' => __( 'The plugin version number.' ),
+					'description' => 'The plugin version number.',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'network_only' => array(
-					'description' => __( 'Whether the plugin can only be activated network-wide.' ),
+					'description' => 'Whether the plugin can only be activated network-wide.',
 					'type'        => 'boolean',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'requires_wp'  => array(
-					'description' => __( 'Minimum required version of WordPress.' ),
+					'description' => 'Minimum required version of WordPress.',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'requires_php' => array(
-					'description' => __( 'Minimum required version of PHP.' ),
+					'description' => 'Minimum required version of PHP.',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'textdomain'   => array(
-					'description' => __( 'The plugin\'s text domain.' ),
+					'description' => 'The plugin\'s text domain.',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
@@ -977,7 +977,7 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 		$query_params['context']['default'] = 'view';
 
 		$query_params['status'] = array(
-			'description' => __( 'Limits results to plugins with the given status.' ),
+			'description' => 'Limits results to plugins with the given status.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',

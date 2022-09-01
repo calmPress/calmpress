@@ -86,7 +86,7 @@ class WP_REST_Autosaves_Controller extends WP_REST_Revisions_Controller {
 			array(
 				'args'   => array(
 					'parent' => array(
-						'description' => __( 'The ID for the parent of the autosave.' ),
+						'description' => 'The ID for the parent of the autosave.',
 						'type'        => 'integer',
 					),
 				),
@@ -112,11 +112,11 @@ class WP_REST_Autosaves_Controller extends WP_REST_Revisions_Controller {
 			array(
 				'args'   => array(
 					'parent' => array(
-						'description' => __( 'The ID for the parent of the autosave.' ),
+						'description' => 'The ID for the parent of the autosave.',
 						'type'        => 'integer',
 					),
 					'id'     => array(
-						'description' => __( 'The ID for the autosave.' ),
+						'description' => 'The ID for the autosave.',
 						'type'        => 'integer',
 					),
 				),
@@ -321,7 +321,7 @@ class WP_REST_Autosaves_Controller extends WP_REST_Revisions_Controller {
 		$schema = $this->revisions_controller->get_item_schema();
 
 		$schema['properties']['preview_link'] = array(
-			'description' => __( 'Preview link for the post.' ),
+			'description' => 'Preview link for the post.',
 			'type'        => 'string',
 			'format'      => 'uri',
 			'context'     => array( 'edit' ),

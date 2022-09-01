@@ -264,23 +264,23 @@ class WP_REST_Site_Health_Controller extends WP_REST_Controller {
 			'properties' => array(
 				'test'        => array(
 					'type'        => 'string',
-					'description' => __( 'The name of the test being run.' ),
+					'description' => 'The name of the test being run.',
 					'readonly'    => true,
 				),
 				'label'       => array(
 					'type'        => 'string',
-					'description' => __( 'A label describing the test.' ),
+					'description' => 'A label describing the test.',
 					'readonly'    => true,
 				),
 				'status'      => array(
 					'type'        => 'string',
-					'description' => __( 'The status of the test.' ),
+					'description' => 'The status of the test.',
 					'enum'        => array( 'good', 'recommended', 'critical' ),
 					'readonly'    => true,
 				),
 				'badge'       => array(
 					'type'        => 'object',
-					'description' => __( 'The category this test is grouped in.' ),
+					'description' => 'The category this test is grouped in.',
 					'properties'  => array(
 						'label' => array(
 							'type'     => 'string',
@@ -296,12 +296,12 @@ class WP_REST_Site_Health_Controller extends WP_REST_Controller {
 				),
 				'description' => array(
 					'type'        => 'string',
-					'description' => __( 'A more descriptive explanation of what the test looks for, and why it is important for the user.' ),
+					'description' => 'A more descriptive explanation of what the test looks for, and why it is important for the user.',
 					'readonly'    => true,
 				),
 				'actions'     => array(
 					'type'        => 'string',
-					'description' => __( 'HTML containing an action to direct the user to where they can resolve the issue.' ),
+					'description' => 'HTML containing an action to direct the user to where they can resolve the issue.',
 					'readonly'    => true,
 				),
 			),

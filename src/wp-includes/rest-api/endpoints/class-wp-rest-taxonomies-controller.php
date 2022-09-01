@@ -55,7 +55,7 @@ class WP_REST_Taxonomies_Controller extends WP_REST_Controller {
 			array(
 				'args'   => array(
 					'taxonomy' => array(
-						'description' => __( 'An alphanumeric identifier for the taxonomy.' ),
+						'description' => 'An alphanumeric identifier for the taxonomy.',
 						'type'        => 'string',
 					),
 				),
@@ -317,49 +317,49 @@ class WP_REST_Taxonomies_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'capabilities'   => array(
-					'description' => __( 'All capabilities used by the taxonomy.' ),
+					'description' => 'All capabilities used by the taxonomy.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'description'    => array(
-					'description' => __( 'A human-readable description of the taxonomy.' ),
+					'description' => 'A human-readable description of the taxonomy.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'hierarchical'   => array(
-					'description' => __( 'Whether or not the taxonomy should have children.' ),
+					'description' => 'Whether or not the taxonomy should have children.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'labels'         => array(
-					'description' => __( 'Human-readable labels for the taxonomy for various contexts.' ),
+					'description' => 'Human-readable labels for the taxonomy for various contexts.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'name'           => array(
-					'description' => __( 'The title for the taxonomy.' ),
+					'description' => 'The title for the taxonomy.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'slug'           => array(
-					'description' => __( 'An alphanumeric identifier for the taxonomy.' ),
+					'description' => 'An alphanumeric identifier for the taxonomy.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'show_cloud'     => array(
-					'description' => __( 'Whether or not the term cloud should be displayed.' ),
+					'description' => 'Whether or not the term cloud should be displayed.',
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'types'          => array(
-					'description' => __( 'Types associated with the taxonomy.' ),
+					'description' => 'Types associated with the taxonomy.',
 					'type'        => 'array',
 					'items'       => array(
 						'type' => 'string',
@@ -368,45 +368,45 @@ class WP_REST_Taxonomies_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 				),
 				'rest_base'      => array(
-					'description' => __( 'REST base route for the taxonomy.' ),
+					'description' => 'REST base route for the taxonomy.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'rest_namespace' => array(
-					'description' => __( 'REST namespace route for the taxonomy.' ),
+					'description' => 'REST namespace route for the taxonomy.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'visibility'     => array(
-					'description' => __( 'The visibility settings for the taxonomy.' ),
+					'description' => 'The visibility settings for the taxonomy.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 					'properties'  => array(
 						'public'             => array(
-							'description' => __( 'Whether a taxonomy is intended for use publicly either via the admin interface or by front-end users.' ),
+							'description' => 'Whether a taxonomy is intended for use publicly either via the admin interface or by front-end users.',
 							'type'        => 'boolean',
 						),
 						'publicly_queryable' => array(
-							'description' => __( 'Whether the taxonomy is publicly queryable.' ),
+							'description' => 'Whether the taxonomy is publicly queryable.',
 							'type'        => 'boolean',
 						),
 						'show_ui'            => array(
-							'description' => __( 'Whether to generate a default UI for managing this taxonomy.' ),
+							'description' => 'Whether to generate a default UI for managing this taxonomy.',
 							'type'        => 'boolean',
 						),
 						'show_admin_column'  => array(
-							'description' => __( 'Whether to allow automatic creation of taxonomy columns on associated post-types table.' ),
+							'description' => 'Whether to allow automatic creation of taxonomy columns on associated post-types table.',
 							'type'        => 'boolean',
 						),
 						'show_in_nav_menus'  => array(
-							'description' => __( 'Whether to make the taxonomy available for selection in navigation menus.' ),
+							'description' => 'Whether to make the taxonomy available for selection in navigation menus.',
 							'type'        => 'boolean',
 						),
 						'show_in_quick_edit' => array(
-							'description' => __( 'Whether to show the taxonomy in the quick/bulk edit panel.' ),
+							'description' => 'Whether to show the taxonomy in the quick/bulk edit panel.',
 							'type'        => 'boolean',
 						),
 
@@ -431,7 +431,7 @@ class WP_REST_Taxonomies_Controller extends WP_REST_Controller {
 		$new_params            = array();
 		$new_params['context'] = $this->get_context_param( array( 'default' => 'view' ) );
 		$new_params['type']    = array(
-			'description' => __( 'Limit results to taxonomies associated with a specific post type.' ),
+			'description' => 'Limit results to taxonomies associated with a specific post type.',
 			'type'        => 'string',
 		);
 		return $new_params;

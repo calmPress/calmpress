@@ -717,17 +717,17 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['title'] = array(
-			'description' => __( 'The title for the object.' ),
+			'description' => 'The title for the object.',
 			'type'        => array( 'string', 'object' ),
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'properties'  => array(
 				'raw'      => array(
-					'description' => __( 'Title for the object, as it exists in the database.' ),
+					'description' => 'Title for the object, as it exists in the database.',
 					'type'        => 'string',
 					'context'     => array( 'edit' ),
 				),
 				'rendered' => array(
-					'description' => __( 'HTML title for the object, transformed for display.' ),
+					'description' => 'HTML title for the object, transformed for display.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
@@ -736,7 +736,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['id'] = array(
-			'description' => __( 'Unique identifier for the object.' ),
+			'description' => 'Unique identifier for the object.',
 			'type'        => 'integer',
 			'default'     => 0,
 			'minimum'     => 0,
@@ -745,14 +745,14 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['type_label'] = array(
-			'description' => __( 'Name of type.' ),
+			'description' => 'Name of type.',
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'readonly'    => true,
 		);
 
 		$schema['properties']['type'] = array(
-			'description' => __( 'The family of objects originally represented, such as "post_type" or "taxonomy".' ),
+			'description' => 'The family of objects originally represented, such as "post_type" or "taxonomy".',
 			'type'        => 'string',
 			'enum'        => array( 'taxonomy', 'post_type', 'post_type_archive', 'custom' ),
 			'context'     => array( 'view', 'edit', 'embed' ),
@@ -760,7 +760,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['status'] = array(
-			'description' => __( 'A named status for the object.' ),
+			'description' => 'A named status for the object.',
 			'type'        => 'string',
 			'enum'        => array_keys( get_post_stati( array( 'internal' => false ) ) ),
 			'default'     => 'publish',
@@ -768,7 +768,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['parent'] = array(
-			'description' => __( 'The ID for the parent of the object.' ),
+			'description' => 'The ID for the parent of the object.',
 			'type'        => 'integer',
 			'minimum'     => 0,
 			'default'     => 0,
@@ -776,7 +776,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['attr_title'] = array(
-			'description' => __( 'Text for the title attribute of the link element for this menu item.' ),
+			'description' => 'Text for the title attribute of the link element for this menu item.',
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
@@ -785,7 +785,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['classes'] = array(
-			'description' => __( 'Class names for the link element of this menu item.' ),
+			'description' => 'Class names for the link element of this menu item.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',
@@ -799,7 +799,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['description'] = array(
-			'description' => __( 'The description of this menu item.' ),
+			'description' => 'The description of this menu item.',
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
@@ -808,7 +808,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['menu_order'] = array(
-			'description' => __( 'The DB ID of the nav_menu_item that is this item\'s menu parent, if any, otherwise 0.' ),
+			'description' => 'The DB ID of the nav_menu_item that is this item\'s menu parent, if any, otherwise 0.',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'type'        => 'integer',
 			'minimum'     => 1,
@@ -816,7 +816,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['object'] = array(
-			'description' => __( 'The type of object originally represented, such as "category", "post", or "attachment".' ),
+			'description' => 'The type of object originally represented, such as "category", "post", or "attachment".',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'type'        => 'string',
 			'arg_options' => array(
@@ -825,7 +825,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['object_id'] = array(
-			'description' => __( 'The database ID of the original object this menu item represents, for example the ID for posts or the term_id for categories.' ),
+			'description' => 'The database ID of the original object this menu item represents, for example the ID for posts or the term_id for categories.',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'type'        => 'integer',
 			'minimum'     => 0,
@@ -833,7 +833,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['target'] = array(
-			'description' => __( 'The target attribute of the link element for this menu item.' ),
+			'description' => 'The target attribute of the link element for this menu item.',
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'enum'        => array(
@@ -843,14 +843,14 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['type_label'] = array(
-			'description' => __( 'The singular label used to describe this type of menu item.' ),
+			'description' => 'The singular label used to describe this type of menu item.',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'type'        => 'string',
 			'readonly'    => true,
 		);
 
 		$schema['properties']['url'] = array(
-			'description' => __( 'The URL to which this menu item points.' ),
+			'description' => 'The URL to which this menu item points.',
 			'type'        => 'string',
 			'format'      => 'uri',
 			'context'     => array( 'view', 'edit', 'embed' ),
@@ -873,7 +873,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['xfn'] = array(
-			'description' => __( 'The XFN relationship expressed in the link of this menu item.' ),
+			'description' => 'The XFN relationship expressed in the link of this menu item.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',
@@ -887,7 +887,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['invalid'] = array(
-			'description' => __( 'Whether the menu item represents an object that no longer exists.' ),
+			'description' => 'Whether the menu item represents an object that no longer exists.',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'type'        => 'boolean',
 			'readonly'    => true,
@@ -935,19 +935,19 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		$query_params = parent::get_collection_params();
 
 		$query_params['menu_order'] = array(
-			'description' => __( 'Limit result set to posts with a specific menu_order value.' ),
+			'description' => 'Limit result set to posts with a specific menu_order value.',
 			'type'        => 'integer',
 		);
 
 		$query_params['order'] = array(
-			'description' => __( 'Order sort attribute ascending or descending.' ),
+			'description' => 'Order sort attribute ascending or descending.',
 			'type'        => 'string',
 			'default'     => 'asc',
 			'enum'        => array( 'asc', 'desc' ),
 		);
 
 		$query_params['orderby'] = array(
-			'description' => __( 'Sort collection by object attribute.' ),
+			'description' => 'Sort collection by object attribute.',
 			'type'        => 'string',
 			'default'     => 'menu_order',
 			'enum'        => array(

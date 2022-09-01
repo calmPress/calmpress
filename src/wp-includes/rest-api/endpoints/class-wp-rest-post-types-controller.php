@@ -55,7 +55,7 @@ class WP_REST_Post_Types_Controller extends WP_REST_Controller {
 			array(
 				'args'   => array(
 					'type' => array(
-						'description' => __( 'An alphanumeric identifier for the post type.' ),
+						'description' => 'An alphanumeric identifier for the post type.',
 						'type'        => 'string',
 					),
 				),
@@ -289,55 +289,55 @@ class WP_REST_Post_Types_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'capabilities'   => array(
-					'description' => __( 'All capabilities used by the post type.' ),
+					'description' => 'All capabilities used by the post type.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'description'    => array(
-					'description' => __( 'A human-readable description of the post type.' ),
+					'description' => 'A human-readable description of the post type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'hierarchical'   => array(
-					'description' => __( 'Whether or not the post type should have children.' ),
+					'description' => 'Whether or not the post type should have children.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'viewable'       => array(
-					'description' => __( 'Whether or not the post type can be viewed.' ),
+					'description' => 'Whether or not the post type can be viewed.',
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'labels'         => array(
-					'description' => __( 'Human-readable labels for the post type for various contexts.' ),
+					'description' => 'Human-readable labels for the post type for various contexts.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'name'           => array(
-					'description' => __( 'The title for the post type.' ),
+					'description' => 'The title for the post type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'slug'           => array(
-					'description' => __( 'An alphanumeric identifier for the post type.' ),
+					'description' => 'An alphanumeric identifier for the post type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'supports'       => array(
-					'description' => __( 'All features, supported by the post type.' ),
+					'description' => 'All features, supported by the post type.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'taxonomies'     => array(
-					'description' => __( 'Taxonomies associated with post type.' ),
+					'description' => 'Taxonomies associated with post type.',
 					'type'        => 'array',
 					'items'       => array(
 						'type' => 'string',
@@ -346,29 +346,29 @@ class WP_REST_Post_Types_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 				),
 				'rest_base'      => array(
-					'description' => __( 'REST base route for the post type.' ),
+					'description' => 'REST base route for the post type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'rest_namespace' => array(
-					'description' => __( 'REST route\'s namespace for the post type.' ),
+					'description' => 'REST route\'s namespace for the post type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'visibility'     => array(
-					'description' => __( 'The visibility settings for the post type.' ),
+					'description' => 'The visibility settings for the post type.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 					'properties'  => array(
 						'show_ui'           => array(
-							'description' => __( 'Whether to generate a default UI for managing this post type.' ),
+							'description' => 'Whether to generate a default UI for managing this post type.',
 							'type'        => 'boolean',
 						),
 						'show_in_nav_menus' => array(
-							'description' => __( 'Whether to make the post type is available for selection in navigation menus.' ),
+							'description' => 'Whether to make the post type is available for selection in navigation menus.',
 							'type'        => 'boolean',
 						),
 					),

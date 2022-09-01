@@ -55,7 +55,7 @@ class WP_REST_Post_Statuses_Controller extends WP_REST_Controller {
 			array(
 				'args'   => array(
 					'status' => array(
-						'description' => __( 'An alphanumeric identifier for the status.' ),
+						'description' => 'An alphanumeric identifier for the status.',
 						'type'        => 'string',
 					),
 				),
@@ -302,49 +302,49 @@ class WP_REST_Post_Statuses_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'name'          => array(
-					'description' => __( 'The title for the status.' ),
+					'description' => 'The title for the status.',
 					'type'        => 'string',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'private'       => array(
-					'description' => __( 'Whether posts with this status should be private.' ),
+					'description' => 'Whether posts with this status should be private.',
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'protected'     => array(
-					'description' => __( 'Whether posts with this status should be protected.' ),
+					'description' => 'Whether posts with this status should be protected.',
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'public'        => array(
-					'description' => __( 'Whether posts of this status should be shown in the front end of the site.' ),
+					'description' => 'Whether posts of this status should be shown in the front end of the site.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'queryable'     => array(
-					'description' => __( 'Whether posts with this status should be publicly-queryable.' ),
+					'description' => 'Whether posts with this status should be publicly-queryable.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'show_in_list'  => array(
-					'description' => __( 'Whether to include posts in the edit listing for their post type.' ),
+					'description' => 'Whether to include posts in the edit listing for their post type.',
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'slug'          => array(
-					'description' => __( 'An alphanumeric identifier for the status.' ),
+					'description' => 'An alphanumeric identifier for the status.',
 					'type'        => 'string',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_floating' => array(
-					'description' => __( 'Whether posts of this status may have floating published dates.' ),
+					'description' => 'Whether posts of this status may have floating published dates.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,

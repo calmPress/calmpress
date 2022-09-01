@@ -420,146 +420,146 @@ class WP_REST_Themes_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'stylesheet'     => array(
-					'description' => __( 'The theme\'s stylesheet. This uniquely identifies the theme.' ),
+					'description' => 'The theme\'s stylesheet. This uniquely identifies the theme.',
 					'type'        => 'string',
 					'readonly'    => true,
 				),
 				'template'       => array(
-					'description' => __( 'The theme\'s template. If this is a child theme, this refers to the parent theme, otherwise this is the same as the theme\'s stylesheet.' ),
+					'description' => 'The theme\'s template. If this is a child theme, this refers to the parent theme, otherwise this is the same as the theme\'s stylesheet.',
 					'type'        => 'string',
 					'readonly'    => true,
 				),
 				'author'         => array(
-					'description' => __( 'The theme author.' ),
+					'description' => 'The theme author.',
 					'type'        => 'object',
 					'readonly'    => true,
 					'properties'  => array(
 						'raw'      => array(
-							'description' => __( 'The theme author\'s name, as found in the theme header.' ),
+							'description' => 'The theme author\'s name, as found in the theme header.',
 							'type'        => 'string',
 						),
 						'rendered' => array(
-							'description' => __( 'HTML for the theme author, transformed for display.' ),
+							'description' => 'HTML for the theme author, transformed for display.',
 							'type'        => 'string',
 						),
 					),
 				),
 				'author_uri'     => array(
-					'description' => __( 'The website of the theme author.' ),
+					'description' => 'The website of the theme author.',
 					'type'        => 'object',
 					'readonly'    => true,
 					'properties'  => array(
 						'raw'      => array(
-							'description' => __( 'The website of the theme author, as found in the theme header.' ),
+							'description' => 'The website of the theme author, as found in the theme header.',
 							'type'        => 'string',
 							'format'      => 'uri',
 						),
 						'rendered' => array(
-							'description' => __( 'The website of the theme author, transformed for display.' ),
+							'description' => 'The website of the theme author, transformed for display.',
 							'type'        => 'string',
 							'format'      => 'uri',
 						),
 					),
 				),
 				'description'    => array(
-					'description' => __( 'A description of the theme.' ),
+					'description' => 'A description of the theme.',
 					'type'        => 'object',
 					'readonly'    => true,
 					'properties'  => array(
 						'raw'      => array(
-							'description' => __( 'The theme description, as found in the theme header.' ),
+							'description' => 'The theme description, as found in the theme header.',
 							'type'        => 'string',
 						),
 						'rendered' => array(
-							'description' => __( 'The theme description, transformed for display.' ),
+							'description' => 'The theme description, transformed for display.',
 							'type'        => 'string',
 						),
 					),
 				),
 				'name'           => array(
-					'description' => __( 'The name of the theme.' ),
+					'description' => 'The name of the theme.',
 					'type'        => 'object',
 					'readonly'    => true,
 					'properties'  => array(
 						'raw'      => array(
-							'description' => __( 'The theme name, as found in the theme header.' ),
+							'description' => 'The theme name, as found in the theme header.',
 							'type'        => 'string',
 						),
 						'rendered' => array(
-							'description' => __( 'The theme name, transformed for display.' ),
+							'description' => 'The theme name, transformed for display.',
 							'type'        => 'string',
 						),
 					),
 				),
 				'requires_php'   => array(
-					'description' => __( 'The minimum PHP version required for the theme to work.' ),
+					'description' => 'The minimum PHP version required for the theme to work.',
 					'type'        => 'string',
 					'readonly'    => true,
 				),
 				'requires_wp'    => array(
-					'description' => __( 'The minimum WordPress version required for the theme to work.' ),
+					'description' => 'The minimum WordPress version required for the theme to work.',
 					'type'        => 'string',
 					'readonly'    => true,
 				),
 				'screenshot'     => array(
-					'description' => __( 'The theme\'s screenshot URL.' ),
+					'description' => 'The theme\'s screenshot URL.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'readonly'    => true,
 				),
 				'tags'           => array(
-					'description' => __( 'Tags indicating styles and features of the theme.' ),
+					'description' => 'Tags indicating styles and features of the theme.',
 					'type'        => 'object',
 					'readonly'    => true,
 					'properties'  => array(
 						'raw'      => array(
-							'description' => __( 'The theme tags, as found in the theme header.' ),
+							'description' => 'The theme tags, as found in the theme header.',
 							'type'        => 'array',
 							'items'       => array(
 								'type' => 'string',
 							),
 						),
 						'rendered' => array(
-							'description' => __( 'The theme tags, transformed for display.' ),
+							'description' => 'The theme tags, transformed for display.',
 							'type'        => 'string',
 						),
 					),
 				),
 				'textdomain'     => array(
-					'description' => __( 'The theme\'s text domain.' ),
+					'description' => 'The theme\'s text domain.',
 					'type'        => 'string',
 					'readonly'    => true,
 				),
 				'theme_supports' => array(
-					'description' => __( 'Features supported by this theme.' ),
+					'description' => 'Features supported by this theme.',
 					'type'        => 'object',
 					'readonly'    => true,
 					'properties'  => array(),
 				),
 				'theme_uri'      => array(
-					'description' => __( 'The URI of the theme\'s webpage.' ),
+					'description' => 'The URI of the theme\'s webpage.',
 					'type'        => 'object',
 					'readonly'    => true,
 					'properties'  => array(
 						'raw'      => array(
-							'description' => __( 'The URI of the theme\'s webpage, as found in the theme header.' ),
+							'description' => 'The URI of the theme\'s webpage, as found in the theme header.',
 							'type'        => 'string',
 							'format'      => 'uri',
 						),
 						'rendered' => array(
-							'description' => __( 'The URI of the theme\'s webpage, transformed for display.' ),
+							'description' => 'The URI of the theme\'s webpage, transformed for display.',
 							'type'        => 'string',
 							'format'      => 'uri',
 						),
 					),
 				),
 				'version'        => array(
-					'description' => __( 'The theme\'s current version.' ),
+					'description' => 'The theme\'s current version.',
 					'type'        => 'string',
 					'readonly'    => true,
 				),
 				'status'         => array(
-					'description' => __( 'A named status for the theme.' ),
+					'description' => 'A named status for the theme.',
 					'type'        => 'string',
 					'enum'        => array( 'inactive', 'active' ),
 				),
@@ -591,7 +591,7 @@ class WP_REST_Themes_Controller extends WP_REST_Controller {
 	public function get_collection_params() {
 		$query_params = array(
 			'status' => array(
-				'description' => __( 'Limit result set to themes assigned one or more statuses.' ),
+				'description' => 'Limit result set to themes assigned one or more statuses.',
 				'type'        => 'array',
 				'items'       => array(
 					'enum' => array( 'active', 'inactive' ),

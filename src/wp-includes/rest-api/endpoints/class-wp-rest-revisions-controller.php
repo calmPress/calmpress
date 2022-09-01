@@ -75,7 +75,7 @@ class WP_REST_Revisions_Controller extends WP_REST_Controller {
 			array(
 				'args'   => array(
 					'parent' => array(
-						'description' => __( 'The ID for the parent of the revision.' ),
+						'description' => 'The ID for the parent of the revision.',
 						'type'        => 'integer',
 					),
 				),
@@ -95,11 +95,11 @@ class WP_REST_Revisions_Controller extends WP_REST_Controller {
 			array(
 				'args'   => array(
 					'parent' => array(
-						'description' => __( 'The ID for the parent of the revision.' ),
+						'description' => 'The ID for the parent of the revision.',
 						'type'        => 'integer',
 					),
 					'id'     => array(
-						'description' => __( 'Unique identifier for the revision.' ),
+						'description' => 'Unique identifier for the revision.',
 						'type'        => 'integer',
 					),
 				),
@@ -119,7 +119,7 @@ class WP_REST_Revisions_Controller extends WP_REST_Controller {
 						'force' => array(
 							'type'        => 'boolean',
 							'default'     => false,
-							'description' => __( 'Required to be true, as revisions do not support trashing.' ),
+							'description' => 'Required to be true, as revisions do not support trashing.',
 						),
 					),
 				),
@@ -677,51 +677,51 @@ class WP_REST_Revisions_Controller extends WP_REST_Controller {
 			// Base properties for every Revision.
 			'properties' => array(
 				'author'       => array(
-					'description' => __( 'The ID for the author of the revision.' ),
+					'description' => 'The ID for the author of the revision.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'date'         => array(
-					'description' => __( "The date the revision was published, in the site's timezone." ),
+					'description' => "The date the revision was published, in the site's timezone.",
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'date_gmt'     => array(
-					'description' => __( 'The date the revision was published, as GMT.' ),
+					'description' => 'The date the revision was published, as GMT.',
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'guid'         => array(
-					'description' => __( 'GUID for the revision, as it exists in the database.' ),
+					'description' => 'GUID for the revision, as it exists in the database.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'id'           => array(
-					'description' => __( 'Unique identifier for the revision.' ),
+					'description' => 'Unique identifier for the revision.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'modified'     => array(
-					'description' => __( "The date the revision was last modified, in the site's timezone." ),
+					'description' => "The date the revision was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'modified_gmt' => array(
-					'description' => __( 'The date the revision was last modified, as GMT.' ),
+					'description' => 'The date the revision was last modified, as GMT.',
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent'       => array(
-					'description' => __( 'The ID for the parent of the revision.' ),
+					'description' => 'The ID for the parent of the revision.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'slug'         => array(
-					'description' => __( 'An alphanumeric identifier for the revision unique to its type.' ),
+					'description' => 'An alphanumeric identifier for the revision unique to its type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
@@ -766,7 +766,7 @@ class WP_REST_Revisions_Controller extends WP_REST_Controller {
 		unset( $query_params['per_page']['default'] );
 
 		$query_params['exclude'] = array(
-			'description' => __( 'Ensure result set excludes specific IDs.' ),
+			'description' => 'Ensure result set excludes specific IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -775,7 +775,7 @@ class WP_REST_Revisions_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['include'] = array(
-			'description' => __( 'Limit result set to specific IDs.' ),
+			'description' => 'Limit result set to specific IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -784,19 +784,19 @@ class WP_REST_Revisions_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['offset'] = array(
-			'description' => __( 'Offset the result set by a specific number of items.' ),
+			'description' => 'Offset the result set by a specific number of items.',
 			'type'        => 'integer',
 		);
 
 		$query_params['order'] = array(
-			'description' => __( 'Order sort attribute ascending or descending.' ),
+			'description' => 'Order sort attribute ascending or descending.',
 			'type'        => 'string',
 			'default'     => 'desc',
 			'enum'        => array( 'asc', 'desc' ),
 		);
 
 		$query_params['orderby'] = array(
-			'description' => __( 'Sort collection by object attribute.' ),
+			'description' => 'Sort collection by object attribute.',
 			'type'        => 'string',
 			'default'     => 'date',
 			'enum'        => array(

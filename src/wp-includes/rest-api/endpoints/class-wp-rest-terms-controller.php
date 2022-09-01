@@ -108,7 +108,7 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 			array(
 				'args'        => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the term.' ),
+						'description' => 'Unique identifier for the term.',
 						'type'        => 'integer',
 					),
 				),
@@ -134,7 +134,7 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 						'force' => array(
 							'type'        => 'boolean',
 							'default'     => false,
-							'description' => __( 'Required to be true, as terms do not support trashing.' ),
+							'description' => 'Required to be true, as terms do not support trashing.',
 						),
 					),
 				),
@@ -960,31 +960,31 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'id'          => array(
-					'description' => __( 'Unique identifier for the term.' ),
+					'description' => 'Unique identifier for the term.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'embed', 'edit' ),
 					'readonly'    => true,
 				),
 				'count'       => array(
-					'description' => __( 'Number of published posts for the term.' ),
+					'description' => 'Number of published posts for the term.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'description' => array(
-					'description' => __( 'HTML description of the term.' ),
+					'description' => 'HTML description of the term.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'link'        => array(
-					'description' => __( 'URL of the term.' ),
+					'description' => 'URL of the term.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'embed', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'        => array(
-					'description' => __( 'HTML title for the term.' ),
+					'description' => 'HTML title for the term.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'embed', 'edit' ),
 					'arg_options' => array(
@@ -993,7 +993,7 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 					'required'    => true,
 				),
 				'slug'        => array(
-					'description' => __( 'An alphanumeric identifier for the term unique to its type.' ),
+					'description' => 'An alphanumeric identifier for the term unique to its type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'embed', 'edit' ),
 					'arg_options' => array(
@@ -1001,7 +1001,7 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 					),
 				),
 				'taxonomy'    => array(
-					'description' => __( 'Type attribution for the term.' ),
+					'description' => 'Type attribution for the term.',
 					'type'        => 'string',
 					'enum'        => array( $this->taxonomy ),
 					'context'     => array( 'view', 'embed', 'edit' ),
@@ -1014,7 +1014,7 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 
 		if ( $taxonomy->hierarchical ) {
 			$schema['properties']['parent'] = array(
-				'description' => __( 'The parent term ID.' ),
+				'description' => 'The parent term ID.',
 				'type'        => 'integer',
 				'context'     => array( 'view', 'edit' ),
 			);
@@ -1041,7 +1041,7 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 		$query_params['context']['default'] = 'view';
 
 		$query_params['exclude'] = array(
-			'description' => __( 'Ensure result set excludes specific IDs.' ),
+			'description' => 'Ensure result set excludes specific IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1050,7 +1050,7 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['include'] = array(
-			'description' => __( 'Limit result set to specific IDs.' ),
+			'description' => 'Limit result set to specific IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1060,13 +1060,13 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 
 		if ( ! $taxonomy->hierarchical ) {
 			$query_params['offset'] = array(
-				'description' => __( 'Offset the result set by a specific number of items.' ),
+				'description' => 'Offset the result set by a specific number of items.',
 				'type'        => 'integer',
 			);
 		}
 
 		$query_params['order'] = array(
-			'description' => __( 'Order sort attribute ascending or descending.' ),
+			'description' => 'Order sort attribute ascending or descending.',
 			'type'        => 'string',
 			'default'     => 'asc',
 			'enum'        => array(
@@ -1076,7 +1076,7 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['orderby'] = array(
-			'description' => __( 'Sort collection by term attribute.' ),
+			'description' => 'Sort collection by term attribute.',
 			'type'        => 'string',
 			'default'     => 'name',
 			'enum'        => array(
@@ -1092,26 +1092,26 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['hide_empty'] = array(
-			'description' => __( 'Whether to hide terms not assigned to any posts.' ),
+			'description' => 'Whether to hide terms not assigned to any posts.',
 			'type'        => 'boolean',
 			'default'     => false,
 		);
 
 		if ( $taxonomy->hierarchical ) {
 			$query_params['parent'] = array(
-				'description' => __( 'Limit result set to terms assigned to a specific parent.' ),
+				'description' => 'Limit result set to terms assigned to a specific parent.',
 				'type'        => 'integer',
 			);
 		}
 
 		$query_params['post'] = array(
-			'description' => __( 'Limit result set to terms assigned to a specific post.' ),
+			'description' => 'Limit result set to terms assigned to a specific post.',
 			'type'        => 'integer',
 			'default'     => null,
 		);
 
 		$query_params['slug'] = array(
-			'description' => __( 'Limit result set to terms with one or more specific slugs.' ),
+			'description' => 'Limit result set to terms with one or more specific slugs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',

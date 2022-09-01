@@ -54,7 +54,7 @@ class WP_REST_Menu_Locations_Controller extends WP_REST_Controller {
 			array(
 				'args'   => array(
 					'location' => array(
-						'description' => __( 'An alphanumeric identifier for the menu location.' ),
+						'description' => 'An alphanumeric identifier for the menu location.',
 						'type'        => 'string',
 					),
 				),
@@ -225,19 +225,19 @@ class WP_REST_Menu_Locations_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'name'        => array(
-					'description' => __( 'The name of the menu location.' ),
+					'description' => 'The name of the menu location.',
 					'type'        => 'string',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'description' => array(
-					'description' => __( 'The description of the menu location.' ),
+					'description' => 'The description of the menu location.',
 					'type'        => 'string',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'menu'        => array(
-					'description' => __( 'The ID of the assigned menu.' ),
+					'description' => 'The ID of the assigned menu.',
 					'type'        => 'integer',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,

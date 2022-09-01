@@ -54,7 +54,7 @@ class WP_REST_Widget_Types_Controller extends WP_REST_Controller {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'The widget type id.' ),
+						'description' => 'The widget type id.',
 						'type'        => 'string',
 					),
 				),
@@ -74,16 +74,16 @@ class WP_REST_Widget_Types_Controller extends WP_REST_Controller {
 			array(
 				'args' => array(
 					'id'        => array(
-						'description' => __( 'The widget type id.' ),
+						'description' => 'The widget type id.',
 						'type'        => 'string',
 						'required'    => true,
 					),
 					'instance'  => array(
-						'description' => __( 'Current instance settings of the widget.' ),
+						'description' => 'Current instance settings of the widget.',
 						'type'        => 'object',
 					),
 					'form_data' => array(
-						'description'       => __( 'Serialized widget form data to encode into instance settings.' ),
+						'description'       => 'Serialized widget form data to encode into instance settings.',
 						'type'              => 'string',
 						'sanitize_callback' => static function( $string ) {
 							$array = array();
@@ -110,12 +110,12 @@ class WP_REST_Widget_Types_Controller extends WP_REST_Controller {
 					'callback'            => array( $this, 'render' ),
 					'args'                => array(
 						'id'       => array(
-							'description' => __( 'The widget type id.' ),
+							'description' => 'The widget type id.',
 							'type'        => 'string',
 							'required'    => true,
 						),
 						'instance' => array(
-							'description' => __( 'Current instance settings of the widget.' ),
+							'description' => 'Current instance settings of the widget.',
 							'type'        => 'object',
 						),
 					),
@@ -386,32 +386,32 @@ class WP_REST_Widget_Types_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'id'          => array(
-					'description' => __( 'Unique slug identifying the widget type.' ),
+					'description' => 'Unique slug identifying the widget type.',
 					'type'        => 'string',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'        => array(
-					'description' => __( 'Human-readable name identifying the widget type.' ),
+					'description' => 'Human-readable name identifying the widget type.',
 					'type'        => 'string',
 					'default'     => '',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'description' => array(
-					'description' => __( 'Description of the widget.' ),
+					'description' => 'Description of the widget.',
 					'type'        => 'string',
 					'default'     => '',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'is_multi'    => array(
-					'description' => __( 'Whether the widget supports multiple instances' ),
+					'description' => 'Whether the widget supports multiple instances',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'classname'   => array(
-					'description' => __( 'Class name' ),
+					'description' => 'Class name',
 					'type'        => 'string',
 					'default'     => '',
 					'context'     => array( 'embed', 'view', 'edit' ),

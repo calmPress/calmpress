@@ -247,33 +247,33 @@ class WP_REST_Search_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				self::PROP_ID      => array(
-					'description' => __( 'Unique identifier for the object.' ),
+					'description' => 'Unique identifier for the object.',
 					'type'        => array( 'integer', 'string' ),
 					'context'     => array( 'view', 'embed' ),
 					'readonly'    => true,
 				),
 				self::PROP_TITLE   => array(
-					'description' => __( 'The title for the object.' ),
+					'description' => 'The title for the object.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'embed' ),
 					'readonly'    => true,
 				),
 				self::PROP_URL     => array(
-					'description' => __( 'URL to the object.' ),
+					'description' => 'URL to the object.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'embed' ),
 					'readonly'    => true,
 				),
 				self::PROP_TYPE    => array(
-					'description' => __( 'Object type.' ),
+					'description' => 'Object type.',
 					'type'        => 'string',
 					'enum'        => $types,
 					'context'     => array( 'view', 'embed' ),
 					'readonly'    => true,
 				),
 				self::PROP_SUBTYPE => array(
-					'description' => __( 'Object subtype.' ),
+					'description' => 'Object subtype.',
 					'type'        => 'string',
 					'enum'        => $subtypes,
 					'context'     => array( 'view', 'embed' ),
@@ -312,14 +312,14 @@ class WP_REST_Search_Controller extends WP_REST_Controller {
 
 		$query_params[ self::PROP_TYPE ] = array(
 			'default'     => $types[0],
-			'description' => __( 'Limit results to items of an object type.' ),
+			'description' => 'Limit results to items of an object type.',
 			'type'        => 'string',
 			'enum'        => $types,
 		);
 
 		$query_params[ self::PROP_SUBTYPE ] = array(
 			'default'           => self::TYPE_ANY,
-			'description'       => __( 'Limit results to items of one or more object subtypes.' ),
+			'description'       => 'Limit results to items of one or more object subtypes.',
 			'type'              => 'array',
 			'items'             => array(
 				'enum' => array_merge( $subtypes, array( self::TYPE_ANY ) ),

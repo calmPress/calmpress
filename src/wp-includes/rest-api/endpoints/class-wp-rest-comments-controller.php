@@ -71,7 +71,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the comment.' ),
+						'description' => 'Unique identifier for the comment.',
 						'type'        => 'integer',
 					),
 				),
@@ -82,7 +82,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 					'args'                => array(
 						'context'  => $this->get_context_param( array( 'default' => 'view' ) ),
 						'password' => array(
-							'description' => __( 'The password for the parent post of the comment (if the post is password protected).' ),
+							'description' => 'The password for the parent post of the comment (if the post is password protected).',
 							'type'        => 'string',
 						),
 					),
@@ -101,10 +101,10 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 						'force'    => array(
 							'type'        => 'boolean',
 							'default'     => false,
-							'description' => __( 'Whether to bypass Trash and force deletion.' ),
+							'description' => 'Whether to bypass Trash and force deletion.',
 						),
 						'password' => array(
-							'description' => __( 'The password for the parent post of the comment (if the post is password protected).' ),
+							'description' => 'The password for the parent post of the comment (if the post is password protected).',
 							'type'        => 'string',
 						),
 					),
@@ -1383,18 +1383,18 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                => array(
-					'description' => __( 'Unique identifier for the comment.' ),
+					'description' => 'Unique identifier for the comment.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'author'            => array(
-					'description' => __( 'The ID of the user object, if author was a user.' ),
+					'description' => 'The ID of the user object, if author was a user.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'author_email'      => array(
-					'description' => __( 'Email address for the comment author.' ),
+					'description' => 'Email address for the comment author.',
 					'type'        => 'string',
 					'format'      => 'email',
 					'context'     => array( 'edit' ),
@@ -1404,13 +1404,13 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 					),
 				),
 				'author_ip'         => array(
-					'description' => __( 'IP address for the comment author.' ),
+					'description' => 'IP address for the comment author.',
 					'type'        => 'string',
 					'format'      => 'ip',
 					'context'     => array( 'edit' ),
 				),
 				'author_name'       => array(
-					'description' => __( 'Display name for the comment author.' ),
+					'description' => 'Display name for the comment author.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'arg_options' => array(
@@ -1418,13 +1418,13 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 					),
 				),
 				'author_url'        => array(
-					'description' => __( 'URL for the comment author.' ),
+					'description' => 'URL for the comment author.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'author_user_agent' => array(
-					'description' => __( 'User agent for the comment author.' ),
+					'description' => 'User agent for the comment author.',
 					'type'        => 'string',
 					'context'     => array( 'edit' ),
 					'arg_options' => array(
@@ -1432,7 +1432,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 					),
 				),
 				'content'           => array(
-					'description' => __( 'The content for the comment.' ),
+					'description' => 'The content for the comment.',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'arg_options' => array(
@@ -1441,12 +1441,12 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 					),
 					'properties'  => array(
 						'raw'      => array(
-							'description' => __( 'Content for the comment, as it exists in the database.' ),
+							'description' => 'Content for the comment, as it exists in the database.',
 							'type'        => 'string',
 							'context'     => array( 'edit' ),
 						),
 						'rendered' => array(
-							'description' => __( 'HTML content for the comment, transformed for display.' ),
+							'description' => 'HTML content for the comment, transformed for display.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit', 'embed' ),
 							'readonly'    => true,
@@ -1454,38 +1454,38 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 					),
 				),
 				'date'              => array(
-					'description' => __( "The date the comment was published, in the site's timezone." ),
+					'description' => "The date the comment was published, in the site's timezone.",
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'date_gmt'          => array(
-					'description' => __( 'The date the comment was published, as GMT.' ),
+					'description' => 'The date the comment was published, as GMT.',
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'link'              => array(
-					'description' => __( 'URL to the comment.' ),
+					'description' => 'URL to the comment.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'parent'            => array(
-					'description' => __( 'The ID for the parent of the comment.' ),
+					'description' => 'The ID for the parent of the comment.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'default'     => 0,
 				),
 				'post'              => array(
-					'description' => __( 'The ID of the associated post object.' ),
+					'description' => 'The ID of the associated post object.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'default'     => 0,
 				),
 				'status'            => array(
-					'description' => __( 'State of the comment.' ),
+					'description' => 'State of the comment.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'arg_options' => array(
@@ -1493,7 +1493,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 					),
 				),
 				'type'              => array(
-					'description' => __( 'Type of the comment.' ),
+					'description' => 'Type of the comment.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
@@ -1509,7 +1509,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			foreach ( $avatar_sizes as $size ) {
 				$avatar_properties[ $size ] = array(
 					/* translators: %d: Avatar image size in pixels. */
-					'description' => sprintf( __( 'Avatar URL with image size of %d pixels.' ), $size ),
+					'description' => sprintf( 'Avatar URL with image size of %d pixels.', $size ),
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'embed', 'view', 'edit' ),
@@ -1517,7 +1517,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			}
 
 			$schema['properties']['author_avatar_urls'] = array(
-				'description' => __( 'Avatar URLs for the comment author.' ),
+				'description' => 'Avatar URLs for the comment author.',
 				'type'        => 'object',
 				'context'     => array( 'view', 'edit', 'embed' ),
 				'readonly'    => true,
@@ -1545,13 +1545,13 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		$query_params['context']['default'] = 'view';
 
 		$query_params['after'] = array(
-			'description' => __( 'Limit response to comments published after a given ISO8601 compliant date.' ),
+			'description' => 'Limit response to comments published after a given ISO8601 compliant date.',
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$query_params['author'] = array(
-			'description' => __( 'Limit result set to comments assigned to specific user IDs. Requires authorization.' ),
+			'description' => 'Limit result set to comments assigned to specific user IDs. Requires authorization.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1559,7 +1559,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['author_exclude'] = array(
-			'description' => __( 'Ensure result set excludes comments assigned to specific user IDs. Requires authorization.' ),
+			'description' => 'Ensure result set excludes comments assigned to specific user IDs. Requires authorization.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1568,19 +1568,19 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 
 		$query_params['author_email'] = array(
 			'default'     => null,
-			'description' => __( 'Limit result set to that from a specific author email. Requires authorization.' ),
+			'description' => 'Limit result set to that from a specific author email. Requires authorization.',
 			'format'      => 'email',
 			'type'        => 'string',
 		);
 
 		$query_params['before'] = array(
-			'description' => __( 'Limit response to comments published before a given ISO8601 compliant date.' ),
+			'description' => 'Limit response to comments published before a given ISO8601 compliant date.',
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$query_params['exclude'] = array(
-			'description' => __( 'Ensure result set excludes specific IDs.' ),
+			'description' => 'Ensure result set excludes specific IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1589,7 +1589,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['include'] = array(
-			'description' => __( 'Limit result set to specific IDs.' ),
+			'description' => 'Limit result set to specific IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1598,12 +1598,12 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['offset'] = array(
-			'description' => __( 'Offset the result set by a specific number of items.' ),
+			'description' => 'Offset the result set by a specific number of items.',
 			'type'        => 'integer',
 		);
 
 		$query_params['order'] = array(
-			'description' => __( 'Order sort attribute ascending or descending.' ),
+			'description' => 'Order sort attribute ascending or descending.',
 			'type'        => 'string',
 			'default'     => 'desc',
 			'enum'        => array(
@@ -1613,7 +1613,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['orderby'] = array(
-			'description' => __( 'Sort collection by comment attribute.' ),
+			'description' => 'Sort collection by comment attribute.',
 			'type'        => 'string',
 			'default'     => 'date_gmt',
 			'enum'        => array(
@@ -1629,7 +1629,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 
 		$query_params['parent'] = array(
 			'default'     => array(),
-			'description' => __( 'Limit result set to comments of specific parent IDs.' ),
+			'description' => 'Limit result set to comments of specific parent IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1638,7 +1638,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 
 		$query_params['parent_exclude'] = array(
 			'default'     => array(),
-			'description' => __( 'Ensure result set excludes specific parent IDs.' ),
+			'description' => 'Ensure result set excludes specific parent IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1647,7 +1647,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 
 		$query_params['post'] = array(
 			'default'     => array(),
-			'description' => __( 'Limit result set to comments assigned to specific post IDs.' ),
+			'description' => 'Limit result set to comments assigned to specific post IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1656,7 +1656,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 
 		$query_params['status'] = array(
 			'default'           => 'approve',
-			'description'       => __( 'Limit result set to comments assigned a specific status. Requires authorization.' ),
+			'description'       => 'Limit result set to comments assigned a specific status. Requires authorization.',
 			'sanitize_callback' => 'sanitize_key',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -1664,14 +1664,14 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 
 		$query_params['type'] = array(
 			'default'           => 'comment',
-			'description'       => __( 'Limit result set to comments assigned a specific type. Requires authorization.' ),
+			'description'       => 'Limit result set to comments assigned a specific type. Requires authorization.',
 			'sanitize_callback' => 'sanitize_key',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$query_params['password'] = array(
-			'description' => __( 'The password for the post if it is password protected.' ),
+			'description' => 'The password for the post if it is password protected.',
 			'type'        => 'string',
 		);
 

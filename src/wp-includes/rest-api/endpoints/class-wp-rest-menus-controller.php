@@ -524,7 +524,7 @@ class WP_REST_Menus_Controller extends WP_REST_Terms_Controller {
 		unset( $schema['properties']['count'], $schema['properties']['link'], $schema['properties']['taxonomy'] );
 
 		$schema['properties']['locations'] = array(
-			'description' => __( 'The locations assigned to the menu.' ),
+			'description' => 'The locations assigned to the menu.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',
@@ -558,7 +558,7 @@ class WP_REST_Menus_Controller extends WP_REST_Terms_Controller {
 		);
 
 		$schema['properties']['auto_add'] = array(
-			'description' => __( 'Whether to automatically add top level pages to this menu.' ),
+			'description' => 'Whether to automatically add top level pages to this menu.',
 			'context'     => array( 'view', 'edit' ),
 			'type'        => 'boolean',
 		);

@@ -42,7 +42,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 				'permission_callback' => array( $this, 'post_process_item_permissions_check' ),
 				'args'                => array(
 					'id'     => array(
-						'description' => __( 'Unique identifier for the attachment.' ),
+						'description' => 'Unique identifier for the attachment.',
 						'type'        => 'integer',
 					),
 					'action' => array(
@@ -858,7 +858,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		$schema = parent::get_item_schema();
 
 		$schema['properties']['alt_text'] = array(
-			'description' => __( 'Alternative text to display when attachment is not displayed.' ),
+			'description' => 'Alternative text to display when attachment is not displayed.',
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
@@ -867,7 +867,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['caption'] = array(
-			'description' => __( 'The attachment caption.' ),
+			'description' => 'The attachment caption.',
 			'type'        => 'object',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
@@ -876,12 +876,12 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			),
 			'properties'  => array(
 				'raw'      => array(
-					'description' => __( 'Caption for the attachment, as it exists in the database.' ),
+					'description' => 'Caption for the attachment, as it exists in the database.',
 					'type'        => 'string',
 					'context'     => array( 'edit' ),
 				),
 				'rendered' => array(
-					'description' => __( 'HTML caption for the attachment, transformed for display.' ),
+					'description' => 'HTML caption for the attachment, transformed for display.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
@@ -890,7 +890,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['description'] = array(
-			'description' => __( 'The attachment description.' ),
+			'description' => 'The attachment description.',
 			'type'        => 'object',
 			'context'     => array( 'view', 'edit' ),
 			'arg_options' => array(
@@ -899,12 +899,12 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			),
 			'properties'  => array(
 				'raw'      => array(
-					'description' => __( 'Description for the attachment, as it exists in the database.' ),
+					'description' => 'Description for the attachment, as it exists in the database.',
 					'type'        => 'string',
 					'context'     => array( 'edit' ),
 				),
 				'rendered' => array(
-					'description' => __( 'HTML description for the attachment, transformed for display.' ),
+					'description' => 'HTML description for the attachment, transformed for display.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
@@ -913,7 +913,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['media_type'] = array(
-			'description' => __( 'Attachment type.' ),
+			'description' => 'Attachment type.',
 			'type'        => 'string',
 			'enum'        => array( 'image', 'file' ),
 			'context'     => array( 'view', 'edit', 'embed' ),
@@ -921,27 +921,27 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['mime_type'] = array(
-			'description' => __( 'The attachment MIME type.' ),
+			'description' => 'The attachment MIME type.',
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'readonly'    => true,
 		);
 
 		$schema['properties']['media_details'] = array(
-			'description' => __( 'Details about the media file, specific to its type.' ),
+			'description' => 'Details about the media file, specific to its type.',
 			'type'        => 'object',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'readonly'    => true,
 		);
 
 		$schema['properties']['post'] = array(
-			'description' => __( 'The ID for the associated post of the attachment.' ),
+			'description' => 'The ID for the associated post of the attachment.',
 			'type'        => 'integer',
 			'context'     => array( 'view', 'edit' ),
 		);
 
 		$schema['properties']['source_url'] = array(
-			'description' => __( 'URL to the original attachment file.' ),
+			'description' => 'URL to the original attachment file.',
 			'type'        => 'string',
 			'format'      => 'uri',
 			'context'     => array( 'view', 'edit', 'embed' ),
@@ -949,7 +949,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['missing_image_sizes'] = array(
-			'description' => __( 'List of the missing image sizes of the attachment.' ),
+			'description' => 'List of the missing image sizes of the attachment.',
 			'type'        => 'array',
 			'items'       => array( 'type' => 'string' ),
 			'context'     => array( 'edit' ),
@@ -1160,14 +1160,14 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 
 		$params['media_type'] = array(
 			'default'     => null,
-			'description' => __( 'Limit result set to attachments of a particular media type.' ),
+			'description' => 'Limit result set to attachments of a particular media type.',
 			'type'        => 'string',
 			'enum'        => array_keys( $media_types ),
 		);
 
 		$params['mime_type'] = array(
 			'default'     => null,
-			'description' => __( 'Limit result set to attachments of a particular MIME type.' ),
+			'description' => 'Limit result set to attachments of a particular MIME type.',
 			'type'        => 'string',
 		);
 
@@ -1328,17 +1328,17 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 	protected function get_edit_media_item_args() {
 		return array(
 			'src'       => array(
-				'description' => __( 'URL to the edited image file.' ),
+				'description' => 'URL to the edited image file.',
 				'type'        => 'string',
 				'format'      => 'uri',
 				'required'    => true,
 			),
 			'modifiers' => array(
-				'description' => __( 'Array of image edits.' ),
+				'description' => 'Array of image edits.',
 				'type'        => 'array',
 				'minItems'    => 1,
 				'items'       => array(
-					'description' => __( 'Image edit.' ),
+					'description' => 'Image edit.',
 					'type'        => 'object',
 					'required'    => array(
 						'type',
@@ -1349,19 +1349,19 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 							'title'      => __( 'Rotation' ),
 							'properties' => array(
 								'type' => array(
-									'description' => __( 'Rotation type.' ),
+									'description' => 'Rotation type.',
 									'type'        => 'string',
 									'enum'        => array( 'rotate' ),
 								),
 								'args' => array(
-									'description' => __( 'Rotation arguments.' ),
+									'description' => 'Rotation arguments.',
 									'type'        => 'object',
 									'required'    => array(
 										'angle',
 									),
 									'properties'  => array(
 										'angle' => array(
-											'description' => __( 'Angle to rotate clockwise in degrees.' ),
+											'description' => 'Angle to rotate clockwise in degrees.',
 											'type'        => 'number',
 										),
 									),
@@ -1372,12 +1372,12 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 							'title'      => __( 'Crop' ),
 							'properties' => array(
 								'type' => array(
-									'description' => __( 'Crop type.' ),
+									'description' => 'Crop type.',
 									'type'        => 'string',
 									'enum'        => array( 'crop' ),
 								),
 								'args' => array(
-									'description' => __( 'Crop arguments.' ),
+									'description' => 'Crop arguments.',
 									'type'        => 'object',
 									'required'    => array(
 										'left',
@@ -1387,19 +1387,19 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 									),
 									'properties'  => array(
 										'left'   => array(
-											'description' => __( 'Horizontal position from the left to begin the crop as a percentage of the image width.' ),
+											'description' => 'Horizontal position from the left to begin the crop as a percentage of the image width.',
 											'type'        => 'number',
 										),
 										'top'    => array(
-											'description' => __( 'Vertical position from the top to begin the crop as a percentage of the image height.' ),
+											'description' => 'Vertical position from the top to begin the crop as a percentage of the image height.',
 											'type'        => 'number',
 										),
 										'width'  => array(
-											'description' => __( 'Width of the crop as a percentage of the image width.' ),
+											'description' => 'Width of the crop as a percentage of the image width.',
 											'type'        => 'number',
 										),
 										'height' => array(
-											'description' => __( 'Height of the crop as a percentage of the image height.' ),
+											'description' => 'Height of the crop as a percentage of the image height.',
 											'type'        => 'number',
 										),
 									),
@@ -1418,25 +1418,25 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 				'exclusiveMaximum' => true,
 			),
 			'x'         => array(
-				'description' => __( 'As a percentage of the image, the x position to start the crop from. DEPRECATED: Use `modifiers` instead.' ),
+				'description' => 'As a percentage of the image, the x position to start the crop from. DEPRECATED: Use `modifiers` instead.',
 				'type'        => 'number',
 				'minimum'     => 0,
 				'maximum'     => 100,
 			),
 			'y'         => array(
-				'description' => __( 'As a percentage of the image, the y position to start the crop from. DEPRECATED: Use `modifiers` instead.' ),
+				'description' => 'As a percentage of the image, the y position to start the crop from. DEPRECATED: Use `modifiers` instead.',
 				'type'        => 'number',
 				'minimum'     => 0,
 				'maximum'     => 100,
 			),
 			'width'     => array(
-				'description' => __( 'As a percentage of the image, the width to crop the image to. DEPRECATED: Use `modifiers` instead.' ),
+				'description' => 'As a percentage of the image, the width to crop the image to. DEPRECATED: Use `modifiers` instead.',
 				'type'        => 'number',
 				'minimum'     => 0,
 				'maximum'     => 100,
 			),
 			'height'    => array(
-				'description' => __( 'As a percentage of the image, the height to crop the image to. DEPRECATED: Use `modifiers` instead.' ),
+				'description' => 'As a percentage of the image, the height to crop the image to. DEPRECATED: Use `modifiers` instead.',
 				'type'        => 'number',
 				'minimum'     => 0,
 				'maximum'     => 100,

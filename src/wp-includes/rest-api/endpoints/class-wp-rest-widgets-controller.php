@@ -93,7 +93,7 @@ class WP_REST_Widgets_Controller extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
 					'args'                => array(
 						'force' => array(
-							'description' => __( 'Whether to force removal of the widget, or move it to the inactive sidebar.' ),
+							'description' => 'Whether to force removal of the widget, or move it to the inactive sidebar.',
 							'type'        => 'boolean',
 						),
 					),
@@ -745,7 +745,7 @@ class WP_REST_Widgets_Controller extends WP_REST_Controller {
 		return array(
 			'context' => $this->get_context_param( array( 'default' => 'view' ) ),
 			'sidebar' => array(
-				'description' => __( 'The sidebar to return widgets for.' ),
+				'description' => 'The sidebar to return widgets for.',
 				'type'        => 'string',
 			),
 		);
@@ -769,59 +769,59 @@ class WP_REST_Widgets_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'id'            => array(
-					'description' => __( 'Unique identifier for the widget.' ),
+					'description' => 'Unique identifier for the widget.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'id_base'       => array(
-					'description' => __( 'The type of the widget. Corresponds to ID in widget-types endpoint.' ),
+					'description' => 'The type of the widget. Corresponds to ID in widget-types endpoint.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'sidebar'       => array(
-					'description' => __( 'The sidebar the widget belongs to.' ),
+					'description' => 'The sidebar the widget belongs to.',
 					'type'        => 'string',
 					'default'     => 'wp_inactive_widgets',
 					'required'    => true,
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'rendered'      => array(
-					'description' => __( 'HTML representation of the widget.' ),
+					'description' => 'HTML representation of the widget.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
 				'rendered_form' => array(
-					'description' => __( 'HTML representation of the widget admin form.' ),
+					'description' => 'HTML representation of the widget admin form.',
 					'type'        => 'string',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'instance'      => array(
-					'description' => __( 'Instance settings of the widget, if supported.' ),
+					'description' => 'Instance settings of the widget, if supported.',
 					'type'        => 'object',
 					'context'     => array( 'edit' ),
 					'default'     => null,
 					'properties'  => array(
 						'encoded' => array(
-							'description' => __( 'Base64 encoded representation of the instance settings.' ),
+							'description' => 'Base64 encoded representation of the instance settings.',
 							'type'        => 'string',
 							'context'     => array( 'edit' ),
 						),
 						'hash'    => array(
-							'description' => __( 'Cryptographic hash of the instance settings.' ),
+							'description' => 'Cryptographic hash of the instance settings.',
 							'type'        => 'string',
 							'context'     => array( 'edit' ),
 						),
 						'raw'     => array(
-							'description' => __( 'Unencoded instance settings, if supported.' ),
+							'description' => 'Unencoded instance settings, if supported.',
 							'type'        => 'object',
 							'context'     => array( 'edit' ),
 						),
 					),
 				),
 				'form_data'     => array(
-					'description' => __( 'URL-encoded form data from the widget admin form. Used to update a widget that does not support instance. Write only.' ),
+					'description' => 'URL-encoded form data from the widget admin form. Used to update a widget that does not support instance. Write only.',
 					'type'        => 'string',
 					'context'     => array(),
 					'arg_options' => array(
