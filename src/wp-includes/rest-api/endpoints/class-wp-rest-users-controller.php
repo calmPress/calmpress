@@ -674,7 +674,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			} else {
 				// ... But non admins should not be ble to discover valid and invalid
 				// user IDs.
-				return new WP_Error( 'rest_cannot_edit', __( 'Sorry, you are not allowed to edit this user.' ), array( 'status' => rest_authorization_required_code() ) );
+				return new WP_Error( 'rest_cannot_edit', 'Sorry, you are not allowed to edit this user.', array( 'status' => rest_authorization_required_code() ) );
 			}
 		}
 
@@ -899,7 +899,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			return new WP_Error(
 				'rest_trash_not_supported',
 				/* translators: %s: force=true */
-				sprintf( __( "Users do not support trashing. Set '%s' to delete." ), 'force=true' ),
+				sprintf( "Users do not support trashing. Set '%s' to delete.", 'force=true' ),
 				array( 'status' => 501 )
 			);
 		}
@@ -1201,7 +1201,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 				return new WP_Error(
 					'rest_user_invalid_role',
 					/* translators: %s: Role key. */
-					sprintf( __( 'The role %s does not exist.' ), $role ),
+					sprintf( 'The role %s does not exist.', $role ),
 					array( 'status' => 400 )
 				);
 			}

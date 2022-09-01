@@ -70,8 +70,7 @@ class WP_REST_Search_Controller extends WP_REST_Controller {
 			if ( ! $search_handler instanceof WP_REST_Search_Handler ) {
 				_doing_it_wrong(
 					__METHOD__,
-					/* translators: %s: PHP class name. */
-					sprintf( __( 'REST search handlers must extend the %s class.' ), 'WP_REST_Search_Handler' ),
+					sprintf( 'REST search handlers must extend the %s class.', 'WP_REST_Search_Handler' ),
 					'5.0.0'
 				);
 				continue;

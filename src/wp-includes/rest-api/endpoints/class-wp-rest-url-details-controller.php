@@ -135,7 +135,7 @@ class WP_REST_URL_Details_Controller extends WP_REST_Controller {
 		$url = untrailingslashit( $request['url'] );
 
 		if ( empty( $url ) ) {
-			return new WP_Error( 'rest_invalid_url', __( 'Invalid URL' ), array( 'status' => 404 ) );
+			return new WP_Error( 'rest_invalid_url', 'Invalid URL', array( 'status' => 404 ) );
 		}
 
 		// Transient per URL.

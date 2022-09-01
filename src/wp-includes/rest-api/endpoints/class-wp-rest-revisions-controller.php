@@ -456,8 +456,7 @@ class WP_REST_Revisions_Controller extends WP_REST_Controller {
 		if ( ! $force ) {
 			return new WP_Error(
 				'rest_trash_not_supported',
-				/* translators: %s: force=true */
-				sprintf( __( "Revisions do not support trashing. Set '%s' to delete." ), 'force=true' ),
+				sprintf( "Revisions do not support trashing. Set '%s' to delete.", 'force=true' ),
 				array( 'status' => 501 )
 			);
 		}

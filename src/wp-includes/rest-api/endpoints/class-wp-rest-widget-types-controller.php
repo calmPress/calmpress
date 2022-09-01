@@ -212,7 +212,7 @@ class WP_REST_Widget_Types_Controller extends WP_REST_Controller {
 			}
 		}
 
-		return new WP_Error( 'rest_widget_type_invalid', __( 'Invalid widget type.' ), array( 'status' => 404 ) );
+		return new WP_Error( 'rest_widget_type_invalid', 'Invalid widget type.', array( 'status' => 404 ) );
 	}
 
 	/**

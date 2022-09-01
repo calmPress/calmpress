@@ -187,7 +187,7 @@ class WP_REST_Sidebars_Controller extends WP_REST_Controller {
 
 		$sidebar = $this->get_sidebar( $request['id'] );
 		if ( ! $sidebar ) {
-			return new WP_Error( 'rest_sidebar_not_found', __( 'No sidebar exists with that id.' ), array( 'status' => 404 ) );
+			return new WP_Error( 'rest_sidebar_not_found', 'No sidebar exists with that id.', array( 'status' => 404 ) );
 		}
 
 		return $this->prepare_item_for_response( $sidebar, $request );

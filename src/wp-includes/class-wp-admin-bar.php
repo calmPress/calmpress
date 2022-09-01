@@ -138,7 +138,7 @@ class WP_Admin_Bar {
 				return;
 			}
 
-			_doing_it_wrong( __METHOD__, __( 'The menu ID should not be empty.' ), '3.3.0' );
+			_doing_it_wrong( __METHOD__, 'The menu ID should not be empty.', '3.3.0' );
 			// Deprecated: Generate an ID from the title.
 			$args['id'] = esc_attr( sanitize_title( trim( $args['title'] ) ) );
 		}

@@ -212,7 +212,7 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		if ( ! $this->is_plugin_installed( $plugin ) ) {
-			return new WP_Error( 'rest_plugin_not_found', __( 'Plugin not found.' ), array( 'status' => 404 ) );
+			return new WP_Error( 'rest_plugin_not_found', 'Plugin not found.', array( 'status' => 404 ) );
 		}
 
 		if ( ! is_multisite() ) {

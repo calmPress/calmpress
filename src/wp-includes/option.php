@@ -2262,7 +2262,7 @@ function register_setting( $option_group, $option_name, $args = array() ) {
 
 	// Require an item schema when registering settings with an array type.
 	if ( false !== $args['show_in_rest'] && 'array' === $args['type'] && ( ! is_array( $args['show_in_rest'] ) || ! isset( $args['show_in_rest']['schema']['items'] ) ) ) {
-		_doing_it_wrong( __FUNCTION__, __( 'When registering an "array" setting to show in the REST API, you must specify the schema for each array item in "show_in_rest.schema.items".' ), '5.4.0' );
+		_doing_it_wrong( __FUNCTION__, 'When registering an "array" setting to show in the REST API, you must specify the schema for each array item in "show_in_rest.schema.items".', '5.4.0' );
 	}
 
 	if ( ! is_array( $wp_registered_settings ) ) {

@@ -165,7 +165,7 @@ abstract class WP_REST_Meta_Fields {
 						return new WP_Error(
 							'rest_invalid_stored_value',
 							/* translators: %s: Custom field key. */
-							sprintf( __( 'The %s property has an invalid stored value, and cannot be updated to null.' ), $name ),
+							sprintf( 'The %s property has an invalid stored value, and cannot be updated to null.', $name ),
 							array( 'status' => 500 )
 						);
 					}
@@ -182,7 +182,7 @@ abstract class WP_REST_Meta_Fields {
 				return new WP_Error(
 					'rest_invalid_stored_value',
 					/* translators: %s: Custom field key. */
-					sprintf( __( 'The %s property has an invalid stored value, and cannot be updated to null.' ), $name ),
+					sprintf( 'The %s property has an invalid stored value, and cannot be updated to null.', $name ),
 					array( 'status' => 500 )
 				);
 			}
@@ -226,7 +226,7 @@ abstract class WP_REST_Meta_Fields {
 			return new WP_Error(
 				'rest_cannot_delete',
 				/* translators: %s: Custom field key. */
-				sprintf( __( 'Sorry, you are not allowed to edit the %s custom field.' ), $name ),
+				sprintf( 'Sorry, you are not allowed to edit the %s custom field.', $name ),
 				array(
 					'key'    => $name,
 					'status' => rest_authorization_required_code(),
@@ -272,7 +272,7 @@ abstract class WP_REST_Meta_Fields {
 			return new WP_Error(
 				'rest_cannot_update',
 				/* translators: %s: Custom field key. */
-				sprintf( __( 'Sorry, you are not allowed to edit the %s custom field.' ), $name ),
+				sprintf( 'Sorry, you are not allowed to edit the %s custom field.', $name ),
 				array(
 					'key'    => $name,
 					'status' => rest_authorization_required_code(),
@@ -327,7 +327,7 @@ abstract class WP_REST_Meta_Fields {
 				return new WP_Error(
 					'rest_meta_database_error',
 					/* translators: %s: Custom field key. */
-					sprintf( __( 'Could not update the meta value of %s in database.' ), $meta_key ),
+					sprintf( 'Could not update the meta value of %s in database.', $meta_key ),
 					array(
 						'key'    => $name,
 						'status' => WP_Http::INTERNAL_SERVER_ERROR,
@@ -341,7 +341,7 @@ abstract class WP_REST_Meta_Fields {
 				return new WP_Error(
 					'rest_meta_database_error',
 					/* translators: %s: Custom field key. */
-					sprintf( __( 'Could not update the meta value of %s in database.' ), $meta_key ),
+					sprintf( 'Could not update the meta value of %s in database.', $meta_key ),
 					array(
 						'key'    => $name,
 						'status' => WP_Http::INTERNAL_SERVER_ERROR,
@@ -371,7 +371,7 @@ abstract class WP_REST_Meta_Fields {
 			return new WP_Error(
 				'rest_cannot_update',
 				/* translators: %s: Custom field key. */
-				sprintf( __( 'Sorry, you are not allowed to edit the %s custom field.' ), $name ),
+				sprintf( 'Sorry, you are not allowed to edit the %s custom field.', $name ),
 				array(
 					'key'    => $name,
 					'status' => rest_authorization_required_code(),
@@ -393,7 +393,7 @@ abstract class WP_REST_Meta_Fields {
 			return new WP_Error(
 				'rest_meta_database_error',
 				/* translators: %s: Custom field key. */
-				sprintf( __( 'Could not update the meta value of %s in database.' ), $meta_key ),
+				sprintf( 'Could not update the meta value of %s in database.', $meta_key ),
 				array(
 					'key'    => $name,
 					'status' => WP_Http::INTERNAL_SERVER_ERROR,

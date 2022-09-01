@@ -927,8 +927,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			if ( ! $supports_trash ) {
 				return new WP_Error(
 					'rest_trash_not_supported',
-					/* translators: %s: force=true */
-					sprintf( __( "The post does not support trashing. Set '%s' to delete." ), 'force=true' ),
+					sprintf( "The post does not support trashing. Set '%s' to delete.", 'force=true' ),
 					array( 'status' => 501 )
 				);
 			}
@@ -1378,8 +1377,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 
 		return new WP_Error(
 			'rest_invalid_param',
-			/* translators: 1: Parameter, 2: List of valid values. */
-			sprintf( __( '%1$s is not one of %2$s.' ), 'template', implode( ', ', array_keys( $allowed_templates ) ) )
+			sprintf( '%1$s is not one of %2$s.', 'template', implode( ', ', array_keys( $allowed_templates ) ) )
 		);
 	}
 

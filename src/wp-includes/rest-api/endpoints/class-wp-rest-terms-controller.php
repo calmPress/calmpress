@@ -694,7 +694,7 @@ class WP_REST_Terms_Controller extends WP_REST_Controller {
 			return new WP_Error(
 				'rest_trash_not_supported',
 				/* translators: %s: force=true */
-				sprintf( __( "Terms do not support trashing. Set '%s' to delete." ), 'force=true' ),
+				sprintf( "Terms do not support trashing. Set '%s' to delete.", 'force=true' ),
 				array( 'status' => 501 )
 			);
 		}
