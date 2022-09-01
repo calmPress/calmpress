@@ -154,7 +154,7 @@ function get_the_category_list( $separator = '', $parents = '', $post_id = false
 
 	if ( empty( $categories ) ) {
 		/** This filter is documented in wp-includes/category-template.php */
-		return apply_filters( 'the_category', __( 'Uncategorized' ), $separator, $parents );
+		return apply_filters( 'the_category', '', $separator, $parents );
 	}
 
 	$rel = ( is_object( $wp_rewrite ) ) ? 'rel="category tag"' : 'rel="category"';
@@ -462,7 +462,9 @@ function wp_dropdown_categories( $args = '' ) {
  * @since 2.1.0
  * @since 4.4.0 Introduced the `hide_title_if_empty` and `separator` arguments.
  * @since 4.4.0 The `current_category` argument was modified to optionally accept an array of values.
- *
+ * @since calmPress 1.0.0 'show_option_none' and 'title_li' default to english values and
+ *                        are not translated by default. Users of the API should supply their own values if
+ *                        translation is needed
  * @param array|string $args {
  *     Array of optional arguments. See get_categories(), get_terms(), and WP_Term_Query::__construct()
  *     for information on additional accepted arguments.
@@ -522,10 +524,10 @@ function wp_list_categories( $args = '' ) {
 		'separator'           => '<br />',
 		'show_count'          => 0,
 		'show_option_all'     => '',
-		'show_option_none'    => __( 'No categories' ),
+		'show_option_none'    => 'No categories',
 		'style'               => 'list',
 		'taxonomy'            => 'category',
-		'title_li'            => __( 'Categories' ),
+		'title_li'            => 'Categories',
 		'use_desc_for_title'  => 1,
 	);
 
@@ -1190,6 +1192,8 @@ function get_the_tag_list( $before = '', $sep = '', $after = '', $post_id = 0 ) 
  * Displays the tags for a post.
  *
  * @since 2.3.0
+ * @since calmPress 1.0.0 If $before is not specified an untranslated 'Tags:' string is used
+ *                        In case translation is need the user of the API shoul supply the value.
  *
  * @param string $before Optional. String to use before the tags. Defaults to 'Tags:'.
  * @param string $sep    Optional. String to use between the tags. Default ', '.
@@ -1197,7 +1201,7 @@ function get_the_tag_list( $before = '', $sep = '', $after = '', $post_id = 0 ) 
  */
 function the_tags( $before = null, $sep = ', ', $after = '' ) {
 	if ( null === $before ) {
-		$before = __( 'Tags: ' );
+		$before = 'Tags: ';
 	}
 
 	$the_tags = get_the_tag_list( $before, $sep, $after );
