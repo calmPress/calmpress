@@ -282,7 +282,7 @@ abstract class WP_Image_Editor {
 			$this->quality = $quality;
 			return true;
 		} else {
-			return new WP_Error( 'invalid_image_quality', __( 'Attempted to set image quality outside of the range [1,100].' ) );
+			return new WP_Error( 'invalid_image_quality', 'Attempted to set image quality outside of the range [1,100].' );
 		}
 	}
 

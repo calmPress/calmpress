@@ -590,7 +590,7 @@ class WP_Customize_Setting {
 			return $value;
 		}
 		if ( is_null( $value ) ) {
-			return new WP_Error( 'invalid_value', __( 'Invalid value.' ) );
+			return new WP_Error( 'invalid_value', 'Invalid value.' );
 		}
 
 		$validity = new WP_Error();

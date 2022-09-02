@@ -101,7 +101,7 @@ class WP_Application_Passwords {
 		$saved       = static::set_user_application_passwords( $user_id, $passwords );
 
 		if ( ! $saved ) {
-			return new WP_Error( 'db_error', __( 'Could not save application password.' ) );
+			return new WP_Error( 'db_error', 'Could not save application password.' );
 		}
 
 		$network_id = get_main_network_id();
@@ -299,7 +299,7 @@ class WP_Application_Passwords {
 				$saved = static::set_user_application_passwords( $user_id, $passwords );
 
 				if ( ! $saved ) {
-					return new WP_Error( 'db_error', __( 'Could not save application password.' ) );
+					return new WP_Error( 'db_error', 'Could not save application password.' );
 				}
 			}
 
@@ -348,14 +348,14 @@ class WP_Application_Passwords {
 			$saved = static::set_user_application_passwords( $user_id, $passwords );
 
 			if ( ! $saved ) {
-				return new WP_Error( 'db_error', __( 'Could not save application password.' ) );
+				return new WP_Error( 'db_error', 'Could not save application password.' );
 			}
 
 			return true;
 		}
 
 		// Specified Application Password not found!
-		return new WP_Error( 'application_password_not_found', __( 'Could not find an application password with that id.' ) );
+		return new WP_Error( 'application_password_not_found', 'Could not find an application password with that id.' );
 	}
 
 	/**
@@ -376,7 +376,7 @@ class WP_Application_Passwords {
 				$saved = static::set_user_application_passwords( $user_id, $passwords );
 
 				if ( ! $saved ) {
-					return new WP_Error( 'db_error', __( 'Could not delete application password.' ) );
+					return new WP_Error( 'db_error', 'Could not delete application password.' );
 				}
 
 				/**
@@ -411,7 +411,7 @@ class WP_Application_Passwords {
 			$saved = static::set_user_application_passwords( $user_id, array() );
 
 			if ( ! $saved ) {
-				return new WP_Error( 'db_error', __( 'Could not delete application passwords.' ) );
+				return new WP_Error( 'db_error', 'Could not delete application passwords.' );
 			}
 
 			foreach ( $passwords as $item ) {

@@ -274,7 +274,7 @@ class WP_Image_Editor_Imagick extends WP_Image_Editor {
 
 		$dims = image_resize_dimensions( $this->size['width'], $this->size['height'], $max_w, $max_h, $crop );
 		if ( ! $dims ) {
-			return new WP_Error( 'error_getting_dimensions', __( 'Could not calculate resized image dimensions' ) );
+			return new WP_Error( 'error_getting_dimensions', 'Could not calculate resized image dimensions' );
 		}
 
 		list( $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h ) = $dims;
@@ -485,7 +485,7 @@ class WP_Image_Editor_Imagick extends WP_Image_Editor {
 	 */
 	public function make_subsize( $size_data ) {
 		if ( ! isset( $size_data['width'] ) && ! isset( $size_data['height'] ) ) {
-			return new WP_Error( 'image_subsize_create_error', __( 'Cannot resize the image. Both width and height are not set.' ) );
+			return new WP_Error( 'image_subsize_create_error', 'Cannot resize the image. Both width and height are not set.' );
 		}
 
 		$orig_size  = $this->size;

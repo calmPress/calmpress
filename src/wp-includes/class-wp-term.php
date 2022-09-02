@@ -156,7 +156,7 @@ class WP_Term {
 
 					// Only hit if we've already identified a term in a valid taxonomy.
 					if ( $_term ) {
-						return new WP_Error( 'ambiguous_term_id', __( 'Term ID is shared between multiple taxonomies' ), $term_id );
+						return new WP_Error( 'ambiguous_term_id', 'Term ID is shared between multiple taxonomies', $term_id );
 					}
 
 					$_term = $t;
@@ -169,7 +169,7 @@ class WP_Term {
 
 			// Don't return terms from invalid taxonomies.
 			if ( ! taxonomy_exists( $_term->taxonomy ) ) {
-				return new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.' ) );
+				return new WP_Error( 'invalid_taxonomy', 'Invalid taxonomy.' );
 			}
 
 			$_term = sanitize_term( $_term, $_term->taxonomy, 'raw' );
