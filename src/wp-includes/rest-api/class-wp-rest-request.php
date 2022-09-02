@@ -694,7 +694,7 @@ class WP_REST_Request implements ArrayAccess {
 				'json_error_message' => json_last_error_msg(),
 			);
 
-			return new WP_Error( 'rest_invalid_json', __( 'Invalid JSON body passed.' ), $error_data );
+			return new WP_Error( 'rest_invalid_json', 'Invalid JSON body passed.', $error_data );
 		}
 
 		$this->params['JSON'] = $params;
@@ -841,8 +841,7 @@ class WP_REST_Request implements ArrayAccess {
 		if ( $invalid_params ) {
 			return new WP_Error(
 				'rest_invalid_param',
-				/* translators: %s: List of invalid parameters. */
-				sprintf( __( 'Invalid parameter(s): %s' ), implode( ', ', array_keys( $invalid_params ) ) ),
+				sprintf( 'Invalid parameter(s): %s', implode( ', ', array_keys( $invalid_params ) ) ),
 				array(
 					'status'  => 400,
 					'params'  => $invalid_params,
@@ -884,8 +883,7 @@ class WP_REST_Request implements ArrayAccess {
 		if ( ! empty( $required ) ) {
 			return new WP_Error(
 				'rest_missing_callback_param',
-				/* translators: %s: List of required parameters. */
-				sprintf( __( 'Missing parameter(s): %s' ), implode( ', ', $required ) ),
+				sprintf( 'Missing parameter(s): %s', implode( ', ', $required ) ),
 				array(
 					'status' => 400,
 					'params' => $required,
@@ -910,7 +908,7 @@ class WP_REST_Request implements ArrayAccess {
 				$valid_check = call_user_func( $arg['validate_callback'], $param, $this, $key );
 
 				if ( false === $valid_check ) {
-					$invalid_params[ $key ] = __( 'Invalid parameter.' );
+					$invalid_params[ $key ] = 'Invalid parameter.';
 				}
 
 				if ( is_wp_error( $valid_check ) ) {
@@ -923,8 +921,7 @@ class WP_REST_Request implements ArrayAccess {
 		if ( $invalid_params ) {
 			return new WP_Error(
 				'rest_invalid_param',
-				/* translators: %s: List of invalid parameters. */
-				sprintf( __( 'Invalid parameter(s): %s' ), implode( ', ', array_keys( $invalid_params ) ) ),
+				sprintf( 'Invalid parameter(s): %s', implode( ', ', array_keys( $invalid_params ) ) ),
 				array(
 					'status'  => 400,
 					'params'  => $invalid_params,
@@ -942,7 +939,7 @@ class WP_REST_Request implements ArrayAccess {
 
 			if ( false === $valid_check ) {
 				// A WP_Error instance is preferred, but false is supported for parity with the per-arg validate_callback.
-				return new WP_Error( 'rest_invalid_params', __( 'Invalid parameters.' ), array( 'status' => 400 ) );
+				return new WP_Error( 'rest_invalid_params', 'Invalid parameters.', array( 'status' => 400 ) );
 			}
 		}
 

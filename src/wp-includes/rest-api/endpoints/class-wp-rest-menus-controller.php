@@ -195,13 +195,13 @@ class WP_REST_Menus_Controller extends WP_REST_Terms_Controller {
 	public function create_item( $request ) {
 		if ( isset( $request['parent'] ) ) {
 			if ( ! is_taxonomy_hierarchical( $this->taxonomy ) ) {
-				return new WP_Error( 'rest_taxonomy_not_hierarchical', __( 'Cannot set parent term, taxonomy is not hierarchical.' ), array( 'status' => 400 ) );
+				return new WP_Error( 'rest_taxonomy_not_hierarchical', 'Cannot set parent term, taxonomy is not hierarchical.', array( 'status' => 400 ) );
 			}
 
 			$parent = wp_get_nav_menu_object( (int) $request['parent'] );
 
 			if ( ! $parent ) {
-				return new WP_Error( 'rest_term_invalid', __( 'Parent term does not exist.' ), array( 'status' => 400 ) );
+				return new WP_Error( 'rest_term_invalid', 'Parent term does not exist.', array( 'status' => 400 ) );
 			}
 		}
 
@@ -289,13 +289,13 @@ class WP_REST_Menus_Controller extends WP_REST_Terms_Controller {
 
 		if ( isset( $request['parent'] ) ) {
 			if ( ! is_taxonomy_hierarchical( $this->taxonomy ) ) {
-				return new WP_Error( 'rest_taxonomy_not_hierarchical', __( 'Cannot set parent term, taxonomy is not hierarchical.' ), array( 'status' => 400 ) );
+				return new WP_Error( 'rest_taxonomy_not_hierarchical', 'Cannot set parent term, taxonomy is not hierarchical.', array( 'status' => 400 ) );
 			}
 
 			$parent = get_term( (int) $request['parent'], $this->taxonomy );
 
 			if ( ! $parent ) {
-				return new WP_Error( 'rest_term_invalid', __( 'Parent term does not exist.' ), array( 'status' => 400 ) );
+				return new WP_Error( 'rest_term_invalid', 'Parent term does not exist.', array( 'status' => 400 ) );
 			}
 		}
 
@@ -369,8 +369,7 @@ class WP_REST_Menus_Controller extends WP_REST_Terms_Controller {
 
 		// We don't support trashing for terms.
 		if ( ! $request['force'] ) {
-			/* translators: %s: force=true */
-			return new WP_Error( 'rest_trash_not_supported', sprintf( __( "Menus do not support trashing. Set '%s' to delete." ), 'force=true' ), array( 'status' => 501 ) );
+			return new WP_Error( 'rest_trash_not_supported', sprintf( "Menus do not support trashing. Set '%s' to delete.", 'force=true' ), array( 'status' => 501 ) );
 		}
 
 		$request->set_param( 'context', 'view' );
@@ -380,7 +379,7 @@ class WP_REST_Menus_Controller extends WP_REST_Terms_Controller {
 		$result = wp_delete_nav_menu( $term );
 
 		if ( ! $result || is_wp_error( $result ) ) {
-			return new WP_Error( 'rest_cannot_delete', __( 'The menu cannot be deleted.' ), array( 'status' => 500 ) );
+			return new WP_Error( 'rest_cannot_delete', 'The menu cannot be deleted.', array( 'status' => 500 ) );
 		}
 
 		$response = new WP_REST_Response();

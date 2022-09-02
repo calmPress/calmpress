@@ -1346,7 +1346,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 					),
 					'oneOf'       => array(
 						array(
-							'title'      => __( 'Rotation' ),
+							'title'      => 'Rotation',
 							'properties' => array(
 								'type' => array(
 									'description' => 'Rotation type.',
@@ -1369,7 +1369,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 							),
 						),
 						array(
-							'title'      => __( 'Crop' ),
+							'title'      => 'Crop',
 							'properties' => array(
 								'type' => array(
 									'description' => 'Crop type.',
@@ -1410,7 +1410,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 				),
 			),
 			'rotation'  => array(
-				'description'      => __( 'The amount to rotate the image clockwise in degrees. DEPRECATED: Use `modifiers` instead.' ),
+				'description'      => 'The amount to rotate the image clockwise in degrees. DEPRECATED: Use `modifiers` instead.',
 				'type'             => 'integer',
 				'minimum'          => 0,
 				'exclusiveMinimum' => true,

@@ -350,12 +350,12 @@ class WP_REST_Server {
 
 		if ( $jsonp_callback ) {
 			if ( ! $jsonp_enabled ) {
-				echo $this->json_error( 'rest_callback_disabled', __( 'JSONP support is disabled on this site.' ), 400 );
+				echo $this->json_error( 'rest_callback_disabled', 'JSONP support is disabled on this site.', 400 );
 				return false;
 			}
 
 			if ( ! wp_check_jsonp_callback( $jsonp_callback ) ) {
-				echo $this->json_error( 'rest_callback_invalid', __( 'Invalid JSONP callback function.' ), 400 );
+				echo $this->json_error( 'rest_callback_invalid', 'Invalid JSONP callback function.', 400 );
 				return false;
 			}
 		}
@@ -1525,7 +1525,7 @@ class WP_REST_Server {
 			$parsed_url = wp_parse_url( $args['path'] );
 
 			if ( false === $parsed_url ) {
-				$requests[] = new WP_Error( 'parse_path_failed', __( 'Could not parse the path.' ), array( 'status' => 400 ) );
+				$requests[] = new WP_Error( 'parse_path_failed', 'Could not parse the path.', array( 'status' => 400 ) );
 
 				continue;
 			}

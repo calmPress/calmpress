@@ -112,7 +112,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 	 */
 	public function create_item( $request ) {
 		if ( ! empty( $request['id'] ) ) {
-			return new WP_Error( 'rest_post_exists', __( 'Cannot create existing post.' ), array( 'status' => 400 ) );
+			return new WP_Error( 'rest_post_exists', 'Cannot create existing post.', array( 'status' => 400 ) );
 		}
 
 		$prepared_nav_item = $this->prepare_item_for_database( $request );
@@ -284,8 +284,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 
 		// We don't support trashing for menu items.
 		if ( ! $request['force'] ) {
-			/* translators: %s: force=true */
-			return new WP_Error( 'rest_trash_not_supported', sprintf( __( "Menu items do not support trashing. Set '%s' to delete." ), 'force=true' ), array( 'status' => 501 ) );
+			return new WP_Error( 'rest_trash_not_supported', sprintf( "Menu items do not support trashing. Set '%s' to delete.", 'force=true' ), array( 'status' => 501 ) );
 		}
 
 		$previous = $this->prepare_item_for_response( get_post( $request['id'] ), $request );
@@ -293,7 +292,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		$result = wp_delete_post( $request['id'], true );
 
 		if ( ! $result ) {
-			return new WP_Error( 'rest_cannot_delete', __( 'The post cannot be deleted.' ), array( 'status' => 500 ) );
+			return new WP_Error( 'rest_cannot_delete', 'The post cannot be deleted.', array( 'status' => 500 ) );
 		}
 
 		$response = new WP_REST_Response();
@@ -421,7 +420,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 			if ( 'taxonomy' === $prepared_nav_item['menu-item-type'] ) {
 				$original = get_term( absint( $prepared_nav_item['menu-item-object-id'] ) );
 				if ( empty( $original ) || is_wp_error( $original ) ) {
-					$error->add( 'rest_term_invalid_id', __( 'Invalid term ID.' ), array( 'status' => 400 ) );
+					$error->add( 'rest_term_invalid_id', 'Invalid term ID.', array( 'status' => 400 ) );
 				} else {
 					$prepared_nav_item['menu-item-object'] = get_term_field( 'taxonomy', $original );
 				}
@@ -429,7 +428,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 			} elseif ( 'post_type' === $prepared_nav_item['menu-item-type'] ) {
 				$original = get_post( absint( $prepared_nav_item['menu-item-object-id'] ) );
 				if ( empty( $original ) ) {
-					$error->add( 'rest_post_invalid_id', __( 'Invalid post ID.' ), array( 'status' => 400 ) );
+					$error->add( 'rest_post_invalid_id', 'Invalid post ID.', array( 'status' => 400 ) );
 				} else {
 					$prepared_nav_item['menu-item-object'] = get_post_type( $original );
 				}
@@ -441,17 +440,17 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 			$post_type = $prepared_nav_item['menu-item-object'] ? $prepared_nav_item['menu-item-object'] : false;
 			$original  = get_post_type_object( $post_type );
 			if ( ! $original ) {
-				$error->add( 'rest_post_invalid_type', __( 'Invalid post type.' ), array( 'status' => 400 ) );
+				$error->add( 'rest_post_invalid_type', 'Invalid post type.', array( 'status' => 400 ) );
 			}
 		}
 
 		// Check if menu item is type custom, then title and url are required.
 		if ( 'custom' === $prepared_nav_item['menu-item-type'] ) {
 			if ( '' === $prepared_nav_item['menu-item-title'] ) {
-				$error->add( 'rest_title_required', __( 'The title is required when using a custom menu item type.' ), array( 'status' => 400 ) );
+				$error->add( 'rest_title_required', 'The title is required when using a custom menu item type.', array( 'status' => 400 ) );
 			}
 			if ( empty( $prepared_nav_item['menu-item-url'] ) ) {
-				$error->add( 'rest_url_required', __( 'The url is required when using a custom menu item type.' ), array( 'status' => 400 ) );
+				$error->add( 'rest_url_required', 'The url is required when using a custom menu item type.', array( 'status' => 400 ) );
 			}
 		}
 
@@ -687,7 +686,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		$href    = rest_url( "{$this->namespace}/{$this->rest_base}/{id}" );
 		$links[] = array(
 			'rel'          => 'https://api.w.org/menu-item-object',
-			'title'        => __( 'Get linked object.' ),
+			'title'        => 'Get linked object.',
 			'href'         => $href,
 			'targetSchema' => array(
 				'type'       => 'object',
@@ -898,8 +897,7 @@ class WP_REST_Menu_Items_Controller extends WP_REST_Posts_Controller {
 		foreach ( $taxonomies as $taxonomy ) {
 			$base                          = ! empty( $taxonomy->rest_base ) ? $taxonomy->rest_base : $taxonomy->name;
 			$schema['properties'][ $base ] = array(
-				/* translators: %s: taxonomy name */
-				'description' => sprintf( __( 'The terms assigned to the object in the %s taxonomy.' ), $taxonomy->name ),
+				'description' => sprintf( 'The terms assigned to the object in the %s taxonomy.', $taxonomy->name ),
 				'type'        => 'array',
 				'items'       => array(
 					'type' => 'integer',

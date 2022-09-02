@@ -173,8 +173,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			if ( ! empty( $forbidden_params ) ) {
 				return new WP_Error(
 					'rest_forbidden_param',
-					/* translators: %s: List of forbidden parameters. */
-					sprintf( __( 'Query parameter not permitted: %s' ), implode( ', ', $forbidden_params ) ),
+					sprintf( 'Query parameter not permitted: %s', implode( ', ', $forbidden_params ) ),
 					array( 'status' => rest_authorization_required_code() )
 				);
 			}
@@ -475,8 +474,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		if ( isset( $request['author'] ) && get_current_user_id() !== $request['author'] && ! current_user_can( 'moderate_comments' ) ) {
 			return new WP_Error(
 				'rest_comment_invalid_author',
-				/* translators: %s: Request parameter. */
-				sprintf( __( "Sorry, you are not allowed to edit '%s' for comments." ), 'author' ),
+				sprintf( "Sorry, you are not allowed to edit '%s' for comments.", 'author' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -486,7 +484,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 				return new WP_Error(
 					'rest_comment_invalid_author_ip',
 					/* translators: %s: Request parameter. */
-					sprintf( __( "Sorry, you are not allowed to edit '%s' for comments." ), 'author_ip' ),
+					sprintf( "Sorry, you are not allowed to edit '%s' for comments.", 'author_ip' ),
 					array( 'status' => rest_authorization_required_code() )
 				);
 			}
@@ -495,8 +493,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		if ( isset( $request['status'] ) && ! current_user_can( 'moderate_comments' ) ) {
 			return new WP_Error(
 				'rest_comment_invalid_status',
-				/* translators: %s: Request parameter. */
-				sprintf( __( "Sorry, you are not allowed to edit '%s' for comments." ), 'status' ),
+				sprintf( "Sorry, you are not allowed to edit '%s' for comments.", 'status' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -504,7 +501,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		if ( empty( $request['post'] ) ) {
 			return new WP_Error(
 				'rest_comment_invalid_post_id',
-				__( 'Sorry, you are not allowed to create this comment without a post.' ),
+				'Sorry, you are not allowed to create this comment without a post.',
 				array( 'status' => 403 )
 			);
 		}
@@ -983,8 +980,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			if ( ! $supports_trash ) {
 				return new WP_Error(
 					'rest_trash_not_supported',
-					/* translators: %s: force=true */
-					sprintf( __( "The comment does not support trashing. Set '%s' to delete." ), 'force=true' ),
+					sprintf( "The comment does not support trashing. Set '%s' to delete.", 'force=true' ),
 					array( 'status' => 501 )
 				);
 			}

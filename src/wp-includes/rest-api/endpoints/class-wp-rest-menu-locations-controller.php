@@ -145,7 +145,7 @@ class WP_REST_Menu_Locations_Controller extends WP_REST_Controller {
 	public function get_item( $request ) {
 		$registered_menus = get_registered_nav_menus();
 		if ( ! array_key_exists( $request['location'], $registered_menus ) ) {
-			return new WP_Error( 'rest_menu_location_invalid', __( 'Invalid menu location.' ), array( 'status' => 404 ) );
+			return new WP_Error( 'rest_menu_location_invalid', 'Invalid menu location.', array( 'status' => 404 ) );
 		}
 
 		$location              = new stdClass();

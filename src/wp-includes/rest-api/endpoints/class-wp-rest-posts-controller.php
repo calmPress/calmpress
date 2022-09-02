@@ -2380,8 +2380,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			}
 
 			$schema['properties'][ $base ] = array(
-				/* translators: %s: Taxonomy name. */
-				'description' => sprintf( __( 'The terms assigned to the post in the %s taxonomy.' ), $taxonomy->name ),
+				'description' => sprintf( 'The terms assigned to the post in the %s taxonomy.', $taxonomy->name ),
 				'type'        => 'array',
 				'items'       => array(
 					'type' => 'integer',
@@ -2452,7 +2451,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 		if ( 'attachment' !== $this->post_type ) {
 			$links[] = array(
 				'rel'          => 'https://api.w.org/action-publish',
-				'title'        => __( 'The current user can publish this post.' ),
+				'title'        => 'The current user can publish this post.',
 				'href'         => $href,
 				'targetSchema' => array(
 					'type'       => 'object',
@@ -2468,7 +2467,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 
 		$links[] = array(
 			'rel'          => 'https://api.w.org/action-unfiltered-html',
-			'title'        => __( 'The current user can post unfiltered HTML markup and JavaScript.' ),
+			'title'        => 'The current user can post unfiltered HTML markup and JavaScript.',
 			'href'         => $href,
 			'targetSchema' => array(
 				'type'       => 'object',
@@ -2485,7 +2484,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 		if ( 'post' === $this->post_type ) {
 			$links[] = array(
 				'rel'          => 'https://api.w.org/action-sticky',
-				'title'        => __( 'The current user can sticky this post.' ),
+				'title'        => 'The current user can sticky this post.',
 				'href'         => $href,
 				'targetSchema' => array(
 					'type'       => 'object',
@@ -2501,7 +2500,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 		if ( post_type_supports( $this->post_type, 'author' ) ) {
 			$links[] = array(
 				'rel'          => 'https://api.w.org/action-assign-author',
-				'title'        => __( 'The current user can change the author on this post.' ),
+				'title'        => 'The current user can change the author on this post.',
 				'href'         => $href,
 				'targetSchema' => array(
 					'type'       => 'object',
@@ -2519,10 +2518,8 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 		foreach ( $taxonomies as $tax ) {
 			$tax_base = ! empty( $tax->rest_base ) ? $tax->rest_base : $tax->name;
 
-			/* translators: %s: Taxonomy name. */
-			$assign_title = sprintf( __( 'The current user can assign terms in the %s taxonomy.' ), $tax->name );
-			/* translators: %s: Taxonomy name. */
-			$create_title = sprintf( __( 'The current user can create terms in the %s taxonomy.' ), $tax->name );
+			$assign_title = sprintf( 'The current user can assign terms in the %s taxonomy.', $tax->name );
+			$create_title = sprintf( 'The current user can create terms in the %s taxonomy.', $tax->name );
 
 			$links[] = array(
 				'rel'          => 'https://api.w.org/action-assign-' . $tax_base,
@@ -2893,7 +2890,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			'type'  => array( 'object', 'array' ),
 			'oneOf' => array(
 				array(
-					'title'       => __( 'Term ID List' ),
+					'title'       => 'Term ID List',
 					'description' => 'Match terms with the listed IDs.',
 					'type'        => 'array',
 					'items'       => array(
@@ -2901,8 +2898,8 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 					),
 				),
 				array(
-					'title'                => __( 'Term ID Taxonomy Query' ),
-					'description'          => __( 'Perform an advanced term query.' ),
+					'title'                => 'Term ID Taxonomy Query',
+					'description'          => 'Perform an advanced term query.',
 					'type'                 => 'object',
 					'properties'           => array(
 						'terms'            => array(
