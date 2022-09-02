@@ -41,7 +41,7 @@ class WP_oEmbed_Controller {
 					'permission_callback' => '__return_true',
 					'args'                => array(
 						'url'      => array(
-							'description' => __( 'The URL of the resource for which to fetch oEmbed data.' ),
+							'description' => 'The URL of the resource for which to fetch oEmbed data.',
 							'required'    => true,
 							'type'        => 'string',
 							'format'      => 'uri',
@@ -69,13 +69,13 @@ class WP_oEmbed_Controller {
 					'permission_callback' => array( $this, 'get_proxy_item_permissions_check' ),
 					'args'                => array(
 						'url'       => array(
-							'description' => __( 'The URL of the resource for which to fetch oEmbed data.' ),
+							'description' => 'The URL of the resource for which to fetch oEmbed data.',
 							'required'    => true,
 							'type'        => 'string',
 							'format'      => 'uri',
 						),
 						'format'    => array(
-							'description' => __( 'The oEmbed format to use.' ),
+							'description' => 'The oEmbed format to use.',
 							'type'        => 'string',
 							'default'     => 'json',
 							'enum'        => array(
@@ -84,18 +84,18 @@ class WP_oEmbed_Controller {
 							),
 						),
 						'maxwidth'  => array(
-							'description'       => __( 'The maximum width of the embed frame in pixels.' ),
+							'description'       => 'The maximum width of the embed frame in pixels.',
 							'type'              => 'integer',
 							'default'           => $maxwidth,
 							'sanitize_callback' => 'absint',
 						),
 						'maxheight' => array(
-							'description'       => __( 'The maximum height of the embed frame in pixels.' ),
+							'description'       => 'The maximum height of the embed frame in pixels.',
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						),
 						'discover'  => array(
-							'description' => __( 'Whether to perform an oEmbed discovery request for unsanctioned providers.' ),
+							'description' => 'Whether to perform an oEmbed discovery request for unsanctioned providers.',
 							'type'        => 'boolean',
 							'default'     => true,
 						),
@@ -146,7 +146,7 @@ class WP_oEmbed_Controller {
 	 */
 	public function get_proxy_item_permissions_check() {
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to make proxied oEmbed requests.' ), array( 'status' => rest_authorization_required_code() ) );
+			return new WP_Error( 'rest_forbidden', 'Sorry, you are not allowed to make proxied oEmbed requests.', array( 'status' => rest_authorization_required_code() ) );
 		}
 		return true;
 	}
@@ -212,7 +212,7 @@ class WP_oEmbed_Controller {
 				}
 
 				return (object) array(
-					'provider_name' => __( 'Embed Handler' ),
+					'provider_name' => 'Embed Handler',
 					'html'          => $html,
 					'scripts'       => $enqueued_scripts,
 				);
