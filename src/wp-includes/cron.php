@@ -1039,19 +1039,19 @@ function wp_get_schedules() {
 	$schedules = array(
 		'hourly'     => array(
 			'interval' => HOUR_IN_SECONDS,
-			'display'  => __( 'Once Hourly' ),
+			'display'  => 'Once Hourly',
 		),
 		'twicedaily' => array(
 			'interval' => 12 * HOUR_IN_SECONDS,
-			'display'  => __( 'Twice Daily' ),
+			'display'  => 'Twice Daily',
 		),
 		'daily'      => array(
 			'interval' => DAY_IN_SECONDS,
-			'display'  => __( 'Once Daily' ),
+			'display'  => 'Once Daily',
 		),
 		'weekly'     => array(
 			'interval' => WEEK_IN_SECONDS,
-			'display'  => __( 'Once Weekly' ),
+			'display'  => 'Once Weekly',
 		),
 	);
 
