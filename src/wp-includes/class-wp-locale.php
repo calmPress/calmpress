@@ -14,208 +14,205 @@
  * @since 4.6.0 Moved to its own file from wp-includes/locale.php.
  */
 class WP_Locale {
-	/**
-	 * Stores the translated strings for the full weekday names.
-	 *
-	 * @since 2.1.0
-	 * @var array
-	 */
-	public $weekday;
 
 	/**
-	 * Stores the translated strings for the one character weekday names.
+	 * Mimic the wordpress weekday public property.
 	 *
-	 * There is a hack to make sure that Tuesday and Thursday, as well
-	 * as Sunday and Saturday, don't conflict. See init() method for more.
+	 * @since calmPress 1.0.0
 	 *
-	 * @see WP_Locale::init() for how to handle the hack.
-	 *
-	 * @since 2.1.0
-	 * @var array
+	 * @return array Where day numbers (0-6) are the indexes and their translated names
+	 *               the values.
 	 */
-	public $weekday_initial;
-
-	/**
-	 * Stores the translated strings for the abbreviated weekday names.
-	 *
-	 * @since 2.1.0
-	 * @var array
-	 */
-	public $weekday_abbrev;
-
-	/**
-	 * Stores the translated strings for the full month names.
-	 *
-	 * @since 2.1.0
-	 * @var array
-	 */
-	public $month;
-
-	/**
-	 * Stores the translated strings for the month names in genitive case, if the locale specifies.
-	 *
-	 * @since 4.4.0
-	 * @var array
-	 */
-	public $month_genitive;
-
-	/**
-	 * Stores the translated strings for the abbreviated month names.
-	 *
-	 * @since 2.1.0
-	 * @var array
-	 */
-	public $month_abbrev;
-
-	/**
-	 * Stores the translated strings for 'am' and 'pm'.
-	 *
-	 * Also the capitalized versions.
-	 *
-	 * @since 2.1.0
-	 * @var array
-	 */
-	public $meridiem;
-
-	/**
-	 * The text direction of the locale language.
-	 *
-	 * Default is left to right 'ltr'.
-	 *
-	 * @since 2.1.0
-	 * @var string
-	 */
-	public $text_direction = 'ltr';
-
-	/**
-	 * The thousands separator and decimal point values used for localizing numbers.
-	 *
-	 * @since 2.3.0
-	 * @var array
-	 */
-	public $number_format;
-
-	/**
-	 * Constructor which calls helper methods to set up object variables.
-	 *
-	 * @since 2.1.0
-	 */
-	public function __construct() {
-		$this->init();
-		$this->register_globals();
+	private function weekday(): array {
+		return [
+			0 => /* translators: Weekday. */ __( 'Sunday' ),
+			1 => /* translators: Weekday. */ __( 'Monday' ),
+			2 => /* translators: Weekday. */ __( 'Tuesday' ),
+			3 => /* translators: Weekday. */ __( 'Wednesday' ),
+			4 => /* translators: Weekday. */ __( 'Thursday' ),
+			5 => /* translators: Weekday. */ __( 'Friday' ),
+			6 => /* translators: Weekday. */ __( 'Saturday' ),
+		];
 	}
 
 	/**
-	 * Sets up the translated strings and object properties.
+	 * Mimic the wordpress weekday_initial public property.
 	 *
-	 * The method creates the translatable strings for various
-	 * calendar elements. Which allows for specifying locale
-	 * specific calendar names and text direction.
+	 * @since calmPress 1.0.0
 	 *
-	 * @since 2.1.0
-	 *
-	 * @global string $text_direction
+	 * @return array Where translated day names are the indexes and their translated initials
+	 *               the values.
 	 */
-	public function init() {
-		// The weekdays.
-		$this->weekday[0] = /* translators: Weekday. */ __( 'Sunday' );
-		$this->weekday[1] = /* translators: Weekday. */ __( 'Monday' );
-		$this->weekday[2] = /* translators: Weekday. */ __( 'Tuesday' );
-		$this->weekday[3] = /* translators: Weekday. */ __( 'Wednesday' );
-		$this->weekday[4] = /* translators: Weekday. */ __( 'Thursday' );
-		$this->weekday[5] = /* translators: Weekday. */ __( 'Friday' );
-		$this->weekday[6] = /* translators: Weekday. */ __( 'Saturday' );
+	private function weekday_initial(): array {
+		return [
+			__( 'Sunday', 'default', false )    => /* translators: One-letter abbreviation of the weekday. */ _x( 'S', 'Sunday initial' ),
+			__( 'Monday', 'default', false )    => /* translators: One-letter abbreviation of the weekday. */ _x( 'M', 'Monday initial' ),
+			__( 'Tuesday', 'default', false )   => /* translators: One-letter abbreviation of the weekday. */ _x( 'T', 'Tuesday initial' ),
+			__( 'Wednesday', 'default', false ) => /* translators: One-letter abbreviation of the weekday. */ _x( 'W', 'Wednesday initial' ),
+			__( 'Thursday', 'default', false )  => /* translators: One-letter abbreviation of the weekday. */ _x( 'T', 'Thursday initial' ),
+			__( 'Friday', 'default', false )    => /* translators: One-letter abbreviation of the weekday. */ _x( 'F', 'Friday initial' ),
+			__( 'Saturday', 'default', false )  => /* translators: One-letter abbreviation of the weekday. */ _x( 'S', 'Saturday initial' ),
+		];
+	}
 
-		// The first letter of each day.
-		$this->weekday_initial[ __( 'Sunday' ) ]    = /* translators: One-letter abbreviation of the weekday. */ _x( 'S', 'Sunday initial' );
-		$this->weekday_initial[ __( 'Monday' ) ]    = /* translators: One-letter abbreviation of the weekday. */ _x( 'M', 'Monday initial' );
-		$this->weekday_initial[ __( 'Tuesday' ) ]   = /* translators: One-letter abbreviation of the weekday. */ _x( 'T', 'Tuesday initial' );
-		$this->weekday_initial[ __( 'Wednesday' ) ] = /* translators: One-letter abbreviation of the weekday. */ _x( 'W', 'Wednesday initial' );
-		$this->weekday_initial[ __( 'Thursday' ) ]  = /* translators: One-letter abbreviation of the weekday. */ _x( 'T', 'Thursday initial' );
-		$this->weekday_initial[ __( 'Friday' ) ]    = /* translators: One-letter abbreviation of the weekday. */ _x( 'F', 'Friday initial' );
-		$this->weekday_initial[ __( 'Saturday' ) ]  = /* translators: One-letter abbreviation of the weekday. */ _x( 'S', 'Saturday initial' );
+	/**
+	 * Mimic the wordpress weekday_abbrev public property.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return array Where translated day names are the indexes and their translated abbreveation
+	 *               the values.
+	 */
+	private function weekday_abbrev(): array {
+		return [
+			__( 'Sunday', 'default', false )    => /* translators: Three-letter abbreviation of the weekday. */ __( 'Sun' ),
+			__( 'Monday', 'default', false )    => /* translators: Ttree-letter abbreviation of the weekday. */ __( 'Mon' ),
+			__( 'Tuesday', 'default', false )   => /* translators: Three-letter abbreviation of the weekday. */ __( 'Tue' ),
+			__( 'Wednesday', 'default', false ) => /* translators: Three-letter abbreviation of the weekday. */ __( 'Wed' ),
+			__( 'Thursday', 'default', false )  => /* translators: Three-letter abbreviation of the weekday. */ __( 'Thu' ),
+			__( 'Friday', 'default', false )    => /* translators: Three-letter abbreviation of the weekday. */ __( 'Fri' ),
+			__( 'Saturday', 'default', false )  => /* translators: Three-letter abbreviation of the weekday. */ __( 'Sat' ),
+		];
+	}
 
-		// Abbreviations for each day.
-		$this->weekday_abbrev[ __( 'Sunday' ) ]    = /* translators: Three-letter abbreviation of the weekday. */ __( 'Sun' );
-		$this->weekday_abbrev[ __( 'Monday' ) ]    = /* translators: Ttree-letter abbreviation of the weekday. */ __( 'Mon' );
-		$this->weekday_abbrev[ __( 'Tuesday' ) ]   = /* translators: Three-letter abbreviation of the weekday. */ __( 'Tue' );
-		$this->weekday_abbrev[ __( 'Wednesday' ) ] = /* translators: Three-letter abbreviation of the weekday. */ __( 'Wed' );
-		$this->weekday_abbrev[ __( 'Thursday' ) ]  = /* translators: Three-letter abbreviation of the weekday. */ __( 'Thu' );
-		$this->weekday_abbrev[ __( 'Friday' ) ]    = /* translators: Three-letter abbreviation of the weekday. */ __( 'Fri' );
-		$this->weekday_abbrev[ __( 'Saturday' ) ]  = /* translators: Three-letter abbreviation of the weekday. */ __( 'Sat' );
+	/**
+	 * Mimic the wordpress month public property.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return array Where month numbers (01-12) are the indexes and their translated names
+	 *               the values.
+	 */
+	private function month(): array {
+		return [
+			'01' => /* translators: Month name. */ __( 'January' ),
+			'02' => /* translators: Month name. */ __( 'February' ),
+			'03' => /* translators: Month name. */ __( 'March' ),
+			'04' => /* translators: Month name. */ __( 'April' ),
+			'05' => /* translators: Month name. */ __( 'May' ),
+			'06' => /* translators: Month name. */ __( 'June' ),
+			'07' => /* translators: Month name. */ __( 'July' ),
+			'08' => /* translators: Month name. */ __( 'August' ),
+			'09' => /* translators: Month name. */ __( 'September' ),
+			'10' => /* translators: Month name. */ __( 'October' ),
+			'11' => /* translators: Month name. */ __( 'November' ),
+			'12' => /* translators: Month name. */ __( 'December' ),
+		];
+	}
 
-		// The months.
-		$this->month['01'] = /* translators: Month name. */ __( 'January' );
-		$this->month['02'] = /* translators: Month name. */ __( 'February' );
-		$this->month['03'] = /* translators: Month name. */ __( 'March' );
-		$this->month['04'] = /* translators: Month name. */ __( 'April' );
-		$this->month['05'] = /* translators: Month name. */ __( 'May' );
-		$this->month['06'] = /* translators: Month name. */ __( 'June' );
-		$this->month['07'] = /* translators: Month name. */ __( 'July' );
-		$this->month['08'] = /* translators: Month name. */ __( 'August' );
-		$this->month['09'] = /* translators: Month name. */ __( 'September' );
-		$this->month['10'] = /* translators: Month name. */ __( 'October' );
-		$this->month['11'] = /* translators: Month name. */ __( 'November' );
-		$this->month['12'] = /* translators: Month name. */ __( 'December' );
+	/**
+	 * Mimic the wordpress month_genitive public property.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return array Where month numbers (01-12) are the indexes and their translated geniative names
+	 *               the values.
+	 */
+	private function month_genitive(): array {
+		return [
+			'01' => /* translators: Month name, genitive. */ _x( 'January', 'genitive' ),
+			'02' => /* translators: Month name, genitive. */ _x( 'February', 'genitive' ),
+			'03' => /* translators: Month name, genitive. */ _x( 'March', 'genitive' ),
+			'04' => /* translators: Month name, genitive. */ _x( 'April', 'genitive' ),
+			'05' => /* translators: Month name, genitive. */ _x( 'May', 'genitive' ),
+			'06' => /* translators: Month name, genitive. */ _x( 'June', 'genitive' ),
+			'07' => /* translators: Month name, genitive. */ _x( 'July', 'genitive' ),
+			'08' => /* translators: Month name, genitive. */ _x( 'August', 'genitive' ),
+			'09' => /* translators: Month name, genitive. */ _x( 'September', 'genitive' ),
+			'10' => /* translators: Month name, genitive. */ _x( 'October', 'genitive' ),
+			'11' => /* translators: Month name, genitive. */ _x( 'November', 'genitive' ),
+			'12' => /* translators: Month name, genitive. */ _x( 'December', 'genitive' ),
+		];
+	}
 
-		// The months, genitive.
-		$this->month_genitive['01'] = /* translators: Month name, genitive. */ _x( 'January', 'genitive' );
-		$this->month_genitive['02'] = /* translators: Month name, genitive. */ _x( 'February', 'genitive' );
-		$this->month_genitive['03'] = /* translators: Month name, genitive. */ _x( 'March', 'genitive' );
-		$this->month_genitive['04'] = /* translators: Month name, genitive. */ _x( 'April', 'genitive' );
-		$this->month_genitive['05'] = /* translators: Month name, genitive. */ _x( 'May', 'genitive' );
-		$this->month_genitive['06'] = /* translators: Month name, genitive. */ _x( 'June', 'genitive' );
-		$this->month_genitive['07'] = /* translators: Month name, genitive. */ _x( 'July', 'genitive' );
-		$this->month_genitive['08'] = /* translators: Month name, genitive. */ _x( 'August', 'genitive' );
-		$this->month_genitive['09'] = /* translators: Month name, genitive. */ _x( 'September', 'genitive' );
-		$this->month_genitive['10'] = /* translators: Month name, genitive. */ _x( 'October', 'genitive' );
-		$this->month_genitive['11'] = /* translators: Month name, genitive. */ _x( 'November', 'genitive' );
-		$this->month_genitive['12'] = /* translators: Month name, genitive. */ _x( 'December', 'genitive' );
+	/**
+	 * Mimic the wordpress month_abbrev public property.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return array Where month translated names are the indexes and their translated abbreviations
+	 *               the values.
+	 */
+	private function month_abbrev(): array {
+		return [
+			__( 'January', 'default', false )   => /* translators: Three-letter abbreviation of the month. */ _x( 'Jan', 'January abbreviation' ),
+			__( 'February', 'default', false )  => /* translators: Three-letter abbreviation of the month. */ _x( 'Feb', 'February abbreviation' ),
+			__( 'March', 'default', false )     => /* translators: Three-letter abbreviation of the month. */ _x( 'Mar', 'March abbreviation' ),
+			__( 'April', 'default', false )     => /* translators: Three-letter abbreviation of the month. */ _x( 'Apr', 'April abbreviation' ),
+			__( 'May', 'default', false )       => /* translators: Three-letter abbreviation of the month. */ _x( 'May', 'May abbreviation' ),
+			__( 'June', 'default', false )      => /* translators: Three-letter abbreviation of the month. */ _x( 'Jun', 'June abbreviation' ),
+			__( 'July', 'default', false )      => /* translators: Three-letter abbreviation of the month. */ _x( 'Jul', 'July abbreviation' ),
+			__( 'August', 'default', false )    => /* translators: Three-letter abbreviation of the month. */ _x( 'Aug', 'August abbreviation' ),
+			__( 'September', 'default', false ) => /* translators: Three-letter abbreviation of the month. */ _x( 'Sep', 'September abbreviation' ),
+			__( 'October', 'default', false )   => /* translators: Three-letter abbreviation of the month. */ _x( 'Oct', 'October abbreviation' ),
+			__( 'November', 'default', false )  => /* translators: Three-letter abbreviation of the month. */ _x( 'Nov', 'November abbreviation' ),
+			__( 'December', 'default', false )  => /* translators: Three-letter abbreviation of the month. */ _x( 'Dec', 'December abbreviation' ),
+		];
+	}
 
-		// Abbreviations for each month.
-		$this->month_abbrev[ __( 'January' ) ]   = /* translators: Three-letter abbreviation of the month. */ _x( 'Jan', 'January abbreviation' );
-		$this->month_abbrev[ __( 'February' ) ]  = /* translators: Three-letter abbreviation of the month. */ _x( 'Feb', 'February abbreviation' );
-		$this->month_abbrev[ __( 'March' ) ]     = /* translators: Three-letter abbreviation of the month. */ _x( 'Mar', 'March abbreviation' );
-		$this->month_abbrev[ __( 'April' ) ]     = /* translators: Three-letter abbreviation of the month. */ _x( 'Apr', 'April abbreviation' );
-		$this->month_abbrev[ __( 'May' ) ]       = /* translators: Three-letter abbreviation of the month. */ _x( 'May', 'May abbreviation' );
-		$this->month_abbrev[ __( 'June' ) ]      = /* translators: Three-letter abbreviation of the month. */ _x( 'Jun', 'June abbreviation' );
-		$this->month_abbrev[ __( 'July' ) ]      = /* translators: Three-letter abbreviation of the month. */ _x( 'Jul', 'July abbreviation' );
-		$this->month_abbrev[ __( 'August' ) ]    = /* translators: Three-letter abbreviation of the month. */ _x( 'Aug', 'August abbreviation' );
-		$this->month_abbrev[ __( 'September' ) ] = /* translators: Three-letter abbreviation of the month. */ _x( 'Sep', 'September abbreviation' );
-		$this->month_abbrev[ __( 'October' ) ]   = /* translators: Three-letter abbreviation of the month. */ _x( 'Oct', 'October abbreviation' );
-		$this->month_abbrev[ __( 'November' ) ]  = /* translators: Three-letter abbreviation of the month. */ _x( 'Nov', 'November abbreviation' );
-		$this->month_abbrev[ __( 'December' ) ]  = /* translators: Three-letter abbreviation of the month. */ _x( 'Dec', 'December abbreviation' );
+	/**
+	 * Mimic the wordpress meridiem public property.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return array Where meridiem names are the indexes and their translated value
+	 *               the values.
+	 */
+	private function meridiem(): array {
+		return [
+			'am' => __( 'am' ),
+			'pm' => __( 'pm' ),
+			'AM' => __( 'AM' ),
+			'PM' => __( 'PM' ),
+		];
+	}
 
-		// The meridiems.
-		$this->meridiem['am'] = __( 'am' );
-		$this->meridiem['pm'] = __( 'pm' );
-		$this->meridiem['AM'] = __( 'AM' );
-		$this->meridiem['PM'] = __( 'PM' );
-
+	/**
+	 * Mimic the wordpress number_format public property.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return array The number format used in the translation with thousands_sep and decimal_point indexes
+	 *               which point to the the appropriate translation.
+	 */
+	private function number_format(): array {
 		// Numbers formatting.
 		// See https://www.php.net/number_format
 
 		/* translators: $thousands_sep argument for https://www.php.net/number_format, default is ',' */
-		$thousands_sep = __( 'number_format_thousands_sep' );
+		$thousands_sep = __( 'number_format_thousands_sep', 'default', true );
 
 		// Replace space with a non-breaking space to avoid wrapping.
 		$thousands_sep = str_replace( ' ', '&nbsp;', $thousands_sep );
 
-		$this->number_format['thousands_sep'] = ( 'number_format_thousands_sep' === $thousands_sep ) ? ',' : $thousands_sep;
+		$ret['thousands_sep'] = ( 'number_format_thousands_sep' === $thousands_sep ) ? ',' : $thousands_sep;
 
 		/* translators: $dec_point argument for https://www.php.net/number_format, default is '.' */
-		$decimal_point = __( 'number_format_decimal_point' );
+		$decimal_point = __( 'number_format_decimal_point', 'default', true );
 
-		$this->number_format['decimal_point'] = ( 'number_format_decimal_point' === $decimal_point ) ? '.' : $decimal_point;
+		$ret['decimal_point'] = ( 'number_format_decimal_point' === $decimal_point ) ? '.' : $decimal_point;
 
+		return $ret;
+	}
+
+	/**
+	 * Mimic the wordpress text_direction public property.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string 'rtl' if its is an rtl translation, otherwise 'ltr'.
+	 */
+	private function text_direction(): string {
 		// Set text direction.
 		if ( isset( $GLOBALS['text_direction'] ) ) {
-			$this->text_direction = $GLOBALS['text_direction'];
+			return $GLOBALS['text_direction'];
 
 			/* translators: 'rtl' or 'ltr'. This sets the text direction for WordPress. */
-		} elseif ( 'rtl' === _x( 'ltr', 'text direction' ) ) {
-			$this->text_direction = 'rtl';
+		} elseif ( 'rtl' === _x( 'ltr', 'text direction', 'default', false ) ) {
+			return 'rtl';
 		}
+
+		return 'ltr';
 	}
 
 	/**
@@ -316,29 +313,6 @@ class WP_Locale {
 	}
 
 	/**
-	 * Global variables are deprecated.
-	 *
-	 * For backward compatibility only.
-	 *
-	 * @deprecated For backward compatibility only.
-	 *
-	 * @global array $weekday
-	 * @global array $weekday_initial
-	 * @global array $weekday_abbrev
-	 * @global array $month
-	 * @global array $month_abbrev
-	 *
-	 * @since 2.1.0
-	 */
-	public function register_globals() {
-		$GLOBALS['weekday']         = $this->weekday;
-		$GLOBALS['weekday_initial'] = $this->weekday_initial;
-		$GLOBALS['weekday_abbrev']  = $this->weekday_abbrev;
-		$GLOBALS['month']           = $this->month;
-		$GLOBALS['month_abbrev']    = $this->month_abbrev;
-	}
-
-	/**
 	 * Checks if current locale is RTL.
 	 *
 	 * @since 3.0.0
@@ -364,5 +338,36 @@ class WP_Locale {
 		__( 'g:i a' );
 		/* translators: Localized date and time format, see https://www.php.net/manual/datetime.format.php */
 		__( 'F j, Y g:i a' );
+	}
+
+	/**
+	 * Implement compatibility for public properties in the wordpress implementation.
+	 * 
+	 * Implements field for: weekday, weekday_initial, weekday_abbrev, month, month_genitive, month_abbrev,
+	 * meridiem 
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param $name the name of the property.
+	 */
+	public function __get( string $name ) {
+		if ( in_array(
+				$name,
+				[
+					'weekday',
+					'weekday_initial',
+					'weekday_abbrev',
+					'month',
+					'month_genitive',
+					'month_abbrev',
+					'meridiem',
+					'number_format',
+					'text_direction',
+				],
+				true
+			)
+		) {
+			return $this->$name();
+		}
 	}
 }

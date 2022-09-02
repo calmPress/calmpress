@@ -68,29 +68,6 @@ class Tests_Date_DateI18n extends WP_UnitTestCase {
 		$this->assertSame( '2012-12-01 00:00:00', date_i18n( 'Y-m-d H:i:s', strtotime( '2012-12-01 00:00:00' ) ) );
 	}
 
-	public function test_adjusts_format_based_on_locale() {
-		$original_locale = $GLOBALS['wp_locale'];
-		/* @var WP_Locale $locale */
-		$locale = clone $GLOBALS['wp_locale'];
-
-		$locale->weekday[6]                            = 'Saturday_Translated';
-		$locale->weekday_abbrev['Saturday_Translated'] = 'Sat_Translated';
-		$locale->month[12]                             = 'December_Translated';
-		$locale->month_abbrev['December_Translated']   = 'Dec_Translated';
-		$locale->meridiem['am']                        = 'am_Translated';
-		$locale->meridiem['AM']                        = 'AM_Translated';
-
-		$GLOBALS['wp_locale'] = $locale;
-
-		$expected = 'Saturday_Translated (Sat_Translated) 01 December_Translated (Dec_Translated) 00:00:00 am_Translated AM_Translated';
-		$actual   = date_i18n( 'l (D) d F (M) H:i:s a A', strtotime( '2012-12-01 00:00:00' ) );
-
-		// Restore original locale.
-		$GLOBALS['wp_locale'] = $original_locale;
-
-		$this->assertSame( $expected, $actual );
-	}
-
 	public function test_adjusts_format_based_on_timezone_string() {
 		update_option( 'timezone_string', 'America/Regina' );
 

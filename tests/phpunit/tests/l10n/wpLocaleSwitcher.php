@@ -85,13 +85,12 @@ class Tests_L10n_wpLocaleSwitcher extends WP_UnitTestCase {
 		);
 
 		switch_to_locale( 'de_DE' );
-
-		$wp_locale_de_de = clone $wp_locale;
+		$de_format = $wp_locale->number_format;
 
 		// Cleanup.
 		restore_previous_locale();
 
-		$this->assertSameSetsWithIndex( $expected, $wp_locale_de_de->number_format );
+		$this->assertSameSetsWithIndex( $expected, $de_format );
 	}
 
 	public function test_switch_to_locale_en_US() {
