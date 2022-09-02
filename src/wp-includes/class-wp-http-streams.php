@@ -190,7 +190,7 @@ class WP_Http_Streams {
 		if ( false === $handle ) {
 			// SSL connection failed due to expired/invalid cert, or, OpenSSL configuration is broken.
 			if ( $secure_transport && 0 === $connection_error && '' === $connection_error_str ) {
-				return new WP_Error( 'http_request_failed', __( 'The SSL certificate for the host could not be verified.' ) );
+				return new WP_Error( 'http_request_failed', 'The SSL certificate for the host could not be verified.' );
 			}
 
 			return new WP_Error( 'http_request_failed', $connection_error . ': ' . $connection_error_str );
@@ -199,7 +199,7 @@ class WP_Http_Streams {
 		// Verify that the SSL certificate is valid for this request.
 		if ( $secure_transport && $ssl_verify && ! $proxy->is_enabled() ) {
 			if ( ! self::verify_ssl_certificate( $handle, $parsed_url['host'] ) ) {
-				return new WP_Error( 'http_request_failed', __( 'The SSL certificate for the host could not be verified.' ) );
+				return new WP_Error( 'http_request_failed', 'The SSL certificate for the host could not be verified.' );
 			}
 		}
 
@@ -321,7 +321,7 @@ class WP_Http_Streams {
 				if ( $bytes_written_to_file != $this_block_size ) {
 					fclose( $handle );
 					fclose( $stream_handle );
-					return new WP_Error( 'http_request_failed', __( 'Failed to write request to temporary file.' ) );
+					return new WP_Error( 'http_request_failed', 'Failed to write request to temporary file.' );
 				}
 
 				$bytes_written += $bytes_written_to_file;

@@ -272,14 +272,14 @@ class WP_Http {
 		$parsed_url = parse_url( $url );
 
 		if ( empty( $url ) || empty( $parsed_url['scheme'] ) ) {
-			$response = new WP_Error( 'http_request_failed', __( 'A valid URL was not provided.' ) );
+			$response = new WP_Error( 'http_request_failed', 'A valid URL was not provided.' );
 			/** This action is documented in wp-includes/class-wp-http.php */
 			do_action( 'http_api_debug', $response, 'response', 'Requests', $parsed_args, $url );
 			return $response;
 		}
 
 		if ( $this->block_request( $url ) ) {
-			$response = new WP_Error( 'http_request_not_executed', __( 'User has blocked requests through HTTP.' ) );
+			$response = new WP_Error( 'http_request_not_executed', 'User has blocked requests through HTTP.' );
 			/** This action is documented in wp-includes/class-wp-http.php */
 			do_action( 'http_api_debug', $response, 'response', 'Requests', $parsed_args, $url );
 			return $response;
@@ -296,7 +296,7 @@ class WP_Http {
 			// and perms of destination directory.
 			$parsed_args['blocking'] = true;
 			if ( ! wp_is_writable( dirname( $parsed_args['filename'] ) ) ) {
-				$response = new WP_Error( 'http_request_failed', __( 'Destination directory for file streaming does not exist or is not writable.' ) );
+				$response = new WP_Error( 'http_request_failed', 'Destination directory for file streaming does not exist or is not writable.' );
 				/** This action is documented in wp-includes/class-wp-http.php */
 				do_action( 'http_api_debug', $response, 'response', 'Requests', $parsed_args, $url );
 				return $response;
@@ -506,7 +506,7 @@ class WP_Http {
 	 */
 	public static function validate_redirects( $location ) {
 		if ( ! wp_http_validate_url( $location ) ) {
-			throw new Requests_Exception( __( 'A valid URL was not provided.' ), 'wp_http.redirect_failed_validation' );
+			throw new Requests_Exception( 'A valid URL was not provided.', 'wp_http.redirect_failed_validation' );
 		}
 	}
 
@@ -575,7 +575,7 @@ class WP_Http {
 
 		$class = $this->_get_first_available_transport( $args, $url );
 		if ( ! $class ) {
-			return new WP_Error( 'http_failure', __( 'There are no HTTP transports available which can complete the requested request.' ) );
+			return new WP_Error( 'http_failure', 'There are no HTTP transports available which can complete the requested request.' );
 		}
 
 		// Transport claims to support request, instantiate it and give it a whirl.
@@ -1038,7 +1038,7 @@ class WP_Http {
 
 		// Don't redirect if we've run out of redirects.
 		if ( $args['redirection']-- <= 0 ) {
-			return new WP_Error( 'http_request_failed', __( 'Too many redirects.' ) );
+			return new WP_Error( 'http_request_failed', 'Too many redirects.' );
 		}
 
 		$redirect_location = $response['headers']['location'];

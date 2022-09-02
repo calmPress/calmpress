@@ -240,7 +240,7 @@ class WP_Http_Curl {
 			}
 			if ( in_array( curl_getinfo( $handle, CURLINFO_HTTP_CODE ), array( 301, 302 ), true ) ) {
 				curl_close( $handle );
-				return new WP_Error( 'http_request_failed', __( 'Too many redirects.' ) );
+				return new WP_Error( 'http_request_failed', 'Too many redirects.');
 			}
 
 			curl_close( $handle );
@@ -274,7 +274,7 @@ class WP_Http_Curl {
 					if ( $parsed_args['stream'] ) {
 						curl_close( $handle );
 						fclose( $this->stream_handle );
-						return new WP_Error( 'http_request_failed', __( 'Failed to write request to temporary file.' ) );
+						return new WP_Error( 'http_request_failed', 'Failed to write request to temporary file.' );
 					} else {
 						curl_close( $handle );
 						return new WP_Error( 'http_request_failed', curl_error( $handle ) );
@@ -289,7 +289,7 @@ class WP_Http_Curl {
 			}
 			if ( in_array( curl_getinfo( $handle, CURLINFO_HTTP_CODE ), array( 301, 302 ), true ) ) {
 				curl_close( $handle );
-				return new WP_Error( 'http_request_failed', __( 'Too many redirects.' ) );
+				return new WP_Error( 'http_request_failed', 'Too many redirects.' );
 			}
 		}
 
