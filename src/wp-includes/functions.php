@@ -1509,7 +1509,7 @@ function do_feed() {
 	}
 
 	if ( ! has_action( "do_feed_{$feed}" ) ) {
-		wp_die( __( 'Error: This is not a valid feed template.' ), '', array( 'response' => 404 ) );
+		wp_die( 'Error: This is not a valid feed template.', '', array( 'response' => 404 ) );
 	}
 
 	/**
@@ -2723,7 +2723,7 @@ function _wp_check_existing_file_names( $filename, $files ) {
 function wp_upload_bits( $name, $deprecated, $bits, $time = null ) {
 
 	if ( empty( $name ) ) {
-		return array( 'error' => __( 'Empty filename' ) );
+		return array( 'error' => 'Empty filename' );
 	}
 
 	$wp_filetype = wp_check_filetype( $name );

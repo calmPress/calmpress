@@ -96,7 +96,7 @@ function ms_site_check() {
 		if ( file_exists( WP_CONTENT_DIR . '/blog-deleted.php' ) ) {
 			return WP_CONTENT_DIR . '/blog-deleted.php';
 		} else {
-			wp_die( __( 'This site is no longer available.' ), '', array( 'response' => 410 ) );
+			wp_die( 'This site is no longer available.', '', array( 'response' => 410 ) );
 		}
 	}
 
@@ -119,7 +119,7 @@ function ms_site_check() {
 		if ( file_exists( WP_CONTENT_DIR . '/blog-suspended.php' ) ) {
 			return WP_CONTENT_DIR . '/blog-suspended.php';
 		} else {
-			wp_die( __( 'This site has been archived or suspended.' ), '', array( 'response' => 410 ) );
+			wp_die( 'This site has been archived or suspended.', '', array( 'response' => 410 ) );
 		}
 	}
 

@@ -66,7 +66,7 @@ function wp_insert_site( array $data ) {
 	}
 
 	if ( false === $wpdb->insert( $wpdb->blogs, $prepared_data ) ) {
-		return new WP_Error( 'db_insert_error', __( 'Could not insert site into the database.' ), $wpdb->last_error );
+		return new WP_Error( 'db_insert_error', 'Could not insert site into the database.', $wpdb->last_error );
 	}
 
 	$site_id = (int) $wpdb->insert_id;
@@ -76,7 +76,7 @@ function wp_insert_site( array $data ) {
 	$new_site = get_site( $site_id );
 
 	if ( ! $new_site ) {
-		return new WP_Error( 'get_site_error', __( 'Could not retrieve site data.' ) );
+		return new WP_Error( 'get_site_error', 'Could not retrieve site data.' );
 	}
 
 	/**
@@ -138,12 +138,12 @@ function wp_update_site( $site_id, array $data ) {
 	global $wpdb;
 
 	if ( empty( $site_id ) ) {
-		return new WP_Error( 'site_empty_id', __( 'Site ID must not be empty.' ) );
+		return new WP_Error( 'site_empty_id', 'Site ID must not be empty.' );
 	}
 
 	$old_site = get_site( $site_id );
 	if ( ! $old_site ) {
-		return new WP_Error( 'site_not_exist', __( 'Site does not exist.' ) );
+		return new WP_Error( 'site_not_exist', 'Site does not exist.' );
 	}
 
 	$defaults                 = $old_site->to_array();
@@ -157,7 +157,7 @@ function wp_update_site( $site_id, array $data ) {
 	}
 
 	if ( false === $wpdb->update( $wpdb->blogs, $data, array( 'blog_id' => $old_site->id ) ) ) {
-		return new WP_Error( 'db_update_error', __( 'Could not update site in the database.' ), $wpdb->last_error );
+		return new WP_Error( 'db_update_error', 'Could not update site in the database.', $wpdb->last_error );
 	}
 
 	clean_blog_cache( $old_site );
@@ -191,12 +191,12 @@ function wp_delete_site( $site_id ) {
 	global $wpdb;
 
 	if ( empty( $site_id ) ) {
-		return new WP_Error( 'site_empty_id', __( 'Site ID must not be empty.' ) );
+		return new WP_Error( 'site_empty_id', 'Site ID must not be empty.' );
 	}
 
 	$old_site = get_site( $site_id );
 	if ( ! $old_site ) {
-		return new WP_Error( 'site_not_exist', __( 'Site does not exist.' ) );
+		return new WP_Error( 'site_not_exist', 'Site does not exist.' );
 	}
 
 	$errors = new WP_Error();
@@ -235,7 +235,7 @@ function wp_delete_site( $site_id ) {
 	}
 
 	if ( false === $wpdb->delete( $wpdb->blogs, array( 'blog_id' => $old_site->id ) ) ) {
-		return new WP_Error( 'db_delete_error', __( 'Could not delete site from the database.' ), $wpdb->last_error );
+		return new WP_Error( 'db_delete_error', 'Could not delete site from the database.', $wpdb->last_error );
 	}
 
 	clean_blog_cache( $old_site );
@@ -520,14 +520,14 @@ function wp_validate_site_data( $errors, $data, $old_site = null ) {
 
 	// A network ID must always be present.
 	if ( empty( $data['network_id'] ) ) {
-		$errors->add( 'site_empty_network_id', __( 'Site network ID must be provided.' ) );
+		$errors->add( 'site_empty_network_id', 'Site network ID must be provided.' );
 	}
 
 	// Both registration and last updated dates must always be present and valid.
 	$date_fields = array( 'registered', 'last_updated' );
 	foreach ( $date_fields as $date_field ) {
 		if ( empty( $data[ $date_field ] ) ) {
-			$errors->add( 'site_empty_' . $date_field, __( 'Both registration and last updated dates must be provided.' ) );
+			$errors->add( 'site_empty_' . $date_field, 'Both registration and last updated dates must be provided.' );
 			break;
 		}
 
@@ -538,7 +538,7 @@ function wp_validate_site_data( $errors, $data, $old_site = null ) {
 			$year       = substr( $data[ $date_field ], 0, 4 );
 			$valid_date = wp_checkdate( $month, $day, $year, $data[ $date_field ] );
 			if ( ! $valid_date ) {
-				$errors->add( 'site_invalid_' . $date_field, __( 'Both registration and last updated dates must be valid dates.' ) );
+				$errors->add( 'site_invalid_' . $date_field, 'Both registration and last updated dates must be valid dates.' );
 				break;
 			}
 		}
@@ -589,12 +589,12 @@ function wp_initialize_site( $site_id, array $args = array() ) {
 	global $wpdb, $wp_roles;
 
 	if ( empty( $site_id ) ) {
-		return new WP_Error( 'site_empty_id', __( 'Site ID must not be empty.' ) );
+		return new WP_Error( 'site_empty_id', 'Site ID must not be empty.' );
 	}
 
 	$site = get_site( $site_id );
 	if ( ! $site ) {
-		return new WP_Error( 'site_invalid_id', __( 'Site with the ID does not exist.' ) );
+		return new WP_Error( 'site_invalid_id', 'Site with the ID does not exist.' );
 	}
 
 	if ( wp_is_site_initialized( $site ) ) {
@@ -720,16 +720,16 @@ function wp_uninitialize_site( $site_id ) {
 	global $wpdb;
 
 	if ( empty( $site_id ) ) {
-		return new WP_Error( 'site_empty_id', __( 'Site ID must not be empty.' ) );
+		return new WP_Error( 'site_empty_id', 'Site ID must not be empty.' );
 	}
 
 	$site = get_site( $site_id );
 	if ( ! $site ) {
-		return new WP_Error( 'site_invalid_id', __( 'Site with the ID does not exist.' ) );
+		return new WP_Error( 'site_invalid_id', 'Site with the ID does not exist.' );
 	}
 
 	if ( ! wp_is_site_initialized( $site ) ) {
-		return new WP_Error( 'site_already_uninitialized', __( 'The site appears to be already uninitialized.' ) );
+		return new WP_Error( 'site_already_uninitialized', 'The site appears to be already uninitialized.' );
 	}
 
 	$users = get_users(
