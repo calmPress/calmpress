@@ -1539,7 +1539,7 @@ function register_post_type( $post_type, $args = array() ) {
 
 	if ( empty( $post_type ) || strlen( $post_type ) > 20 ) {
 		_doing_it_wrong( __FUNCTION__, 'Post type names must be between 1 and 20 characters in length.', '4.2.0' );
-		return new WP_Error( 'post_type_length_invalid', __( 'Post type names must be between 1 and 20 characters in length.' ) );
+		return new WP_Error( 'post_type_length_invalid', 'Post type names must be between 1 and 20 characters in length.' );
 	}
 
 	$post_type_object = new WP_Post_Type( $post_type, $args );
@@ -1582,14 +1582,14 @@ function unregister_post_type( $post_type ) {
 	global $wp_post_types;
 
 	if ( ! post_type_exists( $post_type ) ) {
-		return new WP_Error( 'invalid_post_type', __( 'Invalid post type.' ) );
+		return new WP_Error( 'invalid_post_type', 'Invalid post type.' );
 	}
 
 	$post_type_object = get_post_type_object( $post_type );
 
 	// Do not allow unregistering internal post types.
 	if ( $post_type_object->_builtin ) {
-		return new WP_Error( 'invalid_post_type', __( 'Unregistering a built-in post type is not allowed' ) );
+		return new WP_Error( 'invalid_post_type', 'Unregistering a built-in post type is not allowed' );
 	}
 
 	$post_type_object->remove_supports();
@@ -3942,7 +3942,7 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 
 		if ( is_null( $post_before ) ) {
 			if ( $wp_error ) {
-				return new WP_Error( 'invalid_post', __( 'Invalid post ID.' ) );
+				return new WP_Error( 'invalid_post', 'Invalid post ID.' );
 			}
 			return 0;
 		}
@@ -3991,7 +3991,7 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 	 */
 	if ( apply_filters( 'wp_insert_post_empty_content', $maybe_empty, $postarr ) ) {
 		if ( $wp_error ) {
-			return new WP_Error( 'empty_content', __( 'Content and title are empty.' ) );
+			return new WP_Error( 'empty_content', 'Content and title are empty.' );
 		} else {
 			return 0;
 		}
@@ -4051,7 +4051,7 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 	$post_date = wp_resolve_post_date( $postarr['post_date'], $postarr['post_date_gmt'] );
 	if ( ! $post_date ) {
 		if ( $wp_error ) {
-			return new WP_Error( 'invalid_date', __( 'Invalid date.' ) );
+			return new WP_Error( 'invalid_date', 'Invalid date.' );
 		} else {
 			return 0;
 		}
@@ -4245,9 +4245,9 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 		if ( false === $wpdb->update( $wpdb->posts, $data, $where ) ) {
 			if ( $wp_error ) {
 				if ( 'attachment' === $post_type ) {
-					$message = __( 'Could not update attachment in the database.' );
+					$message = 'Could not update attachment in the database.';
 				} else {
-					$message = __( 'Could not update post in the database.' );
+					$message = 'Could not update post in the database.';
 				}
 
 				return new WP_Error( 'db_update_error', $message, $wpdb->last_error );
@@ -4268,9 +4268,9 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 		if ( false === $wpdb->insert( $wpdb->posts, $data ) ) {
 			if ( $wp_error ) {
 				if ( 'attachment' === $post_type ) {
-					$message = __( 'Could not insert attachment into the database.' );
+					$message = 'Could not insert attachment into the database.';
 				} else {
-					$message = __( 'Could not insert post into the database.' );
+					$message = 'Could not insert post into the database.';
 				}
 
 				return new WP_Error( 'db_insert_error', $message, $wpdb->last_error );
@@ -4397,7 +4397,7 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 
 		if ( 'default' !== $postarr['page_template'] && ! isset( $page_templates[ $postarr['page_template'] ] ) ) {
 			if ( $wp_error ) {
-				return new WP_Error( 'invalid_page_template', __( 'Invalid page template.' ) );
+				return new WP_Error( 'invalid_page_template', 'Invalid page template.' );
 			}
 
 			update_post_meta( $post_ID, '_wp_page_template', 'default' );
@@ -4566,7 +4566,7 @@ function wp_update_post( $postarr = array(), $wp_error = false, $fire_after_hook
 
 	if ( is_null( $post ) ) {
 		if ( $wp_error ) {
-			return new WP_Error( 'invalid_post', __( 'Invalid post ID.' ) );
+			return new WP_Error( 'invalid_post', 'Invalid post ID.' );
 		}
 		return 0;
 	}
