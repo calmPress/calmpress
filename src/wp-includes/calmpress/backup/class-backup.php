@@ -89,44 +89,44 @@ class Backup {
 
 		$data = json_decode( $json_data, true );
 		if ( null === $data ) {
-			throw new \Exception( 'Not a valid json format: ' . $meta_file );
+			throw new \Exception( 'Not a valid json format ' );
 		}
 
 		if ( ! isset( $data[ 'description' ] ) ) {
-			throw new \Exception( sprintf( 'The "description" field is missing from the meta file %s', $meta_file ) );
+			throw new \Exception( 'The "description" field is missing' );
 		}
 
 		$description = $data[ 'description' ];
 		if ( ! is_scalar( $description ) ) {
-			throw new \Exception( sprintf( 'The field "description" is not parseable as string in the meta file %s', $meta_file ) );
+			throw new \Exception( 'The field "description" is not parseable as string' );
 		}
 		$this->description = (string) $description;
 
 		if ( ! isset( $data[ 'unique_id' ] ) ) {
-			throw new \Exception( sprintf( 'The "description" field is missing from the meta file %s', $meta_file ) );
+			throw new \Exception( 'The "unique_id" field is missing' );
 		}
 
 		$unique_id = $data[ 'unique_id' ];
 		if ( ! is_scalar( $unique_id ) ) {
-			throw new \Exception( sprintf( 'The field "unique_id" is not parseable as string in the meta file %s', $meta_file ) );
+			throw new \Exception( 'The field "unique_id" is not parseable as string' );
 		}
 		$this->unique_id = (string) $unique_id;
 
 		if ( ! isset( $data[ 'time' ] ) ) {
-			throw new \Exception( sprintf( 'The "time" field is missing from the meta file %s', $meta_file ) );
+			throw new \Exception( 'The "time" field is missing' );
 		}
 
 		$time = filter_var( $data[ 'time' ], FILTER_VALIDATE_INT );
 		if ( false === $time ) {
-			throw new \Exception( sprintf( 'The field "time" is not an integer in the meta file %s', $meta_file ) );
+			throw new \Exception( 'The field "time" is not an integer' );
 		}
 		$this->time = $time;
 
 		if ( ! isset( $data[ 'engines' ] ) ) {
-			throw new \Exception( sprintf( 'The "engines" field is missing from the meta file %s', $meta_file ) );
+			throw new \Exception( 'The "engines" field is missing' );
 		}
 		if ( ! is_array( $data[ 'engines' ] ) ) {
-			throw new \Exception( sprintf( 'The "engines" field is not an array in the meta file %s', $meta_file ) );
+			throw new \Exception( 'The "engines" field is not an array' );
 		}
 
 		$this->engines = $data[ 'engines' ];
