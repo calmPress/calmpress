@@ -1,5 +1,6 @@
 <?php
 
+require_once ABSPATH . '/wp-admin/includes/template.php';
 /**
  * Tests WP_Customize_Nav_Menus.
  *
