@@ -180,7 +180,7 @@ class WP_Locale {
 		// See https://www.php.net/number_format
 
 		/* translators: $thousands_sep argument for https://www.php.net/number_format, default is ',' */
-		$thousands_sep = __( 'number_format_thousands_sep', 'default', true );
+		$thousands_sep = __( 'number_format_thousands_sep' );
 
 		// Replace space with a non-breaking space to avoid wrapping.
 		$thousands_sep = str_replace( ' ', '&nbsp;', $thousands_sep );
@@ -188,7 +188,7 @@ class WP_Locale {
 		$ret['thousands_sep'] = ( 'number_format_thousands_sep' === $thousands_sep ) ? ',' : $thousands_sep;
 
 		/* translators: $dec_point argument for https://www.php.net/number_format, default is '.' */
-		$decimal_point = __( 'number_format_decimal_point', 'default', true );
+		$decimal_point = __( 'number_format_decimal_point' );
 
 		$ret['decimal_point'] = ( 'number_format_decimal_point' === $decimal_point ) ? '.' : $decimal_point;
 
