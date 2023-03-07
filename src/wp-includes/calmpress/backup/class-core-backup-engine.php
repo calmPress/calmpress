@@ -169,9 +169,11 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @param string $source     The full path to mu-plugins directory which might not exist.
 	 * @param string $backup_dir The directory to backup to.
 	 *
+	 * @return string $backup_dir If backup happend into it, otherwise ''.
+	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_MU_Plugins( Backup_Storage $storage, string $source, string $backup_dir ) {
+	protected static function Backup_MU_Plugins( Backup_Storage $storage, string $source, string $backup_dir ): string {
 
 		// If the mu-plugins directory does not exist there is nothing to backup and
 		// Backup_Directory requires an existing directory.
@@ -179,7 +181,10 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			$staging = $storage->section_working_area_storage( $backup_dir );
 			static::Backup_Directory( $source, $staging, '' );
 			$staging->store();
+			return $backup_dir;
 		}
+
+		return '';
 	}
 
 	/**
@@ -216,9 +221,13 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @param string $source_dir      The directory of the dropins files.
 	 * @param string $backup_dir      The root directory for the dropins backup files.
 	 *
+	 * @return string[] The names of the backed plugins.
+	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Dropins( Backup_Storage $storage, string $source_dir, string $backup_dir ) {
+	protected static function Backup_Dropins( Backup_Storage $storage, string $source_dir, string $backup_dir ): array {
+
+		$ret = [];
 
 		$staging    = $storage->section_working_area_storage( $backup_dir );
 		foreach ( static::installation_paths()->dropin_files_name() as $filename ) {
@@ -226,11 +235,14 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			if ( file_exists( $file ) ) {
 				if ( ! is_link( $file ) ) {
 					$staging->copy_file( $file, $filename );
+					$ret[] = $filename;
 				}
 			}
 		}
 
 		$staging->store();
+
+		return $ret;
 	}
 
 	/**
@@ -244,9 +256,13 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @param Backup_Storage $storage    The storage to use for the root directory files.
 	 * @param string         $backup_dir The root directory for the root backup files.
 	 *
+	 * @return string[] The names of the backed files.
+	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Root( Backup_Storage $storage, string $source_dir, string $backup_dir ) {
+	protected static function Backup_Root( Backup_Storage $storage, string $source_dir, string $backup_dir ): array {
+
+		$ret = [];
 
 		$staging    = $storage->section_working_area_storage( $backup_dir );
 		$core_files = static::installation_paths()->core_root_file_names();
@@ -261,9 +277,12 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 				continue;
 			}
 			$staging->copy_file( $file->getPathname(), $file->getFilename() );
+			$ret[] = $file->getFilename();
 		}
 
 		$staging->store();
+
+		return $ret;
 	}
 
 	/**
@@ -348,13 +367,15 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		foreach ( $themes as $theme ) {
 
 			static::throw_if_out_of_time( $max_end_time );
-				
+					
 			// skip themes without a version.
 			if ( $theme->get( 'Version' ) ) {
 				$theme_dir = static::Backup_Theme( $storage, static::RELATIVE_THEMES_BACKUP_PATH, $theme );
 				$meta[ $theme->get_stylesheet() ] = [
-					'version'   => $theme->get( 'Version' ),
-					'directory' => static::RELATIVE_THEMES_BACKUP_PATH . $theme_dir . '/',
+					'version'        => $theme->get( 'Version' ),
+					'directory'      => static::RELATIVE_THEMES_BACKUP_PATH . $theme_dir . '/',
+					'name'           => $theme->get( 'Name' ),
+					'directory_name' => basename( $theme->get_stylesheet_directory() ),
 				];
 			}
 		}
@@ -500,9 +521,14 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 				);
 
 				$meta[ $plugin_data['filename'] ] = [
-					'version'   => $plugin_data['Version'],
-					'directory' => static::RELATIVE_PLUGINS_BACKUP_PATH . $plugin_dir,
-					'type'      => 'root_file',
+					'version'     => $plugin_data['Version'],
+					'directory'   => static::RELATIVE_PLUGINS_BACKUP_PATH . $plugin_dir,
+					'type'        => 'root_file',
+					'data'        => [
+						'name'      => $plugin_data['Name'],
+						'version'   => $plugin_data['Version'],
+						'directory' => '',
+					]
 				];
 			}
 			unset( $plugindirs['.'] );
@@ -517,8 +543,14 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			// to generate the plugin data in consistant order otherwise there might be more than
 			// one backup for the same identical versions for multiple plugins in a directory.
 			$versions = [];
+			$data     = [];
 			foreach ( $dir_data as $plugin_data ) {
 				$versions[] = $plugin_data['Version'];
+				$data[]     = [
+					'name'      => $plugin_data['Name'],
+					'version'   => $plugin_data['Version'],
+					'directory' => $dirname,
+				];
 			}
 			$version = join( '-', $versions );
 			
@@ -533,6 +565,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 				'version'   => $version,
 				'directory' => static::RELATIVE_PLUGINS_BACKUP_PATH . $plugin_dir .'/',
 				'type'      => 'directory',
+				'data'      => $data,
 			];
 		}
 
@@ -680,8 +713,10 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		
 		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . time() . '/';
 		$mu_dir     = $backup_root . $mu_rel_dir;
-		$meta['mu_plugins'] = static::Backup_MU_Plugins( $storage, static::installation_paths()->mu_plugins_directory(), $mu_dir );
-		$meta['mu_plugins']['directory'] = $mu_rel_dir;
+		$dir = static::Backup_MU_Plugins( $storage, static::installation_paths()->mu_plugins_directory(), $mu_dir );
+		if ( '' !== $dir ) {
+			$meta['mu_plugins']['directory'] = $dir;
+		}
 
 		static::throw_if_out_of_time( $max_end_time );
 		
@@ -690,18 +725,103 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		$meta['languages']['directory'] = $lang_rel_dir;
 
 		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . time();
-		static::Backup_Dropins( $storage, static::installation_paths()->wp_content_directory(), $dropins_rel_dir );
+		$files           = static::Backup_Dropins( $storage, static::installation_paths()->wp_content_directory(), $dropins_rel_dir );
 		$meta['dropins']['directory'] = $dropins_rel_dir;
+		$meta['dropins']['files']     = $files;
 
 		$root_dir_rel_dir = static::RELATIVE_ROOTDIR_BACKUP_PATH . time();
-		static::Backup_Root( $storage, static::installation_paths()->root_directory(), $root_dir_rel_dir );
+		$files            = static::Backup_Root( $storage, static::installation_paths()->root_directory(), $root_dir_rel_dir );
 		$meta['root_directory']['directory'] = $root_dir_rel_dir;
+		$meta['root_directory']['files']     = $files;
 
 		$options_rel_dir = static::RELATIVE_OPTIONS_BACKUP_PATH . time();
 		static::Backup_Options( $storage, $options_rel_dir );
 		$meta['options']['directory'] = $options_rel_dir ;
 
 		return $meta;
+	}
+
+	/**
+	 * Generate a human freindly description of a backup data relating to the engine.
+	 * 
+	 * @see Engine_Specific_Backup:data_description 
+	 * @since 1.0.0
+	 *
+	 * @param array $data The data related to the engine which was generated at the time of backup.
+	 *
+	 * @return string An HTML contaning details about the core version, plugins and themes, dropins
+	 *                and root files included in the backup.
+	 */
+	public static function data_description( array $data ): string {
+		$ret = '<p>' . esc_html__( 'Core version: ' ) . esc_html( $data['version'] ) . '</p>';
+		$ret .= '<h3>' . esc_html__( 'Plugins' ) . '</h3>';
+		foreach ( $data['plugins'] as $plugin_data ) {
+			switch ( $plugin_data['type'] ) {
+				case 'root_file':
+					$ret .= '<p>' . esc_html(
+						sprintf( __( '%1s version %2s at plugins root directory' ),
+							$plugin_data['data']['name'],
+							$plugin_data['data']['version']
+						)
+					) . '</p>';
+					break;
+				case 'directory':
+					foreach ( $plugin_data['data'] as $pdata ) {
+						$ret .= '<p>' . esc_html(
+							sprintf( __( '%1s version %2s at the %3s directory' ),
+								$pdata['name'],
+								$pdata['version'],
+								$pdata['directory']
+							)
+						) . '</p>';
+					}
+					break;
+				default:
+					trigger_error( 'Unknown plugin type ' . $plugin_data['type'] );
+					break;
+			}
+		}
+
+		
+		$ret .= '<h3>' . esc_html__( 'MU Plugins' ) . '</h3>';
+		$ret .= '<p>';
+		if ( isset( $data['mu_plugins'] ) ) {
+			$ret .= __( 'Exists' );
+		} else {
+			$ret .= __( 'Do not exists' );
+		}
+		$ret .= '</p>';
+
+		$ret .= '<h3>' . esc_html__( 'Drop in Plugins' ) . '</h3>';
+		if ( empty( $data['dropins']['files'] ) ) {
+			$ret .= __( 'None' );
+		} else {
+			foreach ( $data['dropins']['files'] as $filename ) {
+				$ret .= '<p>' . $filename . '</p>';
+			}
+		}
+
+		$ret .= '<h3>' . esc_html__( 'Files at root directory' ) . '</h3>';
+		if ( empty( $data['root_directory']['files'] ) ) {
+			$ret .= __( 'None' );
+		} else {
+			foreach ( $data['root_directory']['files'] as $filename ) {
+				$ret .= '<p>' . $filename . '</p>';
+			}
+		}
+
+		$ret .= '<h3>' . esc_html__( 'Themes' ) . '</h3>';
+		foreach ( $data['themes'] as $theme_data ) {
+			$ret .= '<p>' . esc_html(
+				sprintf( __( '%1s version %2s at the %3s directory' ),
+					$theme_data['name'],
+					$theme_data['version'],
+					$theme_data['directory_name']
+				)
+			) . '</p>';
+}
+
+		return $ret;
 	}
 
 	/**

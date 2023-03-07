@@ -161,7 +161,8 @@ class Backup_List extends WP_List_Table {
 
 		$actions = [];
 
-		$actions['fullinfo'] = '<a href="#">' . esc_html__( 'Full info' ) . '</a>';
+		$details_url = add_query_arg( 'backup', $item->identifier(), admin_url( 'backup-details.php' ) );
+		$actions['fullinfo'] = '<a href="' . $details_url . '">' . esc_html__( 'Full info' ) . '</a>';
 		$actions['restore'] = '<a href="#">' . esc_html__( 'Restore' ) . '</a>';
 
 		$delete_url = add_query_arg( 'action', 'delete_backup', admin_url( 'admin-post.php' ) );
@@ -217,16 +218,17 @@ class Backup_List extends WP_List_Table {
 	 * @param array $item The current backup item.
 	 */
 	public function column_date( \calmpress\backup\Backup $item ) {
+		/* translators: 1: Post date, 2: Post time. */
+		$text = sprintf(
 			/* translators: 1: Post date, 2: Post time. */
-			$text = sprintf(
-				/* translators: 1: Post date, 2: Post time. */
-				__( '%1$s at %2$s' ),
-				/* translators: Post date format. See https://www.php.net/manual/datetime.format.php */
-				wp_date( __( 'Y/m/d' ), $item->time_created() ),
-				/* translators: Post time format. See https://www.php.net/manual/datetime.format.php */
-				wp_date( __( 'g:i a' ), $item->time_created() )
-			);
-		echo esc_html( $text );
+			__( '%1$s at %2$s' ),
+			/* translators: Post date format. See https://www.php.net/manual/datetime.format.php */
+			wp_date( __( 'Y/m/d' ), $item->time_created() ),
+			/* translators: Post time format. See https://www.php.net/manual/datetime.format.php */
+			wp_date( __( 'g:i a' ), $item->time_created() )
+		);
+		$details_url = add_query_arg( 'backup', $item->identifier(), admin_url( 'backup-details.php' ) );
+		echo '<a class="row-title" href="' . $details_url . '" aria-label=' . esc_attr( sprintf( __( 'Full details of backup create at %s' ), $text ) ) . '">' . esc_html( $text ) . '</a>';
 	}
 
 	/**
@@ -239,7 +241,9 @@ class Backup_List extends WP_List_Table {
 	 * @param array $item The current backup item.
 	 */
 	public function column_description( \calmpress\backup\Backup $item ) {
-		echo esc_html( $item->description());
+		$text = $item->description();
+		$details_url = add_query_arg( 'backup', $item->identifier(), admin_url( 'backup-details.php' ) );
+		echo '<a class="row-title" href="' . $details_url . '" aria-label=' . esc_attr( sprintf( __( 'Full details of %s' ), $text ) ) . '">' . esc_html( $text ) . '</a>';
 	}
 
 	/**

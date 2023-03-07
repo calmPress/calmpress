@@ -182,7 +182,7 @@ class Backup {
 	public static function new_backup_meta( string $description, array $engines_data ): string {
 		$o = new \stdClass();
 		$o->description = $description;
-		$o->time        = current_time( 'U', true );
+		$o->time        = time(); // Note: the timezone is set to UTC bootstrap time. 
 		$o->unique_id   = uniqid();
 		$o->engines     = $engines_data;
 

@@ -184,8 +184,10 @@ class Backup_Manager {
 
 	/**
 	 * Get all the available backs in all of the registered storages.
+	 * The returned array of backups is sorted with the latest backup as first element
+	 * an latest as last.
 	 *
-	 * @return \calmpress\backup\Backup[] An array containing all the backups.
+	 * @return \calmpress\backup\Backup[] A sorted array containing all the backups.
 	 */
 	public function existing_backups() : array {
 		$backups = [];
@@ -196,6 +198,13 @@ class Backup_Manager {
 				$backups[] = $backup;
 			}
 		}
+
+		usort(
+			$backups,
+			static function ( $a, $b ) {
+				return $b->time_created() <=> $a->time_created();
+			}
+		);
 
 		return $backups;
 	}

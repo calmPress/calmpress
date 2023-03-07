@@ -36,6 +36,18 @@ interface Engine_Specific_Backup {
 	public static function backup( Backup_Storage $storage, int $max_time ): array;
 
 	/**
+	 * Generate a human freindly description of a backup data relating to the engine.
+	 * 
+	 * @since 1.0.0
+	 *
+	 * @param array $data The data related to the engine which was generated at the time of backup.
+	 *
+	 * @return string An HTML containing the description. It is possible to assume it will be contained
+	 *                in a div or other block element. Use h3+ for subsections titles if needed.
+	 */
+	public static function data_description( array $data ): string;
+
+	/**
 	 * Prepare to restore data by doing data validation, permission checks, and whatever
 	 * else can be done before the restore is run to have a better chance that the restore itself will succeed
 	 * and complete faster.
