@@ -37,7 +37,8 @@ require ABSPATH . WPINC . '/functions.wp-styles.php';
  */
 function calm_version_hash( $version ) {
 
-    return hash_hmac( 'md5', $version, AUTH_SALT );
+	$salt = defined( 'AUTH_SALT' ) ? AUTH_SALT : ''; // At new install time AUTH_SALT is undefined so use dummy.
+    return hash_hmac( 'md5', $version, $salt );
 }
 
 /**
