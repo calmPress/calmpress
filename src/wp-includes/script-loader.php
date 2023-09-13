@@ -224,7 +224,7 @@ function wp_get_script_polyfill( $scripts, $tests ) {
  * @param WP_Scripts $scripts WP_Scripts object.
  */
 function wp_default_packages_scripts( $scripts ) {
-	$suffix = wp_scripts_get_suffix();
+	$suffix = defined( 'WP_RUN_CORE_TESTS' ) ? '.min' : wp_scripts_get_suffix();
 
 	/*
 	 * Expects multidimensional array like:
@@ -233,7 +233,7 @@ function wp_default_packages_scripts( $scripts ) {
 	 *     'annotations.js' => array('dependencies' => array(...), 'version' => '...'),
 	 *     'api-fetch.js' => array(...
 	 */
-	$assets = include ABSPATH . WPINC . '/assets/script-loader-packages.php';
+	$assets = include ABSPATH . WPINC . "/assets/script-loader-packages{$suffix}.php";
 
 	foreach ( $assets as $package_name => $package_data ) {
 		$basename = basename( $package_name, '.js' );
