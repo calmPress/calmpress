@@ -296,7 +296,11 @@ class Tests_DB extends WP_UnitTestCase {
 		$check_new_modes = $wpdb->get_var( 'SELECT @@SESSION.sql_mode;' );
 		$this->assertSameSets( $new_modes, explode( ',', $check_new_modes ) );
 
-		$wpdb->set_sql_mode( explode( ',', $current_modes ) );
+		if ( $current_modes ) {
+			$wpdb->set_sql_mode( explode( ',', $current_modes ) );
+		} else {
+			$wpdb->set_sql_mode( '' );
+		}
 	}
 
 	/**
