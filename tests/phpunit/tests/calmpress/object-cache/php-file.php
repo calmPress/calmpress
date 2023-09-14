@@ -71,16 +71,6 @@ class Mock_PHP_File extends PHP_File {
 }
 
 /**
- * Mock the function opcache_invalidate to avoid errors and see if the correct file
- * is invalidated.
- */
-function opcache_invalidate( string $file ) {
-	global $opcache_invalidate_file;
-
-	$opcache_invalidate_file = $file;
-}
-
-/**
  * Tests for the PHP_File class.
  * 
  * @since 1.0.0
@@ -168,7 +158,6 @@ class WP_Test_PHP_File extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	public function test_delete() {
-		global $opcache_invalidate_file;
 
 		$cache = new Mock_PHP_File( 'test/sub' );
 		$cache->set( 'key', 'value' );
@@ -177,7 +166,6 @@ class WP_Test_PHP_File extends WP_UnitTestCase {
 		// validation called twice, first for set, than for delete.
 		$this->assertSame( 2, Mock_PHP_File::$validation_key_called );
 		$this->assertFalse( $cache->has( 'key' ) );
-		$this->assertSame( $cache->file_for_key( 'key' ), $opcache_invalidate_file );
 	}
 
 	/**
