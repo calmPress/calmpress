@@ -40,8 +40,11 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$this->assertQueryTrue( 'is_single', 'is_singular', 'is_embed' );
 
-		// `print_embed_scripts()` assumes `wp-includes/js/wp-embed-template.js` is present:
-		self::touch( ABSPATH . WPINC . '/js/wp-embed-template.js' );
+		// `print_embed_scripts()` assumes `wp-includes/js/wp-embed-template.{suffix}.js` is present:
+		self::touch( ABSPATH . WPINC . '/js/wp-embed-template.min.js' );
+
+		// `print_embed_scripts()` assumes `wp-includes/css/wp-embed-template.{suffix}.js` is present:
+		self::touch( ABSPATH . WPINC . '/css/wp-embed-template.min.css' );
 
 		ob_start();
 		require ABSPATH . WPINC . '/theme-compat/embed.php';
