@@ -36,8 +36,8 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		);
 		update_option( 'calm_embedding_on', 1 );
 
-		// `get_post_embed_html()` assumes `wp-includes/js/wp-embed.js` is present:
-		self::touch( ABSPATH . WPINC . '/js/wp-embed.js' );
+		// `get_post_embed_html()` assumes `wp-includes/js/wp-embed.{suffix}.js` is present:
+		self::touch( ABSPATH . WPINC . '/js/wp-embed.min.js' );
 	}
 
 	public static function wpTearDownAfterClass() {
