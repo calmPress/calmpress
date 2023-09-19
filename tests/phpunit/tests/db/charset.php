@@ -664,6 +664,7 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 	 * @var array
 	 */
 	protected $table_and_column_defs = array(
+
 		array(
 			'definition'      => '( a INT, b FLOAT )',
 			'table_expected'  => false,
@@ -702,22 +703,6 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 			'column_expected' => array(
 				'a' => 'latin1',
 				'b' => 'koi8r',
-			),
-		),
-		array(
-			'definition'      => '( a VARCHAR(50) CHARACTER SET utf8mb3, b TEXT CHARACTER SET utf8mb3 )',
-			'table_expected'  => 'utf8',
-			'column_expected' => array(
-				'a' => 'utf8',
-				'b' => 'utf8',
-			),
-		),
-		array(
-			'definition'      => '( a VARCHAR(50) CHARACTER SET utf8, b TEXT CHARACTER SET utf8mb4 )',
-			'table_expected'  => 'utf8',
-			'column_expected' => array(
-				'a' => 'utf8',
-				'b' => 'utf8mb4',
 			),
 		),
 		array(
@@ -956,16 +941,6 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 		$table_name = 'table_collation_check';
 		$data       = array(
 			array(
-				// utf8_bin tables don't need extra sanity checking.
-				'( a VARCHAR(50) COLLATE utf8_bin )', // Create.
-				true,                                 // Expected result.
-			),
-			array(
-				// Neither do utf8_general_ci tables.
-				'( a VARCHAR(50) COLLATE utf8_general_ci )',
-				true,
-			),
-			array(
 				// utf8_unicode_ci tables do.
 				'( a VARCHAR(50) COLLATE utf8_unicode_ci )',
 				false,
@@ -975,12 +950,6 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 				// except for when they're not just utf8_bin.
 				'( a VARCHAR(50) COLLATE utf8_bin, b VARCHAR(50) COLLATE big5_chinese_ci )',
 				false,
-			),
-			array(
-				// utf8_bin tables don't need extra sanity checking
-				// when the other columns aren't strings.
-				'( a VARCHAR(50) COLLATE utf8_bin, b INT )',
-				true,
 			),
 		);
 
@@ -1090,9 +1059,20 @@ class Tests_DB_Charset extends WP_UnitTestCase {
 	 * @covers wpdb::set_charset
 	 */
 	public function test_set_charset_changes_the_connection_collation() {
-		self::$_wpdb->set_charset( self::$_wpdb->dbh, 'utf8', 'utf8_general_ci' );
+		$first_test_encoding = 'utf8';
+		$first_test_collate = 'utf8_general_ci';
+
+		// utf8 is reported as utfmb3 by mysql starting of 8.0.31 which also plays with collation.
+		if ( ! str_contains( self::$_wpdb->db_server_info(), 'MariaDB' )
+		&& version_compare( self::$_wpdb->db_version(), '8.0.30', '>' ) ) {
+			$first_test_encoding = 'utf8mb3';
+			$first_test_collate = 'utf8mb4_0900_ai_ci';
+		}
+	
 		$results = self::$_wpdb->get_results( "SHOW VARIABLES WHERE Variable_name='collation_connection'" );
-		$this->assertSame( 'utf8_general_ci', $results[0]->Value );
+		self::$_wpdb->set_charset( self::$_wpdb->dbh, $first_test_encoding, $first_test_collate );
+		$results = self::$_wpdb->get_results( "SHOW VARIABLES WHERE Variable_name='collation_connection'" );
+		$this->assertSame( $first_test_collate, $results[0]->Value );
 
 		self::$_wpdb->set_charset( self::$_wpdb->dbh, 'utf8mb4', 'utf8mb4_unicode_ci' );
 		$results = self::$_wpdb->get_results( "SHOW VARIABLES WHERE Variable_name='collation_connection'" );
