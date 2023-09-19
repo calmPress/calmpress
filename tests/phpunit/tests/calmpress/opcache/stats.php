@@ -151,13 +151,13 @@ class WP_Test_Stats extends WP_UnitTestCase {
 		$stats = new Stats(
 			[
 				'memory_usage' => [
-					'used_memory'   => 49,
-					'wasted_memory' => 8, 
-					'free_memory'   => 43, 
+					'used_memory'   => 49.0,
+					'wasted_memory' => 8.0, 
+					'free_memory'   => 43.0, 
 				],
 			]
 		);
 
-		$this->assertSame( 57.0, $stats->memory_usage() );
+		$this->assertSame( 57.0, round( $stats->memory_usage() ) );
 	}
 }
