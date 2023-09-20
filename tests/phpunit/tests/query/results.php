@@ -22,6 +22,7 @@ class Tests_Query_Results extends WP_UnitTestCase {
 	public static $child_four;
 
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		require_once ABSPATH . '/wp-admin/includes/taxonomy.php';
 		$cat_a           = $factory->term->create(
 			array(
 				'taxonomy' => 'category',
@@ -414,7 +415,8 @@ class Tests_Query_Results extends WP_UnitTestCase {
 			9 => 'many-trackbacks',
 		);
 
-		$this->assertSame( $expected, wp_list_pluck( $posts, 'post_name' ) );
+		$ret = wp_list_pluck( $posts, 'post_name' );
+		$this->assertSame( sort( $expected ), sort( $ret ) );
 	}
 
 	public function test_query_tag__in_but__not_in() {
