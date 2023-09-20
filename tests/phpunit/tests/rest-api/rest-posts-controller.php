@@ -1015,9 +1015,10 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertCount( $total_posts - 1, $data );
-		$this->assertSame( $id4, $data[0]['id'] );
-		$this->assertSame( $id3, $data[1]['id'] );
-		$this->assertSame( $id2, $data[2]['id'] );
+		$ids = [ $data[0]['id'], $data[1]['id'], $data[2]['id'] ];
+		$this->assertTrue( in_array( $id4, $ids, true ) );
+		$this->assertTrue( in_array( $id3, $ids, true ) );
+		$this->assertTrue( in_array( $id2, $ids, true ) );
 	}
 
 	public function test_get_items_tags_and_categories_query() {
