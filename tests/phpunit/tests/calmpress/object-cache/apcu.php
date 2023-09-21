@@ -212,14 +212,14 @@ class Mock_APCu extends APCu {
  */
 class WP_Test_APCu extends WP_UnitTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		global $calmpress_apcu_enabled;
 		$calmpress_apcu_enabled = true;
 	}
 
-	public function tearDown() {
+	public function tearDown() : void {
 		parent::tearDown();
 
 		global $calmpress_apcu_enabled;

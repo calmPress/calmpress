@@ -1436,17 +1436,33 @@ class Tests_Functions extends WP_UnitTestCase {
 		$file     = DIR_TESTDATA . '/uploads/dashicons.woff';
 		$filename = 'dashicons.woff';
 
+		$woff_mime_type = 'application/font-woff';
+
+		/*
+		 * As of PHP 8.1.12, which includes libmagic/file update to version 5.42,
+		 * the expected mime type for WOFF files is 'font/woff'.
+		 *
+		 * See https://github.com/php/php-src/issues/8805.
+		 */
+		if ( PHP_VERSION_ID >= 80112 ) {
+			$woff_mime_type = 'font/woff';
+		}
+
 		$expected = array(
 			'ext'             => 'woff',
-			'type'            => 'application/font-woff',
+			'type'            => $woff_mime_type,
 			'proper_filename' => false,
 		);
 
-		add_filter( 'upload_mimes', array( $this, 'filter_mime_types_woff' ) );
-		$this->assertSame( $expected, wp_check_filetype_and_ext( $file, $filename ) );
+		add_filter(
+			'upload_mimes',
+			static function( $mimes ) use ( $woff_mime_type ) {
+				$mimes['woff'] = $woff_mime_type;
+				return $mimes;
+			}
+		);
 
-		// Cleanup.
-		remove_filter( 'upload_mimes', array( $this, 'filter_mime_types_woff' ) );
+		$this->assertSame( $expected, wp_check_filetype_and_ext( $file, $filename ) );
 	}
 
 	public function filter_mime_types_svg( $mimes ) {

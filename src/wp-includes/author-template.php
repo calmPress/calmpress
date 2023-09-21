@@ -19,12 +19,12 @@ use calmpress\post_authors;
  *
  * @global WP_User $authordata The current author's data.
  *
- * @return string|null The author's display name.
+ * @return string The author's display name.
  */
 function get_the_author() {
 	global $post;
 
-	$display_name = null;
+	$display_name = '';
 
 	// make sure we are in the post loop context.
 	if ( isset( $post ) ) {

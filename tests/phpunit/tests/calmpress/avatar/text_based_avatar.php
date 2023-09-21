@@ -17,7 +17,7 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 	 *
 	 * @since 1.0.0
 	 */
-	function setUp() {
+	function setUp(): void {
 		$this->avatar = new \calmpress\avatar\Text_Based_Avatar( 'test for best', 't@test.com'  );
 	}
 
@@ -33,12 +33,12 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 		 * Compare strings in a way that will keep the test passing if order changes.
 		 */
 
-		$this->assertContains( 'display:inline-block', $html );
-		$this->assertContains( 'width:50px', $html );
-		$this->assertContains( 'height:60px', $html );
+		$this->assertStringContainsString( 'display:inline-block', $html );
+		$this->assertStringContainsString( 'width:50px', $html );
+		$this->assertStringContainsString( 'height:60px', $html );
 
 		// Check text.
-		$this->assertContains( '>TB<', $html );
+		$this->assertStringContainsString( '>TB<', $html );
 
 		// Test different color factor result with different color (indirectly via html).
 		$avatar2 = new \calmpress\avatar\Text_Based_Avatar( 'test for best', 't@calm.com' );
@@ -46,7 +46,7 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 
 		// Test text on width smaller than 40 px.
 		$html = $this->avatar->html( 30, 60 );
-		$this->assertContains( '>T<', $html );
+		$this->assertStringContainsString( '>T<', $html );
 
 		// Test blank avatar html is returned when no primary text is given.
 		$avatar2 = new \calmpress\avatar\Text_Based_Avatar( '', 't@testi.com' );

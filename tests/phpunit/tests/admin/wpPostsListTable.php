@@ -20,6 +20,12 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	}
 
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+
+		require_once ABSPATH . 'wp-admin/includes/list-table.php';
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php';
+
 		// Note that our top/children/grandchildren arrays are 1-indexed.
 
 		// Create top-level pages.
@@ -203,15 +209,6 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 * @param array $expected_ids Expected IDs of pages returned.
 	 */
 	protected function _test_list_hierarchical_page( array $args, array $expected_ids ) {
-		if ( PHP_VERSION_ID >= 80100 ) {
-			/*
-			 * For the time being, ignoring PHP 8.1 "null to non-nullable" deprecations coming in
-			 * via hooked in filter functions until a more structural solution to the
-			 * "missing input validation" conundrum has been architected and implemented.
-			 */
-			$this->expectDeprecation();
-			$this->expectDeprecationMessageMatches( '`Passing null to parameter \#[0-9]+ \(\$[^\)]+\) of type [^ ]+ is deprecated`' );
-		}
 
 		$matches = array();
 

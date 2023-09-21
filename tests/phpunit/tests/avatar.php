@@ -32,7 +32,7 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$user->set_avatar( get_post( $attachment_id ) );
 		$url2 = get_avatar_url( $user, [ 'size' => 50 ] );
 		$avatar_url = wp_get_attachment_image_url( $attachment_id, [50, 50] );
-		$this->assertContains( $url2, $avatar_url );
+		$this->assertStringContainsString( $url2, $avatar_url );
 
 		// No authors, no url
 		$url2 = get_avatar_url( $post );
@@ -49,7 +49,7 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$author->set_image( get_post( $attachment_id ) );
 		$url2 = get_avatar_url( $post );
 		$avatar_url = wp_get_attachment_image_url( $attachment_id, [50, 50] );
-		$this->assertContains( $url2, $avatar_url );
+		$this->assertStringContainsString( $url2, $avatar_url );
 
 		$comment_id = self::factory()->comment->create(
 			array(
@@ -103,14 +103,14 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$size = '100';
 		$img  = get_avatar( 1, $size );
 		// User do not have an image avatar and should generate a text one.
-		$this->assertContains( 'height:100px', $img );
-		$this->assertContains( 'width:100px', $img );
+		$this->assertStringContainsString( 'height:100px', $img );
+		$this->assertStringContainsString( 'width:100px', $img );
 	}
 
 	public function test_get_avatar_class() {
 		$class = 'first';
 		$img   = get_avatar( 1, 96, '', '', array( 'class' => $class ) );
-		$this->assertContains( $class, $img );
+		$this->assertStringContainsString( $class, $img );
 	}
 
 	protected $fake_img;

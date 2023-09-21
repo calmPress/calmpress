@@ -17,7 +17,7 @@ class Blank_Avatar_Test extends WP_UnitTestCase {
 	 *
 	 * @since 1.0.0
 	 */
-	function setUp() {
+	function setUp():void {
 		$this->avatar = new \calmpress\avatar\Blank_Avatar;
 	}
 
@@ -33,9 +33,9 @@ class Blank_Avatar_Test extends WP_UnitTestCase {
 		 * Compare strings in a way that will keep the test passing if order changes.
 		 */
 
-		$this->assertContains( 'display:inline-block', $html );
-		$this->assertContains( 'width:50px', $html );
-		$this->assertContains( 'height:60px', $html );
+		$this->assertStringContainsString( 'display:inline-block', $html );
+		$this->assertStringContainsString( 'width:50px', $html );
+		$this->assertStringContainsString( 'height:60px', $html );
 	}
 
 	/**

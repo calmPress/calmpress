@@ -1043,13 +1043,6 @@ JS;
 	 * @param string $warning   Optional. Whether a PHP native warning/error is expected. Default false.
 	 */
 	public function test_wp_localize_script_data_formats( $l10n_data, $expected, $warning = false ) {
-		if ( $warning ) {
-			if ( PHP_VERSION_ID < 80000 ) {
-				$this->expectWarning();
-			} else {
-				$this->expectError();
-			}
-		}
 
 		if ( ! is_array( $l10n_data ) ) {
 			$this->setExpectedIncorrectUsage( 'WP_Scripts::localize' );

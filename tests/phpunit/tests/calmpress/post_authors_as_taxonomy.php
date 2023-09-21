@@ -184,14 +184,14 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 		$author1 = wp_insert_term( 'author1', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		wp_set_object_terms( $post1, $author1['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$url = post_authors\Post_Authors_As_Taxonomy::combined_authors_url( $post );
-		$this->assertContains( 'author1', $url );
+		$this->assertStringContainsString( 'author1', $url );
 
 		// Two authors.
 		$author2 = wp_insert_term( 'author2', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		wp_set_object_terms( $post1, $author2['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$url = post_authors\Post_Authors_As_Taxonomy::combined_authors_url( $post );
-		$this->assertContains( 'author1', $url );
-		$this->assertContains( 'author2', $url );
+		$this->assertStringContainsString( 'author1', $url );
+		$this->assertStringContainsString( 'author2', $url );
 	}
 
 	/**
