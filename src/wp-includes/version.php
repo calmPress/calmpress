@@ -17,7 +17,7 @@ $tinymce_version = '49110-20201110';
  *
  * @var string $required_php_version
  */
-$required_php_version = '7.4';
+$required_php_version = '8.1';
 
 /**
  * Holds the max minor supported PHP version including its pathches.
@@ -38,7 +38,7 @@ $required_mysql_version = '5.7';
  *
  * @var string $upto_mysql_version
  */
-$upto_mysql_version = '8.0';
+$upto_mysql_version = '8.1';
 
 /**
  * Holds the required MariaDB version.
@@ -88,7 +88,7 @@ if ( ! function_exists( 'calmpress_version' ) ) {
 	 * @return string The version string.
 	 */
 	function calmpress_version() {
-		return '1.0.0-alpha21';
+		return '1.0.0-alpha22';
 	}
 }
 
