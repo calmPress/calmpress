@@ -36,8 +36,6 @@ require ABSPATH . WPINC . '/load.php';
 wp_check_php_mysql_versions();
 
 // Include files required for initialization.
-require ABSPATH . WPINC . '/class-wp-fatal-error-handler.php';
-require ABSPATH . WPINC . '/error-protection.php';
 require ABSPATH . WPINC . '/default-constants.php';
 require_once ABSPATH . WPINC . '/plugin.php';
 
@@ -52,9 +50,6 @@ global $blog_id;
 
 // Set initial default constants including WP_MEMORY_LIMIT, WP_MAX_MEMORY_LIMIT, WP_DEBUG, SCRIPT_DEBUG, WP_CONTENT_DIR and WP_CACHE.
 wp_initial_constants();
-
-// Make sure we register the shutdown handler for fatal errors as soon as possible.
-wp_register_fatal_error_handler();
 
 // WordPress calculates offsets from UTC.
 // phpcs:ignore WordPress.DateTime.RestrictedFunctions.timezone_change_date_default_timezone_set
@@ -112,6 +107,9 @@ require ABSPATH . WPINC . '/pomo/mo.php';
 
 // calmPress autoloader.
 require ABSPATH . WPINC . '/calmpress/autoloader.php';
+
+// Initialize loggers.
+calmpress\logger\Controller::init();
 
 // calmPress rest api routes.
 require ABSPATH . WPINC . '/calmpress/rest-endpoints.php';

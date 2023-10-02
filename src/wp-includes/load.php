@@ -311,100 +311,30 @@ function timer_stop( $display = 0, $precision = 3 ) {
 /**
  * Set PHP error reporting based on WordPress debug settings.
  *
- * Uses three constants: `WP_DEBUG`, `WP_DEBUG_DISPLAY`, and `WP_DEBUG_LOG`.
- * All three can be defined in wp-config.php. By default, `WP_DEBUG` and
- * `WP_DEBUG_LOG` are set to false, and `WP_DEBUG_DISPLAY` is set to true.
- *
- * When `WP_DEBUG` is true, all PHP notices are reported. WordPress will also
- * display internal notices: when a deprecated WordPress function, function
- * argument, or file is used. Deprecated code may be removed from a later
- * version.
- *
- * It is strongly recommended that plugin and theme developers use `WP_DEBUG`
- * in their development environments.
- *
- * `WP_DEBUG_DISPLAY` and `WP_DEBUG_LOG` perform no function unless `WP_DEBUG`
- * is true.
- *
- * When `WP_DEBUG_DISPLAY` is true, WordPress will force errors to be displayed.
- * `WP_DEBUG_DISPLAY` defaults to true. Defining it as null prevents WordPress
- * from changing the global configuration setting. Defining `WP_DEBUG_DISPLAY`
- * as false will force errors to be hidden.
- *
- * When `WP_DEBUG_LOG` is true, errors will be logged to `wp-content/debug.log`.
- * When `WP_DEBUG_LOG` is a valid path, errors will be logged to the specified file.
- *
- * Errors are never displayed for REST, `ms-files.php`, and Ajax requests.
- *
  * @since 3.0.0
  * @since 5.1.0 `WP_DEBUG_LOG` can be a file path.
+ * 
+ * @since calmpress 1.0 Ignore all wordpress debugging related constants.
  * @access private
  */
 function wp_debug_mode() {
-	/**
-	 * Filters whether to allow the debug mode check to occur.
-	 *
-	 * This filter runs before it can be used by plugins. It is designed for
-	 * non-web runtimes. Returning false causes the `WP_DEBUG` and related
-	 * constants to not be checked and the default PHP values for errors
-	 * will be used unless you take care to update them yourself.
-	 *
-	 * To use this filter you must define a `$wp_filter` global before
-	 * WordPress loads, usually in `wp-config.php`.
-	 *
-	 * Example:
-	 *
-	 *     $GLOBALS['wp_filter'] = array(
-	 *         'enable_wp_debug_mode_checks' => array(
-	 *             10 => array(
-	 *                 array(
-	 *                     'accepted_args' => 0,
-	 *                     'function'      => function() {
-	 *                         return false;
-	 *                     },
-	 *                 ),
-	 *             ),
-	 *         ),
-	 *     );
-	 *
-	 * @since 4.6.0
-	 *
-	 * @param bool $enable_debug_mode Whether to enable debug mode checks to occur. Default true.
-	 */
-	if ( ! apply_filters( 'enable_wp_debug_mode_checks', true ) ) {
-		return;
-	}
 
-	if ( WP_DEBUG ) {
-		error_reporting( E_ALL );
+	error_reporting( E_ALL );
 
-		if ( WP_DEBUG_DISPLAY ) {
-			ini_set( 'display_errors', 1 );
-		} elseif ( null !== WP_DEBUG_DISPLAY ) {
-			ini_set( 'display_errors', 0 );
-		}
+	// Do not display errors. If you need them to be displayed use
+	// xdebug or other php debuging.
+	ini_set( 'display_errors', 0 );
+	ini_set( 'log_errors', 1 );
 
-		if ( in_array( strtolower( (string) WP_DEBUG_LOG ), array( 'true', '1' ), true ) ) {
-			$log_path = WP_CONTENT_DIR . '/debug.log';
-		} elseif ( is_string( WP_DEBUG_LOG ) ) {
-			$log_path = WP_DEBUG_LOG;
-		} else {
-			$log_path = false;
-		}
+	// Hopefully the error logger in shoutdown will be smarter
+	// but this is the default file path adjusted to what current error
+	// file should be.
+	$date = gmdate( 'Y-m-d' );
+	ini_set( 'error_log', WP_CONTENT_DIR . '/.private/logs/error-' . $date . '.log' );
 
-		if ( $log_path ) {
-			ini_set( 'log_errors', 1 );
-			ini_set( 'error_log', $log_path );
-		}
-	} else {
-		error_reporting( E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_ERROR | E_WARNING | E_PARSE | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR );
-	}
-
-	if (
-		defined( 'REST_REQUEST' ) || defined( 'MS_FILES_REQUEST' ) ||
-		( defined( 'WP_INSTALLING' ) && WP_INSTALLING ) ||
-		wp_doing_ajax() || wp_is_json_request() ) {
-		ini_set( 'display_errors', 0 );
+	// Log WP deprecations and other.
+	if ( ! defined( 'WP_DEBUG' ) ) {
+		define ( 'WP_DEBUG', TRUE );
 	}
 }
 
