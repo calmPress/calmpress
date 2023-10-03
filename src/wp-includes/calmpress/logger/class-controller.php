@@ -151,7 +151,7 @@ class Controller {
 					$errline,
 					self::current_user_id(),
 					$trace,
-					self::request_info()
+					self::request_info( 20 )
 				);
 				die( 500 );
 				break;
@@ -167,7 +167,7 @@ class Controller {
 					$errline,
 					self::current_user_id(),
 					$trace,
-					self::request_info()
+					self::request_info( 20 )
 				);
 				break;
 			default:
@@ -202,11 +202,90 @@ class Controller {
 			$exception->getLine(),
 			self::current_user_id(),
 			$exception->getTraceAsString(),
-			self::request_info()
+			self::request_info( 20 )
 		);
 
 		self::$handling_error = false;
 		die( 500 );
+	}
+
+	/**
+	 * Produced a string value which is not too long to be logged.
+	 * 
+	 * If the supplied string is fitting the requested max length it is
+	 * returned as is. If it is too long it is trimmed to the requested length
+	 * and "..." add to its end and an additional indicator to its length.
+	 *
+	 * @param string $s                 The string.
+	 * @param int    $max_string_length The maximal length of a string.
+	 *
+	 * @return string the string as described above.
+	 *
+	 * @since 1.0.0
+	 */
+	static private function trimmmed_string( string $s, int $max_string_length ) : string {
+		if ( strlen( $s ) <= $max_string_length ) {
+			return $s;
+		}
+
+		return substr( $s, 0, $max_string_length ) . '...' . ' (' . strlen( $s ) . ')';
+	}
+
+	/**
+	 * Generate a human readable string representing a content of
+	 * an array element.
+	 *
+	 * @param string $key            The key of the element in the array.
+	 * @param string|array $value    The value of the element.
+	 * @param int $offset            Indicator for the amount of indentation
+	 *                               Each identation step is of two spaces.
+	 * @param int $max_string_length The max amount of characters used to
+	 *                               display a string value. Longer strings
+	 *                               are trimmed and "..." appended to them
+	 *
+	 * @return string The representing string.
+	 *
+	 * @since 1.0.0
+	 */
+	static private function pretty_print_array_element(
+		string $key,
+		$value,
+		int $offset,
+		int $max_string_length
+	) : string {
+		$output = '';
+		if ( is_array( $value ) ) {
+			$output .= str_repeat('  ', $offset) . $key . " => [\n";
+			$output .= self::pretty_print_array( $value, $offset + 1, $max_string_length );
+			$output .= str_repeat('  ', $offset) . "]\n";
+		}
+		$output .= str_repeat('  ', $offset ) . $key . ' => ' . self::trimmmed_string( $value, $max_string_length ) . "\n";
+
+		return $output;
+	}
+
+	/**
+	 * Generate a human readable string representing a content of
+	 * an array.
+	 *
+	 * @param array $ar            The array.
+	 * @param int $max_string_length The max amount of characters used to
+	 *                               display a string value. Longer strings
+	 *                               are trimmed and "..." appended to them
+	 *
+	 * @return string The representing string.
+	 *
+	 * @since 1.0.0
+	 */
+	static private function pretty_print_array(
+		array $ar,
+		int $max_string_length
+	) {
+		$output = '';
+		foreach ( $ar as $key => $value ) {
+			$output .= self::pretty_print_array_element( $key, $value, 0, $max_string_length );
+		}
+		return $output;
 	}
 
 	/**
@@ -235,32 +314,50 @@ class Controller {
 	 * Generate a string containing a human readable information about
 	 * The URL which was accessed and relevant $_GET and $_POST and $_FILES values.
 	 *
+	 * @param int $max_string_length The maximal length of strings output to
+	 *                               the log.
+	 *                               This is used to somewhat control the size of
+	 *                               the log entry.
+	 *                               It applies to string data in places it is deemed
+	 *                               that knowledge of the full string is less useful.
+	 *                               File path and POST and json field names will not
+	 *                               have any impact by this setting.
+	 *                                 
 	 * @return string
 	 *
 	 * @since 1.0.0
 	 */
-	static public function request_info() : string {
+	static public function request_info( int $max_string_length ) : string {
 		$output = $_SERVER[ 'REQUEST_URI' ] . "\n";
 		if ( ! empty( $_GET ) ) {
 			$output .= "GET parameters\n";
-			foreach ( $_GET as $key => $value ) {
-				$output .= "$key => $value\n";
-			}
+			$output .= self::pretty_print_array( $_GET, $max_string_length );
 		}
 		if ( ! empty( $_POST ) ) {
 			$output .= "POST parameters\n";
-			foreach ( $_POST as $key => $value ) {
-				$output .= "$key => $value\n";
-			}
+			$output .= self::pretty_print_array( $_POST, $max_string_length );
 		}
 		if ( ! empty( $_FILES ) ) {
 			$output .= "FILES parameters\n";
 			foreach ( $_FILES as $key => $value ) {
 				$output .= "$key => [ ";
-				foreach ( $value as $subkey => $subvalue ) {
-					$output .= "$subkey => $subvalue, ";
-				}
+				$output .= self::pretty_print_array( $value, $max_string_length );
 				$output .= "]\n";
+			}
+		}
+
+		// add parameters that might be passed in the body of the request
+		// if in json form, decode them.
+		$body = file_get_contents( 'php://input' );
+		if ( $body ) {
+			try {
+				$json = json_decode( $body, true );
+				$output .= "Body contains json\n";
+				$output .= self::pretty_print_array( $json, $max_string_length );
+			} catch ( \Exception $e ) {
+				// $body is not a proper json, treat it as a string.
+				$output .= "Body\n";
+				$output .= self::trimmmed_string( $body, $max_string_length );
 			}
 		}
 
