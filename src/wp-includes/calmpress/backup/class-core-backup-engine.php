@@ -166,7 +166,8 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $source     The full path to mu-plugins directory which might not exist.
+	 * @param Backup_Storage $storage The storage to use for the mu plugins files.
+	 * @param string $source          The full path to mu-plugins directory which might not exist.
 	 * @param string $backup_dir The directory to backup to.
 	 *
 	 * @return string $backup_dir If backup happend into it, otherwise ''.
@@ -712,8 +713,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		static::throw_if_out_of_time( $max_end_time );
 		
 		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . time() . '/';
-		$mu_dir     = $backup_root . $mu_rel_dir;
-		$dir = static::Backup_MU_Plugins( $storage, static::installation_paths()->mu_plugins_directory(), $mu_dir );
+		$dir = static::Backup_MU_Plugins( $storage, static::installation_paths()->mu_plugins_directory(), $mu_rel_dir );
 		if ( '' !== $dir ) {
 			$meta['mu_plugins']['directory'] = $dir;
 		}
