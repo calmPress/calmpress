@@ -126,6 +126,12 @@ global $wpdb;
 require_wp_db();
 
 // Set the database table prefix and the format specifiers for database table columns.
+// $table_prefix might not be initialized during install therefor
+// set it to empty string to avoid pointless error reporting.
+if ( ! isset( $table_prefix ) ) {
+	$table_prefix = '';
+}
+
 $GLOBALS['table_prefix'] = $table_prefix;
 wp_set_wpdb_vars();
 
