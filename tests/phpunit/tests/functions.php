@@ -1420,11 +1420,15 @@ class Tests_Functions extends WP_UnitTestCase {
 			'proper_filename' => false,
 		);
 
-		add_filter( 'upload_mimes', array( $this, 'filter_mime_types_svg' ) );
-		$this->assertSame( $expected, wp_check_filetype_and_ext( $file, $filename ) );
+		add_filter(
+			'upload_mimes',
+			static function( $mimes ) {
+				$mimes['svg'] = 'image/svg+xml';
+				return $mimes;
+			}
+		);
 
-		// Cleanup.
-		remove_filter( 'upload_mimes', array( $this, 'filter_mime_types_svg' ) );
+		$this->assertSame( $expected, wp_check_filetype_and_ext( $file, $filename ) );
 	}
 
 	/**
@@ -1463,16 +1467,6 @@ class Tests_Functions extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( $expected, wp_check_filetype_and_ext( $file, $filename ) );
-	}
-
-	public function filter_mime_types_svg( $mimes ) {
-		$mimes['svg'] = 'image/svg+xml';
-		return $mimes;
-	}
-
-	public function filter_mime_types_woff( $mimes ) {
-		$mimes['woff'] = 'application/font-woff';
-		return $mimes;
 	}
 
 	/**

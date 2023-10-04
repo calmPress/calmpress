@@ -2377,6 +2377,7 @@ function safecss_filter_attr( $css ) {
 			'direction',
 			'float',
 			'list-style-type',
+			'object-fit',
 			'object-position',
 			'overflow',
 			'vertical-align',
