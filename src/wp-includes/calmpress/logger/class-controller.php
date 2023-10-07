@@ -379,7 +379,7 @@ class Controller {
 	 *
 	 * @since 1.0.0
 	 */
-	public function log_error_message(
+	static public function log_error_message(
 		string $message,
 		string $file_name,
 		int $line_number,
@@ -413,7 +413,7 @@ class Controller {
 	 *
 	 * @since 1.0.0
 	 */
-	public function log_warning_message(
+	static public function log_warning_message(
 		string $message,
 		string $file_name,
 		int $line_number,
@@ -447,7 +447,7 @@ class Controller {
 	 *
 	 * @since 1.0.0
 	 */
-	public function log_info_message(
+	static public function log_info_message(
 		string $message,
 		string $file_name,
 		int $line_number,
@@ -482,7 +482,7 @@ class Controller {
 	 * @param string $request     Information about the http request being handled.
 	 *                            request_info can be used to get it.
 	 */
-	public function log_audit_message(
+	static public function log_audit_message(
 		string $message,
 		string $file_name,
 		int $line_number,
