@@ -46,8 +46,7 @@ function _wp_scripts_maybe_doing_it_wrong( $function, $handle = '' ) {
 	}
 
 	$message = sprintf(
-		/* translators: 1: wp_enqueue_scripts, 2: admin_enqueue_scripts, 3: login_enqueue_scripts */
-		__( 'Scripts and styles should not be registered or enqueued until the %1$s, %2$s, or %3$s hooks.' ),
+		'Scripts and styles should not be registered or enqueued until the %1$s, %2$s, or %3$s hooks.',
 		'<code>wp_enqueue_scripts</code>',
 		'<code>admin_enqueue_scripts</code>',
 		'<code>login_enqueue_scripts</code>'
@@ -55,8 +54,7 @@ function _wp_scripts_maybe_doing_it_wrong( $function, $handle = '' ) {
 
 	if ( $handle ) {
 		$message .= ' ' . sprintf(
-			/* translators: %s: Name of the script or stylesheet. */
-			__( 'This notice was triggered by the %s handle.' ),
+			'This notice was triggered by the %s handle.',
 			'<code>' . $handle . '</code>'
 		);
 	}
