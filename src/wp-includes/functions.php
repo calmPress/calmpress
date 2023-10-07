@@ -5439,48 +5439,15 @@ function _doing_it_wrong( $function, $message, $version ) {
 	 * @param string $version  The version of WordPress where the message was added.
 	 */
 	if ( WP_DEBUG && apply_filters( 'doing_it_wrong_trigger_error', true, $function, $message, $version ) ) {
-		if ( function_exists( '__' ) ) {
-			if ( $version ) {
-				/* translators: %s: Version number. */
-				$version = sprintf( __( '(This message was added in version %s.)' ), $version );
-			}
-
-			$message .= ' ' . sprintf(
-				/* translators: %s: Documentation URL. */
-				__( 'Please see <a href="%s">Debugging in WordPress</a> for more information.' ),
-				__( 'https://wordpress.org/support/article/debugging-in-wordpress/' )
-			);
-
-			trigger_error(
-				sprintf(
-					/* translators: Developer debugging message. 1: PHP function name, 2: Explanatory message, 3: WordPress version number. */
-					__( '%1$s was called <strong>incorrectly</strong>. %2$s %3$s' ),
-					$function,
-					$message,
-					$version
-				),
-				E_USER_NOTICE
-			);
-		} else {
-			if ( $version ) {
-				$version = sprintf( '(This message was added in version %s.)', $version );
-			}
-
-			$message .= sprintf(
-				' Please see <a href="%s">Debugging in WordPress</a> for more information.',
-				'https://wordpress.org/support/article/debugging-in-wordpress/'
-			);
-
-			trigger_error(
-				sprintf(
-					'%1$s was called <strong>incorrectly</strong>. %2$s %3$s',
-					$function,
-					$message,
-					$version
-				),
-				E_USER_NOTICE
-			);
-		}
+		trigger_error(
+			sprintf(
+				'%1$s was called <strong>incorrectly</strong>. %2$s %3$s',
+				$function,
+				$message,
+				$version
+			),
+			E_USER_WARNING
+		);
 	}
 }
 
