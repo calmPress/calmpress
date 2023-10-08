@@ -233,7 +233,7 @@ function wp_default_packages_scripts( $scripts ) {
 	 *     'annotations.js' => array('dependencies' => array(...), 'version' => '...'),
 	 *     'api-fetch.js' => array(...
 	 */
-	$assets = include ABSPATH . WPINC . "/assets/script-loader-packages{$suffix}.php";
+	$assets = include ABSPATH . WPINC . "/assets/script-loader-packages.php";
 
 	foreach ( $assets as $package_name => $package_data ) {
 		$basename = basename( $package_name, '.js' );
