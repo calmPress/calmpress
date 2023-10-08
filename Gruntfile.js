@@ -50,7 +50,7 @@ module.exports = function(grunt) {
 		webpackFiles = [
 			'wp-includes/assets/*',
 			'wp-includes/css/dist',
-			'!wp-includes/assets/script-loader-packages.min.php',
+			'!wp-includes/assets/script-loader-packages.php',
 		],
 
 		// Prepend `dir` to `file`, and keep `!` in place.
