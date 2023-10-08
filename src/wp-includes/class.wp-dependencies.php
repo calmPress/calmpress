@@ -200,8 +200,24 @@ class WP_Dependencies {
 
 			$keep_going = true;
 			if ( ! isset( $this->registered[ $handle ] ) ) {
+				calmpress\logger\Controller::log_warning_message(
+					'Handle ' . $handle . ' is not regitered',
+					__FILE__,
+					__LINE__,
+					get_current_user_id(),
+					'',
+					calmpress\logger\Controller::request_info( 20 )
+				);
 				$keep_going = false; // Item doesn't exist.
 			} elseif ( $this->registered[ $handle ]->deps && array_diff( $this->registered[ $handle ]->deps, array_keys( $this->registered ) ) ) {
+				calmpress\logger\Controller::log_warning_message(
+					'Handle ' . $handle . ' requires non existing dependencies ' . join(', ', array_diff( $this->registered[ $handle ]->deps, array_keys( $this->registered ) ) ),
+					__FILE__,
+					__LINE__,
+					get_current_user_id(),
+					'',
+					calmpress\logger\Controller::request_info( 20 )
+				);
 				$keep_going = false; // Item requires dependencies that don't exist.
 			} elseif ( $this->registered[ $handle ]->deps && ! $this->all_deps( $this->registered[ $handle ]->deps, true, $new_group ) ) {
 				$keep_going = false; // Item requires dependencies that don't exist.
