@@ -518,7 +518,11 @@ class WP_Scripts extends WP_Dependencies {
 		}
 
 		$domain = $this->registered[ $handle ]->textdomain;
-		$path   = $this->registered[ $handle ]->translations_path;
+		$path   = '';
+
+		if ( isset( $this->registered[ $handle ]->translations_path ) ) {
+			$path = $this->registered[ $handle ]->translations_path;
+		}
 
 		$json_translations = load_script_textdomain( $handle, $domain, $path );
 
