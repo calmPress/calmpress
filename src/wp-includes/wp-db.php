@@ -666,9 +666,8 @@ class wpdb {
 	/**
 	 * Time when the last query was performed.
 	 *
-	 * Only set when `SAVEQUERIES` is defined and truthy.
-	 *
 	 * @since 1.5.0
+	 * @since calmpress 1.0.0 always set.
 	 *
 	 * @var float
 	 */
@@ -1458,15 +1457,11 @@ class wpdb {
 			return false;
 		}
 
-		wp_load_translations_early();
-
 		$caller = $this->get_caller();
 		if ( $caller ) {
-			/* translators: 1: Database error message, 2: SQL query, 3: Name of the calling function. */
-			$error_str = sprintf( __( 'WordPress database error %1$s for query %2$s made by %3$s' ), $str, $this->last_query, $caller );
+			$error_str = sprintf( 'WordPress database error %1$s for query %2$s made by %3$s', $str, $this->last_query, $caller );
 		} else {
-			/* translators: 1: Database error message, 2: SQL query. */
-			$error_str = sprintf( __( 'WordPress database error %1$s for query %2$s' ), $str, $this->last_query );
+			$error_str = sprintf( 'WordPress database error %1$s for query %2$s', $str, $this->last_query );
 		}
 
 		error_log( $error_str );
@@ -1480,7 +1475,7 @@ class wpdb {
 		if ( is_multisite() ) {
 			$msg = sprintf(
 				"%s [%s]\n%s\n",
-				__( 'calmPress database error:' ),
+				'calmPress database error:',
 				$str,
 				$this->last_query
 			);
@@ -1497,7 +1492,7 @@ class wpdb {
 
 			printf(
 				'<div id="error"><p class="wpdberror"><strong>%s</strong> [%s]<br /><code>%s</code></p></div>',
-				__( 'calmPress database error:' ),
+				'calmPress database error:',
 				$str,
 				$query
 			);
@@ -1878,7 +1873,7 @@ class wpdb {
 
 				wp_load_translations_early();
 
-				$this->last_error = __( 'WordPress database error: Could not perform query because it contains invalid data.' );
+				$this->last_error = 'WordPress database error: Could not perform query because it contains invalid data.';
 
 				return false;
 			}
@@ -1966,15 +1961,19 @@ class wpdb {
 	 * @param string $query The query to run.
 	 */
 	private function _do_query( $query ) {
-		if ( defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
-			$this->timer_start();
-		}
+		$this->timer_start();
 
 		if ( ! empty( $this->dbh ) ) {
 			$this->result = mysqli_query( $this->dbh, $query );
 		}
 
 		$this->num_queries++;
+
+		// Log slow queries. "slow" is defined as queries that take
+		// longer than 0.05 same way as the query monitor plugin defines it.
+		if ( $this->timer_stop() > 0.05 ) {
+			\calmpress\logger\Controller::log_slow_query_message( $query, $this->timer_stop() );
+		}
 
 		if ( defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
 			$this->log_query(
@@ -1985,6 +1984,7 @@ class wpdb {
 				array()
 			);
 		}
+
 	}
 
 	/**
