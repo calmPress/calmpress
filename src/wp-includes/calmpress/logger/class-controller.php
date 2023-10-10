@@ -22,6 +22,9 @@ namespace calmpress\logger;
  * The audit logger intended to log information about system state change that
  * might be benfitial in understanding current state and finding security
  * problems.
+ * The slow query log intended to log information about DB queries whic were
+ * executed slower than a threshold. slow queries do not indicate by
+ * themself a fatal condition but might be a leading indicator to one.
  *
  * @since 1.0.0
  */
@@ -34,7 +37,7 @@ class Controller {
 	 * 
 	 * @since 1.0.0
 	 */
-	static private Logger $error_logger;
+	static protected Logger $error_logger;
 
 	/**
 	 * The logger used to log audit messages, by default a file logger
@@ -43,7 +46,7 @@ class Controller {
 	 * 
 	 * @since 1.0.0
 	 */
-	static private Logger $audit_logger;
+	static protected Logger $audit_logger;
 
 	/**
 	 * The logger used to log warning messages, by default a file logger
@@ -52,7 +55,16 @@ class Controller {
 	 * 
 	 * @since 1.0.0
 	 */
-	static private Logger $warnings_logger;
+	static protected Logger $warnings_logger;
+
+	/**
+	 * The logger used to log slow queries, by default a file logger
+	 * 
+	 * @var Logger
+	 * 
+	 * @since 1.0.0
+	 */
+	static protected Logger $slow_queries_logger;
 
 	/**
 	 * The logger used to log info messages, by default a file logger
@@ -61,7 +73,7 @@ class Controller {
 	 * 
 	 * @since 1.0.0
 	 */
-	static private Logger $info_logger;
+	static protected Logger $info_logger;
 
 	/**
 	 * A flag indicating if a error is being processed to be able
@@ -72,7 +84,7 @@ class Controller {
 	 * 
 	 * @since 1.0.0
 	 */
-	static private bool $handling_error = false;
+	static protected bool $handling_error = false;
 
 	/**
 	 * Initialize the controller.
@@ -84,6 +96,7 @@ class Controller {
 		self::$warnings_logger = new File_Logger( WP_CONTENT_DIR . '/.private/logs', 'warning' );
 		self::$info_logger = new File_Logger( WP_CONTENT_DIR . '/.private/logs', 'info' );
 		self::$audit_logger = new File_Logger( WP_CONTENT_DIR . '/.private/logs', 'audit' );
+		self::$slow_queries_logger = new File_Logger( WP_CONTENT_DIR . '/.private/logs', 'slow_queries' );
 
 		// Let errors propogate when running test with phpunit
 		if ( ! defined( 'WP_RUN_CORE_TESTS' ) ) {
@@ -127,17 +140,6 @@ class Controller {
 			return true;
 		self::$handling_error = true;
 
-		// Get stack trace. Keep it "inline" to avoid adding useless info
-		// to the trace.
-		ob_start();
-        debug_print_backtrace();
-        $trace = ob_get_contents();
-        ob_end_clean();
-
-		// Remove the line with the info on the call to this function.
-		$parts = explode("\n", $trace, 2);
-		$trace = $parts[1];
-
 		switch ( $errno ) {
 			case E_USER_ERROR:
 			case E_ERROR:
@@ -145,12 +147,12 @@ class Controller {
 			case E_CORE_ERROR:
 			case E_COMPILE_ERROR:
 			case E_RECOVERABLE_ERROR:
-				self::$error_logger->log_message(
+				self::log_error_message(
 					$errstr,
 					$errfile,
 					$errline,
 					self::current_user_id(),
-					$trace,
+					self::stack_trace( 1 ),
 					self::request_info( 20 )
 				);
 				die( 500 );
@@ -161,17 +163,17 @@ class Controller {
 			case E_USER_WARNING:
 			case E_DEPRECATED:
 			case E_USER_DEPRECATED:
-				self::$warnings_logger->log_message(
+				self::log_warning_message(
 					$errstr,
 					$errfile,
 					$errline,
 					self::current_user_id(),
-					$trace,
+					self::stack_trace( 1 ),
 					self::request_info( 20 )
 				);
 				break;
 			default:
-				self::$info_logger->log_message(
+				self::log_info_message(
 					$errstr,
 					$errfile,
 					$errline,
@@ -196,7 +198,7 @@ class Controller {
 			return;
 		self::$handling_error = true;
 
-		self::$error_logger->log_message(
+		self::log_error_message(
 			$exception->getMessage(),
 			$exception->getFile(),
 			$exception->getLine(),
@@ -207,6 +209,29 @@ class Controller {
 
 		self::$handling_error = false;
 		die( 500 );
+	}
+
+	/**
+	 * Generate human readable stack trace while discarding trace of irrelevant
+	 * function calls.
+	 * 
+	 * @param int $discard_frames The number of frames to discard in addition
+	 *                            to the frame relevant to the call of this function.
+	 *
+	 * @return string The stack trace as a string.
+	 *
+	 * @since 1.0.0
+	 */
+	static public function stack_trace( int $discard_frames ) {
+		ob_start();
+        debug_print_backtrace();
+        $trace = ob_get_contents();
+        ob_end_clean();
+
+		// Remove the line with the info on the call to this function.
+		$parts = explode("\n", $trace, 1 + $discard_frames );
+		$trace = $parts[ $discard_frames ];
+		return $trace;
 	}
 
 	/**
@@ -223,7 +248,7 @@ class Controller {
 	 *
 	 * @since 1.0.0
 	 */
-	static private function trimmmed_string( string $s, int $max_string_length ) : string {
+	static protected function trimmmed_string( string $s, int $max_string_length ) : string {
 		if ( strlen( $s ) <= $max_string_length ) {
 			return $s;
 		}
@@ -247,7 +272,7 @@ class Controller {
 	 *
 	 * @since 1.0.0
 	 */
-	static private function pretty_print_array_element(
+	static protected function pretty_print_array_element(
 		string $key,
 		$value,
 		int $offset,
@@ -277,7 +302,7 @@ class Controller {
 	 *
 	 * @since 1.0.0
 	 */
-	static private function pretty_print_array(
+	static protected function pretty_print_array(
 		array $ar,
 		int $max_string_length
 	) {
@@ -433,6 +458,32 @@ class Controller {
 	}
 
 	/**
+	 * Log a message in slow queries log.
+	 * 
+	 * This method is tightly integrated with the structure on wp_db
+	 * therefor it should probably not be used by other clients.
+	 *
+	 * @param string $query The SQL query to log.
+	 * @param float  $time  The time it took to execute the query.
+	 *
+	 * @since 1.0.0
+	 */
+	static public function log_slow_query_message(
+		string $query,
+		float $time
+		): void
+	{
+		self::$slow_queries_logger->log_message(
+			$query . "\n" . 'Executed in ' . $time . " second\n",
+			'',
+			0,
+			self::current_user_id(),
+			self::stack_trace( 3 ),
+			self::request_info( 20 )
+		);
+	}
+
+	/**
 	 * Log a message in info log.
 	 *
 	 * @param string $message     The message to log.
@@ -511,5 +562,6 @@ class Controller {
 		self::$error_logger->purge_old_log_entries( 30 );
 		self::$info_logger->purge_old_log_entries( 30 );
 		self::$warnings_logger->purge_old_log_entries( 30 );
+		self::$slow_queries_logger->purge_old_log_entries( 30 );
 	}
 }
