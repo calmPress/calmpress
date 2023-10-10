@@ -31,7 +31,7 @@ class File_Logger implements Logger {
 	 * 
 	 * @since 1.0.0
 	 */
-	readonly private string $directory;
+	readonly protected string $directory;
 
 	/**
 	 * The prefix to be used for generated files.
@@ -40,7 +40,7 @@ class File_Logger implements Logger {
 	 * 
 	 * @since 1.0.0
 	 */
-	readonly private string $prefix;
+	readonly protected string $prefix;
 
 	/**
 	 * Construct a file logger with the file to log to.
@@ -132,9 +132,9 @@ class File_Logger implements Logger {
 		$files = glob( $this->directory . '/' . $this->prefix . '-*.log');
 		$threshold = strtotime( '-' . $days_to_keep . ' day' );
   
-		foreach ($files as $file) {
-			if ($threshold >= filemtime($file)) {
-				unlink($file);
+		foreach ( $files as $file ) {
+			if ( $threshold >= filemtime( $file ) ) {
+				unlink( $file );
 			}
 		}
 	}
