@@ -259,6 +259,11 @@ class Controller {
 	/**
 	 * Generate a human readable string representing a content of
 	 * an array element.
+	 * 
+	 * There are 3 cases handled differently
+	 * - A simple string which is printed as is
+	 * - An array which is recursively printed with indentation.
+	 * - A string which contains valid json is printed like an array. 
 	 *
 	 * @param string $key            The key of the element in the array.
 	 * @param string|array $value    The value of the element.
@@ -279,6 +284,12 @@ class Controller {
 		int $max_string_length
 	) : string {
 		$output = '';
+		$json = json_decode( $value, true );
+		if ( is_array( $json ) ) {
+			$output .= str_repeat('  ', $offset) . $key . " (json) => [\n";
+			$output .= self::pretty_print_array( $json, $offset + 1, $max_string_length );
+			$output .= str_repeat('  ', $offset) . "]\n";
+		}
 		if ( is_array( $value ) ) {
 			$output .= str_repeat('  ', $offset) . $key . " => [\n";
 			$output .= self::pretty_print_array( $value, $offset + 1, $max_string_length );
@@ -371,18 +382,25 @@ class Controller {
 			}
 		}
 
-		// add parameters that might be passed in the body of the request
-		// if in json form, decode them.
-		$body = file_get_contents( 'php://input' );
-		if ( $body ) {
-			try {
-				$json = json_decode( $body, true );
-				$output .= "Body contains json\n";
-				$output .= self::pretty_print_array( $json, $max_string_length );
-			} catch ( \Exception $e ) {
-				// $body is not a proper json, treat it as a string.
-				$output .= "Body\n";
-				$output .= self::trimmmed_string( $body, $max_string_length );
+		// for request which are not normal web form submission
+		// add the content of the body of the request, decoding it if its
+		// a valid json.
+		// "normal" web form is detected by none empty $_POST and $_FILES. While
+		// The better way might have been to detect the content-type header it
+		// seems to be more error prone right now therefor better use a proxy to the 
+		// php engine detection.
+		if ( empty( $_POST ) && empty( $_FILES ) ) {
+			$body = file_get_contents( 'php://input' );
+			if ( $body ) {
+				try {
+					$json = json_decode( $body, true );
+					$output .= "Body contains json\n";
+					$output .= self::pretty_print_array( $json, $max_string_length );
+				} catch ( \Exception $e ) {
+					// $body is not a proper json, treat it as a string.
+					$output .= "Body\n";
+					$output .= self::trimmmed_string( $body, $max_string_length );
+				}
 			}
 		}
 
