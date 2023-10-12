@@ -102,6 +102,7 @@ class Controller {
 		if ( ! defined( 'WP_RUN_CORE_TESTS' ) ) {
 			set_error_handler( __CLASS__ . '::error_handler' );
 			set_exception_handler( __CLASS__ . '::exception_handler' );
+			register_shutdown_function( __CLASS__ . '::shutdown_handler' );
 		}
 
 		// Cleanup logs once a day.
@@ -184,6 +185,34 @@ class Controller {
 		self::$handling_error = false;
 		return true;
 	}
+
+	/**
+	 * Shutdown handler, try to log unhandled error and log slow request.
+	 *
+	 * @since 1.0.0
+	 */
+	static public function shutdown_handler(): void {
+		// Log requests which take longer than 16 seconds to generate.
+		// It is not a problem by itself but a leadin indication that
+		// some process is slow and might get slower on busy server.
+		// Value of 16 as backup "slice" might take about 15 seconds.
+		$process_time = microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'];
+		if ( $process_time > 16.0 ) {
+			self::log_warning_message(
+				'Slow request, took ' . $process_time,
+				'',
+				0,
+				self::current_user_id(),
+				'',
+				self::request_info( 20 )
+			);
+		}
+
+		$error = error_get_last();
+		if ( $error ) {
+			self::error_handler( $error['type'], $error['message'], $error['file'],$error['line'] );
+		}
+	 }
 
 	/**
 	 * Handle uncuaght exception.
