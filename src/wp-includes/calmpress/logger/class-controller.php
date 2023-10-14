@@ -92,11 +92,12 @@ class Controller {
 	 * @since 1.0.0
 	 */
 	static public function init() {
-		self::$error_logger = new File_Logger( WP_CONTENT_DIR . '/.private/logs', 'error' );
-		self::$warnings_logger = new File_Logger( WP_CONTENT_DIR . '/.private/logs', 'warning' );
-		self::$info_logger = new File_Logger( WP_CONTENT_DIR . '/.private/logs', 'info' );
-		self::$audit_logger = new File_Logger( WP_CONTENT_DIR . '/.private/logs', 'audit' );
-		self::$slow_queries_logger = new File_Logger( WP_CONTENT_DIR . '/.private/logs', 'slow_queries' );
+		$dir                       = self::log_directory_path();
+		self::$error_logger        = new File_Logger( $dir, 'error' );
+		self::$warnings_logger     = new File_Logger( $dir, 'warning' );
+		self::$info_logger         = new File_Logger( $dir, 'info' );
+		self::$audit_logger        = new File_Logger( $dir, 'audit' );
+		self::$slow_queries_logger = new File_Logger( $dir, 'slow_queries' );
 
 		// Let errors propogate when running test with phpunit
 		if ( ! defined( 'WP_RUN_CORE_TESTS' ) ) {
@@ -107,6 +108,17 @@ class Controller {
 
 		// Cleanup logs once a day.
 		add_action( 'logs_cleanup', __CLASS__ . '::purge_old_log_entries' );
+	}
+
+	/**
+	 * The path to the directory in which core log files are located.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path
+	 */
+	static public function log_directory_path(): string {
+		return WP_CONTENT_DIR . '/.private/logs';
 	}
 
 	/**
