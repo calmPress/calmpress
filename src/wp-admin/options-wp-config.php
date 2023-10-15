@@ -189,7 +189,7 @@ if ( empty( $errors ) ) {
 	}
 }
 
-$writable = $wp_config->is_writable();
+$writable = is_writable( $wp_config->filename() );
 $saved    = false;
 if ( $update_required ) {
 
