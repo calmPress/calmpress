@@ -238,6 +238,21 @@ textarea[readonly] {
 	color: #646970;
 }
 
+.validate-failure-message {
+	display:none;
+}
+
+input.validation-warning {
+	border-color:rgb(219, 166, 23);
+	box-shadow: 0 0 2px rgba(219, 166, 23, 0.8);
+}
+
+input.validation-warning ~ .validate-failure-message {
+	display:block;
+	font-weight: bold;
+	color:rgb(219, 166, 23);
+}
+
 .form-invalid .form-required,
 .form-invalid .form-required:focus,
 .form-invalid.form-required input,

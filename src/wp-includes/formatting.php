@@ -4562,12 +4562,13 @@ function wp_make_link_relative( $link ) {
  * of functions depending on the $option.
  *
  * @since 2.0.5
+ * @since calmPress 1.0.0 $value is mixed
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
  * @param string $option The name of the option.
- * @param string $value  The unsanitised value.
- * @return string Sanitized value.
+ * @param mixed $value  The unsanitised value.
+ * @return mixed Sanitized value.
  */
 function sanitize_option( $option, $value ) {
 	global $wpdb;
@@ -4793,6 +4794,36 @@ function sanitize_option( $option, $value ) {
 				add_action( 'update_option_calm_embedding_on', static function () {
 					flush_rewrite_rules( false );
 				}, 10, 3 );
+			}
+			break;
+		case 'calm_email_delivery':
+			$bug = false;
+			if ( is_array( $value ) ) {
+				$value = array_map( 'trim', $value );
+				$expected_keys = [ 'type', 'host', 'user', 'password', 'from_name', 'from_email', 'verbosity'];
+				foreach ( $expected_keys as $key ) {
+					if ( ! array_key_exists( $key, $value ) ) {
+						trigger_error( 'missing key ' . $key, E_USER_WARNING );
+						$bug = true;
+					}
+				}
+				if ( !$bug ) {
+					if ( ! in_array( $value['type'], ['local', 'smtp'], true ) ) {
+						trigger_error( 'bad gateway type ' . $value['type'], E_USER_WARNING );
+						$bug = true;
+					}
+					if ( ! in_array( $value['verbosity'], ['no', 'full', 'recipients'], true ) ) {
+						trigger_error( 'bad verbosity type ' . $value['verbosity'], E_USER_WARNING );
+						$bug = true;
+					}
+				}				
+			} else {
+				// value being set is not even an array, keep the old one.
+				trigger_error( 'illeagal value being set', E_USER_WARNING );
+				$bug = true;
+			}
+			if ( $bug ) {
+				$value = get_option( 'calm_email_delivery' );
 			}
 			break;
 	}

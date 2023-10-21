@@ -494,6 +494,15 @@ function populate_options( array $options = array() ) {
 		'calm_embedding_on'               => 0,
 		'robots_txt'                      => 'User-agent: *',
 		'calm_maintenance_mode_type'      => '',
+		'calm_email_delivery'             => [
+			'type'       => 'local',
+			'host'       => '',
+			'user'       => '',
+			'password'   => '',
+			'from_name'  => 'calmPress',
+			'from_email' => '', // domain is unknown at this point.
+			'verbosity'  => 'no',
+		],
 	);
 
 	// 3.0.0 multisite.
@@ -517,6 +526,7 @@ function populate_options( array $options = array() ) {
 		'htaccess_user_section',
 		'wp_config_user_section',
 		'robots_txt',
+		'calm_email_delivery',
 	);
 
 	$keys             = "'" . implode( "', '", array_keys( $options ) ) . "'";

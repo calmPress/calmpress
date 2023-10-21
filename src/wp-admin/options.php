@@ -149,6 +149,9 @@ $allowed_options            = array(
 	'robots_txt'   => [
 		'robots_txt',
 	],
+	'email_delivery' => [
+		'calm_email_delivery',
+	]
 );
 $allowed_options['misc']    = array();
 $allowed_options['options'] = array();

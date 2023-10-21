@@ -1334,7 +1334,11 @@ function wp_default_scripts( $scripts ) {
 			),
 			'before'
 		);
-	
+
+		$scripts->add( 'calm-form-validate', "/wp-admin/js/form-validate$suffix.js", [], '1.0' );
+
+		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate'], '1.0' );
+
 		$scripts->add( 'svg-painter', '/wp-admin/js/svg-painter.js', array( 'jquery' ), false, 1 );
 	}
 }
