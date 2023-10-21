@@ -30,7 +30,7 @@ class wp_config {
 	 *
 	 * @var string
 	 */
-	private $filename;
+	private string $filename;
 
 	/**
 	 * Construct an object.
