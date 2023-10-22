@@ -150,8 +150,8 @@ function gateway() : void {
 		<?php
 		esc_html_e(
 			'The local server option implies that calmPress will delegate
-			 the delivery of emails to the server on which it runs. The SMTP option
-			 should be used when you want to send emails via a specific SMTP server.'
+ the delivery of emails to the server on which it runs. The SMTP option
+ should be used when you want to send emails via a specific SMTP server.'
 		);
 		?>
 	</p>
@@ -169,13 +169,13 @@ function smtp_section(): void {
 		<?php
 		esc_html_e(
 			'The details below are required to be able to connect to the
-		     SMTP srver. You should consult the documentaion and/or support
-			 of your provider to fill the following fields.'
+ SMTP server. You should consult the documentaion and/or support
+ of your provider to fill the following fields.'
 		);
 		echo '<br>';
 		esc_html_e(
 			'The only requirement is that the SMTP server will support TLS
-			 over port 587.'
+ over port 587.'
 		);
 		?>
 	</p>
@@ -275,7 +275,7 @@ function default_sender(): void {
 		<?php
 		esc_html_e(
 			'Here you can override the default sender of rmsils. It will not
-			 have an impact at emails sent with the sender set in advance.'
+ have an impact at emails sent with the sender set in advance.'
 		);
 		echo '<br>';
 		printf(
@@ -340,11 +340,11 @@ function logging(): void {
 		<?php
 		esc_html_e(
 			'Failures to send are always logged, but you might want to control if and
-			 how successful email which were sent will be logged. If you have a good
-			 enough email logging at you email server you might want to acrivate logging
-			 only for debugging. When logging you can log the content of the emails
-			 as well as the recipients, but if your emails usually include HTML it might
-			 be hard to read the log file.'
+ how successful email which were sent will be logged. If you have a good
+ enough email logging at you email server you might want to acrivate logging
+ only for debugging. When logging you can log the content of the emails
+ as well as the recipients, but if your emails usually include HTML it might
+ be hard to read the log file.'
 		);
 		?>
 	</p>
@@ -377,6 +377,16 @@ function verbosity() : void {
 }
 
 require ABSPATH . 'wp-admin/admin-header.php';
+
+// Hide the SMTP section if gateway is local.
+$opt  = get_option( 'calm_email_delivery' );
+$type = $opt['type'];
+
+if ( 'local' === $type ) {
+	?>
+	<style>#smtp_settings{display:none}</style>
+	<?php
+}
 
 ?>
 <div class="wrap">
