@@ -69,8 +69,10 @@ if ( filter_var( $server, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV
 		$ip = gethostbyname( $server );
 		if ( $server === $ip ) {
 			// IPv4 resolving didn't work, try to get an AAAA DNS record
-			// to check if its an IPv6
-			$dns = dns_get_record( $server, DNS_AAAA );
+			// to check if its an IPv6.
+			// Errors are supressed to avoid login warnings that are generated
+			// when DNS server are not available or information not accessable.
+			$dns = @dns_get_record( $server, DNS_AAAA );
 			if ( empty( $dns ) ) {
 				$message = __( 'Invalid host' );
 			} else {
