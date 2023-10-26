@@ -357,11 +357,17 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		$phpmailer->Body    = '';
 		$phpmailer->AltBody = '';
 
+		$options = get_option( 'calm_email_delivery' );
+
 		// Set "From" name and email.
 
 		// If we don't have a name from the input headers.
 		if ( ! isset( $from_name ) ) {
-			$from_name = 'calmPress';
+			if ( $options['from_name'] ) {
+				$from_name = $options['from_name'];
+			} else {
+				$from_name = 'calmPress';
+			}
 		}
 
 		/*
@@ -372,13 +378,17 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		 * See https://core.trac.wordpress.org/ticket/5007.
 		 */
 		if ( ! isset( $from_email ) ) {
-			// Get the site domain and get rid of www.
-			$sitename = wp_parse_url( network_home_url(), PHP_URL_HOST );
-			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
-				$sitename = substr( $sitename, 4 );
-			}
+			if ( $options['from_email'] ) {
+				$from_email = $options['from_email'];
+			} else {
+				// Get the site domain and get rid of www.
+				$sitename = wp_parse_url( network_home_url(), PHP_URL_HOST );
+				if ( 'www.' === substr( $sitename, 0, 4 ) ) {
+					$sitename = substr( $sitename, 4 );
+				}
 
-			$from_email = 'calmpress@' . $sitename;
+				$from_email = 'calmpress@' . $sitename;
+			}
 		}
 
 		/**
@@ -455,8 +465,18 @@ if ( ! function_exists( 'wp_mail' ) ) :
 			}
 		}
 
-		// Set to use PHP's mail().
-		$phpmailer->isMail();
+		// Set to use PHP's mail() or SMTP setting.
+		if ( $options['type'] === 'smtp' ) {
+			$phpmailer->isSMTP();
+			$phpmailer->Host       = $options['host'];
+			$phpmailer->SMTPAuth   = true;
+			$phpmailer->SMTPSecure = 'tls';
+			$phpmailer->Port       = 587;
+			$phpmailer->Username   = $options['user'];
+			$phpmailer->Password   = $options['password'];
+		} else {
+			$phpmailer->isMail();
+		}
 
 		// Set Content-Type and charset.
 
