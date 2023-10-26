@@ -39,7 +39,7 @@ add_action(
 	static function () {
 		?>
 <style>
-	#save_smtp {margin:0 10px;}
+	.save {margin:0 10px !important;}
 </style>
 		<?php
 	}
@@ -56,11 +56,29 @@ $message_type = 'error';
 $server   = '';
 $user     = '';
 $password = '';
-if ( isset( $_POST['server'])) {
+if ( isset( $_POST['server'] ) ) {
 	$server   = trim( wp_unslash( $_POST['server'] ) );
 	$user     = trim( wp_unslash( $_POST['user'] ) );
 	$password = trim( wp_unslash( $_POST['password'] ) );
 }
+
+$sendto     = '';
+$from_name  = '';
+$from_email = '';
+if ( isset( $_POST['sendto'] ) ) {
+	$sendto     = trim( wp_unslash( $_POST['sendto'] ) );
+	$from_name  = trim( wp_unslash( $_POST['from_name'] ) );
+	$from_email = trim( wp_unslash( $_POST['from_email'] ) );
+}
+
+$disabled_save        = 'disabled="disabled"';
+$disabled_save_sender = 'disabled="disabled"';
+
+/* translators: %s: the title of the site */
+$test_subject = sprintf(
+	__( 'Mail delivery test from %s' ),
+	get_bloginfo( 'name' )
+);
 
 if ( filter_var( $server, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 ) ) {
 	$message_type = 'success';
@@ -134,6 +152,8 @@ if ( isset( $_POST['test'] ) ) {
 				if ( ! $smtp->authenticate( $user, $password ) ) {
 					$message = __( 'Authentication failed' );	
 					$message_type = 'error';
+				} else {
+					$disabled_save = '';
 				}
 			}
 		}
@@ -146,19 +166,58 @@ if ( isset( $_POST['test'] ) ) {
 	update_option( 'calm_email_delivery', $opt );
 	$message = __( 'SMTP Settings Saved' );
 	$message_type = 'success';
+} elseif ( isset( $_POST['test_email'] ) ) {
+	// To keep the flow of wp_mail "authentic" overwrite the
+	// email settings values.
+	add_filter(
+		'option_calm_email_delivery',
+		static function ( $value ) use ( $from_name, $from_email ) {
+			$value['from_name']  = $from_name;
+			$value['from_email'] = $from_email;
+			return $value;
+		}
+	);
+
+	// Catch the error if mail send failed.
+	$error = null;
+	add_filter(
+		'wp_mail_failed',
+		static function ( $value ) use ( &$error ) {
+			$error = $value;
+			return $value;
+		}
+	);
+
+	$r = wp_mail(
+		$sendto,
+		$test_subject,
+		__( 'A mail sent as a test to verify that email are properly delivere ' )
+	);
+
+	if ( $r ) {
+		$message              = __('test email sent' );
+		$message_type         = 'success';
+		$disabled_save_sender = '';
+	} else {
+		/* translators: %s: the human description of the reason */
+		$message = sprintf(
+			__('Failed sending test email. Reason: %s'),
+			$error->get_error_message()
+		);
+	}
 }
 ?>
 <div class="wrap">
 <?php
-	$disabled_save = 'disabled="disabled"';
-	if ( isset( $_POST['test'] ) || isset( $_POST[ 'save_smtp' ] ) ) {
+	if ( 
+		isset( $_POST['test'] ) ||
+		isset( $_POST[ 'save_smtp' ] ) ||
+		isset( $_POST['test_email'] ) ||
+		isset( $_POST['save_sender'] )
+		 ) {
 		echo "<div class='notice notice-$message_type settings-error'>";
 		echo "<p><strong>$message</strong></p>";
 		echo '</div>';
-
-		if ( $message_type === 'success' ) {
-			$disabled_save = '';
-		}
 	}
 ?>
 	<h1><?php echo esc_html( $title ); ?></h1>
@@ -215,7 +274,75 @@ if ( isset( $_POST['test'] ) ) {
 		<p class="submit">
 		<?php
 		submit_button( __( 'Test connectivity' ), 'primary', 'test', false );
-		submit_button( __( 'Save As Email Delivery SMTP Settings' ), 'secondary', 'save_smtp', false, $disabled_save );
+		submit_button( __( 'Save As Email Delivery SMTP Settings' ), 'secondary save', 'save_smtp', false, $disabled_save );
+		?>
+		</p>
+	</form>
+
+	<h2><?php esc_html_e( 'Sender and full delivery' ); ?></h2>
+	<p>
+		<?php
+		echo esc_html(
+			/* translators: %s: the subject of the test email */
+			sprintf(
+				__('Test the sender setting and wheather email is sent. The email subject will be "%s".' ),
+				$test_subject
+			)
+		);
+		?>
+	</p>
+	<div>
+		<button id="populate_sender" class="button" type="button">
+			<?php esc_html_e( 'Use current settings' );?>
+		</button>
+	</div>
+	<form action="" method="post">
+		<?php wp_nonce_field( 'test_email_delivery' ); ?>
+			<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row">
+					<label for="sendto">
+						<?php esc_html_e( 'Send to' ); ?>
+					</label>
+				</th>
+				<td>
+					<input type="text" id="sendto" name="sendto" value="<?php echo esc_attr( $sendto );?>">
+					<p class="description">
+						<?php esc_html_e( 'The email address to which to send the test mail.' ); ?>
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="from_name">
+						<?php esc_html_e( 'Sender Name' ); ?>
+					</label>
+				</th>
+				<td>
+					<input type="text" id="from_name" name="from_name" value="<?php echo esc_attr( $from_name );?>">
+					<p class="description">
+						<?php esc_html_e( 'The name of the sender from which the email will seem to originate.' ); ?>
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="from_email">
+						<?php esc_html_e( 'Sender Email Address' ); ?>
+					</label>
+				</th>
+				<td>
+					<input type="text" id="from_email" name="from_email" value="<?php echo esc_attr( $from_email );?>">
+					<p class="description">
+						<?php esc_html_e( 'The email address from which the email will seem to originate.' ); ?>
+					</p>
+				</td>
+			</tr>
+		</table>
+		<p class="submit">
+		<?php
+		submit_button( __( 'Send Email' ), 'primary', 'test_email', false );
+		submit_button( __( 'Save As Email Delivery Sender Settings' ), 'secondary save', 'save_sender', false, $disabled_save_sender );
 		?>
 		</p>
 	</form>
@@ -225,21 +352,38 @@ if ( isset( $_POST['test'] ) ) {
 add_action(
 	'admin_footer',
 	static function () {
-		$opt      = get_option( 'calm_email_delivery' );
-		$host     = $opt['host'];
-		$user     = $opt['user'];
-		$password = $opt['password']; 
+		$opt        = get_option( 'calm_email_delivery' );
+		$host       = $opt['host'];
+		$user       = $opt['user'];
+		$password   = $opt['password']; 
+		$from_name  = $opt['from_name']; 
+		$from_email = $opt['from_email']; 
 		?>
 <script>
-	e = document.querySelector( '#populate_smtp' );
-	e.addEventListener( 'click', () => {
-		b       = document.querySelector( '#server' );
-		b.value = "<?php echo esc_js( $host );?>";
+	b = document.querySelector( '#populate_smtp' );
+	b.addEventListener( 'click', () => {
+		e       = document.querySelector( '#server' );
+		e.value = "<?php echo esc_js( $host );?>";
 		e       = document.querySelector( '#user' );
 		e.value = "<?php echo esc_js( $user );?>";
 		e       = document.querySelector( '#password' );
 		e.value = "<?php echo esc_js( $password );?>";
 	} );
+	b = document.querySelector( '#populate_sender' );
+	b.addEventListener( 'click', () => {
+		e       = document.querySelector( '#from_name' );
+		e.value = "<?php echo esc_js( $from_name );?>";
+		e       = document.querySelector( '#from_email' );
+		e.value = "<?php echo esc_js( $from_email );?>";
+	} );
+
+	f = document.querySelectorAll( 'form' );
+	f.forEach( ( form ) => {
+		form.addEventListener( 'input', () => {
+			b          = form.querySelector( '.save' );
+			b.disabled = 'disabled';
+		});
+	});
 </script>
 		<?php
 	}
