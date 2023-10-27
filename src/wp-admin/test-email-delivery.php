@@ -221,6 +221,18 @@ if ( isset( $_POST['test'] ) ) {
 	}
 ?>
 	<h1><?php echo esc_html( $title ); ?></h1>
+	<p>
+		<?php
+			/* translators: %s: the link to the email delivery setting page */
+			printf(
+				esc_html__( 'This page can be used to test values for SMTP connectivity
+ before setting them at %s page and testing the functionality of sending emails.'),
+				'<a href="' . esc_url( admin_url( 'options-email.php' ) ) .'">' .
+				esc_html__( 'Email Delivery Settings' ) .
+				'</a>'
+			);
+		?>
+	</p>
 	<h2><?php esc_html_e( 'SMTP Connectivity' ); ?></h2>
 	<p><?php esc_html_e( 'Test SMTP settings before applying them.' ); ?></p>
 	<div>
@@ -358,7 +370,13 @@ add_action(
 		$password   = $opt['password']; 
 		$from_name  = $opt['from_name']; 
 		$from_email = $opt['from_email']; 
-		?>
+		// The settings values will be populated into input fields when the user will 
+		// want it to happen. This is a very simplified way to fetch the settings
+		// into the input fields, a proper one would have required AJAX to fetch fresh
+		// value as they might have changed via the settings page while the testing
+		// page is loaded, but it is assumed that this way is good enough as people
+		// less likely to fiddle with setting while they testing them.
+	?>
 <script>
 	b = document.querySelector( '#populate_smtp' );
 	b.addEventListener( 'click', () => {
@@ -377,6 +395,10 @@ add_action(
 		e.value = "<?php echo esc_js( $from_email );?>";
 	} );
 
+	<?php
+	// Save should be disabled when any of the inputs changed as at that point
+	// values have not been verified any more.
+	?>
 	f = document.querySelectorAll( 'form' );
 	f.forEach( ( form ) => {
 		form.addEventListener( 'input', () => {

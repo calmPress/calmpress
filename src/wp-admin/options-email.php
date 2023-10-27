@@ -391,6 +391,18 @@ if ( 'local' === $type ) {
 ?>
 <div class="wrap">
 	<h1><?php echo esc_html( $title ); ?></h1>
+	<p>
+		<?php
+			/* translators: %s: the link to the email delivery test page */
+			printf(
+				esc_html__( 'You can test settings related to SMTP conectivity,
+ sender email, and general email delivery in the %s page before applying them here'),
+				'<a href="' . esc_url( admin_url( 'test-email-delivery.php' ) ) .'">' .
+				esc_html__( 'Test Email Delivery' ) .
+				'</a>'
+			);
+		?>
+	</p>
 
 	<form method="post" class="calm-validate" action="options.php" novalidate="novalidate">
 		<?php
