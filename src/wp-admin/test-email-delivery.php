@@ -191,7 +191,7 @@ if ( isset( $_POST['test'] ) ) {
 	$r = wp_mail(
 		$sendto,
 		$test_subject,
-		__( 'A mail sent as a test to verify that email are properly delivere ' )
+		__( 'A mail sent as a test to verify that email are properly delivered.' )
 	);
 
 	if ( $r ) {
