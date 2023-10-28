@@ -110,6 +110,7 @@ require ABSPATH . WPINC . '/calmpress/autoloader.php';
 
 // Initialize loggers.
 calmpress\logger\Controller::init();
+calmpress\logger\Log_Emails::init();
 
 // calmPress rest api routes.
 require ABSPATH . WPINC . '/calmpress/rest-endpoints.php';

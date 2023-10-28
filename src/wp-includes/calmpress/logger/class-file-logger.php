@@ -76,7 +76,8 @@ class File_Logger implements Logger {
 	 * @param string $message     The message to log.
 	 * @param string $file_name   The name of the file in which the log generated.
 	 * @param int    $line_number The line number in which the log generated.
-	 * @param int    $user_id     The user id of the logged in user.
+	 * @param int    $user_id     The user id of the logged in user. A value of -1
+	 *                            indicates that the user id should not be logged.
 	 * @param string $stack_trace The stack trace to attach, in the format generate
 	 *                            by debug_print_backtrace
 	 *                            @see https://www.php.net/manual/en/function.debug-print-backtrace.php
@@ -88,7 +89,7 @@ class File_Logger implements Logger {
 		string $message,
 		string $file_name = '',
 		int $line_number = -1,
-		int $user_id = 0,
+		int $user_id = -1,
 		string $stack_trace = '',
 		string $request = '',
 		): void
@@ -103,7 +104,13 @@ class File_Logger implements Logger {
 				$in .= ':' . $line_number;
 			}
 		}
-		$s = '[' .$time. '] ' . $message . $in . ' user is ' . $user_id . "\n";
+
+		$user = '';
+		if ( $user_id !== -1 ) {
+			$user = ' user is ' . $user_id;
+		}
+
+		$s = '[' .$time. '] ' . $message . $in . $user . "\n";
 
 		if ( ! empty( $stack_trace ) ) {
 			$s .= "Stack trace:\n$stack_trace\n";

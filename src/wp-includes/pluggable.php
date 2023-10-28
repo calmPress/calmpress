@@ -412,6 +412,8 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		try {
 			$phpmailer->setFrom( $from_email, $from_name, false );
 		} catch ( PHPMailer\PHPMailer\Exception $e ) {
+			\calmpress\logger\Log_Emails::mail_failed( $phpmailer, $e );
+
 			$mail_error_data                             = compact( 'to', 'subject', 'message', 'headers', 'attachments' );
 			$mail_error_data['phpmailer_exception_code'] = $e->getCode();
 
@@ -558,6 +560,10 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		try {
 			$send = $phpmailer->send();
 
+			if ( $options['verbosity'] !== 'no' ) {
+				\calmpress\logger\Log_Emails::mail_success( $phpmailer, $options['verbosity'] );
+			}
+
 			/**
 			 * Fires after PHPMailer has successfully sent a mail.
 			 *
@@ -573,6 +579,8 @@ if ( ! function_exists( 'wp_mail' ) ) :
 
 			return $send;
 		} catch ( PHPMailer\PHPMailer\Exception $e ) {
+			\calmpress\logger\Log_Emails::mail_failed( $phpmailer, $e );
+
 			$mail_data['phpmailer_exception_code'] = $e->getCode();
 
 			/**

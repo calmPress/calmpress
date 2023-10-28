@@ -76,6 +76,7 @@ const MAP = [
 	'calmpress\logger\Logger'                           => __DIR__ . '/logger/class-logger.php',
 	'calmpress\logger\File_Logger'                      => __DIR__ . '/logger/class-file-logger.php',
 	'calmpress\logger\Controller'                       => __DIR__ . '/logger/class-controller.php',
+	'calmpress\logger\Log_Emails'                       => __DIR__ . '/logger/class-log-emails.php',
 	'Psr\SimpleCache\CacheInterface'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheInterface.php',
 	'Psr\SimpleCache\CacheException'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheException.php',
 	'Psr\SimpleCache\InvalidArgumentException'          => ABSPATH . 'wp-includes/Psr/SimpleCache/InvalidArgumentException.php',
