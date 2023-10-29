@@ -161,6 +161,11 @@ Please click the following link to confirm the invite:
 	}
 
 	if ( ! is_multisite() ) {
+		// edit_user expects those password fields in $_POST.
+		$pass           = wp_generate_password( 24 );
+		$_POST['pass1'] = $pass;
+		$_POST['pass2'] = $pass;
+
 		$user_id = edit_user();
 
 		if ( is_wp_error( $user_id ) ) {
@@ -243,7 +248,6 @@ get_current_screen()->add_help_tab(
 );
 
 wp_enqueue_script( 'wp-ajax-response' );
-wp_enqueue_script( 'user-profile' );
 
 /**
  * Filters whether to enable user auto-complete for non-super admins in Multisite.
@@ -431,47 +435,6 @@ $new_user_role              = $creating && isset( $_POST['role'] ) ? wp_unslash(
 		<th scope="row"><label for="email"><?php _e('Email'); ?> <span class="description"><?php _e('(required)'); ?></span></label></th>
 		<td><input name="email" type="email" id="email" value="<?php echo esc_attr( $new_user_email ); ?>" /></td>
 	</tr>
-	<?php if ( ! is_multisite() ) { ?>
-	<tr class="form-field form-required user-pass1-wrap">
-		<th scope="row">
-			<label for="pass1">
-				<?php _e( 'Password' ); ?>
-				<span class="description hide-if-js"><?php _e( '(required)' ); ?></span>
-			</label>
-		</th>
-		<td>
-			<input class="hidden" value=" " /><!-- #24364 workaround -->
-			<button type="button" class="button wp-generate-pw hide-if-no-js"><?php _e( 'Generate password' ); ?></button>
-			<div class="wp-pwd">
-				<?php $initial_password = wp_generate_password( 24 ); ?>
-				<span class="password-input-wrapper">
-					<input type="password" name="pass1" id="pass1" class="regular-text" autocomplete="off" data-reveal="1" data-pw="<?php echo esc_attr( $initial_password ); ?>" aria-describedby="pass-strength-result" />
-				</span>
-				<button type="button" class="button wp-hide-pw hide-if-no-js" data-toggle="0" aria-label="<?php esc_attr_e( 'Hide password' ); ?>">
-					<span class="dashicons dashicons-hidden" aria-hidden="true"></span>
-					<span class="text"><?php _e( 'Hide' ); ?></span>
-				</button>
-				<div style="display:none" id="pass-strength-result" aria-live="polite"></div>
-			</div>
-		</td>
-	</tr>
-	<tr class="form-field form-required user-pass2-wrap hide-if-js">
-		<th scope="row"><label for="pass2"><?php _e( 'Repeat Password' ); ?> <span class="description"><?php _e( '(required)' ); ?></span></label></th>
-		<td>
-		<input name="pass2" type="password" id="pass2" autocomplete="off" aria-describedby="pass2-desc" />
-		<p class="description" id="pass2-desc"><?php _e( 'Type the password again.' ); ?></p>
-		</td>
-	</tr>
-	<tr class="pw-weak">
-		<th><?php _e( 'Confirm Password' ); ?></th>
-		<td>
-			<label>
-				<input type="checkbox" name="pw_weak" class="pw-checkbox" />
-				<?php _e( 'Confirm use of weak password' ); ?>
-			</label>
-		</td>
-	</tr>
-	<?php } // End if ! is_multisite(). ?>
 	<?php if ( current_user_can( 'promote_users' ) ) { ?>
 	<tr class="form-field">
 		<th scope="row"><label for="role"><?php _e( 'Role' ); ?></label></th>
