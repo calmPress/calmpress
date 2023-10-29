@@ -62,111 +62,90 @@ if ( isset( $_REQUEST['action'] ) && 'adduser' === $_REQUEST['action'] ) {
 	if ( null != $username && array_key_exists( $blog_id, get_blogs_of_user( $user_id ) ) ) {
 		$redirect = add_query_arg( array( 'update' => 'addexisting' ), 'user-new.php' );
 	} else {
-		if ( isset( $_POST['noconfirmation'] ) && current_user_can( 'manage_network_users' ) ) {
-			$result = add_existing_user_to_blog(
-				array(
-					'user_id' => $user_id,
-					'role'    => $_REQUEST['role'],
-				)
-			);
+		$newuser_key = wp_generate_password( 20, false );
+		add_option(
+			'new_user_' . $newuser_key,
+			array(
+				'user_id' => $user_id,
+				'email'   => $user_details->user_email,
+				'role'    => $_REQUEST['role'],
+			)
+		);
 
-			if ( ! is_wp_error( $result ) ) {
-				$redirect = add_query_arg(
-					array(
-						'update'  => 'addnoconfirmation',
-						'user_id' => $user_id,
-					),
-					'user-new.php'
-				);
-			} else {
-				$redirect = add_query_arg( array( 'update' => 'could_not_add' ), 'user-new.php' );
-			}
-		} else {
-			$newuser_key = wp_generate_password( 20, false );
-			add_option(
-				'new_user_' . $newuser_key,
-				array(
-					'user_id' => $user_id,
-					'email'   => $user_details->user_email,
-					'role'    => $_REQUEST['role'],
-				)
-			);
+		$roles = get_editable_roles();
+		$role  = $roles[ $_REQUEST['role'] ];
 
-			$roles = get_editable_roles();
-			$role  = $roles[ $_REQUEST['role'] ];
+		/**
+		 * Fires immediately after an existing user is invited to join the site, but before the notification is sent.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param int    $user_id     The invited user's ID.
+		 * @param array  $role        Array containing role information for the invited user.
+		 * @param string $newuser_key The key of the invitation.
+		 */
+		do_action( 'invite_user', $user_id, $role, $newuser_key );
 
-			/**
-			 * Fires immediately after an existing user is invited to join the site, but before the notification is sent.
-			 *
-			 * @since 4.4.0
-			 *
-			 * @param int    $user_id     The invited user's ID.
-			 * @param array  $role        Array containing role information for the invited user.
-			 * @param string $newuser_key The key of the invitation.
-			 */
-			do_action( 'invite_user', $user_id, $role, $newuser_key );
+		$switched_locale = switch_to_locale( get_user_locale( $user_details ) );
 
-			$switched_locale = switch_to_locale( get_user_locale( $user_details ) );
-
-			/* translators: 1: Site title, 2: Site URL, 3: User role, 4: Activation URL. */
-			$message = __(
-				'Hi,
+		/* translators: 1: Site title, 2: Site URL, 3: User role, 4: Activation URL. */
+		$message = __(
+			'Hi,
 
 You\'ve been invited to join \'%1$s\' at
 %2$s with the role of %3$s.
 
 Please click the following link to confirm the invite:
 %4$s'
-			);
+		);
 
-			$new_user_email['to']      = $user_details->user_email;
-			$new_user_email['subject'] = sprintf(
-				/* translators: Joining confirmation notification email subject. %s: Site title. */
-				__( '[%s] Joining Confirmation' ),
-				wp_specialchars_decode( get_option( 'blogname' ) )
-			);
-			$new_user_email['message'] = sprintf(
-				$message,
-				get_option( 'blogname' ),
-				home_url(),
-				wp_specialchars_decode( translate_user_role( $role['name'] ) ),
-				home_url( "/newbloguser/$newuser_key/" )
-			);
-			$new_user_email['headers'] = '';
+		$new_user_email['to']      = $user_details->user_email;
+		$new_user_email['subject'] = sprintf(
+			/* translators: Joining confirmation notification email subject. %s: Site title. */
+			__( '[%s] Joining Confirmation' ),
+			wp_specialchars_decode( get_option( 'blogname' ) )
+		);
+		$new_user_email['message'] = sprintf(
+			$message,
+			get_option( 'blogname' ),
+			home_url(),
+			wp_specialchars_decode( translate_user_role( $role['name'] ) ),
+			home_url( "/newbloguser/$newuser_key/" )
+		);
+		$new_user_email['headers'] = '';
 
-			/**
-			 * Filters the contents of the email sent when an existing user is invited to join the site.
-			 *
-			 * @since 5.6.0
-			 *
-			 * @param array $new_user_email {
-			 *     Used to build wp_mail().
-			 *
-			 *     @type string $to      The email address of the invited user.
-			 *     @type string $subject The subject of the email.
-			 *     @type string $message The content of the email.
-			 *     @type string $headers Headers.
-			 * }
-			 * @param int    $user_id     The invited user's ID.
-			 * @param array  $role        Array containing role information for the invited user.
-			 * @param string $newuser_key The key of the invitation.
-			 *
-			 */
-			$new_user_email = apply_filters( 'invited_user_email', $new_user_email, $user_id, $role, $newuser_key );
+		/**
+		 * Filters the contents of the email sent when an existing user is invited to join the site.
+		 *
+		 * @since 5.6.0
+		 *
+		 * @param array $new_user_email {
+		 *     Used to build wp_mail().
+		 *
+		 *     @type string $to      The email address of the invited user.
+		 *     @type string $subject The subject of the email.
+		 *     @type string $message The content of the email.
+		 *     @type string $headers Headers.
+		 * }
+		 * @param int    $user_id     The invited user's ID.
+		 * @param array  $role        Array containing role information for the invited user.
+		 * @param string $newuser_key The key of the invitation.
+		 *
+		 */
+		$new_user_email = apply_filters( 'invited_user_email', $new_user_email, $user_id, $role, $newuser_key );
 
-			wp_mail(
-				$new_user_email['to'],
-				$new_user_email['subject'],
-				$new_user_email['message'],
-				$new_user_email['headers']
-			);
+		wp_mail(
+			$new_user_email['to'],
+			$new_user_email['subject'],
+			$new_user_email['message'],
+			$new_user_email['headers']
+		);
 
-			if ( $switched_locale ) {
-				restore_previous_locale();
-			}
-
-			$redirect = add_query_arg( array( 'update' => 'add' ), 'user-new.php' );
+		if ( $switched_locale ) {
+			restore_previous_locale();
 		}
+
+		$redirect = add_query_arg( array( 'update' => 'add' ), 'user-new.php' );
 	}
 	wp_redirect( $redirect );
 	die();
@@ -203,10 +182,6 @@ Please click the following link to confirm the invite:
 			$add_user_errors = $user_details[ 'errors' ];
 		} else {
 			$new_user_login = md5( $new_user_email );
-			if ( isset( $_POST[ 'noconfirmation' ] ) && current_user_can( 'manage_network_users' ) ) {
-				add_filter( 'wpmu_signup_user_notification', '__return_false' ); // Disable confirmation email
-				add_filter( 'wpmu_welcome_user_notification', '__return_false' ); // Disable welcome email
-			}
 			wpmu_signup_user(
 				$new_user_login,
 				$new_user_email,
@@ -215,25 +190,7 @@ Please click the following link to confirm the invite:
 					'new_role'    => $_REQUEST['role'],
 				)
 			);
-			if ( isset( $_POST['noconfirmation'] ) && current_user_can( 'manage_network_users' ) ) {
-				$key      = $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM {$wpdb->signups} WHERE user_login = %s AND user_email = %s", $new_user_login, $new_user_email ) );
-				$new_user = wpmu_activate_signup( $key );
-				if ( is_wp_error( $new_user ) ) {
-					$redirect = add_query_arg( array( 'update' => 'addnoconfirmation' ), 'user-new.php' );
-				} elseif ( ! is_user_member_of_blog( $new_user['user_id'] ) ) {
-					$redirect = add_query_arg( array( 'update' => 'created_could_not_add' ), 'user-new.php' );
-				} else {
-					$redirect = add_query_arg(
-						array(
-							'update'  => 'addnoconfirmation',
-							'user_id' => $new_user['user_id'],
-						),
-						'user-new.php'
-					);
-				}
-			} else {
-				$redirect = add_query_arg( array( 'update' => 'newuserconfirmation' ), 'user-new.php' );
-			}
+			$redirect = add_query_arg( array( 'update' => 'newuserconfirmation' ), 'user-new.php' );
 			wp_redirect( $redirect );
 			die();
 		}
@@ -320,15 +277,6 @@ if ( isset( $_GET['update'] ) ) {
 				break;
 			case 'add':
 				$messages[] = __( 'Invitation email sent to user. A confirmation link must be clicked for them to be added to your site.' );
-				break;
-			case 'addnoconfirmation':
-				$message = __( 'User has been added to your site.' );
-
-				if ( $edit_link ) {
-					$message .= sprintf( ' <a href="%s">%s</a>', $edit_link, __( 'Edit user' ) );
-				}
-
-				$messages[] = $message;
 				break;
 			case 'addexisting':
 				$messages[] = __( 'That user is already a member of this site.' );
@@ -435,15 +383,6 @@ if ( is_multisite() && current_user_can( 'promote_users' ) ) {
 			</select>
 		</td>
 	</tr>
-	<?php if ( current_user_can( 'manage_network_users' ) ) { ?>
-	<tr>
-		<th scope="row"><?php _e( 'Skip Confirmation Email' ); ?></th>
-		<td>
-			<input type="checkbox" name="noconfirmation" id="adduser-noconfirmation" value="1" />
-			<label for="adduser-noconfirmation"><?php _e( 'Add the user without sending an email that requires their confirmation.' ); ?></label>
-		</td>
-	</tr>
-	<?php } ?>
 </table>
 	<?php
 	/**
@@ -486,7 +425,6 @@ $new_user_login             = $creating && isset( $_POST['user_login'] ) ? wp_un
 $new_user_email             = $creating && isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : '';
 $new_user_role              = $creating && isset( $_POST['role'] ) ? wp_unslash( $_POST['role'] ) : '';
 $new_user_send_notification = $creating && ! isset( $_POST['send_user_notification'] ) ? false : true;
-$new_user_ignore_pass       = $creating && isset( $_POST['noconfirmation'] ) ? wp_unslash( $_POST['noconfirmation'] ) : '';
 
 ?>
 <table class="form-table" role="presentation">
@@ -557,13 +495,6 @@ $new_user_ignore_pass       = $creating && isset( $_POST['noconfirmation'] ) ? w
 	</tr>
 	<?php } ?>
 	<?php if ( is_multisite() && current_user_can( 'manage_network_users' ) ) { ?>
-	<tr>
-		<th scope="row"><?php _e( 'Skip Confirmation Email' ); ?></th>
-		<td>
-			<input type="checkbox" name="noconfirmation" id="noconfirmation" value="1" <?php checked( $new_user_ignore_pass ); ?> />
-			<label for="noconfirmation"><?php _e( 'Add the user without sending an email that requires their confirmation.' ); ?></label>
-		</td>
-	</tr>
 	<?php } ?>
 </table>
 
