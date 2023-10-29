@@ -920,7 +920,6 @@ function signup_retrieve_password( $user_email ) {
 
 	$user_data = get_user_by( 'email', $user_email );
 
-	$user_login = $user_data->user_login;
 	$key = get_password_reset_key( $user_data );
 
 	$site_name = get_network()->site_name;
@@ -932,7 +931,7 @@ function signup_retrieve_password( $user_email ) {
 	$message .= sprintf( __( 'Email: %s'), $user_email ) . "\r\n\r\n";
 	$message .= __( 'If this was a mistake, just ignore this email and nothing will happen.' ) . "\r\n\r\n";
 	$message .= __( 'To reset your password, visit the following address:' ) . "\r\n\r\n";
-	$message .= '<' . network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) . ">\r\n";
+	$message .= '<' . network_site_url( "wp-login.php?action=rp&key=$key&email=" . rawurlencode( $user_email ), 'login' ) . ">\r\n";
 
 	/* translators: Password reset email subject. %s: Site name */
 	$title = sprintf( __( '[%s] User creation' ), $site_name );

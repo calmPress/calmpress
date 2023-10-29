@@ -2006,8 +2006,6 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) :
 
 			/* translators: %s: Site title. */
 			$message = sprintf( __( 'New user registration on your site %s:' ), $blogname ) . "\r\n\r\n";
-			/* translators: %s: User login. */
-			$message .= sprintf( __( 'Username: %s' ), $user->user_login ) . "\r\n\r\n";
 			/* translators: %s: User email address. */
 			$message .= sprintf( __( 'Email: %s' ), $user->user_email ) . "\r\n";
 
@@ -2064,7 +2062,7 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) :
 		/* translators: %s: User email. */
 		$message  = sprintf( __( 'Email: %s' ), $user->user_email ) . "\r\n\r\n";
 		$message .= __( 'To set your password, visit the following address:' ) . "\r\n\r\n";
-		$message .= network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user->user_login ), 'login' ) . "\r\n\r\n";
+		$message .= network_site_url( "wp-login.php?action=rp&key=$key&email=" . rawurlencode( $user->user_email ), 'login' ) . "\r\n\r\n";
 
 		$message .= wp_login_url() . "\r\n";
 

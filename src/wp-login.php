@@ -408,7 +408,6 @@ function login_retrieve_password( $user_email ) {
 
 	$user_data = get_user_by( 'email', $user_email );
 
-	$user_login = $user_data->user_login;
 	$key = get_password_reset_key( $user_data );
 
 	if ( is_multisite() ) {
@@ -424,11 +423,11 @@ function login_retrieve_password( $user_email ) {
 	$message = __( 'Someone has tried to create a new user with this email. If it was you and you just forgot your password, a password reset instructions are added:' ) . "\r\n\r\n";
 	/* translators: %s: site name */
 	$message .= sprintf( __( 'Site Name: %s'), $site_name ) . "\r\n\r\n";
-	/* translators: %s: user login */
+	/* translators: %s: user Email */
 	$message .= sprintf( __( 'Email: %s'), $user_email ) . "\r\n\r\n";
 	$message .= __( 'If this was a mistake, just ignore this email and nothing will happen.' ) . "\r\n\r\n";
 	$message .= __( 'To reset your password, visit the following address:' ) . "\r\n\r\n";
-	$message .= '<' . network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) . ">\r\n";
+	$message .= '<' . network_site_url( "wp-login.php?action=rp&key=$key&email" . rawurlencode( $user_email ), 'user_email' ) . ">\r\n";
 
 	/* translators: Password reset email subject. %s: Site name */
 	$title = sprintf( __( '[%s] User creation' ), $site_name );
@@ -662,18 +661,18 @@ switch ( $action ) {
 		list( $rp_path ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		$rp_cookie       = 'wp-resetpass-' . COOKIEHASH;
 
-		if ( isset( $_GET['key'] ) && isset( $_GET['login'] ) ) {
-			$value = sprintf( '%s:%s', wp_unslash( $_GET['login'] ), wp_unslash( $_GET['key'] ) );
+		if ( isset( $_GET['key'] ) && isset( $_GET['email'] ) ) {
+			$value = sprintf( '%s:%s', wp_unslash( $_GET['email'] ), wp_unslash( $_GET['key'] ) );
 			setcookie( $rp_cookie, $value, 0, $rp_path, COOKIE_DOMAIN, is_ssl(), true );
 
-			wp_safe_redirect( remove_query_arg( array( 'key', 'login' ) ) );
+			wp_safe_redirect( remove_query_arg( array( 'key', 'email' ) ) );
 			exit;
 		}
 
 		if ( isset( $_COOKIE[ $rp_cookie ] ) && 0 < strpos( $_COOKIE[ $rp_cookie ], ':' ) ) {
-			list( $rp_login, $rp_key ) = explode( ':', wp_unslash( $_COOKIE[ $rp_cookie ] ), 2 );
+			list( $rp_email, $rp_key ) = explode( ':', wp_unslash( $_COOKIE[ $rp_cookie ] ), 2 );
 
-			$user = check_password_reset_key( $rp_key, $rp_login );
+			$user = check_password_reset_key( $rp_key, $rp_email );
 
 			if ( isset( $_POST['pass1'] ) && ! hash_equals( $rp_key, $_POST['rp_key'] ) ) {
 				$user = false;

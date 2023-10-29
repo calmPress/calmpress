@@ -2621,23 +2621,23 @@ function get_password_reset_key( $user ) {
  * @global wpdb         $wpdb      WordPress database object for queries.
  *
  * @param string $key       Hash to validate sending user's password.
- * @param string $login     The user login
+ * @param string $email     The user's email
  * @return WP_User|WP_Error WP_User object on success, WP_Error object for invalid or expired keys.
  */
-function check_password_reset_key( $key, $login ) {
+function check_password_reset_key( $key, $email ) {
 	global $wpdb;
 
 	$key = preg_replace( '/[^a-z0-9]/i', '', $key );
 
-	if ( empty( $key ) || ! is_string( $key ) ) {
+	if ( empty( $key ) || ! is_string( $email ) ) {
 		return new WP_Error( 'invalid_key', __( 'Invalid key.' ) );
 	}
 
-	if ( empty( $login ) || ! is_string( $login ) ) {
+	if ( empty( $email ) || ! is_string( $email ) ) {
 		return new WP_Error( 'invalid_key', __( 'Invalid key.' ) );
 	}
 
-	$user = get_user_by( 'email', $login );
+	$user = get_user_by( 'email', $email );
 
 	if ( ! $user ) {
 		return new WP_Error( 'invalid_key', __( 'Invalid key.' ) );
@@ -2703,7 +2703,8 @@ function check_password_reset_key( $key, $login ) {
  * @global wpdb         $wpdb       WordPress database abstraction object.
  * @global PasswordHash $wp_hasher  Portable PHP password hashing framework.
  *
- * @param string $user_login Optional. Username to send a password retrieval email for.
+ * @param string $user_login Optional. The email address of the user to send 
+ *                           a password retrieval email to.
  *                           Defaults to `$_POST['user_login']` if not set.
  * @return true|WP_Error True when finished, WP_Error object on error.
  */
@@ -2778,7 +2779,8 @@ function retrieve_password( $user_login = null ) {
 		return true;
 	}
 
-	// Redefining user_login ensures we return the right case in the email.
+	// Redefining user_login to use the use name instead of email in
+	// filters.
 	$user_login = $user_data->user_login;
 	$user_email = $user_data->user_email;
 	$key        = get_password_reset_key( $user_data );
@@ -2809,7 +2811,7 @@ function retrieve_password( $user_login = null ) {
 	$message .= sprintf( __( 'Email: %s' ), $user_email ) . "\r\n\r\n";
 	$message .= __( 'If this was a mistake, ignore this email and nothing will happen.' ) . "\r\n\r\n";
 	$message .= __( 'To reset your password, visit the following address:' ) . "\r\n\r\n";
-	$message .= network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user_email ), 'login' ) . '&wp_lang=' . $locale . "\r\n\r\n";
+	$message .= network_site_url( "wp-login.php?action=rp&key=$key&email" . rawurlencode( $user_email ), 'login' ) . '&wp_lang=' . $locale . "\r\n\r\n";
 
 	if ( ! is_user_logged_in() ) {
 		$requester_ip = $_SERVER['REMOTE_ADDR'];
@@ -2835,7 +2837,7 @@ function retrieve_password( $user_login = null ) {
 	 * @param string  $user_login The username for the user.
 	 * @param WP_User $user_data  WP_User object.
 	 */
-	$title = apply_filters( 'retrieve_password_title', $title, $user_email, $user_data );
+	$title = apply_filters( 'retrieve_password_title', $title, $user_login, $user_data );
 
 	/**
 	 * Filters the message body of the password reset mail.
@@ -2850,7 +2852,7 @@ function retrieve_password( $user_login = null ) {
 	 * @param string  $user_login The username for the user.
 	 * @param WP_User $user_data  WP_User object.
 	 */
-	$message = apply_filters( 'retrieve_password_message', $message, $key, $user_email, $user_data );
+	$message = apply_filters( 'retrieve_password_message', $message, $key, $user_login, $user_data );
 
 	if ( $switched_locale ) {
 		restore_previous_locale();
