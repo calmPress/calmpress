@@ -246,6 +246,7 @@ td {
 
 /* Any change to the default link style must be applied to button-link too. */
 a {
+	display:inline-block;
 	color: #2271b1;
 	transition-property: border, background, color;
 	transition-duration: .05s;
@@ -420,6 +421,7 @@ code {
 	background: #f0f0f1;
 	background: rgba(0, 0, 0, 0.07);
 	font-size: 13px;
+	display:inline-block;
 }
 
 .subsubsub {
