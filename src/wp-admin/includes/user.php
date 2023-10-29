@@ -226,7 +226,7 @@ function edit_user( $user_id = 0 ) {
 		$user_id = wp_update_user( $user );
 	} else {
 		$user_id = wp_insert_user( $user );
-		$notify  = isset( $_POST['send_user_notification'] ) ? 'both' : 'admin';
+		$notify  = 'both';
 
 		/**
 		 * Fires after a new user has been created.

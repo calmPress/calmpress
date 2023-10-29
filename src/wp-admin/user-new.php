@@ -424,7 +424,6 @@ $creating = isset( $_POST['createuser'] );
 $new_user_login             = $creating && isset( $_POST['user_login'] ) ? wp_unslash( $_POST['user_login'] ) : '';
 $new_user_email             = $creating && isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : '';
 $new_user_role              = $creating && isset( $_POST['role'] ) ? wp_unslash( $_POST['role'] ) : '';
-$new_user_send_notification = $creating && ! isset( $_POST['send_user_notification'] ) ? false : true;
 
 ?>
 <table class="form-table" role="presentation">
@@ -470,13 +469,6 @@ $new_user_send_notification = $creating && ! isset( $_POST['send_user_notificati
 				<input type="checkbox" name="pw_weak" class="pw-checkbox" />
 				<?php _e( 'Confirm use of weak password' ); ?>
 			</label>
-		</td>
-	</tr>
-	<tr>
-		<th scope="row"><?php _e( 'Send User Notification' ); ?></th>
-		<td>
-			<input type="checkbox" name="send_user_notification" id="send_user_notification" value="1" <?php checked( $new_user_send_notification ); ?> />
-			<label for="send_user_notification"><?php _e( 'Send the new user an email about their account.' ); ?></label>
 		</td>
 	</tr>
 	<?php } // End if ! is_multisite(). ?>
