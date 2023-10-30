@@ -107,7 +107,7 @@ class Tests_Functions_wpListUsers extends WP_UnitTestCase {
 				'args'     => array(
 					'exclude_admin' => false,
 				),
-				'expected' => '<li>Anonymous</li><li>jane</li><li>michelle</li><li>paul</li><li>zack</li>',
+				'expected' => '<li>Admin</li><li>jane</li><li>michelle</li><li>paul</li><li>zack</li>',
 			),
 			'the full name of each user'         => array(
 				'args'     => array(

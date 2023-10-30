@@ -1724,6 +1724,38 @@ function validate_username( $username ) {
 }
 
 /**
+ * Guess a display name out of an email address.
+ *
+ * Guessing is based on the assumption that a mail box name ( The part before "@")
+ * is usually related to the actual name of the user. The tag that might be 
+ * indicated by a "+" following a string before "@" is also discarded. 
+ * Another assumption is that "." is used to separate between name parts.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @param string $email The email to "extract" the name from.
+ *
+ * @return string The guessed name. If $email is not a valid email address the
+ *                the value of $email is returned and a warning is logged.
+ */
+function guess_name_from_email( string $email ) : string {
+	if ( ! is_email( $email ) ) {
+		trigger_error(
+			'Trying to guess a name from not a valid email address "' . $email .'"',
+			E_USER_WARNING
+		);
+		return $email;
+	}
+
+	$email_parts = explode( '@', $email );
+	$tag_parts   = explode( '+', $email_parts[0] );
+	$name        = $tag_parts[0];
+
+	// Capitalize the different parts for good measure.
+	return ucwords( str_replace( '.', ' ', $name ) );
+}
+
+/**
  * Insert a user into the database.
  *
  * Most of the `$userdata` array fields have filters associated with the values. Exceptions are
@@ -1950,7 +1982,7 @@ function wp_insert_user( $userdata ) {
 
 	if ( empty( $userdata['display_name'] ) ) {
 		if ( $update ) {
-			$display_name = __( 'Anonymous' );
+			$display_name = guess_name_from_email( $user_email );
 		} elseif ( $meta['first_name'] && $meta['last_name'] ) {
 			/* translators: 1: User's first name, 2: Last name. */
 			$display_name = sprintf( _x( '%1$s %2$s', 'Display name based on first name and last name' ), $meta['first_name'], $meta['last_name'] );
@@ -1959,7 +1991,7 @@ function wp_insert_user( $userdata ) {
 		} elseif ( $meta['last_name'] ) {
 			$display_name = $meta['last_name'];
 		} else {
-			$display_name = __( 'Anonymous' );
+			$display_name = guess_name_from_email( $user_email );
 		}
 	} else {
 		$display_name = $userdata['display_name'];

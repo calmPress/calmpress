@@ -1,5 +1,9 @@
 <?php
 
+require_once ABSPATH . 'wp-admin/includes/misc.php';
+require_once ABSPATH . 'wp-admin/includes/user.php';
+require_once ABSPATH . 'wp-admin/includes/image.php';
+
 /**
  * Test functions in wp-includes/user.php
  *
@@ -1829,6 +1833,7 @@ class Tests_User extends WP_UnitTestCase {
 		$update_data = array(
 			'ID'         => $create_user,
 			'user_login' => 'test_user',
+			'user_email' => 'test.user@example.com',
 			'meta_input' => array(
 				'test_meta_key' => 'test_meta_updated',
 				'custom_meta'   => 'updated_value',
@@ -2010,5 +2015,35 @@ class Tests_User extends WP_UnitTestCase {
 		);
 
 		return $additional_profile_data;
+	}
+
+	/**
+	 * Test the guess_name_from_email function.
+	 *
+	 * @dataProvider data_emails_to_guess
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_guess_name_from_email( string $email, string $expected ) {
+		// Silence errors that might be generated due to invalid email address.
+		$old_handler = set_error_handler(
+			static function ( $errno, $errcode ) {
+				return true;
+			}
+		);
+		$this->assertSame( guess_name_from_email( $email ), $expected );
+		// Restore previous error handler.
+		set_error_handler( $old_handler );
+	}
+
+	public function data_emails_to_guess() : array {
+		return [
+			[ 'admin', 'admin' ],     // non email at all
+			[ 'admi@in', 'admi@in' ], // just looks like an email.
+			[ 'a@b.com', 'A' ],
+			[ 'sim@example.com', 'Sim' ],
+			[ 'for.me.you@stam.com', 'For Me You' ],
+			[ 'lets.go+test@calm.com', "Lets Go" ], // With tag.
+		];
 	}
 }
