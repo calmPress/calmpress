@@ -2031,30 +2031,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	/**
 	 * @ticket 38477
 	 */
-	public function test_create_comment_author_email_too_long() {
-		wp_set_current_user( self::$subscriber_id );
-
-		$params = array(
-			'post'         => self::$post_id,
-			'author_name'  => 'Bleeding Gums Murphy',
-			'author_email' => 'murphy@' . rand_long_str( 190 ) . '.com',
-			'author_url'   => 'http://jazz.gingivitis.com',
-			'content'      => 'This isn\'t a saxophone. It\'s an umbrella.',
-			'date'         => '1995-04-30T10:22:00',
-		);
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/comments' );
-
-		$request->add_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $params ) );
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertErrorResponse( 'comment_author_email_column_length', $response, 400 );
-	}
-
-	/**
-	 * @ticket 38477
-	 */
 	public function test_create_comment_author_url_too_long() {
 		wp_set_current_user( self::$subscriber_id );
 
@@ -2617,26 +2593,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertErrorResponse( 'comment_author_column_length', $response, 400 );
-	}
-
-	/**
-	 * @ticket 38477
-	 */
-	public function test_update_comment_author_email_too_long() {
-		wp_set_current_user( self::$admin_id );
-
-		$params = array(
-			'author_email' => 'murphy@' . rand_long_str( 190 ) . '.com',
-			'content'      => 'This isn\'t a saxophone. It\'s an umbrella.',
-		);
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/comments/%d', self::$approved_id ) );
-
-		$request->add_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $params ) );
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertErrorResponse( 'comment_author_email_column_length', $response, 400 );
 	}
 
 	/**

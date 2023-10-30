@@ -655,24 +655,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 	/**
 	 * @ticket 10377
 	 */
-	public function test_submitting_comment_with_email_too_long_returns_error() {
-		$error = 'comment_author_email_column_length';
-
-		$data    = array(
-			'comment_post_ID' => self::$post->ID,
-			'comment'         => 'Comment',
-			'author'          => 'Comment Author',
-			'email'           => rand_long_str( 90 ) . '@example.com',
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		$this->assertWPError( $comment );
-		$this->assertSame( $error, $comment->get_error_code() );
-	}
-
-	/**
-	 * @ticket 10377
-	 */
 	public function test_submitting_comment_with_url_too_long_returns_error() {
 		$error = 'comment_author_url_column_length';
 

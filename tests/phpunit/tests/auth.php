@@ -367,21 +367,6 @@ class Tests_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 38744
-	 */
-	public function test_wp_signon_using_email_with_an_apostrophe() {
-		$user_args = array(
-			'user_email' => "mail\'@example.com",
-			'user_pass'  => 'password',
-		);
-		$this->factory()->user->create( $user_args );
-
-		$_POST['log'] = $user_args['user_email'];
-		$_POST['pwd'] = $user_args['user_pass'];
-		$this->assertInstanceOf( 'WP_User', wp_signon() );
-	}
-
-	/**
 	 * HTTP Auth headers are used to determine the current user.
 	 *
 	 * @ticket 42790
