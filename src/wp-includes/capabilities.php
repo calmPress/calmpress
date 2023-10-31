@@ -986,3 +986,5 @@ _x( 'Author', 'User role' );
 _x( 'Contributor', 'User role' );
 /* translators: User role for subscribers. */
 _x( 'Subscriber', 'User role' );
+/* translators: User role for users pending activation. */
+_x( 'Pending Activation', 'User role' );
