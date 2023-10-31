@@ -261,6 +261,8 @@ function edit_user( $user_id = 0 ) {
 function get_editable_roles() {
 	$all_roles = wp_roles()->roles;
 
+	unset( $all_roles['pending_activation'] );
+
 	/**
 	 * Filters the list of editable roles.
 	 *
