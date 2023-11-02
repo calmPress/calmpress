@@ -372,7 +372,7 @@ class Tests_User extends WP_UnitTestCase {
 		$user_data = array(
 			'ID' => self::$author_id, 'show_admin_bar_front' => 1,
 			'syntax_highlighting' => 1, 'first_name' => 'first', 'last_name' => 'last',
-			'comment_shortcuts' => 'true', 'admin_color' => 'classic',
+			'admin_color' => 'classic',
 			'description' => 'describe'
 		);
 		wp_update_user( $user_data );
