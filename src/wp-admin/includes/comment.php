@@ -198,11 +198,10 @@ function floated_admin_avatar( $name ) {
 
 /**
  * @since 2.7.0
+ * @since calmPress 1.0.0 functionality is removed, function left as it is
+ *                        public wordpress api.
  */
 function enqueue_comment_hotkeys_js() {
-	if ( 'true' === get_user_option( 'comment_shortcuts' ) ) {
-		wp_enqueue_script( 'jquery-table-hotkeys' );
-	}
 }
 
 /**

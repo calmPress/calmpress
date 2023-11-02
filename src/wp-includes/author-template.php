@@ -126,7 +126,6 @@ function the_modified_editor() {
  * Valid values for the `$field` parameter include:
  *
  * - admin_color
- * - comment_shortcuts
  * - description
  * - display_name
  * - first_name
@@ -149,6 +148,7 @@ function the_modified_editor() {
  * - user_status
  *
  * @since 2.8.0
+ * @since calmPress 1.0.0 comment_shortcuts returns empty string.
  *
  * @global WP_User $authordata The current author's data.
  *
@@ -573,7 +573,6 @@ function _get_the_editor() {
  * Valid values for the `$field` parameter include:
  *
  * - admin_color
- * - comment_shortcuts
  * - description
  * - display_name
  * - first_name
