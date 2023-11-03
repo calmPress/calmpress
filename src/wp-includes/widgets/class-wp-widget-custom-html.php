@@ -305,28 +305,26 @@ class WP_Widget_Custom_HTML extends WP_Widget {
 		$content .= __( 'Use the Custom HTML widget to add arbitrary HTML code to your widget areas.' );
 		$content .= '</p>';
 
-		if ( 'false' !== wp_get_current_user()->syntax_highlighting ) {
-			$content .= '<p>';
-			$content .= sprintf(
-				/* translators: 1: Link to user profile, 2: Additional link attributes, 3: Accessibility text. */
-				__( 'The edit field automatically highlights code syntax. You can disable this in your <a href="%1$s" %2$s>user profile%3$s</a> to work in plain text mode.' ),
-				esc_url( get_edit_profile_url() ),
-				'class="external-link" target="_blank"',
-				sprintf(
-					'<span class="screen-reader-text"> %s</span>',
-					/* translators: Accessibility text. */
-					__( '(opens in a new tab)' )
-				)
-			);
-			$content .= '</p>';
+		$content .= '<p>';
+		$content .= sprintf(
+			/* translators: 1: Link to user profile, 2: Additional link attributes, 3: Accessibility text. */
+			__( 'The edit field automatically highlights code syntax. You can disable this in your <a href="%1$s" %2$s>user profile%3$s</a> to work in plain text mode.' ),
+			esc_url( get_edit_profile_url() ),
+			'class="external-link" target="_blank"',
+			sprintf(
+				'<span class="screen-reader-text"> %s</span>',
+				/* translators: Accessibility text. */
+				__( '(opens in a new tab)' )
+			)
+		);
+		$content .= '</p>';
 
-			$content .= '<p id="editor-keyboard-trap-help-1">' . __( 'When using a keyboard to navigate:' ) . '</p>';
-			$content .= '<ul>';
-			$content .= '<li id="editor-keyboard-trap-help-2">' . __( 'In the editing area, the Tab key enters a tab character.' ) . '</li>';
-			$content .= '<li id="editor-keyboard-trap-help-3">' . __( 'To move away from this area, press the Esc key followed by the Tab key.' ) . '</li>';
-			$content .= '<li id="editor-keyboard-trap-help-4">' . __( 'Screen reader users: when in forms mode, you may need to press the Esc key twice.' ) . '</li>';
-			$content .= '</ul>';
-		}
+		$content .= '<p id="editor-keyboard-trap-help-1">' . __( 'When using a keyboard to navigate:' ) . '</p>';
+		$content .= '<ul>';
+		$content .= '<li id="editor-keyboard-trap-help-2">' . __( 'In the editing area, the Tab key enters a tab character.' ) . '</li>';
+		$content .= '<li id="editor-keyboard-trap-help-3">' . __( 'To move away from this area, press the Esc key followed by the Tab key.' ) . '</li>';
+		$content .= '<li id="editor-keyboard-trap-help-4">' . __( 'Screen reader users: when in forms mode, you may need to press the Esc key twice.' ) . '</li>';
+		$content .= '</ul>';
 
 		$screen->add_help_tab(
 			array(

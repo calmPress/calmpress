@@ -134,7 +134,6 @@ function the_modified_editor() {
  * - nickname
  * - plugins_last_view
  * - plugins_per_page
- * - syntax_highlighting
  * - user_activation_key
  * - user_description
  * - user_email
@@ -148,7 +147,8 @@ function the_modified_editor() {
  * - user_status
  *
  * @since 2.8.0
- * @since calmPress 1.0.0 comment_shortcuts returns empty string.
+ * @since calmPress 1.0.0 comment_shortcuts and syntax_highlighting return
+ *                        empty string.
  *
  * @global WP_User $authordata The current author's data.
  *
@@ -581,7 +581,6 @@ function _get_the_editor() {
  * - nickname
  * - plugins_last_view
  * - plugins_per_page
- * - syntax_highlighting
  * - user_activation_key
  * - user_description
  * - user_email

@@ -229,14 +229,13 @@ class Tests_Widgets_wpWidgetCustomHtml extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test enqueue_admin_scripts method. Condition: logged_in, syntax_highlighting is on.
+	 * Test enqueue_admin_scripts method. Condition: logged in.
 	 *
 	 * @covers WP_Widget_Custom_HTML::enqueue_admin_scripts
 	 */
-	public function test_enqueue_admin_scripts_when_logged_in_and_syntax_highlighting_on() {
+	public function test_enqueue_admin_scripts_when_logged_in() {
 		$user = $this->factory()->user->create();
 		wp_set_current_user( $user );
-		wp_get_current_user()->syntax_highlighting = 'true';
 		set_current_screen( 'widgets.php' );
 		$widget = new WP_Widget_Custom_HTML();
 		$widget->enqueue_admin_scripts();
@@ -247,27 +246,6 @@ class Tests_Widgets_wpWidgetCustomHtml extends WP_UnitTestCase {
 		$this->assertTrue( wp_script_is( 'csslint', 'enqueued' ) );
 		$this->assertTrue( wp_script_is( 'jshint', 'enqueued' ) );
 		$this->assertTrue( wp_script_is( 'htmlhint', 'enqueued' ) );
-	}
-
-	/**
-	 * Test enqueue_admin_scripts method. Condition: logged_in, syntax_highlighting is off.
-	 *
-	 * @covers WP_Widget_Custom_HTML::enqueue_admin_scripts
-	 */
-	public function test_enqueue_admin_scripts_when_logged_in_and_syntax_highlighting_off() {
-		$user = $this->factory()->user->create();
-		wp_set_current_user( $user );
-		update_user_meta( $user, 'syntax_highlighting', 'false' );
-		set_current_screen( 'widgets.php' );
-		$widget = new WP_Widget_Custom_HTML();
-		$widget->enqueue_admin_scripts();
-
-		$this->assertTrue( wp_script_is( 'custom-html-widgets', 'enqueued' ) );
-		$this->assertFalse( wp_script_is( 'code-editor', 'enqueued' ) );
-		$this->assertFalse( wp_script_is( 'wp-codemirror', 'enqueued' ) );
-		$this->assertFalse( wp_script_is( 'csslint', 'enqueued' ) );
-		$this->assertFalse( wp_script_is( 'jshint', 'enqueued' ) );
-		$this->assertFalse( wp_script_is( 'htmlhint', 'enqueued' ) );
 	}
 
 	/**

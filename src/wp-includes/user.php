@@ -1759,7 +1759,7 @@ function guess_name_from_email( string $email ) : string {
  * Insert a user into the database.
  *
  * Most of the `$userdata` array fields have filters associated with the values. Exceptions are
- * 'ID', 'syntax_highlighting', 'admin_color',
+ * 'ID', 'admin_color',
  * 'user_registered', 'user_activation_key', 'spam', and 'role'. The filters have the prefix
  * 'pre_user_' followed by the field name. An example using 'description' would have the filter
  * called, 'pre_user_description' that can be hooked into.
@@ -1770,7 +1770,7 @@ function guess_name_from_email( string $email ) : string {
  * @since 5.3.0 The `user_activation_key` field can be passed to `$userdata`.
  * @since 5.3.0 The `spam` field can be passed to `$userdata` (Multisite only).
  * @since 5.9.0 The `meta_input` field can be passed to `$userdata` to allow addition of user meta data.
- * @since calmPress 1.0.0 comment_shortcuts has no impact.
+ * @since calmPress 1.0.0 comment_shortcuts and syntax_highlighting has no impact.
  * 
  * @global wpdb $wpdb WordPress database abstraction object.
  *
@@ -1794,9 +1794,6 @@ function guess_name_from_email( string $email ) : string {
  *                                        to build the second part of the user's display name
  *                                        if `$display_name` is not specified.
  *     @type string $description          The user's biographical description.
- *     @type string $syntax_highlighting  Whether to enable the rich code editor for the user.
- *                                        Accepts 'true' or 'false' as a string literal,
- *                                        not boolean. Default 'true'.
  *     @type string $admin_color          Admin color scheme for the user. Default 'fresh'.
  *     @type string $user_registered      Date the user registered in UTC. Format is 'Y-m-d H:i:s'.
  *     @type string $user_activation_key  Password reset key. Default empty.
@@ -2015,8 +2012,6 @@ function wp_insert_user( $userdata ) {
 	 */
 	$meta['description'] = apply_filters( 'pre_user_description', $description );
 
-	$meta['syntax_highlighting'] = empty( $userdata['syntax_highlighting'] ) ? 'true' : $userdata['syntax_highlighting'];
-
 	$admin_color         = empty( $userdata['admin_color'] ) ? 'fresh' : $userdata['admin_color'];
 	$meta['admin_color'] = preg_replace( '|[^a-z0-9 _.\-@]|i', '', $admin_color );
 
@@ -2095,7 +2090,7 @@ function wp_insert_user( $userdata ) {
 	 *
 	 * @since 4.4.0
 	 * @since 5.8.0 The `$userdata` parameter was added.
-	 * @since calmPress 1.0.0 comment_shortcuts is not used.
+	 * @since calmPress 1.0.0 comment_shortcuts and syntax_highlighting are not used.
 	 *
 	 * @param array $meta {
 	 *     Default meta values and keys for the user.
@@ -2104,7 +2099,6 @@ function wp_insert_user( $userdata ) {
 	 *     @type string   $first_name           The user's first name.
 	 *     @type string   $last_name            The user's last name.
 	 *     @type string   $description          The user's description.
-	 *     @type string   $syntax_highlighting  Whether to enable the rich code editor for the user. Default 'true'.
 	 *     @type string   $admin_color          The color scheme for a user's admin screen. Default 'fresh'.
 	 *     @type string   $show_admin_bar_front Whether to show the admin bar on the front end for the user.
 	 *                                          Default 'true'.
@@ -2498,7 +2492,7 @@ function wp_create_user( $username, $password, $email = '' ) {
  * @return string[] List of user keys to be populated in wp_update_user().
  */
 function _get_additional_user_keys( $user ) {
-	$keys = array( 'first_name', 'last_name', 'nickname', 'description', 'syntax_highlighting', 'admin_color', 'show_admin_bar_front', 'locale' );
+	$keys = array( 'first_name', 'last_name', 'nickname', 'description', 'admin_color', 'show_admin_bar_front', 'locale' );
 	return array_merge( $keys, array_keys( wp_get_user_contact_methods( $user ) ) );
 }
 

@@ -3158,9 +3158,6 @@ function wp_enqueue_editor() {
  * @return array|false Settings for the enqueued code editor, or false if the editor was not enqueued.
  */
 function wp_enqueue_code_editor( $args ) {
-	if ( is_user_logged_in() && 'false' === wp_get_current_user()->syntax_highlighting ) {
-		return false;
-	}
 
 	$settings = wp_get_code_editor_settings( $args );
 

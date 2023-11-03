@@ -371,7 +371,7 @@ class Tests_User extends WP_UnitTestCase {
 		// Test update of fields in _get_additional_user_keys().
 		$user_data = array(
 			'ID' => self::$author_id, 'show_admin_bar_front' => 1,
-			'syntax_highlighting' => 1, 'first_name' => 'first', 'last_name' => 'last',
+			'first_name' => 'first', 'last_name' => 'last',
 			'admin_color' => 'classic',
 			'description' => 'describe'
 		);

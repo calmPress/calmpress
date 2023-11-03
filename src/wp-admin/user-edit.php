@@ -256,23 +256,6 @@ switch ( $action ) {
 <h2><?php _e( 'Personal Options' ); ?></h2>
 
 <table class="form-table" role="presentation">
-<?php
-$show_syntax_highlighting_preference = (
-	// For Custom HTML widget.
-	user_can( $profileuser, 'edit_theme_options' )
-);
-?>
-<?php if ( $show_syntax_highlighting_preference ) : ?>
-	<tr class="user-syntax-highlighting-wrap">
-		<th scope="row"><?php _e( 'Syntax Highlighting' ); ?></th>
-		<td>
-			<label for="syntax_highlighting"><input name="syntax_highlighting" type="checkbox" id="syntax_highlighting" value="false" <?php checked( 'false', $profileuser->syntax_highlighting ); ?> />
-				<?php _e( 'Disable syntax highlighting when editing code' ); ?>
-			</label>
-		</td>
-	</tr>
-		<?php endif; ?>
-
 		<?php if ( count( $_wp_admin_css_colors ) > 1 && has_action( 'admin_color_scheme_picker' ) ) : ?>
 	<tr class="user-admin-color-wrap">
 		<th scope="row"><?php _e( 'Admin Color Scheme' ); ?></th>
