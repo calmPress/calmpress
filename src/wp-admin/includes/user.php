@@ -77,7 +77,13 @@ function edit_user( $user_id = 0 ) {
 			get_current_user_id() !== $user_id ||
 			( $potential_role && $potential_role->has_cap( 'promote_users' ) )
 		) {
-			$user->role = $new_role;
+			if ( ! $update ) {
+				// New users are pending until user confirms activation.
+				$user->role            = 'pending_activation';
+				$user->actived_to_role = $new_role;
+			} else {
+				$user->role = $new_role;
+			}
 		}
 	}
 
@@ -113,12 +119,9 @@ function edit_user( $user_id = 0 ) {
 	}
 
 	if ( $update ) {
-		$user->syntax_highlighting = isset( $_POST['syntax_highlighting'] ) && 'false' === $_POST['syntax_highlighting'] ? 'false' : 'true';
-		$user->admin_color         = isset( $_POST['admin_color'] ) ? sanitize_text_field( $_POST['admin_color'] ) : 'fresh';
+		$user->admin_color          = isset( $_POST['admin_color'] ) ? sanitize_text_field( $_POST['admin_color'] ) : 'fresh';
 		$user->show_admin_bar_front = isset( $_POST['admin_bar_front'] ) ? 'true' : 'false';
 	}
-
-	$user->comment_shortcuts = isset( $_POST['comment_shortcuts'] ) && 'true' === $_POST['comment_shortcuts'] ? 'true' : '';
 
 	$errors = new WP_Error();
 

@@ -412,7 +412,13 @@ if ( current_user_can( 'create_users' ) ) {
 		echo '<h2 id="create-new-user">' . __( 'Add New User' ) . '</h2>';
 	}
 	?>
-<p><?php _e( 'Create a brand new user and add them to this site.' ); ?></p>
+<p>
+	<?php
+	esc_html_e( 'Create a brand new user and add them to this site.
+ The user will recieve an invitation in mail and will be in pending state untill he
+ will accept it at which point its role will be change to the one specified below.' );
+	?>
+</p>
 <form method="post" name="createuser" id="createuser" class="validate" novalidate="novalidate"
 	<?php
 	/** This action is documented in wp-admin/user-new.php */
@@ -425,15 +431,32 @@ if ( current_user_can( 'create_users' ) ) {
 // Load up the passed data, else set to a default.
 $creating = isset( $_POST['createuser'] );
 
-$new_user_login             = $creating && isset( $_POST['user_login'] ) ? wp_unslash( $_POST['user_login'] ) : '';
-$new_user_email             = $creating && isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : '';
-$new_user_role              = $creating && isset( $_POST['role'] ) ? wp_unslash( $_POST['role'] ) : '';
+$new_user_login        = $creating && isset( $_POST['user_login'] ) ? wp_unslash( $_POST['user_login'] ) : '';
+$new_user_email        = $creating && isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : '';
+$new_user_display_name = $creating && isset( $_POST['display_name'] ) ? wp_unslash( $_POST['display_name'] ) : '';
+$new_user_role         = $creating && isset( $_POST['role'] ) ? wp_unslash( $_POST['role'] ) : '';
 
 ?>
 <table class="form-table" role="presentation">
 	<tr class="form-field form-required">
 		<th scope="row"><label for="email"><?php _e('Email'); ?> <span class="description"><?php _e('(required)'); ?></span></label></th>
-		<td><input name="email" type="email" id="email" value="<?php echo esc_attr( $new_user_email ); ?>" /></td>
+		<td>
+			<input name="email" type="email" id="email" value="<?php echo esc_attr( $new_user_email ); ?>" />
+			<p class="decription">
+				<?php esc_html_e( 'The user`s email address which will be used at user creation and to which the invitation will be sent.' );?>
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<th scope="row"><label for="display_name"><?php _e('Display Name'); ?></label></th>
+		<td>
+			<input name="display_name" type="test" id="display_name" value="<?php echo esc_attr( $new_user_display_name ); ?>" />
+			<p class="decription">
+				<?php esc_html_e( 'The initial display name of the user,
+ which can be changed later.
+ If left empty it will be automattically assigned base on the email address.' );?>
+			</p>
+		</td>
 	</tr>
 	<?php if ( current_user_can( 'promote_users' ) ) { ?>
 	<tr class="form-field">
@@ -446,10 +469,11 @@ $new_user_role              = $creating && isset( $_POST['role'] ) ? wp_unslash(
 			wp_dropdown_roles( $new_user_role );
 			?>
 			</select>
+			<p class="decription">
+				<?php esc_html_e( 'The role which will be assigned to the user once he accepts the invitation.' );?>
+			</p>
 		</td>
 	</tr>
-	<?php } ?>
-	<?php if ( is_multisite() && current_user_can( 'manage_network_users' ) ) { ?>
 	<?php } ?>
 </table>
 
