@@ -253,193 +253,8 @@ switch ( $action ) {
 <input type="hidden" name="checkuser_id" value="<?php echo get_current_user_id(); ?>" />
 </p>
 
-<h2><?php _e( 'Personal Options' ); ?></h2>
-
+<h2><?php _e( 'Account Management' ); ?></h2>
 <table class="form-table" role="presentation">
-		<?php if ( count( $_wp_admin_css_colors ) > 1 && has_action( 'admin_color_scheme_picker' ) ) : ?>
-	<tr class="user-admin-color-wrap">
-		<th scope="row"><?php _e( 'Admin Color Scheme' ); ?></th>
-		<td>
-			<?php
-			/**
-			 * Fires in the 'Admin Color Scheme' section of the user editing screen.
-			 *
-			 * The section is only enabled if a callback is hooked to the action,
-			 * and if there is more than one defined color scheme for the admin.
-			 *
-			 * @since 3.0.0
-			 * @since 3.8.1 Added `$user_id` parameter.
-			 *
-			 * @param int $user_id The user ID.
-			 */
-			do_action( 'admin_color_scheme_picker', $user_id );
-			?>
-		</td>
-	</tr>
-		<?php endif; // End if count ( $_wp_admin_css_colors ) > 1 ?>
-
-	<tr class="show-admin-bar user-admin-bar-front-wrap">
-		<th scope="row"><?php _e( 'Toolbar' ); ?></th>
-		<td>
-			<label for="admin_bar_front">
-				<input name="admin_bar_front" type="checkbox" id="admin_bar_front" value="1"<?php checked( _get_admin_bar_pref( 'front', $profileuser->ID ) ); ?> />
-				<?php _e( 'Show Toolbar when viewing site' ); ?>
-			</label><br />
-		</td>
-	</tr>
-
-		<?php
-		$languages = get_available_languages();
-		if ( $languages ) :
-			?>
-	<tr class="user-language-wrap">
-		<th scope="row">
-			<?php /* translators: The user language selection field label. */ ?>
-			<label for="locale"><?php _e( 'Language' ); ?><span class="dashicons dashicons-translation" aria-hidden="true"></span></label>
-		</th>
-		<td>
-			<?php
-				$user_locale = $profileuser->locale;
-
-			if ( 'en_US' === $user_locale ) {
-				$user_locale = '';
-			} elseif ( '' === $user_locale || ! in_array( $user_locale, $languages, true ) ) {
-				$user_locale = 'site-default';
-			}
-
-			wp_dropdown_languages(
-				array(
-					'name'                        => 'locale',
-					'id'                          => 'locale',
-					'selected'                    => $user_locale,
-					'languages'                   => $languages,
-					'show_available_translations' => false,
-					'show_option_site_default'    => true,
-				)
-			);
-			?>
-		</td>
-	</tr>
-			<?php
-endif;
-		?>
-
-		<?php
-		/**
-		 * Fires at the end of the 'Personal Options' settings table on the user editing screen.
-		 *
-		 * @since 2.7.0
-		 *
-		 * @param WP_User $profileuser The current WP_User object.
-		 */
-		do_action( 'personal_options', $profileuser );
-		?>
-
-</table>
-		<?php
-		if ( IS_PROFILE_PAGE ) {
-			/**
-			 * Fires after the 'Personal Options' settings table on the 'Profile' editing screen.
-			 *
-			 * The action only fires if the current user is editing their own profile.
-			 *
-			 * @since 2.0.0
-			 *
-			 * @param WP_User $profileuser The current WP_User object.
-			 */
-			do_action( 'profile_personal_options', $profileuser );
-		}
-		?>
-
-<h2><?php _e( 'Name' ); ?></h2>
-
-<table class="form-table" role="presentation">
-
-		<?php if ( ! IS_PROFILE_PAGE && ! is_network_admin() && current_user_can( 'promote_user', $profileuser->ID ) ) : ?>
-<tr class="user-role-wrap"><th><label for="role"><?php _e( 'Role' ); ?></label></th>
-<td><select name="role" id="role">
-			<?php
-			// Compare user role against currently editable roles.
-			$user_roles = array_intersect( array_values( $profileuser->roles ), array_keys( get_editable_roles() ) );
-			$user_role  = reset( $user_roles );
-
-			// Print the full list of roles with the primary one selected.
-			wp_dropdown_roles( $user_role );
-
-			// Print the 'no role' option. Make it selected if the user has no role yet.
-			if ( $user_role ) {
-				echo '<option value="">' . __( '&mdash; No role for this site &mdash;' ) . '</option>';
-			} else {
-				echo '<option value="" selected="selected">' . __( '&mdash; No role for this site &mdash;' ) . '</option>';
-			}
-			?>
-</select></td></tr>
-			<?php
-		endif; // End if ! IS_PROFILE_PAGE.
-
-		if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE && current_user_can( 'manage_network_options' ) && ! isset( $super_admins ) ) {
-			?>
-<tr class="user-super-admin-wrap"><th><?php _e( 'Super Admin' ); ?></th>
-<td>
-			<?php if ( 0 !== strcasecmp( $profileuser->user_email, get_site_option( 'admin_email' ) ) || ! is_super_admin( $profileuser->ID ) ) : ?>
-<p><label><input type="checkbox" id="super_admin" name="super_admin"<?php checked( is_super_admin( $profileuser->ID ) ); ?> /> <?php _e( 'Grant this user super admin privileges for the Network.' ); ?></label></p>
-<?php else : ?>
-<p><?php _e( 'Super admin privileges cannot be removed because this user has the network admin email.' ); ?></p>
-<?php endif; ?>
-</td></tr>
-			<?php
-		}
-
-		if ( in_array( 'administrator', $profileuser->roles, true ) ) {
-			?>
-<tr id="mock-role-wrap" class="user-mock-role-wrap"><th><label for="mock-role"><?php esc_html_e( 'Behave like the role' ); ?></label></th>
-<td><select name="mock_role" id="mock-role">
-			<?php
-			$current_behave = $profileuser->mocked_role( );
-			foreach (
-				[
-					'' => 'Administrator',
-					'editor' => 'Editor',
-					'author' => 'Author',
-				]
-				as $key => $role ) {
-				echo '<option value="' . esc_attr( $key ) . '" ' . selected( $key, $current_behave, false ) .'>' . esc_html(  translate_user_role( $role ) ) . '</option>';
-			}
-			?>
-	</select>
-			<?php
-			$expiry = (int) get_user_meta( $profileuser->ID, 'mock_role_expiry', true );
-			if ( '' !== $current_behave && $expiry > time() ) {
-				?>
-	<p>
-				<?php
-				printf(
-					/* translators: %s: Time until behaviour expires. */
-					esc_html__( 'the current behaviour will last for another %s.' ),
-					human_time_diff( $expiry, time() )
-				);
-				?>
-	</p>
-			<?php } ?>
-	<p class="description"><?php esc_html_e( 'The account can be set to behave like an Editor or Author instead of Administrator.' ); ?></p>
-	<p class="description"><?php esc_html_e( 'This can be used to reduce the admin clutter if the account is used for content editting.' ); ?></p>
-	<p class="description"><?php esc_html_e( 'The behaviour will last 14 days from the time is set, or until it is set to Administrator.' ); ?></p>
-</td></tr>
-			<?php
-		}
-		?>
-
-<tr class="user-display-name-wrap">
-	<th><label for="display_name"><?php esc_html_e( 'Display name publicly as' ); ?> <span class="description"><?php esc_html_e( '(required)' ); ?></span></label></th>
-	<td>
-		<input type="text" name="display_name" id="display_name" value="<?php echo esc_attr( $profileuser->display_name ); ?>">
-	</td>
-</tr>
-</table>
-
-	<h2><?php _e( 'Contact Info' ); ?></h2>
-
-	<table class="form-table" role="presentation">
 	<tr class="user-email-wrap">
 		<th><label for="email"><?php _e( 'Email' ); ?> <span class="description"><?php _e( '(required)' ); ?></span></label></th>
 		<td><input type="email" name="email" id="email" aria-describedby="email-description" value="<?php echo esc_attr( $profileuser->user_email ); ?>" class="regular-text ltr" />
@@ -474,100 +289,7 @@ endif;
 		<?php endif; ?>
 	</td>
 	</tr>
-
-		<?php
-		foreach ( wp_get_user_contact_methods( $profileuser ) as $name => $desc ) {
-			?>
-	<tr class="user-<?php echo $name; ?>-wrap">
-<th><label for="<?php echo $name; ?>">
-			<?php
-			/**
-			 * Filters a user contactmethod label.
-			 *
-			 * The dynamic portion of the hook name, `$name`, refers to
-			 * each of the keys in the contact methods array.
-			 *
-			 * @since 2.9.0
-			 *
-			 * @param string $desc The translatable label for the contact method.
-			 */
-			echo apply_filters( "user_{$name}_label", $desc );
-			?>
-	</label></th>
-	<td><input type="text" name="<?php echo $name; ?>" id="<?php echo $name; ?>" value="<?php echo esc_attr( $profileuser->$name ); ?>" class="regular-text" /></td>
-	</tr>
-			<?php
-		}
-		?>
-	</table>
-
-	<h2><?php IS_PROFILE_PAGE ? _e( 'About Yourself' ) : _e( 'About the user' ); ?></h2>
-
-<table class="form-table" role="presentation">
-<tr class="user-description-wrap">
-	<th><label for="description"><?php _e( 'Biographical Info' ); ?></label></th>
-	<td><textarea name="description" id="description" rows="5" cols="30"><?php echo $profileuser->description; // textarea_escaped ?></textarea>
-	<p class="description"><?php _e( 'Share a little biographical information to fill out your profile. This may be shown publicly.' ); ?></p></td>
-</tr>
-
-<tr class="user-avatar-image">
-	<th><?php esc_html_e( 'Avatar image' ); ?></th>
-	<td>
-		<?php
-		$avatar     = $profileuser->avatar();
-		$attachment = $avatar->attachment();
-		if ( $attachment ) {
-			$attachment_id = $attachment->ID;
-			$text_avatar   = new \calmpress\avatar\Text_Based_Avatar( $profileuser->display_name, $profileuser->user_email );
-			$image_display = '';
-			$text_display  = ' style="display:none"';
-		} else {
-			$attachment_id = 0;
-			$text_avatar   = $avatar;
-			$text_display  = '';
-			$image_display = ';display:none';
-		}
-		?>
-		<input type="hidden" id="calm_avatar_image_attachement_id" name="calm_avatar_image_attachement_id" value="<?php echo esc_attr( $attachment_id ); ?>">
-		<div id='calm_avatar_container'>
-			<div style="margin-bottom:4px">
-				<span id="avatar_image_preview" style="vertical-align:top<?php echo $image_display?>">
-					<?php
-					if ( $attachment_id ) {
-						echo $avatar->html( 50, 50 );
-					} else {
-						echo "<img style='border-radius:50%' src='' alt='' width=50 height=50>";
-					}
-					?>
-				</span>
-				<span id="avatar_text_preview"<?php echo $text_display; ?>>
-					<?php
-					echo $text_avatar->html( 50, 50 );
-					?>
-				</span>
-			</div>
-			<div>
-				<?php
-				$disabled = '';
-				if ( ! $avatar->attachment() ) {
-					$disabled = ' disabled=""';
-				}
-				if ( current_user_can( 'upload_files' ) ) {
-					echo '<button type="button" class="button" id="select_avatar_image" style="margin:0 5px">' . esc_html__( 'Use a Different Image' ) . '</button>';
-				}
-				echo '<button type="button" class="button" id="revert_avatar_image"' . $disabled . '>' . esc_html__( 'Revert to the Site`s Default' ) . '</button>';
-				if ( ! current_user_can( 'upload_files' ) ) {
-					echo '<p>' . esc_html__( 'You do not have the permissions required to upload a new avatar image.' ) . '</p>';
-				}
-				?>
-			</div>
-			<p class="description">
-				<?php esc_html_e( 'This image is being displayed next to your profile name on the admin side, and might be displayed next to comments you leave and in other contexts.' ); ?>
-			</p>
-		</div>
-	</td>
-</tr>
-		<?php
+<?php
 		/**
 		 * Filters the display of the password fields.
 		 *
@@ -581,10 +303,6 @@ endif;
 		$show_password_fields = apply_filters( 'show_password_fields', true, $profileuser );
 		if ( $show_password_fields ) :
 			?>
-	</table>
-
-	<h2><?php _e( 'Account Management' ); ?></h2>
-<table class="form-table" role="presentation">
 <tr id="password" class="user-pass1-wrap">
 	<th><label for="pass1"><?php _e( 'New Password' ); ?></label></th>
 	<td>
@@ -687,6 +405,256 @@ endif;
 	</tr>
 <?php endif; ?>
 
+</table>
+
+<h2><?php _e( 'Administration Interface Options' ); ?></h2>
+
+<table class="form-table" role="presentation">
+		<?php if ( count( $_wp_admin_css_colors ) > 1 && has_action( 'admin_color_scheme_picker' ) ) : ?>
+	<tr class="user-admin-color-wrap">
+		<th scope="row"><?php _e( 'Admin Color Scheme' ); ?></th>
+		<td>
+			<?php
+			/**
+			 * Fires in the 'Admin Color Scheme' section of the user editing screen.
+			 *
+			 * The section is only enabled if a callback is hooked to the action,
+			 * and if there is more than one defined color scheme for the admin.
+			 *
+			 * @since 3.0.0
+			 * @since 3.8.1 Added `$user_id` parameter.
+			 *
+			 * @param int $user_id The user ID.
+			 */
+			do_action( 'admin_color_scheme_picker', $user_id );
+			?>
+		</td>
+	</tr>
+		<?php endif; // End if count ( $_wp_admin_css_colors ) > 1 ?>
+
+	<tr class="show-admin-bar user-admin-bar-front-wrap">
+		<th scope="row"><?php _e( 'Toolbar' ); ?></th>
+		<td>
+			<label for="admin_bar_front">
+				<input name="admin_bar_front" type="checkbox" id="admin_bar_front" value="1"<?php checked( _get_admin_bar_pref( 'front', $profileuser->ID ) ); ?> />
+				<?php _e( 'Show Toolbar when viewing site' ); ?>
+			</label><br />
+		</td>
+	</tr>
+
+		<?php
+		$languages = get_available_languages();
+		if ( $languages ) :
+			?>
+	<tr class="user-language-wrap">
+		<th scope="row">
+			<?php /* translators: The user language selection field label. */ ?>
+			<label for="locale"><?php _e( 'Language' ); ?><span class="dashicons dashicons-translation" aria-hidden="true"></span></label>
+		</th>
+		<td>
+			<?php
+				$user_locale = $profileuser->locale;
+
+			if ( 'en_US' === $user_locale ) {
+				$user_locale = '';
+			} elseif ( '' === $user_locale || ! in_array( $user_locale, $languages, true ) ) {
+				$user_locale = 'site-default';
+			}
+
+			wp_dropdown_languages(
+				array(
+					'name'                        => 'locale',
+					'id'                          => 'locale',
+					'selected'                    => $user_locale,
+					'languages'                   => $languages,
+					'show_available_translations' => false,
+					'show_option_site_default'    => true,
+				)
+			);
+			?>
+		</td>
+	</tr>
+			<?php
+endif;
+		?>
+
+
+		<?php if ( ! IS_PROFILE_PAGE && ! is_network_admin() && current_user_can( 'promote_user', $profileuser->ID ) ) : ?>
+<tr class="user-role-wrap"><th><label for="role"><?php _e( 'Role' ); ?></label></th>
+<td><select name="role" id="role">
+			<?php
+			// Compare user role against currently editable roles.
+			$user_roles = array_intersect( array_values( $profileuser->roles ), array_keys( get_editable_roles() ) );
+			$user_role  = reset( $user_roles );
+
+			// Print the full list of roles with the primary one selected.
+			wp_dropdown_roles( $user_role );
+
+			// Print the 'no role' option. Make it selected if the user has no role yet.
+			if ( $user_role ) {
+				echo '<option value="">' . __( '&mdash; No role for this site &mdash;' ) . '</option>';
+			} else {
+				echo '<option value="" selected="selected">' . __( '&mdash; No role for this site &mdash;' ) . '</option>';
+			}
+			?>
+</select></td></tr>
+			<?php
+		endif; // End if ! IS_PROFILE_PAGE.
+
+		if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE && current_user_can( 'manage_network_options' ) && ! isset( $super_admins ) ) {
+			?>
+<tr class="user-super-admin-wrap"><th><?php _e( 'Super Admin' ); ?></th>
+<td>
+			<?php if ( 0 !== strcasecmp( $profileuser->user_email, get_site_option( 'admin_email' ) ) || ! is_super_admin( $profileuser->ID ) ) : ?>
+<p><label><input type="checkbox" id="super_admin" name="super_admin"<?php checked( is_super_admin( $profileuser->ID ) ); ?> /> <?php _e( 'Grant this user super admin privileges for the Network.' ); ?></label></p>
+<?php else : ?>
+<p><?php _e( 'Super admin privileges cannot be removed because this user has the network admin email.' ); ?></p>
+<?php endif; ?>
+</td></tr>
+			<?php
+		}
+
+		if ( in_array( 'administrator', $profileuser->roles, true ) ) {
+			?>
+<tr id="mock-role-wrap" class="user-mock-role-wrap"><th><label for="mock-role"><?php esc_html_e( 'Behave like the role' ); ?></label></th>
+<td><select name="mock_role" id="mock-role">
+			<?php
+			$current_behave = $profileuser->mocked_role( );
+			foreach (
+				[
+					'' => 'Administrator',
+					'editor' => 'Editor',
+					'author' => 'Author',
+				]
+				as $key => $role ) {
+				echo '<option value="' . esc_attr( $key ) . '" ' . selected( $key, $current_behave, false ) .'>' . esc_html(  translate_user_role( $role ) ) . '</option>';
+			}
+			?>
+	</select>
+			<?php
+			$expiry = (int) get_user_meta( $profileuser->ID, 'mock_role_expiry', true );
+			if ( '' !== $current_behave && $expiry > time() ) {
+				?>
+	<p>
+				<?php
+				printf(
+					/* translators: %s: Time until behaviour expires. */
+					esc_html__( 'the current behaviour will last for another %s.' ),
+					human_time_diff( $expiry, time() )
+				);
+				?>
+	</p>
+			<?php } ?>
+	<p class="description"><?php esc_html_e( 'The account can be set to behave like an Editor or Author instead of Administrator.' ); ?></p>
+	<p class="description"><?php esc_html_e( 'This can be used to reduce the admin clutter if the account is used for content editting.' ); ?></p>
+	<p class="description"><?php esc_html_e( 'The behaviour will last 14 days from the time is set, or until it is set to Administrator.' ); ?></p>
+</td></tr>
+			<?php
+		}
+		?>
+		<?php
+		/**
+		 * Fires at the end of the 'Personal Options' settings table on the user editing screen.
+		 *
+		 * @since 2.7.0
+		 *
+		 * @param WP_User $profileuser The current WP_User object.
+		 */
+		do_action( 'personal_options', $profileuser );
+		?>
+
+		<?php
+		if ( IS_PROFILE_PAGE ) {
+			/**
+			 * Fires after the 'Personal Options' settings table on the 'Profile' editing screen.
+			 *
+			 * The action only fires if the current user is editing their own profile.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param WP_User $profileuser The current WP_User object.
+			 */
+			do_action( 'profile_personal_options', $profileuser );
+		}
+		?>
+</table>
+<h2><?php _e( 'Public Information' ); ?></h2>
+
+<table class="form-table" role="presentation">
+<tr class="user-display-name-wrap">
+	<th><label for="display_name"><?php esc_html_e( 'Display name publicly as' ); ?></label></th>
+	<td>
+		<input type="text" class="regular-text" name="display_name" id="display_name" value="<?php echo esc_attr( $profileuser->display_name ); ?>">
+		<p class="description">
+			<?php esc_html_e( 'The name which will be used to identify you in the admin and
+ at public contexts like comments.' ); ?>
+		</p>
+	</td>
+</tr>
+
+<tr class="user-description-wrap">
+	<th><label for="description"><?php _e( 'Biographical Info' ); ?></label></th>
+	<td><textarea name="description" id="description" rows="5" cols="30"><?php echo $profileuser->description; // textarea_escaped ?></textarea>
+	<p class="description"><?php _e( 'Some information about yourself.' ); ?></p></td>
+</tr>
+
+<tr class="user-avatar-image">
+	<th><?php esc_html_e( 'Avatar image' ); ?></th>
+	<td>
+		<?php
+		$avatar     = $profileuser->avatar();
+		$attachment = $avatar->attachment();
+		if ( $attachment ) {
+			$attachment_id = $attachment->ID;
+			$text_avatar   = new \calmpress\avatar\Text_Based_Avatar( $profileuser->display_name, $profileuser->user_email );
+			$image_display = '';
+			$text_display  = ' style="display:none"';
+		} else {
+			$attachment_id = 0;
+			$text_avatar   = $avatar;
+			$text_display  = '';
+			$image_display = ';display:none';
+		}
+		?>
+		<input type="hidden" id="calm_avatar_image_attachement_id" name="calm_avatar_image_attachement_id" value="<?php echo esc_attr( $attachment_id ); ?>">
+		<div id='calm_avatar_container'>
+			<div style="margin-bottom:4px">
+				<span id="avatar_image_preview" style="vertical-align:top<?php echo $image_display?>">
+					<?php
+					if ( $attachment_id ) {
+						echo $avatar->html( 50, 50 );
+					} else {
+						echo "<img style='border-radius:50%' src='' alt='' width=50 height=50>";
+					}
+					?>
+				</span>
+				<span id="avatar_text_preview"<?php echo $text_display; ?>>
+					<?php
+					echo $text_avatar->html( 50, 50 );
+					?>
+				</span>
+			</div>
+			<div>
+				<?php
+				$disabled = '';
+				if ( ! $avatar->attachment() ) {
+					$disabled = ' disabled=""';
+				}
+				if ( current_user_can( 'upload_files' ) ) {
+					echo '<button type="button" class="button" id="select_avatar_image" style="margin:0 5px">' . esc_html__( 'Use a Different Image' ) . '</button>';
+				}
+				echo '<button type="button" class="button" id="revert_avatar_image"' . $disabled . '>' . esc_html__( 'Revert to the Site`s Default' ) . '</button>';
+				if ( ! current_user_can( 'upload_files' ) ) {
+					echo '<p>' . esc_html__( 'You do not have the permissions required to upload a new avatar image.' ) . '</p>';
+				}
+				?>
+			</div>
+			<p class="description">
+				<?php esc_html_e( 'This image is being displayed next to your profile name on the admin side, and might be displayed next to comments you leave and in other contexts.' ); ?>
+			</p>
+		</div>
+	</td>
+</tr>
 	</table>
 
 <?php if ( wp_is_application_passwords_available_for_user( $user_id ) || ! wp_is_application_passwords_supported() ) : // phpcs:disable Generic.WhiteSpace.ScopeIndent ?>
@@ -726,7 +694,7 @@ endif;
 						<label for="new_application_password_name"><?php _e( 'New Application Password Name' ); ?></label>
 					</th>
 					<td>
-						<input type="text" size="30" id="new_application_password_name" name="new_application_password_name" placeholder="<?php esc_attr_e( 'WordPress App on My Phone' ); ?>" class="input" aria-required="true" aria-describedby="new_application_password_name_desc" />
+						<input type="text" size="30" id="new_application_password_name" name="new_application_password_name" class="input" aria-required="true" aria-describedby="new_application_password_name_desc" />
 						<p class="description" id="new_application_password_name_desc"><?php _e( 'Required to create an Application Password, but not to update the user.' ); ?></p>
 					</td>
 				</tr>
