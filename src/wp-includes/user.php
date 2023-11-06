@@ -2310,9 +2310,9 @@ function wp_update_user( $userdata ) {
 	}
 
 	if ( ! empty( $send_password_change_email ) ) {
-		/* translators: Do not translate USERNAME, ADMIN_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
+		/* translators: Do not translate DISPLAY_NAME, USERNAME, ADMIN_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
 		$pass_change_text = __(
-			'Hi ###EMAIL###,
+			'Hi ###DISPLAY_NAME###,
 
 This notice confirms that your password was changed on ###SITENAME###.
 
@@ -2346,11 +2346,12 @@ All at ###SITENAME###
 		 *     @type string $subject The subject of the email.
 		 *     @type string $message The content of the email.
 		 *         The following strings have a special meaning and will get replaced dynamically:
-		 *         - ###USERNAME###    The current user's username.
-		 *         - ###ADMIN_EMAIL### The admin email in case this was unexpected.
-		 *         - ###EMAIL###       The user's email address.
-		 *         - ###SITENAME###    The name of the site.
-		 *         - ###SITEURL###     The URL to the site.
+		 *         - ###DISPLAY_NAME### The current user's display name.
+		 *         - ###USERNAME###     The current user's username.
+		 *         - ###ADMIN_EMAIL###  The admin email in case this was unexpected.
+		 *         - ###EMAIL###        The user's email address.
+		 *         - ###SITENAME###     The name of the site.
+		 *         - ###SITEURL###      The URL to the site.
 		 *     @type string $headers Headers. Add headers in a newline (\r\n) separated string.
 		 * }
 		 * @param array $user     The original user array.
@@ -2358,6 +2359,7 @@ All at ###SITENAME###
 		 */
 		$pass_change_email = apply_filters( 'password_change_email', $pass_change_email, $user, $userdata );
 
+		$pass_change_email['message'] = str_replace( '###DISPLAY_NAME###', $user['display_name'], $pass_change_email['message'] );
 		$pass_change_email['message'] = str_replace( '###USERNAME###', $user['user_login'], $pass_change_email['message'] );
 		$pass_change_email['message'] = str_replace( '###ADMIN_EMAIL###', get_option( 'admin_email' ), $pass_change_email['message'] );
 		$pass_change_email['message'] = str_replace( '###EMAIL###', $user['user_email'], $pass_change_email['message'] );
@@ -2368,9 +2370,9 @@ All at ###SITENAME###
 	}
 
 	if ( ! empty( $send_email_change_email ) ) {
-		/* translators: Do not translate USERNAME, ADMIN_EMAIL, NEW_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
+		/* translators: Do not translate DISPLAY_NAME, USERNAME, ADMIN_EMAIL, NEW_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
 		$email_change_text = __(
-			'Hi ###EMAIL###,
+			'Hi ###DISPLAY_NAME###,
 
 This notice confirms that your email address on ###SITENAME### was changed to ###NEW_EMAIL###.
 
@@ -2404,12 +2406,13 @@ All at ###SITENAME###
 		 *     @type string $subject The subject of the email.
 		 *     @type string $message The content of the email.
 		 *         The following strings have a special meaning and will get replaced dynamically:
-		 *         - ###USERNAME###    The current user's username.
-		 *         - ###ADMIN_EMAIL### The admin email in case this was unexpected.
-		 *         - ###NEW_EMAIL###   The new email address.
-		 *         - ###EMAIL###       The old email address.
-		 *         - ###SITENAME###    The name of the site.
-		 *         - ###SITEURL###     The URL to the site.
+		 *         - ###DISPLAY_NAME### The current user's username.
+		 *         - ###USERNAME###     The current user's username.
+		 *         - ###ADMIN_EMAIL###  The admin email in case this was unexpected.
+		 *         - ###NEW_EMAIL###    The new email address.
+		 *         - ###EMAIL###        The old email address.
+		 *         - ###SITENAME###     The name of the site.
+		 *         - ###SITEURL###      The URL to the site.
 		 *     @type string $headers Headers.
 		 * }
 		 * @param array $user     The original user array.
@@ -2417,6 +2420,7 @@ All at ###SITENAME###
 		 */
 		$email_change_email = apply_filters( 'email_change_email', $email_change_email, $user, $userdata );
 
+		$email_change_email['message'] = str_replace( '###DISPLAY_NAME###', $user['display_name'], $email_change_email['message'] );
 		$email_change_email['message'] = str_replace( '###USERNAME###', $user['user_login'], $email_change_email['message'] );
 		$email_change_email['message'] = str_replace( '###ADMIN_EMAIL###', get_option( 'admin_email' ), $email_change_email['message'] );
 		$email_change_email['message'] = str_replace( '###NEW_EMAIL###', $userdata['user_email'], $email_change_email['message'] );
@@ -3295,9 +3299,9 @@ function send_confirmation_on_profile_email() {
 
 		$sitename = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
-		/* translators: Do not translate USERNAME, ADMIN_URL, EMAIL, SITENAME, SITEURL: those are placeholders. */
+		/* translators: Do not translate DISPLAY_NAME, USERNAME, ADMIN_URL, EMAIL, SITENAME, SITEURL: those are placeholders. */
 		$email_text = __(
-			'Howdy ###EMAIL###,
+			'Howdy ###DISPLAY_NAME###,
 
 You recently requested to have the email address on your account changed.
 
@@ -3318,11 +3322,12 @@ All at ###SITENAME###
 		 * Filters the text of the email sent when a change of user email address is attempted.
 		 *
 		 * The following strings have a special meaning and will get replaced dynamically:
-		 * - ###USERNAME###  The current user's username.
-		 * - ###ADMIN_URL### The link to click on to confirm the email change.
-		 * - ###EMAIL###     The new email.
-		 * - ###SITENAME###  The name of the site.
-		 * - ###SITEURL###   The URL to the site.
+		 * - ###DISPLAY_NAME### The current user's display name.
+		 * - ###USERNAME###     The current user's username.
+		 * - ###ADMIN_URL###    The link to click on to confirm the email change.
+		 * - ###EMAIL###        The new email.
+		 * - ###SITENAME###     The name of the site.
+		 * - ###SITEURL###      The URL to the site.
 		 *
 		 * @since MU (3.0.0)
 		 * @since 4.9.0 This filter is no longer Multisite specific.
@@ -3337,6 +3342,7 @@ All at ###SITENAME###
 		 */
 		$content = apply_filters( 'new_user_email_content', $email_text, $new_user_email );
 
+		$content = str_replace( '###DISPLAY_NAME###', $current_user->display_name, $content );
 		$content = str_replace( '###USERNAME###', $current_user->user_login, $content );
 		$content = str_replace( '###ADMIN_URL###', esc_url( admin_url( 'profile.php?newuseremail=' . $hash ) ), $content );
 		$content = str_replace( '###EMAIL###', $_POST['email'], $content );

@@ -850,9 +850,9 @@ function update_option_new_admin_email( $old_value, $value ) {
 
 	$switched_locale = switch_to_locale( get_user_locale() );
 
-	/* translators: Do not translate USERNAME, ADMIN_URL, EMAIL, SITENAME, SITEURL: those are placeholders. */
+	/* translators: Do not translate DISPLAY_NAME, USERNAME, ADMIN_URL, EMAIL, SITENAME, SITEURL: those are placeholders. */
 	$email_text = __(
-		'Howdy ###EMAIL###,
+		'Howdy ###DISPLAY_NAME###,
 
 You recently requested to have the administration email address on
 your site changed.
@@ -874,11 +874,12 @@ All at ###SITENAME###
 	 * Filters the text of the email sent when a change of site admin email address is attempted.
 	 *
 	 * The following strings have a special meaning and will get replaced dynamically:
-	 * ###USERNAME###  The current user's username.
-	 * ###ADMIN_URL### The link to click on to confirm the email change.
-	 * ###EMAIL###     The proposed new site admin email address.
-	 * ###SITENAME###  The name of the site.
-	 * ###SITEURL###   The URL to the site.
+	 * ###DISPLAY_NAME### The current user's display name.
+	 * ###USERNAME###     The current user's username.
+	 * ###ADMIN_URL###    The link to click on to confirm the email change.
+	 * ###EMAIL###        The proposed new site admin email address.
+	 * ###SITENAME###     The name of the site.
+	 * ###SITEURL###      The URL to the site.
 	 *
 	 * @since MU (3.0.0)
 	 * @since 4.9.0 This filter is no longer Multisite specific.
@@ -894,6 +895,7 @@ All at ###SITENAME###
 	$content = apply_filters( 'new_admin_email_content', $email_text, $new_admin_email );
 
 	$current_user = wp_get_current_user();
+	$content      = str_replace( '###DISPLAY_NAME###', $current_user->display_name, $content );
 	$content      = str_replace( '###USERNAME###', $current_user->user_login, $content );
 	$content      = str_replace( '###ADMIN_URL###', esc_url( self_admin_url( 'options.php?adminhash=' . $hash ) ), $content );
 	$content      = str_replace( '###EMAIL###', $value, $content );
