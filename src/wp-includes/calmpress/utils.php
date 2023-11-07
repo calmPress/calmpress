@@ -28,21 +28,26 @@ function last_error_message(): string {
 }
 
 /**
- * Verify that a directory exists at a specific path, and if does not try to create one.
+ * Verify that a writable directory exists at a specific path,
+ * and if does not try to create a one.
  *
  * @param string $path The absolute path of the directory.
  *
- * @throws \Exception If path exists but it is not a directory, or if directory creation fails.
+ * @throws \RuntimeException If path exists but it is not a directory (exception code is 2),
+ *                    path exists but it is not a writable (exception code 3),
+ *                    or if directory creation fails (exception code is 1).
  */
 function ensure_dir_exists( string $path ) {
 
 	if ( ! file_exists( $path ) ) {
 		$res = @mkdir( $path, 0755, true );
 		if ( ! $res ) {
-			throw new \Exception( sprintf( __( 'Failed creating directiory %1s reason is %2s' ), $path, last_error_message() ) );
+			throw new \RuntimeException( sprintf( 'Failed creating directiory %1s reason is %2s', $path, last_error_message() ), 1 );
 		}
 	} elseif ( ! is_dir( $path ) ) {
-		throw new \Exception( sprintf( __( '%s exists but is not a directory' ), $path ) );
+		throw new \RuntimeException( $path . ' exists but is not a directory', 2 );
+	} elseif ( ! wp_is_writable( $path ) ) {
+		throw new \RuntimeException( $path . ' directory exists but is not a writeable', 3 );
 	}
 }
 

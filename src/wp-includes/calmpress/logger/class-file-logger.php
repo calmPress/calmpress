@@ -55,16 +55,7 @@ class File_Logger implements Logger {
 		$this->prefix = $prefix;
 
 		$this->directory = rtrim( $directory, '/' );
-		if ( ! file_exists( $this->directory ) ) {
-			if ( ! @mkdir( $this->directory , 0755, true ) ) {
-				throw new \RuntimeException( 'Can not create log directory at ' . $this->directory );
-			}
-		}
-
-		if ( ! wp_is_writable( $this->directory ) ) {
-			throw new \RuntimeException( 'Log directory is not writable directory at ' . $this->directory );
-		}
-
+		\calmpress\utils\ensure_dir_exists( $this->directory );
 	}
 
 	/**

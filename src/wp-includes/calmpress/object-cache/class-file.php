@@ -64,15 +64,7 @@ class File implements \Psr\SimpleCache\CacheInterface {
 	 */
 	protected function set_cache_root_dir( string $dir ) {
 
-		if ( ! file_exists( $dir ) ) {
-			if ( ! @mkdir( $dir , 0755, true ) ) {
-				throw new \RuntimeException( 'Can not create cache directory at ' . $dir );
-			}
-		} 
-		
-		if ( ! wp_is_writable( $dir ) ) {
-			throw new \RuntimeException( 'Cache directory is not writable directory at ' . $dir );
-		}
+		\calmpress\utils\ensure_dir_exists( $dir );
 
 		$this->root_dir = $dir . '/';
 	}
