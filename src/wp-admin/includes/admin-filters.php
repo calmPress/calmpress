@@ -167,27 +167,5 @@ add_action(
 	}
 );
 
-// Maintenance page form submittion.
-add_action( 'admin_post_maintenance_mode_content', '\calmpress\calmpress\Maintenance_Mode::handle_content_change_post' );
-add_action( 'admin_post_maintenance_mode_status', '\calmpress\calmpress\Maintenance_Mode::handle_status_change_post' );
-
-// Switch User form submittion.
-add_action( 'admin_post_switch_user', '\calmpress\user\Switch_User::handle_user_switch' );
-
-// Opcache restart form submittion.
-add_action( 'admin_post_opcache_reset', '\calmpress\opcache\Opcache::handle_opcache_reset' );
-
-// APCu restart form submittion.
-add_action( 'admin_post_apcu_reset', '\calmpress\apcu\APCu::handle_apcu_reset' );
-
-// Object cache restart form submittion.
-add_action( 'admin_post_object_cache_reset', '\calmpress\object_cache\Utils::handle_object_cache_reset' );
-
-// Backup delete "GET" (link) action.
-add_action( 'admin_post_delete_backup', '\calmpress\backup\Utils::handle_delete_backup' );
-
-// Backup delete "GET" (link) action.
-add_action( 'admin_post_bulk_backup', '\calmpress\backup\Utils::handle_bulk_backup' );
-
 // tools menu capabilities.
 add_filter( 'user_has_cap', 'wp_maybe_tools_menu_cap', 1 );
