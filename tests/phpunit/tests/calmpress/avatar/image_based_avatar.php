@@ -13,6 +13,16 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 	use Html_Parameter_Validation_Test;
 
 	/**
+	 * hold the attachment id to be used in tests.
+	 */
+	private int $attachment;
+
+	/**
+	 * Hold the image based avatar to be used in test.
+	 */
+	private \calmpress\avatar\Image_Based_Avatar $avatar;
+
+	/**
 	 * Set up the avatar attribute to the object being tested as required by the
 	 * Html_Parameter_Validation_Test trait.
 	 *
@@ -20,6 +30,7 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 	 */
 	function set_up() {
 		parent::set_up();
+
 		$file = DIR_TESTDATA . '/images/canola.jpg';
 		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
 		$this->attachment = $attachment_id;
