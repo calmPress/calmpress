@@ -34,7 +34,7 @@ class Blank_Avatar implements Avatar {
 	 */
 	protected function _html( int $width, int $height ) : string {
 
-		$html = "<span style='display:inline-block;width:${width}px;height:${height}px'></span>";
+		$html = "<span style='display:inline-block;width:" . $width . "px;height:" . $height . "px'></span>";
 
 		/**
 		 * Filters the generated blank avatar.
