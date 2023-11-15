@@ -108,15 +108,15 @@ require ABSPATH . WPINC . '/pomo/mo.php';
 // calmPress autoloader.
 require ABSPATH . WPINC . '/calmpress/autoloader.php';
 
+// calmPress utility functions.
+require ABSPATH . WPINC . '/calmpress/utils.php';
+
 // Initialize loggers.
 calmpress\logger\Controller::init();
 calmpress\logger\Log_Emails::init();
 
 // calmPress rest api routes.
 require ABSPATH . WPINC . '/calmpress/rest-endpoints.php';
-
-// calmPress utility functions.
-require ABSPATH . WPINC . '/calmpress/utils.php';
 
 /**
  * @global wpdb $wpdb WordPress database abstraction object.
