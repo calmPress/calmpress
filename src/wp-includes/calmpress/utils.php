@@ -91,7 +91,7 @@ function redirect_admin_with_action_results( string $url, \calmpress\admin\Admin
  */
 function display_previous_action_results() {
 	if ( did_action( 'admin_notices' ) ) {
-		_doing_it_wrong( __FUNCTION__, 'Has to be called before "admin_noticess" action is run', 'calmPress 1.0.0' );
+		_doing_it_wrong( __FUNCTION__, 'Has to be called before "admin_notices" action is run', 'calmPress 1.0.0' );
 	}
 
 	if ( isset( $_GET['cp-action-result'] ) && 'true' === $_GET['cp-action-result'] ) {
