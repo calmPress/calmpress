@@ -1,7 +1,6 @@
 <?php
 /**
- * Declaration and implementation of a trait to manage
- * and trigger observers.
+ * Declaration and implementation of a class to manage observers.
  *
  * @since calmPress 1.0.0
  */
@@ -28,7 +27,7 @@ namespace calmpress\observer;
  *
  * @since calmPress 1.0.0
  */
-trait Observer_Collection {
+class Observer_Collection {
 
 	/**
 	 * Collection of observers for which notification order depends on dependencies.
@@ -66,7 +65,7 @@ trait Observer_Collection {
 	 *
 	 * @param Observer $observer The observer to add.
 	 */
-	private function add_observer( Observer $observer ) : void {
+	public function add_observer( Observer $observer ) : void {
 		$this->collection[ spl_object_id( $observer ) ] = $observer;
 		if ( ! empty( $this->processing ) ) {
 			// Observer iteration in progress, need to add the new observer
@@ -124,7 +123,7 @@ trait Observer_Collection {
 	 *         1 if $b should be notified before $a
 	 *         0 if $a and $b can be notified in any order.
 	 */
-	static private function compare_observers( Observer $a, Observer $b ): int {
+	private static function compare_observers( Observer $a, Observer $b ): int {
 
 		$a_to_b_dep = $a->notification_dependency_with( $b );
 		if ( $a_to_b_dep !== observer_priority::NONE ) {
@@ -163,7 +162,7 @@ trait Observer_Collection {
 	 * 
 	 * @return Iterator<Observer> Observers in proper notification order.
 	 */
-	private function observers() : \Iterator {
+	public function observers() : \Iterator {
 		if ( empty( $this->processing ) ) {
 			$this->processing = $this->collection;
 			$this->sort_processing();

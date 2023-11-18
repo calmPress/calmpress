@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 namespace calmpress\avatar;
+use calmpress\observer\Static_Mutation_Observer_Collection;
 
 /**
  * A representation of a blank avatar which can be used where "proper" avatar could not
@@ -18,7 +19,11 @@ namespace calmpress\avatar;
  * @since 1.0.0
  */
 class Blank_Avatar implements Avatar {
-	use Html_Parameter_Validation;
+	use Html_Parameter_Validation,
+		Static_Mutation_Observer_Collection {
+		Static_Mutation_Observer_Collection::remove_observer as remove_mutator;
+		Static_Mutation_Observer_Collection::remove_observers_of_class as remove_mutator_of_class;
+	}
 
 	/**
 	 * Implementation of the html method of the Avatar interface which returns
@@ -26,8 +31,8 @@ class Blank_Avatar implements Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int $width  The width of the avatar image.
-	 * @param int $height The height of the avatar image.
+	 * @param int $width  The width of the avatar image in pixels.
+	 * @param int $height The height of the avatar image in pixels.
 	 *
 	 * @return string An HTML which will be rendered as a blank rectangle of the
 	 *                requested dimensions.
@@ -36,16 +41,10 @@ class Blank_Avatar implements Avatar {
 
 		$html = "<span style='display:inline-block;width:" . $width . "px;height:" . $height . "px'></span>";
 
-		/**
-		 * Filters the generated blank avatar.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string The HTML of the avatar.
-		 * @param int    The width of the avatar.
-		 * @param int    The height of the avatar.
-		 */
-		return apply_filters( 'calm_blank_avatar_html', $html, $width, $height );
+		// Allow plugin and themes to override.
+		$html = self::mutate( $html, $width, $height );
+	
+		return $html;
 	}
 
 	/**
@@ -58,5 +57,16 @@ class Blank_Avatar implements Avatar {
 	 */
 	public function attachment() {
 		return null;
+	}
+
+	/**
+	 * Register a mutatur to be called when the HTML is generated.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * Blank_Avatar_HTML_Mutator $mutator The object implementing the mutation observer.
+	 */
+	public static function register_generated_HTML_mutator( Blank_Avatar_HTML_Mutator $mutator ): void {
+		self::add_observer( $mutator );
 	}
 }

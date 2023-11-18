@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 namespace calmpress\avatar;
+use calmpress\observer\Static_Mutation_Observer_Collection;
 
 /**
  * A representation of an avatar which is based on an image stored as an attachment.
@@ -16,7 +17,11 @@ namespace calmpress\avatar;
  * @since 1.0.0
  */
 class Image_Based_Avatar implements Avatar {
-	use Html_Parameter_Validation;
+	use Html_Parameter_Validation,
+	Static_Mutation_Observer_Collection {
+		Static_Mutation_Observer_Collection::remove_observer as remove_mutator;
+		Static_Mutation_Observer_Collection::remove_observers_of_class as remove_mutator_of_class;
+	}
 
 	/**
 	 * The attachment storing information on the avatar image.
@@ -25,7 +30,7 @@ class Image_Based_Avatar implements Avatar {
 	 *
 	 * @since 1.0.0
 	 */
-	private $attachment;
+	private \WP_Post $attachment;
 
 	/**
 	 * Construct the avatar object based on an attachment.
@@ -33,8 +38,16 @@ class Image_Based_Avatar implements Avatar {
 	 * @since 1.0.0
 	 *
 	 * @param \WP_Post $attachment The attachment.
+	 *
+	 * @throws \RunTimeException If $attachment is not an attachment.
 	 */
 	public function __construct( \WP_Post $attachment ) {
+		if ( $attachment->post_type !== 'attachment' ) {
+			throw new \RuntimeException(
+				'An attachment was expected but ' . $attachment->post_type .' is given',
+			);
+		}
+		
 		$this->attachment = $attachment;
 	}
 
@@ -92,17 +105,10 @@ class Image_Based_Avatar implements Avatar {
 		}
 		$html .= '>';
 
-		/**
-		 * Filters the generated image avatar.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string The HTML of the avatar.
-		 * @param int    The ID of the image attachment.
-		 * @param int    The width of the avatar.
-		 * @param int    The height of the avatar.
-		 */
-		return apply_filters( 'calm_image_based_avatar_html', $html, $attachment_id, $width, $height );
+		// Allow plugin and themes to override.
+		$html = self::mutate( $html, $this->attachment, $width, $height );
+
+		return $html;
 	}
 
 	/**
@@ -115,5 +121,16 @@ class Image_Based_Avatar implements Avatar {
 	 */
 	public function attachment() {
 		return $this->attachment;
+	}
+
+	/**
+	 * Register a mutatur to be called when the HTML is generated.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * Image_Based_Avatar_HTML_Mutator $mutator The object implementing the mutation observer.
+	 */
+	public static function register_generated_HTML_mutator( Image_Based_Avatar_HTML_Mutator $mutator ): void {
+		self::add_observer( $mutator );
 	}
 }

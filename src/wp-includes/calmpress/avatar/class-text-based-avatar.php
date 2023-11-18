@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 namespace calmpress\avatar;
+use calmpress\observer\Static_Mutation_Observer_Collection;
 
 /**
  * A representation of an avatar which is based on textual information.
@@ -16,7 +17,11 @@ namespace calmpress\avatar;
  * @since 1.0.0
  */
 class Text_Based_Avatar implements Avatar {
-	use Html_Parameter_Validation;
+	use Html_Parameter_Validation,
+	Static_Mutation_Observer_Collection {
+		Static_Mutation_Observer_Collection::remove_observer as remove_mutator;
+		Static_Mutation_Observer_Collection::remove_observers_of_class as remove_mutator_of_class;
+	}
 
 	/**
 	 * The text from which the avatar's text will be derived.
@@ -25,7 +30,7 @@ class Text_Based_Avatar implements Avatar {
 	 *
 	 * @since 1.0.0
 	 */
-	private $text_source;
+	private string $text_source;
 
 	/**
 	 * The additional factor to apply when calculating the avatar's background color.
@@ -34,7 +39,7 @@ class Text_Based_Avatar implements Avatar {
 	 *
 	 * @since 1.0.0
 	 */
-	private $color_factor;
+	private string $color_factor;
 
 	/**
 	 * Conversion helper to get color base on a number. Based on the colors from
@@ -59,7 +64,10 @@ class Text_Based_Avatar implements Avatar {
 	];
 
 	/**
-	 * Construct the avatar object based on an attachment.
+	 * Construct the avatar object based on an the text to display and some addition
+	 * text to get more randomize background colors.
+	 * 
+	 * If text is not given the behaviour is the same as of a blank avatar.
 	 *
 	 * @since 1.0.0
 	 *
@@ -111,18 +119,10 @@ class Text_Based_Avatar implements Avatar {
 
 		$html = "<span aria-hidden='true' style='display:inline-block;border-radius:50%;text-align:center;color:white;line-height:" . $height . "px;width:" . $width . "px;height:" . $height . "px;font-size:" . $font_size . "px;background:" . $color . "'>$text</span>";
 
-		/**
-		 * Filters the generated image avatar.
-		 *
-		 * @since 1.0.0
-		 *
-		* @param string The HTML of the avatar.
-		* @param string The text on which the avatar's text is based.
-		* @param string The additional factor used in background color generation.
-		* @param int    The width of the avatar.
-		* @param int    The height of the avatar.
-		*/
-		return apply_filters( 'calm_text_based_avatar_html', $html, $this->text_source, $this->color_factor, $width, $height );
+		// Allow plugin and themes to override.
+		$html = self::mutate( $html, $this->text_source, $this->color_factor, $width, $height );
+
+		return $html;
 	}
 
 	/**
@@ -135,5 +135,16 @@ class Text_Based_Avatar implements Avatar {
 	 */
 	public function attachment() {
 		return null;
+	}
+
+	/**
+	 * Register a mutatur to be called when the HTML is generated.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * Text_Based_Avatar_HTML_Mutator $mutator The object implementing the mutation observer.
+	 */
+	public static function register_generated_HTML_mutator( Text_Based_Avatar_HTML_Mutator $mutator ): void {
+		self::add_observer( $mutator );
 	}
 }

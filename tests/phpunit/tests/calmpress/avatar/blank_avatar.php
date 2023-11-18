@@ -6,10 +6,34 @@
  * @since 1.0.0
  */
 
+use calmpress\observer\Observer;
+use calmpress\observer\Observer_Priority;
+use calmpress\avatar\Blank_Avatar_HTML_Mutator;
+use calmpress\avatar\Blank_Avatar;
+
 require_once __DIR__ . '/html_parameter_validation.php';
+
+class Mock_Mutator implements Blank_Avatar_HTML_Mutator {
+
+	public static int $width;
+	public static int $height;
+
+	public function notification_dependency_with( Observer $observer ): Observer_Priority	{
+		return Observer_Priority::NONE;
+	}
+
+	public function mutate( string $html, int $width, int $height ): string {
+		self::$width  = $width;
+		self::$height = $height;
+		return 'tost';
+	}
+
+}
 
 class Blank_Avatar_Test extends WP_UnitTestCase {
 	use Html_Parameter_Validation_Test;
+
+	private Blank_Avatar $avatar;
 
 	/**
 	 * Set up the avatar attribute to the object being tested as required by the
@@ -18,9 +42,9 @@ class Blank_Avatar_Test extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function setUp():void {
-		$this->avatar = new \calmpress\avatar\Blank_Avatar;
+		$this->avatar = new Blank_Avatar();
 	}
-
+	
 	/**
 	 * Test the _html function indirectly by invoking html.
 	 *
@@ -39,26 +63,17 @@ class Blank_Avatar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the filter is executed as part of blank avatar generation.
+	 * Test that the mutator is executed as part of blank avatar generation.
 	 *
 	 * @since 1.0.0
 	 */
-	function test_filter() {
-		$ret_array = [];
+	function test_mutator() {
+
+		Blank_Avatar::register_generated_HTML_mutator( new Mock_Mutator() );		
 		$html = $this->avatar->html( 50, 60 );
 
-		add_filter( 'calm_blank_avatar_html', function ( $html, $width, $height ) use ( &$ret_array ) {
-			$ret_array['html']   = $html;
-			$ret_array['width']  = $width;
-			$ret_array['height'] = $height;
-			return 'tost';
-		}, 10, 3 );
-
-		$ret = $this->avatar->html( 50, 60 );
-
-		$this->assertEquals( 'tost', $ret );
-		$this->assertEquals( $html, $ret_array['html'] );
-		$this->assertEquals( 50, $ret_array['width'] );
-		$this->assertEquals( 60, $ret_array['height'] );
+		$this->assertSame( 'tost', $html );
+		$this->assertSame( 50, Mock_Mutator::$width );
+		$this->assertSame( 60, Mock_Mutator::$height );
 	}
 }

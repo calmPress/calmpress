@@ -9,6 +9,30 @@
 require_once __DIR__ . '/html_parameter_validation.php';
 require_once ABSPATH . '/wp-admin/includes/image.php';
 
+use calmpress\avatar\Image_Based_Avatar_HTML_Mutator;
+use calmpress\observer\Observer_Priority;
+use calmpress\observer\Observer;
+use \calmpress\avatar\Image_Based_Avatar;
+
+class Mock_Mutator implements Image_Based_Avatar_HTML_Mutator {
+
+	public static int $width;
+	public static int $height;
+	public static int $attachment_id;
+
+	public function notification_dependency_with( Observer $observer ): Observer_Priority	{
+		return Observer_Priority::NONE;
+	}
+
+	public function mutate( string $html, \WP_Post $attachment, int $width, int $height ): string {
+		self::$width         = $width;
+		self::$height        = $height;
+		self::$attachment_id = $attachment->ID;
+		return 'tost';
+	}
+
+}
+
 class Image_Based_Avatar_Test extends WP_UnitTestCase {
 	use Html_Parameter_Validation_Test;
 
@@ -20,7 +44,7 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 	/**
 	 * Hold the image based avatar to be used in test.
 	 */
-	private \calmpress\avatar\Image_Based_Avatar $avatar;
+	private Image_Based_Avatar $avatar;
 
 	/**
 	 * Set up the avatar attribute to the object being tested as required by the
@@ -34,7 +58,7 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 		$file = DIR_TESTDATA . '/images/canola.jpg';
 		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
 		$this->attachment = $attachment_id;
-		$this->avatar = new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
+		$this->avatar = new Image_Based_Avatar( get_post( $attachment_id ) );
 	}
 
 	function tear_down() {
@@ -68,28 +92,20 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the filter is executed as part of image avatar generation.
+	 * Test that the mutaturs are executed as part of image avatar generation.
 	 *
 	 * @since 1.0.0
 	 */
-	function test_filter() {
-		$ret_array = [];
-		$html = $this->avatar->html( 50, 60 );
-
-		add_filter( 'calm_image_based_avatar_html', function ( $html, $attachment_id, $width, $height ) use ( &$ret_array ) {
-			$ret_array['html']          = $html;
-			$ret_array['attachment_id'] = $attachment_id;
-			$ret_array['width']         = $width;
-			$ret_array['height']        = $height;
-			return 'tost';
-		}, 10, 4 );
+	function test_mutator() {
 
 		$ret = $this->avatar->html( 50, 60 );
 
-		$this->assertEquals( 'tost', $ret );
-		$this->assertEquals( $html, $ret_array['html'] );
-		$this->assertEquals( $this->avatar->attachment()->ID, $ret_array['attachment_id'] );
-		$this->assertEquals( 50, $ret_array['width'] );
-		$this->assertEquals( 60, $ret_array['height'] );
+		Image_Based_Avatar::register_generated_HTML_mutator( new Mock_Mutator() );		
+		$html = $this->avatar->html( 50, 60 );
+
+		$this->assertSame( 'tost', $html );
+		$this->assertSame( 50, Mock_Mutator::$width );
+		$this->assertSame( 60, Mock_Mutator::$height );
+		$this->assertSame( $this->avatar->attachment()->ID, Mock_Mutator::$attachment_id );
 	}
 }
