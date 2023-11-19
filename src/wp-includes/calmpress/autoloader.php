@@ -87,6 +87,7 @@ const MAP = [
 	'calmpress\observer\Static_Mutation_Observer_Collection'     => __DIR__ . '/observer/trait-static-mutation-observer-collection.php',
 	'calmpress\observer\No_Parameters_Progress_Observer' => __DIR__ . '/observer/class-no-parameters-progress-observer.php',
 	'calmpress\observer\No_Parameters_Progress_Observer_Collection' => __DIR__ . '/observer/trait-no-parameters-progress-observer-collection.php',
+	'calmpress\email\Email_Address'                     => __DIR__ . '/email/class-email-address.php',
 	'Psr\SimpleCache\CacheInterface'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheInterface.php',
 	'Psr\SimpleCache\CacheException'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheException.php',
 	'Psr\SimpleCache\InvalidArgumentException'          => ABSPATH . 'wp-includes/Psr/SimpleCache/InvalidArgumentException.php',
