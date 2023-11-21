@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests trait to test the Static_Mutation_Observer_Collection trait.
+ * Unit tests trait to test the Static_Mutation_By_Ref_Observer_Collection trait.
  *
  * @package calmPress
  * @since 1.0.0
@@ -10,10 +10,10 @@ declare(strict_types=1);
 
 use calmpress\observer\Observer_Priority;
 use calmpress\observer\Observer;
-use calmpress\observer\Static_Mutation_Observer_Collection;
+use calmpress\observer\Static_Mutation_By_Ref_Observer_Collection;
 
-class Mock_Static_Mutation_Observer_Collection {
-	use Static_Mutation_Observer_Collection;
+class Mock_Static_Mutation_By_Ref_Observer_Collection {
+	use Static_Mutation_By_Ref_Observer_Collection;
 
 	public static function add_mutation_observer( Mock_Mutation_Observer $observer ) : void {
 		self::add_observer( $observer );
@@ -45,8 +45,8 @@ class Mock_Mutation_Observer implements Observer {
 		return Observer_Priority::NONE;
 	}
 
-	public function mutate( string $value ): string {
-		return $value . $this->value;
+	public function mutate_by_ref( string &$value ) {
+		$value = $value . $this->value;
 	}
 }
 
@@ -58,7 +58,7 @@ class Mock_Mutation_Observer2 extends Mock_Mutation_Observer {};
 /**
  * tests for the private method of the Observer_Collection trait.
  */
-class Static_Mutation_Observer_Collection_test extends WP_UnitTestCase {
+class Static_Mutation_Observer_By_ref_Collection_test extends WP_UnitTestCase {
 	
 	/**
 	 * test observers
@@ -68,11 +68,12 @@ class Static_Mutation_Observer_Collection_test extends WP_UnitTestCase {
 		$mutator1  = new Mock_Mutation_Observer( 5, 'a' );
 		$mutator2  = new Mock_Mutation_Observer( 3, 'b' );
 		$mutator3  = new Mock_Mutation_Observer2( 6, 'c' );
-		Mock_Static_Mutation_Observer_Collection::add_mutation_observer( $mutator1 );
-		Mock_Static_Mutation_Observer_Collection::add_mutation_observer( $mutator2 );
-		Mock_Static_Mutation_Observer_Collection::add_mutation_observer( $mutator3 );
+		Mock_Static_Mutation_By_Ref_Observer_Collection::add_mutation_observer( $mutator1 );
+		Mock_Static_Mutation_By_Ref_Observer_Collection::add_mutation_observer( $mutator2 );
+		Mock_Static_Mutation_By_Ref_Observer_Collection::add_mutation_observer( $mutator3 );
 
-		$value = Mock_Static_Mutation_Observer_Collection::mutate( '' );
+		$value = '';
+		Mock_Static_Mutation_By_Ref_Observer_Collection::mutate_by_ref( $value );
 
 		$this->assertSame( 'bac' , $value );
 	}
