@@ -101,6 +101,6 @@ class Email_Address {
 			return $this->address;
 		}
 
-		return '"' . str_replace( '"', '\\"', $this->name ) . '" <' . $this->address .'>'; 
+		return $this->name . ' <' . $this->address .'>'; 
 	}
 }

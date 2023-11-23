@@ -74,7 +74,7 @@ class Email_Address_Test extends WP_UnitTestCase {
 	 */
 	public function test_full_address() {
 		$t = new Email_Address( 'calm@ calmpress.org', "  calm\tPre\"ss\r\n " );
-		$this->assertSame( '"calm'. "\t" . 'Pre\\"ss" <calm@calmpress.org>', $t->full_address() );
+		$this->assertSame( 'calm'. "\t" . 'Pre"ss <calm@calmpress.org>', $t->full_address() );
 	}
 
 }
