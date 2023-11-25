@@ -21,7 +21,7 @@ class Mock_Static_Mutation_By_Ref_Observer_Collection {
 }
 
 /**
- * An implementation of an No_Parameters_Progress_Observer interface to use in testing.
+ * An implementation of an Mutation_Observer interface to use in testing.
  */
 class Mock_Mutation_Observer implements Observer {
 
