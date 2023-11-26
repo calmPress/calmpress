@@ -735,6 +735,8 @@ class Email_Test extends WP_UnitTestCase {
 		$this->assertSame( 'email.php', $at[0][7] );
 		$this->assertSame( __FILE__, $at[1][0] );
 		$this->assertSame( 'test title', $at[1][7] );
+
+		unset( $phpmailer );
 	}
 
 	/**
@@ -746,6 +748,9 @@ class Email_Test extends WP_UnitTestCase {
 		Email::register_mutator( $mutate1 );
 		Email::register_mutator( $mutate2 );
 
+		global $phpmailer;
+		$phpmailer = new dummy_PHPMailer();
+
 		$t = new Email(
 			'subject',
 			'testo',
@@ -755,5 +760,6 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->send();
 		$this->assertSame( 'subject first second', $t->subject() );
+		unset( $phpmailer );
 	}
 }
