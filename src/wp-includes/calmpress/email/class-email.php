@@ -483,7 +483,7 @@ class Email {
 	 * Utility to iterate over an array of objects and extract values of a method
 	 * of the object into an array.
 	 * 
-	 * Keys and any other type of order might not be preserved.
+	 * Keys are preserved.
 	 * 
 	 * @since 1.0.0
 	 *
@@ -492,7 +492,7 @@ class Email {
 	 * 
 	 * @return array The values.
 	 */
-	private static function iterate_objects_method_into_array( array $ar, string $method ):array {
+	private static function iterate_objects_method_into_array(array $ar, string $method ):array {
 		$ret = [];
 		foreach ( $ar as $key => $element ) {
 			$ret[ $key ] = $element->$method();
@@ -550,7 +550,19 @@ class Email {
 			$headers[] = 'Content-Type:text/html';
 		}
 
-		$attachments = self::iterate_objects_method_into_array( $this->attachments, 'path' );
+		// Generate attachment array for use in wp_mail where attachment title is
+		// the key and path the value. This format is used by wp_mail to add titles
+		// to the attachments. 
+		$attachments = [];
+		foreach ($this->attachments as $attachment ) {
+			$title = $attachment->title();
+			$path  = $attachment->path();
+			if ( $title === '' ) {
+				$attachments[] = $path;
+			} else {
+				$attachments[ $title ] = $path;
+			}
+		}
 
 		// Return path needs to be set directly at the phpmailer object.
 		if ( $this->return_path !== null ) {
@@ -563,7 +575,7 @@ class Email {
 			);
 		}
 
-		// sender AKA From set by WP filters.
+		// Sender AKA From is set by using WP filters.
 		if ( $this->from !== null ) {
 			$address = $this->from;
 			add_filter(

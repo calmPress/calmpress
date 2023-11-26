@@ -13,7 +13,7 @@ use calmpress\email\Email_Attachment_File;
 class Email_Attachment_File_Test extends WP_UnitTestCase {
 
 	/**
-	 * Test that the constructor set the path property
+	 * Test that the constructor set the path and name properties
 	 *
 	 * @since 1.0.0
 	 */
@@ -21,9 +21,13 @@ class Email_Attachment_File_Test extends WP_UnitTestCase {
 		$path_property = new ReflectionProperty( 'calmpress\email\Email_Attachment_File', 'path' );
         $path_property->setAccessible(true);
 
+		$title_property = new ReflectionProperty( 'calmpress\email\Email_Attachment_File', 'title' );
+        $title_property->setAccessible(true);
+
 		// common use.
 		$t = new Email_Attachment_File( __FILE__ );
 		$this->assertSame( __FILE__, $path_property->getValue( $t ) );
+		$this->assertSame( '', $title_property->getValue( $t ) );
 
 		// Non existing file throws exception.
 		$thrown = false;
@@ -33,6 +37,11 @@ class Email_Attachment_File_Test extends WP_UnitTestCase {
 			$thrown = true;
 		}
 		$this->assertTrue( $thrown );
+
+		// Name sanitization.
+		$t = new Email_Attachment_File( __FILE__, " \r\n o\tp\r\nsi tester \r\n" );
+		$this->assertSame( "o\tp si tester", $title_property->getValue( $t ) );
+
 	}
 
 	/**
@@ -40,8 +49,18 @@ class Email_Attachment_File_Test extends WP_UnitTestCase {
 	 *
 	 * @since 1.0.0
 	 */
-	public function test_name() {
+	public function test_path() {
 		$t = new Email_Attachment_File( __FILE__ );
 		$this->assertSame( __FILE__, $t->path() );
+	}
+
+	/**
+	 * Test the title method.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_title() {
+		$t = new Email_Attachment_File( __FILE__, ' attachment title ' );
+		$this->assertSame( 'attachment title', $t->title() );
 	}
 }

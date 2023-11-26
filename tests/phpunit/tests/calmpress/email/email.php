@@ -726,10 +726,15 @@ class Email_Test extends WP_UnitTestCase {
 		// Test attachments.
 		$this->assertSame( 0, count( $phpmailer->getAttachments() ) );
 		$t->add_attachment( new Email_Attachment_File( __FILE__ ) );
+		$t->add_attachment( new Email_Attachment_File( __FILE__, ' test title' ) );
 		$t->send();
 		$at = $phpmailer->getAttachments();
-		$this->assertSame( 1, count( $at ) );
+		$this->assertSame( 2, count( $at ) );
 		$this->assertSame( __FILE__, $at[0][0] );
+		// Not defined well, but what PHPMailer actually does when no title is given.
+		$this->assertSame( 'email.php', $at[0][7] );
+		$this->assertSame( __FILE__, $at[1][0] );
+		$this->assertSame( 'test title', $at[1][7] );
 	}
 
 	/**
