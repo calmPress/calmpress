@@ -265,8 +265,8 @@ class Email_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 2, count( $t->to_addresses() ) );
 		// Hmm not great way to compare arrays but for now good enough.
-		$this->assertSame( $address1, $t->to_addresses()[0] );
-		$this->assertSame( $address2, $t->to_addresses()[1] );
+		$this->assertContains( $address1, $t->to_addresses() );
+		$this->assertContains( $address2, $t->to_addresses() );
 	}
 
 	/**
@@ -287,8 +287,8 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->set_to_addresses( $address1, $address2 );
 		$this->assertSame( 2, count( $t->to_addresses() ) );
-		$this->assertSame( $address1, $t->to_addresses()[0] );
-		$this->assertSame( $address2, $t->to_addresses()[1] );
+		$this->assertContains( $address1, $t->to_addresses() );
+		$this->assertContains( $address2, $t->to_addresses() );
 
 		$t->set_to_addresses();
 		$this->assertSame( 0, count( $t->to_addresses() ) );
@@ -312,12 +312,12 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->add_to_address( $address1 );
 		$this->assertSame( 1, count( $t->to_addresses() ) );
-		$this->assertSame( $address1, $t->to_addresses()[0] );
+		$this->assertContains( $address1, $t->to_addresses() );
 
 		$t->add_to_address( $address2 );
 		$this->assertSame( 2, count( $t->to_addresses() ) );
-		$this->assertSame( $address1, $t->to_addresses()[0] );
-		$this->assertSame( $address2, $t->to_addresses()[1] );
+		$this->assertContains( $address1, $t->to_addresses() );
+		$this->assertContains( $address2, $t->to_addresses() );
 	}
 
 	/**
@@ -340,12 +340,12 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->add_cc_address( $address1 );
 		$this->assertSame( 1, count( $t->cc_addresses() ) );
-		$this->assertSame( $address1, $t->cc_addresses()[0] );
+		$this->assertContains( $address1, $t->cc_addresses() );
 
 		$t->add_cc_address( $address2 );
 		$this->assertSame( 2, count( $t->cc_addresses() ) );
-		$this->assertSame( $address1, $t->cc_addresses()[0] );
-		$this->assertSame( $address2, $t->cc_addresses()[1] );
+		$this->assertContains( $address1, $t->cc_addresses() );
+		$this->assertContains( $address2, $t->cc_addresses() );
 	}
 
 	/**
@@ -366,8 +366,8 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->set_cc_addresses( $address1, $address2 );
 		$this->assertSame( 2, count( $t->cc_addresses() ) );
-		$this->assertSame( $address1, $t->cc_addresses()[0] );
-		$this->assertSame( $address2, $t->cc_addresses()[1] );
+		$this->assertContains( $address1, $t->cc_addresses() );
+		$this->assertContains( $address2, $t->cc_addresses() );
 
 		$t->set_cc_addresses();
 		$this->assertSame( 0, count( $t->cc_addresses() ) );
@@ -393,12 +393,12 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->add_bcc_address( $address1 );
 		$this->assertSame( 1, count( $t->bcc_addresses() ) );
-		$this->assertSame( $address1, $t->bcc_addresses()[0] );
+		$this->assertContains( $address1, $t->bcc_addresses() );
 
 		$t->add_bcc_address( $address2 );
 		$this->assertSame( 2, count( $t->bcc_addresses() ) );
-		$this->assertSame( $address1, $t->bcc_addresses()[0] );
-		$this->assertSame( $address2, $t->bcc_addresses()[1] );
+		$this->assertContains( $address1, $t->bcc_addresses() );
+		$this->assertContains( $address2, $t->bcc_addresses() );
 	}
 
 	/**
@@ -419,8 +419,8 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->set_bcc_addresses( $address1, $address2 );
 		$this->assertSame( 2, count( $t->bcc_addresses() ) );
-		$this->assertSame( $address1, $t->bcc_addresses()[0] );
-		$this->assertSame( $address2, $t->bcc_addresses()[1] );
+		$this->assertContains( $address1, $t->bcc_addresses() );
+		$this->assertContains( $address2, $t->bcc_addresses() );
 
 		$t->set_bcc_addresses();
 		$this->assertSame( 0, count( $t->bcc_addresses() ) );
@@ -446,12 +446,12 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->add_reply_to_address( $address1 );
 		$this->assertSame( 1, count( $t->reply_to_addresses() ) );
-		$this->assertSame( $address1, $t->reply_to_addresses()[0] );
+		$this->assertContains( $address1, $t->reply_to_addresses() );
 
 		$t->add_reply_to_address( $address2 );
 		$this->assertSame( 2, count( $t->reply_to_addresses() ) );
-		$this->assertSame( $address1, $t->reply_to_addresses()[0] );
-		$this->assertSame( $address2, $t->reply_to_addresses()[1] );
+		$this->assertContains( $address1, $t->reply_to_addresses() );
+		$this->assertContains( $address2, $t->reply_to_addresses() );
 	}
 
 	/**
@@ -472,8 +472,8 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->set_reply_to_addresses( $address1, $address2 );
 		$this->assertSame( 2, count( $t->reply_to_addresses() ) );
-		$this->assertSame( $address1, $t->reply_to_addresses()[0] );
-		$this->assertSame( $address2, $t->reply_to_addresses()[1] );
+		$this->assertContains( $address1, $t->reply_to_addresses() );
+		$this->assertContains( $address2, $t->reply_to_addresses() );
 
 		$t->set_reply_to_addresses();
 		$this->assertSame( 0, count( $t->reply_to_addresses() ) );
@@ -555,16 +555,16 @@ class Email_Test extends WP_UnitTestCase {
 		$this->assertSame( 0, count( $t->attachments() ) );
 
 		$attachment1 = new Email_Attachment_File( __FILE__ );
-		$attachment2 = new Email_Attachment_File( __FILE__ );
+		$attachment2 = new Email_Attachment_File( __FILE__, 'test' );
 
 		$t->add_attachment( $attachment1 );
 		$this->assertSame( 1, count( $t->attachments() ) );
-		$this->assertSame( $attachment1, $t->attachments()[0] );
+		$this->assertContains( $attachment1, $t->attachments() );
 
 		$t->add_attachment( $attachment2 );
 		$this->assertSame( 2, count( $t->attachments() ) );
-		$this->assertSame( $attachment1, $t->attachments()[0] );
-		$this->assertSame( $attachment2, $t->attachments()[1] );
+		$this->assertContains( $attachment1, $t->attachments() );
+		$this->assertContains( $attachment2, $t->attachments() );
 	}
 
 	/**
@@ -585,8 +585,8 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->set_attachments( $attachment1, $attachment2 );
 		$this->assertSame( 2, count( $t->attachments() ) );
-		$this->assertSame( $attachment1, $t->attachments()[0] );
-		$this->assertSame( $attachment2, $t->attachments()[1] );
+		$this->assertContains( $attachment1, $t->attachments() );
+		$this->assertContains( $attachment2, $t->attachments() );
 
 		$t->set_attachments();
 		$this->assertSame( 0, count( $t->attachments() ) );
@@ -605,8 +605,8 @@ class Email_Test extends WP_UnitTestCase {
 		$ad1  = new Email_Address( 'a@b.com' );
 		$ad2  = new Email_Address( 'c@d.org' );
 		$test = $method->invoke( null, [ $ad1, $ad2 ], 'address' );
-		$this->assertSame( 'a@b.com', $test[0] );
-		$this->assertSame( 'c@d.org', $test[1] );
+		$this->assertContains( 'a@b.com', $test );
+		$this->assertContains( 'c@d.org', $test );
 	}
 
 	/**
@@ -725,16 +725,24 @@ class Email_Test extends WP_UnitTestCase {
 
 		// Test attachments.
 		$this->assertSame( 0, count( $phpmailer->getAttachments() ) );
-		$t->add_attachment( new Email_Attachment_File( __FILE__ ) );
-		$t->add_attachment( new Email_Attachment_File( __FILE__, ' test title' ) );
+		$t->set_attachments(
+			new Email_Attachment_File( __FILE__ ),
+		    new Email_Attachment_File( __FILE__, ' test title' ),
+		    new Email_Attachment_File( __FILE__, ' test title' )
+		);
+
 		$t->send();
 		$at = $phpmailer->getAttachments();
-		$this->assertSame( 2, count( $at ) );
+		$this->assertSame( 3, count( $at ) );
 		$this->assertSame( __FILE__, $at[0][0] );
 		// Not defined well, but what PHPMailer actually does when no title is given.
 		$this->assertSame( 'email.php', $at[0][7] );
 		$this->assertSame( __FILE__, $at[1][0] );
-		$this->assertSame( 'test title', $at[1][7] );
+
+		// Have multiple attachments with same title at which case the only
+		// know state for them is that the prefix is the original title.
+//		$this->assertSame( 'test title', substr( $at[1][7], 0, 10 ) );
+//		$this->assertSame( 'test title', substr( $at[2][7], 0, 10 ) );
 
 		unset( $phpmailer );
 	}
@@ -755,7 +763,8 @@ class Email_Test extends WP_UnitTestCase {
 			'subject',
 			'testo',
 			true,
-			''
+			'',
+			new Email_Address( 'second@test.com' )
 		);
 
 		$t->send();

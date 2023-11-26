@@ -218,6 +218,8 @@ class Email {
 
 	/**
 	 * The email addresses to which the email should be sent to.
+	 *
+	 * The values of the keys is undefined.
 	 * 
 	 * @since calmPress 1.0.0
 	 * 
@@ -255,6 +257,8 @@ class Email {
 
 	/**
 	 * The email addresses to which the email should be sent to as CC.
+	 *
+	 * The values of the keys is undefined.
 	 * 
 	 * @since calmPress 1.0.0
 	 * 
@@ -293,6 +297,8 @@ class Email {
 
 	/**
 	 * The email addresses to which the email should be sent to as CC.
+	 *
+	 * The values of the keys is undefined.
 	 * 
 	 * @since calmPress 1.0.0
 	 * 
@@ -364,6 +370,8 @@ class Email {
 	/**
 	 * The email addresses which will be indicated as the reply to (Reply-To) address
 	 * of the email.
+	 *
+	 * The values of the keys is undefined.
 	 * 
 	 * @since calmPress 1.0.0
 	 * 
@@ -414,7 +422,7 @@ class Email {
 	}
 
 	/**
-	 * add an attachment to the email.
+	 * Add an attachment to the email.
 	 *
 	 * @since 1.0.0
 	 *
@@ -426,6 +434,8 @@ class Email {
 
 	/**
 	 * The attachments which will be used in the email.
+	 *
+	 * The values of the keys is undefined.
 	 *
 	 * @since 1.0.0
 	 *
@@ -522,6 +532,9 @@ class Email {
 
 	/**
 	 * Send the email.
+	 * 
+	 * If there are two attachments with the same title, one of them will be changed
+	 * while preserving the original title as the prefix to the newly generate one.
 	 *
 	 * @since 1.0.0
 	 */
@@ -550,18 +563,32 @@ class Email {
 			$headers[] = 'Content-Type:text/html';
 		}
 
-		// Generate attachment array for use in wp_mail where attachment title is
-		// the key and path the value. This format is used by wp_mail to add titles
-		// to the attachments. 
-		$attachments = [];
-		foreach ($this->attachments as $attachment ) {
-			$title = $attachment->title();
-			$path  = $attachment->path();
-			if ( $title === '' ) {
-				$attachments[] = $path;
-			} else {
-				$attachments[ $title ] = $path;
+		$attachments      = [];
+		$duplicate_titles = [];
+
+		foreach ( $this->attachments as $attachment ) {
+			$key = $attachment->title();
+			if ( $key === '' ) {
+				$attachments[] = $attachment->path();
+				continue;
+			} elseif ( isset( $attachments[ $key ] ) ) {
+				if ( ! isset( $duplicate_titles[ $key ] ) ) {
+					\calmpress\logger\Controller::log_info_message(
+						'Several different attachments were added with same title - "' . $key . '"',
+						__FILE__,
+						__LINE__
+					);
+					$duplicate_titles[ $key ] = true;
+				}
+
+				for ( $i = 2; ; $i++ ) {
+					if ( ! isset( $attachments[ $key . ' (' . $i . ')' ] ) ) {
+						$key = $key . ' (' . $i . ')';
+						break;
+					}
+				}
 			}
+			$attachments[ $key ] = $attachment->path();
 		}
 
 		// Return path needs to be set directly at the phpmailer object.
