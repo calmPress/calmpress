@@ -75,8 +75,6 @@ class Email {
 	/**
 	 * The sender address to be used in the "From" header overriding the system default.
 	 * A value of null indicates that defaults are used.
-	 *
-	 * @var ?Email_Address
 	 * 
 	 * @since 1.0.0
 	 */
@@ -108,6 +106,14 @@ class Email {
 
 	/**
 	 * Create Email object.
+	 * 
+	 * @since 1.0.0
+	 *
+	 * @param string $subject         The subject of the email.
+	 * @param string $content         The content of the email.
+	 * @param bool   $content_is_html Indicate whether the $content is HTMl (true)
+	 *                                or plain text (false).
+	 * @param Email_Address $to       The email address(es) to send to mail to. 
 	 */
 	public function __construct(
 		string $subject,
@@ -125,7 +131,7 @@ class Email {
 	 * Set the subject of the email. Value is sanitized to remove leading and
 	 * trailing spaces and line breaks.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
 	public function set_subject( string $subject ) : void {
 		$this->subject = trim( str_replace( ["\r", "\n"], '', $subject ) );
@@ -134,7 +140,7 @@ class Email {
 	/**
 	 * The subject of the email.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
 	public function subject() : string {
 		return $this->subject;
@@ -175,7 +181,7 @@ class Email {
 	/**
 	 * Set the destination address(es) ("TO") of the email.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param Email_Address $to Variable number of addresses to which to send the email.
 	 *                          If none provided there will be no destinations.
@@ -187,7 +193,7 @@ class Email {
 	/**
 	 * Add a destination address ("TO") of the email.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @param Email_Address $to An email address to add to the list of destination
 	 *                          email addresses.
@@ -201,7 +207,7 @@ class Email {
 	 *
 	 * The values of the keys is undefined.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @return Email_Address[] A collection of the email addresses to which to send the
 	 *                         email. Empty array indicates that none are configured.
@@ -213,7 +219,7 @@ class Email {
 	/**
 	 * Set the CC destination address(es) of the email.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param Email_Address $cc Variable number of address(es) to which
 	 *                          to send the email as CC.
@@ -226,7 +232,7 @@ class Email {
 	/**
 	 * Add a CC destination address of the email.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @param Email_Address $cc An email address to add to the list of destination
 	 *                          email addresses sent as CC.
@@ -240,7 +246,7 @@ class Email {
 	 *
 	 * The values of the keys is undefined.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @return Email_Address[] A collection of the email addresses to which to send the
 	 *                         email as CC. Empty array indicates that none are
@@ -253,7 +259,7 @@ class Email {
 	/**
 	 * Set the BCC destination address(es) of the email.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param Email_Address $bcc Variable number of address that denote the
 	 *                           to which to send the email as BCC.
@@ -266,7 +272,7 @@ class Email {
 	/**
 	 * Add a BCC destination address of the email.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @param Email_Address $bcc An email address to add to the list of destination
 	 *                           email addresses to send the email as BCC.
@@ -280,7 +286,7 @@ class Email {
 	 *
 	 * The values of the keys is undefined.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @return Email_Address[] A collection of the email addresses to which to send the
 	 *                         email as BCC. Empty array indicates that none are
@@ -297,7 +303,7 @@ class Email {
 	 * This should be used very carefully as SMTP mail severs my reject sending
 	 * emails for addresses which are "unknown" to them. 
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param ?Email_Address $sender The address to be used as a sender.
 	 *                               If null is provided the system setting will be used.
@@ -310,7 +316,7 @@ class Email {
 	 * The email address which will be used as the sender of the email overriding
 	 * the global settings. 
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @return ?Email_Address The email address, null if none is configured and system
 	 *                        settings are used.
@@ -323,7 +329,7 @@ class Email {
 	 * Set the destination address(es) to be set as the reply to (Reply-To) address(es)
 	 * of the email.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param Email_Address $reply_to Variable number of address that denote
 	 *                                to which to send the email as BCC.
@@ -338,7 +344,7 @@ class Email {
 	 * Add a destination address to be set as a reply to (Reply-To) address
 	 * of the email.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @param Email_Address $reply_to An email address to add to the list of reply to
 	 *                                email addresses.
@@ -353,7 +359,7 @@ class Email {
 	 *
 	 * The values of the keys is undefined.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @return Email_Address[] A collection of the email addresses which will be 
 	 *                         indicated as the reply to address. Empty array indicates
@@ -402,7 +408,7 @@ class Email {
 	 * Set the email address to which bounce messages should be sent
 	 * (Return-Path header), or do not indicate such an address when the email is sent.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param string $address The email address to use for bounce mails or empty if
 	 *                        no bounce notification is wanted. 
@@ -423,7 +429,7 @@ class Email {
 	/**
 	 * The email address of the bounce emails (Return-Path header).
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @return string The email address used for bounce mails, empty if non specified.
 	 */
@@ -444,7 +450,7 @@ class Email {
 
 	/**
 	 * Utility to iterate over an array of objects and extract values of a method
-	 * of the object into an array.
+	 * or property of the object into an array.
 	 * 
 	 * Keys are preserved.
 	 * 
