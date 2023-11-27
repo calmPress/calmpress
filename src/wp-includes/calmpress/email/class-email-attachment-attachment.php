@@ -21,10 +21,8 @@ class Email_Attachment_Attachment implements Email_Attachment {
 	 * The attachment holding the file to attach.
 	 * 
 	 * @since 1.0.0
-	 *
-	 * @throws RuntimeException if the file given is not readable. 
 	 */
-	private \WP_Post $attachment;
+	public readonly \WP_Post $attachment;
 
 	/**
 	 * The string to use as the title of the attachment. A value of empty
@@ -81,16 +79,5 @@ class Email_Attachment_Attachment implements Email_Attachment {
 		}
 
 		return $this->attachment->post_title;
-	}
-
-	/**
-	 * The attachment post associated with this email attachment.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return \WP_Post The attachment post.
-	 */
-	public function attachment(): \WP_Post {
-		return $this->attachment;
 	}
 }

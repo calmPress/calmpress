@@ -22,9 +22,6 @@ class Email_Attachment_Attachment_Test extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	public function test_constructor() {
-		$attachment_property = new ReflectionProperty( 'calmpress\email\Email_Attachment_Attachment', 'attachment' );
-        $attachment_property->setAccessible(true);
-
 		$title_property = new ReflectionProperty( 'calmpress\email\Email_Attachment_Attachment', 'title' );
         $title_property->setAccessible(true);
 
@@ -34,7 +31,7 @@ class Email_Attachment_Attachment_Test extends WP_UnitTestCase {
 
 		// common use.
 		$t = new Email_Attachment_Attachment( $attachment, " \r\n o\tp\r\nsi tester \r\n" );
-		$this->assertSame( $attachment, $attachment_property->getValue( $t ) );
+		$this->assertSame( $attachment, $t->attachment );
 		$this->assertSame( "o\tp si tester", $title_property->getValue( $t ) );
 
 		// Non attachment post throws exception.
@@ -60,6 +57,7 @@ class Email_Attachment_Attachment_Test extends WP_UnitTestCase {
 		$this->assertTrue( $thrown );
 
 		// cleanup 
+		wp_delete_post( $post_id, true );
 		wp_delete_post( $attachment_id, true );
 	}
 
@@ -75,22 +73,6 @@ class Email_Attachment_Attachment_Test extends WP_UnitTestCase {
 
 		$t = new Email_Attachment_Attachment( $attachment );
 		$this->assertSame( get_attached_file( $attachment_id ), $t->path() );
-
-		wp_delete_post( $attachment_id, true );
-	}
-
-	/**
-	 * Test the attachment method
-	 *
-	 * @since 1.0.0
-	 */
-	public function test_attachment() {
-		$file = DIR_TESTDATA . '/images/canola.jpg';
-		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
-		$attachment = get_post( $attachment_id );
-
-		$t = new Email_Attachment_Attachment( $attachment );
-		$this->assertSame( $attachment_id, $t->attachment()->ID );
 
 		wp_delete_post( $attachment_id, true );
 	}

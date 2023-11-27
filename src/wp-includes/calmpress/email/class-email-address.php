@@ -26,14 +26,14 @@ class Email_Address {
 	 *
 	 * @since calmPress 1.0.0
 	 */
-	private string $name;
+	public readonly string $name;
 
 	/**
 	 * The email address.
 	 *
 	 * @since calmPress 1.0.0
 	 */
-	private string $address;
+	public readonly string $address;
 
 	/**
 	 * Create an email address object
@@ -64,28 +64,6 @@ class Email_Address {
 
 		$this->name = trim( str_replace( "\r\n", ' ', $name ) );
 
-	}
-
-	/**
-	 * The human readable name associated with the email address.
-	 * 
-	 * @since calmPress 1.0.0
-	 *
-	 * @return string The human readable name associated with the address. 
-	 */
-	public function name() : string {
-		return $this->name;
-	}
-
-	/**
-	 * The email address.
-	 * 
-	 * @since calmPress 1.0.0
-	 *
-	 * @return string The email address. 
-	 */
-	public function address(): string {
-		return $this->address;
 	}
 
 	/**
