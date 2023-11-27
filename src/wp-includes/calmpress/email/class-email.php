@@ -24,15 +24,6 @@ class Email {
 	use \calmpress\observer\Static_Mutation_By_Ref_Observer_Collection;
 
 	/**
-	 * A value that can be use to identify the purpose of the email especially to
-	 * mutators. For example it provides a way to differentiate between
-	 * "reset password" and "approve email address change" type of emails.
-	 *
-	 * @since 1.0.0 
-	 */
-	private readonly string $internal_type;
-
-	/**
 	 * The email subject.
 	 * 
 	 * @since 1.0.0
@@ -122,23 +113,12 @@ class Email {
 		string $subject,
 		string $content,
 		bool   $content_is_html,
-		string $internal_type,
 		Email_Address ...$to,
 	) {
 		$this->set_subject( $subject );
-		$this->internal_type   = $internal_type;
 		$this->content         = $content;
 		$this->content_is_html = $content_is_html;
 		$this->to              = $to;
-	}
-
-	/**
-	 * The internal type identifier.
-	 * 
-	 * @since 1.0.0
-	 */
-	public function internal_type(): string {
-		return $this->internal_type;
 	}
 
 	/**
@@ -296,7 +276,7 @@ class Email {
 	}
 
 	/**
-	 * The email addresses to which the email should be sent to as CC.
+	 * The email addresses to which the email should be sent to as BCC.
 	 *
 	 * The values of the keys is undefined.
 	 * 
@@ -384,33 +364,6 @@ class Email {
 	}
 
 	/**
-	 * Add the reply-to (Reply-To) email address.
-	 * 
-	 * Only one email address is supported although the recent RFC allow several.
-	 * 
-	 * @since 1.0.0
-	 * 
-	 * @param Email_Address $email_address The email address to use as
-	 *                                     a reply to (ReplyTo) address.
-	 *                                     A value of null can be used to specify
-	 *                                     that there is no configured sender.
-	 */
-	public function set_reply_to( ?Email_Address $email_address ): void {
-		$this->reply_to = $email_address;
-	}
-
-	/**
-	 * The reply-to (Reply-To) email address.
-	 *
-	 * @since 1.0.0
-	 * 
-	 * @return Email_Address The email address. null if non is set.
-	 */
-	public function reply_to(): ?Email_Address {
-		return $this->reply_to;
-	}
-
-	/**
 	 * Set the attachments to be used in the email.
 	 *
 	 * @since 1.0.0
@@ -461,7 +414,7 @@ class Email {
 		// Delegate trimming,, sanitization and validation check.
 		if ( $address !== '' ) {
 			$t = new Email_Address( $address );
-			$address = $t->address();
+			$address = $t->address;
 		}
 
 		$this->return_path = $address;
@@ -497,15 +450,20 @@ class Email {
 	 * 
 	 * @since 1.0.0
 	 *
-	 * @param array  $ar The array of objects to iterate over.
-	 * @param string $method The object metod to call to extract the value.
+	 * @param array  $ar     The array of objects to iterate over.
+	 * @param string $method The object's metode to call to extract the value.
+	 *                       A property name can be used as well.
 	 * 
 	 * @return array The values.
 	 */
 	private static function iterate_objects_method_into_array(array $ar, string $method ):array {
 		$ret = [];
 		foreach ( $ar as $key => $element ) {
-			$ret[ $key ] = $element->$method();
+			if ( method_exists( $element, $method ) ) {
+				$ret[ $key ] = $element->$method();
+			} else {
+				$ret[ $key ] = $element->$method;
+			}
 		}
 
 		return $ret;
@@ -608,13 +566,13 @@ class Email {
 			add_filter(
 				'wp_mail_from',
 				static function ( $value ) use ( $address ) {
-					return $address->address();
+					return $address->address;
 				}
 			);
 			add_filter(
 				'wp_mail_from_name',
 				static function ( $value ) use ( $address ) {
-					return $address->name();
+					return $address->name;
 				}
 			);
 		}

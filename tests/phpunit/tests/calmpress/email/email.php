@@ -15,9 +15,7 @@ use calmpress\email\Email_Mutator;
 use calmpress\observer\Observer;
 use calmpress\observer\Observer_Priority;
 
-require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
-require_once ABSPATH . WPINC . '/PHPMailer/SMTP.php';
-require_once ABSPATH . WPINC . '/PHPMailer/Exception.php';
+require_once __DIR__ . '/dummy_phpmailer.php';
 
 /**
  * An implementation of an No_Parameters_Progress_Observer interface to use in testing.
@@ -49,43 +47,6 @@ class Mock_Email_Mutation_Observer implements Email_Mutator {
 	}
 }
 
-/**
- * Used to create "PHPMailer" objects which do not actually try to send
- * mail.
- */
-class dummy_PHPMailer extends \PHPMailer\PHPMailer\PHPMailer {
-
-	public $Mailer = 'dummy';
-
-	/**
-	 * hold the extracted subject out of the headers.
-	 */
-//	public string $Subject;
-
-	/**
-	 * Use the constructor to change validator to the one
-	 * set by wp_mail.
-	 */
-	public function __construct() {
-		self::$validator = static function ( $email ) {
-			return (bool) is_email( $email );
-		};
-
-		parent::__construct( true );
-	}
-
-	/**
-	 * Need to override this to avoid setting mailer back to mail.
-	 */
-	public function isMail() {}
-
-	/**
-	 * just don't send anything.
-	 */
-	public function dummySend( $headers_str, $content ) {
-	}
-}
-
 class Email_Test extends WP_UnitTestCase {
 
 	/**
@@ -96,9 +57,6 @@ class Email_Test extends WP_UnitTestCase {
 	public function test_constructor() {
 		$subject_property = new ReflectionProperty( 'calmpress\email\Email', 'subject' );
         $subject_property->setAccessible(true);
-
-		$internal_type_property = new ReflectionProperty( 'calmpress\email\Email', 'internal_type' );
-        $internal_type_property->setAccessible(true);
 
 		$content_property = new ReflectionProperty( 'calmpress\email\Email', 'content' );
         $content_property->setAccessible(true);
@@ -115,13 +73,11 @@ class Email_Test extends WP_UnitTestCase {
 			" subj\r\nect ", // Make sure trimming and sanitization happen.
 			'content',
 			true,
-			'some_type',
 			$address
 		);
 		$this->assertSame( 'subject', $subject_property->getValue( $t ) );
 		$this->assertSame( 'content', $content_property->getValue( $t ) );
 		$this->assertTrue( $content_is_html_property->getValue( $t ) );
-		$this->assertSame( 'some_type', $internal_type_property->getValue( $t ) );
 		$this->assertSame( 1, count( $to_property->getValue( $t ) ) );
 		$this->assertSame( $address, $to_property->getValue( $t )[0] );
 	}
@@ -136,24 +92,8 @@ class Email_Test extends WP_UnitTestCase {
 			" test\n subject",
 			'',
 			true,
-			''
 		);
 		$this->assertSame( 'test subject', $t->subject() );
-	}
-
-	/**
-	 * Test the internal_type method.
-	 *
-	 * @since 1.0.0
-	 */
-	public function test_internal_type() {
-		$t = new Email(
-			'',
-			'testo',
-			false,
-			'some random type'
-		);
-		$this->assertSame( 'some random type', $t->internal_type() );
 	}
 
 	/**
@@ -166,7 +106,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'',
 			true,
-			''
 		);
 
 		$t->set_subject( 'new subject' );
@@ -195,7 +134,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			true,
-			''
 		);
 		$this->assertSame( 'testo', $t->content() );
 	}
@@ -210,7 +148,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 		$this->assertFalse( $t->content_is_html() );
 	}
@@ -225,7 +162,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'',
 			true,
-			''
 		);
 
 		$t->set_content( 'new content', true );
@@ -247,7 +183,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$this->assertSame( 0, count( $t->to_addresses() ) );
@@ -258,7 +193,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			'',
 			$address1,
 			$address2
 		);
@@ -279,7 +213,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$address1 = new Email_Address( 'a@b.com' );
@@ -304,7 +237,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$address1 = new Email_Address( 'a@b.com' );
@@ -330,7 +262,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$this->assertSame( 0, count( $t->cc_addresses() ) );
@@ -358,7 +289,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$address1 = new Email_Address( 'a@b.com' );
@@ -383,7 +313,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$this->assertSame( 0, count( $t->bcc_addresses() ) );
@@ -411,7 +340,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$address1 = new Email_Address( 'a@b.com' );
@@ -436,7 +364,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$this->assertSame( 0, count( $t->reply_to_addresses() ) );
@@ -464,7 +391,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$address1 = new Email_Address( 'a@b.com' );
@@ -489,7 +415,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		// Empty after object creation.
@@ -515,7 +440,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		// Empty after object creation.
@@ -549,7 +473,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$this->assertSame( 0, count( $t->attachments() ) );
@@ -577,7 +500,6 @@ class Email_Test extends WP_UnitTestCase {
 			'',
 			'testo',
 			false,
-			''
 		);
 
 		$attachment1 = new Email_Attachment_File( __FILE__ );
@@ -638,7 +560,6 @@ class Email_Test extends WP_UnitTestCase {
 			'subject',
 			'testo',
 			true,
-			'',
 			new Email_Address( 'test@test.com', 'hi"t' ),
 			new Email_Address( 'second@test.com' ),
 		);
@@ -763,7 +684,6 @@ class Email_Test extends WP_UnitTestCase {
 			'subject',
 			'testo',
 			true,
-			'',
 			new Email_Address( 'second@test.com' )
 		);
 
