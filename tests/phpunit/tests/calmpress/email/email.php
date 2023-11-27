@@ -15,7 +15,7 @@ use calmpress\email\Email_Mutator;
 use calmpress\observer\Observer;
 use calmpress\observer\Observer_Priority;
 
-require_once __DIR__ . '/dummy_phpmailer.php';
+require_once __DIR__ . '/../../../includes/dummy-phpmailer.php';
 
 /**
  * An implementation of an No_Parameters_Progress_Observer interface to use in testing.
