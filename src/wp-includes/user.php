@@ -2263,20 +2263,6 @@ function wp_update_user( $userdata ) {
 		$plaintext_pass        = $userdata['user_pass'];
 		$userdata['user_pass'] = wp_hash_password( $userdata['user_pass'] );
 
-		/**
-		 * Filters whether to send the password change email.
-		 *
-		 * @since 4.3.0
-		 *
-		 * @see wp_insert_user() For `$user` and `$userdata` fields.
-		 *
-		 * @param bool  $send     Whether to send the email.
-		 * @param array $user     The original user array.
-		 * @param array $userdata The updated user array.
-		 */
-		$send_password_change_email = apply_filters( 'send_password_change_email', true, $user, $userdata );
-	}
-
 	if ( isset( $userdata['user_email'] ) && $user['user_email'] !== $userdata['user_email'] ) {
 		/**
 		 * Filters whether to send the email change email.
@@ -2305,69 +2291,6 @@ function wp_update_user( $userdata ) {
 	$blog_name = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
 	$switched_locale = false;
-	if ( ! empty( $send_password_change_email ) || ! empty( $send_email_change_email ) ) {
-		$switched_locale = switch_to_locale( get_user_locale( $user_id ) );
-	}
-
-	if ( ! empty( $send_password_change_email ) ) {
-		/* translators: Do not translate DISPLAY_NAME, USERNAME, ADMIN_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
-		$pass_change_text = __(
-			'Hi ###DISPLAY_NAME###,
-
-This notice confirms that your password was changed on ###SITENAME###.
-
-If you did not change your password, please contact the Site Administrator at
-###ADMIN_EMAIL###
-
-This email has been sent to ###EMAIL###
-
-Regards,
-All at ###SITENAME###
-###SITEURL###'
-		);
-
-		$pass_change_email = array(
-			'to'      => $user['user_email'],
-			/* translators: Password change notification email subject. %s: Site title. */
-			'subject' => __( '[%s] Password Changed' ),
-			'message' => $pass_change_text,
-			'headers' => '',
-		);
-
-		/**
-		 * Filters the contents of the email sent when the user's password is changed.
-		 *
-		 * @since 4.3.0
-		 *
-		 * @param array $pass_change_email {
-		 *     Used to build wp_mail().
-		 *
-		 *     @type string $to      The intended recipients. Add emails in a comma separated string.
-		 *     @type string $subject The subject of the email.
-		 *     @type string $message The content of the email.
-		 *         The following strings have a special meaning and will get replaced dynamically:
-		 *         - ###DISPLAY_NAME### The current user's display name.
-		 *         - ###USERNAME###     The current user's username.
-		 *         - ###ADMIN_EMAIL###  The admin email in case this was unexpected.
-		 *         - ###EMAIL###        The user's email address.
-		 *         - ###SITENAME###     The name of the site.
-		 *         - ###SITEURL###      The URL to the site.
-		 *     @type string $headers Headers. Add headers in a newline (\r\n) separated string.
-		 * }
-		 * @param array $user     The original user array.
-		 * @param array $userdata The updated user array.
-		 */
-		$pass_change_email = apply_filters( 'password_change_email', $pass_change_email, $user, $userdata );
-
-		$pass_change_email['message'] = str_replace( '###DISPLAY_NAME###', $user['display_name'], $pass_change_email['message'] );
-		$pass_change_email['message'] = str_replace( '###USERNAME###', $user['user_login'], $pass_change_email['message'] );
-		$pass_change_email['message'] = str_replace( '###ADMIN_EMAIL###', get_option( 'admin_email' ), $pass_change_email['message'] );
-		$pass_change_email['message'] = str_replace( '###EMAIL###', $user['user_email'], $pass_change_email['message'] );
-		$pass_change_email['message'] = str_replace( '###SITENAME###', $blog_name, $pass_change_email['message'] );
-		$pass_change_email['message'] = str_replace( '###SITEURL###', home_url(), $pass_change_email['message'] );
-
-		wp_mail( $pass_change_email['to'], sprintf( $pass_change_email['subject'], $blog_name ), $pass_change_email['message'], $pass_change_email['headers'] );
-	}
 
 	if ( ! empty( $send_email_change_email ) ) {
 		/* translators: Do not translate DISPLAY_NAME, USERNAME, ADMIN_EMAIL, NEW_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
