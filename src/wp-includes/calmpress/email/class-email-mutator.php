@@ -17,7 +17,7 @@ namespace calmpress\email;
 interface Email_Mutator extends \calmpress\observer\Observer {
 
 	/**
-	 * Generate (override or leave) the HTML that is generated for a blank avatar.
+	 * Adjust an Email object.
 	 *
 	 * @since 1.0.0
 	 *
