@@ -18,7 +18,7 @@ use calmpress\observer\Observer_Priority;
 require_once __DIR__ . '/../../../includes/dummy-phpmailer.php';
 
 /**
- * An implementation of an No_Parameters_Progress_Observer interface to use in testing.
+ * An implementation of an Email_Mutator interface to use in testing.
  */
 class Mock_Email_Mutation_Observer implements Email_Mutator {
 
@@ -661,9 +661,9 @@ class Email_Test extends WP_UnitTestCase {
 		$this->assertSame( __FILE__, $at[1][0] );
 
 		// Have multiple attachments with same title at which case the only
-		// know state for them is that the prefix is the original title.
-//		$this->assertSame( 'test title', substr( $at[1][7], 0, 10 ) );
-//		$this->assertSame( 'test title', substr( $at[2][7], 0, 10 ) );
+		// known state for them is that the prefix is the original title.
+		$this->assertSame( 'test title', substr( $at[1][7], 0, 10 ) );
+		$this->assertSame( 'test title', substr( $at[2][7], 0, 10 ) );
 
 		unset( $phpmailer );
 	}
