@@ -53,31 +53,6 @@ if ( ! current_user_can( $capability ) ) {
 	);
 }
 
-// Handle admin email change requests.
-if ( ! empty( $_GET['adminhash'] ) ) {
-	$new_admin_details = get_option( 'adminhash' );
-	$redirect          = 'options-general.php?updated=false';
-
-	if ( is_array( $new_admin_details )
-		&& hash_equals( $new_admin_details['hash'], $_GET['adminhash'] )
-		&& ! empty( $new_admin_details['newemail'] )
-	) {
-		update_option( 'admin_email', $new_admin_details['newemail'] );
-		delete_option( 'adminhash' );
-		delete_option( 'new_admin_email' );
-		$redirect = 'options-general.php?updated=true';
-	}
-
-	wp_redirect( admin_url( $redirect ) );
-	exit;
-} elseif ( ! empty( $_GET['dismiss'] ) && 'new_admin_email' === $_GET['dismiss'] ) {
-	check_admin_referer( 'dismiss-' . get_current_blog_id() . '-new_admin_email' );
-	delete_option( 'adminhash' );
-	delete_option( 'new_admin_email' );
-	wp_redirect( admin_url( 'options-general.php?updated=true' ) );
-	exit;
-}
-
 if ( is_multisite() && ! current_user_can( 'manage_network_options' ) && 'update' !== $action ) {
 	wp_die(
 		'<h1>' . __( 'You need a higher level of permission.' ) . '</h1>' .
@@ -96,7 +71,6 @@ $allowed_options            = array(
 		'start_of_week',
 		'timezone_string',
 		'WPLANG',
-		'new_admin_email',
 	),
 	'discussion' => array(
 		'default_comment_status',

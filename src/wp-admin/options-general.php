@@ -86,34 +86,6 @@ if ( ! is_multisite() ) {
 
 <?php } ?>
 
-<tr>
-<th scope="row"><label for="new_admin_email"><?php _e( 'Administration Email Address' ); ?></label></th>
-<td><input name="new_admin_email" type="email" id="new_admin_email" aria-describedby="new-admin-email-description" value="<?php form_option( 'admin_email' ); ?>" class="regular-text ltr" />
-<p class="description" id="new-admin-email-description"><?php _e( 'This address is used for admin purposes. If you change this, we will send you an email at your new address to confirm it. <strong>The new address will not become active until confirmed.</strong>' ); ?></p>
-<?php
-$new_admin_email = get_option( 'new_admin_email' );
-if ( $new_admin_email && get_option( 'admin_email' ) !== $new_admin_email ) :
-	?>
-	<div class="updated inline">
-	<p>
-	<?php
-		printf(
-			/* translators: %s: New admin email. */
-			__( 'There is a pending change of the admin email to %s.' ),
-			'<code>' . esc_html( $new_admin_email ) . '</code>'
-		);
-		printf(
-			' <a href="%1$s">%2$s</a>',
-			esc_url( wp_nonce_url( admin_url( 'options.php?dismiss=new_admin_email' ), 'dismiss-' . get_current_blog_id() . '-new_admin_email' ) ),
-			__( 'Cancel' )
-		);
-	?>
-	</p>
-	</div>
-<?php endif; ?>
-</td>
-</tr>
-
 <?php if ( ! is_multisite() ) { ?>
 
 <tr>

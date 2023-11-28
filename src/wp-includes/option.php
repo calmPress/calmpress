@@ -2094,22 +2094,6 @@ function register_initial_settings() {
 		);
 	}
 
-	if ( ! is_multisite() ) {
-		register_setting(
-			'general',
-			'admin_email',
-			array(
-				'show_in_rest' => array(
-					'name'   => 'email',
-					'schema' => array(
-						'format' => 'email',
-					),
-				),
-				'type'         => 'string',
-				'description'  => __( 'This address is used for admin purposes, like new user notification.' ),
-			)
-		);
-	}
 
 	register_setting(
 		'general',
