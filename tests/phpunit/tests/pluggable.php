@@ -195,7 +195,6 @@ class Tests_Pluggable extends WP_UnitTestCase {
 				'deprecated' => null,
 			),
 			'wp_notify_moderator'             => array( 'comment_id' ),
-			'wp_password_change_notification' => array( 'user' ),
 			'wp_new_user_notification'        => array(
 				'user_id',
 				'deprecated' => null,
