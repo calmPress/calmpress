@@ -2262,7 +2262,8 @@ function wp_update_user( $userdata ) {
 		// If password is changing, hash it now.
 		$plaintext_pass        = $userdata['user_pass'];
 		$userdata['user_pass'] = wp_hash_password( $userdata['user_pass'] );
-
+	}
+	
 	if ( isset( $userdata['user_email'] ) && $user['user_email'] !== $userdata['user_email'] ) {
 		/**
 		 * Filters whether to send the email change email.

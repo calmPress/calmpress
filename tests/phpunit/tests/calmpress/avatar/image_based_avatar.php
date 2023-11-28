@@ -14,7 +14,7 @@ use calmpress\observer\Observer_Priority;
 use calmpress\observer\Observer;
 use \calmpress\avatar\Image_Based_Avatar;
 
-class Mock_Mutator implements Image_Based_Avatar_HTML_Mutator {
+class Mock_Image_Mutator implements Image_Based_Avatar_HTML_Mutator {
 
 	public static int $width;
 	public static int $height;
@@ -100,12 +100,12 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 
 		$ret = $this->avatar->html( 50, 60 );
 
-		Image_Based_Avatar::register_generated_HTML_mutator( new Mock_Mutator() );		
+		Image_Based_Avatar::register_generated_HTML_mutator( new Mock_Image_Mutator() );		
 		$html = $this->avatar->html( 50, 60 );
 
 		$this->assertSame( 'tost', $html );
-		$this->assertSame( 50, Mock_Mutator::$width );
-		$this->assertSame( 60, Mock_Mutator::$height );
-		$this->assertSame( $this->avatar->attachment()->ID, Mock_Mutator::$attachment_id );
+		$this->assertSame( 50, Mock_Image_Mutator::$width );
+		$this->assertSame( 60, Mock_Image_Mutator::$height );
+		$this->assertSame( $this->avatar->attachment()->ID, Mock_Image_Mutator::$attachment_id );
 	}
 }

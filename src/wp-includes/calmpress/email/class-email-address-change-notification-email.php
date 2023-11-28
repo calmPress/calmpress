@@ -112,9 +112,9 @@ All at %2$s
 			$original_email
 		);
 		$this->email->set_reply_to_addresses( new Email_Address( get_option( 'admin_email' ) ) );
-		$this->user            = $user;
+		$this->user           = $user;
 		$this->original_email = $original_email;
-		$this->new_email       = $new_email;
+		$this->new_email      = $new_email;
 		$this->revert_url     = $revert_url;
 	}
 

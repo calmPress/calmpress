@@ -13,7 +13,7 @@ use calmpress\observer\Observer_Priority;
 use calmpress\observer\Observer;
 use \calmpress\avatar\Text_Based_Avatar;
 
-class Mock_Mutator implements Text_Based_Avatar_HTML_Mutator {
+class Mock_Text_Mutator implements Text_Based_Avatar_HTML_Mutator {
 
 	public static int $width;
 	public static int $height;
@@ -86,14 +86,14 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_filter() {
-		Text_Based_Avatar::register_generated_HTML_mutator( new Mock_Mutator() );		
+		Text_Based_Avatar::register_generated_HTML_mutator( new Mock_Text_Mutator() );		
 
 		$html = $this->avatar->html( 50, 60 );
 
 		$this->assertSame( 'tost', $html );
-		$this->assertSame( 50, Mock_Mutator::$width );
-		$this->assertSame( 60, Mock_Mutator::$height );
-		$this->assertSame( 'test for best', Mock_Mutator::$text );
-		$this->assertSame( 't@test.com', Mock_Mutator::$color_factor );
+		$this->assertSame( 50, Mock_Text_Mutator::$width );
+		$this->assertSame( 60, Mock_Text_Mutator::$height );
+		$this->assertSame( 'test for best', Mock_Text_Mutator::$text );
+		$this->assertSame( 't@test.com', Mock_Text_Mutator::$color_factor );
 	}
 }

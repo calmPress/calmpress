@@ -17,8 +17,7 @@ use calmpress\observer\Observer_Priority;
  * to create objects using the trait and expose private methods and data structures
  * when needed.
  */
-class Mock_Observer_Collection {
-	use Observer_Collection;
+class Mock_Observer_Collection extends Observer_Collection {
 
 	/**
 	 * Expose the internal observers property.
@@ -31,7 +30,7 @@ class Mock_Observer_Collection {
 /**
  * An implementation of an Observer interface to use in testing.
  */
-class Mock_Observer implements Observer {
+class Mock_Collection_Observer implements Observer {
 
 	public array $notify_after  = [];
 	public array $notify_before = [];
@@ -52,12 +51,12 @@ class Mock_Observer implements Observer {
 /**
  * Use to create observers with different class than Mock_Observer. 
  */
-class Mock_Observer2 extends Mock_Observer {};
+class Mock_Collection_Observer2 extends Mock_Collection_Observer {};
 
 /**
  * Use to create observers with different class than Mock_Observer. 
  */
-class Mock_Observer_First extends Mock_Observer {
+class Mock_Observer_First extends Mock_Collection_Observer {
 	public function notification_dependency_with( Observer $observer ) : Observer_Priority {
 		return Observer_Priority::BEFORE;
 	}
@@ -66,7 +65,7 @@ class Mock_Observer_First extends Mock_Observer {
 /**
  * Use to create observers with different class than Mock_Observer. 
  */
-class Mock_Observer_Last extends Mock_Observer {
+class Mock_Observer_Last extends Mock_Collection_Observer {
 	public function notification_dependency_with( Observer $observer ) : Observer_Priority {
 		return Observer_Priority::AFTER;
 	}
@@ -85,8 +84,8 @@ class Observer_Collection_Test extends WP_UnitTestCase {
         $add_observer->setAccessible(true);
 
 		$collection = new Mock_Observer_Collection();
-		$observer1  = new Mock_Observer();
-		$observer2  = new Mock_Observer();
+		$observer1  = new Mock_Collection_Observer();
+		$observer2  = new Mock_Collection_Observer();
 		$add_observer->invoke( $collection, $observer1 );
 		$add_observer->invoke( $collection, $observer2 );
 		$observers = $collection->internal_collection();
@@ -103,8 +102,8 @@ class Observer_Collection_Test extends WP_UnitTestCase {
         $add_observer->setAccessible(true);
 
 		$collection = new Mock_Observer_Collection();
-		$observer1  = new Mock_Observer();
-		$observer2  = new Mock_Observer();
+		$observer1  = new Mock_Collection_Observer();
+		$observer2  = new Mock_Collection_Observer();
 		$add_observer->invoke( $collection, $observer1 );
 		$add_observer->invoke( $collection, $observer2 );
 		$collection->remove_observer( $observer1 );
@@ -121,13 +120,13 @@ class Observer_Collection_Test extends WP_UnitTestCase {
         $add_observer->setAccessible(true);
 
 		$collection = new Mock_Observer_Collection();
-		$observer1  = new Mock_Observer();
-		$observer2  = new Mock_Observer();
-		$observer3  = new Mock_Observer2();
+		$observer1  = new Mock_Collection_Observer();
+		$observer2  = new Mock_Collection_Observer();
+		$observer3  = new Mock_Collection_Observer2();
 		$add_observer->invoke( $collection, $observer1 );
 		$add_observer->invoke( $collection, $observer2 );
 		$add_observer->invoke( $collection, $observer3 );
-		$collection->remove_observers_of_class( 'Mock_Observer' );
+		$collection->remove_observers_of_class( 'Mock_Collection_Observer' );
 		$observers = $collection->internal_collection();
 		$this->assertEquals( 1, count( $observers ) );
 		$this->assertTrue( array_key_exists( spl_object_id( $observer3 ), $observers ) );
@@ -142,28 +141,28 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 		$compare_observers = new ReflectionMethod( 'Mock_Observer_Collection', 'compare_observers' );
         $compare_observers->setAccessible(true);
 
-		$mock  = new Mock_Observer();
-		$mock2 = new Mock_Observer2();
+		$mock  = new Mock_Collection_Observer();
+		$mock2 = new Mock_Collection_Observer2();
 
 		$this->assertSame( 0, $compare_observers->invoke( null, $mock, $mock2 ) );
 		$this->assertSame( 0, $compare_observers->invoke( null, $mock2, $mock ) );
 
-		$mock->notify_after = ['Mock_Observer2'];
+		$mock->notify_after = ['Mock_Collection_Observer2'];
 		$this->assertSame( 1, $compare_observers->invoke( null, $mock, $mock2 ) );
 		$this->assertSame( -1, $compare_observers->invoke( null, $mock2, $mock ) );
 
-		$mock->notify_before = ['Mock_Observer2'];
+		$mock->notify_before = ['Mock_Collection_Observer2'];
 		$mock->notify_after = [];
 		$this->assertSame( -1, $compare_observers->invoke( null, $mock, $mock2 ) );
 		$this->assertSame( 1, $compare_observers->invoke( null, $mock2, $mock ) );
 
 		$mock->notify_before = [];
-		$mock2->notify_after = ['Mock_Observer'];
+		$mock2->notify_after = ['Mock_Collection_Observer'];
 		$this->assertSame( -1, $compare_observers->invoke( null, $mock, $mock2 ) );
 		$this->assertSame( 1, $compare_observers->invoke( null, $mock2, $mock ) );
 
 		$mock->notify_after  = [];
-		$mock2->notify_before = ['Mock_Observer'];
+		$mock2->notify_before = ['Mock_Collection_Observer'];
 		$this->assertSame( 1, $compare_observers->invoke( null, $mock, $mock2 ) );
 		$this->assertSame( -1, $compare_observers->invoke( null, $mock2, $mock ) );
 	}
@@ -179,11 +178,11 @@ class Observer_Collection_Test extends WP_UnitTestCase {
         $observers->setAccessible(true);
 
 		$first        = new Mock_Observer_First();
-		$unspecified  = new Mock_Observer(); 
-		$unspecified->notify_after = ['Mock_Observer2'];
+		$unspecified  = new Mock_Collection_Observer(); 
+		$unspecified->notify_after = ['Mock_Collection_Observer2'];
 		$last         = new Mock_Observer_Last();
 		$first2       = new Mock_Observer_First(); 
-		$unspecified2 = new Mock_Observer2(); 
+		$unspecified2 = new Mock_Collection_Observer2(); 
 		$last2        = new Mock_Observer_Last();
 
 		$collection = new Mock_Observer_Collection();
@@ -222,13 +221,13 @@ class Observer_Collection_Test extends WP_UnitTestCase {
         $observers->setAccessible(true);
 
 		$first        = new Mock_Observer_First();
-		$unspecified  = new Mock_Observer(); 
-		$unspecified->notify_after = ['Mock_Observer2'];
+		$unspecified  = new Mock_Collection_Observer(); 
+		$unspecified->notify_after = ['Mock_Collection_Observer2'];
 		$last         = new Mock_Observer_Last();
 		$first2       = new Mock_Observer_First(); 
-		$unspecified2 = new Mock_Observer2(); 
+		$unspecified2 = new Mock_Collection_Observer2(); 
 		$last2        = new Mock_Observer_Last();
-		$inserted     = new Mock_Observer2(); 
+		$inserted     = new Mock_Collection_Observer2(); 
 
 		$collection = new Mock_Observer_Collection();
 
@@ -248,9 +247,9 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 		$observers = iterator_to_array( $observers->invoke( $collection ) );
 		$this->assertSame( 6, count( $observers ) );
 		$this->assertSame( 'Mock_Observer_First', get_class( $observers[0] ) );
-		$this->assertSame( 'Mock_Observer2', get_class( $observers[2] ) );
-		$this->assertSame( 'Mock_Observer2', get_class( $observers[2] ) );
-		$this->assertSame( 'Mock_Observer', get_class( $observers[3] ) );
+		$this->assertSame( 'Mock_Collection_Observer2', get_class( $observers[2] ) );
+		$this->assertSame( 'Mock_Collection_Observer2', get_class( $observers[2] ) );
+		$this->assertSame( 'Mock_Collection_Observer', get_class( $observers[3] ) );
 		$this->assertSame( 'Mock_Observer_Last', get_class( $observers[4] ) );
 		$this->assertSame( 'Mock_Observer_Last', get_class( $observers[5] ) );
 	}
@@ -267,11 +266,11 @@ class Observer_Collection_Test extends WP_UnitTestCase {
         $observers->setAccessible(true);
 
 		$first        = new Mock_Observer_First();
-		$unspecified  = new Mock_Observer(); 
-		$unspecified->notify_after = ['Mock_Observer2'];
+		$unspecified  = new Mock_Collection_Observer(); 
+		$unspecified->notify_after = ['Mock_Collection_Observer2'];
 		$last         = new Mock_Observer_Last();
 		$first2       = new Mock_Observer_First(); 
-		$unspecified2 = new Mock_Observer2(); 
+		$unspecified2 = new Mock_Collection_Observer2(); 
 		$last2        = new Mock_Observer_Last();
 
 		$collection = new Mock_Observer_Collection();
@@ -290,8 +289,8 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 		$observers = iterator_to_array( $observers->invoke( $collection ) );
 		$this->assertSame( 4, count( $observers ) );
 		$this->assertSame( 'Mock_Observer_First', get_class( $observers[0] ) );
-		$this->assertSame( 'Mock_Observer2', get_class( $observers[1] ) );
-		$this->assertSame( 'Mock_Observer', get_class( $observers[2] ) );
+		$this->assertSame( 'Mock_Collection_Observer2', get_class( $observers[1] ) );
+		$this->assertSame( 'Mock_Collection_Observer', get_class( $observers[2] ) );
 		$this->assertSame( 'Mock_Observer_Last', get_class( $observers[3] ) );
 	}
 	/**
@@ -306,11 +305,11 @@ class Observer_Collection_Test extends WP_UnitTestCase {
         $observers->setAccessible(true);
 
 		$first        = new Mock_Observer_First();
-		$unspecified  = new Mock_Observer(); 
-		$unspecified->notify_after = ['Mock_Observer2'];
+		$unspecified  = new Mock_Collection_Observer(); 
+		$unspecified->notify_after = ['Mock_Collection_Observer2'];
 		$last         = new Mock_Observer_Last();
 		$first2       = new Mock_Observer_First(); 
-		$unspecified2 = new Mock_Observer2(); 
+		$unspecified2 = new Mock_Collection_Observer2(); 
 		$last2        = new Mock_Observer_Last();
 
 		$collection = new Mock_Observer_Collection();
@@ -323,13 +322,13 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 		$add_observer->invoke( $collection, $first2 );
 
 		$t = $observers->invoke( $collection )->current(); // pop the first element.
-		$collection->remove_observers_of_class( 'Mock_Observer2' );
+		$collection->remove_observers_of_class( 'Mock_Collection_Observer2' );
 
 		// Get the ones that weren't popped yet.
 		$observers = iterator_to_array( $observers->invoke( $collection ) );
 		$this->assertSame( 4, count( $observers ) );
 		$this->assertSame( 'Mock_Observer_First', get_class( $observers[0] ) );
-		$this->assertSame( 'Mock_Observer', get_class( $observers[1] ) );
+		$this->assertSame( 'Mock_Collection_Observer', get_class( $observers[1] ) );
 		$this->assertSame( 'Mock_Observer_Last', get_class( $observers[2] ) );
 		$this->assertSame( 'Mock_Observer_Last', get_class( $observers[3] ) );
 	}

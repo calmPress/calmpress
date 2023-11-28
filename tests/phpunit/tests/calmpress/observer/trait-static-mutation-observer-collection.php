@@ -15,15 +15,15 @@ use calmpress\observer\Static_Mutation_Observer_Collection;
 class Mock_Static_Mutation_Observer_Collection {
 	use Static_Mutation_Observer_Collection;
 
-	public static function add_mutation_observer( Mock_Mutation_Observer $observer ) : void {
+	public static function add_mutation_observer( Mock_Static_Mutation_Observer $observer ) : void {
 		self::add_observer( $observer );
 	}
 }
 
 /**
- * An implementation of an No_Parameters_Progress_Observer interface to use in testing.
+ * An implementation of an Observer interface to use in testing.
  */
-class Mock_Mutation_Observer implements Observer {
+class Mock_Static_Mutation_Observer implements Observer {
 
 	public int    $priority = 0;
 	public string $value;
@@ -53,7 +53,7 @@ class Mock_Mutation_Observer implements Observer {
 /**
  * Use to create observers with different class than Mock_Mutation_Observer. 
  */
-class Mock_Mutation_Observer2 extends Mock_Mutation_Observer {};
+class Mock_Static_Mutation_Observer2 extends Mock_Static_Mutation_Observer {};
 
 /**
  * tests for the private method of the Observer_Collection trait.
@@ -65,9 +65,9 @@ class Static_Mutation_Observer_Collection_test extends WP_UnitTestCase {
 	 */
 	public function test_mutate() {
 
-		$mutator1  = new Mock_Mutation_Observer( 5, 'a' );
-		$mutator2  = new Mock_Mutation_Observer( 3, 'b' );
-		$mutator3  = new Mock_Mutation_Observer2( 6, 'c' );
+		$mutator1  = new Mock_Static_Mutation_Observer( 5, 'a' );
+		$mutator2  = new Mock_Static_Mutation_Observer( 3, 'b' );
+		$mutator3  = new Mock_Static_Mutation_Observer2( 6, 'c' );
 		Mock_Static_Mutation_Observer_Collection::add_mutation_observer( $mutator1 );
 		Mock_Static_Mutation_Observer_Collection::add_mutation_observer( $mutator2 );
 		Mock_Static_Mutation_Observer_Collection::add_mutation_observer( $mutator3 );
@@ -77,4 +77,3 @@ class Static_Mutation_Observer_Collection_test extends WP_UnitTestCase {
 		$this->assertSame( 'bac' , $value );
 	}
 }
-?>
