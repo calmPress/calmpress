@@ -1030,9 +1030,6 @@ class wpdb {
 	/**
 	 * Returns an array of WordPress tables.
 	 *
-	 * Also allows for the `CUSTOM_USER_TABLE` and `CUSTOM_USER_META_TABLE` to override the WordPress users
-	 * and usermeta tables that would otherwise be determined by the prefix.
-	 *
 	 * The `$scope` argument can take one of the following:
 	 *
 	 * - 'all' - returns 'all' and 'global' tables. No old tables are returned.
@@ -1097,14 +1094,6 @@ class wpdb {
 					$tables[ $table ] = $blog_prefix . $table;
 				}
 				unset( $tables[ $k ] );
-			}
-
-			if ( isset( $tables['users'] ) && defined( 'CUSTOM_USER_TABLE' ) ) {
-				$tables['users'] = CUSTOM_USER_TABLE;
-			}
-
-			if ( isset( $tables['usermeta'] ) && defined( 'CUSTOM_USER_META_TABLE' ) ) {
-				$tables['usermeta'] = CUSTOM_USER_META_TABLE;
 			}
 		}
 
