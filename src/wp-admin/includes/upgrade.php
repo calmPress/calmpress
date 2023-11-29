@@ -52,7 +52,6 @@ if ( ! function_exists( 'wp_install' ) ) :
 		populate_roles();
 
 		update_option( 'blogname', $blog_title );
-		update_option( 'admin_email', $user_email );
 		update_option( 'blog_public', $public );
 
 		// Freshness of site - in the future, this could get more specific about actions taken, perhaps.
@@ -375,9 +374,6 @@ To get started with moderating, editing, and deleting comments, please visit the
 			// Flush rules to pick up the new page.
 			$wp_rewrite->init();
 			$wp_rewrite->flush_rules();
-
-			$user = new WP_User( $user_id );
-			$wpdb->update( $wpdb->options, array( 'option_value' => $user->user_email ), array( 'option_name' => 'admin_email' ) );
 
 			// Remove all perms except for the login user.
 			$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->usermeta WHERE user_id != %d AND meta_key = %s", $user_id, $table_prefix . 'user_level' ) );

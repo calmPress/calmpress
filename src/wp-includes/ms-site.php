@@ -662,7 +662,6 @@ function wp_initialize_site( $site_id, array $args = array() ) {
 				'home'        => untrailingslashit( $home_scheme . '://' . $site->domain . $site->path ),
 				'siteurl'     => untrailingslashit( $siteurl_scheme . '://' . $site->domain . $site->path ),
 				'blogname'    => wp_unslash( $args['title'] ),
-				'admin_email' => '',
 				'upload_path' => get_network_option( $network->id, 'ms_files_rewriting' ) ? UPLOADBLOGSDIR . "/{$site->id}/files" : get_blog_option( $network->site_id, 'upload_path' ),
 				'blog_public' => (int) $site->public,
 				'WPLANG'      => get_network_option( $network->id, 'WPLANG' ),

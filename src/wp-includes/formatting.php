@@ -4523,18 +4523,6 @@ function sanitize_option( $option, $value ) {
 	$error          = null;
 
 	switch ( $option ) {
-		case 'admin_email':
-			$value = $wpdb->strip_invalid_text_for_column( $wpdb->options, 'option_value', $value );
-			if ( is_wp_error( $value ) ) {
-				$error = $value->get_error_message();
-			} else {
-				$value = sanitize_email( $value );
-				if ( ! is_email( $value ) ) {
-					$error = __( 'The email address entered did not appear to be a valid email address. Please enter a valid email address.' );
-				}
-			}
-			break;
-
 		case 'thumbnail_size_w':
 		case 'thumbnail_size_h':
 		case 'medium_size_w':
