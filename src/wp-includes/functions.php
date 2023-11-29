@@ -1656,13 +1656,6 @@ function is_blog_installed() {
 	 */
 	$wp_tables = $wpdb->tables();
 	foreach ( $wp_tables as $table ) {
-		// The existence of custom user tables shouldn't suggest an unwise state or prevent a clean installation.
-		if ( defined( 'CUSTOM_USER_TABLE' ) && CUSTOM_USER_TABLE == $table ) {
-			continue;
-		}
-		if ( defined( 'CUSTOM_USER_META_TABLE' ) && CUSTOM_USER_META_TABLE == $table ) {
-			continue;
-		}
 
 		$described_table = $wpdb->get_results( "DESCRIBE $table;" );
 		if (

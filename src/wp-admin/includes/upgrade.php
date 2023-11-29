@@ -65,28 +65,25 @@ if ( ! function_exists( 'wp_install' ) ) :
 		$guessurl = wp_guess_url();
 
 		/*
-		 * Create default user. If the user already exists, the user tables are
-		 * being shared among sites. Just set the role in that case.
+		 * Create default user.
 		 */
-		$user_id = username_exists($user_name);
+		$user_id = 0;
 		$user_password = trim($user_password);
 		$email_password = false;
 		$user_created   = false;
 
-		if ( ! $user_id && empty( $user_password ) ) {
+		if ( empty( $user_password ) ) {
 			$user_password = wp_generate_password( 12, false );
 			$message       = __( '<strong><em>Note that password</em></strong> carefully! It is a <em>random</em> password that was generated just for you.' );
 			$user_id       = wp_create_user( $user_name, $user_password, $user_email );
 			update_user_meta( $user_id, 'default_password_nag', true );
 			$email_password = true;
 			$user_created   = true;
-		} elseif ( ! $user_id ) {
+		} else {
 			// Password has been provided.
 			$message      = '<em>' . __( 'Your chosen password.' ) . '</em>';
 			$user_id      = wp_create_user( $user_name, $user_password, $user_email );
 			$user_created = true;
-		} else {
-			$message = __('User already exists. Password inherited.');
 		}
 
 		$user = new WP_User( $user_id );
