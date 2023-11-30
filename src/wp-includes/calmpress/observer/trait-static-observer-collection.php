@@ -3,7 +3,7 @@
  * Declaration and implementation of a trait to use observer collection
  * as static property of a class.
  *
- * @since calmPress 1.0.0
+ * @package calmPress
  */
 
 declare(strict_types=1);
@@ -14,16 +14,20 @@ namespace calmpress\observer;
  * This trait is intended to be used by class which need just one
  * static property of an observer collection.
  * 
- * @since calmPress 1.0.0
+ * @since 1.0.0
  */
 trait Static_Observer_Collection {
 
 	/**
 	 * Collect observers and manipulate the collection.
+	 * 
+	 * null value indicates that an empty collection is associated with the class.
+	 * This is done to save memory and initialization for something that will
+	 * not be used in practice for most classes.
 	 *
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
-	private static Observer_Collection $collection;
+	private static ?Observer_Collection $collection = null;
 
 	/**
 	 * Add an observer for which order of execution depends on its dependencies
@@ -43,7 +47,7 @@ trait Static_Observer_Collection {
 	 * @param Observer $observer The observer to add.
 	 */
 	private static function add_observer( Observer $observer ) : void {
-		if ( ! isset( self::$collection ) ) {
+		if ( null === self::$collection ) {
 			self::$collection = new Observer_Collection();
 		}
 		self::$collection->add_observer( $observer );
@@ -61,10 +65,10 @@ trait Static_Observer_Collection {
 	 * Removal while observer iteration is in progress will cause the observer to not be
 	 * iterated upon if it was not iterated yet.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
 	public static function remove_observer( Observer $observer ) : void {
-		if ( isset( self::$collection ) ) {
+		if ( null !== self::$collection ) {
 			self::$collection->remove_observer( $observer );
 		}
 	}
@@ -78,11 +82,23 @@ trait Static_Observer_Collection {
 	 * Removal while observer iteration is in progress will cause the relevant observers
 	 * to not be iterated upon if they were not iterated yet.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
 	public static function remove_observers_of_class( string $class ) : void {
-		if ( isset( self::$collection ) ) {
+		if ( null !== self::$collection ) {
 			self::$collection->remove_observers_of_class( $class );
 		}
+	}
+
+	/**
+	 * Remove all observers.
+	 *
+	 * Both for completeness and as it is needed for testing as static properties
+	 * are essentially global state.
+	 * 
+	 * @since 1.0.0
+	 */
+	public static function remove_all_observers() : void {
+		self::$collection = null;
 	}
 }

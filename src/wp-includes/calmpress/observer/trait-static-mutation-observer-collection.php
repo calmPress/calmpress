@@ -26,6 +26,7 @@ trait Static_Mutation_Observer_Collection {
 	use Static_Observer_Collection {
 		remove_observer as remove_mutation_observer;
 		remove_observers_of_class as remove_mutation_observers_of_class;
+		remove_all_observers as remove_all_mutation_observers;
 	}
 
 	/**

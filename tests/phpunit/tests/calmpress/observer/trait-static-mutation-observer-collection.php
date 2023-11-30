@@ -61,7 +61,7 @@ class Mock_Static_Mutation_Observer2 extends Mock_Static_Mutation_Observer {};
 class Static_Mutation_Observer_Collection_test extends WP_UnitTestCase {
 	
 	/**
-	 * test observers
+	 * test mutate
 	 */
 	public function test_mutate() {
 
@@ -75,5 +75,23 @@ class Static_Mutation_Observer_Collection_test extends WP_UnitTestCase {
 		$value = Mock_Static_Mutation_Observer_Collection::mutate( '' );
 
 		$this->assertSame( 'bac' , $value );
+	}
+
+	/**
+	 * test remove_all
+	 */
+	public function test_remove_all() {
+
+		$mutator1  = new Mock_Static_Mutation_Observer( 5, 'a' );
+		$mutator2  = new Mock_Static_Mutation_Observer( 3, 'b' );
+		$mutator3  = new Mock_Static_Mutation_Observer2( 6, 'c' );
+		Mock_Static_Mutation_Observer_Collection::add_mutation_observer( $mutator1 );
+		Mock_Static_Mutation_Observer_Collection::add_mutation_observer( $mutator2 );
+		Mock_Static_Mutation_Observer_Collection::add_mutation_observer( $mutator3 );
+
+		Mock_Static_Mutation_Observer_Collection::remove_all_observers();
+		$value = Mock_Static_Mutation_Observer_Collection::mutate( '' );
+
+		$this->assertSame( '' , $value );
 	}
 }

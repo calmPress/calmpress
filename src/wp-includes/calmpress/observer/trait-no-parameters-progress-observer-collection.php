@@ -25,6 +25,7 @@ trait No_Parameters_Progress_Observer_Collection {
 	use Static_Progress_Observer_Collection {
 		remove_observer as remove_progress_observer;
 		remove_observers_of_class as remove_progress_observers_of_class;
+		remove_all_observers as remove_all_progress_observers;
 	}
 
 	/**
