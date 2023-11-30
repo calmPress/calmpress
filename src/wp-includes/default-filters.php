@@ -228,6 +228,10 @@ add_filter( 'option_blog_charset', '_wp_specialchars' ); // IMPORTANT: This must
 add_filter( 'option_blog_charset', '_canonical_charset' );
 add_filter( 'option_home', '_config_wp_home' );
 add_filter( 'option_siteurl', '_config_wp_siteurl' );
+
+// Backward compatibility for code that still uses the admin_email option.
+add_filter( 'pre_option_admin_email', [ 'WP_User', 'admin_email' ] );
+
 add_filter( 'tiny_mce_before_init', '_mce_set_direction' );
 add_filter( 'teeny_mce_before_init', '_mce_set_direction' );
 add_filter( 'pre_kses', 'wp_pre_kses_less_than' );

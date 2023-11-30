@@ -886,8 +886,33 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 *
 	 * @return string the URL, unescaped.
 	 */
-	function activation_url() : string {
+	public function activation_url() : string {
 		return admin_url( 'admin_post&action=activate_user_from_email&email=' . $this->user_email );
+	}
+
+	/**
+	 * All the administrator users of the site ordered by user ID which means
+	 * virtually by user creation time.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return WP_User[] The array of users.
+	 */
+	public static function administrators(): array {
+		$admins = get_users( [ 'role' => 'administrator', 'orderby' => 'ID' ] );
+		return $admins;
+	}
+
+	/**
+	 * The email address of one (the "first") admin.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string The email address.
+	 */
+	public static function admin_email(): string {
+		$admins = self::administrators();
+		return $admins[0]->user_email;
 	}
 
 	/**
