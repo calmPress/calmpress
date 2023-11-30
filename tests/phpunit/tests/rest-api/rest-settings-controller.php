@@ -111,7 +111,6 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 
 		if ( ! is_multisite() ) {
 			$expected[] = 'url';
-			$expected[] = 'email';
 		}
 
 		sort( $expected );

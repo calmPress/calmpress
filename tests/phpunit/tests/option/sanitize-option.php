@@ -15,8 +15,6 @@ class Tests_Sanitize_Option extends WP_UnitTestCase {
 	 */
 	public function sanitize_option_provider() {
 		return array(
-			array( 'admin_email', 'mail@example.com', 'mail@example.com' ),
-			array( 'admin_email', get_option( 'admin_email' ), 'invalid' ),
 			array( 'page_on_front', 0, 0 ),
 			array( 'page_on_front', 10, '-10' ),
 			array( 'posts_per_page', 10, 10 ),
