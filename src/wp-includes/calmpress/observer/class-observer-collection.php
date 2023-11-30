@@ -36,7 +36,7 @@ class Observer_Collection {
 	 *
 	 * @var Observer[]
 	 */
-	private array $collection = [];
+	protected array $collection = [];
 
 	/**
 	 * Collection of observers that still need to be iterated over.
