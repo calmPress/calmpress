@@ -80,14 +80,11 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	 * Test add_observer
 	 */
 	public function test_add_observer() {
-		$add_observer = new ReflectionMethod( 'Mock_Observer_Collection', 'add_observer' );
-        $add_observer->setAccessible(true);
-
 		$collection = new Mock_Observer_Collection();
 		$observer1  = new Mock_Collection_Observer();
 		$observer2  = new Mock_Collection_Observer();
-		$add_observer->invoke( $collection, $observer1 );
-		$add_observer->invoke( $collection, $observer2 );
+		$collection->add_observer( $observer1 );
+		$collection->add_observer( $observer2 );
 		$observers = $collection->internal_collection();
 		$this->assertEquals( 2, count( $observers ) );
 		$this->assertTrue( array_key_exists( spl_object_id( $observer1 ), $observers ) );
@@ -98,14 +95,12 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	 * Test remove_observer
 	 */
 	public function test_remove_observer() {
-		$add_observer = new ReflectionMethod( 'Mock_Observer_Collection', 'add_observer' );
-        $add_observer->setAccessible(true);
 
 		$collection = new Mock_Observer_Collection();
 		$observer1  = new Mock_Collection_Observer();
 		$observer2  = new Mock_Collection_Observer();
-		$add_observer->invoke( $collection, $observer1 );
-		$add_observer->invoke( $collection, $observer2 );
+		$collection->add_observer( $observer1 );
+		$collection->add_observer( $observer2 );
 		$collection->remove_observer( $observer1 );
 		$observers = $collection->internal_collection();
 		$this->assertEquals( 1, count( $observers ) );
@@ -116,16 +111,14 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	 * Test remove_observers_of_class
 	 */
 	public function test_remove_observers_of_class() {
-		$add_observer = new ReflectionMethod( 'Mock_Observer_Collection', 'add_observer' );
-        $add_observer->setAccessible(true);
 
 		$collection = new Mock_Observer_Collection();
 		$observer1  = new Mock_Collection_Observer();
 		$observer2  = new Mock_Collection_Observer();
 		$observer3  = new Mock_Collection_Observer2();
-		$add_observer->invoke( $collection, $observer1 );
-		$add_observer->invoke( $collection, $observer2 );
-		$add_observer->invoke( $collection, $observer3 );
+		$collection->add_observer( $observer1 );
+		$collection->add_observer( $observer2 );
+		$collection->add_observer( $observer3 );
 		$collection->remove_observers_of_class( 'Mock_Collection_Observer' );
 		$observers = $collection->internal_collection();
 		$this->assertEquals( 1, count( $observers ) );
@@ -172,8 +165,6 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	 */
 	public function test_observers() {
 
-		$add_observer = new ReflectionMethod( 'Mock_Observer_Collection', 'add_observer' );
-        $add_observer->setAccessible(true);
 		$observers = new ReflectionMethod( 'Mock_Observer_Collection', 'observers' );
         $observers->setAccessible(true);
 
@@ -189,12 +180,12 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 		$o = iterator_to_array( $observers->invoke( $collection ) );
 		$this->assertSame( 0, count( $o ) );
 
-		$add_observer->invoke( $collection, $first );
-		$add_observer->invoke( $collection, $unspecified );
-		$add_observer->invoke( $collection, $last );
-		$add_observer->invoke( $collection, $unspecified2 );
-		$add_observer->invoke( $collection, $last2 );
-		$add_observer->invoke( $collection, $first2 );
+		$collection->add_observer( $first );
+		$collection->add_observer( $unspecified );
+		$collection->add_observer( $last );
+		$collection->add_observer( $unspecified2 );
+		$collection->add_observer( $last2 );
+		$collection->add_observer( $first2 );
 
 		$observers = iterator_to_array( $observers->invoke( $collection ) );
 
@@ -215,8 +206,6 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	 * "popped" yet)
 	 */
 	public function test_add_observer_while_notifying() { 
-		$add_observer = new ReflectionMethod( 'Mock_Observer_Collection', 'add_observer' );
-		$add_observer->setAccessible(true);
 		$observers = new ReflectionMethod( 'Mock_Observer_Collection', 'observers' );
         $observers->setAccessible(true);
 
@@ -231,17 +220,17 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 
 		$collection = new Mock_Observer_Collection();
 
-		$add_observer->invoke( $collection, $first );
-		$add_observer->invoke( $collection, $unspecified );
-		$add_observer->invoke( $collection, $last );
-		$add_observer->invoke( $collection, $unspecified2 );
-		$add_observer->invoke( $collection, $last2 );
-		$add_observer->invoke( $collection, $first2 );
+		$collection->add_observer( $first );
+		$collection->add_observer( $unspecified );
+		$collection->add_observer( $last );
+		$collection->add_observer( $unspecified2 );
+		$collection->add_observer( $last2 );
+		$collection->add_observer( $first2 );
 
 		$t = $observers->invoke( $collection )->current(); // pop the first element.
 
 		// add new element
-		$add_observer->invoke( $collection, $inserted );
+		$collection->add_observer( $inserted );
 
 		// Get the ones that weren't popped yet.
 		$observers = iterator_to_array( $observers->invoke( $collection ) );
@@ -260,8 +249,6 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	 * The observer being removed should not be notified.
 	 */
 	public function test_remove_observer_while_notifying() { 
-		$add_observer = new ReflectionMethod( 'Mock_Observer_Collection', 'add_observer' );
-		$add_observer->setAccessible(true);
 		$observers = new ReflectionMethod( 'Mock_Observer_Collection', 'observers' );
         $observers->setAccessible(true);
 
@@ -275,12 +262,12 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 
 		$collection = new Mock_Observer_Collection();
 
-		$add_observer->invoke( $collection, $first );
-		$add_observer->invoke( $collection, $unspecified );
-		$add_observer->invoke( $collection, $last );
-		$add_observer->invoke( $collection, $unspecified2 );
-		$add_observer->invoke( $collection, $last2 );
-		$add_observer->invoke( $collection, $first2 );
+		$collection->add_observer( $first );
+		$collection->add_observer( $unspecified );
+		$collection->add_observer( $last );
+		$collection->add_observer( $unspecified2 );
+		$collection->add_observer( $last2 );
+		$collection->add_observer( $first2 );
 
 		$t = $observers->invoke( $collection )->current(); // pop the first element.
 		$collection->remove_observer( $last2 );
@@ -293,14 +280,13 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 		$this->assertSame( 'Mock_Collection_Observer', get_class( $observers[2] ) );
 		$this->assertSame( 'Mock_Observer_Last', get_class( $observers[3] ) );
 	}
+
 	/**
 	 * test remove_observer_of_class while notifying.
 	 * 
 	 * The observers being removed should not be notified.
 	 */
 	public function test_remove_observer_of_class_while_notifying() { 
-		$add_observer = new ReflectionMethod( 'Mock_Observer_Collection', 'add_observer' );
-		$add_observer->setAccessible(true);
 		$observers = new ReflectionMethod( 'Mock_Observer_Collection', 'observers' );
         $observers->setAccessible(true);
 
@@ -314,12 +300,12 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 
 		$collection = new Mock_Observer_Collection();
 
-		$add_observer->invoke( $collection, $first );
-		$add_observer->invoke( $collection, $unspecified );
-		$add_observer->invoke( $collection, $last );
-		$add_observer->invoke( $collection, $unspecified2 );
-		$add_observer->invoke( $collection, $last2 );
-		$add_observer->invoke( $collection, $first2 );
+		$collection->add_observer( $first );
+		$collection->add_observer( $unspecified );
+		$collection->add_observer( $last );
+		$collection->add_observer( $unspecified2 );
+		$collection->add_observer( $last2 );
+		$collection->add_observer( $first2 );
 
 		$t = $observers->invoke( $collection )->current(); // pop the first element.
 		$collection->remove_observers_of_class( 'Mock_Collection_Observer2' );
@@ -331,6 +317,29 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 		$this->assertSame( 'Mock_Collection_Observer', get_class( $observers[1] ) );
 		$this->assertSame( 'Mock_Observer_Last', get_class( $observers[2] ) );
 		$this->assertSame( 'Mock_Observer_Last', get_class( $observers[3] ) );
+	}
+
+
+	/**
+	 * test remove_all_observers.
+	 * 
+	 * The observers being removed should not be notified.
+	 */
+	public function test_remove_all_observers() { 
+
+		$first        = new Mock_Observer_First();
+		$unspecified  = new Mock_Collection_Observer(); 
+
+		$collection = new Mock_Observer_Collection();
+
+		$collection->add_observer( $first );
+		$collection->add_observer( $unspecified );
+
+		$collection->remove_all_observers();
+
+		$observers = $collection->internal_collection();
+
+		$this->assertSame( 0, count( $observers ) );
 	}
 }
 ?>

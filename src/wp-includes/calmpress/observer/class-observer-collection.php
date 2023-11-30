@@ -2,7 +2,7 @@
 /**
  * Declaration and implementation of a class to manage observers.
  *
- * @since calmPress 1.0.0
+ * @package calmPress
  */
 
 declare(strict_types=1);
@@ -25,14 +25,14 @@ namespace calmpress\observer;
  * common operation, and figuring out the dependencies is delayed until there
  * is a request to get the observers in the proper order.
  *
- * @since calmPress 1.0.0
+ * @since 1.0.0
  */
 class Observer_Collection {
 
 	/**
 	 * Collection of observers for which notification order depends on dependencies.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @var Observer[]
 	 */
@@ -46,7 +46,7 @@ class Observer_Collection {
 	 * When empty it indicates that no iteration over the observers is done at
 	 * that point.
 	 *
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @var Observer[]
 	 */
@@ -61,7 +61,7 @@ class Observer_Collection {
 	 * the observer will be iterated upon. Its order will calculated relative to
 	 * the observers which weren't iterated yet.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param Observer $observer The observer to add.
 	 */
@@ -83,7 +83,7 @@ class Observer_Collection {
 	 * Removal while observer iteration is in progress will cause the observer to not be
 	 * iterated upon if it was not iterated yet.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
 	public function remove_observer( Observer $observer ) : void {
 		unset( $this->collection[ spl_object_id( $observer ) ] );
@@ -99,7 +99,7 @@ class Observer_Collection {
 	 * Removal while observer iteration is in progress will cause the relevant observers
 	 * to not be iterated upon if they were not iterated yet.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
 	public function remove_observers_of_class( string $class ) : void {
 		foreach ( $this->collection as $observer ) {
@@ -111,9 +111,18 @@ class Observer_Collection {
 	}
 
 	/**
+	 * Remove all observers.
+	 * 
+	 * @since 1.0.0
+	 */
+	public function remove_all_observers() : void {
+		$this->collection = [];
+	}
+
+	/**
 	 * Compare two observers to decide which one should be notified first.
 	 *
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param Observer $a The first observer.
 	 * @param Observer $b The second observer.
@@ -141,7 +150,7 @@ class Observer_Collection {
 	 * Sort the processing array to make it order base on "first" and "last"
 	 * observer priorities and dependencies.
 	 *
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
 	private function sort_processing(): void {
 		uasort(
@@ -158,7 +167,7 @@ class Observer_Collection {
 	 * to add and remove observers to the collection that will be iterated
 	 * upon or ignored while iterating.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
 	 * @return Iterator<Observer> Observers in proper notification order.
 	 */
