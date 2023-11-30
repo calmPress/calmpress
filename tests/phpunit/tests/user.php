@@ -1241,54 +1241,6 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Ensure blog's admin email change notification emails do not contain encoded HTML entities
-	 *
-	 * @ticket 40015
-	 */
-	public function test_new_admin_email_notification_html_entities_decoded() {
-		reset_phpmailer_instance();
-
-		wp_set_current_user( self::$admin_id );
-
-		$existing_email = get_option( 'admin_email' );
-		$new_email      = 'new-admin-email@test.dev';
-
-		// Give the site a name containing HTML entities.
-		update_option( 'blogname', '&#039;Test&#039; blog&#039;s &quot;name&quot; has &lt;html entities&gt; &amp;' );
-
-		update_option_new_admin_email( $existing_email, $new_email );
-
-		$mailer = tests_retrieve_phpmailer_instance();
-
-		$recipient = $mailer->get_recipient( 'to' );
-		$email     = $mailer->get_sent();
-
-		// Assert recipient is correct.
-		$this->assertSame( $new_email, $recipient->address, 'Admin email change notification recipient not as expected' );
-
-		// Assert that HTML entites have been decode in body and subject.
-		$this->assertStringContainsString( '\'Test\' blog\'s "name" has <html entities> &', $email->subject, 'Email subject does not contain the decoded HTML entities' );
-		$this->assertStringNotContainsString( '&#039;Test&#039; blog&#039;s &quot;name&quot; has &lt;html entities&gt; &amp;', $email->subject, $email->subject, 'Email subject does contains HTML entities' );
-	}
-
-	/**
-	 * A confirmation email should not be sent if the new admin email:
-	 * - Matches the existing admin email, or
-	 * - is not a valid email
-	 *
-	 * @dataProvider data_user_admin_email_confirmation_emails
-	 */
-	public function test_new_admin_email_confirmation_not_sent_when_email_invalid( $email, $message ) {
-		reset_phpmailer_instance();
-
-		update_option_new_admin_email( get_option( 'admin_email' ), $email );
-
-		$mailer = tests_retrieve_phpmailer_instance();
-
-		$this->assertFalse( $mailer->get_sent(), $message );
-	}
-
-	/**
 	 * Data provider for test_ms_new_admin_email_confirmation_not_sent_when_email_invalid().
 	 *
 	 * @return array {
