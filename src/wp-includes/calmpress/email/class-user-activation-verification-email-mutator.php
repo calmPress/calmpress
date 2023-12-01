@@ -24,6 +24,8 @@ interface User_Activation_Verification_Email_Mutator extends \calmpress\observer
 	 * @since 1.0.0
 	 *
 	 * @param User_Activation_Verification_Email $email The email object to mutate.
+	 *
+	 * @throws Abort_Send_Exception If the mail should not be sent at all.
 	 */
 	public function mutate_by_ref( User_Activation_Verification_Email &$email ): void;
 }

@@ -504,7 +504,12 @@ class Email {
 	 */
 	public function send(): void {
 		// Let mutators change whatever needed.
-		self::mutate_by_ref( $this );
+        try {
+            // Let mutators change whatever needed or abort.
+            self::mutate_by_ref( $this );
+        } catch ( Abort_Send_Exception $e ) {
+            return;
+        }
 
 		$to  = self::iterate_objects_method_into_array( $this->to, 'full_address' );
 		$headers = [];

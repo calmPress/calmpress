@@ -19,21 +19,7 @@ namespace calmpress\email;
  */
 class User_Activation_Verification_Email {
 
-	use \calmpress\observer\Static_Mutation_By_Ref_Observer_Collection;
-
-	/**
-	 * The email to send.
-	 *
-	 * since 1.0.0
-	 */
-	public readonly Email $email;
-
-	/**
-	 * The user to which the email is sent.
-	 * 
-	 * @since 1.0.0
-	 */
-	public readonly \WP_User $user;
+	use Email_To_User;
 
 	/**
 	 * Create an Email_Address_Change_Notification_Email object based on the $user to
@@ -93,22 +79,5 @@ All at %2$s
 	 */
 	public static function register_mutator( User_Activation_Verification_Email_Mutator $mutator ): void {
 		self::add_observer( $mutator );
-	}
-
-	/**
-	 * Send the email.
-	 *
-	 * Mutation done in two steps, first mutating the generated emails with the
-	 * mutators registered with this class, after that using the Email class to
-	 * send the email which will trigger the mutators registered at that class.
-	 * 
-	 * @since 1.0.0
-	 */
-	public function send(): void {
-		// Let mutators change whatever needed.
-		self::mutate_by_ref( $this );
-
-		// And send...
-		$this->email->send();
 	}
 }

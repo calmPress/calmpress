@@ -12,6 +12,7 @@ use calmpress\email\Email;
 use calmpress\email\Email_Address;
 use calmpress\email\Email_Attachment_File;
 use calmpress\email\Email_Mutator;
+use calmpress\email\Abort_Send_Exception;
 use calmpress\observer\Observer;
 use calmpress\observer\Observer_Priority;
 
@@ -44,6 +45,21 @@ class Mock_Email_Mutation_Observer implements Email_Mutator {
 
 	public function mutate_by_ref( Email &$email ):void {
 		$email->set_subject( $email->subject() . $this->value );
+	}
+}
+
+class Mock_Email_Mutation_With_Exception extends Mock_Email_Mutation_Observer {
+
+	public function __construct() {
+		parent::__construct( 0, '' );
+	}
+
+	public function notification_dependency_with( Observer $observer ) : Observer_Priority {
+		return Observer_Priority::NONE;
+	}
+
+	public function mutate_by_ref( Email &$email ):void {
+		throw new Abort_Send_Exception();
 	}
 }
 
@@ -688,7 +704,24 @@ class Email_Test extends WP_UnitTestCase {
 		);
 
 		$t->send();
-		$this->assertSame( 'subject first second', $t->subject() );
+		$this->assertSame( 'subject first second', $phpmailer->Subject );
+
+		// Mutator can abort send.
+		$ex_observer = new Mock_Email_Mutation_With_Exception();
+		Email::register_mutator( $ex_observer );
+		$phpmailer = new dummy_PHPMailer();
+		$t = new Email(
+			'subject',
+			'testo',
+			true,
+			new Email_Address( 'second@test.com' )
+		);
+
+		$t->send();
+		// Empty string indicates that send was not completed.
+		$this->assertSame( '', $phpmailer->Subject );
+
 		unset( $phpmailer );
+		Email::remove_all_mutation_observers();
 	}
 }
