@@ -875,8 +875,8 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 *
 	 * @return Email_Address The user's email address.
 	 */
-	public function email_address(): \calmpress\email\Email_Address {
-		return new \calmpress\email\Email_Address( $this->user_email, $this->display_name );
+	public function email_address(): calmpress\email\Email_Address {
+		return new calmpress\email\Email_Address( $this->user_email, $this->display_name );
 	}
 
 	/**
@@ -887,7 +887,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @return string the URL, unescaped.
 	 */
 	public function activation_url() : string {
-		return admin_url( 'admin_post&action=activate_user_from_email&email=' . $this->user_email );
+		return admin_url( 'admin_post&action=activate_user&email=' . $this->user_email );
 	}
 
 	/**
@@ -913,6 +913,93 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	public static function admin_email(): string {
 		$admins = self::administrators();
 		return $admins[0]->user_email;
+	}
+
+	/**
+	 * Generate a "one time" string that can represent the user's ID while different
+	 * invocations might generate different strings.
+	 *
+	 * decrypted_id should be used to decrypt strings that were generated with
+	 * this function and get the encrypted id.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function encrypted_id(): string {
+
+		return self::encrypt( (int) $this->ID );
+	}
+
+	/**
+	 * Generate a "one time" string that can represent a value where the representation
+	 * can change over time.
+	 *
+	 * decrypt should be used to decrypt strings that were generated with
+	 * this function and get the encrypted value.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	private static function encrypt( int $value  ): string {
+
+		$key   = substr( AUTH_KEY, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
+		$nonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+
+		return base64_encode( sodium_crypto_secretbox( $value . '|' . rand(), $nonce, $key ) );
+	}
+
+	/**
+	 * Decrypt a string generated with encrypt and extract the value encoded in
+	 * it.
+	 *
+	 * @since calmPress 1.0.0
+	 * 
+	 * @param string $encrypted_value The string which to decrypt.
+	 *
+	 * @return int The encrypted id or 0 if decryption failed.
+	 */
+	private static function decrypt( string $encrypted_value ): int {
+		$raw_encrypted = base64_decode( $encrypted_value );
+
+		$key   = substr( AUTH_KEY, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
+		$nonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+
+		$id = sodium_crypto_secretbox_open( $raw_encrypted, $nonce, $key );
+
+		if ( false === $id ) {
+			return 0;
+		}
+
+		// String was decrypted but format is wrong.
+		$parts = explode( '|', $id );
+		if ( count( $parts ) != 2 ) {
+			return 0;
+		}
+
+		// String is valid format but first part is not an int.
+		if ( ! filter_var( $parts[0], FILTER_VALIDATE_INT) ) {
+			return 0;
+		}
+
+		return (int) $parts[0];
+	}
+
+	/**
+	 * Try to create a user out of the id encrypted in a string which is supposed
+	 * to be encrypted by encrypted_id.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $encrypted_value The value to decrypt.
+	 *
+	 * @return ?WP_User The user if the string could be decrypted to extract an id
+	 *                  of an existing user, otherwise null.
+	 */
+	public static function user_from_encrypted_string( string $encrypted_value ): ?WP_User {
+		$user_id = self::decrypt( $encrypted_value );
+		if ( $user_id === 0 ) {
+			return null;
+		}
+
+		return get_user_by( 'id', $user_id );
 	}
 
 	/**
