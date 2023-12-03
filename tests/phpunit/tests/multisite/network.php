@@ -213,7 +213,7 @@ if ( is_multisite() ) :
 			$current_network_user_count = get_user_count();
 
 			// Add another user to fake the network user count to be different.
-			wpmu_create_user( 'user', 'pass', 'email' );
+			wpmu_create_user( 'user', 'pass', 'email@example.com' );
 
 			wp_update_network_user_counts( self::$different_network_id );
 
@@ -233,7 +233,7 @@ if ( is_multisite() ) :
 			wp_update_network_counts();
 			$start_count = get_user_count();
 
-			wpmu_create_user( 'user', 'pass', 'email' );
+			wpmu_create_user( 'user', 'pass', 'email@example.com' );
 
 			// No change, cache not refreshed.
 			$count = get_user_count();
@@ -245,7 +245,7 @@ if ( is_multisite() ) :
 
 			add_filter( 'enable_live_network_counts', '__return_true' );
 
-			wpmu_create_user( 'user2', 'pass2', 'email2' );
+			wpmu_create_user( 'user2', 'pass2', 'email2@example.com' );
 
 			$count = get_user_count();
 			$this->assertEquals( $start_count + 1, $count );
