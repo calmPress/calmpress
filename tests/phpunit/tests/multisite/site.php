@@ -2212,6 +2212,7 @@ if ( is_multisite() ) :
 					'editor',
 					'author',
 					'contributor',
+					'pending_activation',
 					'subscriber',
 				),
 				array_keys( $roles )
