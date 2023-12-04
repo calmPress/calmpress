@@ -414,7 +414,6 @@ function wp_set_wpdb_vars() {
 		'lang_id'          => '%d',
 		'public'           => '%d',
 		'site_id'          => '%d',
-		'spam'             => '%d',
 	);
 
 	$prefix = $wpdb->set_prefix( $table_prefix );

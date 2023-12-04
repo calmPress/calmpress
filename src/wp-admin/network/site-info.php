@@ -71,7 +71,7 @@ if ( isset( $_REQUEST['action'] ) && 'update-site' === $_REQUEST['action'] ) {
 	}
 
 	$existing_details     = get_site( $id );
-	$blog_data_checkboxes = array( 'public', 'archived', 'spam', 'deleted' );
+	$blog_data_checkboxes = array( 'public', 'archived', 'deleted' );
 
 	foreach ( $blog_data_checkboxes as $c ) {
 		if ( ! in_array( (int) $existing_details->$c, array( 0, 1 ), true ) ) {
@@ -180,7 +180,6 @@ if ( ! empty( $messages ) ) {
 		$attribute_fields = array( 'public' => _x( 'Public', 'site' ) );
 		if ( ! $is_main_site ) {
 			$attribute_fields['archived'] = __( 'Archived' );
-			$attribute_fields['spam']     = _x( 'Spam', 'site' );
 			$attribute_fields['deleted']  = __( 'Deleted' );
 		}
 		?>

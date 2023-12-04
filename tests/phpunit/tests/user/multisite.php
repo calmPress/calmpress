@@ -66,12 +66,10 @@ if ( is_multisite() ) :
 				$this->assertObjectHasAttribute( 'site_id', $blog );
 				$this->assertObjectHasAttribute( 'siteurl', $blog );
 				$this->assertObjectHasAttribute( 'archived', $blog );
-				$this->assertObjectHasAttribute( 'spam', $blog );
 				$this->assertObjectHasAttribute( 'deleted', $blog );
 			}
 
-			// Mark each remaining site as spam, archived, and deleted.
-			update_blog_details( $blog_ids[0], array( 'spam' => 1 ) );
+			// Mark each remaining site as archived, and deleted.
 			update_blog_details( $blog_ids[1], array( 'archived' => 1 ) );
 			update_blog_details( $blog_ids[2], array( 'deleted' => 1 ) );
 
@@ -81,18 +79,8 @@ if ( is_multisite() ) :
 			$this->assertSame( $blog_ids, $blog_ids_of_user );
 
 			// Check if sites are flagged as expected.
-			$this->assertEquals( 1, $blogs_of_user[ $blog_ids[0] ]->spam );
 			$this->assertEquals( 1, $blogs_of_user[ $blog_ids[1] ]->archived );
 			$this->assertEquals( 1, $blogs_of_user[ $blog_ids[2] ]->deleted );
-
-			unset( $blog_ids[0] );
-			unset( $blog_ids[1] );
-			unset( $blog_ids[2] );
-			sort( $blog_ids );
-
-			// Passing false (the default) as the second parameter should retrieve only good sites.
-			$blog_ids_of_user = array_keys( get_blogs_of_user( $user1_id, false ) );
-			$this->assertSame( $blog_ids, $blog_ids_of_user );
 		}
 
 		public function test_is_user_member_of_blog() {
@@ -151,35 +139,6 @@ if ( is_multisite() ) :
 			$this->assertFalse( is_user_member_of_blog( $user1_id ) );
 
 			wp_set_current_user( $old_current );
-		}
-
-		/**
-		 * @ticket 23192
-		 */
-		public function test_is_user_spammy() {
-			$user_id = self::factory()->user->create(
-				array(
-					'role'       => 'author',
-					'user_login' => 'testuser1',
-				)
-			);
-
-			$spam_username = (string) $user_id;
-			$spam_user_id  = self::factory()->user->create(
-				array(
-					'role'       => 'author',
-					'user_login' => $spam_username,
-				)
-			);
-			wp_update_user(
-				array(
-					'ID'   => $spam_user_id,
-					'spam' => '1',
-				)
-			);
-
-			$this->assertTrue( is_user_spammy( get_user_by( 'id', $spam_user_id ) ) );
-			$this->assertFalse( is_user_spammy( get_user_by( 'id', $user_id ) ) );
 		}
 
 		/**

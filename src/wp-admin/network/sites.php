@@ -65,10 +65,6 @@ if ( isset( $_GET['action'] ) ) {
 		/* translators: %s: Site URL. */
 		'archiveblog'    => __( 'You are about to archive the site %s.' ),
 		/* translators: %s: Site URL. */
-		'unspamblog'     => __( 'You are about to unspam the site %s.' ),
-		/* translators: %s: Site URL. */
-		'spamblog'       => __( 'You are about to mark the site %s as spam.' ),
-		/* translators: %s: Site URL. */
 		'deleteblog'     => __( 'You are about to delete the site %s.' ),
 	);
 
@@ -196,19 +192,13 @@ if ( isset( $_GET['action'] ) ) {
 								require_once ABSPATH . 'wp-admin/admin-footer.php';
 								exit;
 							break;
-
-							case 'spam':
-							case 'notspam':
-								$updated_action = ( 'spam' === $doaction ) ? 'all_spam' : 'all_notspam';
-								update_blog_status( $val, 'spam', ( 'spam' === $doaction ) ? '1' : '0' );
-								break;
 						}
 					} else {
 						wp_die( __( 'Sorry, you are not allowed to change the current site.' ) );
 					}
 				}
 
-				if ( ! in_array( $doaction, array( 'delete', 'spam', 'notspam' ), true ) ) {
+				if ( ! in_array( $doaction, array( 'delete' ), true ) ) {
 					$redirect_to = wp_get_referer();
 					$blogs       = (array) $_POST['allblogs'];
 
@@ -261,11 +251,6 @@ if ( isset( $_GET['action'] ) ) {
 
 			update_blog_status( $id, 'deleted', '1' );
 			break;
-
-		case 'unspamblog':
-		case 'spamblog':
-			update_blog_status( $id, 'spam', ( 'spamblog' === $_GET['action'] ) ? '1' : '0' );
-			break;
 	}
 
 	if ( empty( $updated_action ) && array_key_exists( $_GET['action'], $manage_actions ) ) {
@@ -309,12 +294,6 @@ if ( isset( $_GET['updated'] ) ) {
 			break;
 		case 'deactivateblog':
 			$msg = __( 'Site deactivated.' );
-			break;
-		case 'unspamblog':
-			$msg = __( 'Site removed from spam.' );
-			break;
-		case 'spamblog':
-			$msg = __( 'Site marked as spam.' );
 			break;
 		default:
 			/**

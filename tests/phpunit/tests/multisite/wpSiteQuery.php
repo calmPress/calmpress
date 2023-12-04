@@ -444,20 +444,6 @@ if ( is_multisite() ) :
 			$this->assertSameSets( array_values( self::$site_ids ), $found );
 		}
 
-		public function test_wp_site_query_by_spam() {
-			$q     = new WP_Site_Query();
-			$found = $q->query(
-				array(
-					'fields'       => 'ids',
-					// Exclude main site since we don't have control over it here.
-					'site__not_in' => array( 1 ),
-					'spam'         => '0',
-				)
-			);
-
-			$this->assertSameSets( array_values( self::$site_ids ), $found );
-		}
-
 		public function test_wp_site_query_by_deleted() {
 			$q     = new WP_Site_Query();
 			$found = $q->query(

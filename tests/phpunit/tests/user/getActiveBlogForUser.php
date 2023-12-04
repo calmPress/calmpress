@@ -73,29 +73,6 @@ if ( is_multisite() ) :
 
 			$this->assertSame( $primary_site_id, $result->id );
 		}
-
-		/**
-		 * @ticket 38355
-		 */
-		public function test_get_active_blog_for_user_with_spam_site() {
-			$current_site_id = get_current_blog_id();
-
-			$site_id = self::factory()->blog->create(
-				array(
-					'user_id' => self::$user_id,
-					'spam'    => 1,
-				)
-			);
-
-			add_user_to_blog( $site_id, self::$user_id, 'subscriber' );
-			update_user_meta( self::$user_id, 'primary_blog', $site_id );
-
-			$result = get_active_blog_for_user( self::$user_id );
-
-			wp_delete_site( $site_id );
-
-			$this->assertSame( $current_site_id, $result->id );
-		}
 	}
 
 endif;

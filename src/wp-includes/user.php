@@ -425,34 +425,6 @@ function wp_validate_application_password( $input_user ) {
 }
 
 /**
- * For Multisite blogs, check if the authenticated user has been marked as a
- * spammer, or if the user's primary blog has been marked as spam.
- *
- * @since 3.7.0
- *
- * @param WP_User|WP_Error|null $user WP_User or WP_Error object from a previous callback. Default null.
- * @return WP_User|WP_Error WP_User on success, WP_Error if the user is considered a spammer.
- */
-function wp_authenticate_spam_check( $user ) {
-	if ( $user instanceof WP_User && is_multisite() ) {
-		/**
-		 * Filters whether the user has been marked as a spammer.
-		 *
-		 * @since 3.7.0
-		 *
-		 * @param bool    $spammed Whether the user is considered a spammer.
-		 * @param WP_User $user    User to check against.
-		 */
-		$spammed = apply_filters( 'check_is_user_spammed', is_user_spammy( $user ), $user );
-
-		if ( $spammed ) {
-			return new WP_Error( 'spammer_account', __( '<strong>Error</strong>: Your account has been marked as a spammer.' ) );
-		}
-	}
-	return $user;
-}
-
-/**
  * Validates the logged-in cookie.
  *
  * Checks the logged-in cookie if the previous auth cookie could not be
@@ -798,7 +770,7 @@ function wp_list_users( $args = array() ) {
  *
  * @param int  $user_id User ID
  * @param bool $all     Whether to retrieve all sites, or only sites that are not
- *                      marked as deleted, archived, or spam.
+ *                      marked as deleted, or archived.
  * @return object[] A list of the user's sites. An empty array if the user doesn't exist
  *                  or belongs to no sites.
  */
@@ -823,7 +795,7 @@ function get_blogs_of_user( $user_id, $all = false ) {
 	 * @param null|object[] $sites   An array of site objects of which the user is a member.
 	 * @param int           $user_id User ID.
 	 * @param bool          $all     Whether the returned array should contain all sites, including
-	 *                               those marked 'deleted', 'archived', or 'spam'. Default false.
+	 *                               those marked 'deleted' or 'archived'. Default false.
 	 */
 	$sites = apply_filters( 'pre_get_blogs_of_user', null, $user_id, $all );
 
@@ -846,7 +818,6 @@ function get_blogs_of_user( $user_id, $all = false ) {
 		$sites[ $site_id ]->site_id     = 1;
 		$sites[ $site_id ]->siteurl     = get_option( 'home' );
 		$sites[ $site_id ]->archived    = 0;
-		$sites[ $site_id ]->spam        = 0;
 		$sites[ $site_id ]->deleted     = 0;
 		return $sites;
 	}
@@ -885,7 +856,6 @@ function get_blogs_of_user( $user_id, $all = false ) {
 		);
 		if ( ! $all ) {
 			$args['archived'] = 0;
-			$args['spam']     = 0;
 			$args['deleted']  = 0;
 		}
 
@@ -900,8 +870,6 @@ function get_blogs_of_user( $user_id, $all = false ) {
 				'site_id'     => $site->network_id,
 				'siteurl'     => $site->siteurl,
 				'archived'    => $site->archived,
-				'mature'      => $site->mature,
-				'spam'        => $site->spam,
 				'deleted'     => $site->deleted,
 			);
 		}
@@ -915,7 +883,7 @@ function get_blogs_of_user( $user_id, $all = false ) {
 	 * @param object[] $sites   An array of site objects belonging to the user.
 	 * @param int      $user_id User ID.
 	 * @param bool     $all     Whether the returned sites array should contain all sites, including
-	 *                          those marked 'deleted', 'archived', or 'spam'. Default false.
+	 *                          those marked 'deleted', or 'archived'. Default false.
 	 */
 	return apply_filters( 'get_blogs_of_user', $sites, $user_id, $all );
 }
@@ -1760,7 +1728,7 @@ function guess_name_from_email( string $email ) : string {
  *
  * Most of the `$userdata` array fields have filters associated with the values. Exceptions are
  * 'ID', 'admin_color',
- * 'user_registered', 'user_activation_key', 'spam', and 'role'. The filters have the prefix
+ * 'user_registered', 'user_activation_key', and 'role'. The filters have the prefix
  * 'pre_user_' followed by the field name. An example using 'description' would have the filter
  * called, 'pre_user_description' that can be hooked into.
  *
@@ -1954,12 +1922,6 @@ function wp_insert_user( $userdata ) {
 
 	$user_activation_key = empty( $userdata['user_activation_key'] ) ? '' : $userdata['user_activation_key'];
 
-	if ( ! empty( $userdata['spam'] ) && ! is_multisite() ) {
-		return new WP_Error( 'no_spam', __( 'Sorry, marking a user as spam is only supported on Multisite.' ) );
-	}
-
-	$spam = empty( $userdata['spam'] ) ? 0 : (bool) $userdata['spam'];
-
 	// Store values to save in user meta.
 	$meta = array();
 
@@ -2032,10 +1994,6 @@ function wp_insert_user( $userdata ) {
 
 	if ( ! $update ) {
 		$data = $data + compact( 'user_login' );
-	}
-
-	if ( is_multisite() ) {
-		$data = $data + compact( 'spam' );
 	}
 
 	/**
@@ -2176,28 +2134,6 @@ function wp_insert_user( $userdata ) {
 		 * @param array   $userdata      The raw array of data passed to wp_insert_user().
 		 */
 		do_action( 'profile_update', $user_id, $old_user_data, $userdata );
-
-		if ( isset( $userdata['spam'] ) && $userdata['spam'] != $old_user_data->spam ) {
-			if ( 1 == $userdata['spam'] ) {
-				/**
-				 * Fires after the user is marked as a SPAM user.
-				 *
-				 * @since 3.0.0
-				 *
-				 * @param int $user_id ID of the user marked as SPAM.
-				 */
-				do_action( 'make_spam_user', $user_id );
-			} else {
-				/**
-				 * Fires after the user is marked as a HAM user. Opposite of SPAM.
-				 *
-				 * @since 3.0.0
-				 *
-				 * @param int $user_id ID of the user marked as HAM.
-				 */
-				do_action( 'make_ham_user', $user_id );
-			}
-		}
 	} else {
 		/**
 		 * Fires immediately after a new user is registered.
@@ -2505,27 +2441,6 @@ function get_password_reset_key( $user ) {
 	 * @param string $user_login The user login name.
 	 */
 	do_action( 'retrieve_password', $user->user_login );
-
-	$allow = true;
-	if ( is_multisite() && is_user_spammy( $user ) ) {
-		$allow = false;
-	}
-
-	/**
-	 * Filters whether to allow a password to be reset.
-	 *
-	 * @since 2.7.0
-	 *
-	 * @param bool $allow   Whether to allow the password to be reset. Default true.
-	 * @param int  $user_id The ID of the user attempting to reset a password.
-	 */
-	$allow = apply_filters( 'allow_password_reset', $allow, $user->ID );
-
-	if ( ! $allow ) {
-		return new WP_Error( 'no_password_reset', __( 'Password reset is not allowed for this user' ) );
-	} elseif ( is_wp_error( $allow ) ) {
-		return $allow;
-	}
 
 	// Generate something random for a password reset key.
 	$key = wp_generate_password( 20, false );

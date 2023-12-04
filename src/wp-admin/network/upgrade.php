@@ -48,7 +48,6 @@ switch ( $action ) {
 
 		$site_ids = get_sites(
 			array(
-				'spam'                   => 0,
 				'deleted'                => 0,
 				'archived'               => 0,
 				'network_id'             => get_current_network_id(),

@@ -1354,7 +1354,7 @@ function wpmu_create_user( $user_name, $password, $email ) {
  * @param int    $user_id    The user ID of the new site's admin.
  * @param array  $options    Optional. Array of key=>value pairs used to set initial site options.
  *                           If valid status keys are included ('public', 'archived',
- *                           'spam', 'deleted', or 'lang_id') the given site status(es) will be
+ *                           'deleted', or 'lang_id') the given site status(es) will be
  *                           updated. Otherwise, keys and values will be used to set options for
  *                           the new site. Default empty array.
  * @param int    $network_id Optional. Network ID. Only relevant on multi-network installations.
@@ -1378,7 +1378,7 @@ function wpmu_create_blog( $domain, $path, $title, $user_id, $options = array(),
 		wp_installing( true );
 	}
 
-	$allowed_data_fields = array( 'public', 'archived', 'spam', 'deleted', 'lang_id' );
+	$allowed_data_fields = array( 'public', 'archived', 'deleted', 'lang_id' );
 
 	$site_data = array_merge(
 		array(
@@ -2367,23 +2367,6 @@ function fix_phpmailer_messageid( $phpmailer ) {
 }
 
 /**
- * Check to see whether a user is marked as a spammer, based on user login.
- *
- * @since MU (3.0.0)
- *
- * @param null|WP_User $user Optional. Defaults to current user. WP_User object,
- *                      or user login name as a string.
- * @return bool
- */
-function is_user_spammy( $user = null ) {
-	if ( null === $user ) {
-		$user = wp_get_current_user();
-	}
-
-	return $user && isset( $user->spam ) && 1 == $user->spam;
-}
-
-/**
  * Update this blog's 'public' setting in the global blogs table.
  *
  * Public blogs have a setting of 1, private blogs are 0.
@@ -2581,7 +2564,6 @@ function wp_update_network_site_counts( $network_id = null ) {
 	$count = get_sites(
 		array(
 			'network_id'             => $network_id,
-			'spam'                   => 0,
 			'deleted'                => 0,
 			'archived'               => 0,
 			'count'                  => true,

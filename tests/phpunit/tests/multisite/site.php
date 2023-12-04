@@ -449,7 +449,7 @@ if ( is_multisite() ) :
 		}
 
 		/**
-		 * Updating a field returns the sme value that was passed.
+		 * Updating a field returns the same value that was passed.
 		 */
 		public function test_update_blog_status() {
 			$result = update_blog_status( 1, 'spam', 0 );
@@ -462,83 +462,6 @@ if ( is_multisite() ) :
 		public function test_update_blog_status_invalid_status() {
 			$result = update_blog_status( 1, 'doesnotexist', 'invalid' );
 			$this->assertSame( 'invalid', $result );
-		}
-
-		public function test_update_blog_status_make_ham_blog_action() {
-			global $test_action_counter;
-			$test_action_counter = 0;
-
-			$blog_id = self::factory()->blog->create();
-			update_blog_details( $blog_id, array( 'spam' => 1 ) );
-
-			add_action( 'make_ham_blog', array( $this, 'action_counter_cb' ), 10 );
-			update_blog_status( $blog_id, 'spam', 0 );
-			$blog = get_site( $blog_id );
-
-			$this->assertSame( '0', $blog->spam );
-			$this->assertSame( 1, $test_action_counter );
-
-			// The action should not fire if the status of 'spam' stays the same.
-			update_blog_status( $blog_id, 'spam', 0 );
-			$blog = get_site( $blog_id );
-
-			$this->assertSame( '0', $blog->spam );
-			$this->assertSame( 1, $test_action_counter );
-
-			remove_action( 'make_ham_blog', array( $this, 'action_counter_cb' ), 10 );
-		}
-
-		public function test_content_from_spam_blog_is_not_available() {
-			$spam_blog_id = self::factory()->blog->create();
-			switch_to_blog( $spam_blog_id );
-			$post_data      = array(
-				'post_title'   => 'Hello World!',
-				'post_content' => 'Hello world content',
-			);
-			$post_id        = self::factory()->post->create( $post_data );
-			$post           = get_post( $post_id );
-			$spam_permalink = site_url() . '/?p=' . $post->ID;
-			$spam_embed_url = get_post_embed_url( $post_id );
-
-			restore_current_blog();
-			$this->assertNotEmpty( $spam_permalink );
-			$this->assertSame( $post_data['post_title'], $post->post_title );
-
-			update_blog_status( $spam_blog_id, 'spam', 1 );
-
-			$post_id = self::factory()->post->create(
-				array(
-					'post_content' => "\n $spam_permalink \n",
-				)
-			);
-			$post    = get_post( $post_id );
-			$content = apply_filters( 'the_content', $post->post_content );
-
-			$this->assertStringNotContainsString( $post_data['post_title'], $content );
-			$this->assertStringNotContainsString( "src=\"{$spam_embed_url}#?", $content );
-		}
-
-		public function test_update_blog_status_make_spam_blog_action() {
-			global $test_action_counter;
-			$test_action_counter = 0;
-
-			$blog_id = self::factory()->blog->create();
-
-			add_action( 'make_spam_blog', array( $this, 'action_counter_cb' ), 10 );
-			update_blog_status( $blog_id, 'spam', 1 );
-			$blog = get_site( $blog_id );
-
-			$this->assertSame( '1', $blog->spam );
-			$this->assertSame( 1, $test_action_counter );
-
-			// The action should not fire if the status of 'spam' stays the same.
-			update_blog_status( $blog_id, 'spam', 1 );
-			$blog = get_site( $blog_id );
-
-			$this->assertSame( '1', $blog->spam );
-			$this->assertSame( 1, $test_action_counter );
-
-			remove_action( 'make_spam_blog', array( $this, 'action_counter_cb' ), 10 );
 		}
 
 		public function test_update_blog_status_archive_blog_action() {
@@ -1283,7 +1206,6 @@ if ( is_multisite() ) :
 						'network_id' => 1,
 						'public'     => 1,
 						'archived'   => 0,
-						'spam'       => 0,
 						'deleted'    => 0,
 						'lang_id'    => 0,
 					),
@@ -1331,7 +1253,6 @@ if ( is_multisite() ) :
 						'path'     => 'foobar',
 						'public'   => 0,
 						'archived' => 1,
-						'spam'     => 1,
 						'deleted'  => 1,
 						'lang_id'  => 1,
 					),
@@ -1340,7 +1261,6 @@ if ( is_multisite() ) :
 						'path'     => '/foobar/',
 						'public'   => 0,
 						'archived' => 1,
-						'spam'     => 1,
 						'deleted'  => 1,
 						'lang_id'  => 1,
 					),
@@ -1434,14 +1354,12 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 0,
 						'archived' => 1,
-						'spam'     => 1,
 						'deleted'  => 1,
 						'lang_id'  => 1,
 					),
 					array(
 						'public'   => 0,
 						'archived' => 1,
-						'spam'     => 1,
 						'deleted'  => 1,
 						'lang_id'  => 1,
 					),
@@ -1577,13 +1495,11 @@ if ( is_multisite() ) :
 					array(
 						'public'   => '0',
 						'archived' => '1',
-						'spam'     => true,
 						'deleted'  => true,
 					),
 					array(
 						'public'   => 0,
 						'archived' => 1,
-						'spam'     => 1,
 						'deleted'  => 1,
 					),
 				),
@@ -1923,24 +1839,20 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 1,
 						'archived' => 1,
-						'spam'     => 1,
 						'deleted'  => 1,
 					),
 					array(
 						'archive_blog',
-						'make_spam_blog',
 						'make_delete_blog',
 					),
 					array(
 						'public'   => 0,
 						'archived' => 0,
-						'spam'     => 0,
 						'deleted'  => 0,
 					),
 					array(
 						'update_blog_public',
 						'unarchive_blog',
-						'make_ham_blog',
 						'make_undelete_blog',
 					),
 				),
@@ -1948,7 +1860,6 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 0,
 						'archived' => 0,
-						'spam'     => 0,
 						'deleted'  => 0,
 					),
 					array(
@@ -1957,13 +1868,11 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 1,
 						'archived' => 1,
-						'spam'     => 1,
 						'deleted'  => 1,
 					),
 					array(
 						'update_blog_public',
 						'archive_blog',
-						'make_spam_blog',
 						'make_delete_blog',
 					),
 				),
@@ -1971,18 +1880,15 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 0,
 						'archived' => 0,
-						'spam'     => 1,
 						'deleted'  => 1,
 					),
 					array(
 						'update_blog_public',
-						'make_spam_blog',
 						'make_delete_blog',
 					),
 					array(
 						'public'   => 0,
 						'archived' => 1,
-						'spam'     => 1,
 						'deleted'  => 0,
 					),
 					array(
@@ -1997,8 +1903,6 @@ if ( is_multisite() ) :
 			$this->site_status_hooks = array();
 
 			$hooknames = array(
-				'make_spam_blog',
-				'make_ham_blog',
 				'archive_blog',
 				'unarchive_blog',
 				'make_delete_blog',
@@ -2013,8 +1917,6 @@ if ( is_multisite() ) :
 
 		private function get_listen_to_site_status_hooks_result() {
 			$hooknames = array(
-				'make_spam_blog',
-				'make_ham_blog',
 				'archive_blog',
 				'unarchive_blog',
 				'make_delete_blog',

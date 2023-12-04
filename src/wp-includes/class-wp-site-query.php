@@ -200,7 +200,6 @@ class WP_Site_Query {
 			'path__not_in'           => '',
 			'public'                 => null,
 			'archived'               => null,
-			'spam'                   => null,
 			'deleted'                => null,
 			'lang_id'                => null,
 			'lang__in'               => '',
@@ -552,11 +551,6 @@ class WP_Site_Query {
 		if ( is_numeric( $this->query_vars['archived'] ) ) {
 			$archived                               = absint( $this->query_vars['archived'] );
 			$this->sql_clauses['where']['archived'] = $wpdb->prepare( 'archived = %s ', absint( $archived ) );
-		}
-
-		if ( is_numeric( $this->query_vars['spam'] ) ) {
-			$spam                               = absint( $this->query_vars['spam'] );
-			$this->sql_clauses['where']['spam'] = $wpdb->prepare( 'spam = %d ', $spam );
 		}
 
 		if ( is_numeric( $this->query_vars['deleted'] ) ) {

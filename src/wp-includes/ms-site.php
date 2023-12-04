@@ -53,7 +53,6 @@ function wp_insert_site( array $data ) {
 		'last_updated' => $now,
 		'public'       => 1,
 		'archived'     => 0,
-		'spam'         => 0,
 		'deleted'      => 0,
 		'lang_id'      => 0,
 	);
@@ -114,7 +113,7 @@ function wp_insert_site( array $data ) {
 
 		// Rebuild the data expected by the `wpmu_new_blog` hook prior to 5.1.0 using allowed keys.
 		// The `$allowed_data_fields` matches the one used in `wpmu_create_blog()`.
-		$allowed_data_fields = array( 'public', 'archived', 'spam', 'deleted', 'lang_id' );
+		$allowed_data_fields = array( 'public', 'archived', 'deleted', 'lang_id' );
 		$meta                = array_merge( array_intersect_key( $data, array_flip( $allowed_data_fields ) ), $meta );
 	}
 
@@ -410,7 +409,7 @@ function wp_prepare_site_data( $data, $defaults, $old_site = null ) {
 	 */
 	$data = apply_filters( 'wp_normalize_site_data', $data );
 
-	$allowed_data_fields = array( 'domain', 'path', 'network_id', 'registered', 'last_updated', 'public', 'archived', 'spam', 'deleted', 'lang_id' );
+	$allowed_data_fields = array( 'domain', 'path', 'network_id', 'registered', 'last_updated', 'public', 'archived', 'deleted', 'lang_id' );
 	$data                = array_intersect_key( wp_parse_args( $data, $defaults ), array_flip( $allowed_data_fields ) );
 
 	$errors = new WP_Error();
@@ -471,7 +470,7 @@ function wp_normalize_site_data( $data ) {
 	}
 
 	// Sanitize status fields if passed.
-	$status_fields = array( 'public', 'archived', 'spam', 'deleted' );
+	$status_fields = array( 'public', 'archived', 'deleted' );
 	foreach ( $status_fields as $status_field ) {
 		if ( array_key_exists( $status_field, $data ) ) {
 			$data[ $status_field ] = (int) $data[ $status_field ];
@@ -1069,30 +1068,6 @@ function wp_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 	// Use the default values for a site if no previous state is given.
 	if ( ! $old_site ) {
 		$old_site = new WP_Site( new stdClass() );
-	}
-
-	if ( $new_site->spam != $old_site->spam ) {
-		if ( 1 == $new_site->spam ) {
-
-			/**
-			 * Fires when the 'spam' status is added to a site.
-			 *
-			 * @since MU (3.0.0)
-			 *
-			 * @param int $site_id Site ID.
-			 */
-			do_action( 'make_spam_blog', $site_id );
-		} else {
-
-			/**
-			 * Fires when the 'spam' status is removed from a site.
-			 *
-			 * @since MU (3.0.0)
-			 *
-			 * @param int $site_id Site ID.
-			 */
-			do_action( 'make_ham_blog', $site_id );
-		}
 	}
 
 	if ( $new_site->archived != $old_site->archived ) {

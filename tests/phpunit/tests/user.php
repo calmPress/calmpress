@@ -563,31 +563,6 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 45747
-	 * @group ms-excluded
-	 */
-	public function test_wp_update_user_should_not_mark_user_as_spam_on_single_site() {
-		$u = wp_update_user(
-			array(
-				'ID'   => self::$contrib_id,
-				'spam' => '0',
-			)
-		);
-
-		$this->assertNotWPError( $u );
-
-		$u = wp_update_user(
-			array(
-				'ID'   => self::$contrib_id,
-				'spam' => '1',
-			)
-		);
-
-		$this->assertWPError( $u );
-		$this->assertSame( 'no_spam', $u->get_error_code() );
-	}
-
-	/**
 	 * @ticket 28315
 	 */
 	public function test_user_meta_error() {

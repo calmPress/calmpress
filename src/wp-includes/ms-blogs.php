@@ -700,7 +700,7 @@ function update_archived( $id, $archived ) {
 function update_blog_status( $blog_id, $pref, $value ) {
 	global $wpdb;
 
-	$allowed_field_names = array( 'site_id', 'domain', 'path', 'registered', 'last_updated', 'public', 'archived', 'spam', 'deleted', 'lang_id' );
+	$allowed_field_names = array( 'site_id', 'domain', 'path', 'registered', 'last_updated', 'public', 'archived', 'deleted', 'lang_id' );
 
 	if ( ! in_array( $pref, $allowed_field_names, true ) ) {
 		return $value;
@@ -885,7 +885,7 @@ function wp_count_sites( $network_id = null ) {
 	$counts['all'] = $q->found_sites;
 
 	$_args    = $args;
-	$statuses = array( 'public', 'archived', 'spam', 'deleted' );
+	$statuses = array( 'public', 'archived', 'deleted' );
 
 	foreach ( $statuses as $status ) {
 		$_args            = $args;
