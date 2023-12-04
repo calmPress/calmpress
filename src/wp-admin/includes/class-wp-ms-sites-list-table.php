@@ -39,7 +39,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 			'archived' => array( 'site-archived', __( 'Archived' ) ),
 			'spam'     => array( 'site-spammed', _x( 'Spam', 'site' ) ),
 			'deleted'  => array( 'site-deleted', __( 'Deleted' ) ),
-			'mature'   => array( 'site-mature', __( 'Mature' ) ),
 		);
 
 		parent::__construct(
@@ -162,7 +161,7 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 
 		// Take into account the role the user has selected.
 		$status = isset( $_REQUEST['status'] ) ? wp_unslash( trim( $_REQUEST['status'] ) ) : '';
-		if ( in_array( $status, array( 'public', 'archived', 'mature', 'spam', 'deleted' ), true ) ) {
+		if ( in_array( $status, array( 'public', 'archived', 'spam', 'deleted' ), true ) ) {
 			$args[ $status ] = 1;
 		}
 
@@ -235,12 +234,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 			'archived' => _n_noop(
 				'Archived <span class="count">(%s)</span>',
 				'Archived <span class="count">(%s)</span>'
-			),
-
-			/* translators: %s: Number of sites. */
-			'mature'   => _n_noop(
-				'Mature <span class="count">(%s)</span>',
-				'Mature <span class="count">(%s)</span>'
 			),
 
 			/* translators: %s: Number of sites. */

@@ -700,7 +700,7 @@ function update_archived( $id, $archived ) {
 function update_blog_status( $blog_id, $pref, $value ) {
 	global $wpdb;
 
-	$allowed_field_names = array( 'site_id', 'domain', 'path', 'registered', 'last_updated', 'public', 'archived', 'mature', 'spam', 'deleted', 'lang_id' );
+	$allowed_field_names = array( 'site_id', 'domain', 'path', 'registered', 'last_updated', 'public', 'archived', 'spam', 'deleted', 'lang_id' );
 
 	if ( ! in_array( $pref, $allowed_field_names, true ) ) {
 		return $value;
@@ -758,7 +758,7 @@ function get_blog_status( $id, $pref ) {
 function get_last_updated( $deprecated = '', $start = 0, $quantity = 40 ) {
 	global $wpdb;
 
-	return $wpdb->get_results( $wpdb->prepare( "SELECT blog_id, domain, path FROM $wpdb->blogs WHERE site_id = %d AND public = '1' AND archived = '0' AND mature = '0' AND spam = '0' AND deleted = '0' AND last_updated != '0000-00-00 00:00:00' ORDER BY last_updated DESC limit %d, %d", get_current_network_id(), $start, $quantity ), ARRAY_A );
+	return $wpdb->get_results( $wpdb->prepare( "SELECT blog_id, domain, path FROM $wpdb->blogs WHERE site_id = %d AND public = '1' AND archived = '0' AND spam = '0' AND deleted = '0' AND last_updated != '0000-00-00 00:00:00' ORDER BY last_updated DESC limit %d, %d", get_current_network_id(), $start, $quantity ), ARRAY_A );
 }
 
 /**
@@ -864,7 +864,6 @@ function _update_posts_count_on_transition_post_status( $new_status, $old_status
  *     @type int $all      The total number of sites.
  *     @type int $public   The number of public sites.
  *     @type int $archived The number of archived sites.
- *     @type int $mature   The number of mature sites.
  *     @type int $spam     The number of spam sites.
  *     @type int $deleted  The number of deleted sites.
  * }
@@ -886,7 +885,7 @@ function wp_count_sites( $network_id = null ) {
 	$counts['all'] = $q->found_sites;
 
 	$_args    = $args;
-	$statuses = array( 'public', 'archived', 'mature', 'spam', 'deleted' );
+	$statuses = array( 'public', 'archived', 'spam', 'deleted' );
 
 	foreach ( $statuses as $status ) {
 		$_args            = $args;

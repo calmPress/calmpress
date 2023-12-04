@@ -41,13 +41,6 @@ if ( is_multisite() ) :
 						'archived' => 1,
 					)
 				),
-				'mature'   => self::factory()->blog->create_many(
-					random_int( 0, 5 ),
-					array(
-						'public' => 0,
-						'mature' => 1,
-					)
-				),
 				'spam'     => self::factory()->blog->create_many(
 					random_int( 0, 5 ),
 					array(

@@ -634,53 +634,6 @@ if ( is_multisite() ) :
 			remove_action( 'make_undelete_blog', array( $this, 'action_counter_cb' ), 10 );
 		}
 
-		public function test_update_blog_status_mature_blog_action() {
-			global $test_action_counter;
-			$test_action_counter = 0;
-
-			$blog_id = self::factory()->blog->create();
-
-			add_action( 'mature_blog', array( $this, 'action_counter_cb' ), 10 );
-			update_blog_status( $blog_id, 'mature', 1 );
-			$blog = get_site( $blog_id );
-
-			$this->assertSame( '1', $blog->mature );
-			$this->assertSame( 1, $test_action_counter );
-
-			// The action should not fire if the status of 'mature' stays the same.
-			update_blog_status( $blog_id, 'mature', 1 );
-			$blog = get_site( $blog_id );
-
-			$this->assertSame( '1', $blog->mature );
-			$this->assertSame( 1, $test_action_counter );
-
-			remove_action( 'mature_blog', array( $this, 'action_counter_cb' ), 10 );
-		}
-
-		public function test_update_blog_status_unmature_blog_action() {
-			global $test_action_counter;
-			$test_action_counter = 0;
-
-			$blog_id = self::factory()->blog->create();
-			update_blog_details( $blog_id, array( 'mature' => 1 ) );
-
-			add_action( 'unmature_blog', array( $this, 'action_counter_cb' ), 10 );
-			update_blog_status( $blog_id, 'mature', 0 );
-
-			$blog = get_site( $blog_id );
-			$this->assertSame( '0', $blog->mature );
-			$this->assertSame( 1, $test_action_counter );
-
-			// The action should not fire if the status of 'mature' stays the same.
-			update_blog_status( $blog_id, 'mature', 0 );
-			$blog = get_site( $blog_id );
-
-			$this->assertSame( '0', $blog->mature );
-			$this->assertSame( 1, $test_action_counter );
-
-			remove_action( 'unmature_blog', array( $this, 'action_counter_cb' ), 10 );
-		}
-
 		public function test_update_blog_status_update_blog_public_action() {
 			global $test_action_counter;
 			$test_action_counter = 0;
@@ -691,13 +644,6 @@ if ( is_multisite() ) :
 			update_blog_status( $blog_id, 'public', 0 );
 
 			$blog = get_site( $blog_id );
-			$this->assertSame( '0', $blog->public );
-			$this->assertSame( 1, $test_action_counter );
-
-			// The action should not fire if the status of 'mature' stays the same.
-			update_blog_status( $blog_id, 'public', 0 );
-			$blog = get_site( $blog_id );
-
 			$this->assertSame( '0', $blog->public );
 			$this->assertSame( 1, $test_action_counter );
 
@@ -1337,7 +1283,6 @@ if ( is_multisite() ) :
 						'network_id' => 1,
 						'public'     => 1,
 						'archived'   => 0,
-						'mature'     => 0,
 						'spam'       => 0,
 						'deleted'    => 0,
 						'lang_id'    => 0,
@@ -1386,7 +1331,6 @@ if ( is_multisite() ) :
 						'path'     => 'foobar',
 						'public'   => 0,
 						'archived' => 1,
-						'mature'   => 1,
 						'spam'     => 1,
 						'deleted'  => 1,
 						'lang_id'  => 1,
@@ -1396,7 +1340,6 @@ if ( is_multisite() ) :
 						'path'     => '/foobar/',
 						'public'   => 0,
 						'archived' => 1,
-						'mature'   => 1,
 						'spam'     => 1,
 						'deleted'  => 1,
 						'lang_id'  => 1,
@@ -1491,7 +1434,6 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 0,
 						'archived' => 1,
-						'mature'   => 1,
 						'spam'     => 1,
 						'deleted'  => 1,
 						'lang_id'  => 1,
@@ -1499,7 +1441,6 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 0,
 						'archived' => 1,
-						'mature'   => 1,
 						'spam'     => 1,
 						'deleted'  => 1,
 						'lang_id'  => 1,
@@ -1636,14 +1577,12 @@ if ( is_multisite() ) :
 					array(
 						'public'   => '0',
 						'archived' => '1',
-						'mature'   => '1',
 						'spam'     => true,
 						'deleted'  => true,
 					),
 					array(
 						'public'   => 0,
 						'archived' => 1,
-						'mature'   => 1,
 						'spam'     => 1,
 						'deleted'  => 1,
 					),
@@ -1984,27 +1923,23 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 1,
 						'archived' => 1,
-						'mature'   => 1,
 						'spam'     => 1,
 						'deleted'  => 1,
 					),
 					array(
 						'archive_blog',
-						'mature_blog',
 						'make_spam_blog',
 						'make_delete_blog',
 					),
 					array(
 						'public'   => 0,
 						'archived' => 0,
-						'mature'   => 0,
 						'spam'     => 0,
 						'deleted'  => 0,
 					),
 					array(
 						'update_blog_public',
 						'unarchive_blog',
-						'unmature_blog',
 						'make_ham_blog',
 						'make_undelete_blog',
 					),
@@ -2013,7 +1948,6 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 0,
 						'archived' => 0,
-						'mature'   => 0,
 						'spam'     => 0,
 						'deleted'  => 0,
 					),
@@ -2023,14 +1957,12 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 1,
 						'archived' => 1,
-						'mature'   => 1,
 						'spam'     => 1,
 						'deleted'  => 1,
 					),
 					array(
 						'update_blog_public',
 						'archive_blog',
-						'mature_blog',
 						'make_spam_blog',
 						'make_delete_blog',
 					),
@@ -2039,20 +1971,17 @@ if ( is_multisite() ) :
 					array(
 						'public'   => 0,
 						'archived' => 0,
-						'mature'   => 1,
 						'spam'     => 1,
 						'deleted'  => 1,
 					),
 					array(
 						'update_blog_public',
-						'mature_blog',
 						'make_spam_blog',
 						'make_delete_blog',
 					),
 					array(
 						'public'   => 0,
 						'archived' => 1,
-						'mature'   => 1,
 						'spam'     => 1,
 						'deleted'  => 0,
 					),
@@ -2070,8 +1999,6 @@ if ( is_multisite() ) :
 			$hooknames = array(
 				'make_spam_blog',
 				'make_ham_blog',
-				'mature_blog',
-				'unmature_blog',
 				'archive_blog',
 				'unarchive_blog',
 				'make_delete_blog',
@@ -2088,8 +2015,6 @@ if ( is_multisite() ) :
 			$hooknames = array(
 				'make_spam_blog',
 				'make_ham_blog',
-				'mature_blog',
-				'unmature_blog',
 				'archive_blog',
 				'unarchive_blog',
 				'make_delete_blog',
@@ -2146,7 +2071,6 @@ if ( is_multisite() ) :
 					array(
 						'home'        => 'http://uninitialized.org',
 						'siteurl'     => 'http://uninitialized.org',
-						'admin_email' => '',
 						'blog_public' => '1',
 					),
 					array(),

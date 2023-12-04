@@ -1353,7 +1353,7 @@ function wpmu_create_user( $user_name, $password, $email ) {
  * @param string $title      The new site's title.
  * @param int    $user_id    The user ID of the new site's admin.
  * @param array  $options    Optional. Array of key=>value pairs used to set initial site options.
- *                           If valid status keys are included ('public', 'archived', 'mature',
+ *                           If valid status keys are included ('public', 'archived',
  *                           'spam', 'deleted', or 'lang_id') the given site status(es) will be
  *                           updated. Otherwise, keys and values will be used to set options for
  *                           the new site. Default empty array.
@@ -1378,7 +1378,7 @@ function wpmu_create_blog( $domain, $path, $title, $user_id, $options = array(),
 		wp_installing( true );
 	}
 
-	$allowed_data_fields = array( 'public', 'archived', 'mature', 'spam', 'deleted', 'lang_id' );
+	$allowed_data_fields = array( 'public', 'archived', 'spam', 'deleted', 'lang_id' );
 
 	$site_data = array_merge(
 		array(

@@ -154,7 +154,6 @@ class WP_Site_Query {
 	 *     @type string[]        $path__not_in           Array of paths to exclude affiliated sites for. Default empty.
 	 *     @type int             $public                 Limit results to public sites. Accepts '1' or '0'. Default empty.
 	 *     @type int             $archived               Limit results to archived sites. Accepts '1' or '0'. Default empty.
-	 *     @type int             $mature                 Limit results to mature sites. Accepts '1' or '0'. Default empty.
 	 *     @type int             $spam                   Limit results to spam sites. Accepts '1' or '0'. Default empty.
 	 *     @type int             $deleted                Limit results to deleted sites. Accepts '1' or '0'. Default empty.
 	 *     @type int             $lang_id                Limit results to a language ID. Default empty.
@@ -201,7 +200,6 @@ class WP_Site_Query {
 			'path__not_in'           => '',
 			'public'                 => null,
 			'archived'               => null,
-			'mature'                 => null,
 			'spam'                   => null,
 			'deleted'                => null,
 			'lang_id'                => null,
@@ -554,11 +552,6 @@ class WP_Site_Query {
 		if ( is_numeric( $this->query_vars['archived'] ) ) {
 			$archived                               = absint( $this->query_vars['archived'] );
 			$this->sql_clauses['where']['archived'] = $wpdb->prepare( 'archived = %s ', absint( $archived ) );
-		}
-
-		if ( is_numeric( $this->query_vars['mature'] ) ) {
-			$mature                               = absint( $this->query_vars['mature'] );
-			$this->sql_clauses['where']['mature'] = $wpdb->prepare( 'mature = %d ', $mature );
 		}
 
 		if ( is_numeric( $this->query_vars['spam'] ) ) {

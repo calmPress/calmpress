@@ -412,7 +412,6 @@ function wp_set_wpdb_vars() {
 		'cat_id'           => '%d',
 		'deleted'          => '%d',
 		'lang_id'          => '%d',
-		'mature'           => '%d',
 		'public'           => '%d',
 		'site_id'          => '%d',
 		'spam'             => '%d',

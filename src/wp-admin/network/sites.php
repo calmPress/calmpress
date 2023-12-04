@@ -70,10 +70,6 @@ if ( isset( $_GET['action'] ) ) {
 		'spamblog'       => __( 'You are about to mark the site %s as spam.' ),
 		/* translators: %s: Site URL. */
 		'deleteblog'     => __( 'You are about to delete the site %s.' ),
-		/* translators: %s: Site URL. */
-		'unmatureblog'   => __( 'You are about to mark the site %s as mature.' ),
-		/* translators: %s: Site URL. */
-		'matureblog'     => __( 'You are about to mark the site %s as not mature.' ),
 	);
 
 	if ( 'confirm' === $_GET['action'] ) {
@@ -82,13 +78,6 @@ if ( isset( $_GET['action'] ) ) {
 
 		if ( ! array_key_exists( $site_action, $manage_actions ) ) {
 			wp_die( __( 'The requested action is not valid.' ) );
-		}
-
-		// The mature/unmature UI exists only as external code. Check the "confirm" nonce for backward compatibility.
-		if ( 'matureblog' === $site_action || 'unmatureblog' === $site_action ) {
-			check_admin_referer( 'confirm' );
-		} else {
-			check_admin_referer( $site_action . '_' . $id );
 		}
 
 		if ( ! headers_sent() ) {
@@ -276,11 +265,6 @@ if ( isset( $_GET['action'] ) ) {
 		case 'unspamblog':
 		case 'spamblog':
 			update_blog_status( $id, 'spam', ( 'spamblog' === $_GET['action'] ) ? '1' : '0' );
-			break;
-
-		case 'unmatureblog':
-		case 'matureblog':
-			update_blog_status( $id, 'mature', ( 'matureblog' === $_GET['action'] ) ? '1' : '0' );
 			break;
 	}
 

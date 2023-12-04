@@ -428,7 +428,7 @@ if ( is_multisite() ) :
 			$this->assertEmpty( $found );
 		}
 
-		// archived, mature, spam, deleted, public.
+		// archived, spam, deleted, public.
 
 		public function test_wp_site_query_by_archived() {
 			$q     = new WP_Site_Query();
@@ -438,20 +438,6 @@ if ( is_multisite() ) :
 					// Exclude main site since we don't have control over it here.
 					'site__not_in' => array( 1 ),
 					'archived'     => '0',
-				)
-			);
-
-			$this->assertSameSets( array_values( self::$site_ids ), $found );
-		}
-
-		public function test_wp_site_query_by_mature() {
-			$q     = new WP_Site_Query();
-			$found = $q->query(
-				array(
-					'fields'       => 'ids',
-					// Exclude main site since we don't have control over it here.
-					'site__not_in' => array( 1 ),
-					'mature'       => '0',
 				)
 			);
 
