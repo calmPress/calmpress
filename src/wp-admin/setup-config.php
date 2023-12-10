@@ -185,7 +185,7 @@ switch ( $step ) {
 		</tr>
 		<tr  class="hide-if-js">
 			<th scope="row"><label for="prefix"><?php _e( 'Table Prefix' ); ?></label></th>
-			<td><input name="prefix" id="prefix" type="text" aria-describedby="prefix-desc" value="cp_<?php echo esc_attr( md5( time() ) ); ?>_" size="25" /></td>
+			<td><input name="prefix" id="prefix" type="text" aria-describedby="prefix-desc" value="cp_<?php echo esc_attr( uniqid() ); ?>_" size="25" /></td>
 			<td id="prefix-desc"><?php _e( 'if you want to customize table name, or run multiple calmPress installations in a single database, change this.' ); ?></td>
 		</tr>
 		<tr class="hide-if-no-js">
@@ -225,6 +225,11 @@ switch ( $step ) {
 		// Validate $prefix: it can only contain letters, numbers and underscores.
 		if ( preg_match( '|[^a-z0-9_]|i', $prefix ) ) {
 			wp_die( __( '<strong>Error</strong>: "Table Prefix" can only contain numbers, letters, and underscores.' ) . $tryagain_link );
+		}
+
+		// Validate $prefix: its length can be at most 25 characters.
+		if ( strlen( $prefix ) > 25 ) {
+			wp_die( __( '<strong>Error</strong>: "Table Prefix" can not be longer than 25 characters.' ) . $tryagain_link );
 		}
 
 		// Test the DB connection.
