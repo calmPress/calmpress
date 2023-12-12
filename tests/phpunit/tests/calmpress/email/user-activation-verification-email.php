@@ -75,12 +75,6 @@ class User_Activation_Verification_Email_Test extends WP_UnitTestCase {
 		$this->assertSame( 1, count( $tos ) );
 		$this->assertSame( 'test@example.com', $tos[0][0] );
 
-		// Test reply-to set to admin email.
-		// Test mail is sent to the old address
-		$rt = $phpmailer->getReplyToAddresses();
-		$this->assertSame( 1, count( $rt ) );
-		$this->assertSame( get_option( 'admin_email' ), $rt[get_option( 'admin_email' )][0] );
-
 		unset( $phpmailer );
 	}
 

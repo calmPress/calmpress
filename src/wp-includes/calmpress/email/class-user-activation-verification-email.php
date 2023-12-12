@@ -41,13 +41,14 @@ There was a user registered for you at "%2$s" under your email address %3$s.
 
 Please follow the next link to finish the activation
 %4$s.
+The link will present you a form to change your password. Once changed you will be
+directed to the login page.
 
-If you did not expect this registration notice you are welcome to ignore this email
-or contact the Site Administrator at %5$s or reply to this email.
+If you did not expect this registration notice you are welcome to ignore this email.
 
 Regards,
 All at %2$s
-%6$s'
+%5$s'
 		);
 
 		$blog_name = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
@@ -59,14 +60,12 @@ All at %2$s
 				$blog_name,
 				$user->user_email,
 				$user->activation_url(),
-				get_option( 'admin_email' ),
 				home_url()
 			),
 			false,
 			$user->email_address()
 		);
 
-		$this->email->set_reply_to_addresses( new Email_Address( get_option( 'admin_email' ) ) );
 		$this->user = $user;
 	}
 
