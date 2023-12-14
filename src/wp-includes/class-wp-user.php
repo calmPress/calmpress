@@ -880,14 +880,18 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * The url to be used to activate the user.
+	 * The URL to be used to activate the user.
+	 * 
+	 * In practice returns the URL to reset the user's password when the user is newly
+	 * added to the site.
 	 *
 	 * @since calmPress 1.0.0
 	 *
 	 * @return string the URL, unescaped.
 	 */
 	public function activation_url() : string {
-		return admin_url( 'admin_post&action=activate_user&email=' . $this->user_email );
+		$key = get_password_reset_key( $this );
+		return network_site_url( "wp-login.php?action=rp&key=$key&email=" . rawurlencode( $this->user_email ) );
 	}
 
 	/**
