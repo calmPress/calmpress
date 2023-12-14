@@ -1,5 +1,6 @@
 <?php
 
+require_once ABSPATH . '\wp-admin\includes\user.php';
 /**
  * @group user
  * @group slashes
@@ -120,7 +121,7 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 			array(
 				'user_login'   => 'slash_example_user_3',
 				'role'         => 'subscriber',
-				'email'        => 'user3@example.com',
+				'user_email'   => 'user3@example.com',
 				'first_name'   => $this->slash_1,
 				'last_name'    => $this->slash_3,
 				'nickname'     => $this->slash_5,
@@ -141,7 +142,7 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 			array(
 				'user_login'   => 'slash_example_user_4',
 				'role'         => 'subscriber',
-				'email'        => 'user3@example.com',
+				'user_email'   => 'user4@example.com',
 				'first_name'   => $this->slash_2,
 				'last_name'    => $this->slash_4,
 				'nickname'     => $this->slash_6,
