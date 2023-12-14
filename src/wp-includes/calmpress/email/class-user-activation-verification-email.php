@@ -70,13 +70,20 @@ All at %2$s
 	}
 
 	/**
-	 * Register a mutatur to be called before an email is sent.
+	 * Register a mutator to be called before an email is sent.
 	 *
 	 * @since 1.0.0
 	 *
-	 * User_Activation_Verification $mutator The object implementing the mutation observer.
+	 * User_Activation_Verification |
+	 * Email_Send_Abort_Mutator $mutator The object implementing the mutation observer.
+	 *                                   Can either be an actual mutator or an "mutator"
+	 *                                   that aborts the sending.
 	 */
-	public static function register_mutator( User_Activation_Verification_Email_Mutator $mutator ): void {
+	public static function register_mutator(
+		User_Activation_Verification_Email_Mutator |
+		Email_Send_Abort_Mutator
+		$mutator ): void
+	{
 		self::add_observer( $mutator );
 	}
 }

@@ -71,6 +71,11 @@ if ( ! function_exists( 'wp_install' ) ) :
 		$email_password = false;
 		$user_created   = false;
 
+		// Avoid sending the activation mail as email sending might not be configured.
+		calmpress\email\User_Activation_Verification_Email::register_mutator(
+			new calmpress\email\Email_Send_Abort_Mutator()
+		);
+
 		if ( empty( $user_password ) ) {
 			$user_password = wp_generate_password( 12, false );
 			$message       = __( '<strong><em>Note that password</em></strong> carefully! It is a <em>random</em> password that was generated just for you.' );
