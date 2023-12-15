@@ -35,7 +35,7 @@ class User_Activation_Verification_Email {
 
 		/* translators: 1: Users's display name. */
 		$initial_content_format = __(
-'Hi %1$s
+'Hi %1$s,
 
 There was a user registered for you at "%2$s" under your email address %3$s.
 
@@ -43,6 +43,9 @@ Please follow the next link to finish the activation
 %4$s.
 The link will present you a form to change your password. Once changed you will be
 directed to the login page.
+
+The link will expire after one day, but you can use the reset password form to request
+a new one.
 
 If you did not expect this registration notice you are welcome to ignore this email.
 
