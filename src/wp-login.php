@@ -724,7 +724,10 @@ switch ( $action ) {
 
 		?>
 		<form name="resetpassform" id="resetpassform" action="<?php echo esc_url( network_site_url( 'wp-login.php?action=resetpass', 'login_post' ) ); ?>" method="post" autocomplete="off">
-			<input type="hidden" id="user_login" value="<?php echo esc_attr( $rp_login ); ?>" autocomplete="off" />
+			<p>
+				<label for="user_login"><?php _e( 'Email Address' ); ?></label>
+				<input type="text" name="log" id="user_login" class="input" value="<?php echo esc_attr( $rp_email ); ?>" readonly="readonly" autocapitalize="off" />
+			</p>
 
 			<div class="user-pass1-wrap">
 				<p>

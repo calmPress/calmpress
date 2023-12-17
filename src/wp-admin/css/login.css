@@ -308,7 +308,11 @@ p {
 	background: #fff;
 }
 
-.js.login-action-rp input[type="text"],
+.login form .input[readonly] {
+	background-color: #f0f0f1;
+}
+
+.js.login-action-rp input[type="text"]:not([readonly]),
 .js.login-action-rp input[type="password"] {
 	margin-bottom: 0;
 }
