@@ -80,7 +80,7 @@ function edit_user( $user_id = 0 ) {
 			if ( ! $update ) {
 				// New users are pending until user confirms activation.
 				$user->role            = 'pending_activation';
-				$user->actived_to_role = $new_role;
+				$user->activate_to_role = $new_role;
 			} else {
 				$user->role = $new_role;
 			}
