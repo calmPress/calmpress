@@ -1353,7 +1353,7 @@ function wp_ajax_add_user( $action ) {
 				'show-link' => sprintf(
 					/* translators: %s: The new user. */
 					__( 'User %s added' ),
-					'<a href="#user-' . $user_id . '">' . $user_object->user_login . '</a>'
+					'<a href="#user-' . $user_id . '">' . $user_object->user_email . '</a>'
 				),
 				'role'      => $role,
 			),
@@ -4642,7 +4642,7 @@ function wp_ajax_send_password_reset() {
 
 	// Send the password reset link.
 	$user    = get_userdata( $user_id );
-	$results = retrieve_password( $user->user_login );
+	$results = retrieve_password( $user->user_email );
 
 	if ( true === $results ) {
 		wp_send_json_success(
