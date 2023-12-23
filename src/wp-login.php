@@ -1141,7 +1141,7 @@ switch ( $action ) {
 		<form name="loginform" id="loginform" action="<?php echo esc_url( site_url( 'wp-login.php', 'login_post' ) ); ?>" method="post">
 			<p>
 				<label for="user_login"><?php _e( 'Email Address' ); ?></label>
-				<input type="text" name="log" id="user_login"<?php echo $aria_describedby_error; ?> class="input" value="<?php echo esc_attr( $user_login ); ?>" size="20" autocapitalize="off" />
+				<input type="text" name="log" id="user_login" <?php echo $aria_describedby_error; ?> class="input" value="<?php echo esc_attr( $user_login ); ?>" size="20" autocapitalize="off" />
 			</p>
 
 			<div class="user-pass-wrap">
