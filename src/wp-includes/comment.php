@@ -2909,9 +2909,6 @@ function wp_handle_comment_submission( $comment_data ) {
 	// If the user is logged in.
 	$user = wp_get_current_user();
 	if ( $user->exists() ) {
-		if ( empty( $user->display_name ) ) {
-			$user->display_name = $user->user_login;
-		}
 		$comment_author       = $user->display_name;
 		$comment_author_email = $user->user_email;
 		$comment_author_url   = site_url();

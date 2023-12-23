@@ -239,8 +239,8 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 		?>
 		<label class="screen-reader-text" for="blog_<?php echo $user->ID; ?>">
 			<?php
-			/* translators: %s: User login. */
-			printf( __( 'Select %s' ), $user->user_login );
+			/* translators: %s: User email. */
+			printf( __( 'Select %s' ), $user->user_email );
 			?>
 		</label>
 		<input type="checkbox" id="blog_<?php echo $user->ID; ?>" name="allusers[]" value="<?php echo esc_attr( $user->ID ); ?>" />

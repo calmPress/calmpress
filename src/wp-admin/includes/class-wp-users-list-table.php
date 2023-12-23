@@ -482,7 +482,7 @@ class WP_Users_List_Table extends WP_List_Table {
 				'<input type="checkbox" name="users[]" id="user_%1$s" class="%3$s" value="%1$s" />',
 				$user_object->ID,
 				/* translators: %s: User login. */
-				sprintf( __( 'Select %s' ), $user_object->user_login ),
+				sprintf( __( 'Select %s' ), $user_object->user_email ),
 				$role_classes
 			);
 
