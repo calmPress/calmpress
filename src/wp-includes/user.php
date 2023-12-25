@@ -2266,9 +2266,15 @@ function wp_update_user( $userdata ) {
 	$switched_locale = false;
 
 	if ( ! empty( $send_email_change_email ) ) {
-		/* translators: Do not translate DISPLAY_NAME, USERNAME, ADMIN_EMAIL, NEW_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
-		$email_change_text = __(
-			'Hi ###DISPLAY_NAME###,
+		// if activation is pending, send activation to new address.
+		if ( in_array( 'pending_activation', $user_obj->roles, true ) ) {
+			$tuser = get_user_by( 'id', $user_id ); // Get fresh object to be on sfe side.
+			$email = new calmpress\email\User_Activation_Verification_Email( $tuser );
+			$email->send();
+		} else {
+			/* translators: Do not translate DISPLAY_NAME, USERNAME, ADMIN_EMAIL, NEW_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
+			$email_change_text = __(
+				'Hi ###DISPLAY_NAME###,
 
 This notice confirms that your email address on ###SITENAME### was changed to ###NEW_EMAIL###.
 
@@ -2280,51 +2286,52 @@ This email has been sent to ###EMAIL###
 Regards,
 All at ###SITENAME###
 ###SITEURL###'
-		);
+			);
 
-		$email_change_email = array(
-			'to'      => $user['user_email'],
-			/* translators: Email change notification email subject. %s: Site title. */
-			'subject' => __( '[%s] Email Changed' ),
-			'message' => $email_change_text,
-			'headers' => '',
-		);
+			$email_change_email = array(
+				'to'      => $user['user_email'],
+				/* translators: Email change notification email subject. %s: Site title. */
+				'subject' => __( '[%s] Email Changed' ),
+				'message' => $email_change_text,
+				'headers' => '',
+			);
 
-		/**
-		 * Filters the contents of the email sent when the user's email is changed.
-		 *
-		 * @since 4.3.0
-		 *
-		 * @param array $email_change_email {
-		 *     Used to build wp_mail().
-		 *
-		 *     @type string $to      The intended recipients.
-		 *     @type string $subject The subject of the email.
-		 *     @type string $message The content of the email.
-		 *         The following strings have a special meaning and will get replaced dynamically:
-		 *         - ###DISPLAY_NAME### The current user's username.
-		 *         - ###USERNAME###     The current user's username.
-		 *         - ###ADMIN_EMAIL###  The admin email in case this was unexpected.
-		 *         - ###NEW_EMAIL###    The new email address.
-		 *         - ###EMAIL###        The old email address.
-		 *         - ###SITENAME###     The name of the site.
-		 *         - ###SITEURL###      The URL to the site.
-		 *     @type string $headers Headers.
-		 * }
-		 * @param array $user     The original user array.
-		 * @param array $userdata The updated user array.
-		 */
-		$email_change_email = apply_filters( 'email_change_email', $email_change_email, $user, $userdata );
+			/**
+			 * Filters the contents of the email sent when the user's email is changed.
+			 *
+			 * @since 4.3.0
+			 *
+			 * @param array $email_change_email {
+			 *     Used to build wp_mail().
+			 *
+			 *     @type string $to      The intended recipients.
+			 *     @type string $subject The subject of the email.
+			 *     @type string $message The content of the email.
+			 *         The following strings have a special meaning and will get replaced dynamically:
+			 *         - ###DISPLAY_NAME### The current user's username.
+			 *         - ###USERNAME###     The current user's username.
+			 *         - ###ADMIN_EMAIL###  The admin email in case this was unexpected.
+			 *         - ###NEW_EMAIL###    The new email address.
+			 *         - ###EMAIL###        The old email address.
+			 *         - ###SITENAME###     The name of the site.
+			 *         - ###SITEURL###      The URL to the site.
+			 *     @type string $headers Headers.
+			 * }
+			 * @param array $user     The original user array.
+			 * @param array $userdata The updated user array.
+			 */
+			$email_change_email = apply_filters( 'email_change_email', $email_change_email, $user, $userdata );
 
-		$email_change_email['message'] = str_replace( '###DISPLAY_NAME###', $user['display_name'], $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###USERNAME###', $user['user_login'], $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###ADMIN_EMAIL###', get_option( 'admin_email' ), $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###NEW_EMAIL###', $userdata['user_email'], $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###EMAIL###', $user['user_email'], $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###SITENAME###', $blog_name, $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###SITEURL###', home_url(), $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###DISPLAY_NAME###', $user['display_name'], $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###USERNAME###', $user['user_login'], $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###ADMIN_EMAIL###', get_option( 'admin_email' ), $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###NEW_EMAIL###', $userdata['user_email'], $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###EMAIL###', $user['user_email'], $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###SITENAME###', $blog_name, $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###SITEURL###', home_url(), $email_change_email['message'] );
 
-		wp_mail( $email_change_email['to'], sprintf( $email_change_email['subject'], $blog_name ), $email_change_email['message'], $email_change_email['headers'] );
+			wp_mail( $email_change_email['to'], sprintf( $email_change_email['subject'], $blog_name ), $email_change_email['message'], $email_change_email['headers'] );
+		}
 	}
 
 	if ( $switched_locale ) {

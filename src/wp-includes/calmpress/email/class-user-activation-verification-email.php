@@ -44,8 +44,7 @@ Please follow the next link to finish the activation
 The link will present you a form to change your password. Once changed you will be
 directed to the login page.
 
-The link will expire after one day, but you can use the reset password form to request
-a new one.
+The link will expire after one day, but you can use the reset password form to get a new one.
 
 If you did not expect this registration notice you are welcome to ignore this email.
 
