@@ -4653,3 +4653,36 @@ function wp_ajax_send_password_reset() {
 		wp_send_json_error( $results->get_error_message() );
 	}
 }
+
+/**
+ * Ajax handler resend activation email.
+ *
+ * @since calmPress 1.0.0
+ */
+function wp_ajax_resend_activation() {
+
+	// Validate the nonce for this action.
+	$user_id = isset( $_POST['user_id'] ) ? (int) $_POST['user_id'] : 0;
+
+	// Reuse the password reset nonce.
+	check_ajax_referer( 'reset-password-for-' . $user_id, 'nonce' );
+
+	// Verify user capabilities.
+	if ( ! current_user_can( 'edit_user', $user_id ) ) {
+		wp_send_json_error( __( 'Cannot send activation email, permission denied.' ) );
+	}
+
+	// Send the activation email.
+	$user = get_user_by( 'id', $user_id );
+	if ( $user === null ) {
+		// Send error if user could not be found.
+		wp_send_json_error( __( 'User not found' ) );
+	} else {
+		$email = new calmpress\email\User_Activation_Verification_Email( $user );
+		$email->send();
+		wp_send_json_success(
+			/* translators: %s: User's email address. */
+			sprintf( __( 'An activation email was sent to %s.' ), $user->user_email )
+		);
+	}
+}

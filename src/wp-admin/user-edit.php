@@ -110,11 +110,6 @@ if ( IS_PROFILE_PAGE && isset( $_GET['newuseremail'] ) && $current_user->ID ) {
 	} else {
 		wp_redirect( add_query_arg( array( 'error' => 'new-email' ), self_admin_url( 'profile.php' ) ) );
 	}
-} elseif ( IS_PROFILE_PAGE && ! empty( $_GET['dismiss'] ) && $current_user->ID . '_new_email' === $_GET['dismiss'] ) {
-	check_admin_referer( 'dismiss-' . $current_user->ID . '_new_email' );
-	delete_user_meta( $current_user->ID, '_new_email' );
-	wp_redirect( add_query_arg( array( 'updated' => 'true' ), self_admin_url( 'profile.php' ) ) );
-	die();
 }
 
 switch ( $action ) {
@@ -259,35 +254,29 @@ switch ( $action ) {
 		<th><label for="email"><?php _e( 'Email' ); ?> <span class="description"><?php _e( '(required)' ); ?></span></label></th>
 		<td><input type="email" name="email" id="email" aria-describedby="email-description" value="<?php echo esc_attr( $profileuser->user_email ); ?>" class="regular-text ltr" />
 		<?php
-		if ( $profileuser->ID == $current_user->ID ) :
-			?>
-		<p class="description" id="email-description">
-			<?php _e( 'If you change this, we will send you an email at your new address to confirm it. <strong>The new address will not become active until confirmed.</strong>' ); ?>
-		</p>
-			<?php
-		endif;
-
-		$new_email = get_user_meta( $current_user->ID, '_new_email', true );
-		if ( $new_email && $new_email['newemail'] != $current_user->user_email && $profileuser->ID == $current_user->ID ) :
-			?>
-		<div class="updated inline">
-		<p>
-			<?php
-			printf(
-				/* translators: %s: New email. */
-				__( 'There is a pending change of your email to %s.' ),
-				'<code>' . esc_html( $new_email['newemail'] ) . '</code>'
-			);
-			printf(
-				' <a href="%1$s">%2$s</a>',
-				esc_url( wp_nonce_url( self_admin_url( 'profile.php?dismiss=' . $current_user->ID . '_new_email' ), 'dismiss-' . $current_user->ID . '_new_email' ) ),
-				__( 'Cancel' )
-			);
-			?>
-		</p>
-		</div>
-		<?php endif; ?>
-	</td>
+			// If user is not active yet, indicate it.
+			if ( in_array( 'pending_activation', $profileuser->roles, true ) ) {
+				?>
+				<div class="notice inline">
+					<p>
+						<?php esc_html_e( 'Was not activated yet. If the email is changed, an activation email will be sent to the new address' ); ?>
+					</p>
+				</div>
+				<div>
+					<button id="resend-activation" class="button" type="button">
+						<?php esc_html_e( 'Resend the activation email' );?>
+					</button>
+				</div>
+				<?php
+			} else {
+				?>
+				<p class="description">
+					<?php _e( 'If you change this, we will send an email to the new address to confirm the email. The new address will not become active until confirmed. An email will be sent to the old address with instructions how to undo the change.' ); ?>
+				</p>
+				<?php
+			}
+		?>
+		</td>
 	</tr>
 <?php
 		/**
@@ -479,12 +468,19 @@ endif;
 		?>
 
 
-		<?php if ( ! IS_PROFILE_PAGE && ! is_network_admin() && current_user_can( 'promote_user', $profileuser->ID ) ) : ?>
-<tr class="user-role-wrap"><th><label for="role"><?php _e( 'Role' ); ?></label></th>
+		<?php if ( ! IS_PROFILE_PAGE && ! is_network_admin() && current_user_can( 'promote_user', $profileuser->ID ) ) {
+			$activation_label = '';
+			$roles            = $profileuser->roles;
+			if ( in_array( 'pending_activation', $profileuser->roles, true ) ) {
+				$activation_label = ' ' . __( '(when activated)' );
+				$roles            = [ get_user_meta( $profileuser->ID, 'activate_to_role', true ) ];
+			}
+		?>
+<tr class="user-role-wrap"><th><label for="role"><?php echo __( 'Role' ) . $activation_label; ?></label></th>
 <td><select name="role" id="role">
 			<?php
 			// Compare user role against currently editable roles.
-			$user_roles = array_intersect( array_values( $profileuser->roles ), array_keys( get_editable_roles() ) );
+			$user_roles = array_intersect( array_values( $roles ), array_keys( get_editable_roles() ) );
 			$user_role  = reset( $user_roles );
 
 			// Print the full list of roles with the primary one selected.
@@ -499,7 +495,7 @@ endif;
 			?>
 </select></td></tr>
 			<?php
-		endif; // End if ! IS_PROFILE_PAGE.
+		} // End if ! IS_PROFILE_PAGE.
 
 		if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE && current_user_can( 'manage_network_options' ) && ! isset( $super_admins ) ) {
 			?>

@@ -81,6 +81,11 @@ function edit_user( $user_id = 0 ) {
 				// New users are pending until user confirms activation.
 				$user->role            = 'pending_activation';
 				$user->activate_to_role = $new_role;
+			} else if ( in_array( 'pending_activation', $userdata->roles, true ) ) {
+				// The role of an inactive user is changed.
+				// Change only the role after activation.
+				$user->activate_to_role = $new_role;
+				$user->role             = 'pending_activation';
 			} else {
 				$user->role = $new_role;
 			}

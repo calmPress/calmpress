@@ -109,6 +109,30 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 	}
 
 	wp_set_auth_cookie( $user->ID, $credentials['remember'], $secure_cookie );
+
+	// If this is an activation, remove the indicator and set the proper role.
+	if ( in_array( 'pending_activation', $user->roles, true ) ) {
+		$role = get_user_meta( $user->ID, 'activate_to_role', true );
+		if ( $role ) {
+			$user->set_role( $role );
+		} else {
+			// This should not happen which indicates some bug. To keep things running
+			// as best as possible on production add an error log entry and default
+			// to subscriber role.
+			calmpress\logger\Controller::log_error_message(
+				'Activated user do not have preconfigured role and is set to subscriber',
+				__FILE__,
+				__LINE__,
+				get_current_user_id(),
+				'',
+				calmpress\logger\Controller::request_info( 20 )
+			);
+			$user->set_role( 'subscriber' );
+		}
+
+		delete_user_meta( $user->ID, 'activate_to_role' );
+	}
+
 	/**
 	 * Fires after the user has successfully logged in.
 	 *
@@ -118,6 +142,7 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 	 * @param WP_User $user       WP_User object of the logged-in user.
 	 */
 	do_action( 'wp_login', $user->user_login, $user );
+
 	return $user;
 }
 
@@ -1989,6 +2014,10 @@ function wp_insert_user( $userdata ) {
 		$meta['mock_role_expiry'] =  $userdata['mock_role_expiry'];
 	}
 
+	if ( isset( $userdata['activate_to_role'] ) ) {
+		$meta['activate_to_role'] =  $userdata['activate_to_role'];
+	}
+
 	$compacted = compact( 'user_pass', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_activation_key', 'display_name' );
 	$data      = wp_unslash( $compacted );
 
@@ -2118,6 +2147,13 @@ function wp_insert_user( $userdata ) {
 				trigger_error( 'No such attachment ' . $userdata['avatar_attachment_id'], E_USER_WARNING );
 			}
 		}
+	}
+
+	// New user is created, send an activation request mail and mark it as waiting
+	// for activation.
+	if ( ! $update ) {
+		$email = new calmpress\email\User_Activation_Verification_Email( $user );
+		$email->send();
 	}
 
 	clean_user_cache( $user_id );
@@ -2905,6 +2941,7 @@ function register_new_user( $user_login, $user_email ) {
  * @since 4.4.0
  * @since 4.6.0 Converted the `$notify` parameter to accept 'user' for sending
  *              notifications only to the user created.
+ * @since calmPress 1.0.0 Not actually used, left as backword compatibility.
  *
  * @param int    $user_id ID of the newly created user.
  * @param string $notify  Optional. Type of notification that should happen. Accepts 'admin'

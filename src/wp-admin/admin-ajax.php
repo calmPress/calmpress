@@ -128,6 +128,7 @@ $core_actions_post = array(
 	'wp-privacy-erase-personal-data',
 	'health-check-site-status-result',
 	'send-password-reset',
+	'resend-activation',
 );
 
 // Deprecated.

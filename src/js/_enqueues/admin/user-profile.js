@@ -403,6 +403,7 @@
 
 		bindPasswordForm();
 		bindPasswordResetLink();
+		bindPasswordResetLink();
 	});
 
 	$( '#destroy-sessions' ).on( 'click', function( e ) {
@@ -485,6 +486,34 @@
 			$( '#avatar_image_preview' ).hide();
 			$( '#avatar_text_preview' ).show();
 		} );
+
+	$( '#resend-activation' )
+		/**
+		 * Resend activation
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			var $this  = $(this);
+			var	data = {
+				'user_id': userProfileL10n.user_id, // The user to send a reset to.
+				'nonce':   userProfileL10n.nonce    // Nonce to validate the action.
+			};
+
+			// Send the resend activation request.
+			var resetAction =  wp.ajax.post( 'resend-activation', data );
+
+			// Handle success.
+			resetAction.done( function( response ) {
+				addInlineNotice( $this, true, response );
+			} );
+
+			// Handle failure.
+			resetAction.fail( function( response ) {
+				addInlineNotice( $this, false, response );
+			} );
+		} );
+		
 	/*
 	 * We need to generate a password as soon as the Reset Password page is loaded,
 	 * to avoid double clicking the button to retrieve the first generated password.
