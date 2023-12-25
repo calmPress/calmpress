@@ -2133,7 +2133,7 @@ function wp_insert_user( $userdata ) {
 	if ( isset( $userdata['role'] ) ) {
 		$user->set_role( $userdata['role'] );
 	} elseif ( ! $update ) {
-		$user->set_role( get_option( 'default_role' ) );
+		$user->set_role( 'subscriber' );
 	}
 
 	if ( isset( $userdata['avatar_attachment_id'] ) ) {

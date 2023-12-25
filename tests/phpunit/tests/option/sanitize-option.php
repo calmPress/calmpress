@@ -63,9 +63,6 @@ class Tests_Sanitize_Option extends WP_UnitTestCase {
 			array( 'timezone_string', get_option( 'timezone_string' ), 'invalid' ),
 			array( 'permalink_structure', '', '' ),
 			array( 'permalink_structure', '/%year%/%20%postname%', '/%year%/ %postname%' ),
-			array( 'default_role', 'subscriber', 'subscriber' ),
-			array( 'default_role', 'subscriber', 'invalid' ),
-			array( 'default_role', 'editor', 'editor' ),
 		);
 	}
 

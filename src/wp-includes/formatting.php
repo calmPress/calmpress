@@ -4707,12 +4707,6 @@ function sanitize_option( $option, $value ) {
 			}
 			break;
 
-		case 'default_role':
-			if ( ! get_role( $value ) && get_role( 'subscriber' ) ) {
-				$value = 'subscriber';
-			}
-			break;
-
 		case 'calm_embedding_on':
 			$old_value = get_option( 'calm_embedding_on' );
 			// This is the value if the settings checkbox is not checked on POST. Don't rely on this.

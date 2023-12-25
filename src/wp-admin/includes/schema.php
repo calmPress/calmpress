@@ -417,9 +417,6 @@ function populate_options( array $options = array() ) {
 		'comment_registration'            => 0,
 		'html_type'                       => 'text/html',
 
-		// 2.0
-		'default_role'                    => 'subscriber',
-
 		// 2.0.1
 		'uploads_use_yearmonth_folders'   => 1,
 		'upload_path'                     => '',

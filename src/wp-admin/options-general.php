@@ -96,13 +96,6 @@ if ( ! is_multisite() ) {
 </fieldset></td>
 </tr>
 
-<tr>
-<th scope="row"><label for="default_role"><?php _e( 'New User Default Role' ); ?></label></th>
-<td>
-<select name="default_role" id="default_role"><?php wp_dropdown_roles( get_option( 'default_role' ) ); ?></select>
-</td>
-</tr>
-
 	<?php
 }
 
