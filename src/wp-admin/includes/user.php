@@ -6,6 +6,8 @@
  * @subpackage Administration
  */
 
+use calmpress\email\Email_Address;
+
 /**
  * Creates a new user from the "Users" form using $_POST information.
  *
@@ -240,7 +242,18 @@ function edit_user( $user_id = 0 ) {
 	}
 
 	if ( $update ) {
-		$user_id = wp_update_user( $user );
+		if ( $user->user_email !== $userdata->user_email ) {
+			if ( ! in_array( 'pending_activation', $userdata->roles, true ) ) {
+				// Do not change email address for active users, approve it first.
+				$user->user_email = $userdata->user_email;
+			}
+			$user_id = wp_update_user( $user );
+			// Reload user from DB to make sure all data is up to date.
+			$tuser = get_user_by( 'id', $user_id );
+			$tuser->change_email( new Email_Address( $user->user_email ) );
+		} else {
+			$user_id = wp_update_user( $user );
+		}
 	} else {
 		$user_id = wp_insert_user( $user );
 		$notify  = 'both';

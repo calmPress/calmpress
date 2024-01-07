@@ -22,7 +22,7 @@ class User_Activation_Verification_Email {
 	use Email_To_User;
 
 	/**
-	 * Create an Email_Address_Change_Notification_Email object based on the $user to
+	 * Create an User_Activation_Verification_Email object based on the $user to
 	 * which the message is being send and the new email address.
 	 *
 	 * @since 1.0.0

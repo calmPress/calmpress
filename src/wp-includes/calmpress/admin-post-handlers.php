@@ -40,4 +40,12 @@ function add_handlers(): void {
 
 	// Backup delete "GET" (link) action.
 	add_action( 'admin_post_bulk_backup', '\calmpress\backup\Utils::handle_bulk_backup' );
+
+	// Approve new email "GET" (link) action.
+	add_action( 'admin_post_nopriv_newuseremail', '\calmpress\User\User_Email_Change::approve_new_email' );
+	add_action( 'admin_post_newuseremail', '\calmpress\User\User_Email_Change::approve_new_email' );
+
+	// Undo new email "GET" (link) action.
+	add_action( 'admin_post_nopriv_undouseremail', '\calmpress\User\User_Email_Change::undo_new_email' );
+	add_action( 'admin_post_undouseremail', '\calmpress\User\User_Email_Change::undo_new_email' );
 }

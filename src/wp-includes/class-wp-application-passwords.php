@@ -192,12 +192,7 @@ class WP_Application_Passwords {
 	 * @return string The user's application login string.
 	 */
 	public static function get_user_application_login( $user_id ) {
-		$key   = substr( AUTH_KEY, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
-		$nonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
-
-		$login = sodium_crypto_secretbox( (string) $user_id, $nonce, $key );
-
-		return base64_encode( $login );
+		return \calmpress\utils\encrypt_int_to_base64( $user_id, 0 );
 	}
 
 	/**
@@ -209,19 +204,13 @@ class WP_Application_Passwords {
 	 *
 	 * @return int The user id which was encrypted or 0 if decryption failed.
 	 */
-	public static function get_user_from_login( $login ) {
-		$login = base64_decode( $login );
-
-		$key   = substr( AUTH_KEY, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
-		$nonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
-
-		$id = sodium_crypto_secretbox_open( $login, $nonce, $key );
-
-		if ( false === $id || ! filter_var( $id, FILTER_VALIDATE_INT) ) {
+	public static function get_user_from_login( $login ): int {
+		try {
+			$result = \calmpress\utils\decrypt_int_from_base64( $login, 0 );
+			return $result->value;
+		} catch ( Exception $e ) {
 			return 0;
 		}
-
-		return (int) $id;
 	}
 
 	/**

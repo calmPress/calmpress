@@ -237,7 +237,7 @@ switch ( $wp_list_table->current_action() ) {
 
 			// Send the password reset link.
 			$user = get_userdata( $id );
-			if ( retrieve_password( $user->user_login ) ) {
+			if ( retrieve_password( $user->user_email ) ) {
 				++$reset_count;
 			}
 		}
@@ -465,11 +465,11 @@ switch ( $wp_list_table->current_action() ) {
 			$id   = (int) $id;
 			$user = get_userdata( $id );
 			if ( ! current_user_can( 'remove_user', $id ) ) {
-				/* translators: 1: User ID, 2: User login. */
-				echo '<li>' . sprintf( __( 'ID #%1$s: %2$s <strong>Sorry, you are not allowed to remove this user.</strong>' ), $id, $user->user_login ) . "</li>\n";
+				/* translators: 1: User ID, 2: User email. */
+				echo '<li>' . sprintf( __( 'ID #%1$s: %2$s <strong>Sorry, you are not allowed to remove this user.</strong>' ), $id, $user->user_email ) . "</li>\n";
 			} else {
-				/* translators: 1: User ID, 2: User login. */
-				echo "<li><input type=\"hidden\" name=\"users[]\" value=\"{$id}\" />" . sprintf( __( 'ID #%1$s: %2$s' ), $id, $user->user_login ) . "</li>\n";
+				/* translators: 1: User ID, 2: User email. */
+				echo "<li><input type=\"hidden\" name=\"users[]\" value=\"{$id}\" />" . sprintf( __( 'ID #%1$s: %2$s' ), $id, $user->user_email ) . "</li>\n";
 				$go_remove = true;
 			}
 		}

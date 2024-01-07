@@ -8,20 +8,18 @@
 
 declare(strict_types=1);
 
-use calmpress\email\Email;
 use calmpress\email\Email_Address;
-use calmpress\email\Email_Address_Change_Notification_Email_Mutator;
-use calmpress\email\Email_Address_Change_Notification_Email;
-use calmpress\email\Email_Mutator;
+use calmpress\email\User_Email_Change_Verification_Email_Mutator;
+use calmpress\email\User_Email_Change_Verification_Email;
 use calmpress\observer\Observer;
 use calmpress\observer\Observer_Priority;
 
 require_once __DIR__ . '/../../../includes/dummy-phpmailer.php';
 
 /**
- * An implementation of an Email_Address_Change_Notification_Email_Mutator interface to use in testing.
+ * An implementation of an User_Email_Change_Verification_Email_Mutator interface to use in testing.
  */
-class Mock_Notification_Observer implements Email_Address_Change_Notification_Email_Mutator {
+class Mock_Notification_Observer implements User_Email_Change_Verification_Email_Mutator {
 
 	public string $value;
 
@@ -33,12 +31,12 @@ class Mock_Notification_Observer implements Email_Address_Change_Notification_Em
 		return Observer_Priority::NONE;
 	}
 
-	public function mutate_by_ref( Email_Address_Change_Notification_Email &$email ):void {
+	public function mutate_by_ref( User_Email_Change_Verification_Email &$email ):void {
 		$email->email->set_subject( $this->value );
 	}
 }
 
-class Email_Address_Change_Notification_Email_Test extends WP_UnitTestCase {
+class User_Email_Change_Verification_Email_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that the constructor set the properties
@@ -48,18 +46,14 @@ class Email_Address_Change_Notification_Email_Test extends WP_UnitTestCase {
 	public function test_constructor() {
 		$user_id = $this->factory->user->create();
 		$user = get_user_by( 'id', $user_id );
+		$user->change_email( new Email_Address( 'new@example.com') );
 
-		$email = new Email_Address_Change_Notification_Email(
-			$user,
-			new Email_Address( 'old@example.com' ),
-			new Email_Address( 'new@example.com' ),
-			'http://example.com/revert'
-		);
+		$email = new User_Email_Change_Verification_Email( $user );
 
 		$this->assertSame( $user, $email->user );
-		$this->assertSame( 'old@example.com', $email->original_email->address );
-		$this->assertSame( 'new@example.com', $email->new_email->address );
-		$this->assertSame( 'http://example.com/revert', $email->revert_url );
+		$to = $email->email->to_addresses();
+		$this->assertSame( 1, count( $to ) );
+		$this->assertSame( 'new@example.com', $to[0]->address );
 	}
 
 	/**
@@ -73,8 +67,9 @@ class Email_Address_Change_Notification_Email_Test extends WP_UnitTestCase {
 
 		$user_id = $this->factory->user->create();
 		$user = get_user_by( 'id', $user_id );
+		$user->change_email( new Email_Address( 'new@example.com') );
 
-		$email = new Email_Address_Change_Notification_Email(
+		$email = new User_Email_Change_Verification_Email(
 			$user,
 			new Email_Address( 'old@example.com' ),
 			new Email_Address( 'new@example.com' ),
@@ -86,13 +81,7 @@ class Email_Address_Change_Notification_Email_Test extends WP_UnitTestCase {
 		// Test mail is sent to the old address
 		$tos = $phpmailer->getToAddresses();
 		$this->assertSame( 1, count( $tos ) );
-		$this->assertSame( 'old@example.com', $tos[0][0] );
-
-		// Test reply-to set to admin email.
-		// Test mail is sent to the old address
-		$rt = $phpmailer->getReplyToAddresses();
-		$this->assertSame( 1, count( $rt ) );
-		$this->assertSame( get_option( 'admin_email' ), $rt[get_option( 'admin_email' )][0] );
+		$this->assertSame( 'new@example.com', $tos[0][0] );
 
 		unset( $phpmailer );
 	}
@@ -106,17 +95,13 @@ class Email_Address_Change_Notification_Email_Test extends WP_UnitTestCase {
 
 		$user_id = $this->factory->user->create();
 		$user = get_user_by( 'id', $user_id );
+		$user->change_email( new Email_Address( 'new@example.com') );
 	
-		$email = new Email_Address_Change_Notification_Email(
-			$user,
-			new Email_Address( 'old@example.com' ),
-			new Email_Address( 'new@example.com' ),
-			'http://example.com/revert'
-		);
+		$email = new User_Email_Change_Verification_Email( $user );
 
 		// Test the specific notification mutators.
 		$mutate_notification = new Mock_Notification_Observer( 'tasti' );
-		Email_Address_Change_Notification_Email::register_mutator( $mutate_notification );
+		User_Email_Change_Verification_Email::register_mutator( $mutate_notification );
 		$email->send();
 		$this->assertSame( 'tasti', $phpmailer->Subject );
 

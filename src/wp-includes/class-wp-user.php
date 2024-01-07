@@ -7,6 +7,8 @@
  * @since 4.4.0
  */
 
+use calmpress\email\Email_Address;
+
 /**
  * Core class used to implement the WP_User object.
  *
@@ -875,8 +877,8 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 *
 	 * @return Email_Address The user's email address.
 	 */
-	public function email_address(): calmpress\email\Email_Address {
-		return new calmpress\email\Email_Address( $this->user_email, $this->display_name );
+	public function email_address(): Email_Address {
+		return new Email_Address( $this->user_email, $this->display_name );
 	}
 
 	/**
@@ -892,6 +894,36 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	public function activation_url() : string {
 		$key = get_password_reset_key( $this );
 		return network_site_url( "wp-login.php?action=rp&key=$key&email=" . rawurlencode( $this->user_email ) );
+	}
+
+	/**
+	 * The URL to be used to approve new user's email after email address change.
+	 * 
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string the URL, unescaped.
+	 */
+	public function email_change_verification_url(): string {
+		$expiry = time() + 7 * DAY_IN_SECONDS;
+		return 
+			get_admin_url() . 
+			'admin_post.php?action=newuseremail&id=' .
+			\calmpress\utils\encrypt_int_to_base64( $this->ID, $expiry );
+	}
+
+	/**
+	 * The URL to be used to undo new user's email after email address change.
+	 * 
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string the URL, unescaped.
+	 */
+	public function email_change_undo_url(): string {
+		$expiry = time() + 7 * DAY_IN_SECONDS;
+		return 
+			get_admin_url() .
+			'admin_post.php?action=undouseremail&id=' .
+			\calmpress\utils\encrypt_int_to_base64( $this->ID, $expiry );
 	}
 
 	/**
@@ -920,159 +952,212 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * Generate a "one time" string that can represent the user's ID while different
-	 * invocations might generate different strings.
-	 *
-	 * decrypted_id should be used to decrypt strings that were generated with
-	 * this function and get the encrypted id.
-	 *
-	 * @since calmPress 1.0.0
-	 */
-	public function encrypted_id(): string {
-
-		return self::encrypt( (int) $this->ID );
-	}
-
-	/**
-	 * Generate a "one time" string that can represent a value where the representation
-	 * can change over time.
-	 *
-	 * decrypt should be used to decrypt strings that were generated with
-	 * this function and get the encrypted value.
-	 *
-	 * @since calmPress 1.0.0
-	 */
-	private static function encrypt( int $value  ): string {
-
-		$key   = substr( AUTH_KEY, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
-		$nonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
-
-		return base64_encode( sodium_crypto_secretbox( $value . '|' . rand(), $nonce, $key ) );
-	}
-
-	/**
-	 * Decrypt a string generated with encrypt and extract the value encoded in
-	 * it.
-	 *
-	 * @since calmPress 1.0.0
-	 * 
-	 * @param string $encrypted_value The string which to decrypt.
-	 *
-	 * @return int The encrypted id or 0 if decryption failed.
-	 */
-	private static function decrypt( string $encrypted_value ): int {
-		$raw_encrypted = base64_decode( $encrypted_value );
-
-		$key   = substr( AUTH_KEY, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
-		$nonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
-
-		$id = sodium_crypto_secretbox_open( $raw_encrypted, $nonce, $key );
-
-		if ( false === $id ) {
-			return 0;
-		}
-
-		// String was decrypted but format is wrong.
-		$parts = explode( '|', $id );
-		if ( count( $parts ) != 2 ) {
-			return 0;
-		}
-
-		// String is valid format but first part is not an int.
-		if ( ! filter_var( $parts[0], FILTER_VALIDATE_INT) ) {
-			return 0;
-		}
-
-		return (int) $parts[0];
-	}
-
-	/**
 	 * Try to create a user out of the id encrypted in a string which is supposed
-	 * to be encrypted by encrypted_id.
+	 * to be encrypted by encrypt_int_to_base64 and verify the value had not expired.
 	 *
 	 * @since calmPress 1.0.0
 	 *
 	 * @param string $encrypted_value The value to decrypt.
 	 *
 	 * @return ?WP_User The user if the string could be decrypted to extract an id
-	 *                  of an existing user, otherwise null.
+	 *                  of an existing user. null return if no such user or value
+	 *                  expired.
 	 */
-	public static function user_from_encrypted_string( string $encrypted_value ): ?WP_User {
-		$user_id = self::decrypt( $encrypted_value );
-		if ( $user_id === 0 ) {
-			return null;
+	public static function user_from_encrypted_string( $encrypted_value	): ?WP_User {
+		try {
+			$decrypt_result = \calmpress\utils\decrypt_int_from_base64( $encrypted_value );
+			$user_id        = $decrypt_result->value;
+			$nonce          = $decrypt_result->nonce;
+			if ( time() < $nonce ) {
+				$user = get_user_by( 'id', $user_id );
+				if ( $user !== false ) {
+					return $user;
+				}
+			}
+		} catch ( Exception $e ) {
+			;
 		}
 
-		return get_user_by( 'id', $user_id );
+		return null;
 	}
 
 	/**
-	 * Send emails notifying the user about the attempted change prompting
-	 * him to approve the new email address and letting him undo the change.
+	 * Initiate the process of changing the user's email.
+	 * 
+	 * For an inactive user send an activation email to the new address (which
+	 * is assumed to be already set in the DB).
+	 * 
+	 * For an active user send confirmation email to the new email address and
+	 * an "undo" instructions to the current email address.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * @param string $new_email The email address to which the user's email 
-	 *                          address is supposed to change to.
+	 * @param Email_Address $email_address The email address to change to.
+	 *
+	 * @throws RuntimeException If a change to a different email address is in
+	 *                          progress.
 	 */
-	public function change_email_notifications( string $new_email ) : void {
-		$email_change_text = __(
-			'Hi ###DISPLAY_NAME###,
+	public function change_email( Email_Address $email_address ): void {
+		if ( in_array( 'pending_activation', $this->roles, true ) ) {
+			$email = new calmpress\email\User_Activation_Verification_Email( $this );
+			$email->send();
+		} else {
+			// Can not change to another email while change is in progress,
+			// but permit call with the same email address as a virtual noop
+			$change_inprogress_email = false;
+			try {
+				$change_inprogress_email = $this->changed_email_into()->address;
+			} catch ( \RuntimeException $e ) {
+				;
+			}
+			if ( $change_inprogress_email && ( $change_inprogress_email !== $email_address->address ) ) {
+				throw new \RuntimeException( 'Email change already in progress for the user' );
+			}
 
-This notice confirms that your email address on ###SITENAME### was changed to ###NEW_EMAIL###.
+			update_user_meta( $this->ID, 'change_email_expiry', time() + 7*DAY_IN_SECONDS );
+			update_user_meta( $this->ID, 'new_email', $email_address->address );
+			update_user_meta( $this->ID, 'original_email', $this->user_email );
+			$email = new calmpress\email\User_Email_Change_Verification_Email( $this );
+			$email->send();
+			$email = new calmpress\email\User_Email_Change_Undo_Email( $this );
+			$email->send();
+		}
+	}
 
-If you did not change your email, please contact the Site Administrator at
-###ADMIN_EMAIL###
+	/**
+	 * Approve the new email of the email change if did not expire.
+	 *
+	 * @since calmPress 1.0.0
+	 * 
+	 * @throws RuntimeException If the was nothing to approve. This can be cause
+	 *                          by double approval, or attempt to approve after undo.
+	 */
+	public function approve_new_email(): void {
+		$new_email = $this->changed_email_into()->address;
 
-This email has been sent to ###EMAIL###
-
-Regards,
-All at ###SITENAME###
-###SITEURL###'
+		// clear DB. Do not delete expiry and undo email meta as the undo
+		// can be done after new email was approved.
+		delete_user_meta( $this->ID, 'new_email' );
+	
+		// All good, update the user's email.
+		wp_update_user(
+			[
+				'ID'         => $this->ID,
+				'user_email' => $new_email,
+			]
 		);
+	}
 
-		$email_change_email = array(
-			'to'      => $user['user_email'],
-			/* translators: Email change notification email subject. %s: Site title. */
-			'subject' => __( '[%s] Email Changed' ),
-			'message' => $email_change_text,
-			'headers' => '',
+	/**
+	 * Approve the new email of the email change if did not expire.
+	 *
+	 * @since calmPress 1.0.0
+	 * 
+	 * @throws RuntimeException if there was no email to undo to.
+	 */
+	public function undo_change_email(): void {
+		$old_email = $this->changed_email_from()->address;
+
+		// clear DB.
+		$this->remove_email_change_meta();
+
+		// All good, update the user's email.
+		wp_update_user(
+			[
+				'ID'         => $this->ID,
+				'user_email' => $old_email,
+			]
 		);
+	}
 
-		/**
-		 * Filters the contents of the email sent when the user's email is changed.
-		 *
-		 * @since 4.3.0
-		 *
-		 * @param array $email_change_email {
-		 *     Used to build wp_mail().
-		 *
-		 *     @type string $to      The intended recipients.
-		 *     @type string $subject The subject of the email.
-		 *     @type string $message The content of the email.
-		 *         The following strings have a special meaning and will get replaced dynamically:
-		 *         - ###DISPLAY_NAME### The current user's username.
-		 *         - ###USERNAME###     The current user's username.
-		 *         - ###ADMIN_EMAIL###  The admin email in case this was unexpected.
-		 *         - ###NEW_EMAIL###    The new email address.
-		 *         - ###EMAIL###        The old email address.
-		 *         - ###SITENAME###     The name of the site.
-		 *         - ###SITEURL###      The URL to the site.
-		 *     @type string $headers Headers.
-		 * }
-		 * @param array $user     The original user array.
-		 * @param array $userdata The updated user array.
-		 */
-		$email_change_email = apply_filters( 'email_change_email', $email_change_email, $user, $userdata );
+	/**
+	 * Helper function to clean all meta related to email change process.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	private function remove_email_change_meta(): void {
+		delete_user_meta( $this->ID, 'new_email' );
+		delete_user_meta( $this->ID, 'original_email' );
+		delete_user_meta( $this->ID, 'change_email_expiry' );
+	}
 
-		$email_change_email['message'] = str_replace( '###DISPLAY_NAME###', $user['display_name'], $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###USERNAME###', $user['user_login'], $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###ADMIN_EMAIL###', get_option( 'admin_email' ), $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###NEW_EMAIL###', $userdata['user_email'], $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###EMAIL###', $user['user_email'], $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###SITENAME###', $blog_name, $email_change_email['message'] );
-		$email_change_email['message'] = str_replace( '###SITEURL###', home_url(), $email_change_email['message'] );
+	/**
+	 * Helper function to check if the time to complete the email change had expired.
+	 *
+	 * If time had expired clean the DB.
+	 *
+	 * @return bool True if time had expired, false otherwise.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	private function email_change_expired():bool {
+		$expiry = get_user_meta( $this->ID, 'change_email_expiry', true );
 
-		wp_mail( $email_change_email['to'], sprintf( $email_change_email['subject'], $blog_name ), $email_change_email['message'], $email_change_email['headers'] );
+		// If meta do not exist.
+		if ( ! $expiry ) {
+			return true;
+		}
+
+		// If garbage or expired.
+		$expiry = filter_var( $expiry, FILTER_VALIDATE_INT );
+		if ( $expiry === false || $expiry < time() ) {
+			$this->remove_email_change_meta();
+			return true;
+		}
+
+		return false;		
+	}
+
+	/**
+	 * Helper function to generate email address based on meta value for email change
+	 * process.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $key       The meta key for the meta that should contain the email
+	 *                          address.
+	 * @param string $error_msg The message to use in the exception if its thrown.
+	 *
+	 * @return Email_Address The email address.
+	 *
+	 * @throws RuntimeException If there is no adress stored at the meta, its invalid
+	 *                          or the time to complete the change had expired.
+	 */
+	private function email_from_meta( string $key, string $error_msg ) : Email_Address {
+		$email = false;
+
+		if ( ! $this->email_change_expired() ) {
+			$email = get_user_meta( $this->ID, $key, true);
+		}
+
+		if ( ! $email ) {
+			throw new RuntimeException( $error_msg );
+		}
+		return new Email_Address( $email, $this->display_name );
+	}
+
+	/**
+	 * The email into which the user's email should be changed to.
+	 *
+	 * @return Email_Address The email address.
+	 *
+	 * @throws RuntimeException If there is no known address to change to, or time for
+	 *                          approving the change had expired.
+	 */
+	public function changed_email_into() : Email_Address {
+		return $this->email_from_meta( 'new_email', 'There is no configure email to change to, or change expired' );
+	}
+
+	/**
+	 * The email from which the user's email is changed.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return Email_Address The email address.
+	 *
+	 * @throws RuntimeException If there is no known address, or undo time expired.
+	 */
+	public function changed_email_from() : Email_Address {
+		return $this->email_from_meta( 'original_email', 'There is no configured email to change from or undo posibility expired' );
 	}
 }
