@@ -201,6 +201,41 @@ class WP_User_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * test email_change_in_progress
+	 */
+	public function test_email_change_in_progress() {
+		$user_id = $this->factory->user->create();
+		$user    = get_user_by( 'id', $user_id );
+
+		// For pending users always true.
+		$user->set_role( 'pending_activation' );
+		$this->assertFalse( $user->email_change_in_progress() );
+
+		$user->set_role( 'subscriber' );
+		$user->user_email = 'old@example.com';
+
+		// No change in progress.
+		$this->assertFalse( $user->email_change_in_progress() );
+
+		// Now under change.
+		$verification_mutator = new Mock_Verifiction_Mutator();
+		calmpress\email\User_Email_Change_Verification_Email::register_mutator( $verification_mutator );
+		$undo_mutator = new Mock_Undo_Mutator();
+		calmpress\email\User_Email_Change_Undo_Email::register_mutator( $undo_mutator );
+
+		$user->change_email( new Email_address( 'new@example.com' ) );
+		$this->assertTrue( $user->email_change_in_progress() );
+
+		// Under change while it is possible to undo.
+		$user->approve_new_email();
+		$this->assertTrue( $user->email_change_in_progress() );
+
+		// Cleanup of global state.
+		calmpress\email\User_Email_Change_Verification_Email::remove_all_mutation_observers();
+		calmpress\email\User_Email_Change_Undo_Email::remove_all_mutation_observers();
+	}
+
+	/**
 	 * test change_email
 	 */
 	function test_change_email() {
@@ -253,6 +288,32 @@ class WP_User_Test extends WP_UnitTestCase {
 
 		// ... but not when same email is used.
 		$user->change_email( new Email_address( 'new@example.com' ) );
+
+		// Cleanup of global state.
+		calmpress\email\User_Email_Change_Verification_Email::remove_all_mutation_observers();
+		calmpress\email\User_Email_Change_Undo_Email::remove_all_mutation_observers();
+	}
+
+	/**
+	 * test cancel_email_change
+	 */
+	public function test_cancel_email_change() {
+		$user_id = $this->factory->user->create();
+		$user    = get_user_by( 'id', $user_id );
+
+		$user->user_email = 'original@a.com';
+		$user->change_email( new Email_address( 'change@example.com' ) );
+		$user->cancel_email_change();
+
+		// Expect exception to be thrown as the state is no change.
+		$thrown = true;
+		try {
+			$user->changed_email_into();
+			$thrown = false;
+		} catch ( \RuntimeException $e ) {
+			;
+		}
+		$this->assertTrue( $thrown );
 	}
 
 	/**

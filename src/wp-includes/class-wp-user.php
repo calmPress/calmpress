@@ -907,7 +907,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		$expiry = time() + 7 * DAY_IN_SECONDS;
 		return 
 			get_admin_url() . 
-			'admin_post.php?action=newuseremail&id=' .
+			'admin-post.php?action=newuseremail&id=' .
 			\calmpress\utils\encrypt_int_to_base64( $this->ID, $expiry );
 	}
 
@@ -922,7 +922,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		$expiry = time() + 7 * DAY_IN_SECONDS;
 		return 
 			get_admin_url() .
-			'admin_post.php?action=undouseremail&id=' .
+			'admin-post.php?action=undouseremail&id=' .
 			\calmpress\utils\encrypt_int_to_base64( $this->ID, $expiry );
 	}
 
@@ -979,6 +979,31 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Indicate if email change is in progress for an activated user.
+	 * Change is in progress while the user can undo the change.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return bool true If user is activated and in process of changing it email, false
+	 *              otherwise.
+	 */
+	public function email_change_in_progress(): bool {
+		if ( in_array( 'pending_activation', $this->roles, true ) ) {
+			return false;
+		} else {
+			$change_inprogress = false;
+			try {
+				// Exception is thrown when there is no change in progress.
+				$dummy     = $this->changed_email_from();
+				$change_inprogress = true;
+			} catch ( \RuntimeException $e ) {
+				;
+			}
+			return $change_inprogress;
+		}
 	}
 
 	/**
@@ -1049,7 +1074,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * Approve the new email of the email change if did not expire.
+	 * Undo the new email change if did not expire.
 	 *
 	 * @since calmPress 1.0.0
 	 * 
@@ -1082,11 +1107,20 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * Cancel the email change state.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function cancel_email_change(): void {
+		$this->remove_email_change_meta();
+	}
+
+	/**
 	 * Helper function to check if the time to complete the email change had expired.
 	 *
-	 * If time had expired clean the DB.
+	 * If time had expired, clean the DB.
 	 *
-	 * @return bool True if time had expired, false otherwise.
+	 * @return bool True if time had expired or no change is active, false otherwise.
 	 *
 	 * @since calmPress 1.0.0
 	 */
@@ -1145,7 +1179,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 *                          approving the change had expired.
 	 */
 	public function changed_email_into() : Email_Address {
-		return $this->email_from_meta( 'new_email', 'There is no configure email to change to, or change expired' );
+		return $this->email_from_meta( 'new_email', 'There is no configured email to change to, or change expired' );
 	}
 
 	/**

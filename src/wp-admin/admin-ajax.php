@@ -129,6 +129,7 @@ $core_actions_post = array(
 	'health-check-site-status-result',
 	'send-password-reset',
 	'resend-activation',
+	'undo-email-change',
 );
 
 // Deprecated.

@@ -19,7 +19,7 @@ namespace calmpress\email;
  */
 class User_Email_Change_Verification_Email {
 
-	use Email_To_user;
+	use Email_To_User;
 
 	/**
 	 * Create an User_Email_Change_Verification_Email object based on the $user to

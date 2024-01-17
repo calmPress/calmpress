@@ -17,7 +17,7 @@ use calmpress\email\Abort_Send_Exception;
 
 require_once __DIR__ . '/../../../includes/dummy-phpmailer.php';
 
-class Mock_Email_To_user {
+class Mock_Email_To_User {
 	use Email_To_User;
 
 	public function __construct( \WP_User $user ) {
@@ -56,7 +56,7 @@ class Mock_Mutatot_With_Abort_Send extends Mock_Email_To_User_Mutator {
 	}
 }
 
-class Email_To_user_Test extends WP_UnitTestCase {
+class Email_To_User_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test the send method
@@ -71,7 +71,7 @@ class Email_To_user_Test extends WP_UnitTestCase {
 		$user = get_user_by( 'id', $user_id );
 		$user->user_email = 'test@example.com';
 
-		$email = new Mock_Email_To_user( $user );
+		$email = new Mock_Email_To_User( $user );
 
 		$email->send();
 
@@ -81,14 +81,14 @@ class Email_To_user_Test extends WP_UnitTestCase {
 		$this->assertSame( 'test@example.com', $tos[0][0] );
 
 		// Test mutators activated.
-		Mock_Email_To_user::register_observer( new Mock_Email_To_User_Mutator( 'test subject' ) );
+		Mock_Email_To_User::register_observer( new Mock_Email_To_User_Mutator( 'test subject' ) );
 		$email->send();
 
 		$this->assertSame( 'test subject', $phpmailer->Subject );
 
 		// Test raising an abort exception prevent send of the mail.
 		$phpmailer = new dummy_PHPMailer();
-		Mock_Email_To_user::register_observer( new Mock_Mutatot_With_Abort_Send( 'exception' ) );
+		Mock_Email_To_User::register_observer( new Mock_Mutatot_With_Abort_Send( 'exception' ) );
 		$email->send();
 		// Empty string indicates that send was not completed.
 		$this->assertSame( '', $phpmailer->Subject );

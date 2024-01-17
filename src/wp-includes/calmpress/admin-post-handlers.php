@@ -41,11 +41,68 @@ function add_handlers(): void {
 	// Backup delete "GET" (link) action.
 	add_action( 'admin_post_bulk_backup', '\calmpress\backup\Utils::handle_bulk_backup' );
 
-	// Approve new email "GET" (link) action.
-	add_action( 'admin_post_nopriv_newuseremail', '\calmpress\User\User_Email_Change::approve_new_email' );
-	add_action( 'admin_post_newuseremail', '\calmpress\User\User_Email_Change::approve_new_email' );
+	/**
+	 * Get the user from an email change approval or undo requests.
+	 *
+	 * Issue 403 if URL is malformed or user can not be found.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return WP_User The user if found.
+	 */
+	function get_user_from_change_email_url(): \WP_User {
+		if ( ! isset( $_GET['id'] ) ) {
+			die( 403 );
+		}
 
-	// Undo new email "GET" (link) action.
-	add_action( 'admin_post_nopriv_undouseremail', '\calmpress\User\User_Email_Change::undo_new_email' );
-	add_action( 'admin_post_undouseremail', '\calmpress\User\User_Email_Change::undo_new_email' );
+		$id   = $_GET['id'];
+		$user = \WP_User::user_from_encrypted_string( $id );
+		if ( $user === null ) {
+			die( 403 );
+		}
+
+		return $user;
+	}
+
+	/**
+	 * Handle the request for approving a changed email.
+	 * 
+	 * @since 1.0.0
+	 */
+	function handle_approve_change_email() {
+		$user = get_user_from_change_email_url();
+
+		try {
+			$user->approve_new_email();
+			wp_redirect( admin_url( 'profile.php' ) );
+			die();
+		} catch ( \RuntimeException $e ) {
+			wp_die( __( 'Approval failed, link might have expired' ) );
+		}
+	}
+
+	// Approve changed email "GET" (link) action.
+	add_action( 'admin_post_nopriv_newuseremail', __NAMESPACE__ . '\handle_approve_change_email' );
+	add_action( 'admin_post_newuseremail',  __NAMESPACE__ . '\handle_approve_change_email' );
+
+	/**
+	 * Handle the request for undoing a changed email.
+	 * 
+	 * @since 1.0.0
+	 */
+	function handle_undo_change_email() {
+		$user = get_user_from_change_email_url();
+
+		try {
+			$user->undo_change_email();
+			wp_redirect( admin_url( 'profile.php' ) );
+			die();
+		} catch ( \RuntimeException $e ) {
+			wp_die( __( 'Undo failed, link might have expired' ) );
+		}
+	}
+
+	// Undo changed email "GET" (link) action.
+	add_action( 'admin_post_nopriv_undouseremail', __NAMESPACE__ . '\handle_undo_change_email' );
+	add_action( 'admin_post_undouseremail', __NAMESPACE__ . '\handle_undo_change_email' );
 }

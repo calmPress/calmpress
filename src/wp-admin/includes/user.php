@@ -226,6 +226,11 @@ function edit_user( $user_id = 0 ) {
 		$errors->add( 'invalid_username', __( '<strong>ERROR</strong>: Sorry, that username is not allowed.' ) );
 	}
 
+	// Check if user email is being changed while an email change already in progress.
+	if ( $update && ( $user->user_email !== $userdata->user_email ) && $userdata->email_change_in_progress() ) {
+		$errors->add( 'user_email_change_in_progress', __( '<strong>ERROR</strong>: Sorry, there is an active email change request and it needs to be canceled or expired before attempting another change.' ) );
+	}
+
 	/**
 	 * Fires before user profile update errors are returned.
 	 *
@@ -242,6 +247,7 @@ function edit_user( $user_id = 0 ) {
 	}
 
 	if ( $update ) {
+		$new_email = $user->user_email;
 		if ( $user->user_email !== $userdata->user_email ) {
 			if ( ! in_array( 'pending_activation', $userdata->roles, true ) ) {
 				// Do not change email address for active users, approve it first.
@@ -250,7 +256,7 @@ function edit_user( $user_id = 0 ) {
 			$user_id = wp_update_user( $user );
 			// Reload user from DB to make sure all data is up to date.
 			$tuser = get_user_by( 'id', $user_id );
-			$tuser->change_email( new Email_Address( $user->user_email ) );
+			$tuser->change_email( new Email_Address( $new_email ) );
 		} else {
 			$user_id = wp_update_user( $user );
 		}

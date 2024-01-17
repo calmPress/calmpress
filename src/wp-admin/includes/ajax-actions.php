@@ -4661,7 +4661,7 @@ function wp_ajax_send_password_reset() {
  */
 function wp_ajax_resend_activation() {
 
-	// Validate the nonce for this action.
+	// Validate the user for this action.
 	$user_id = isset( $_POST['user_id'] ) ? (int) $_POST['user_id'] : 0;
 
 	// Reuse the password reset nonce.
@@ -4684,5 +4684,40 @@ function wp_ajax_resend_activation() {
 			/* translators: %s: User's email address. */
 			sprintf( __( 'An activation email was sent to %s.' ), $user->user_email )
 		);
+	}
+}
+
+/**
+ * Ajax handler undo user's email change.
+ *
+ * @since calmPress 1.0.0
+ */
+function wp_ajax_undo_email_change() {
+
+	// Validate the user for this action.
+	$user_id = isset( $_POST['user_id'] ) ? (int) $_POST['user_id'] : 0;
+
+	// Reuse the password reset nonce.
+	check_ajax_referer( 'reset-password-for-' . $user_id, 'nonce' );
+
+	// Verify user capabilities.
+	if ( ! current_user_can( 'edit_user', $user_id ) ) {
+		wp_send_json_error( __( 'Cannot undo email change, permission denied.' ) );
+	}
+
+	// Undo email change.
+	$user = get_user_by( 'id', $user_id );
+	if ( $user === null ) {
+		// Send error if user could not be found.
+		wp_send_json_error( __( 'User not found' ) );
+	} else {
+		try {
+			$email_to_restore = $user->changed_email_from()->address;
+			$user->undo_change_email();
+			wp_send_json_success( $email_to_restore );
+		} catch ( \RuntimeException $e ) {
+			// Change had probably expired.
+			wp_send_json_error( __( 'There was nothing to cancel' ) );
+		}
 	}
 }

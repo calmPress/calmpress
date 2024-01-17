@@ -232,15 +232,19 @@ switch ( $action ) {
 <h2><?php _e( 'Account Management' ); ?></h2>
 <table class="form-table" role="presentation">
 	<tr class="user-email-wrap">
-		<th><label for="email"><?php _e( 'Email' ); ?> <span class="description"><?php _e( '(required)' ); ?></span></label></th>
-		<td><input type="email" name="email" id="email" aria-describedby="email-description" value="<?php echo esc_attr( $profileuser->user_email ); ?>" class="regular-text ltr" />
 		<?php
+			$email_readonly = $profileuser->email_change_in_progress() ? 'readonly="readonly"' : '';
+		?>
+		<th><label for="email"><?php _e( 'Email' ); ?> <span class="description"><?php _e( '(required)' ); ?></span></label></th>
+		<td><input type="email" name="email" id="email" aria-describedby="email-description" <?php echo $email_readonly;?> value="<?php echo esc_attr( $profileuser->user_email ); ?>" class="regular-text ltr" />
+		<?php
+			$hide_description = false;
 			// If user is not active yet, indicate it.
 			if ( in_array( 'pending_activation', $profileuser->roles, true ) ) {
 				?>
 				<div class="notice inline">
 					<p>
-						<?php esc_html_e( 'Was not activated yet. If the email is changed, an activation email will be sent to the new address' ); ?>
+						<?php esc_html_e( 'Was not verified yet. If the email is changed, an activation email will be sent to the new address' ); ?>
 					</p>
 				</div>
 				<div>
@@ -249,13 +253,44 @@ switch ( $action ) {
 					</button>
 				</div>
 				<?php
-			} else {
+			} elseif ( $profileuser->email_change_in_progress() ) {
+				$hide_description = true;
 				?>
-				<p class="description">
-					<?php _e( 'If you change this, we will send an email to the new address to confirm the email. The new address will not become active until confirmed. An email will be sent to the old address with instructions how to undo the change.' ); ?>
-				</p>
+				<div class="notice inline">
+					<p>
+						<?php
+							try {
+								// will throw if new email was already approved.
+								$new_email = $profileuser->changed_email_into()->address;
+								/* translators: %s: The email address being changed to. */
+								printf(
+									esc_html__( 'The email address is being changed and the new address of %s was not verified yet.' ),
+									'<code>' . esc_html( $new_email ) . '</code>'
+								);
+							} catch ( \RuntimeException $e ) {
+								// new email was set but undo still possible.
+								/* translators: %s: The email address to which the undo link was sent. */
+								printf(
+									esc_html__( 'The email address was changed, but the owner of the %s email address can undo the change.' ),
+									'<code>' . esc_html( $profileuser->changed_email_from()->address ) . '</code>'
+								);
+							}
+						?>
+					</p>
+					<p>
+						<button type="button" class="button button-secondary" id="cancel-email-change">
+							<?php esc_html_e( 'Cancle email change' ); ?>
+						</button>
+					</p>
+				</div>
 				<?php
 			}
+			?>
+			<p class="description" <?php if ($hide_description) echo 'style="display:none"';?>>
+				<?php _e( 'If you change the email address, we will send an email to the new address to confirm the email. The new address will not become active until confirmed. An email will be sent to the old address with instructions how to undo the change.' ); ?>
+			</p>
+			<?php
+			
 		?>
 		</td>
 	</tr>

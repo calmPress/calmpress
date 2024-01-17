@@ -12,7 +12,9 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		self::$author_id = $factory->user->create( array( 'role' => 'administrator' ) );
-		self::$user_id   = $factory->user->create();
+		self::$user_id   = $factory->user->create(
+			[ 'user_email' => 'user@example.com' ]
+		);
 	}
 
 	public function set_up() {
@@ -84,7 +86,7 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 		$_GET                  = array();
 		$_REQUEST              = array();
 		$_POST['role']         = 'subscriber';
-		$_POST['email']        = 'user1@example.com';
+		$_POST['email']        = 'user@example.com';
 		$_POST['display_name'] = $this->slash_7;
 		$_POST['description']  = $this->slash_3;
 
@@ -100,7 +102,7 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 		$_GET                  = array();
 		$_REQUEST              = array();
 		$_POST['role']         = 'subscriber';
-		$_POST['email']        = 'user2@example.com';
+		$_POST['email']        = 'user@example.com';
 		$_POST['display_name'] = $this->slash_2;
 		$_POST['description']  = $this->slash_4;
 

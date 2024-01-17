@@ -514,6 +514,35 @@
 			} );
 		} );
 		
+	$( '#cancel-email-change' )
+		/**
+		 * Cancel/undo email change.
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			var $this  = $(this);
+			var	data = {
+				'user_id': userProfileL10n.user_id, // The user to send a reset to.
+				'nonce':   userProfileL10n.nonce    // Nonce to validate the action.
+			};
+
+			// Send the resend activation request.
+			var action =  wp.ajax.post( 'undo-email-change', data );
+
+			// Handle success.
+			action.done( function( response ) {
+				$( '#email' ).removeAttr( 'readonly' ).val( response );
+				$( '#email' ).siblings( '.notice' ).hide();
+				$( '#email' ).siblings( '.description' ).show();
+			} );
+
+			// Handle failure.
+			action.fail( function( response ) {
+				addInlineNotice( $this, false, response );
+			} );
+		} );
+		
 	/*
 	 * We need to generate a password as soon as the Reset Password page is loaded,
 	 * to avoid double clicking the button to retrieve the first generated password.

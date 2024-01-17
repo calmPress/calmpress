@@ -3047,6 +3047,32 @@ function _wp_get_current_user() {
 }
 
 /**
+ * Adds an admin notice alerting the user to check for confirmation request email
+ * after email address change.
+ *
+ * @since 3.0.0
+ * @since 4.9.0 This function was moved from wp-admin/includes/ms.php so it's no longer Multisite specific.
+ *
+ * @global string $pagenow The filename of the current screen.
+ */
+function new_user_email_admin_notice() {
+	global $pagenow;
+
+	if ( 'profile.php' === $pagenow && isset( $_GET['updated'] ) ) {
+		$user = wp_get_current_user();
+		try {
+			// An exception is thrown if not in change process.
+			$new_email = $user->changed_email_into()->address;
+			/* translators: %s: New email address. */
+			echo '<div class="notice notice-info"><p>' . sprintf( esc_html__( 'Your email address has not been updated yet. Please check your inbox at %s for a confirmation email.' ), '<code>' . esc_html( $new_email ) . '</code>' ) . '</p></div>';
+
+		} catch ( \RuntimeException $e ) {
+			;
+		}
+	}
+}
+
+/**
  * Get all personal data request types.
  *
  * @since 4.9.6
