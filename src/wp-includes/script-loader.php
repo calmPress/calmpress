@@ -1048,7 +1048,7 @@ function wp_default_scripts( $scripts ) {
 
 	$scripts->add( 'user-profile', "/wp-admin/js/user-profile$suffix.js", array( 'jquery', 'password-strength-meter', 'wp-util' ), false, 1 );
 	$scripts->set_translations( 'user-profile' );
-	$user_id = isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : 0;
+	$user_id = isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : get_current_user_id();
 	did_action( 'init' ) && $scripts->localize(
 		'user-profile',
 		'userProfileL10n',
