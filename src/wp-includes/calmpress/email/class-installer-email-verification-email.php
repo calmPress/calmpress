@@ -1,7 +1,7 @@
 <?php
 /**
- * Implementation controller for email sent to a user being regitering
- * or being added to the site to confirm the operation
+ * Implementation controller for email sent to the user which had installed calmPress
+ * to verify the email given at install time.
  *
  * @package calmPress
  * @since 1.0.0
@@ -12,12 +12,12 @@ declare(strict_types=1);
 namespace calmpress\email;
 
 /**
- * A representation of email sent to a user when his email address was used to
- * register as a user on the site.
+ * A representation of email sent to a the user which had installed calmPress
+ * to verify the email given at install time.
  * 
  * @since 1.0.0
  */
-class User_Activation_Verification_Email {
+class Installer_Email_Verification_Email {
 
 	use Email_To_User;
 
@@ -31,32 +31,24 @@ class User_Activation_Verification_Email {
 	 */
 	public function __construct( \WP_User $user	) {
 		/* translators: %s: Site's name. */
-		$initial_subject_format = __( '[%s] User Activation' );
+		$initial_subject_format = __( '[%s] Email Verification' );
 
 		/* translators:
 		 *	1: Users's display name.
-		 *  2: Site name.
-		 *  3: The email address to verify.
-		 *  4: Activation URL.
-		 *  5: Home URL.
+		 *  2: Verification URL.
 		 */
 		$initial_content_format = __(
 'Hi %1$s,
 
-There was a user registered for you at "%2$s" under your email address %3$s.
+This is the last step to make sure that your new calmPress has all essentials configured.
 
-Please follow the next link to finish the activation
-%4$s.
-The link will present you a form to change your password. Once changed you will be
-directed to the login page.
+Please follow the next link to verify that the email address given at install time,
+to which this email is sent, is the right one
+%2$s.
+The link will expire in a day.
 
-The link will expire after one day, but you can use the reset password form to get a new one.
-
-If you did not expect this registration notice you are welcome to ignore this email.
-
-Regards,
-All at %2$s
-%5$s'
+If you did not expect this notice you are welcome to ignore this email.
+'
 		);
 
 		$blog_name = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
@@ -65,10 +57,7 @@ All at %2$s
 			sprintf( 
 				$initial_content_format,
 				$user->display_name,
-				$blog_name,
-				$user->user_email,
-				$user->activation_url(),
-				home_url()
+				$user->installer_email_verification_url(),
 			),
 			false,
 			$user->email_address()
@@ -82,13 +71,13 @@ All at %2$s
 	 *
 	 * @since 1.0.0
 	 *
-	 * User_Activation_Verification |
+	 * Installer_Email_Verification_Email |
 	 * Email_Send_Abort_Mutator $mutator The object implementing the mutation observer.
 	 *                                   Can either be an actual mutator or an "mutator"
 	 *                                   that aborts the sending.
 	 */
 	public static function register_mutator(
-		User_Activation_Verification_Email_Mutator |
+		Installer_Email_Verification_Email_Mutator |
 		Email_Send_Abort_Mutator
 		$mutator ): void
 	{

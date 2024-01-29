@@ -201,12 +201,37 @@ class Admin_Notices {
 				if ( 5 <= $apcu->recent_store_failures() ) {
 					$msg = sprintf(
 						/* translators: 1: Openning link to apcu page, 2: Closing </a> */
-						esc_html__( 'More than 5 writes to the APCu Cache had failed in the last hour, you might need to reset it at %1$APCu page%2$s and notify you server`s administrator.' ),
+						esc_html__( 'More than 5 writes to the APCu Cache had failed in the last hour, you might need to reset it at %1$sAPCu page%2$s and notify you server`s administrator.' ),
 						'<a href="' . esc_url( admin_url( 'apcu.php' ) ) . '">',
 						'</a>'
 					);
 					echo "<div class='notice notice-error'><p>$msg</p></div>";
 				}
+			}
+		}
+	}
+
+	/**
+	 * Notifט installer when his email address requires verification.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function notify_installer_email_verification(): void {
+		global $pagenow;
+
+		$user = wp_get_current_user();
+		if ( get_user_meta( $user->ID, 'installer_verify_email', true ) ) {
+			// Show message when user is not on his profile page, prompting him to 
+			// go there.
+			if ( $pagenow !== 'profile.php' ) {
+				$msg = sprintf(
+					/* translators: 1: Openning link to user's profile page, 2: Closing </a> */
+					esc_html__( 'You need to verify the email address you used when installing calmPress.
+	You can do this from your %1$sprofile page%2$s.' ),
+					'<a href="' . esc_url( admin_url( 'profile.php' ) ) . '">',
+					'</a>'
+				);
+				echo "<div class='notice notice-info'><p>$msg</p></div>";
 			}
 		}
 	}

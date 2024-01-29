@@ -42,7 +42,8 @@ function add_handlers(): void {
 	add_action( 'admin_post_bulk_backup', '\calmpress\backup\Utils::handle_bulk_backup' );
 
 	/**
-	 * Get the user from an email change approval or undo requests.
+	 * Get the user from an email approval style URL requests which include the user
+	 * id and an expiry as nonce.
 	 *
 	 * Issue 403 if URL is malformed or user can not be found.
 	 *
@@ -50,7 +51,7 @@ function add_handlers(): void {
 	 *
 	 * @return WP_User The user if found.
 	 */
-	function get_user_from_change_email_url(): \WP_User {
+	function get_user_from_url(): \WP_User {
 		if ( ! isset( $_GET['id'] ) ) {
 			die( 403 );
 		}
@@ -70,7 +71,7 @@ function add_handlers(): void {
 	 * @since 1.0.0
 	 */
 	function handle_approve_change_email() {
-		$user = get_user_from_change_email_url();
+		$user = get_user_from_url();
 
 		try {
 			$user->approve_new_email();
@@ -91,7 +92,7 @@ function add_handlers(): void {
 	 * @since 1.0.0
 	 */
 	function handle_undo_change_email() {
-		$user = get_user_from_change_email_url();
+		$user = get_user_from_url();
 
 		try {
 			$user->undo_change_email();
@@ -105,4 +106,25 @@ function add_handlers(): void {
 	// Undo changed email "GET" (link) action.
 	add_action( 'admin_post_nopriv_undouseremail', __NAMESPACE__ . '\handle_undo_change_email' );
 	add_action( 'admin_post_undouseremail', __NAMESPACE__ . '\handle_undo_change_email' );
+
+	/**
+	 * Handle the request for verifying an installer's email.
+	 * 
+	 * @since 1.0.0
+	 */
+	function handle_verify_installer_email() {
+		$user = get_user_from_url();
+
+		try {
+			$user->approve_installer_email();
+			wp_redirect( admin_url( 'profile.php' ) );
+			die();
+		} catch ( \RuntimeException $e ) {
+			wp_die( __( 'Verification failed, link might have expired' ) );
+		}
+	}
+
+	// Verify installer email "GET" (link) action.
+	add_action( 'admin_post_nopriv_installeremail', __NAMESPACE__ . '\handle_verify_installer_email' );
+	add_action( 'admin_post_installeremail', __NAMESPACE__ . '\handle_verify_installer_email' );
 }

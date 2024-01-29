@@ -19,6 +19,8 @@ use calmpress\observer\Observer;
 use calmpress\observer\Observer_Priority;
 use calmpress\email\Abort_Send_Exception;
 
+require_once __DIR__ . '/../../../includes/dummy-phpmailer.php';
+
 /**
  * An implementation of an User_Activation_Verification_Email_Mutator interface to use in testing.
  */
@@ -211,6 +213,14 @@ class WP_User_Test extends WP_UnitTestCase {
 		$user->set_role( 'pending_activation' );
 		$this->assertFalse( $user->email_change_in_progress() );
 
+		// Installer never in change in progress state.
+		$user->set_role( 'administrator' );
+		$user->user_email = 'admin@example.com';
+		update_user_meta( $user_id, 'installer_verify_email', true );
+		$this->assertFalse( $user->email_change_in_progress() );
+
+		// Activate user flow.
+		delete_user_meta( $user_id, 'installer_verify_email' );
 		$user->set_role( 'subscriber' );
 		$user->user_email = 'old@example.com';
 
@@ -255,6 +265,16 @@ class WP_User_Test extends WP_UnitTestCase {
 		$this->assertSame( 1, count( $tos ) );
 		$this->assertSame( 'new@example.com', $tos[0]->address );
 
+		// For an active installer no email should be sent.
+		global $phpmailer;
+		$phpmailer = new dummy_PHPMailer();
+		update_user_meta( $user_id, 'installer_verify_email', true );
+		$user->set_role( 'administrator' );
+		$user->user_email = 'admin@example.com';
+		$user->change_email( new Email_address( 'new@example.com' ) );
+		$this->assertSame( '', $phpmailer->Subject );
+		delete_user_meta( $user_id, 'installer_verify_email' );
+		
 		// For active users one email (undo) should be sent to curent address
 		// and another (confirmation) should be sent to new email.
 		$user->set_role( 'subscriber' );

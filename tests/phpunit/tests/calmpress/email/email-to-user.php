@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 use calmpress\email\Email_To_User;
 use calmpress\email\Email;
-use calmpress\email\Email_Address;
 use calmpress\observer\Observer_Priority;
 use calmpress\observer\Observer;
 use calmpress\email\Abort_Send_Exception;

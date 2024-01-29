@@ -897,6 +897,21 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * The URL to be used to approve installer's email.
+	 * 
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string the URL, unescaped.
+	 */
+	public function installer_email_verification_url(): string {
+		$expiry = time() + 1 * DAY_IN_SECONDS;
+		return 
+			get_admin_url() . 
+			'admin-post.php?action=installeremail&id=' .
+			\calmpress\utils\encrypt_int_to_base64( $this->ID, $expiry );
+	}
+
+	/**
 	 * The URL to be used to approve new user's email after email address change.
 	 * 
 	 * @since calmPress 1.0.0
@@ -993,6 +1008,9 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	public function email_change_in_progress(): bool {
 		if ( in_array( 'pending_activation', $this->roles, true ) ) {
 			return false;
+		} elseif ( get_user_meta( $this->ID, 'installer_verify_email', true ) ) {
+			// If the installer was not verified yet, ignore the change related logic. 
+			return false;
 		} else {
 			$change_inprogress = false;
 			try {
@@ -1023,7 +1041,10 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 *                          progress.
 	 */
 	public function change_email( Email_Address $email_address ): void {
-		if ( in_array( 'pending_activation', $this->roles, true ) ) {
+		if ( get_user_meta( $this->ID, 'installer_verify_email', true ) ) {
+			// If the installer was not verified yet, ignore the change related logic. 
+			;
+		} elseif ( in_array( 'pending_activation', $this->roles, true ) ) {
 			$email = new calmpress\email\User_Activation_Verification_Email( $this );
 			$email->send();
 		} else {
@@ -1047,6 +1068,16 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 			$email = new calmpress\email\User_Email_Change_Undo_Email( $this );
 			$email->send();
 		}
+	}
+
+	/**
+	 * Remove the indication that the user is an installer which requires email
+	 * address verification.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function approve_installer_email(): void {
+		delete_user_meta( $this->ID, 'installer_verify_email' );
 	}
 
 	/**

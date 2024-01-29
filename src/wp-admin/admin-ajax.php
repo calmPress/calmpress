@@ -130,6 +130,7 @@ $core_actions_post = array(
 	'send-password-reset',
 	'resend-activation',
 	'undo-email-change',
+	'installer-email-verification',
 );
 
 // Deprecated.

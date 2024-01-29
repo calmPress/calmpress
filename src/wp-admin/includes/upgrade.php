@@ -89,6 +89,7 @@ if ( ! function_exists( 'wp_install' ) ) :
 			$user_id      = wp_create_user( $user_name, $user_password, $user_email );
 			$user_created = true;
 		}
+		update_user_meta( $user_id, 'installer_verify_email', true );
 
 		$user = new WP_User( $user_id );
 		$user->set_role( 'administrator' );

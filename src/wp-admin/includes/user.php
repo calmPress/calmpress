@@ -249,8 +249,10 @@ function edit_user( $user_id = 0 ) {
 	if ( $update ) {
 		$new_email = $user->user_email;
 		if ( $user->user_email !== $userdata->user_email ) {
-			if ( ! in_array( 'pending_activation', $userdata->roles, true ) ) {
-				// Do not change email address for active users, approve it first.
+			// Do not change email address for active users, approve it first.
+			// Unless it is an installer waiting for email address verification.
+			if ( ! in_array( 'pending_activation', $userdata->roles, true ) &&
+			     ! get_user_meta( $user_id, 'installer_verify_email', true ) ) {
 				$user->user_email = $userdata->user_email;
 			}
 			$user_id = wp_update_user( $user );

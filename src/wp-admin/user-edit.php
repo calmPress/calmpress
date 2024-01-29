@@ -234,13 +234,43 @@ switch ( $action ) {
 	<tr class="user-email-wrap">
 		<?php
 			$email_readonly = $profileuser->email_change_in_progress() ? 'readonly="readonly"' : '';
+			$hide_description = false;
 		?>
 		<th><label for="email"><?php _e( 'Email' ); ?> <span class="description"><?php _e( '(required)' ); ?></span></label></th>
 		<td><input type="email" name="email" id="email" aria-describedby="email-description" <?php echo $email_readonly;?> value="<?php echo esc_attr( $profileuser->user_email ); ?>" class="regular-text ltr" />
 		<?php
-			$hide_description = false;
-			// If user is not active yet, indicate it.
-			if ( in_array( 'pending_activation', $profileuser->roles, true ) ) {
+			// If its the installer's user and he did not verify his email address yet
+			// indicate it.
+			if ( get_user_meta( $profileuser->ID, 'installer_verify_email', true ) ) {
+				$hide_description = true;
+				?>
+				<div class="notice inline">
+					<p>
+						<?php
+						esc_html_e( 'Was not verified yet. It should be verified to be sure that system emails will be delivered.
+ You can change the email address and then the verification will need to be done for the new address.' );
+						if ( current_user_can( 'manage_options' ) ) {
+ 						?>
+						<br>
+						<?php
+							printf(
+								/* translators: 1: Openning link to email delivery settings page, 2: Closing </a> */
+								esc_html__( 'Make sure you have properly configured your %1$semail delivery settings%2$s first.' ),
+								'<a href="' . esc_url( admin_url( 'options-email.php' ) ) . '">',
+								'</a>'
+							);
+						}
+						?>
+					</p>
+				</div>
+				<div>
+					<button id="verify-installer" class="button" type="button">
+						<?php esc_html_e( 'Send verification email' );?>
+					</button>
+				</div>
+				<?php
+			} elseif ( in_array( 'pending_activation', $profileuser->roles, true ) ) {
+				// If user is not active yet, indicate it.
 				?>
 				<div class="notice inline">
 					<p>
@@ -286,7 +316,7 @@ switch ( $action ) {
 				<?php
 			}
 			?>
-			<p class="description" <?php if ($hide_description) echo 'style="display:none"';?>>
+			<p class="description" <?php if ( $hide_description ) echo 'style="display:none"';?>>
 				<?php _e( 'If you change the email address, we will send an email to the new address to confirm the email. The new address will not become active until confirmed. An email will be sent to the old address with instructions how to undo the change.' ); ?>
 			</p>
 			<?php

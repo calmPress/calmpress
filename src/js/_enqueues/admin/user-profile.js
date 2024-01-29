@@ -514,6 +514,33 @@
 			} );
 		} );
 		
+	$( '#verify-installer' )
+		/**
+		 * Send installer email verificattion mail.
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			var $this  = $(this);
+			var	data = {
+				'user_id': userProfileL10n.user_id, // The user to send a reset to.
+				'nonce':   userProfileL10n.nonce    // Nonce to validate the action.
+			};
+
+			// Send the resend activation request.
+			var resetAction =  wp.ajax.post( 'installer-email-verification', data );
+
+			// Handle success.
+			resetAction.done( function( response ) {
+				addInlineNotice( $this, true, response );
+			} );
+
+			// Handle failure.
+			resetAction.fail( function( response ) {
+				addInlineNotice( $this, false, response );
+			} );
+		} );
+		
 	$( '#cancel-email-change' )
 		/**
 		 * Cancel/undo email change.

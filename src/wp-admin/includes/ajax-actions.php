@@ -4631,8 +4631,12 @@ function wp_ajax_rest_nonce() {
  */
 function wp_ajax_send_password_reset() {
 
-	// Validate the nonce for this action.
-	$user_id = isset( $_POST['user_id'] ) ? (int) $_POST['user_id'] : 0;
+	// Validate the user for this action.
+	if ( ! isset( $_POST['user_id'] ) || ( (int) $_POST['user_id'] === 0 ) ) {
+		wp_die( -1, 403 );
+	}
+	$user_id = (int) $_POST['user_id'];
+
 	check_ajax_referer( 'reset-password-for-' . $user_id, 'nonce' );
 
 	// Verify user capabilities.
@@ -4662,7 +4666,10 @@ function wp_ajax_send_password_reset() {
 function wp_ajax_resend_activation() {
 
 	// Validate the user for this action.
-	$user_id = isset( $_POST['user_id'] ) ? (int) $_POST['user_id'] : 0;
+	if ( ! isset( $_POST['user_id'] ) || ( (int) $_POST['user_id'] === 0 ) ) {
+		wp_die( -1, 403 );
+	}
+	$user_id = (int) $_POST['user_id'];
 
 	// Reuse the password reset nonce.
 	check_ajax_referer( 'reset-password-for-' . $user_id, 'nonce' );
@@ -4688,6 +4695,47 @@ function wp_ajax_resend_activation() {
 }
 
 /**
+ * Ajax handler to send installer email verification mail.
+ *
+ * @since calmPress 1.0.0
+ */
+function wp_ajax_installer_email_verification() {
+
+	// Validate the user for this action.
+	if ( ! isset( $_POST['user_id'] ) || ( (int) $_POST['user_id'] === 0 ) ) {
+		wp_die( -1, 403 );
+	}
+	$user_id = (int) $_POST['user_id'];
+
+	// Reuse the password reset nonce.
+	check_ajax_referer( 'reset-password-for-' . $user_id, 'nonce' );
+
+	// Verify user capabilities.
+	if ( ! current_user_can( 'edit_user', $user_id ) ) {
+		wp_send_json_error( __( 'Cannot send verification email, permission denied.' ) );
+	}
+
+	// Does this user need verification at all.
+	if ( ! get_user_meta( $user_id, 'installer_verify_email', true ) ) {
+		wp_send_json_error( __( 'User not an installer or verification was already done.' ) );
+	}
+
+	// Send the verification email.
+	$user = get_user_by( 'id', $user_id );
+	if ( $user === null ) {
+		// Send error if user could not be found.
+		wp_send_json_error( __( 'User not found' ) );
+	} else {
+		$email = new calmpress\email\Installer_Email_Verification_Email( $user );
+		$email->send();
+		wp_send_json_success(
+			/* translators: %s: User's email address. */
+			sprintf( __( 'A verification email was sent to %s.' ), $user->user_email )
+		);
+	}
+}
+
+/**
  * Ajax handler undo user's email change.
  *
  * @since calmPress 1.0.0
@@ -4695,7 +4743,10 @@ function wp_ajax_resend_activation() {
 function wp_ajax_undo_email_change() {
 
 	// Validate the user for this action.
-	$user_id = isset( $_POST['user_id'] ) ? (int) $_POST['user_id'] : 0;
+	if ( ! isset( $_POST['user_id'] ) || ( (int) $_POST['user_id'] === 0 ) ) {
+		wp_die( -1, 403 );
+	}
+	$user_id = (int) $_POST['user_id'];
 
 	// Reuse the password reset nonce.
 	check_ajax_referer( 'reset-password-for-' . $user_id, 'nonce' );

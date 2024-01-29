@@ -33,7 +33,13 @@ class User_Email_Change_Undo_Email {
 		/* translators: %s: Site's name. */
 		$initial_subject_format = __( '[%s] Email Changed' );
 
-		/* translators: 1: Users's display name. */
+		/* translators:
+		 *	1: Users's display name.
+		 *  2: Site name.
+		 *  3: New email address.
+		 *  4: Undo URL.
+		 *  5: Home URL.
+		 */
 		$initial_content_format = __(
 			'Hi %1s,
 
