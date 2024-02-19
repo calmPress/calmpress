@@ -125,10 +125,12 @@ class WP {
 	 * filters and actions that can be used to further manipulate the result.
 	 *
 	 * @since 2.0.0
+	 * @since 6.0.0 A return value was added.
 	 *
 	 * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
 	 *
 	 * @param array|string $extra_query_vars Set the extra query variables.
+	 * @return bool Whether the request was parsed.
 	 */
 	public function parse_request( $extra_query_vars = '' ) {
 		global $wp_rewrite;
@@ -143,7 +145,7 @@ class WP {
 		 * @param array|string $extra_query_vars Extra passed query variables.
 		 */
 		if ( ! apply_filters( 'do_parse_request', true, $this, $extra_query_vars ) ) {
-			return;
+			return false;
 		}
 
 		$this->query_vars     = array();
@@ -404,6 +406,8 @@ class WP {
 		 * @param WP $wp Current WordPress environment instance (passed by reference).
 		 */
 		do_action_ref_array( 'parse_request', array( &$this ) );
+
+		return true;
 	}
 
 	/**
@@ -716,19 +720,27 @@ class WP {
 	 */
 	public function main( $query_args = '' ) {
 		$this->init();
-		$this->parse_request( $query_args );
-		$this->send_headers();
 
 		// if the current user should get a 503 and maintenance page, set the query to
-		// have only the maintenance post in the loop.
+		// have only the maintenance post in the loop and avoid parsing.
 		if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
 			// High Priority as there is a need to override the results for other invocations of the filter
 			// if there are any.
 			add_filter( 'posts_pre_query', '\calmpress\calmpress\Maintenance_Mode::setup_wp_query', 999, 2 );
+
+			$parsed = true;
+		} else {
+			$parsed = $this->parse_request( $query_args );
 		}
-		$this->query_posts();
-		$this->handle_404();
-		$this->register_globals();
+
+		$this->send_headers();
+
+
+		if ( $parsed ) {
+			$this->query_posts();
+			$this->handle_404();
+			$this->register_globals();
+		}
 
 		/**
 		 * Fires once the WordPress environment has been set up.
