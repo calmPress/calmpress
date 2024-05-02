@@ -1085,8 +1085,10 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 *
 	 * @since calmPress 1.0.0
 	 * 
-	 * @throws RuntimeException If the was nothing to approve. This can be cause
+	 * @throws RuntimeException If there was nothing to approve. This can be cause
 	 *                          by double approval, or attempt to approve after undo.
+	 *                          Or if email already exists which might happen if a
+	 *                          a user was registered after a change was requested
 	 */
 	public function approve_new_email(): void {
 		$new_email = $this->changed_email_into()->address;
@@ -1095,6 +1097,11 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		// can be done after new email was approved.
 		delete_user_meta( $this->ID, 'new_email' );
 	
+		// Throw if a user already exists for the email.
+		if ( get_user_by( 'email', $new_email ) ) {
+			throw new RuntimeException( 'email already exists' );
+		}
+
 		// All good, update the user's email.
 		wp_update_user(
 			[

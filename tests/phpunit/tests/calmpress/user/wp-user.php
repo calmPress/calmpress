@@ -410,6 +410,22 @@ class WP_User_Test extends WP_UnitTestCase {
 		// Original is saved.
 		$this->assertSame( 'original@a.com', $user->changed_email_from()->address );
 	
+		// test approval fails if user with new email exists.
+		$user->user_email = 'original2@a.com';
+		$user->change_email( new Email_address( 'change2@example.com' ) );
+		$user_id2 = $this->factory->user->create([
+			'user_email' => 'change2@example.com',
+		]);
+
+		$thrown = true;
+		try {
+			$user->approve_new_email();
+			$thrown = false;
+		} catch ( \RuntimeException $e ) {
+			;
+		}
+		$this->assertTrue( $thrown );
+
 		// DB cleaned.
 		$thrown = true;
 		try {
