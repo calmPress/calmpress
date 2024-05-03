@@ -1587,7 +1587,7 @@ function do_favicon() {
 	 */
 	do_action( 'do_faviconico' );
 
-	wp_redirect( get_site_icon_url( 32, includes_url( 'images/calmpresslogo.png.png' ) ) );
+	wp_redirect( get_site_icon_url( 32, includes_url( 'images/calmpresslogo.png' ) ) );
 	exit;
 }
 
