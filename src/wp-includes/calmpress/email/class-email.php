@@ -529,7 +529,7 @@ class Email {
 		// and let wp_mail and php mailer to handle plain text and other encoding
 		// details.
 		if ( $this->content_is_html() ) {
-			$headers[] = 'Content-Type:text/html';
+			$headers[] = 'content-type:text/html';
 		}
 
 		$attachments      = [];
