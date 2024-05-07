@@ -109,7 +109,7 @@ class Text_Based_Avatar implements Avatar {
 		}
 
 		$text_parts = explode( ' ', $text );
-		$text       = substr( $text_parts[0], 0, 1 );
+		$text       = mb_substr( $text_parts[0], 0, 1, 'UTF-8' );
 
 		// If the container is wide enough, get two characters.
 		if ( 40 < $width && 1 < count( $text_parts ) ) {
