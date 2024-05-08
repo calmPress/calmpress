@@ -97,7 +97,6 @@ class Text_Based_Avatar implements Avatar {
 	 *                the email address.
 	 */
 	protected function _html( int $width, int $height ) : string {
-		$font_size = $height / 2;
 
 		// crc32 is not optimal but it is easy to use.
 		$color = self::COLORS[ absint( crc32( $this->text_source . $this->color_factor ) ) % count( self::COLORS ) ];
@@ -109,13 +108,19 @@ class Text_Based_Avatar implements Avatar {
 		}
 
 		$text_parts = explode( ' ', $text );
-		$text       = mb_substr( $text_parts[0], 0, 1, 'UTF-8' );
-
-		// If the container is wide enough, get two characters.
-		if ( 40 < $width && 1 < count( $text_parts ) ) {
-			$text .= substr( $text_parts[ count( $text_parts ) - 1 ], 0, 1 );
+		$text = '';
+		foreach ( $text_parts as $part ) {
+			$text .= mb_substr( $part, 0, 1, 'UTF-8' );
 		}
+
 		$text = esc_html( strtoupper( $text ) );
+
+		if ( count( $text_parts ) < 2 ) {
+			$font_size = round ( $height / 2 );
+		} else {
+			// use smaller font size when there are more characters to display.
+			$font_size = round( $height / 5 * 2 );
+		}
 
 		$html = "<span aria-hidden='true' style='display:inline-block;border-radius:50%;text-align:center;color:white;line-height:" . $height . "px;width:" . $width . "px;height:" . $height . "px;font-size:" . $font_size . "px;background:" . $color . "'>$text</span>";
 
