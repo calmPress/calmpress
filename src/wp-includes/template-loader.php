@@ -127,7 +127,31 @@ if ( wp_using_themes() ) {
 		*/
 		ob_start();
 		include $template;
-		echo wp_targeted_link_rel( ob_get_clean() );
+		$final_output = wp_targeted_link_rel( ob_get_clean() );
+		$position = strpos( $final_output, '</head>' );
+
+		// Verify we handling a proper HTML including an head element before adding CSS in the header.
+        if ( $position === false ) {
+			calmpress\logger\Controller::log_warning_message(
+				'could not find </head> in the genrated HTML, you should check it is there and with lower case and no extra spaces',
+				__FILE__,
+				__LINE__,
+				get_current_user_id(),
+				'',
+				calmpress\logger\Controller::request_info( 20 )
+			);
+		} else {
+            // fetch the CSS links and inlines just the way it would have been done as a wp_head action.
+
+			ob_start();
+			wp_maybe_inline_styles();
+			wp_print_styles();
+			print_late_styles();
+			$css = ob_get_clean();
+			
+            $final_output = substr_replace( $final_output, $css . '</head>', $position, strlen( '</head>' ) );
+        }
+		echo $final_output;
 	} elseif ( current_user_can( 'switch_themes' ) ) {
 		$theme = wp_get_theme();
 		if ( $theme->errors() ) {
