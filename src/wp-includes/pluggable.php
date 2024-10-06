@@ -2429,7 +2429,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 	 * @since 2.5.0
 	 * @since 4.2.0 Optional `$args` parameter added.
 	 * @since calmPress 1.0.0 Any valid HTML which has inline blocking might be returned.
-	 *                        The $alt parameter is ignored.
+	 *                        The $alt, $width and height parameters are ignored.
 	 *
 	 * @param mixed $id_or_email The item to get an avatar for. Accepts a user_id,
 	 *                           user email, WP_User object, WP_Post object, or WP_Comment object.
@@ -2457,8 +2457,6 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		$defaults = array(
 			// get_avatar_data() args.
 			'size'          => 96,
-			'height'        => null,
-			'width'         => null,
 			'class'         => null,
 			'force_display' => false,
 			'loading'       => null,
@@ -2477,12 +2475,8 @@ if ( ! function_exists( 'get_avatar' ) ) :
 
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( empty( $args['height'] ) ) {
-			$args['height'] = $args['size'];
-		}
-		if ( empty( $args['width'] ) ) {
-			$args['width'] = $args['size'];
-		}
+		$args['height'] = $args['size'];
+		$args['width'] = $args['size'];
 
 		/**
 		 * Allows the HTML for a user's avatar to be returned early.

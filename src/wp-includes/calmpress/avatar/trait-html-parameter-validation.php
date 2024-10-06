@@ -26,26 +26,20 @@ trait Html_Parameter_Validation {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int $width  The width of the avatar image.
-	 * @param int $height The height of the avatar image.
+	 * @param int $size The width and height of the avatar image in pixels.
 	 *
 	 * @return string An HTML which will be rendered as a blank rectangle of the
 	 *                requested dimensions. In case of a validation error an empty
 	 *                string.
 	 */
-	public function html( int $width, int $height ) : string {
+	public function html( int $size ) : string {
 
-		if ( $width < 1 ) {
-			trigger_error( 'width has to have a positive value ' . $width . ' was given', E_USER_WARNING );
+		if ( $size < 1 ) {
+			trigger_error( 'size has to have a positive value ' . $size . ' was given', E_USER_WARNING );
 			return '';
 		}
 
-		if ( $height < 1 ) {
-			trigger_error( 'height has to have a positive value ' . $height . ' was given', E_USER_WARNING );
-			return '';
-		}
-
-		return $this->_html( $width, $height );
+		return $this->_html( $size );
 	}
 
 	/**
@@ -54,10 +48,9 @@ trait Html_Parameter_Validation {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int $width  The width of the avatar image.
-	 * @param int $height The height of the avatar image.
+	 * @param int $size The width and height of the avatar image in pixels.
 	 *
 	 * @return string The escaped HTML needed to display the avatar.
 	 */
-	protected abstract function _html( int $width, int $height ) : string;
+	protected abstract function _html( int $size ) : string;
 }

@@ -15,16 +15,14 @@ require_once __DIR__ . '/html_parameter_validation.php';
 
 class Mock_Mutator implements Blank_Avatar_HTML_Mutator {
 
-	public static int $width;
-	public static int $height;
+	public static int $size;
 
 	public function notification_dependency_with( Observer $observer ): Observer_Priority	{
 		return Observer_Priority::NONE;
 	}
 
-	public function mutate( string $html, int $width, int $height ): string {
-		self::$width  = $width;
-		self::$height = $height;
+	public function mutate( string $html, int $size): string {
+		self::$size  = $size;
 		return 'tost';
 	}
 
@@ -51,7 +49,7 @@ class Blank_Avatar_Test extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_html_generation() {
-		$html = $this->avatar->html( 50, 60 );
+		$html = $this->avatar->html( 50 );
 
 		/*
 		 * Compare strings in a way that will keep the test passing if order changes.
@@ -59,7 +57,7 @@ class Blank_Avatar_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'display:inline-block', $html );
 		$this->assertStringContainsString( 'width:50px', $html );
-		$this->assertStringContainsString( 'height:60px', $html );
+		$this->assertStringContainsString( 'height:50px', $html );
 	}
 
 	/**
@@ -70,10 +68,9 @@ class Blank_Avatar_Test extends WP_UnitTestCase {
 	function test_mutator() {
 
 		Blank_Avatar::register_generated_HTML_mutator( new Mock_Mutator() );		
-		$html = $this->avatar->html( 50, 60 );
+		$html = $this->avatar->html( 50 );
 
 		$this->assertSame( 'tost', $html );
-		$this->assertSame( 50, Mock_Mutator::$width );
-		$this->assertSame( 60, Mock_Mutator::$height );
+		$this->assertSame( 50, Mock_Mutator::$size );
 	}
 }

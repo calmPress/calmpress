@@ -31,8 +31,7 @@ interface Text_Based_Avatar_HTML_Mutator extends \calmpress\observer\Observer {
 	 *                             It should be used to help visually differentiate
 	 *                             between avatars with the same text that should
 	 *                             represent different people.
-	 * @param int    $width  The width in pixels of the blank avatar to generate.
-	 * @param int    $height The height in pixels of the blank avatar to generate.
+	 * @param int    $size The width and height of the avatar image in pixels.
 	 *
 	 * @return string The HTML to use for the text based avatar.
 	 */
@@ -40,7 +39,6 @@ interface Text_Based_Avatar_HTML_Mutator extends \calmpress\observer\Observer {
 		string $html,
 		string $text,
 		string $color_factor,
-		int $width,
-		int $height
+		int $size
 	): string;
 }

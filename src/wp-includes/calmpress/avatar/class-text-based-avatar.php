@@ -88,15 +88,14 @@ class Text_Based_Avatar implements Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int $width  The width of the avatar image.
-	 * @param int $height The height of the avatar image.
+	 * @param int $size The width and height of the avatar image in pixels.
 	 *
 	 * @return string An HTML which will be rendered as a rectangle of the
 	 *                requested dimensions which will contain capital letters based
 	 *                on the initials of the name and background color based on
 	 *                the email address.
 	 */
-	protected function _html( int $width, int $height ) : string {
+	protected function _html( int $size ) : string {
 
 		// crc32 is not optimal but it is easy to use.
 		$color = self::COLORS[ absint( crc32( $this->text_source . $this->color_factor ) ) % count( self::COLORS ) ];
@@ -104,7 +103,7 @@ class Text_Based_Avatar implements Avatar {
 		$text = trim( $this->text_source );
 		if ( '' === $text ) {
 			$o = new Blank_Avatar();
-			return $o->html( $width, $height );
+			return $o->html( $size );
 		}
 
 		$text_parts = explode( ' ', $text );
@@ -116,16 +115,16 @@ class Text_Based_Avatar implements Avatar {
 		$text = esc_html( strtoupper( $text ) );
 
 		if ( count( $text_parts ) < 2 ) {
-			$font_size = round ( $height / 2 );
+			$font_size = round ( $size / 2 );
 		} else {
 			// use smaller font size when there are more characters to display.
-			$font_size = round( $height / 5 * 2 );
+			$font_size = round( $size / 5 * 2 );
 		}
 
-		$html = "<span aria-hidden='true' style='display:inline-block;border-radius:50%;text-align:center;color:white;line-height:" . $height . "px;width:" . $width . "px;height:" . $height . "px;font-size:" . $font_size . "px;background:" . $color . "'>$text</span>";
+		$html = "<span aria-hidden='true' style='display:inline-block;border-radius:50%;text-align:center;color:white;line-height:" . $size . "px;width:" . $size . "px;height:" . $size . "px;font-size:" . $font_size . "px;background:" . $color . "'>$text</span>";
 
 		// Allow plugin and themes to override.
-		$html = self::mutate( $html, $this->text_source, $this->color_factor, $width, $height );
+		$html = self::mutate( $html, $this->text_source, $this->color_factor, $size );
 
 		return $html;
 	}

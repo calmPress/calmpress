@@ -60,12 +60,11 @@ class Image_Based_Avatar implements Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int $width  The width of the avatar image.
-	 * @param int $height The height of the avatar image.
+	 * @param int $size The width and height of the avatar image in pixels.
 	 *
 	 * @return string The HTML.
 	 */
-	protected function _html( int $width, int $height ) : string {
+	protected function _html( int $size ) : string {
 		$attr          = [ 'style' => 'border-radius:50%' ];
 		$attachment_id = $this->attachment->ID;
 
@@ -74,12 +73,12 @@ class Image_Based_Avatar implements Avatar {
 		 * is not called directly to avoid triggering the filters.
 		 */
 
-		$image = wp_get_attachment_image_src( $attachment_id, [ $width, $height ], false );
+		$image = wp_get_attachment_image_src( $attachment_id, [ $size, $size ], false );
 
 		// If it is impossible to get the image URL return empty avatar.
 		if ( ! $image ) {
 			$avatar = new Blank_Avatar();
-			return $avatar->html( $width, $height );
+			return $avatar->html( $size );
 		}
 
 		list($src, $w, $h) = $image;
@@ -99,14 +98,14 @@ class Image_Based_Avatar implements Avatar {
 		}
 
 		$attr_str = array_map( 'esc_attr', $attr );
-		$html     = "<img alt='' width='$width' height='$height'";
+		$html     = "<img alt='' width='$size' height='$size'";
 		foreach ( $attr as $name => $value ) {
 			$html .= " $name=" . '"' . $value . '"';
 		}
 		$html .= '>';
 
 		// Allow plugin and themes to override.
-		$html = self::mutate( $html, $this->attachment, $width, $height );
+		$html = self::mutate( $html, $this->attachment, $size );
 
 		return $html;
 	}

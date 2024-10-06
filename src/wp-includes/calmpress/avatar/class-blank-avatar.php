@@ -31,18 +31,17 @@ class Blank_Avatar implements Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int $width  The width of the avatar image in pixels.
-	 * @param int $height The height of the avatar image in pixels.
+	 * @param int $size The width and height of the avatar image in pixels.
 	 *
 	 * @return string An HTML which will be rendered as a blank rectangle of the
 	 *                requested dimensions.
 	 */
-	protected function _html( int $width, int $height ) : string {
+	protected function _html( int $size ) : string {
 
-		$html = "<span style='display:inline-block;width:" . $width . "px;height:" . $height . "px'></span>";
+		$html = "<span style='display:inline-block;width:" . $size . "px;height:" . $size . "px'></span>";
 
 		// Allow plugin and themes to override.
-		$html = self::mutate( $html, $width, $height );
+		$html = self::mutate( $html, $size );
 	
 		return $html;
 	}

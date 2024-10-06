@@ -16,17 +16,15 @@ use \calmpress\avatar\Image_Based_Avatar;
 
 class Mock_Image_Mutator implements Image_Based_Avatar_HTML_Mutator {
 
-	public static int $width;
-	public static int $height;
+	public static int $size;
 	public static int $attachment_id;
 
 	public function notification_dependency_with( Observer $observer ): Observer_Priority	{
 		return Observer_Priority::NONE;
 	}
 
-	public function mutate( string $html, \WP_Post $attachment, int $width, int $height ): string {
-		self::$width         = $width;
-		self::$height        = $height;
+	public function mutate( string $html, \WP_Post $attachment, int $size ): string {
+		self::$size          = $size;
 		self::$attachment_id = $attachment->ID;
 		return 'tost';
 	}
@@ -72,14 +70,14 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_html_generation() {
-		$html = $this->avatar->html( 50, 60 );
+		$html = $this->avatar->html( 50 );
 
 		/*
 		 * Compare strings in a way that will keep the test passing if order changes.
 		 */
 
 		$this->assertStringContainsString( "width='50'", $html );
-		$this->assertStringContainsString( "height='60'", $html );
+		$this->assertStringContainsString( "height='50'", $html );
 
 		// Check image is there.
 		$this->assertStringContainsString( 'canola', $html );
@@ -88,7 +86,7 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 		// To do that delete the original image.
 		wp_delete_post( $this->attachment );
 		$blank = new \calmpress\avatar\Blank_Avatar();
-		$this->assertEquals( $blank->html( 50, 50 ), $this->avatar->html( 50, 50 ) );
+		$this->assertEquals( $blank->html( 50 ), $this->avatar->html( 50 ) );
 	}
 
 	/**
@@ -98,14 +96,13 @@ class Image_Based_Avatar_Test extends WP_UnitTestCase {
 	 */
 	function test_mutator() {
 
-		$ret = $this->avatar->html( 50, 60 );
+		$ret = $this->avatar->html( 50 );
 
 		Image_Based_Avatar::register_generated_HTML_mutator( new Mock_Image_Mutator() );		
-		$html = $this->avatar->html( 50, 60 );
+		$html = $this->avatar->html( 50 );
 
 		$this->assertSame( 'tost', $html );
-		$this->assertSame( 50, Mock_Image_Mutator::$width );
-		$this->assertSame( 60, Mock_Image_Mutator::$height );
+		$this->assertSame( 50, Mock_Image_Mutator::$size );
 		$this->assertSame( $this->avatar->attachment()->ID, Mock_Image_Mutator::$attachment_id );
 	}
 }

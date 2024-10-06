@@ -22,23 +22,13 @@ trait Html_Parameter_Validation_Test {
 	 */
 	public function test_parameter_validation() {
 
-		// Test non positive width.
+		// Test non positive size.
 		$this->expectException( '\PHPUnit\Framework\Error\Warning' );
-		$v = $this->avatar->html( 0, 100 );
-		$this->assertEquals( '', $v );
-
-		// Test non positive height.
-		$this->expectException( '\PHPUnit\Framework\Error\Warning' );
-		$v = $this->avatar->html( 50, -100 );
-		$this->assertEquals( '', $v );
-
-		// Test non positive width and height.
-		$this->expectException( '\PHPUnit\Framework\Error\Warning' );
-		$v = $this->avatar->html( 0, -50 );
+		$v = $this->avatar->html( -100 );
 		$this->assertEquals( '', $v );
 
 		// Test valid parameters call _html.
-		$this->avatar->assertEquals( $this->html( 50, 50 ), $this->_html( 50, 50 ) );
+		$this->avatar->assertEquals( $this->html( 50 ), $this->_html( 50 ) );
 	}
 }
 

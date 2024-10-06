@@ -26,15 +26,13 @@ interface Image_Based_Avatar_HTML_Mutator extends \calmpress\observer\Observer {
 	 *
 	 * @param string  $html       The HTML that is about to be used for the blank avatar.
 	 * @param WP_Post $attachment The ID of the image attachment.
-	 * @param int     $width      The width in pixels of the blank avatar to generate.
-	 * @param int     $height     The height in pixels of the blank avatar to generate.
+	 * @param int     $size The width and height of the avatar image in pixels.
 	 *
 	 * @return string The HTML to use for the image based avatar.
 	 */
 	public function mutate(
 		string $html,
 		\WP_Post $attachment,
-		int $width,
-		int $height
+		int $size
 	): string;
 }

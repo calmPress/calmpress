@@ -3771,6 +3771,7 @@ function get_avatar_url( $id_or_email, $args = null ) {
  *
  * @since 4.2.0
  * @since calmPress 1.0.0 Might return also the avatar's HTML.
+ *                        Height and width are deprecated.
  *
  * @param mixed $id_or_email The avatar to retrieve. Accepts a user_id,
  *                           text, WP_User object, WP_Post object, or WP_Comment object.
@@ -3814,23 +3815,8 @@ function get_avatar_data( $id_or_email, $args = null ) {
 		$args['size'] = 96;
 	}
 
-	if ( is_numeric( $args['height'] ) ) {
-		$args['height'] = (int) $args['height'];
-		if ( $args['height'] < 1 ) {
-			$args['height'] = $args['size'];
-		}
-	} else {
-		$args['height'] = $args['size'];
-	}
-
-	if ( is_numeric( $args['width'] ) ) {
-		$args['width'] = (int) $args['width'];
-		if ( $args['width'] < 1 ) {
-			$args['width'] = $args['size'];
-		}
-	} else {
-		$args['width'] = $args['size'];
-	}
+	$args['height'] = $args['size'];
+	$args['width'] = $args['size'];
 
 	/**
 	 * Filters whether to retrieve the avatar URL early.
