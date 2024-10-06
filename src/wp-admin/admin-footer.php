@@ -111,11 +111,20 @@ do_action( "admin_footer-{$hook_suffix}" ); // phpcs:ignore WordPress.NamingConv
  * The detection if the wp_targeted_link_rel function exists is require since
  * the admin footer is called during upgrade and the upgrade might be done from
  * an older release that do not contain the function.
+ * 
+ * Add inlined CSS and "late" enqueued CSS to the header of the page.
  */
- $buffer = ob_get_clean();
- if ( function_exists( 'wp_targeted_link_rel' ) ) {
-	 $buffer = wp_targeted_link_rel( $buffer );
- }
+$buffer = ob_get_clean();
+if ( function_exists( 'wp_targeted_link_rel' ) ) {
+	$buffer = wp_targeted_link_rel( $buffer );
+}
+$position = strpos( $buffer, '</head>' );
+ob_start();
+wp_maybe_inline_styles();
+print_late_styles();
+$css = ob_get_clean();
+		
+$buffer = substr_replace( $buffer, $css . '</head>', $position, strlen( '</head>' ) );
 echo $buffer;
 
 ?>
