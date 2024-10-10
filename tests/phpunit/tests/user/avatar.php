@@ -28,7 +28,7 @@ class Tests_User_Avatar extends WP_UnitTestCase {
 		// make sure that the result is the same as if we initiated the text based
 		// avatar directly with the name and email.
 		$text_avatar = new \calmpress\avatar\Text_Based_Avatar( 'test', 'test@test.com' );
-		$this->assertEquals( $text_avatar->html(50,50), $avatar->html( 50, 50 ) );
+		$this->assertEquals( $text_avatar->html( 50 ), $avatar->html( 50 ) );
 
 		/*
 		 * With avatar image the avatar should be based on it.
@@ -42,12 +42,12 @@ class Tests_User_Avatar extends WP_UnitTestCase {
 		// make sure that the result is the same as if we initiated the text based
 		// avatar directly with the name and email.
 		$image_avatar = new \calmpress\avatar\Image_Based_Avatar( $attachment );
-		$this->assertEquals( $image_avatar->html(50,50), $avatar->html( 50, 50 ) );
+		$this->assertEquals( $image_avatar->html( 50 ), $avatar->html( 50 ) );
 
 		// Test avatar removal.
 		$user->remove_avatar();
 		$avatar = $user->avatar();
-		$this->assertEquals( $text_avatar->html(50,50), $avatar->html( 50, 50 ) );
+		$this->assertEquals( $text_avatar->html( 50 ), $avatar->html( 50 ) );
 		
 		// Cleanup.
 		wp_delete_post( $attachment_id, true );

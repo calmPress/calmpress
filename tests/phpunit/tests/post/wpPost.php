@@ -79,14 +79,14 @@ class Tests_Post_wpPost extends WP_UnitTestCase {
 
 		// Test no author get blank avatar.
 		$post = get_post( $pid );
-		$this->assertEquals( $blank_avatar->html( 50, 50 ), $post->avatar()->html( 50, 50 ) );
+		$this->assertEquals( $blank_avatar->html( 50 ), $post->avatar()->html( 50 ) );
 
 		// One author, avatar is text based.
 		// Test one author.
 		$author1 = wp_insert_term( 'author1', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		wp_set_object_terms( $pid, $author1['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$text_avatar = new \calmpress\avatar\Text_Based_Avatar( 'author1', '' );
-		$this->assertEquals( $text_avatar->html( 50, 50 ), $post->avatar()->html( 50, 50 ) );
+		$this->assertEquals( $text_avatar->html( 50 ), $post->avatar()->html( 50 ) );
 
 		// Add an image to the author.
 		$author = new \calmpress\post_authors\Taxonomy_Based_Post_Author( get_term( $author1['term_id'] ) );
@@ -94,7 +94,7 @@ class Tests_Post_wpPost extends WP_UnitTestCase {
 		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
 		$author->set_image( get_post( $attachment_id ) );
 		$image_avatar = new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
-		$this->assertEquals( $image_avatar->html( 50, 50 ), $post->avatar()->html( 50, 50 ) );
+		$this->assertEquals( $image_avatar->html( 50 ), $post->avatar()->html( 50 ) );
 
 		// Cleanup.
 		wp_delete_post( $attachment_id, true );

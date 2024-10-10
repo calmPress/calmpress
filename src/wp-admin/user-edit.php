@@ -664,7 +664,7 @@ endif;
 				<span id="avatar_image_preview" style="vertical-align:top<?php echo $image_display?>">
 					<?php
 					if ( $attachment_id ) {
-						echo $avatar->html( 50, 50 );
+						echo $avatar->html( 50 );
 					} else {
 						echo "<img style='border-radius:50%' src='' alt='' width=50 height=50>";
 					}
@@ -672,7 +672,7 @@ endif;
 				</span>
 				<span id="avatar_text_preview"<?php echo $text_display; ?>>
 					<?php
-					echo $text_avatar->html( 50, 50 );
+					echo $text_avatar->html( 50 );
 					?>
 				</span>
 			</div>

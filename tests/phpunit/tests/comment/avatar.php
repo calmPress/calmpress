@@ -27,7 +27,7 @@ class Tests_Comment_Avatar extends WP_UnitTestCase {
 		// make sure that the result is the same as if we initiated the text based
 		// avatar directly with the name and email.
 		$text_avatar = new \calmpress\avatar\Text_Based_Avatar( 'test the best', 'test@best.com' );
-		$this->assertEquals( $text_avatar->html(50,50), $avatar->html( 50, 50 ) );
+		$this->assertEquals( $text_avatar->html(50 ), $avatar->html( 50 ) );
 
 		/*
 		 * Test avatar for comment left by a user is the user's avatar.
@@ -61,6 +61,6 @@ class Tests_Comment_Avatar extends WP_UnitTestCase {
 		// make sure that the result is the same as if we initiated the text based
 		// avatar directly with the name and email.
 		$user_avatar = $user->avatar();
-		$this->assertEquals( $user_avatar->html(50,50), $avatar->html( 50, 50 ) );
+		$this->assertEquals( $user_avatar->html(50 ), $avatar->html( 50 ) );
 	}
 }
