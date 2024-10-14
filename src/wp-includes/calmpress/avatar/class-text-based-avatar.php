@@ -112,9 +112,9 @@ class Text_Based_Avatar implements Avatar {
 		}
 
 		$attr = [
-			'src' => 'data:' .
-				esc_attr(
-					'<svg width="100" height="100" viewBox="0 0 100 100">' .
+			'src' => 'data:image/svg+xml;base64,' .
+				base64_encode(
+					'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">' .
 					'<text x="50%" y="50%" font-size="50" text-anchor="middle" dy=".35em" fill="white" font-family="Arial">' . $text . '</text>' .
 					'</svg>'
 				),
