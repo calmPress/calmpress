@@ -3855,7 +3855,7 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	$url        = '';
 	$attachment = $avatar->attachment();
 	if ( $attachment ) {
-		$url = wp_get_attachment_image_url( $attachment->ID, [ $args['width'], $args['height'] ] );
+		$url = wp_get_attachment_image_url( $attachment->ID, [ $args['size'], $args['size'] ] );
 		if ( ! $url ) {
 			trigger_error( 'Failed to get image source for the attachment ' . $attachment->ID, E_USER_NOTICE );
 			$avatar = new \calmpress\avatar\Blank_Avatar();
@@ -3877,7 +3877,24 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	if ( $url === $args['url'] ) {
 		// If $url has not changed we can assume the HTML should be the one derived
 		// from the core avatar code.
-		$args[ 'html' ] = $avatar->html( $args['size'] );
+		$html = $avatar->html( $args['size'] );
+
+		// The html might include classes, but get_avatar like to get them in
+		// a specific place and not in the html.
+		$pattern = '/(<img[^>]*?)class=["\']([^"\']*)["\']([^>]*>)/i';
+    
+		// Perform the regex replacement and capture the class attribute
+		$matches = [];
+		if ( preg_match( $pattern, $html, $matches ) ) {
+			// Extract the classes
+			$class = $matches[2];
+			$args[ 'class' ] = explode( ' ', $class );
+			
+			// Remove the class attribute from the HTML
+			$html = preg_replace('/class=["\']([^"\']*)["\']/', '', $html, 1);
+		}
+		 
+		$args[ 'html' ] = $html;
 	}
 
 	/**
