@@ -17,7 +17,7 @@ use calmpress\observer\Static_Mutation_Observer_Collection;
  * @since 1.0.0
  */
 class Text_Based_Avatar implements Avatar {
-	use Html_Parameter_Validation,
+	use Html_Generation_Helper,
 	Static_Mutation_Observer_Collection {
 		Static_Mutation_Observer_Collection::remove_observer as remove_mutator;
 		Static_Mutation_Observer_Collection::remove_observers_of_class as remove_mutator_of_class;
@@ -84,18 +84,17 @@ class Text_Based_Avatar implements Avatar {
 	}
 
 	/**
-	 * Provides the HTML required to display the avatar.
+	 * The attributes to be used in the generated img. generate a data URI
+	 * containing the SVG with the appropriate letters for the src attribute
+	 * and a class identifying the background color to use by default.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param int $size The width and height of the avatar image in pixels.
 	 *
-	 * @return string An HTML which will be rendered as a rectangle of the
-	 *                requested dimensions which will contain capital letters based
-	 *                on the initials of the name and background color based on
-	 *                the email address.
+	 * @return string[] A map of the attributes.
 	 */
-	protected function _html( int $size ) : string {
+	public function attributes( int $size ) : array {
 
 		// crc32 is not optimal but it is easy to use.
 		$color = self::COLORS[ absint( crc32( $this->text_source . $this->color_factor ) ) % count( self::COLORS ) ];
@@ -103,7 +102,7 @@ class Text_Based_Avatar implements Avatar {
 		$text = trim( $this->text_source );
 		if ( '' === $text ) {
 			$o = new Blank_Avatar();
-			return $o->html( $size );
+			return $o->attributes( $size );
 		}
 
 		$text_parts = explode( ' ', $text );
@@ -112,21 +111,18 @@ class Text_Based_Avatar implements Avatar {
 			$text .= mb_substr( $part, 0, 1, 'UTF-8' );
 		}
 
-		$text = esc_html( strtoupper( $text ) );
+		$attr = [
+			'src' => 'data:' .
+				esc_attr(
+					'<svg width="100" height="100" viewBox="0 0 100 100">' .
+					'<text x="50%" y="50%" font-size="50" text-anchor="middle" dy=".35em" fill="white" font-family="Arial">' . $text . '</text>' .
+					'</svg>'
+				),
+			'class' => 'av-' . $color,
+		];
 
-		if ( count( $text_parts ) < 2 ) {
-			$font_size = round ( $size / 2 );
-		} else {
-			// use smaller font size when there are more characters to display.
-			$font_size = round( $size / 5 * 2 );
-		}
-
-		$html = "<span aria-hidden='true' style='display:inline-block;border-radius:50%;text-align:center;color:white;line-height:" . $size . "px;width:" . $size . "px;height:" . $size . "px;font-size:" . $font_size . "px;background:" . $color . "'>$text</span>";
-
-		// Allow plugin and themes to override.
-		$html = self::mutate( $html, $this->text_source, $this->color_factor, $size );
-
-		return $html;
+		$attr = self::mutate( $attr, $this->text_source, $this->color_factor, $size );
+		return $attr;
 	}
 
 	/**
@@ -142,13 +138,13 @@ class Text_Based_Avatar implements Avatar {
 	}
 
 	/**
-	 * Register a mutatur to be called when the HTML is generated.
+	 * Register a mutatur to be called when the attributes are generated.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * Text_Based_Avatar_HTML_Mutator $mutator The object implementing the mutation observer.
+	 * Text_Based_Avatar_Attributes_Mutator $mutator The object implementing the mutation observer.
 	 */
-	public static function register_generated_HTML_mutator( Text_Based_Avatar_HTML_Mutator $mutator ): void {
+	public static function register_generated_attributes_mutator( Text_Based_Avatar_Attributes_Mutator $mutator ): void {
 		self::add_observer( $mutator );
 	}
 }

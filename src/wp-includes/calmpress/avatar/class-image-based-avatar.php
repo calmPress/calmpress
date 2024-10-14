@@ -17,7 +17,7 @@ use calmpress\observer\Static_Mutation_Observer_Collection;
  * @since 1.0.0
  */
 class Image_Based_Avatar implements Avatar {
-	use Html_Parameter_Validation,
+	use Html_Generation_Helper,
 	Static_Mutation_Observer_Collection {
 		Static_Mutation_Observer_Collection::remove_observer as remove_mutator;
 		Static_Mutation_Observer_Collection::remove_observers_of_class as remove_mutator_of_class;
@@ -52,8 +52,19 @@ class Image_Based_Avatar implements Avatar {
 	}
 
 	/**
-	 * Generate an HTML for avatar based on IMG element pointing to the image in
-	 * the attachment.
+	 * Generate an attributes to be used in the generation of the img tag. Expected
+	 * to be called from the html() method of the Html_Generation_Helper trait.
+	 * 
+	 * Attributes with special treatment:
+	 * class  - Should contain additional classes to be added with the core onse (
+	 *          avatar, avatar-{size}, photo ). Optional.
+	 * src    - The image URI. Mandatory.
+	 * alt    - if a meaningful alt attribute is required. Optional.
+	 * size   - A shortcut to override the height and width attribue. Not included
+	 *          by the HTML otherwise, only as part of a class. Mandatoty
+	 * widht  - Ignored
+	 * height - Ignored.
+	 * 
 	 *
 	 * In case the attachment do not correspond to an actual image, an HTML of a
 	 * blank avatar is retrieved.
@@ -62,10 +73,9 @@ class Image_Based_Avatar implements Avatar {
 	 *
 	 * @param int $size The width and height of the avatar image in pixels.
 	 *
-	 * @return string The HTML.
+	 * @return string[] A map of an attribute to its value.
 	 */
-	protected function _html( int $size ) : string {
-		$attr          = [ 'style' => 'border-radius:50%' ];
+	public function attributes( int $size ) : array {
 		$attachment_id = $this->attachment->ID;
 
 		/*
@@ -78,7 +88,7 @@ class Image_Based_Avatar implements Avatar {
 		// If it is impossible to get the image URL return empty avatar.
 		if ( ! $image ) {
 			$avatar = new Blank_Avatar();
-			return $avatar->html( $size );
+			return $avatar->attributes( $size );
 		}
 
 		list($src, $w, $h) = $image;
@@ -97,17 +107,10 @@ class Image_Based_Avatar implements Avatar {
 			}
 		}
 
-		$attr_str = array_map( 'esc_attr', $attr );
-		$html     = "<img alt='' width='$size' height='$size'";
-		foreach ( $attr as $name => $value ) {
-			$html .= " $name=" . '"' . $value . '"';
-		}
-		$html .= '>';
-
 		// Allow plugin and themes to override.
-		$html = self::mutate( $html, $this->attachment, $size );
+		$attr = self::mutate( $attr, $this->attachment, $size );
 
-		return $html;
+		return $attr;
 	}
 
 	/**
@@ -123,13 +126,13 @@ class Image_Based_Avatar implements Avatar {
 	}
 
 	/**
-	 * Register a mutatur to be called when the HTML is generated.
+	 * Register a mutatur to be called when the IMG tag attributes are generated.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * Image_Based_Avatar_HTML_Mutator $mutator The object implementing the mutation observer.
+	 * Image_Based_Avatar_Attributes_Mutator $mutator The object implementing the mutation observer.
 	 */
-	public static function register_generated_HTML_mutator( Image_Based_Avatar_HTML_Mutator $mutator ): void {
+	public static function register_generated_attributes_mutator( Image_Based_Avatar_Attributes_Mutator $mutator ): void {
 		self::add_observer( $mutator );
 	}
 }

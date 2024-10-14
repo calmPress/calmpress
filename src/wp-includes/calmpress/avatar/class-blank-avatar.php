@@ -19,31 +19,30 @@ use calmpress\observer\Static_Mutation_Observer_Collection;
  * @since 1.0.0
  */
 class Blank_Avatar implements Avatar {
-	use Html_Parameter_Validation,
+	use Html_Generation_Helper,
 		Static_Mutation_Observer_Collection {
 		Static_Mutation_Observer_Collection::remove_observer as remove_mutator;
 		Static_Mutation_Observer_Collection::remove_observers_of_class as remove_mutator_of_class;
 	}
 
 	/**
-	 * Implementation of the html method of the Avatar interface which returns
-	 * an empty HTML in order for an echo of it to have no real impact.
+	 * The attributes to be used in the generated img. By deafult just an empty
+	 * src but this can be adjusted by mutators.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param int $size The width and height of the avatar image in pixels.
 	 *
-	 * @return string An HTML which will be rendered as a blank rectangle of the
-	 *                requested dimensions.
+	 * @return string[] A map of the attributes.
 	 */
-	protected function _html( int $size ) : string {
+	public function attributes( int $size ) : array {
 
-		$html = "<span style='display:inline-block;width:" . $size . "px;height:" . $size . "px'></span>";
+		$attr = [ 'src' => '' ];
 
 		// Allow plugin and themes to override.
-		$html = self::mutate( $html, $size );
+		$attr = self::mutate( $attr, $size );
 	
-		return $html;
+		return $attr;
 	}
 
 	/**
@@ -59,13 +58,13 @@ class Blank_Avatar implements Avatar {
 	}
 
 	/**
-	 * Register a mutatur to be called when the HTML is generated.
+	 * Register a mutatur to be called when the img attrinues are generated.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * Blank_Avatar_HTML_Mutator $mutator The object implementing the mutation observer.
+	 * Blank_Avatar_Attributes_Mutator $mutator The object implementing the mutation observer.
 	 */
-	public static function register_generated_HTML_mutator( Blank_Avatar_HTML_Mutator $mutator ): void {
+	public static function register_generated_attributes_mutator( Blank_Avatar_Attributes_Mutator $mutator ): void {
 		self::add_observer( $mutator );
 	}
 }

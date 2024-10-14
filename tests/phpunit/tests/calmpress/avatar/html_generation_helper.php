@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests trait to test the Html_Parameter_Validation trait.
+ * Unit tests trait to test the Html_Generation_Helper trait.
  *
  * @package calmPress
  * @since 1.0.0
@@ -12,7 +12,7 @@ declare(strict_types=1);
  * Trait to test the html_parameter_validation trait functions. The tests assume
  * that the property "avatar" is set to the object to be tested.
  */
-trait Html_Parameter_Validation_Test {
+trait Html_Generation_Helper_Test {
 
 	/**
 	 * Test that invalid parameters to html method generate warnings, and that

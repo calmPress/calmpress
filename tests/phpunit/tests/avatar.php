@@ -103,8 +103,8 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$size = '100';
 		$img  = get_avatar( 1, $size );
 		// User do not have an image avatar and should generate a text one.
-		$this->assertStringContainsString( 'height:100px', $img );
-		$this->assertStringContainsString( 'width:100px', $img );
+		$this->assertStringContainsString( 'height="100"', $img );
+		$this->assertStringContainsString( 'width="100"', $img );
 	}
 
 	public function test_get_avatar_class() {

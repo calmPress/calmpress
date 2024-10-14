@@ -1,7 +1,7 @@
 <?php
 /**
- * Declaration of an interface of object that will be triggered to ovveride
- * the HTML generated for the text based avatar.
+ * interface that a mutation observer should implement to be able to register it
+ * to mutated the generate attribute of the IMG tag for text based avatars.
  *
  * @since calmPress 1.0.0
  */
@@ -16,29 +16,29 @@ namespace calmpress\avatar;
  *
  * @since calmPress 1.0.0
  */
-interface Text_Based_Avatar_HTML_Mutator extends \calmpress\observer\Observer {
+interface Text_Based_Avatar_Attributes_Mutator extends \calmpress\observer\Observer {
 
 	/**
-	 * Generate (override or leave) the HTML that is generated for a text
-	 * based avatar.
+	 * Generate (override or leave) the attributes which will be included
+	 * in the generated IMG tag for a text based avatar.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * @param string $html   The HTML that is about to be used for the blank avatar.
-	 * @param string $text   The text used to generate the avatar.
+	 * @param string $attr         The IMG tag attributes that are about to be used for the avatar.
+	 * @param string $text         The text used to generate the avatar.
 	 * @param string $color_factor The additional factor to apply when calculating
 	 *                             the avatar's background color.
 	 *                             It should be used to help visually differentiate
 	 *                             between avatars with the same text that should
 	 *                             represent different people.
-	 * @param int    $size The width and height of the avatar image in pixels.
+	 * @param int    $size         The width and height of the avatar image in pixels.
 	 *
-	 * @return string The HTML to use for the text based avatar.
+	 * @return string[] A map of the attibutes to use in the IMG tag.
 	 */
 	public function mutate(
-		string $html,
+		array $attr,
 		string $text,
 		string $color_factor,
 		int $size
-	): string;
+	): array;
 }
