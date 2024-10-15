@@ -84,6 +84,53 @@ class Text_Based_Avatar implements Avatar {
 	}
 
 	/**
+	 * Generate (max) 3 letters avatars from text while
+	 * using space, dot, dash and underscore as word separator and splitting
+	 * the input into "separated" parts from which the first character of the 
+	 * first two parts and the last part are used to generte the avatar text.
+	 * 
+	 * if intl extension is active remove accents from the resulting string.
+	 * 
+	 * Designed to be used by other code.
+	 * 
+	 * @since 1.0.0
+	 *
+	 * @param string $text The string to derive an avatar text from.
+	 * 
+	 * @return string The calculated avatar string, an empty string if
+	 *                the $text is empty or contains only separators.
+	 */
+	public static function avatar_text( string $text ): string {
+		$text = trim( $text );
+
+		// Replace dot, dash, underscore with spaces.
+		$text = str_replace( ['.', '-', '_'], ' ', $text );
+
+		$text_parts = explode( ' ', $text );
+
+		// Remove empty strings that might have been generated because of two space
+		// next to each other.
+		$text_parts = array_filter( $text_parts );
+
+		// If there are more than 3 parts create a new array from first two and last.
+		if ( count( $text_parts ) > 3 ) {
+			$text_parts = [ $text_parts[0], $text_parts[1], $text_parts[ count( $text_parts ) - 1 ] ];
+		}
+
+		$text = '';
+		foreach ( $text_parts as $part ) {
+			$text .= mb_substr( $part, 0, 1, 'UTF-8' );
+		}
+
+		// Remove accents if the relevant function exists.
+		if ( function_exists( 'iconv' ) ) {
+			$text = iconv( 'UTF-8', 'ASCII//TRANSLIT//IGNORE', $text );
+		}
+
+		return $text;
+	}
+
+	/**
 	 * The attributes to be used in the generated img. generate a data URI
 	 * containing the SVG with the appropriate letters for the src attribute
 	 * and a class identifying the background color to use by default.
@@ -99,16 +146,10 @@ class Text_Based_Avatar implements Avatar {
 		// crc32 is not optimal but it is easy to use.
 		$color = self::COLORS[ absint( crc32( $this->text_source . $this->color_factor ) ) % count( self::COLORS ) ];
 
-		$text = trim( $this->text_source );
+		$text = static::avatar_text( $this->text_source );
 		if ( '' === $text ) {
 			$o = new Blank_Avatar();
 			return $o->attributes( $size );
-		}
-
-		$text_parts = explode( ' ', $text );
-		$text = '';
-		foreach ( $text_parts as $part ) {
-			$text .= mb_substr( $part, 0, 1, 'UTF-8' );
 		}
 
 		$attr = [

@@ -58,20 +58,18 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 		 * Compare strings in a way that will keep the test passing if order changes.
 		 */
 
-		$this->assertStringContainsString( 'display:inline-block', $html );
 		$this->assertStringContainsString( 'width="50"', $html );
 		$this->assertStringContainsString( 'height="50"', $html );
 
 		// Check text.
-		$this->assertStringContainsString( '>TB<', $html );
+		preg_match('/<img[^>]+src="([^"]+)"/', $html, $matches);
+		$src = str_replace('data:image/svg+xml;base64,', '', $matches[1]) ;
+		$svg = base64_decode( $src );
+		$this->assertStringContainsString( '>tfb<', $svg );
 
 		// Test different color factor result with different color (indirectly via html).
 		$avatar2 = new \calmpress\avatar\Text_Based_Avatar( 'test for best', 't@calm.com' );
 		$this->assertNotEquals( $this->avatar->html( 50 ), $avatar2->html( 50 ) );
-
-		// Test text on width smaller than 40 px.
-		$html = $this->avatar->html( 30 );
-		$this->assertStringContainsString( '>T<', $html );
 
 		// Test blank avatar html is returned when no primary text is given.
 		$avatar2 = new \calmpress\avatar\Text_Based_Avatar( '', 't@testi.com' );
@@ -80,7 +78,7 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the filter is executed as part of text avatar generation.
+	 * Test that the mutator is executed as part of text avatar generation.
 	 *
 	 * @since 1.0.0
 	 */
@@ -93,5 +91,32 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 		$this->assertSame( 50, Mock_Text_Mutator::$size );
 		$this->assertSame( 'test for best', Mock_Text_Mutator::$text );
 		$this->assertSame( 't@test.com', Mock_Text_Mutator::$color_factor );
+	}
+
+	/**
+	 * Test avatar_text
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @dataProvider avatar_text_data
+	 */
+	function test_avatar_text( $source, $avatar ) {
+		$this->assertSame( $avatar, Text_Based_Avatar::avatar_text( $source ) );
+	}
+
+	function avatar_text_data() {
+		return [
+			['', ''],
+			[' ', ''],
+			['._-', ''],
+			['ar', 'a'],
+			['a r', 'ar'],
+			['ab cd ef', 'ace'],
+			['ab cd ef gh', 'acg'],
+			['ab c-d', 'acd'],
+			['ab c-d', 'acd'],
+			['_king-lion', 'kl'],
+			['John.Doe', 'JD'],
+		];
 	}
 }
