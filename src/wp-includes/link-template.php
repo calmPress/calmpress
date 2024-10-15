@@ -3887,8 +3887,18 @@ function get_avatar_data( $id_or_email, $args = null ) {
 		$matches = [];
 		if ( preg_match( $pattern, $html, $matches ) ) {
 			// Extract the classes
-			$class = $matches[2];
-			$args[ 'class' ] = explode( ' ', $class );
+			$class   = $matches[2];
+			$classes = explode( ' ', $class );
+
+			// classes might have already passed in the args. If so add them.
+			if ( isset( $args['class'] ) ) {
+				if ( is_array( $args['class'] ) ) {
+					$classes = array_merge( $classes, $args['class'] );
+				} else {
+					$classes[] = $args['class'];
+				}
+			}
+			$args[ 'class' ] = $classes;
 			
 			// Remove the class attribute from the HTML
 			$html = preg_replace('/class=["\']([^"\']*)["\']/', '', $html, 1);
