@@ -154,8 +154,7 @@ class WP_Styles extends WP_Dependencies {
 
 		if ( $inline_style ) {
 			$inline_style_tag = sprintf(
-				"<style id='%s-inline-css'%s>\n%s\n</style>\n",
-				esc_attr( $handle ),
+				"<style %s>\n%s\n</style>\n",
 				$this->type_attr,
 				$inline_style
 			);
@@ -187,9 +186,8 @@ class WP_Styles extends WP_Dependencies {
 		$title = isset( $obj->extra['title'] ) ? sprintf( "title='%s'", esc_attr( $obj->extra['title'] ) ) : '';
 
 		$tag = sprintf(
-			"<link rel='%s' id='%s-css' %s href='%s'%s media='%s' />\n",
+			"<link rel='%s' %s href='%s'%s media='%s' />\n",
 			$rel,
-			$handle,
 			$title,
 			$href,
 			$this->type_attr,
@@ -219,7 +217,7 @@ class WP_Styles extends WP_Dependencies {
 			}
 
 			$rtl_tag = sprintf(
-				"<link rel='%s' id='%s-rtl-css' %s href='%s'%s media='%s' />\n",
+				"<link rel='%s' %s href='%s'%s media='%s' />\n",
 				$rel,
 				$handle,
 				$title,
@@ -295,8 +293,7 @@ class WP_Styles extends WP_Dependencies {
 		}
 
 		printf(
-			"<style id='%s-inline-css'%s>\n%s\n</style>\n",
-			esc_attr( $handle ),
+			"<style%s>\n%s\n</style>\n",
 			$this->type_attr,
 			$output
 		);
