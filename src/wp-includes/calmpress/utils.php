@@ -184,3 +184,27 @@ function decrypt_int_from_base64( string $encrypted_value ): Decryption_Result {
 
 	return new Decryption_Result( $value, $nonce );
 }
+
+/**
+ * Register and enqueue an "inline" style and do not enque styles added after
+ * the first one was enqueued.
+ * 
+ * This provides a way to enque inline styles without duplicating them as long
+ * as the same handle is being used.
+ * 
+ * @since 1.0.0
+ * 
+ * @param string The handle to use to identofy the style.
+ * @param string The style to enqueue.
+ */
+function enqueue_inline_style_once( string $handle, string $style ): void {
+
+	// Bail out if handle was already enqueued.
+	if ( wp_style_is( $handle, 'enqueued' ) ) {
+		return;
+	}
+
+	wp_register_style( $handle, false ); // 'false' means no external file, just inline
+	wp_add_inline_style( $handle, $style );
+	wp_enqueue_style( $handle );
+}
