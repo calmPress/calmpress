@@ -144,7 +144,7 @@ class Text_Based_Avatar implements Avatar {
 	public function attributes( int $size ) : array {
 
 		// crc32 is not optimal but it is easy to use.
-		$color = self::COLORS[ absint( crc32( $this->text_source . $this->color_factor ) ) % count( self::COLORS ) ];
+		$color_index = absint( crc32( $this->text_source . $this->color_factor ) ) % count( self::COLORS );
 
 		$text = static::avatar_text( $this->text_source );
 		if ( '' === $text ) {
@@ -159,8 +159,11 @@ class Text_Based_Avatar implements Avatar {
 					'<text x="50%" y="50%" font-size="50" text-anchor="middle" dy=".35em" fill="white" font-family="Arial">' . $text . '</text>' .
 					'</svg>'
 				),
-			'class' => 'av-' . $color,
+			'class' => 'av-' . $color_index,
 		];
+
+		// Add default styling for the avatar.
+		\calmpress\utils\enqueue_inline_style_once( 'avatar-text-av-' . $color_index, '.avatar.av-' . $color_index . '{background:' . self::COLORS[ $color_index ] . ';}' );
 
 		$attr = self::mutate( $attr, $this->text_source, $this->color_factor, $size );
 		return $attr;
