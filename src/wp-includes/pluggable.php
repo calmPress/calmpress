@@ -2538,7 +2538,7 @@ if ( ! function_exists( 'get_avatar' ) ) :
 		}
 
 		// Add default styling for avatars.
-		\calmpress\utils\enqueue_inline_style_once( 'avatar-default-style', '.avatar {border-radius:50%;}' );
+		\calmpress\utils\enqueue_avatar_inline_style();
 
 		/**
 		 * Filters the HTML for a user's avatar.

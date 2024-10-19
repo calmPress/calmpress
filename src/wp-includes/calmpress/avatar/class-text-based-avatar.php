@@ -131,6 +131,18 @@ class Text_Based_Avatar implements Avatar {
 	}
 
 	/**
+	 * Enqueues the styles to support all possible styling variations
+	 * of an avatar.
+	 * 
+	 * @since 1.0.0
+	 */
+	public static function enqueue_all_possible_styles() {
+		foreach ( self::COLORS as $color_index => $value ) {
+			\calmpress\utils\enqueue_inline_style_once( 'avatar-text-av-' . $color_index, '.avatar.av-' . $color_index . '{background:' . self::COLORS[ $color_index ] . ';}' );
+		}
+	}
+
+	/**
 	 * The attributes to be used in the generated img. generate a data URI
 	 * containing the SVG with the appropriate letters for the src attribute
 	 * and a class identifying the background color to use by default.

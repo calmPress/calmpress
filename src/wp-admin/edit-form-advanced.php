@@ -40,6 +40,11 @@ if ( is_multisite() ) {
 
 wp_enqueue_script( 'post' );
 
+// Comments might be loaded by ajax so add the relevant avatar styling.
+\calmpress\utils\enqueue_avatar_inline_style();
+\calmpress\avatar\Text_Based_Avatar::enqueue_all_possible_styles();
+
+
 $_wp_editor_expand   = false;
 $_content_editor_dfw = false;
 

@@ -208,3 +208,13 @@ function enqueue_inline_style_once( string $handle, string $style ): void {
 	wp_add_inline_style( $handle, $style );
 	wp_enqueue_style( $handle );
 }
+
+/**
+ * Register and enqueue an "inline" style which is common to avatars.
+ * 
+ * @since 1.0.0
+ */
+function enqueue_avatar_inline_style(): void {
+
+	enqueue_inline_style_once( 'avatar-default-style', '.avatar {border-radius:50%;}' );
+}
