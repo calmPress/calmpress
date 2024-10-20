@@ -135,6 +135,10 @@ $wp_list_table->prepare_items();
 wp_enqueue_script( 'admin-comments' );
 enqueue_comment_hotkeys_js();
 
+// Comments might be loaded by ajax so add the relevant avatar styling.
+\calmpress\utils\enqueue_avatar_inline_style();
+\calmpress\avatar\Text_Based_Avatar::enqueue_all_possible_styles();
+
 if ( $post_id ) {
 	$comments_count      = wp_count_comments( $post_id );
 	$draft_or_post_title = wp_html_excerpt( _draft_or_post_title( $post_id ), 50, '&hellip;' );
