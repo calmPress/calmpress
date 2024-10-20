@@ -88,7 +88,7 @@ if ( ! function_exists( 'calmpress_version' ) ) {
 	 * @return string The version string.
 	 */
 	function calmpress_version() {
-		return '1.0.0-alpha24';
+		return '1.0.0-alpha25';
 	}
 }
 
