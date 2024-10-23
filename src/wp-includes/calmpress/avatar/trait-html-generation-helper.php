@@ -71,6 +71,15 @@ trait Html_Generation_Helper {
 			$attr['alt'] = '';
 		}
 
+		// Mimic the inclusion of the avatar class to be compatible with the
+		// classes added by get_avatar for code flows that do not use it.
+		if ( isset( $attr['class'] ) ) {
+			$attr['class'] = 'avatar ' . $attr['class'];
+		} else {
+			$attr['class'] = 'avatar';
+		}
+		\calmpress\utils\enqueue_avatar_inline_style();
+
 		$html = '<img';
 		foreach ( $attr as $name => $value ) {
 			$html .= ' ' . $name . '="' . esc_attr( $value ) . '"';
