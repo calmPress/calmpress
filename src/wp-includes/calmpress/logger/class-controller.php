@@ -325,18 +325,20 @@ class Controller {
 		int $max_string_length
 	) : string {
 		$output = '';
-		$json = json_decode( $value, true );
-		if ( is_array( $json ) ) {
-			$output .= str_repeat('  ', $offset) . $key . " (json) => [\n";
-			$output .= self::pretty_print_array( $json, $offset + 1, $max_string_length );
-			$output .= str_repeat('  ', $offset) . "]\n";
-		}
 		if ( is_array( $value ) ) {
 			$output .= str_repeat('  ', $offset) . $key . " => [\n";
 			$output .= self::pretty_print_array( $value, $offset + 1, $max_string_length );
 			$output .= str_repeat('  ', $offset) . "]\n";
+		} else {
+			$json = json_decode( $value, true );
+			if ( is_array( $json ) ) {
+				$output .= str_repeat('  ', $offset) . $key . " (json) => [\n";
+				$output .= self::pretty_print_array( $json, $offset + 1, $max_string_length );
+				$output .= str_repeat('  ', $offset) . "]\n";
+			} else {
+				$output .= str_repeat('  ', $offset ) . $key . ' => ' . self::trimmmed_string( $value, $max_string_length ) . "\n";
+			}
 		}
-		$output .= str_repeat('  ', $offset ) . $key . ' => ' . self::trimmmed_string( $value, $max_string_length ) . "\n";
 
 		return $output;
 	}
