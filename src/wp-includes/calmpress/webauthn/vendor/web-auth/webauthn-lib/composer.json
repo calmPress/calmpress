@@ -1,0 +1,61 @@
+{
+    "name": "web-auth/webauthn-lib",
+    "type": "library",
+    "license": "MIT",
+    "description": "FIDO2/Webauthn Support For PHP",
+    "keywords": [
+        "FIDO",
+        "FIDO2",
+        "webauthn"
+    ],
+    "homepage": "https://github.com/web-auth",
+    "authors": [
+        {
+            "name": "Florent Morselli",
+            "homepage": "https://github.com/Spomky"
+        },
+        {
+            "name": "All contributors",
+            "homepage": "https://github.com/web-auth/webauthn-library/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "ext-json": "*",
+        "ext-openssl": "*",
+        "ext-mbstring": "*",
+        "lcobucci/clock": "^2.2|^3.0",
+        "paragonie/constant_time_encoding": "^2.6|^3.0",
+        "psr/clock": "^1.0",
+        "psr/event-dispatcher": "^1.0",
+        "psr/http-client": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/log": "^1.0|^2.0|^3.0",
+        "spomky-labs/cbor-php": "^3.0",
+        "spomky-labs/pki-framework": "^1.0",
+        "symfony/uid": "^6.1|^7.0",
+        "symfony/deprecation-contracts": "^3.2",
+        "web-auth/cose-lib": "^4.2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Webauthn\\": "src/"
+        }
+    },
+    "extra": {
+        "thanks": {
+            "name": "web-auth/webauthn-framework",
+            "url": "https://github.com/web-auth/webauthn-framework"
+        }
+    },
+    "suggest": {
+        "symfony/serializer": "As of 4.5.x, the symfony/serializer component will become mandatory for converting objects such as the Metadata Statement",
+        "symfony/property-access": "As of 4.5.x, the symfony/serializer component will become mandatory for converting objects such as the Metadata Statement",
+        "symfony/property-info": "As of 4.5.x, the symfony/serializer component will become mandatory for converting objects such as the Metadata Statement",
+        "phpdocumentor/reflection-docblock": "As of 4.5.x, the phpdocumentor/reflection-docblock component will become mandatory for converting objects such as the Metadata Statement",
+        "psr/log-implementation": "Recommended to receive logs from the library",
+        "symfony/event-dispatcher": "Recommended to use dispatched events",
+        "psr/clock-implementation": "As of 4.5.x, the PSR Clock implementation will replace lcobucci/clock",
+        "web-token/jwt-library": "Mandatory for fetching Metadata Statement from distant sources"
+    }
+}
