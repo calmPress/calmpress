@@ -112,10 +112,12 @@ function display_previous_action_results() {
 
 /**
  * Generate an encrypted string representation of an int value which can be
- * decrypted using decrypt_int_from_base64.
+ * decrypted using decrypt_int_from_base64URL.
  * 
  * A nonce can be added to the encryption for processes that will need to validate
  * the validity of the value based on additional logic.
+ * 
+ * The string generate is fitting to use in URL parameters avoiding URL breaking characters
  *
  * @since 1.0.0
  * 
@@ -124,34 +126,41 @@ function display_previous_action_results() {
  *
  * @return string A base64 format string of the encryption result.
  */
-function encrypt_int_to_base64( int $value, int $nonce ): string {
+function encrypt_int_to_base64URL( int $value, int $nonce ): string {
 
 	$ekey   = substr( AUTH_KEY, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
 	$enonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
 
-	return base64_encode( sodium_crypto_secretbox( $value . '|' . $nonce, $enonce, $ekey ) );
+	$to_encrypt = sodium_crypto_secretbox( $value . '|' . $nonce, $enonce, $ekey );
+	$base64 = base64_encode( $to_encrypt );
+
+	// Replace + with - and / with _. remove = as right hand padding.
+	$ret = strtr( $base64, '+/', '-_');
+	$ret = rtrim( $ret, '=' );
+	return $ret;
 }
 
 /**
- * Decrypt a string generated with encrypt_int_to_base64 and extract the value
+ * Decrypt a string generated with encrypt_int_to_base64URL and extract the value
  * encoded in it.
  *
  * @since 1.0.0
  * 
  * @param string $encrypted_value The string which to decrypt.
  *
- * @return int The value which was encrypted.
+ * @return Decryption_Result The structure containing the value and nonce which were encrypted.
  *
  * @throws Exception If decryption had failed.
  */
-function decrypt_int_from_base64( string $encrypted_value ): Decryption_Result {
-	$raw_encrypted = base64_decode( $encrypted_value );
+function decrypt_int_from_base64URL( string $encrypted_value ): Decryption_Result {
+	// Inverse of encoding, Replace - with + and _ with /.
+	$base64 = strtr( $encrypted_value, '-_', '+/' );
+	$raw_encrypted = base64_decode( $base64, true );
 
 	// was it a valid base64
 	if ( false === $raw_encrypted ) {
 		throw new \Exception();
 	}
-
 
 	$ekey   = substr( AUTH_KEY, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
 	$enonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );

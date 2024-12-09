@@ -908,7 +908,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		return 
 			get_admin_url() . 
 			'admin-post.php?action=installeremail&id=' .
-			\calmpress\utils\encrypt_int_to_base64( $this->ID, $expiry );
+			\calmpress\utils\encrypt_int_to_base64URL( $this->ID, $expiry );
 	}
 
 	/**
@@ -923,7 +923,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		return 
 			get_admin_url() . 
 			'admin-post.php?action=newuseremail&id=' .
-			\calmpress\utils\encrypt_int_to_base64( $this->ID, $expiry );
+			\calmpress\utils\encrypt_int_to_base64URL( $this->ID, $expiry );
 	}
 
 	/**
@@ -938,7 +938,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		return 
 			get_admin_url() .
 			'admin-post.php?action=undouseremail&id=' .
-			\calmpress\utils\encrypt_int_to_base64( $this->ID, $expiry );
+			\calmpress\utils\encrypt_int_to_base64URL( $this->ID, $expiry );
 	}
 
 	/**
@@ -968,7 +968,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 
 	/**
 	 * Try to create a user out of the id encrypted in a string which is supposed
-	 * to be encrypted by encrypt_int_to_base64 and verify the value had not expired.
+	 * to be encrypted by encrypt_int_to_base64URL and verify the value had not expired.
 	 *
 	 * @since calmPress 1.0.0
 	 *
@@ -980,7 +980,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 */
 	public static function user_from_encrypted_string( $encrypted_value	): ?WP_User {
 		try {
-			$decrypt_result = \calmpress\utils\decrypt_int_from_base64( $encrypted_value );
+			$decrypt_result = \calmpress\utils\decrypt_int_from_base64URL( $encrypted_value );
 			$user_id        = $decrypt_result->value;
 			$nonce          = $decrypt_result->nonce;
 			if ( time() < $nonce ) {

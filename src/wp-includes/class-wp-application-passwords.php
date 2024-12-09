@@ -192,7 +192,7 @@ class WP_Application_Passwords {
 	 * @return string The user's application login string.
 	 */
 	public static function get_user_application_login( $user_id ) {
-		return \calmpress\utils\encrypt_int_to_base64( $user_id, 0 );
+		return \calmpress\utils\encrypt_int_to_base64URL( $user_id, 0 );
 	}
 
 	/**
@@ -206,7 +206,7 @@ class WP_Application_Passwords {
 	 */
 	public static function get_user_from_login( $login ): int {
 		try {
-			$result = \calmpress\utils\decrypt_int_from_base64( $login, 0 );
+			$result = \calmpress\utils\decrypt_int_from_base64URL( $login, 0 );
 			return $result->value;
 		} catch ( Exception $e ) {
 			return 0;

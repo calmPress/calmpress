@@ -180,7 +180,7 @@ class WP_User_Test extends WP_UnitTestCase {
 	function test_user_from_encrypted_string() {
 		// Test when user actually exists.
 		$user_id = $this->factory->user->create();
-		$str = \calmpress\utils\encrypt_int_to_base64( $user_id, time() + 100 );
+		$str = \calmpress\utils\encrypt_int_to_base64URL( $user_id, time() + 100 );
 
 		$user = WP_User::user_from_encrypted_string( $str );
 		$this->assertSame( $user_id, $user->ID );
@@ -190,13 +190,13 @@ class WP_User_Test extends WP_UnitTestCase {
 		$this->assertNull( $user );
 
 		// Nonexisting user gets a null.
-		$str = \calmpress\utils\encrypt_int_to_base64( 66666, time() + 100 );
+		$str = \calmpress\utils\encrypt_int_to_base64URL( 66666, time() + 100 );
 
 		$user = WP_User::user_from_encrypted_string( $str );
 		$this->assertNull( $user );
 
 		// Expired nonce gets a null.
-		$str = \calmpress\utils\encrypt_int_to_base64( $user_id, time() - 100 );
+		$str = \calmpress\utils\encrypt_int_to_base64URL( $user_id, time() - 100 );
 
 		$user = WP_User::user_from_encrypted_string( $str );
 		$this->assertNull( $user );
