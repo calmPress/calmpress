@@ -111,6 +111,50 @@ function display_previous_action_results() {
 }
 
 /**
+ * Encode a string as a base64URL.
+ * 
+ * The base64URL format allows a base64 string to be used as a URL arameter by
+ * eliminating characters that might break the expected structure of the URL.
+ * This is done by replacing "+" with "-" and "/" with "_", and eliminating
+ * the "=" right side padding of generated base64 strings.
+ * 
+ * Strings encoded this way should be decoded with base64URL_decode
+ * 
+ * @since 1.0.0
+ * 
+ * @param string $encode The string to encode.
+ * 
+ * @return string A base64 like encoding of $encode which is suitable to be used in URLs.
+ */
+function base64URL_encode( string $encode ): string {
+	// Encode as base64.
+	$base64 = base64_encode( $encode );
+
+	// Replace + with - and / with _. remove = as right hand padding.
+	$ret = strtr( $base64, '+/', '-_');
+	$ret = rtrim( $ret, '=' );
+
+	return $ret;
+}
+
+/**
+ * Decodes a base64 style string encoded with base64URL_encode.
+ * 
+ * @since 1.0.0
+ * 
+ * @param string $decode The string to decode.
+ * 
+ * @return string|false The decoded string of false if decoding fails.
+ */
+function base64URL_decode( string $decode ): string|false {
+
+	// Inverse of encoding, Replace - with + and _ with /.
+	$base64 = strtr( $decode, '-_', '+/' );
+
+	return base64_decode( $base64, true );
+}
+
+/**
  * Generate an encrypted string representation of an int value which can be
  * decrypted using decrypt_int_from_base64URL.
  * 
@@ -131,13 +175,8 @@ function encrypt_int_to_base64URL( int $value, int $nonce ): string {
 	$ekey   = substr( AUTH_KEY, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
 	$enonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
 
-	$to_encrypt = sodium_crypto_secretbox( $value . '|' . $nonce, $enonce, $ekey );
-	$base64 = base64_encode( $to_encrypt );
-
-	// Replace + with - and / with _. remove = as right hand padding.
-	$ret = strtr( $base64, '+/', '-_');
-	$ret = rtrim( $ret, '=' );
-	return $ret;
+	$encrypted = sodium_crypto_secretbox( $value . '|' . $nonce, $enonce, $ekey );
+	return base64_encode( $encrypted );
 }
 
 /**
@@ -153,9 +192,8 @@ function encrypt_int_to_base64URL( int $value, int $nonce ): string {
  * @throws Exception If decryption had failed.
  */
 function decrypt_int_from_base64URL( string $encrypted_value ): Decryption_Result {
-	// Inverse of encoding, Replace - with + and _ with /.
-	$base64 = strtr( $encrypted_value, '-_', '+/' );
-	$raw_encrypted = base64_decode( $base64, true );
+
+	$raw_encrypted = base64URL_decode( $encrypted_value );
 
 	// was it a valid base64
 	if ( false === $raw_encrypted ) {
