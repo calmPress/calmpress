@@ -107,6 +107,7 @@ const MAP = [
 	'calmpress\email\Email_To_User'                     => __DIR__ . '/email/trait-email-to-user.php',
 	'calmpress\utils\Decryption_Result'                 => __DIR__ . '/utils/class-decryption-result.php',
 	'calmpress\webauthn\User_Of_Device'                 => __DIR__ . '/webauthn/class-user-of-device.php',
+	'calmpress\webauthn\Public_Key'                     => __DIR__ . '/webauthn/class-public-key.php',
 	'Psr\SimpleCache\CacheInterface'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheInterface.php',
 	'Psr\SimpleCache\CacheException'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheException.php',
 	'Psr\SimpleCache\InvalidArgumentException'          => ABSPATH . 'wp-includes/Psr/SimpleCache/InvalidArgumentException.php',
