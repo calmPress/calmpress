@@ -21,54 +21,101 @@ class User_Of_Device {
 	/**
 	 * The public key associated with the user's authentication on with the device.
 	 *
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
-	public readonly string $public_key;
+	public readonly Public_Key $public_key;
 
 	/**
 	 * The human readable description.
 	 *
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
-	public readonly string $description;
+	private string $description;
 
 	/**
 	 * The date and time of the last time in which the device was used to authenticate
 	 * the user.
 	 *
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
-	public readonly \DateTime $last_autheticated_at;
+	private \DateTime $last_autheticated_at;
 
 	/**
-	 * The user which uses the device to authenticate.
+	 * The collection of devices in which is device is included.
 	 *
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 */
-	public readonly \WP_User $user;
+	public readonly Devices_Of_User $user_devices_collection;
 
 	/**
 	 * Create an object representing the user's authentication with the device.
 	 * 
-	 * @since calmPress 1.0.0
+	 * @since 1.0.0
 	 * 
-	 * @param string    $public_key  The public key identifying the user on the device
-	 *                               when authenticating.
-	 * @param string    $description The human readable description.
-	 * @param \DateTime $last_used   The latest date and time the user had authenticated
+	 * @param Public_Key $public_key  The public key identifying the user on the device
+	 *                                when authenticating.
+	 * @param string     $description The human readable description.
+	 * @param \DateTime  $last_used   The latest date and time the user had authenticated
 	 *                               with the device.
-	 * @param \WP_User  $user        The user which uses the device to authenticate.
+	 * @param Devices_Of_User $user_devices_collection The collection of devices
+	 *                                                 in which this device belongs.
 	 */
 	public function __construct(
-		string    $public_key,
-		string    $description,
-		\DateTime $last_used,
-		\WP_User  $user
+		Public_Key      $public_key,
+		string          $description,
+		\DateTime       $last_used,
+		Devices_Of_User $user_devices_collection
 	) {
-		$this->public_key           = $public_key;
-		$this->description          = $description;
-		$this->last_autheticated_at = $last_used;
-		$this->user                 = $user; 
+		$this->public_key              = $public_key;
+		$this->description             = $description;
+		$this->last_autheticated_at    = $last_used;
+		$this->user_devices_collection = $user_devices_collection; 
+	}
+
+	/**
+	 * The device's description.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @return string The description of the device.
+	 */
+	public function description(): string {
+		return $this->description;
+	}
+
+	/**
+	 * Set the desctiption.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param string $description The description to set.
+	 */
+	public function set_description( string $description ): void {
+		$this->description = $description;
+		$this->user_devices_collection->store( $this );
+	}
+
+	/**
+	 * The latest authentication from this device.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @return DateTime The time of last authentication.
+	 */
+	public function last_authentication_time(): \DateTime {
+		return $this->last_autheticated_at;
+	}
+
+	/**
+	 * Set the time of the latest authentication from this device.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param \DateTime $time The time of the latest authentication.
+	 */
+	public function set_last_authentication_time( \DateTime $time ): void {
+		$this->last_autheticated_at = $time;
+		$this->user_devices_collection->store( $this );
 	}
 
 	/**
@@ -78,7 +125,7 @@ class User_Of_Device {
 	 * information will be provided when unserializing. 
 	 * 
 	 * The generated json has the following fields
-	 * - p  which has the public key
+	 * - p  which has the public key as a base64URL encoded string.
 	 * - de which has the description
 	 * - da which contains latest authentication time formatted as a unix time stamp.
 	 *
@@ -88,7 +135,7 @@ class User_Of_Device {
 	 */
 	public function serialize() : string {
 		$o = new \stdClass();
-		$o->p  = $this->public_key;
+		$o->p  = $this->public_key->base64URL;
 		$o->de = $this->description;
 		$o->da = (string) $this->last_autheticated_at->getTimestamp();
 		return json_encode( $o );
@@ -101,13 +148,15 @@ class User_Of_Device {
 	 * 
 	 * @since calmpress 1.0.0
 	 * 
-	 * @param string   $data The string containing the serialized represantation.
-	 * @param \WP_User $user The user associated with authetication from this device.
+	 * @param string          $data The string containing the serialized represantation.
+	 * @param Devices_Of_User $user_devices_collection The collection of devices
+	 *                                                 in which this device belongs.
 	 * 
 	 * @return User_Of_Device An object created based from parsing the $data.
+	 * 
 	 * @throws RuntimeException If the serialized data is invalid.
 	 */
-	public static function unserialize( string $data, \WP_User $user ): User_Of_Device {
+	public static function unserialize( string $data, Devices_Of_User $user ): User_Of_Device {
 		$o = json_decode( $data, true );
 
 		// check if valid json.
@@ -156,6 +205,6 @@ class User_Of_Device {
 			}
 		}
 
-		return new User_Of_Device( $o['p'], $o['de'], $date, $user );
+		return new User_Of_Device( new Public_Key( $o['p'] ), $o['de'], $date, $user );
 	}
 }

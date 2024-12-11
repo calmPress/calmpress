@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 use calmpress\webauthn\Public_Key;
 
-class User_Of_Device_Test extends WP_UnitTestCase {
+class Public_Key_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that the constructor set all properties.
