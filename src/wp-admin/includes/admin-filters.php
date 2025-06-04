@@ -62,9 +62,6 @@ add_filter( 'heartbeat_received', 'heartbeat_autosave', 500, 2 );
 add_filter( 'wp_refresh_nonces', 'wp_refresh_post_nonces', 10, 3 );
 add_filter( 'wp_refresh_nonces', 'wp_refresh_heartbeat_nonces' );
 
-add_filter( 'wp_refresh_nonces', 'wp_refresh_post_nonces', 10, 3 );
-add_filter( 'wp_refresh_nonces', 'wp_refresh_heartbeat_nonces' );
-
 add_filter( 'heartbeat_settings', 'wp_heartbeat_set_suspension' );
 
 // Nav Menu hooks.
