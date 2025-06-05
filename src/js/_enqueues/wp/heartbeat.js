@@ -393,7 +393,12 @@
 			// Clear the data queue. Anything added after this point will be sent on the next tick.
 			settings.queue = {};
 
-			$document.trigger( 'heartbeat-send', [ heartbeatData ] );
+			var event = jQuery.Event( 'heartbeat-send' );
+			$document.trigger( event, [ heartbeatData ] );
+			
+			if ( event.isDefaultPrevented() ) {
+				return;
+			}
 			wp.hooks.doAction( 'heartbeat.send', heartbeatData );
 
 			ajaxData = {
