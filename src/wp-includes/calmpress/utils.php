@@ -265,3 +265,56 @@ function enqueue_avatar_inline_style(): void {
 
 	enqueue_inline_style_once( 'avatar-default-style', '.avatar {border-radius:50%;}' );
 }
+
+/**
+ * Ensure that the current user session is "fresh", verifying that user authentication
+ * was less than 12 hours ago*, and prompting a login interface if it is not.
+ * 
+ * It is assumed to be called for an authenticated user.
+ * 
+ * * The actuall freshness interval can be controlled by setting the SESSION_FRESHNESS_TIME
+ * constant to some different value of number of seconds a session is fresh.
+ * 
+ * @since 1.0.0
+ * 
+ * @return bool true if session is fresh or no session, false if reauthentication
+ *              is triggered.
+ */
+ function ensure_fresh_logged_in_session(): bool {
+	$session_token = wp_get_session_token();
+
+	// No token? not a browser session.
+	if ( ! $session_token ) {
+		return true;
+	}
+
+	$current_user = wp_get_current_user();
+	$session_manager = \WP_Session_Tokens::get_instance( $current_user->ID );
+	$fresh = $session_manager->is_fresh( SESSION_FRESHNESS_TIME, $session_token );
+
+	if ( ! $fresh ) {
+
+		/*
+			If its a page request trigger display of login dialog.
+			If not, set an indication that heartbeat should request reauthentication.
+		*/
+		$session_data = $session_manager->get( $session_token );
+		$session_data['reauthentocation_needed'] = 1;
+		$session_manager->update( $session_token, $session_data );
+
+		// If we are in a context of an iframe do not add the login window
+		// related code, assume the main window will spawn it.
+		if ( ! defined( 'IFRAME_REQUEST' ) ) {
+
+			// this code should be safe for non page initiated request
+			// as the relevant filters are being called onle on page generation.
+			wp_enqueue_script( 'calm-reauth' );
+			wp_enqueue_style( 'wp-auth-check' );
+	
+			add_action( 'admin_print_footer_scripts', 'wp_auth_check_html', 5 );
+			add_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+		}
+	}
+
+	return $fresh;
+ }

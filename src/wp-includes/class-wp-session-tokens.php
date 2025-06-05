@@ -104,6 +104,42 @@ abstract class WP_Session_Tokens {
 	}
 
 	/**
+	 * Validates the given session is fresh. A session is fresh when the latest login
+	 * happened in up to some time ago.
+	 *
+	 * It is intended to be used by callers which want to deny access based to some
+	 * some operation if user authenticate "long" time ago while letting the user
+	 * perform other operations which are dimmed less important.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param int    $freshness_interval The interval of time in seconds since last
+	 *                                   login for which the session is deemed fresh.
+	 * @param string $token              The token identifying the session. If not
+	 *                                   specified (empty string) the current session
+	 *                                   is assumed.
+	 * 
+	 * @return bool true if session exists and last was authenticated less than
+	 *              $freshness_interval ago, false otherwise.
+	 */
+	public function is_fresh( int $freshness_interval, string $token = '' ): bool {
+		if ( $token === '' ) {
+            $token = wp_get_session_token();
+        }
+
+		if ( ! $token ) {
+            return false;
+        }
+
+		$session = $this->get( $token );
+		if ( ! $session ) {
+			return false;
+		}
+
+		return ( time() - $session['last_authentication'] ) <= $freshness_interval;
+	}
+
+	/**
 	 * Generates a session token and attaches session information to it.
 	 *
 	 * A session token is a long, random string. It is used in a cookie
@@ -143,8 +179,10 @@ abstract class WP_Session_Tokens {
 			$session['ua'] = wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
 		}
 
-		// Timestamp.
-		$session['login'] = time();
+		// Timestamps.
+		$session['login']                   = time();
+		$session['last_authentication']     = time();
+		$session['reauthentocation_needed'] = 0;
 
 		$token = wp_generate_password( 43, false, false );
 
@@ -204,6 +242,12 @@ abstract class WP_Session_Tokens {
 	 * @return bool Whether session is valid.
 	 */
 	protected function is_still_valid( $session ) {
+
+		// expiration should always be set, but protect against some DB
+		// garbage which might cause errors.
+		if ( ! key_exists( 'expiration', $session ) )
+			return false;
+
 		return $session['expiration'] >= time();
 	}
 

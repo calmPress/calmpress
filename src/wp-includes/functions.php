@@ -6708,8 +6708,12 @@ function wp_auth_check_html() {
  *
  * Send a result that shows a log-in box if the user is no longer logged in,
  * or if their cookie is within the grace period.
+ * 
+ * Check if previous operation had failed because session was not fresh enough,
+ * if so trigger the display of login dialog.
  *
  * @since 3.6.0
+ * @since calmPress 1.0.0 Check for freshness failure.
  *
  * @global int $login_grace_period
  *
@@ -6718,6 +6722,21 @@ function wp_auth_check_html() {
  */
 function wp_auth_check( $response ) {
 	$response['wp-auth-check'] = is_user_logged_in() && empty( $GLOBALS['login_grace_period'] );
+
+	// If session in general not about to expire check if some previos operation
+	// failed because session was not fresh enough.
+	if ( ! $response['wp-auth-check'] ) {
+		$session_token = wp_get_session_token();
+		$current_user = wp_get_current_user();
+		if ( ! empty( $session_token ) && $current_user !== null ) {
+			$session_manager = WP_Session_Tokens::get_instance( $current_user->ID );
+			$session_data = $session_manager->get( $session_token );
+			if ( $session_data['reauthentocation_needed'] == 1 ) {
+				$response['wp-auth-check'] = true;	
+			}
+		}
+	}
+
 	return $response;
 }
 

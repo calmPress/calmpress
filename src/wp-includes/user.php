@@ -145,6 +145,16 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 	 */
 	do_action( 'wp_login', $user->user_login, $user );
 
+	// Update last authentication time stamp.
+
+	$session_tokens = WP_Session_Tokens::get_instance( $user->ID );
+	$current_token  = wp_get_session_token();
+
+	$session_data = $session_tokens->get( $current_token );
+	$session_data['last_authentication']     = time();
+	$session_data['reauthentocation_needed'] = 0;
+	$session_tokens->update( $current_token, $session_data );
+	
 	return $user;
 }
 

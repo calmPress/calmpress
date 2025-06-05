@@ -49,4 +49,19 @@ class Tests_User_Session extends WP_UnitTestCase {
 		$this->assertFalse( $this->manager->verify( $token_1 ) );
 		$this->assertFalse( $this->manager->verify( $token_2 ) );
 	}
+
+	/**
+	 * Test the is_fresh method
+	 * 
+	 * @since calmPress 1.0.0
+	 */
+	public function test_is_fresh() {
+
+		// In interval.
+        $token = $this->manager->create( time() + 30000 );
+        $this->assertTrue( $this->manager->is_fresh( 10000, $token ) );
+
+		// Out of interval simulated by negative interval.
+        $this->assertTrue( $this->manager->is_fresh( 10000, $token ) );
+	}
 }

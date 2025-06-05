@@ -973,7 +973,59 @@ function wp_maybe_tools_menu_cap( $allcaps ) {
 	return $allcaps;
 }
 
-return;
+/**
+ * Filters the user capabilities to require a reauth if the capability requested is
+ * sensaative and session is not "fresh".
+ *
+ * @since calmpress 1.0.0
+ *
+ * @param bool[]   $allcaps An array of all the user's capabilities.
+ * @param string[] $caps    An array of the requested capabilities.
+ * @param array    $args {
+ *     Arguments that accompany the requested capability check.
+ *
+ *     @type string    $0 Requested capability.
+ *     @type int       $1 Concerned user ID.
+ *     @type mixed  ...$2 Optional second and further parameters, typically object ID.
+ * }
+ * @param WP_User  $user    The user object.
+ *
+ * @return bool[] Filtered array of the user's capabilities.
+ */
+function wp_maybe_cap_requires_fresh_session( $allcaps, $caps, $args, $user ) {
+	$caps_not_requiring_fresh_session = apply_filters(
+		'caps_not_requiring_fresh_session',
+		[
+			'read',
+			'list_users',
+			'upload_files',
+			'assign_terms',
+			'manage_categories',
+			'read_private_posts',
+			'read_private_pages',
+			'edit_comments',
+			'edit_posts',
+			'edit_published_posts',
+			'edit_own_posts',
+			'delete_own_posts',
+			'edit_own_comments',
+		]
+	);
+
+	$requested_caps = (array) $caps;
+	$sensitive_caps_requested = array_diff( $requested_caps, $caps_not_requiring_fresh_session );
+
+	if ( $sensitive_caps_requested ) {
+		if ( ! \calmpress\utils\ensure_fresh_logged_in_session() ) {
+			// Remove the sensitive capabilities
+			foreach ( $sensitive_caps_requested as $cap ) {
+				unset( $allcaps[ $cap ] );
+			}
+		}
+	}
+
+	return $allcaps;
+}
 
 // Dummy gettext calls to get strings in the catalog.
 /* translators: User role for administrators. */

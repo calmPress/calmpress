@@ -541,4 +541,7 @@ add_filter( 'pre_oembed_result', 'wp_filter_pre_oembed_result', 10, 3 );
 // Capabilities.
 add_filter( 'user_has_cap', 'wp_maybe_grant_install_languages_cap', 1 );
 
+// Check session freshness for sensative capabilities.
+add_filter( 'user_has_cap', 'wp_maybe_cap_requires_fresh_session', 1, 4 );
+
 unset( $filter, $action );

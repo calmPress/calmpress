@@ -1339,6 +1339,8 @@ function wp_default_scripts( $scripts ) {
 
 		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate'], '1.0' );
 
+		$scripts->add( 'calm-reauth', "/wp-includes/js/cp-reauth$suffix.js", ['wp-auth-check'], '1.0' );
+
 		$scripts->add( 'svg-painter', '/wp-admin/js/svg-painter.js', array( 'jquery' ), false, 1 );
 	}
 }

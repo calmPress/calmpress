@@ -135,6 +135,12 @@ function wp_initial_constants() {
 	define( 'MONTH_IN_SECONDS', 30 * DAY_IN_SECONDS );
 	define( 'YEAR_IN_SECONDS', 365 * DAY_IN_SECONDS );
 	/**#@-*/
+
+	// The amount of time in seconds a logged in session will be concidered fresh enough
+	// for accessing and manipulating sensative information.
+	if ( ! defined( 'SESSION_FRESHNESS_TIME' ) ) {
+		define( 'SESSION_FRESHNESS_TIME', 12 * HOUR_IN_SECONDS );
+	}
 }
 
 /**
