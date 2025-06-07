@@ -94,16 +94,11 @@
 	 * @private
 	 */
 	function hide() {
-		var adminpage = window.adminpage,
-			wp        = window.wp;
+		var wp = window.wp;
 
 		$( window ).off( 'beforeunload.wp-auth-check' );
 
-		// When on the Edit Post screen, speed up heartbeat
-		// after the user logs in to quickly refresh nonces.
-		if ( ( adminpage === 'post-php' || adminpage === 'post-new-php' ) && wp && wp.heartbeat ) {
-			wp.heartbeat.connectNow();
-		}
+		wp.heartbeat.connectNow();
 
 		wrap.fadeOut( 200, function() {
 			wrap.addClass( 'hidden' ).css( 'display', '' );
