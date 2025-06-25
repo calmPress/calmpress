@@ -99,9 +99,6 @@ module.exports = function( env = { environment: 'production', watch: false, buil
 	};
 
 	const phpFiles = {
-		'block-serialization-default-parser/class-wp-block-parser.php': 'wp-includes/class-wp-block-parser.php',
-		'block-serialization-default-parser/class-wp-block-parser-frame.php': 'wp-includes/class-wp-block-parser-frame.php',
-		'block-serialization-default-parser/class-wp-block-parser-block.php': 'wp-includes/class-wp-block-parser-block.php',
 	};
 
 	const developmentCopies = mapVendorCopies( vendors, buildTarget );
