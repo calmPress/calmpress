@@ -13,7 +13,7 @@ namespace calmpress\user;
 require_once dirname( __FILE__ ) . '/admin.php';
 
 if ( ! current_user_can( 'delete_users' ) ) {
-	wp_die( esc_html__( 'Sorry, you are not allowed to swith user on this site.' ) );
+	wp_die( esc_html__( 'Sorry, you are not allowed to switch user on this site.' ) );
 }
 
 $title       = __( 'Switch User' );
