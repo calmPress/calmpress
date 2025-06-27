@@ -31,7 +31,7 @@ class Switch_User {
 		if ( ! current_user_can( 'delete_users' ) ) {
 			wp_die(
 				'<h1>' . __( 'You need additional permission.' ) . '</h1>' .
-				'<p>' . __( 'Sorry, you are not allowed to swith users at this site.' ) . '</p>',
+				'<p>' . __( 'Sorry, you are not allowed to switch users at this site.' ) . '</p>',
 				403
 			);
 		}
