@@ -762,33 +762,6 @@ function post_slug_meta_box( $post ) {
 }
 
 /**
- * Display form field with list of authors.
- *
- * @since 2.6.0
- *
- * @global int $user_ID
- *
- * @param WP_Post $post
- */
-function post_author_meta_box( $post ) {
-	global $user_ID;
-
-	$post_type_object = get_post_type_object( $post->post_type );
-	?>
-<label class="screen-reader-text" for="post_author_override"><?php _e( 'Author' ); ?></label>
-	<?php
-	wp_dropdown_users(
-		array(
-			'capability'       => array( $post_type_object->cap->edit_posts ),
-			'name'             => 'post_author_override',
-			'selected'         => empty( $post->ID ) ? $user_ID : $post->post_author,
-			'include_selected' => true,
-			'show'             => 'display_name_with_login',
-		)
-	);
-}
-
-/**
  * Display list of revisions.
  *
  * @since 2.6.0
