@@ -330,7 +330,7 @@ class Controller {
 			$output .= self::pretty_print_array( $value, $offset + 1, $max_string_length );
 			$output .= str_repeat('  ', $offset) . "]\n";
 		} else {
-			$json = json_decode( $value, true );
+			$json = json_decode( (string) $value, true );
 			if ( is_array( $json ) ) {
 				$output .= str_repeat('  ', $offset) . $key . " (json) => [\n";
 				$output .= self::pretty_print_array( $json, $offset + 1, $max_string_length );
