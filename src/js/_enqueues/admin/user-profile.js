@@ -569,7 +569,16 @@
 				addInlineNotice( $this, false, response );
 			} );
 		} );
-		
+
+	$( '#register_device_webauthn' )
+		/**
+		 * Register the device for webauthn authentication.
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+		} );
+
 	/*
 	 * We need to generate a password as soon as the Reset Password page is loaded,
 	 * to avoid double clicking the button to retrieve the first generated password.

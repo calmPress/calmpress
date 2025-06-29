@@ -2092,23 +2092,31 @@ function user_can_access_admin_page() {
 		return false;
 	}
 
+	// Output reauthentication dialog related code if capability has to be fresh.
+	// priority same as general capability filter as it will be skipped in html generation.
+	add_filter( 'user_has_cap', 'show_reauthentication_for_non_fresh_pages', 1, 4 );
+
+	$ret = true;
+
 	if ( isset( $submenu[ $parent ] ) ) {
 		foreach ( $submenu[ $parent ] as $submenu_array ) {
 			if ( isset( $plugin_page ) && $submenu_array[2] === $plugin_page ) {
-				return current_user_can( $submenu_array[1] );
+				$ret = current_user_can( $submenu_array[1] );
 			} elseif ( $submenu_array[2] === $pagenow ) {
-				return current_user_can( $submenu_array[1] );
+				$ret = current_user_can( $submenu_array[1] );
 			}
 		}
 	}
 
 	foreach ( $menu as $menu_array ) {
 		if ( $menu_array[2] === $parent ) {
-			return current_user_can( $menu_array[1] );
+			$ret = current_user_can( $menu_array[1] );
 		}
 	}
 
-	return true;
+	remove_filter( 'user_has_cap', 'show_reauthentication_for_non_fresh_pages', 1, 4 );
+
+	return $ret;
 }
 
 /* Allowed list functions */

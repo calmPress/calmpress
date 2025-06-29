@@ -974,8 +974,89 @@ function wp_maybe_tools_menu_cap( $allcaps ) {
 }
 
 /**
- * Filters the user capabilities to require a reauth if the capability requested is
+ * Which user capabilities require a reauth if the capability requested is
  * sensaative and session is not "fresh".
+ *
+ * @since calmpress 1.0.0
+ *
+ * @param bool[]   $allcaps An array of all the user's capabilities.
+ * @param string[] $caps    An array of the requested capabilities.
+ * @param array    $args {
+ *     Arguments that accompany the requested capability check.
+ *
+ *     @type string    $0 Requested capability.
+ *     @type int       $1 Concerned user ID.
+ *     @type mixed  ...$2 Optional second and further parameters, typically object ID.
+ * }
+ * @param WP_User  $user    The user object.
+ *
+ * @return bool[] array of the user's requested capabilities that reqire refresh.
+ */
+function capabilities_requiring_refresh( $allcaps, $caps, $args, $user ) {
+	
+	$caps_requiring_fresh_session = apply_filters(
+		'caps_requiring_fresh_session',
+		[
+			// User management
+			'create_users',
+			'edit_users',
+			'delete_users',
+			'list_users',
+			'promote_users',
+			'remove_users',
+
+			// Site management
+			'manage_options',
+			'edit_theme_options',
+			'update_core',
+			'maintenance_mode',
+			'manage_server',
+
+			// Plugin & theme management
+			'activate_plugins',
+			'delete_plugins',
+			'install_plugins',
+			'update_plugins',
+			'delete_themes',
+			'install_themes',
+			'switch_themes',
+			'update_themes',
+
+			// Unfiltered or unsafe operations
+			'unfiltered_html',
+			'unfiltered_upload',
+
+			// Comment and dashboard moderation
+			'moderate_comments',
+
+			// Multisite management
+			'manage_network',
+			'manage_sites',
+			'manage_network_sites',
+			'manage_network_users',
+			'manage_network_plugins',
+			'manage_network_themes',
+			'manage_network_options',
+			'upgrade_network',
+			'setup_network',
+		]
+	);
+
+	$requested_caps = (array) $caps;
+	$sensitive_caps_requested = array_intersect( $requested_caps, $caps_requiring_fresh_session );
+
+	if ( $sensitive_caps_requested ) {
+		if ( ! \calmpress\utils\ensure_fresh_logged_in_session() ) {
+			return $sensitive_caps_requested;
+		}
+	}
+
+	return [];
+}
+
+/**
+ * Filters the user capabilities to require a reauth if the capability requested is
+ * sensative, session is not "fresh" and html not being generated.
  *
  * @since calmpress 1.0.0
  *
@@ -993,35 +1074,57 @@ function wp_maybe_tools_menu_cap( $allcaps ) {
  * @return bool[] Filtered array of the user's capabilities.
  */
 function wp_maybe_cap_requires_fresh_session( $allcaps, $caps, $args, $user ) {
-	$caps_not_requiring_fresh_session = apply_filters(
-		'caps_not_requiring_fresh_session',
-		[
-			'read',
-			'list_users',
-			'upload_files',
-			'assign_terms',
-			'manage_categories',
-			'read_private_posts',
-			'read_private_pages',
-			'edit_comments',
-			'edit_posts',
-			'edit_published_posts',
-			'edit_own_posts',
-			'delete_own_posts',
-			'edit_own_comments',
-		]
-	);
+	
+	/**
+	 * When the context is html generation we don't want to check freshness
+	 */
+	if ( 
+		! wp_doing_ajax() &&
+		! (defined( 'REST_REQUEST' ) && REST_REQUEST) &&
+		( $_SERVER['REQUEST_METHOD'] === 'GET' )
+	) {
+		return $allcaps;
+	}
 
-	$requested_caps = (array) $caps;
-	$sensitive_caps_requested = array_diff( $requested_caps, $caps_not_requiring_fresh_session );
-
-	if ( $sensitive_caps_requested ) {
-		if ( ! \calmpress\utils\ensure_fresh_logged_in_session() ) {
-			// Remove the sensitive capabilities
-			foreach ( $sensitive_caps_requested as $cap ) {
-				unset( $allcaps[ $cap ] );
-			}
+	$capabilities_reuiring_reauth = capabilities_requiring_refresh( $allcaps, $caps, $args, $user );
+	if ( $capabilities_reuiring_reauth ) {
+		// Remove the capabilities rwquiring reauth.
+		foreach ( $capabilities_reuiring_reauth as $cap ) {
+			unset( $allcaps[ $cap ] );
 		}
+	}
+
+	return $allcaps;
+}
+
+/**
+ * Check the user capabilities to require a reauth if the capability requested is
+ * sensative and session is not "fresh". In that case add the relevant JS and HTML.
+ *
+ * @since calmpress 1.0.0
+ *
+ * @param bool[]   $allcaps An array of all the user's capabilities.
+ * @param string[] $caps    An array of the requested capabilities.
+ * @param array    $args {
+ *     Arguments that accompany the requested capability check.
+ *
+ *     @type string    $0 Requested capability.
+ *     @type int       $1 Concerned user ID.
+ *     @type mixed  ...$2 Optional second and further parameters, typically object ID.
+ * }
+ * @param WP_User  $user    The user object.
+ *
+ * @return bool[] The requested capabilities.
+ */
+function show_reauthentication_for_non_fresh_pages( $allcaps, $caps, $args, $user ) {
+	$capabilities_reuiring_reauth = capabilities_requiring_refresh( $allcaps, $caps, $args, $user );
+
+	if ( $capabilities_reuiring_reauth ) {
+		wp_enqueue_script( 'calm-reauth' );
+		wp_enqueue_style( 'wp-auth-check' );
+	
+		add_action( 'admin_print_footer_scripts', 'wp_auth_check_html', 5 );
+		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
 	}
 
 	return $allcaps;
