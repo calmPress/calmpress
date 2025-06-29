@@ -1272,6 +1272,7 @@ function setup_userdata( $for_user_id = 0 ) {
  * @since 2.3.0
  * @since 4.5.0 Added the 'display_name_with_login' value for 'show'.
  * @since 4.7.0 Added the `$role`, `$role__in`, and `$role__not_in` parameters.
+ * @since calmpress 1.0.0 change defualt of $role__not_in parameter.
  *
  * @param array|string $args {
  *     Optional. Array or string of arguments to generate a drop-down of users.
@@ -1318,7 +1319,7 @@ function setup_userdata( $for_user_id = 0 ) {
  *     @type string[]     $role__in                An array of role names. Matched users must have at least one of
  *                                                 these roles. Default empty array.
  *     @type string[]     $role__not_in            An array of role names to exclude. Users matching one or more of
- *                                                 these roles will not be included in results. Default empty array.
+ *                                                 these roles will not be included in results. Default set to pending_activation role.
  * }
  * @return string HTML dropdown list of users.
  */
@@ -1344,7 +1345,7 @@ function wp_dropdown_users( $args = '' ) {
 		'option_none_value'       => -1,
 		'role'                    => '',
 		'role__in'                => array(),
-		'role__not_in'            => array(),
+		'role__not_in'            => array( 'pending_activation' ),
 		'capability'              => '',
 		'capability__in'          => array(),
 		'capability__not_in'      => array(),
