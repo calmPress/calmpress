@@ -974,26 +974,15 @@ function wp_maybe_tools_menu_cap( $allcaps ) {
 }
 
 /**
- * Which user capabilities require a reauth if the capability requested is
- * sensaative and session is not "fresh".
- *
+ * For a list of caps finds which are sensative.
+ * 
  * @since calmpress 1.0.0
  *
- * @param bool[]   $allcaps An array of all the user's capabilities.
  * @param string[] $caps    An array of the requested capabilities.
- * @param array    $args {
- *     Arguments that accompany the requested capability check.
  *
- *     @type string    $0 Requested capability.
- *     @type int       $1 Concerned user ID.
- *     @type mixed  ...$2 Optional second and further parameters, typically object ID.
- * }
- * @param WP_User  $user    The user object.
- *
- * @return bool[] array of the user's requested capabilities that reqire refresh.
+ * @return string[] array the capabilitie in $caps which are sensative.
  */
-function capabilities_requiring_refresh( $allcaps, $caps, $args, $user ) {
-	
+function sensative_capabilities( array $caps ): array {
 	$caps_requiring_fresh_session = apply_filters(
 		'caps_requiring_fresh_session',
 		[
@@ -1042,11 +1031,25 @@ function capabilities_requiring_refresh( $allcaps, $caps, $args, $user ) {
 		]
 	);
 
-	$requested_caps = (array) $caps;
-	$sensitive_caps_requested = array_intersect( $requested_caps, $caps_requiring_fresh_session );
+	return array_intersect( $caps, $caps_requiring_fresh_session );
+}
+
+/**
+ * Which capabilities require a reauth for the current user if the capability
+ * requested is sensative and session is not "fresh".
+ *
+ * @since calmpress 1.0.0
+ *
+ * @param string[] $caps    An array of the requested capabilities.
+ *
+ * @return string[] array of the requested capabilities for current user that reqire refresh.
+ */
+function capabilities_requiring_refresh( $caps ): array {
+	
+	$sensitive_caps_requested = sensative_capabilities( (array) $caps );
 
 	if ( $sensitive_caps_requested ) {
-		if ( ! \calmpress\utils\ensure_fresh_logged_in_session() ) {
+		if ( ! \calmpress\utils\is_fresh_logged_in_session() ) {
 			return $sensitive_caps_requested;
 		}
 	}
@@ -1086,9 +1089,9 @@ function wp_maybe_cap_requires_fresh_session( $allcaps, $caps, $args, $user ) {
 		return $allcaps;
 	}
 
-	$capabilities_reuiring_reauth = capabilities_requiring_refresh( $allcaps, $caps, $args, $user );
+	$capabilities_reuiring_reauth = capabilities_requiring_refresh( $caps );
 	if ( $capabilities_reuiring_reauth ) {
-		// Remove the capabilities rwquiring reauth.
+		// Remove the capabilities requiring reauth.
 		foreach ( $capabilities_reuiring_reauth as $cap ) {
 			unset( $allcaps[ $cap ] );
 		}
@@ -1098,8 +1101,10 @@ function wp_maybe_cap_requires_fresh_session( $allcaps, $caps, $args, $user ) {
 }
 
 /**
- * Check the user capabilities to require a reauth if the capability requested is
- * sensative and session is not "fresh". In that case add the relevant JS and HTML.
+ * Add the reauthetication dialog and related JS for admin pages for which
+ * sensative capabilities are required.
+ * 
+ * If current user's session is not fresh, actually display the dialog.
  *
  * @since calmpress 1.0.0
  *
@@ -1116,15 +1121,26 @@ function wp_maybe_cap_requires_fresh_session( $allcaps, $caps, $args, $user ) {
  *
  * @return bool[] The requested capabilities.
  */
-function show_reauthentication_for_non_fresh_pages( $allcaps, $caps, $args, $user ) {
-	$capabilities_reuiring_reauth = capabilities_requiring_refresh( $allcaps, $caps, $args, $user );
+function maybe_add_reauthentication( $allcaps, $caps, $args, $user ) {
+	$capabilities_requiring_fresh_session = sensative_capabilities( $caps );
 
-	if ( $capabilities_reuiring_reauth ) {
-		wp_enqueue_script( 'calm-reauth' );
+	if ( $capabilities_requiring_fresh_session ) {
 		wp_enqueue_style( 'wp-auth-check' );
+		wp_enqueue_script( 'calm-reauth' );
 	
 		add_action( 'admin_print_footer_scripts', 'wp_auth_check_html', 5 );
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+
+		// Pass the capabilities to heartbeat.
+		wp_add_inline_script(
+			'calm-reauth',
+			'calmpress.reauth.capabilities = ' . wp_json_encode( $capabilities_requiring_fresh_session ) . ';',
+		);
+	}
+
+	if ( capabilities_requiring_refresh( $capabilities_requiring_fresh_session ) ) {
+		// Rauthentication is needed as sessions is not fresh so trigger the login dialog.
+		wp_add_inline_script( 'calm-reauth', 'calmpress.reauth.trigger_reauth_dialog();' );
 	}
 
 	return $allcaps;

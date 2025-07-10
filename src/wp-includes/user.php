@@ -152,7 +152,7 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 
 	$session_data = $session_tokens->get( $current_token );
 	$session_data['last_authentication']     = time();
-	$session_data['reauthentocation_needed'] = 0;
+	$session_data['reauthentication_needed'] = 0;
 	$session_tokens->update( $current_token, $session_data );
 	
 	return $user;

@@ -6721,22 +6721,23 @@ function wp_auth_check_html() {
  * @return array The Heartbeat response with 'wp-auth-check' value set.
  */
 function wp_auth_check( $response ) {
-	$response['wp-auth-check'] = is_user_logged_in() && empty( $GLOBALS['login_grace_period'] );
+	$check_auth = is_user_logged_in() && empty( $GLOBALS['login_grace_period'] );
 
 	// If session in general not about to expire check if some previos operation
 	// failed because session was not fresh enough.
-	if ( ! $response['wp-auth-check'] ) {
+	if ( $check_auth ) {
 		$session_token = wp_get_session_token();
 		$current_user = wp_get_current_user();
 		if ( ! empty( $session_token ) && $current_user !== null ) {
 			$session_manager = WP_Session_Tokens::get_instance( $current_user->ID );
 			$session_data = $session_manager->get( $session_token );
-			if ( $session_data['reauthentocation_needed'] == 1 ) {
-				$response['wp-auth-check'] = true;	
+			if ( $session_data['reauthentication_needed'] == 1 ) {
+				$check_auth = false;	
 			}
 		}
 	}
 
+	$response['wp-auth-check'] = $check_auth;
 	return $response;
 }
 

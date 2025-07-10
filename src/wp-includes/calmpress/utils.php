@@ -267,12 +267,14 @@ function enqueue_avatar_inline_style(): void {
 }
 
 /**
- * Ensure that the current user session is "fresh", verifying that user authentication
+ * Check if the current user session is "fresh", verifying that user authentication
  * was less than 12 hours ago*, and prompting a login interface if it is not.
+ * 
+ * If the session is not fresh and requires reauthetication mark it as such.
  * 
  * It is assumed to be called for an authenticated user.
  * 
- * * The actuall freshness interval can be controlled by setting the SESSION_FRESHNESS_TIME
+ * *The actuall freshness interval can be controlled by setting the SESSION_FRESHNESS_TIME
  * constant to some different value of number of seconds a session is fresh.
  * 
  * @since 1.0.0
@@ -280,7 +282,7 @@ function enqueue_avatar_inline_style(): void {
  * @return bool true if session is fresh or no session, false if reauthentication
  *              is triggered.
  */
- function ensure_fresh_logged_in_session(): bool {
+function is_fresh_logged_in_session(): bool {
 	$session_token = wp_get_session_token();
 
 	// No token? not a browser session.
@@ -299,22 +301,37 @@ function enqueue_avatar_inline_style(): void {
 			If not, set an indication that heartbeat should request reauthentication.
 		*/
 		$session_data = $session_manager->get( $session_token );
-		$session_data['reauthentocation_needed'] = 1;
+		$session_data['reauthentication_needed'] = 1;
 		$session_manager->update( $session_token, $session_data );
-
-		// If we are in a context of an iframe do not add the login window
-		// related code, assume the main window will spawn it.
-		if ( ! defined( 'IFRAME_REQUEST' ) ) {
-
-			// this code should be safe for non page initiated request
-			// as the relevant filters are being called onle on page generation.
-			wp_enqueue_script( 'calm-reauth' );
-			wp_enqueue_style( 'wp-auth-check' );
-	
-			add_action( 'admin_print_footer_scripts', 'wp_auth_check_html', 5 );
-			add_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
-		}
 	}
 
 	return $fresh;
- }
+}
+
+/**
+ * Check if session is fresh enough to use the capabilities passed as part
+ * of heartbeat.
+ *
+ * If the session is not fresh enough for any of the indiate ccapabilities
+ * the wp-auth-check field in the response will be set to false to indicate
+ * that reauthentication is needed.
+ * 
+ * @since 1.0.o
+ *
+ * @param array  $response  The Heartbeat response.
+ * @param array  $data      The $_POST data sent.
+ * @param string $screen_id The screen ID.
+ * 
+ * @return array The Heartbeat response.
+ */
+function heartbeat_check_session_freshness( $response, $data, $screen_id ) {
+	if ( isset( $data['reauth_capabilities'] ) && is_array( $data['reauth_capabilities'] ) ) {
+		if ( capabilities_requiring_refresh ( $data['reauth_capabilities'] ) ) {
+
+			// Used to mark session as requiring reaith for the heartneat_send filter.
+			is_fresh_logged_in_session();
+		}
+	}
+
+	return $response;
+}

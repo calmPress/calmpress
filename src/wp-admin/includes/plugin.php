@@ -2094,7 +2094,7 @@ function user_can_access_admin_page() {
 
 	// Output reauthentication dialog related code if capability has to be fresh.
 	// priority same as general capability filter as it will be skipped in html generation.
-	add_filter( 'user_has_cap', 'show_reauthentication_for_non_fresh_pages', 1, 4 );
+	add_filter( 'user_has_cap', 'maybe_add_reauthentication', 1, 4 );
 
 	$ret = true;
 
@@ -2114,7 +2114,7 @@ function user_can_access_admin_page() {
 		}
 	}
 
-	remove_filter( 'user_has_cap', 'show_reauthentication_for_non_fresh_pages', 1, 4 );
+	remove_filter( 'user_has_cap', 'maybe_add_reauthentication', 1, 4 );
 
 	return $ret;
 }
