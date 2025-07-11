@@ -140,19 +140,7 @@
 	 * @param {Object} data Response data.
 	 */
 	$( function() {
-
-		/**
-		 * Hides the authentication form popup when the close icon is clicked.
-		 *
-		 * @ignore
-		 *
-		 * @since 3.6.0
-		 */
 		wrap = $( '#wp-auth-check-wrap' );
-		wrap.find( '.wp-auth-check-close' ).on( 'click', function() {
-			hide();
-			setShowTimeout();
-		});
 	}).on( 'heartbeat-tick.wp-auth-check', function( e, data ) {
 		if ( 'wp-auth-check' in data ) {
 			if ( ! data['wp-auth-check'] && wrap.hasClass( 'hidden' ) && ! tempHidden ) {
