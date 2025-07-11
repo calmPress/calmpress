@@ -913,12 +913,9 @@ if ( ! function_exists( 'wp_set_auth_cookie' ) ) :
 	/**
 	 * Sets the authentication cookies based on user ID.
 	 *
-	 * The $remember parameter increases the time that the cookie will be kept. The
-	 * default the cookie is kept without remembering is two days. When $remember is
-	 * set, the cookies will be kept for 14 days or two weeks.
-	 *
 	 * @since 2.5.0
 	 * @since 4.3.0 Added the `$token` parameter.
+	 * @since calmpress 1.0.0 $remember is ignored.
 	 *
 	 * @param int         $user_id  User ID.
 	 * @param bool        $remember Whether to remember the user.
@@ -927,28 +924,23 @@ if ( ! function_exists( 'wp_set_auth_cookie' ) ) :
 	 * @param string      $token    Optional. User's session token to use for this cookie.
 	 */
 	function wp_set_auth_cookie( $user_id, $remember = false, $secure = '', $token = '' ) {
-		if ( $remember ) {
-			/**
-			 * Filters the duration of the authentication cookie expiration period.
-			 *
-			 * @since 2.8.0
-			 *
-			 * @param int  $length   Duration of the expiration period in seconds.
-			 * @param int  $user_id  User ID.
-			 * @param bool $remember Whether to remember the user login. Default false.
-			 */
-			$expiration = time() + apply_filters( 'auth_cookie_expiration', 14 * DAY_IN_SECONDS, $user_id, $remember );
 
-			/*
-			 * Ensure the browser will continue to send the cookie after the expiration time is reached.
-			 * Needed for the login grace period in wp_validate_auth_cookie().
-			 */
-			$expire = $expiration + ( 12 * HOUR_IN_SECONDS );
-		} else {
-			/** This filter is documented in wp-includes/pluggable.php */
-			$expiration = time() + apply_filters( 'auth_cookie_expiration', 2 * DAY_IN_SECONDS, $user_id, $remember );
-			$expire     = 0;
-		}
+		/**
+		 * Filters the duration of the authentication cookie expiration period.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param int  $length   Duration of the expiration period in seconds.
+		 * @param int  $user_id  User ID.
+		 * @param bool $remember Whether to remember the user login. Default false.
+		 */
+		$expiration = time() + apply_filters( 'auth_cookie_expiration', 30 * DAY_IN_SECONDS, $user_id, $remember );
+
+		/*
+			* Ensure the browser will continue to send the cookie after the expiration time is reached.
+			* Needed for the login grace period in wp_validate_auth_cookie().
+			*/
+		$expire = $expiration + ( 12 * HOUR_IN_SECONDS );
 
 		if ( '' === $secure ) {
 			$secure = is_ssl();
