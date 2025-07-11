@@ -9,22 +9,22 @@
 use calmpress\email\Email_Address;
 
 /**
- * Authenticates and logs a user in with 'remember' capability.
+ * Authenticates and logs a user in.
  *
- * The credentials is an array that has 'user_login', 'user_password', and
- * 'remember' indices. If the credentials is not given, then the log in form
+ * The credentials is an array that has 'user_login' שמג 'user_password' indices.
+ * If the credentials is not given, then the log in form
  * will be assumed and used if set.
  *
- * The various authentication cookies will be set by this function and will be
- * set for a longer period depending on if the 'remember' credential is set to
- * true.
- *
+ * The various authentication cookies will be set by this function.
+ * 
  * Note: wp_signon() doesn't handle setting the current user. This means that if the
  * function is called before the {@see 'init'} hook is fired, is_user_logged_in() will
  * evaluate as false until that point. If is_user_logged_in() is needed in conjunction
  * with wp_signon(), wp_set_current_user() should be called explicitly.
  *
  * @since 2.5.0
+ * 
+ * @since calmpress 1.0.0 the "remember me" related functionality was removed.
  *
  * @global string $auth_secure_cookie
  *
@@ -45,15 +45,6 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 		if ( ! empty( $_POST['pwd'] ) ) {
 			$credentials['user_password'] = $_POST['pwd'];
 		}
-		if ( ! empty( $_POST['rememberme'] ) ) {
-			$credentials['remember'] = $_POST['rememberme'];
-		}
-	}
-
-	if ( ! empty( $credentials['remember'] ) ) {
-		$credentials['remember'] = true;
-	} else {
-		$credentials['remember'] = false;
 	}
 
 	/**
@@ -80,14 +71,14 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 	 *
 	 * @since 3.1.0
 	 *
+	 * @since calmpress 1.0.0 $credentials do not include remember element.
+	 * 
 	 * @param bool  $secure_cookie Whether to use a secure sign-on cookie.
 	 * @param array $credentials {
 	 *     Array of entered sign-on data.
 	 *
 	 *     @type string $user_login    Username.
 	 *     @type string $user_password Password entered.
-	 *     @type bool   $remember      Whether to 'remember' the user. Increases the time
-	 *                                 that the cookie will be kept. Default false.
 	 * }
 	 */
 	$secure_cookie = apply_filters( 'secure_signon_cookie', $secure_cookie, $credentials );
@@ -110,7 +101,7 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 		}
 	}
 
-	wp_set_auth_cookie( $user->ID, $credentials['remember'], $secure_cookie );
+	wp_set_auth_cookie( $user->ID, false, $secure_cookie );
 
 	// If this is an activation, remove the indicator and set the proper role.
 	if ( in_array( 'pending_activation', $user->roles, true ) ) {
@@ -2274,17 +2265,7 @@ function wp_update_user( $userdata ) {
 		if ( isset( $plaintext_pass ) ) {
 			wp_clear_auth_cookie();
 
-			// Here we calculate the expiration length of the current auth cookie and compare it to the default expiration.
-			// If it's greater than this, then we know the user checked 'Remember Me' when they logged in.
-			$logged_in_cookie = wp_parse_auth_cookie( '', 'logged_in' );
-			/** This filter is documented in wp-includes/pluggable.php */
-			$default_cookie_life = apply_filters( 'auth_cookie_expiration', ( 2 * DAY_IN_SECONDS ), $user_id, false );
-			$remember            = false;
-			if ( false !== $logged_in_cookie && ( $logged_in_cookie['expiration'] - time() ) > $default_cookie_life ) {
-				$remember = true;
-			}
-
-			wp_set_auth_cookie( $user_id, $remember );
+			wp_set_auth_cookie( $user_id );
 		}
 	}
 

@@ -1127,8 +1127,6 @@ switch ( $action ) {
 			$user_login = ( 'incorrect_password' === $errors->get_error_code() || 'empty_password' === $errors->get_error_code() ) ? esc_attr( wp_unslash( $_POST['log'] ) ) : '';
 		}
 
-		$rememberme = ! empty( $_POST['rememberme'] );
-
 		if ( $errors->has_errors() ) {
 			$aria_describedby_error = ' aria-describedby="login_error"';
 		} else {
@@ -1163,7 +1161,6 @@ switch ( $action ) {
 			do_action( 'login_form' );
 
 			?>
-			<p class="forgetmenot"><input name="rememberme" type="checkbox" id="rememberme" value="forever" <?php checked( $rememberme ); ?> /> <label for="rememberme"><?php esc_html_e( 'Remember Me' ); ?></label></p>
 			<p class="submit">
 				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Log In' ); ?>" />
 				<?php

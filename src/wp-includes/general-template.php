@@ -483,6 +483,8 @@ function wp_registration_url() {
  * The login form HTML is echoed by default. Pass a false value for `$echo` to return it instead.
  *
  * @since 3.0.0
+ * 
+ * @since calmpress 1.0.0 remember, id_remember, value_remember and label_remember has no impact.
  *
  * @param array $args {
  *     Optional. Array of options to control the form output. Default empty array.
@@ -494,16 +496,11 @@ function wp_registration_url() {
  *     @type string $form_id        ID attribute value for the form. Default 'loginform'.
  *     @type string $label_username Label for the username or email address field. Default 'Email Address'.
  *     @type string $label_password Label for the password field. Default 'Password'.
- *     @type string $label_remember Label for the remember field. Default 'Remember Me'.
  *     @type string $label_log_in   Label for the submit button. Default 'Log In'.
  *     @type string $id_username    ID attribute value for the username field. Default 'user_login'.
  *     @type string $id_password    ID attribute value for the password field. Default 'user_pass'.
- *     @type string $id_remember    ID attribute value for the remember field. Default 'rememberme'.
  *     @type string $id_submit      ID attribute value for the submit button. Default 'wp-submit'.
- *     @type bool   $remember       Whether to display the "rememberme" checkbox in the form.
  *     @type string $value_username Default value for the username field. Default empty.
- *     @type bool   $value_remember Whether the "Remember Me" checkbox should be checked by default.
- *                                  Default false (unchecked).
  *
  * }
  * @return void|string Void if 'echo' argument is true, login form HTML if 'echo' is false.
@@ -516,16 +513,11 @@ function wp_login_form( $args = array() ) {
 		'form_id'        => 'loginform',
 		'label_username' => __( 'Email Address' ),
 		'label_password' => __( 'Password' ),
-		'label_remember' => __( 'Remember Me' ),
 		'label_log_in'   => __( 'Log In' ),
 		'id_username'    => 'user_login',
 		'id_password'    => 'user_pass',
-		'id_remember'    => 'rememberme',
 		'id_submit'      => 'wp-submit',
-		'remember'       => true,
 		'value_username' => '',
-		// Set 'value_remember' to true to default the "Remember me" checkbox to checked.
-		'value_remember' => false,
 	);
 
 	/**
@@ -601,14 +593,6 @@ function wp_login_form( $args = array() ) {
 			esc_html( $args['label_password'] )
 		) .
 		$login_form_middle .
-		( $args['remember'] ?
-			sprintf(
-				'<p class="login-remember"><label><input name="rememberme" type="checkbox" id="%1$s" value="forever"%2$s /> %3$s</label></p>',
-				esc_attr( $args['id_remember'] ),
-				( $args['value_remember'] ? ' checked="checked"' : '' ),
-				esc_html( $args['label_remember'] )
-			) : ''
-		) .
 		sprintf(
 			'<p class="login-submit">
 				<input type="submit" name="wp-submit" id="%1$s" class="button button-primary" value="%2$s" />
