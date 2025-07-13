@@ -274,7 +274,7 @@ function default_sender(): void {
 	<p class="description">
 		<?php
 		esc_html_e(
-			'Here you can override the default sender of rmsils. It will not
+			'Here you can override the default sender of emails. It will not
  have an impact at emails sent with the sender set in advance.'
 		);
 		echo '<br>';
