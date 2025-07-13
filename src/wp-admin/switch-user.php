@@ -24,7 +24,7 @@ get_current_screen()->add_help_tab(
 		'id'      => 'overview',
 		'title'   => __( 'Overview' ),
 		'content' =>
-			'<p>' . esc_html__( 'Switch the effective user under witch you authenticate, useful for debug and support other users.' ) . '</p>',
+			'<p>' . esc_html__( 'Switch the effective user under which you authenticate, useful for debug and support other users.' ) . '</p>',
 	)
 );
 
