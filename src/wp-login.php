@@ -78,6 +78,7 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 	<?php
 
 	wp_enqueue_style( 'login' );
+	wp_enqueue_script( 'calm-login' );
 
 	/*
 	 * Remove all stored post data on logging out.
@@ -106,10 +107,8 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 
 	if ( is_multisite() ) {
 		$login_header_url   = network_home_url();
-		$login_header_title = get_network()->site_name;
 	} else {
-		$login_header_url   = __( 'https://calmpress.org/' );
-		$login_header_title = __( 'Powered by calmPress' );
+		$login_header_url   = '';
 	}
 
 	/**
@@ -121,10 +120,6 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 	 */
 	$login_header_url = apply_filters( 'login_headerurl', $login_header_url );
 
-	$login_header_title = '';
-
-	$login_header_text = empty( $login_header_title ) ? __( 'Powered by calmPress' ) : $login_header_title;
-
 	/**
 	 * Filters the link text of the header logo above the login form.
 	 *
@@ -132,7 +127,7 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 	 *
 	 * @param string $login_header_text The login header logo link text.
 	 */
-	$login_header_text = apply_filters( 'login_headertext', $login_header_text );
+	$login_header_text = apply_filters( 'login_headertext', '' );
 
 	$classes = array( 'login-action-' . $action, 'wp-core-ui' );
 
@@ -1121,7 +1116,15 @@ switch ( $action ) {
 			wp_clear_auth_cookie();
 		}
 
-		login_header( __( 'Log In' ), '', $errors );
+		$message ='<h2>' .
+				esc_html( 
+					/* translators: %s: Site title. */
+					sprintf( __('Log in to %s' ), get_bloginfo( 'name' ) )
+				) .
+			'</h2>';
+
+ 
+		login_header( __( 'Log In' ), $message, $errors );
 
 		if ( isset( $_POST['log'] ) ) {
 			$user_login = ( 'incorrect_password' === $errors->get_error_code() || 'empty_password' === $errors->get_error_code() ) ? esc_attr( wp_unslash( $_POST['log'] ) ) : '';

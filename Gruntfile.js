@@ -377,7 +377,8 @@ module.exports = function(grunt) {
 					[ WORKING_DIR + 'wp-includes/js/wpdialog.js' ]: [ './src/js/_enqueues/lib/dialog.js' ],
 					[ WORKING_DIR + 'wp-includes/js/wplink.js' ]: [ './src/js/_enqueues/lib/link.js' ],
 					[ WORKING_DIR + 'wp-includes/js/zxcvbn-async.js' ]: [ './src/js/_enqueues/lib/zxcvbn-async.js' ],
-					[ WORKING_DIR + 'wp-includes/js/cp-reauth.js' ]: [ './src/js/_enqueues/cp/reauth.js' ]
+					[ WORKING_DIR + 'wp-includes/js/cp-reauth.js' ]: [ './src/js/_enqueues/cp/reauth.js' ],
+					[ WORKING_DIR + 'wp-includes/js/cp-login.js' ]: [ './src/js/_enqueues/cp/login.js' ]
 				}
 			},
 			'wp-admin-css-compat-rtl': {
@@ -974,7 +975,8 @@ module.exports = function(grunt) {
 					'src/wp-includes/js/media/views/uploader/window.js' : 'src/js/media/views/uploader/window.js',
 					'src/wp-includes/js/media/views/video-details.js' : 'src/js/media/views/video-details.js',
 					'src/wp-includes/js/media/views/view.js' : 'src/js/media/views/view.js',
-					'src/wp-includes/js/cp-reauth.js': 'src/js/_enqueues/cp/reauth.js'
+					'src/wp-includes/js/cp-reauth.js': 'src/js/_enqueues/cp/reauth.js',
+					'src/wp-includes/js/cp-login.js': 'src/js/_enqueues/cp/login.js'
 				}
 			}
 		},
