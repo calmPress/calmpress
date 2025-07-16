@@ -600,7 +600,14 @@ switch ( $action ) {
 		 */
 		do_action( 'lost_password', $errors );
 
-		login_header( __( 'Lost Password' ), '<p class="message">' . __( 'Please enter your email address. You will receive an email message with instructions on how to reset your password.' ) . '</p>', $errors );
+		$message ='<h2>' .
+			esc_html( 
+				/* translators: %s: Site title. */
+				sprintf( __('Reset password for %s' ), get_bloginfo( 'name' ) )
+			) .
+		'</h2>';
+		
+		login_header( __( 'Lost Password' ), $message . '<p class="message">' . __( 'Please enter your email address. You will receive an email message with instructions on how to reset your password.' ) . '</p>', $errors );
 
 		$user_login = '';
 
@@ -715,7 +722,14 @@ switch ( $action ) {
 		wp_enqueue_script( 'utils' );
 		wp_enqueue_script( 'user-profile' );
 
-		login_header( __( 'Reset Password' ), '<p class="message reset-pass">' . __( 'Enter your new password below or generate one.' ) . '</p>', $errors );
+		$message ='<h2>' .
+			esc_html( 
+				/* translators: %s: Site title. */
+				sprintf( __('Reset password for %s' ), get_bloginfo( 'name' ) )
+			) .
+		'</h2>';
+
+		login_header( __( 'Reset Password' ), $message . '<p class="message reset-pass">' . __( 'Enter your new password below or generate one.' ) . '</p>', $errors );
 
 		?>
 		<form name="resetpassform" id="resetpassform" action="<?php echo esc_url( network_site_url( 'wp-login.php?action=resetpass', 'login_post' ) ); ?>" method="post" autocomplete="off">
@@ -891,7 +905,7 @@ switch ( $action ) {
 				'confirm',
 				sprintf(
 					/* translators: %s: Link to the login page. */
-					__( 'Check your email for the confirmation link, then visit the <a href="%s">login page</a>.' ),
+					__( 'A password reset link was sent to your email. Just follow it to continue.' ),
 					wp_login_url()
 				),
 				'message'
@@ -911,7 +925,13 @@ switch ( $action ) {
 		/** This action is documented in wp-login.php */
 		$errors = apply_filters( 'wp_login_errors', $errors, $redirect_to );
 
-		login_header( __( 'Check your email' ), '', $errors );
+		$message ='<h2>' .
+			esc_html( 
+				__('Email was sent' )
+			) .
+		'</h2>';
+
+		login_header( __( 'Check your email' ), $message, $errors );
 		login_footer();
 		break;
 
