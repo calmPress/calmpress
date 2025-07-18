@@ -1719,10 +1719,6 @@ function get_post_states( $post ) {
 		}
 	}
 
-	if ( (int) get_option( 'wp_page_for_privacy_policy' ) === $post->ID ) {
-		$post_states['page_for_privacy_policy'] = _x( 'Privacy Policy Page', 'page label' );
-	}
-
 	/**
 	 * Filters the default post display states used in the posts list table.
 	 *

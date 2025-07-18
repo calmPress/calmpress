@@ -34,9 +34,6 @@ require_once ABSPATH . 'wp-admin/includes/media.php';
 /** WordPress Misc Administration API */
 require_once ABSPATH . 'wp-admin/includes/misc.php';
 
-/** WordPress Misc Administration API */
-require_once ABSPATH . 'wp-admin/includes/class-wp-privacy-policy-content.php';
-
 /** WordPress Options Administration API */
 require_once ABSPATH . 'wp-admin/includes/options.php';
 

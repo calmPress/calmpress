@@ -273,8 +273,6 @@ function login_footer( $input_id = '' ) {
 			?>
 		</p>
 		<?php
-
-		the_privacy_policy_link( '<div class="privacy-policy-page-link">', '</div>' );
 	}
 
 	?>

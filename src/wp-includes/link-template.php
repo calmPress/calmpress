@@ -4045,16 +4045,12 @@ function get_parent_theme_file_path( $file = '' ) {
  * Retrieves the URL to the privacy policy page.
  *
  * @since 4.9.6
+ * @since calmpress 1.0.0 returns empty string if not overriden.
  *
  * @return string The URL to the privacy policy page. Empty string if it doesn't exist.
  */
 function get_privacy_policy_url() {
 	$url            = '';
-	$policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-
-	if ( ! empty( $policy_page_id ) && get_post_status( $policy_page_id ) === 'publish' ) {
-		$url = (string) get_permalink( $policy_page_id );
-	}
 
 	/**
 	 * Filters the URL of the privacy policy page.
@@ -4065,7 +4061,7 @@ function get_privacy_policy_url() {
 	 *                               if it doesn't exist.
 	 * @param int    $policy_page_id The ID of privacy policy page.
 	 */
-	return apply_filters( 'privacy_policy_url', $url, $policy_page_id );
+	return apply_filters( 'privacy_policy_url', $url, 0 );
 }
 
 /**
@@ -4084,6 +4080,7 @@ function the_privacy_policy_link( $before = '', $after = '' ) {
  * Returns the privacy policy link with formatting, when applicable.
  *
  * @since 4.9.6
+ * @since calmpress 1.0.0 Default to empty string.
  *
  * @param string $before Optional. Display before privacy policy link. Default empty.
  * @param string $after  Optional. Display after privacy policy link. Default empty.
@@ -4091,18 +4088,6 @@ function the_privacy_policy_link( $before = '', $after = '' ) {
  *                doesn't exist.
  */
 function get_the_privacy_policy_link( $before = '', $after = '' ) {
-	$link               = '';
-	$privacy_policy_url = get_privacy_policy_url();
-	$policy_page_id     = (int) get_option( 'wp_page_for_privacy_policy' );
-	$page_title         = ( $policy_page_id ) ? get_the_title( $policy_page_id ) : '';
-
-	if ( $privacy_policy_url && $page_title ) {
-		$link = sprintf(
-			'<a class="privacy-policy-link" href="%s">%s</a>',
-			esc_url( $privacy_policy_url ),
-			esc_html( $page_title )
-		);
-	}
 
 	/**
 	 * Filters the privacy policy link.
@@ -4114,7 +4099,7 @@ function get_the_privacy_policy_link( $before = '', $after = '' ) {
 	 * @param string $privacy_policy_url The URL of the privacy policy. Empty string
 	 *                                   if it doesn't exist.
 	 */
-	$link = apply_filters( 'the_privacy_policy_link', $link, $privacy_policy_url );
+	$link = apply_filters( 'the_privacy_policy_link', '', '' );
 
 	if ( $link ) {
 		return $before . $link . $after;

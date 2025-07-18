@@ -287,54 +287,6 @@ To get started with moderating, editing, and deleting comments, please visit the
 			)
 		);
 
-		// Privacy Policy page.
-		if ( is_multisite() ) {
-			// Disable by default unless the suggested content is provided.
-			$privacy_policy_content = get_site_option( 'default_privacy_policy_content' );
-		} else {
-			if ( ! class_exists( 'WP_Privacy_Policy_Content' ) ) {
-				include_once ABSPATH . 'wp-admin/includes/class-wp-privacy-policy-content.php';
-			}
-
-			$privacy_policy_content = WP_Privacy_Policy_Content::get_default_content();
-		}
-
-		if ( ! empty( $privacy_policy_content ) ) {
-			$privacy_policy_guid = get_option( 'home' ) . '/' . uniqid();
-
-			$wpdb->insert(
-				$wpdb->posts,
-				array(
-					'post_author'           => $user_id,
-					'post_date'             => $now,
-					'post_date_gmt'         => $now_gmt,
-					'post_content'          => $privacy_policy_content,
-					'post_excerpt'          => '',
-					'comment_status'        => 'closed',
-					'post_title'            => __( 'Privacy Policy' ),
-					/* translators: Privacy Policy page slug. */
-					'post_name'             => __( 'privacy-policy' ),
-					'post_modified'         => $now,
-					'post_modified_gmt'     => $now_gmt,
-					'guid'                  => $privacy_policy_guid,
-					'post_type'             => 'page',
-					'post_status'           => 'draft',
-					'to_ping'               => '',
-					'pinged'                => '',
-					'post_content_filtered' => '',
-				)
-			);
-			$wpdb->insert(
-				$wpdb->postmeta,
-				array(
-					'post_id'    => 3,
-					'meta_key'   => '_wp_page_template',
-					'meta_value' => 'default',
-				)
-			);
-			update_option( 'wp_page_for_privacy_policy', 3 );
-		}
-
 		// Set up default widgets for default theme.
 		update_option(
 			'widget_block',

@@ -409,19 +409,6 @@ function wp_nav_menu_item_post_type_meta_box( $object, $box ) {
 			$suppress_page_ids[] = $posts_page_obj->ID;
 		}
 
-		// Insert Privacy Policy Page.
-		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-
-		if ( ! empty( $privacy_policy_page_id ) ) {
-			$privacy_policy_page = get_post( $privacy_policy_page_id );
-			if ( $privacy_policy_page instanceof WP_Post && 'publish' === $privacy_policy_page->post_status ) {
-				$privacy_policy_page->privacy_policy_page = true;
-
-				$important_pages[]   = $privacy_policy_page;
-				$suppress_page_ids[] = $privacy_policy_page->ID;
-			}
-		}
-
 		// Add suppression array to arguments for WP_Query.
 		if ( ! empty( $suppress_page_ids ) ) {
 			$args['post__not_in'] = $suppress_page_ids;

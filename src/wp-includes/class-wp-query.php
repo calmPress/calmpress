@@ -333,6 +333,7 @@ class WP_Query {
 	 * Signifies whether the current query is for the Privacy Policy page.
 	 *
 	 * @since 5.2.0
+	 * @since calmpress 1.0.0 always false.
 	 * @var bool
 	 */
 	public $is_privacy_policy = false;
@@ -1012,9 +1013,6 @@ class WP_Query {
 				$this->is_posts_page = true;
 			}
 
-			if ( isset( $this->queried_object_id ) && get_option( 'wp_page_for_privacy_policy' ) == $this->queried_object_id ) {
-				$this->is_privacy_policy = true;
-			}
 		}
 
 		if ( $qv['page_id'] ) {
@@ -1024,9 +1022,6 @@ class WP_Query {
 				$this->is_posts_page = true;
 			}
 
-			if ( get_option( 'wp_page_for_privacy_policy' ) == $qv['page_id'] ) {
-				$this->is_privacy_policy = true;
-			}
 		}
 
 		if ( ! empty( $qv['post_type'] ) ) {
@@ -3829,17 +3824,13 @@ class WP_Query {
 	 * This function will return true only on the page you set as the "Privacy Policy page".
 	 *
 	 * @since 5.2.0
+	 * @since calmpress 1.0.0 always returns false as privay policy page not supported
+	 *                        out of the box.
 	 *
-	 * @return bool Whether the query is for the Privacy Policy page.
+	 * @return bool always false.
 	 */
 	public function is_privacy_policy() {
-		if ( get_option( 'wp_page_for_privacy_policy' )
-			&& $this->is_page( get_option( 'wp_page_for_privacy_policy' ) )
-		) {
-			return true;
-		} else {
-			return false;
-		}
+		return false;
 	}
 
 	/**

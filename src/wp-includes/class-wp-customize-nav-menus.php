@@ -179,15 +179,6 @@ class WP_Customize_Nav_Menus {
 					$suppress_page_ids[] = $posts_page_obj->ID;
 				}
 
-				// Insert Privacy Policy Page.
-				$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-				if ( ! empty( $privacy_policy_page_id ) ) {
-					$privacy_policy_page = get_post( $privacy_policy_page_id );
-					if ( $privacy_policy_page instanceof WP_Post && 'publish' === $privacy_policy_page->post_status ) {
-						$important_pages[]   = $privacy_policy_page;
-						$suppress_page_ids[] = $privacy_policy_page->ID;
-					}
-				}
 			} elseif ( 'post' !== $object && 0 === $page && $post_type->has_archive ) {
 				// Add a post type archive link.
 				$items[] = array(

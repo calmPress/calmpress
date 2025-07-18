@@ -2278,39 +2278,12 @@ function plugin_sandbox_scrape( $plugin ) {
  * Intended for use with the `'admin_init'` action.
  *
  * @since 4.9.6
+ * @since calmpress 1.0.0 does nothing.
  *
  * @param string $plugin_name The name of the plugin or theme that is suggesting content
  *                            for the site's privacy policy.
  * @param string $policy_text The suggested content for inclusion in the policy.
  */
 function wp_add_privacy_policy_content( $plugin_name, $policy_text ) {
-	if ( ! is_admin() ) {
-		_doing_it_wrong(
-			__FUNCTION__,
-			sprintf(
-				/* translators: %s: admin_init */
-				__( 'The suggested privacy policy content should be added only in wp-admin by using the %s (or later) action.' ),
-				'<code>admin_init</code>'
-			),
-			'4.9.7'
-		);
 		return;
-	} elseif ( ! doing_action( 'admin_init' ) && ! did_action( 'admin_init' ) ) {
-		_doing_it_wrong(
-			__FUNCTION__,
-			sprintf(
-				/* translators: %s: admin_init */
-				__( 'The suggested privacy policy content should be added by using the %s (or later) action. Please see the inline documentation.' ),
-				'<code>admin_init</code>'
-			),
-			'4.9.7'
-		);
-		return;
-	}
-
-	if ( ! class_exists( 'WP_Privacy_Policy_Content' ) ) {
-		require_once ABSPATH . 'wp-admin/includes/class-wp-privacy-policy-content.php';
-	}
-
-	WP_Privacy_Policy_Content::add( $plugin_name, $policy_text );
 }

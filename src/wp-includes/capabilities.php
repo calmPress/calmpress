@@ -134,14 +134,6 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 				}
 			}
 
-			/*
-			 * Setting the privacy policy page requires `manage_privacy_options`,
-			 * so deleting it should require that too.
-			 */
-			if ( (int) get_option( 'wp_page_for_privacy_policy' ) === $post->ID ) {
-				$caps = array_merge( $caps, map_meta_cap( 'manage_privacy_options', $user_id ) );
-			}
-
 			break;
 		// edit_post breaks down to edit_posts, edit_published_posts, or
 		// edit_others_posts.
@@ -203,14 +195,6 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 				} elseif ( 'private' === $post->post_status ) {
 					$caps[] = $post_type->cap->edit_private_posts;
 				}
-			}
-
-			/*
-			 * Setting the privacy policy page requires `manage_privacy_options`,
-			 * so editing it should require that too.
-			 */
-			if ( (int) get_option( 'wp_page_for_privacy_policy' ) === $post->ID ) {
-				$caps = array_merge( $caps, map_meta_cap( 'manage_privacy_options', $user_id ) );
 			}
 
 			break;
@@ -533,9 +517,6 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			break;
 		case 'export_others_personal_data':
 		case 'erase_others_personal_data':
-		case 'manage_privacy_options':
-			$caps[] = is_multisite() ? 'manage_network' : 'manage_options';
-			break;
 		case 'create_app_password':
 		case 'list_app_passwords':
 		case 'read_app_password':
@@ -983,53 +964,59 @@ function wp_maybe_tools_menu_cap( $allcaps ) {
  * @return string[] array the capabilitie in $caps which are sensative.
  */
 function sensative_capabilities( array $caps ): array {
-	$caps_requiring_fresh_session = apply_filters(
-		'caps_requiring_fresh_session',
-		[
-			// User management
-			'create_users',
-			'edit_users',
-			'delete_users',
-			'list_users',
-			'promote_users',
-			'remove_users',
 
-			// Site management
-			'manage_options',
-			'edit_theme_options',
-			'update_core',
-			'maintenance_mode',
-			'manage_server',
+	$sensative_caps = [
+		// User management
+		'create_users',
+		'edit_users',
+		'delete_users',
+		'list_users',
+		'promote_users',
+		'remove_users',
 
-			// Plugin & theme management
-			'activate_plugins',
-			'delete_plugins',
-			'install_plugins',
-			'update_plugins',
-			'delete_themes',
-			'install_themes',
-			'switch_themes',
-			'update_themes',
+		// Site management
+		'manage_options',
+		'edit_theme_options',
+		'update_core',
+		'maintenance_mode',
+		'manage_server',
 
-			// Unfiltered or unsafe operations
-			'unfiltered_html',
-			'unfiltered_upload',
+		// Plugin & theme management
+		'activate_plugins',
+		'delete_plugins',
+		'install_plugins',
+		'update_plugins',
+		'delete_themes',
+		'install_themes',
+		'switch_themes',
+		'update_themes',
 
-			// Comment and dashboard moderation
-			'moderate_comments',
+		// Unfiltered or unsafe operations
+		'unfiltered_upload',
 
-			// Multisite management
-			'manage_network',
-			'manage_sites',
-			'manage_network_sites',
-			'manage_network_users',
-			'manage_network_plugins',
-			'manage_network_themes',
-			'manage_network_options',
-			'upgrade_network',
-			'setup_network',
-		]
-	);
+		// Comment and dashboard moderation
+		'moderate_comments',
+
+		// Multisite management
+		'manage_network',
+		'manage_sites',
+		'manage_network_sites',
+		'manage_network_users',
+		'manage_network_plugins',
+		'manage_network_themes',
+		'manage_network_options',
+		'upgrade_network',
+		'setup_network',
+	];
+
+	// unfiltered_html is checked when initializing kses which is
+	// too early to be able to decide if the user actually want to do something
+	// which requires it.
+	if ( did_action( 'admin_init' ) ) {
+		$sensative_caps[] = 'unfiltered_html';
+	}
+
+	$caps_requiring_fresh_session = apply_filters( 'caps_requiring_fresh_session', $sensative_caps );
 
 	return array_intersect( $caps, $caps_requiring_fresh_session );
 }

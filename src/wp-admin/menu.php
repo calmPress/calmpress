@@ -321,8 +321,6 @@ $menu[80]                               = array( __( 'Settings' ), 'manage_optio
 		$submenu['options-general.php'][44] = array( __( 'Email Delivery'),  'manage_options', 'options-email.php' );
 	}
 
-	$submenu['options-general.php'][45] = array( __( 'Privacy' ), 'manage_privacy_options', 'options-privacy.php' );
-
 if ( ! is_multisite() ) {
 $menu[85]                       = array( __( 'Backups' ), 'backup', 'backups.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-database' );
 	$submenu['backups.php'][10] = array( __( 'Backups' ), 'backup', 'backups.php' );
