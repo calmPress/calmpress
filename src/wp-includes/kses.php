@@ -2156,7 +2156,7 @@ function wp_filter_nohtml_kses( $data ) {
  * Adds all KSES input form content filters.
  *
  * All hooks have default priority. The `wp_filter_kses()` function is added to
- * the 'pre_comment_content' and 'title_save_pre' hooks.
+ * the 'title_save_pre' hooks.
  *
  * The `wp_filter_post_kses()` function is added to the 'content_save_pre',
  * 'excerpt_save_pre', and 'content_filtered_save_pre' hooks.
@@ -2166,13 +2166,6 @@ function wp_filter_nohtml_kses( $data ) {
 function kses_init_filters() {
 	// Normal filtering.
 	add_filter( 'title_save_pre', 'wp_filter_kses' );
-
-	// Comment filtering.
-	if ( current_user_can( 'unfiltered_html' ) ) {
-		add_filter( 'pre_comment_content', 'wp_filter_post_kses' );
-	} else {
-		add_filter( 'pre_comment_content', 'wp_filter_kses' );
-	}
 
 	// Post filtering.
 	add_filter( 'content_save_pre', 'wp_filter_post_kses' );
@@ -2195,10 +2188,6 @@ function kses_init_filters() {
 function kses_remove_filters() {
 	// Normal filtering.
 	remove_filter( 'title_save_pre', 'wp_filter_kses' );
-
-	// Comment filtering.
-	remove_filter( 'pre_comment_content', 'wp_filter_post_kses' );
-	remove_filter( 'pre_comment_content', 'wp_filter_kses' );
 
 	// Post filtering.
 	remove_filter( 'content_save_pre', 'wp_filter_post_kses' );

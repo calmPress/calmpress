@@ -436,62 +436,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 	}
 
-	public function test_unprivileged_user_cannot_comment_unfiltered_html_even_with_valid_nonce() {
-
-		wp_set_current_user( self::$author_id );
-
-		$this->assertFalse( current_user_can( 'unfiltered_html' ) );
-
-		$action = 'unfiltered-html-comment_' . self::$post->ID;
-		$nonce  = wp_create_nonce( $action );
-
-		$this->assertNotEmpty( wp_verify_nonce( $nonce, $action ) );
-
-		$data    = array(
-			'comment_post_ID'             => self::$post->ID,
-			'comment'                     => 'Comment <script>alert(document.cookie);</script>',
-			'_wp_unfiltered_html_comment' => $nonce,
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		$this->assertNotWPError( $comment );
-		$this->assertInstanceOf( 'WP_Comment', $comment );
-		$this->assertStringNotContainsString( '<script', $comment->comment_content );
-
-	}
-
-	public function test_privileged_user_can_comment_unfiltered_html_with_valid_nonce() {
-
-		$this->assertFalse( defined( 'DISALLOW_UNFILTERED_HTML' ) );
-
-		if ( is_multisite() ) {
-			// In multisite, only Super Admins can post unfiltered HTML.
-			$this->assertFalse( user_can( self::$editor_id, 'unfiltered_html' ) );
-			grant_super_admin( self::$editor_id );
-		}
-
-		wp_set_current_user( self::$editor_id );
-
-		$this->assertTrue( current_user_can( 'unfiltered_html' ) );
-
-		$action = 'unfiltered-html-comment_' . self::$post->ID;
-		$nonce  = wp_create_nonce( $action );
-
-		$this->assertNotEmpty( wp_verify_nonce( $nonce, $action ) );
-
-		$data    = array(
-			'comment_post_ID'             => self::$post->ID,
-			'comment'                     => 'Comment <script>alert(document.cookie);</script>',
-			'_wp_unfiltered_html_comment' => $nonce,
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		$this->assertNotWPError( $comment );
-		$this->assertInstanceOf( 'WP_Comment', $comment );
-		$this->assertStringContainsString( '<script', $comment->comment_content );
-
-	}
-
 	public function test_privileged_user_cannot_comment_unfiltered_html_without_valid_nonce() {
 
 		if ( is_multisite() ) {
@@ -513,7 +457,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$this->assertNotWPError( $comment );
 		$this->assertInstanceOf( 'WP_Comment', $comment );
 		$this->assertStringNotContainsString( '<script', $comment->comment_content );
-
 	}
 
 	public function test_submitting_comment_as_anonymous_user_when_registration_required_returns_error() {

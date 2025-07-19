@@ -1167,15 +1167,9 @@ function pings_open( $post_id = null ) {
  * Backported to 2.0.10.
  *
  * @since 2.1.3
+ * @since calmpress 1.0.0 does nothing as unfiltered html is not supported in comments.
  */
 function wp_comment_form_unfiltered_html_nonce() {
-	$post    = get_post();
-	$post_id = $post ? $post->ID : 0;
-
-	if ( current_user_can( 'unfiltered_html' ) ) {
-		wp_nonce_field( 'unfiltered-html-comment_' . $post_id, '_wp_unfiltered_html_comment_disabled', false );
-		echo "<script>(function(){if(window===window.parent){document.getElementById('_wp_unfiltered_html_comment_disabled').name='_wp_unfiltered_html_comment';}})();</script>\n";
-	}
 }
 
 /**

@@ -2351,15 +2351,6 @@ function wp_update_comment( $commentarr, $wp_error = false ) {
 		}
 	}
 
-	$filter_comment = false;
-	if ( ! has_filter( 'pre_comment_content', 'wp_filter_kses' ) ) {
-		$filter_comment = ! user_can( isset( $comment['user_id'] ) ? $comment['user_id'] : 0, 'unfiltered_html' );
-	}
-
-	if ( $filter_comment ) {
-		add_filter( 'pre_comment_content', 'wp_filter_kses' );
-	}
-
 	// Escape data pulled from DB.
 	$comment = wp_slash( $comment );
 
@@ -2369,10 +2360,6 @@ function wp_update_comment( $commentarr, $wp_error = false ) {
 	$commentarr = array_merge( $comment, $commentarr );
 
 	$commentarr = wp_filter_comment( $commentarr );
-
-	if ( $filter_comment ) {
-		remove_filter( 'pre_comment_content', 'wp_filter_kses' );
-	}
 
 	// Now extract the merged array.
 	$data = wp_unslash( $commentarr );
@@ -2792,6 +2779,7 @@ function _close_comments_for_old_post( $open, $post_id ) {
  *     @type string     $comment                     The content of the comment.
  *     @type string|int $comment_parent              The ID of this comment's parent, if any. Default 0.
  *     @type string     $_wp_unfiltered_html_comment The nonce value for allowing unfiltered HTML.
+ *                                                   Ignored in calmpress.
  * }
  * @return WP_Comment|WP_Error A WP_Comment object on success, a WP_Error object on failure.
  */
@@ -2913,16 +2901,6 @@ function wp_handle_comment_submission( $comment_data ) {
 		$comment_author_email = $user->user_email;
 		$comment_author_url   = site_url();
 		$user_ID              = $user->ID;
-		if ( current_user_can( 'unfiltered_html' ) ) {
-			if ( ! isset( $comment_data['_wp_unfiltered_html_comment'] )
-				|| ! wp_verify_nonce( $comment_data['_wp_unfiltered_html_comment'], 'unfiltered-html-comment_' . $comment_post_ID )
-			) {
-				kses_remove_filters(); // Start with a clean slate.
-				kses_init_filters();   // Set up the filters.
-				remove_filter( 'pre_comment_content', 'wp_filter_post_kses' );
-				add_filter( 'pre_comment_content', 'wp_filter_kses' );
-			}
-		}
 	} else {
 		if ( get_option( 'comment_registration' ) ) {
 			return new WP_Error( 'not_logged_in', __( 'Sorry, you must be logged in to comment.' ), 403 );
