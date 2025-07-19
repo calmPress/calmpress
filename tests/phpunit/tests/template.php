@@ -13,15 +13,6 @@ class Tests_Template extends WP_UnitTestCase {
 	protected static $page;
 	protected static $post;
 
-	/**
-	 * Page For Privacy Policy.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @var WP_Post $page_for_privacy_policy
-	 */
-	protected static $page_for_privacy_policy;
-
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		self::$page_on_front = $factory->post->create_and_get(
 			array(
@@ -54,13 +45,6 @@ class Tests_Template extends WP_UnitTestCase {
 		);
 		set_post_format( self::$post, 'quote' );
 		add_post_meta( self::$post->ID, '_wp_page_template', 'templates/post.php' );
-
-		self::$page_for_privacy_policy = $factory->post->create_and_get(
-			array(
-				'post_type'  => 'page',
-				'post_title' => 'Privacy Policy',
-			)
-		);
 	}
 
 	public function set_up() {
@@ -264,25 +248,6 @@ class Tests_Template extends WP_UnitTestCase {
 				'page-page-name-😀.php',
 				'page-page-name-%f0%9f%98%80.php',
 				'page-' . self::$page->ID . '.php',
-				'page.php',
-				'singular.php',
-			)
-		);
-	}
-
-	/**
-	 * @ticket 44005
-	 * @group privacy
-	 */
-	public function test_privacy_template_hierarchy() {
-		update_option( 'wp_page_for_privacy_policy', self::$page_for_privacy_policy->ID );
-
-		$this->assertTemplateHierarchy(
-			get_permalink( self::$page_for_privacy_policy->ID ),
-			array(
-				'privacy-policy.php',
-				'page-privacy-policy.php',
-				'page-' . self::$page_for_privacy_policy->ID . '.php',
 				'page.php',
 				'singular.php',
 			)

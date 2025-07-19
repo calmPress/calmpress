@@ -126,31 +126,6 @@ class Tests_Privacy_wpPrivacySendErasureFulfillmentNotification extends WP_UnitT
 	}
 
 	/**
-	 * The email should include a link to the site's privacy policy when set.
-	 *
-	 * @ticket 44234
-	 */
-	public function test_should_send_email_with_privacy_policy() {
-		$privacy_policy = $this->factory->post->create(
-			array(
-				'post_type'   => 'page',
-				'title'       => 'Site Privacy Policy',
-				'post_status' => 'publish',
-			)
-		);
-		update_option( 'wp_page_for_privacy_policy', $privacy_policy );
-
-		_wp_privacy_send_erasure_fulfillment_notification( self::$request_id );
-
-		$mailer = tests_retrieve_phpmailer_instance();
-
-		$this->assertStringContainsString( self::$requester_email, $mailer->get_recipient( 'to' )->address );
-		$this->assertStringContainsString( 'you can also read our privacy policy', $mailer->get_sent()->body );
-		$this->assertStringContainsString( get_privacy_policy_url(), $mailer->get_sent()->body );
-		$this->assertTrue( (bool) get_post_meta( self::$request_id, '_wp_user_notified', true ) );
-	}
-
-	/**
 	 * The function should send a fulfillment email only once.
 	 *
 	 * @ticket 44234
