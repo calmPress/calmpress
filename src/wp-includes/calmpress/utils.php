@@ -267,6 +267,42 @@ function enqueue_avatar_inline_style(): void {
 }
 
 /**
+ * Insert enqueued styles into the head element of an HTML.
+ * 
+ * @since 1.0.0
+ * 
+ * @param string $html The HTML to insert into.
+ * 
+ * @return string The HTML with enqued styles in the head section.
+ */
+function insert_style_into_html_head( string $html): string {
+	$position = strpos( $html, '</head>' );
+
+	// Verify we handling a proper HTML including an head element before adding CSS in the header.
+	if ( $position === false ) {
+		calmpress\logger\Controller::log_warning_message(
+			'could not find </head> in the genrated HTML, you should check it is there and with lower case and no extra spaces',
+			__FILE__,
+			__LINE__,
+			get_current_user_id(),
+			'',
+			calmpress\logger\Controller::request_info( 20 )
+		);
+	} else {
+		// fetch the CSS links and inlines just the way it would have been done as a wp_head action.
+
+		ob_start();
+		wp_maybe_inline_styles();
+		wp_print_styles();
+		//print_late_styles();
+		$css = ob_get_clean();
+		
+		$html = substr_replace( $html, $css . '</head>', $position, strlen( '</head>' ) );
+	}
+	return $html;
+}
+
+/**
  * Check if the current user session is "fresh", verifying that user authentication
  * was less than 12 hours ago*, and prompting a login interface if it is not.
  * 

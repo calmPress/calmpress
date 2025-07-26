@@ -140,6 +140,19 @@ p {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
+.login #login_identity {
+	text-align: center;
+	margin-bottom: 15px;
+}
+
+.login #login_display_name {
+	font-size: 18px;
+}
+
+.login #login_email {
+	font-size: 13px;
+}
+
 .login form.shake {
 	animation: shake 0.2s cubic-bezier(.19,.49,.38,.79) both;
 	animation-iteration-count: 3;
@@ -245,12 +258,14 @@ p {
 }
 
 .login #nav,
-.login #backtoblog {
+.login #backtoblog,
+.login #interim_nav p {
 	font-size: 13px;
 	padding: 0 24px;
 }
 
-.login #nav {
+.login #nav,
+.login #interim_nav p {
 	margin: 24px 0 0;
 }
 

@@ -6730,7 +6730,7 @@ function wp_auth_check( $response ) {
 		if ( ! empty( $session_token ) && $current_user !== null ) {
 			$session_manager = WP_Session_Tokens::get_instance( $current_user->ID );
 			$session_data = $session_manager->get( $session_token );
-			if ( $session_data['reauthentication_needed'] == 1 ) {
+			if ( array_key_exists( 'reauthentication_needed',$session_data) && $session_data['reauthentication_needed'] == 1 ) {
 				$check_auth = false;	
 			}
 		}

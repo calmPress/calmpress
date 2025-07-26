@@ -70,6 +70,7 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 	 */
 	$login_title = apply_filters( 'login_title', $login_title, $title );
 
+	ob_start();
 	?><!DOCTYPE html>
 	<html <?php language_attributes(); ?>>
 	<head>
@@ -177,6 +178,7 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 	<div id="login">
 		<h1><a href="<?php echo esc_url( $login_header_url ); ?>"><?php echo $login_header_text; ?></a></h1>
 	<?php
+
 	/**
 	 * Filters the message to display above the login form.
 	 *
@@ -233,6 +235,7 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 			echo '<p class="message">' . apply_filters( 'login_messages', $messages ) . "</p>\n";
 		}
 	}
+
 } // End of login_header().
 
 /**
@@ -358,6 +361,7 @@ function login_footer( $input_id = '' ) {
 	 */
 	do_action( 'login_footer' );
 
+	echo calmpress\utils\insert_style_into_html_head( ob_get_clean() );
 	?>
 	<div class="clear"></div>
 	</body>
@@ -1086,7 +1090,7 @@ switch ( $action ) {
 
 		if ( $interim_login ) {
 			if ( ! $errors->has_errors() ) {
-				$errors->add( 'expired', __( 'Your session has expired. Please log in to continue where you left off.' ), 'message' );
+				$errors->add( 'expired', __( 'Please confirm your identity to continue where you left off.' ), 'message' );
 			}
 		} else {
 			// Some parts of this script use the main login form to display a message.
@@ -1134,12 +1138,27 @@ switch ( $action ) {
 			wp_clear_auth_cookie();
 		}
 
-		$message ='<h2>' .
-				esc_html( 
-					/* translators: %s: Site title. */
-					sprintf( __('Log in to %s' ), get_bloginfo( 'name' ) )
-				) .
-			'</h2>';
+		// If on reauth dialog show user's avatar and display name.
+		if ( $interim_login ) {
+			$message = '<h2>' .
+					esc_html__( 'Confirm your identity' ) .
+				'</h2>';
+			$message .= '<div id="login_identity">';
+			$user   = new WP_User( wp_get_current_user() );
+			$avatar = $user->avatar();
+			$html   = $avatar->html( 64 );
+			$message .= "<p>$html</p>";
+			$message .= '<p id="login_display_name">'. esc_html( $user->display_name) . '</p>';
+			$message .= '<p id="login_email">' . esc_html( $user->user_email) . '</p>';
+			$message .= '</div>';
+		} else {
+			$message ='<h2>' .
+					esc_html( 
+						/* translators: %s: Site title. */
+						sprintf( __('Log in to %s' ), get_bloginfo( 'name' ) )
+					) .
+				'</h2>';
+		}
 
  
 		login_header( __( 'Log In' ), $message, $errors );
@@ -1158,10 +1177,14 @@ switch ( $action ) {
 		?>
 
 		<form name="loginform" id="loginform" action="<?php echo esc_url( site_url( 'wp-login.php', 'login_post' ) ); ?>" method="post">
+			<?php if ( ! $interim_login ) { ?>
 			<p>
 				<label for="user_login"><?php _e( 'Email Address' ); ?></label>
 				<input type="text" name="log" id="user_login" <?php echo $aria_describedby_error; ?> class="input" value="<?php echo esc_attr( $user_login ); ?>" size="20" autocapitalize="off" />
 			</p>
+			<?php } else { ?>
+				<input type="hidden" name="log" id="user_login" value="<?php echo esc_attr( $user_email ); ?>" />
+			<?php } ?>
 
 			<div class="user-pass-wrap">
 				<label for="user_pass"><?php _e( 'Password' ); ?></label>
@@ -1180,10 +1203,14 @@ switch ( $action ) {
 			 * @since 2.1.0
 			 */
 			do_action( 'login_form' );
-
+			if ( $interim_login ) {
+				$button_label = __( 'Verify' );
+			} else {
+				$button_label = __( 'Log In' );
+			}
 			?>
 			<p class="submit">
-				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Log In' ); ?>" />
+				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php echo esc_attr( $button_label ); ?>" />
 				<?php
 
 				if ( $interim_login ) {
@@ -1226,6 +1253,13 @@ switch ( $action ) {
 				?>
 				<a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?' ); ?></a>
 			</p>
+			<?php
+		} else {
+			?>
+			<div id="interim_nav">
+				<p><a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'Lost your password?' ); ?></a></p>
+				<p><a href="<?php echo esc_url( wp_logout_url() ); ?>"><?php esc_html_e( 'Log out' ); ?></a></p>
+			</div>
 			<?php
 		}
 

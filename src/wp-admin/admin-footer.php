@@ -118,14 +118,7 @@ $buffer = ob_get_clean();
 if ( function_exists( 'wp_targeted_link_rel' ) ) {
 	$buffer = wp_targeted_link_rel( $buffer );
 }
-$position = strpos( $buffer, '</head>' );
-ob_start();
-wp_maybe_inline_styles();
-print_late_styles();
-$css = ob_get_clean();
-		
-$buffer = substr_replace( $buffer, $css . '</head>', $position, strlen( '</head>' ) );
-echo $buffer;
+echo calmpress\utils\insert_style_into_html_head( $buffer );
 
 ?>
 
