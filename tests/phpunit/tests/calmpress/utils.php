@@ -64,7 +64,6 @@ class WP_Test_Utils extends WP_UnitTestCase {
 	 * test insert_style_into_html_head actually inserts enqueued styles
 	 */
 	function test_insert_style_into_html_head() {
-		wp_print_styles();
 		wp_register_style( 'test', false ); // 'false' means no external file, just inline
 		wp_add_inline_style( 'test', 'a {color:red}' );
 		wp_enqueue_style( 'test' );

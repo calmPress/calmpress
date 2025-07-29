@@ -17,6 +17,7 @@ module.exports = function(grunt) {
 		BANNER_TEXT = '/*! This file is auto-generated */',
 		autoprefixer = require( 'autoprefixer' ),
 		sass = require( 'sass' ),
+		crypto = require('crypto');
 		phpUnitWatchGroup = grunt.option( 'group' ),
 		buildFiles = [
 			'*.php',
@@ -1424,6 +1425,7 @@ module.exports = function(grunt) {
 				'build:files',
 				'build:js',
 				'build:css',
+				'generateAssetVersions',
 				'replace:source-maps',
 				'verify:build'
 			] );
@@ -1514,6 +1516,60 @@ module.exports = function(grunt) {
 			stdio: 'inherit',
 		} );
 	} );
+
+	grunt.registerTask('generateAssetVersions', 'Generate asset version PHP files', function () {
+		const done = this.async();
+
+		const assetDirs = [
+			{ dir: 'wp-admin/js' },
+			{ dir: 'wp-includes/js' },
+			{ dir: 'wp-admin/css' },
+			{ dir: 'wp-includes/css' },
+		];
+
+		function hashFile(filepath) {
+			const content = fs.readFileSync(filepath);
+			return crypto.createHash('md5').update(content).digest('hex');
+		}
+
+		function collectAssets(dir, assets, root) {
+			const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+			for (const entry of entries) {
+				const fullPath = path.join(dir, entry.name);
+
+				if (entry.isDirectory()) {
+					collectAssets(fullPath, assets, root);
+				} else if (entry.isFile() && /\.(min\.js|min\.css)$/.test(entry.name)) {
+					var relPath = path.relative(root, fullPath).replace(/\\/g, '/'); // Normalize Windows paths
+					relPath = '/' + relPath.replace(/\.min(?=\.(js|css)$)/, '');
+					const hash = hashFile(fullPath);
+					assets[relPath] = hash;
+				}
+			}
+		}	
+
+		const assets = {};
+		assetDirs.forEach(({ dir, phpFile }) => {
+
+			collectAssets( WORKING_DIR + dir, assets, WORKING_DIR );
+
+		});
+
+		const phpContent =
+			"<?php\nreturn " +
+			JSON.stringify(assets, null, 2)
+				.replace(/"([^"]+)":/g, "'$1' =>") // keys to PHP-style
+				.replace(/"/g, "'")
+				.replace( '{', '[' )
+				.replace( '}', ']' )
+				 +
+			";\n";
+
+		fs.writeFileSync(WORKING_DIR + 'wp-includes/assets/assets_versions.php', phpContent);
+
+		done();
+	});
 
 	// Patch task.
 	grunt.renameTask('patch_wordpress', 'patch');

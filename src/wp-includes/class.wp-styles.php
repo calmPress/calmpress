@@ -130,10 +130,13 @@ class WP_Styles extends WP_Dependencies {
 
 		$obj = $this->registered[ $handle ];
 
-		if ( null === $obj->ver ) {
-			$ver = '';
+		if ( empty ( $obj->ver ) ) {
+			$ver = \calmpress\utils\asset_version( $obj->src );
+			if ( $ver === '' ) {
+				$ver = $this->default_version;
+			}
 		} else {
-			$ver = $obj->ver ? $obj->ver : $this->default_version;
+			$ver = $obj->ver;
 		}
 
 		if ( isset( $this->args[ $handle ] ) ) {

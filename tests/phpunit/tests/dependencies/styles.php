@@ -60,8 +60,8 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<link rel='stylesheet'  href='http://example.com?ver=$ver' type='text/css' media='all' />\n";
 		$expected .= "<link rel='stylesheet'  href='http://example.com?ver=1.2' type='text/css' media='all' />\n";
-		$expected .= "<link rel='stylesheet'  href='http://example.com' type='text/css' media='all' />\n";
-		$expected .= "<link rel='stylesheet'  href='http://example.com' type='text/css' media='print' />\n";
+		$expected .= "<link rel='stylesheet'  href='http://example.com?ver=$ver' type='text/css' media='all' />\n";
+		$expected .= "<link rel='stylesheet'  href='http://example.com?ver=$ver' type='text/css' media='print' />\n";
 
 		$this->assertSame( $expected, get_echo( 'wp_print_styles' ) );
 

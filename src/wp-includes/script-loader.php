@@ -629,7 +629,7 @@ function wp_default_scripts( $scripts ) {
 
 	$scripts->add( 'wp-sanitize', "/wp-includes/js/wp-sanitize$suffix.js", array(), false, 1 );
 
-	$scripts->add( 'sack', "/wp-includes/js/tw-sack$suffix.js", array(), '1.6.1', 1 );
+	$scripts->add( 'sack', "/wp-includes/js/tw-sack$suffix.js", array(), false, 1 );
 
 	$scripts->add( 'quicktags', "/wp-includes/js/quicktags$suffix.js", array(), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
@@ -668,7 +668,7 @@ function wp_default_scripts( $scripts ) {
 		)
 	);
 
-	$scripts->add( 'colorpicker', "/wp-includes/js/colorpicker$suffix.js", array( 'prototype' ), '3517m' );
+	$scripts->add( 'colorpicker', "/wp-includes/js/colorpicker$suffix.js", array( 'prototype' ), false );
 
 	$scripts->add( 'editor', "/wp-admin/js/editor$suffix.js", array( 'utils', 'jquery' ), false, 1 );
 
@@ -1206,7 +1206,7 @@ function wp_default_scripts( $scripts ) {
 
 	$scripts->add( 'wp-api', "/wp-includes/js/wp-api$suffix.js", array( 'jquery', 'backbone', 'underscore', 'wp-api-request' ), false, 1 );
 
-	$scripts->add( 'calm-login', "/wp-includes/js/cp-login$suffix.js", [], '1.0' );
+	$scripts->add( 'calm-login', "/wp-includes/js/cp-login$suffix.js", [] );
 
 	if ( is_admin() ) {
 		$scripts->add( 'admin-tags', "/wp-admin/js/tags$suffix.js", array( 'jquery', 'wp-ajax-response' ), false, 1 );
@@ -1337,11 +1337,11 @@ function wp_default_scripts( $scripts ) {
 			'before'
 		);
 
-		$scripts->add( 'calm-form-validate', "/wp-admin/js/form-validate$suffix.js", [], '1.0' );
+		$scripts->add( 'calm-form-validate', "/wp-admin/js/form-validate$suffix.js", [] );
 
-		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate'], '1.0' );
+		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate'] );
 
-		$scripts->add( 'calm-reauth', "/wp-includes/js/cp-reauth$suffix.js", ['wp-auth-check'], '1.0' );
+		$scripts->add( 'calm-reauth', "/wp-includes/js/cp-reauth$suffix.js", ['wp-auth-check'] );
 
 		$scripts->add( 'svg-painter', '/wp-admin/js/svg-painter.js', array( 'jquery' ), false, 1 );
 	}
@@ -1433,10 +1433,6 @@ function wp_default_styles( $styles ) {
 	$styles->add( 'thickbox', '/wp-includes/js/thickbox/thickbox.css', array( 'dashicons' ) );
 	$styles->add( 'wp-codemirror', '/wp-includes/js/codemirror/codemirror.min.css', array(), '5.29.1-alpha-ee20357' );
 
-	$block_library_theme_path = WPINC . "/css/dist/block-library/theme$suffix.css";
-	$styles->add( 'wp-block-library-theme', "/$block_library_theme_path" );
-	$styles->add_data( 'wp-block-library-theme', 'path', ABSPATH . $block_library_theme_path );
-
 	$styles->add(
 		'wp-reset-editor-styles',
 		"/wp-includes/css/dist/block-library/reset$suffix.css",
@@ -1447,22 +1443,6 @@ function wp_default_styles( $styles ) {
 		'wp-editor-classic-layout-styles',
 		"/wp-includes/css/dist/edit-post/classic$suffix.css",
 		array()
-	);
-
-	$wp_edit_blocks_dependencies = array(
-		'wp-components',
-		'wp-editor',
-		// This need to be added before the block library styles,
-		// The block library styles override the "reset" styles.
-		'wp-reset-editor-styles',
-		'wp-block-library',
-		'wp-reusable-blocks',
-	);
-
-	$styles->add(
-		'wp-edit-blocks',
-		"/wp-includes/css/dist/block-library/editor$suffix.css",
-		$wp_edit_blocks_dependencies
 	);
 
 	$package_styles = array(

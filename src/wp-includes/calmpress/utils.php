@@ -371,3 +371,21 @@ function heartbeat_check_session_freshness( $response, $data, $screen_id ) {
 
 	return $response;
 }
+
+function asset_version( string $asset ): string {
+	static $versions = [];
+
+	$asset = str_replace( '.min.', '.', $asset );
+	
+	if ( empty( $versions ) ) {
+		if ( file_exists( ABSPATH . WPINC . '/assets/assets_versions.php' ) ) {
+			$versions = include ABSPATH . WPINC . '/assets/assets_versions.php';
+		}
+	}
+
+	if ( isset( $versions[ $asset ] ) ) {
+		return calm_version_hash( $versions[ $asset ] );
+	} else {
+		return '';
+	}
+}
