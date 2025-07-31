@@ -404,6 +404,12 @@
 		bindPasswordForm();
 		bindPasswordResetLink();
 		bindPasswordResetLink();
+
+		// if we have a fragment of password show password fields.
+		if ( window.location.hash === '#password' ) {
+			var $pwButton = $( '.wp-generate-pw' );
+       		$pwButton.trigger('click');
+		}
 	});
 
 	$( '#destroy-sessions' ).on( 'click', function( e ) {

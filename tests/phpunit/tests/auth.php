@@ -227,7 +227,7 @@ class Tests_Auth extends WP_UnitTestCase {
 		$wpdb->update(
 			$wpdb->users,
 			array(
-				'user_activation_key' => strtotime( '-1 hour' ) . ':' . password_hash( $key, PASSWORD_DEFAULT ),
+				'user_activation_key' => strtotime( '-30 minute' ) . ':' . password_hash( $key, PASSWORD_DEFAULT ),
 			),
 			array(
 				'ID' => $this->user->ID,

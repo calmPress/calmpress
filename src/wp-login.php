@@ -609,7 +609,7 @@ switch ( $action ) {
 			) .
 		'</h2>';
 		
-		login_header( __( 'Lost Password' ), $message . '<p class="message">' . __( 'Please enter your email address. You will receive an email message with instructions on how to reset your password.' ) . '</p>', $errors );
+		login_header( __( 'Lost Password' ), $message . '<p class="message">' . __( 'Enter your email address. We will send you a secure link to log in and choose a new password.' ) . '</p>', $errors );
 
 		$user_login = '';
 
@@ -636,7 +636,7 @@ switch ( $action ) {
 			?>
 			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
 			<p class="submit">
-				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Get New Password' ); ?>" />
+				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Send Email' ); ?>" />
 			</p>
 		</form>
 
@@ -677,10 +677,6 @@ switch ( $action ) {
 			list( $rp_email, $rp_key ) = explode( ':', wp_unslash( $_COOKIE[ $rp_cookie ] ), 2 );
 
 			$user = check_password_reset_key( $rp_key, $rp_email );
-
-			if ( isset( $_POST['pass1'] ) && ! hash_equals( $rp_key, $_POST['rp_key'] ) ) {
-				$user = false;
-			}
 		} else {
 			$user = false;
 		}
@@ -697,113 +693,10 @@ switch ( $action ) {
 			exit;
 		}
 
-		$errors = new WP_Error();
-
-		if ( isset( $_POST['pass1'] ) && $_POST['pass1'] !== $_POST['pass2'] ) {
-			$errors->add( 'password_reset_mismatch', __( '<strong>Error</strong>: The passwords do not match.' ) );
-		}
-
-		/**
-		 * Fires before the password reset procedure is validated.
-		 *
-		 * @since 3.5.0
-		 *
-		 * @param WP_Error         $errors WP Error object.
-		 * @param WP_User|WP_Error $user   WP_User object if the login and reset key match. WP_Error object otherwise.
-		 */
-		do_action( 'validate_password_reset', $errors, $user );
-
-		if ( ( ! $errors->has_errors() ) && isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-			reset_password( $user, $_POST['pass1'] );
-			setcookie( $rp_cookie, ' ', time() - YEAR_IN_SECONDS, $rp_path, COOKIE_DOMAIN, is_ssl(), true );
-			login_header( __( 'Password Reset' ), '<p class="message reset-pass">' . __( 'Your password has been reset.' ) . ' <a href="' . esc_url( wp_login_url() ) . '">' . __( 'Log in' ) . '</a></p>' );
-			login_footer();
-			exit;
-		}
-
-		wp_enqueue_script( 'utils' );
-		wp_enqueue_script( 'user-profile' );
-
-		$message ='<h2>' .
-			esc_html( 
-				/* translators: %s: Site title. */
-				sprintf( __('Reset password for %s' ), get_bloginfo( 'name' ) )
-			) .
-		'</h2>';
-
-		login_header( __( 'Reset Password' ), $message . '<p class="message reset-pass">' . __( 'Enter your new password below or generate one.' ) . '</p>', $errors );
-
-		?>
-		<form name="resetpassform" id="resetpassform" action="<?php echo esc_url( network_site_url( 'wp-login.php?action=resetpass', 'login_post' ) ); ?>" method="post" autocomplete="off">
-			<p>
-				<label for="user_login"><?php _e( 'Email Address' ); ?></label>
-				<input type="text" name="log" id="user_login" class="input" value="<?php echo esc_attr( $rp_email ); ?>" readonly="readonly" autocapitalize="off" />
-			</p>
-
-			<div class="user-pass1-wrap">
-				<p>
-					<label for="pass1"><?php _e( 'New password' ); ?></label>
-				</p>
-
-				<div class="wp-pwd">
-					<input type="password" data-reveal="1" data-pw="<?php echo esc_attr( wp_generate_password( 16 ) ); ?>" name="pass1" id="pass1" class="input password-input" size="24" value="" autocomplete="off" aria-describedby="pass-strength-result" />
-
-					<button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0" aria-label="<?php esc_attr_e( 'Hide password' ); ?>">
-						<span class="dashicons dashicons-hidden" aria-hidden="true"></span>
-					</button>
-					<div id="pass-strength-result" class="hide-if-no-js" aria-live="polite"><?php _e( 'Strength indicator' ); ?></div>
-				</div>
-				<div class="pw-weak">
-					<input type="checkbox" name="pw_weak" id="pw-weak" class="pw-checkbox" />
-					<label for="pw-weak"><?php _e( 'Confirm use of weak password' ); ?></label>
-				</div>
-			</div>
-
-			<p class="user-pass2-wrap">
-				<label for="pass2"><?php _e( 'Confirm new password' ); ?></label>
-				<input type="password" name="pass2" id="pass2" class="input" size="20" value="" autocomplete="off" />
-			</p>
-
-			<p class="description indicator-hint"><?php echo wp_get_password_hint(); ?></p>
-			<br class="clear" />
-
-			<?php
-
-			/**
-			 * Fires following the 'Strength indicator' meter in the user password reset form.
-			 *
-			 * @since 3.9.0
-			 *
-			 * @param WP_User $user User object of the user whose password is being reset.
-			 */
-			do_action( 'resetpass_form', $user );
-
-			?>
-			<input type="hidden" name="rp_key" value="<?php echo esc_attr( $rp_key ); ?>" />
-			<p class="submit reset-pass-submit">
-				<button type="button" class="button wp-generate-pw hide-if-no-js" aria-expanded="true"><?php _e( 'Generate Password' ); ?></button>
-				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Save Password' ); ?>" />
-			</p>
-		</form>
-
-		<p id="nav">
-			<a href="<?php echo esc_url( wp_login_url() ); ?>"><?php _e( 'Log in' ); ?></a>
-			<?php
-
-			if ( get_option( 'users_can_register' ) ) {
-				$registration_url = sprintf( '<a href="%s">%s</a>', esc_url( wp_registration_url() ), __( 'Register' ) );
-
-				echo esc_html( $login_link_separator );
-
-				/** This filter is documented in wp-includes/general-template.php */
-				echo apply_filters( 'register', $registration_url );
-			}
-
-			?>
-		</p>
-		<?php
-
-		login_footer( 'pass1' );
+		// Everything valide, log in the user and redirect to his profile page to
+		// potentialy change his password.
+		wp_set_auth_cookie( $user->ID, true );
+		wp_safe_redirect( admin_url( 'profile.php#password' ) );
 		break;
 
 	case 'register':
@@ -907,7 +800,7 @@ switch ( $action ) {
 				'confirm',
 				sprintf(
 					/* translators: %s: Link to the login page. */
-					__( 'A password reset link was sent to your email. Just follow it to continue.' ),
+					__( 'A login link was sent to your email. Just follow it to continue. The link will expire in an hour.' ),
 					wp_login_url()
 				),
 				'message'

@@ -2469,7 +2469,7 @@ function check_password_reset_key( $key, $email ) {
 	 *
 	 * @param int $expiration The expiration time in seconds.
 	 */
-	$expiration_duration = apply_filters( 'password_reset_expiration', DAY_IN_SECONDS );
+	$expiration_duration = apply_filters( 'password_reset_expiration', HOUR_IN_SECONDS );
 
 	if ( false !== strpos( $user->user_activation_key, ':' ) ) {
 		list( $pass_request_time, $pass_key ) = explode( ':', $user->user_activation_key, 2 );
@@ -2629,8 +2629,9 @@ function retrieve_password( $user_login = null ) {
 	/* translators: %s: User email. */
 	$message .= sprintf( __( 'Email: %s' ), $user_email ) . "\r\n\r\n";
 	$message .= __( 'If this was a mistake, ignore this email and nothing will happen.' ) . "\r\n\r\n";
-	$message .= __( 'To reset your password, visit the following address:' ) . "\r\n\r\n";
+	$message .= __( 'Use the link below to securely log in and choose a new password:' ) . "\r\n\r\n";
 	$message .= network_site_url( "wp-login.php?action=rp&key=$key&email=" . rawurlencode( $user_email ), 'login' ) . '&wp_lang=' . $locale . "\r\n\r\n";
+	$message .= __( 'The link will expire in an hour.' ) . "\r\n\r\n";
 
 	if ( ! is_user_logged_in() ) {
 		$requester_ip = $_SERVER['REMOTE_ADDR'];
