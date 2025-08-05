@@ -168,7 +168,8 @@ function base64URL_decode( string $decode ): string|false {
  * @param int $value The string which to decrypt.
  * @param int $nonce The nonce value to encrypt with the value.
  *
- * @return string A base64 format string of the encryption result.
+ * @return string A base64 format string of the encryption result compatible to use
+ *                in url.
  */
 function encrypt_int_to_base64URL( int $value, int $nonce ): string {
 
@@ -176,7 +177,7 @@ function encrypt_int_to_base64URL( int $value, int $nonce ): string {
 	$enonce = substr( AUTH_SALT, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
 
 	$encrypted = sodium_crypto_secretbox( $value . '|' . $nonce, $enonce, $ekey );
-	return base64_encode( $encrypted );
+	return base64URL_encode( $encrypted );
 }
 
 /**
