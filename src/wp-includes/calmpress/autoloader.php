@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace calmpress\autoloader;
 
+// Add webauthn autoloader to handle the relevant classes.
+require_once __DIR__ . '/webauthn/vendor/autoload.php';
+
 /*
  * A map of classes to files to be used when determining which file to load
  * when a class needs to be loaded.
@@ -103,6 +106,8 @@ const MAP = [
 	'calmpress\email\User_Email_Change_Undo_Email_Mutator' => __DIR__ . '/email/class-user-email-change-undo-email-mutator.php',
 	'calmpress\email\Installer_Email_Verification_Email' => __DIR__ . '/email/class-installer-email-verification-email.php',
 	'calmpress\email\Installer_Email_Verification_Email_Mutator' => __DIR__ . '/email/class-installer-email-verification-email-mutator.php',
+	'calmpress\email\User_Magic_Login_Email'            => __DIR__ . '/email/class-user-magic-login-email.php',
+	'calmpress\email\User_Magic_Login_Email_Mutator'    => __DIR__ . '/email/class-user-magic-login-email-mutator.php',
 	'calmpress\email\Abort_Send_Exception'              => __DIR__ . '/email/class-abort-send-exception.php',
 	'calmpress\email\Email_To_User'                     => __DIR__ . '/email/trait-email-to-user.php',
 	'calmpress\utils\Decryption_Result'                 => __DIR__ . '/utils/class-decryption-result.php',

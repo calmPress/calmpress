@@ -11,7 +11,7 @@ use calmpress\email\Email_Address;
 /**
  * Authenticates and logs a user in.
  *
- * The credentials is an array that has 'user_login' שמג 'user_password' indices.
+ * The credentials is an array that has 'user_login' and 'user_password' indices.
  * If the credentials is not given, then the log in form
  * will be assumed and used if set.
  *
@@ -195,13 +195,7 @@ function wp_authenticate_email_password( $user, $email, $password ) {
 		// via timing attacks.
 		password_verify( $password, password_hash( $password, PASSWORD_DEFAULT ) );
 
-		return new WP_Error( 'incorrect_password',
-			sprintf(
-				/* translators: %s: email address */
-				__( '<strong>ERROR</strong>: The password you entered for the email address %s do not match the one associated with it.' ),
-				'<strong>' . $email . '</strong>'
-			)
-		);
+		return new WP_Error( 'incorrect_password', __( 'Invalid email address or password.' ) );
 	}
 
 	/** This filter is documented in wp-includes/user.php */
@@ -214,11 +208,7 @@ function wp_authenticate_email_password( $user, $email, $password ) {
 	if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
 		return new WP_Error(
 			'incorrect_password',
-			sprintf(
-				/* translators: %s: Email address. */
-				__( '<strong>ERROR</strong>: The password you entered for the email address %s do not match the one associated with it.' ),
-				'<strong>' . $email . '</strong>'
-			) .
+			__( 'Invalid email address or password.' ) .
 			' <a href="' . wp_lostpassword_url() . '">' .
 			__( 'Lost your password?' ) .
 			'</a>'

@@ -331,6 +331,39 @@ p {
 	background-color: #f0f0f1;
 }
 
+/* render the passwordand email input offscreen to still have it autofilled */
+.user-pass-wrap.hidden, .user-email-wrap.hidden {
+	position:absolute;
+	left:9999px;
+	clip: rect(0, 0, 0, 0); /* prevent scrollbar */
+}
+
+#form_switch {
+	padding-top:10px;
+	clear:both;
+}
+
+#form_switch button {
+	background: none;
+	border: none;
+	color: #0073aa;
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
+}
+
+#form_switch button.hidden {
+	display:none;
+}
+
+#form_switch button .text {
+	text-decoration: underline;
+}
+
+#form_switch h3 {
+	font-size: inherit;
+}
+
 .js.login-action-rp input[type="text"]:not([readonly]),
 .js.login-action-rp input[type="password"] {
 	margin-bottom: 0;

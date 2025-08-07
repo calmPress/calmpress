@@ -693,7 +693,7 @@ switch ( $action ) {
 			exit;
 		}
 
-		// Everything valide, log in the user and redirect to his profile page to
+		// Everything valid, log in the user and redirect to his profile page to
 		// potentialy change his password.
 		wp_set_auth_cookie( $user->ID, true );
 		wp_safe_redirect( admin_url( 'profile.php#password' ) );
@@ -815,7 +815,10 @@ switch ( $action ) {
 				),
 				'message'
 			);
+		} elseif ( 'magiclink' === $_GET['checkemail'] ) {
+			$errors->add( 'newpass', __( 'Check your email for your log in link.' ), 'message' );
 		}
+
 
 		/** This action is documented in wp-login.php */
 		$errors = apply_filters( 'wp_login_errors', $errors, $redirect_to );
@@ -887,88 +890,143 @@ switch ( $action ) {
 			$redirect_to = admin_url();
 		}
 
-		$reauth = empty( $_REQUEST['reauth'] ) ? false : true;
-
-		$user = wp_signon( array(), $secure_cookie );
-
-		if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-			if ( headers_sent() ) {
+		// Handle a magi link
+		if ( isset( $_GET['magiclink' ] ) && $_GET['magiclink' ] === '1' && isset( $_GET['id'] )) {
+			$id   = $_GET['id'];
+			$user = \WP_User::user_from_encrypted_string( $id );
+			if ( $user ) {
+				wp_clear_auth_cookie();
+				wp_set_auth_cookie( $user->ID );
+				wp_set_current_user( $user->ID );
+				wp_redirect( $redirect_to );
+				die();
+			} else {
 				$user = new WP_Error(
-					'test_cookie',
-					sprintf(
-						/* translators: 1: Browser cookie documentation URL, 2: Support forums URL. */
-						__( '<strong>Error</strong>: Cookies are blocked due to unexpected output. For help, please see <a href="%1$s">this documentation</a> or try the <a href="%2$s">support forums</a>.' ),
-						__( 'https://wordpress.org/support/article/cookies/' ),
-						__( 'https://wordpress.org/support/forums/' )
-					)
-				);
-			} elseif ( isset( $_POST['testcookie'] ) && empty( $_COOKIE[ TEST_COOKIE ] ) ) {
-				// If cookies are disabled, we can't log in even with a valid user and password.
-				$user = new WP_Error(
-					'test_cookie',
-					sprintf(
-						/* translators: %s: Browser cookie documentation URL. */
-						__( '<strong>Error</strong>: Cookies are blocked or not supported by your browser. You must <a href="%s">enable cookies</a> to use WordPress.' ),
-						__( 'https://wordpress.org/support/article/cookies/#enable-cookies-in-your-browser' )
-					)
+					'faulty_magiclink',
+					__( 'This login link is invalid or expired. You can request a new one to be sent.' )
 				);
 			}
 		}
 
-		$requested_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
-		/**
-		 * Filters the login redirect URL.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param string           $redirect_to           The redirect destination URL.
-		 * @param string           $requested_redirect_to The requested redirect destination URL passed as a parameter.
-		 * @param WP_User|WP_Error $user                  WP_User object if login was successful, WP_Error object otherwise.
-		 */
-		$redirect_to = apply_filters( 'login_redirect', $redirect_to, $requested_redirect_to, $user );
+		$reauth = empty( $_REQUEST['reauth'] ) ? false : true;
 
-		if ( ! is_wp_error( $user ) && ! $reauth ) {
-			if ( $interim_login ) {
-				$message       = '<p class="message">' . __( 'You have logged in successfully.' ) . '</p>';
-				$interim_login = 'success';
-				login_header( '', $message );
+		if ( $interim_login ) {
+			$form_type = 'interim';
+		} elseif ( isset( $_GET['magiclink' ] ) && $_GET['magiclink' ] === '1' ) {
+			$form_type = 'magiclink';
+		} elseif ( isset( $_POST['form_type'] ) ) {
+			$t = $_POST['form_type'];
+			if ( $t === 'password' || $t === 'magiclink' ) {
+				$form_type = $t;
+			}
+		} else {
+			$form_type = 'magiclink';
+		}
 
-				?>
-				</div>
-				<?php
+		// If the form is in magic link form, try to send the mail.
+		if ( $form_type === 'magiclink' ) {
+			if ( isset( $_POST['log'] ) ) {
+				$email = trim( wp_unslash( $_POST['log'] ) );
+				if ( ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
+					$user = new WP_Error( 'invalid_email', __( 'Please enter a valid email address.' ) );
+				} else {
+					$user = get_user_by( 'email', $email );
+					if ( $user ) {
+						$user->magic_login_email( $redirect_to );
+					}
+					wp_safe_redirect( 'wp-login.php?checkemail=magiclink' );
+				}
+			}
+		} else {
+			$user = wp_signon( array(), $secure_cookie );
 
-				/** This action is documented in wp-login.php */
-				do_action( 'login_footer' );
+			// If reauthentication failed, adjust message to be more relevant
+			// to the reauthentication dialog.
+			if ( is_wp_error( $user ) && $interim_login ) {
+				if ( $user->get_error_code() === 'incorrect_password' || $user->get_error_code() === 'invalid_username' ) {
+					$user = new WP_Error( 'incorrect_password', __( 'The password you entered is incorrect.' ) );
+				}				
+			}
 
-				if ( $customize_login ) {
+			if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
+				if ( headers_sent() ) {
+					$user = new WP_Error(
+						'test_cookie',
+						sprintf(
+							/* translators: 1: Browser cookie documentation URL, 2: Support forums URL. */
+							__( '<strong>Error</strong>: Cookies are blocked due to unexpected output. For help, please see <a href="%1$s">this documentation</a> or try the <a href="%2$s">support forums</a>.' ),
+							__( 'https://wordpress.org/support/article/cookies/' ),
+							__( 'https://wordpress.org/support/forums/' )
+						)
+					);
+				} elseif ( isset( $_POST['testcookie'] ) && empty( $_COOKIE[ TEST_COOKIE ] ) ) {
+					// If cookies are disabled, we can't log in even with a valid user and password.
+					$user = new WP_Error(
+						'test_cookie',
+						sprintf(
+							/* translators: %s: Browser cookie documentation URL. */
+							__( '<strong>Error</strong>: Cookies are blocked or not supported by your browser. You must <a href="%s">enable cookies</a> to use WordPress.' ),
+							__( 'https://wordpress.org/support/article/cookies/#enable-cookies-in-your-browser' )
+						)
+					);
+				}
+			}
+
+			$requested_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+			/**
+			 * Filters the login redirect URL.
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param string           $redirect_to           The redirect destination URL.
+			 * @param string           $requested_redirect_to The requested redirect destination URL passed as a parameter.
+			 * @param WP_User|WP_Error $user                  WP_User object if login was successful, WP_Error object otherwise.
+			 */
+			$redirect_to = apply_filters( 'login_redirect', $redirect_to, $requested_redirect_to, $user );
+
+			if ( ! is_wp_error( $user ) && ! $reauth ) {
+				if ( $interim_login ) {
+					$message       = '<p class="message">' . __( 'You have logged in successfully.' ) . '</p>';
+					$interim_login = 'success';
+					login_header( '', $message );
+
 					?>
-					<script type="text/javascript">setTimeout( function(){ new wp.customize.Messenger({ url: '<?php echo wp_customize_url(); ?>', channel: 'login' }).send('login') }, 1000 );</script>
+					</div>
 					<?php
+
+					/** This action is documented in wp-login.php */
+					do_action( 'login_footer' );
+
+					if ( $customize_login ) {
+						?>
+						<script type="text/javascript">setTimeout( function(){ new wp.customize.Messenger({ url: '<?php echo wp_customize_url(); ?>', channel: 'login' }).send('login') }, 1000 );</script>
+						<?php
+					}
+
+					?>
+					</body></html>
+					<?php
+
+					exit;
 				}
 
-				?>
-				</body></html>
-				<?php
+				if ( ( empty( $redirect_to ) || 'wp-admin/' === $redirect_to || admin_url() === $redirect_to ) ) {
+					// If the user doesn't belong to a blog, send them to user admin. If the user can't edit posts, send them to their profile.
+					if ( is_multisite() && ! get_active_blog_for_user( $user->ID ) && ! is_super_admin( $user->ID ) ) {
+						$redirect_to = user_admin_url();
+					} elseif ( is_multisite() && ! $user->has_cap( 'read' ) ) {
+						$redirect_to = get_dashboard_url( $user->ID );
+					} elseif ( ! $user->has_cap( 'edit_posts' ) ) {
+						$redirect_to = $user->has_cap( 'read' ) ? admin_url( 'profile.php' ) : home_url();
+					}
 
-				exit;
-			}
-
-			if ( ( empty( $redirect_to ) || 'wp-admin/' === $redirect_to || admin_url() === $redirect_to ) ) {
-				// If the user doesn't belong to a blog, send them to user admin. If the user can't edit posts, send them to their profile.
-				if ( is_multisite() && ! get_active_blog_for_user( $user->ID ) && ! is_super_admin( $user->ID ) ) {
-					$redirect_to = user_admin_url();
-				} elseif ( is_multisite() && ! $user->has_cap( 'read' ) ) {
-					$redirect_to = get_dashboard_url( $user->ID );
-				} elseif ( ! $user->has_cap( 'edit_posts' ) ) {
-					$redirect_to = $user->has_cap( 'read' ) ? admin_url( 'profile.php' ) : home_url();
+					wp_redirect( $redirect_to );
+					exit;
 				}
 
-				wp_redirect( $redirect_to );
+				wp_safe_redirect( $redirect_to );
 				exit;
 			}
-
-			wp_safe_redirect( $redirect_to );
-			exit;
 		}
 
 		$errors = $user;
@@ -1052,12 +1110,15 @@ switch ( $action ) {
 					) .
 				'</h2>';
 		}
-
  
 		login_header( __( 'Log In' ), $message, $errors );
 
 		if ( isset( $_POST['log'] ) ) {
-			$user_login = ( 'incorrect_password' === $errors->get_error_code() || 'empty_password' === $errors->get_error_code() ) ? esc_attr( wp_unslash( $_POST['log'] ) ) : '';
+			$user_login = 
+				( 'incorrect_password' === $errors->get_error_code() || 
+				'empty_password' === $errors->get_error_code() ||
+				'invalid_email' === $errors->get_error_code()
+				) ? esc_attr( wp_unslash( $_POST['log'] ) ) : '';
 		}
 
 		if ( $errors->has_errors() ) {
@@ -1067,19 +1128,24 @@ switch ( $action ) {
 		}
 
 		wp_enqueue_script( 'user-profile' );
+
+		$email_class = '';
+		$password_class = '';
+		if ( $interim_login ) {
+			$email_class = 'hidden';
+		} elseif ( $form_type !== 'password' ) {
+			$password_class = 'hidden';
+		}
 		?>
 
 		<form name="loginform" id="loginform" action="<?php echo esc_url( site_url( 'wp-login.php', 'login_post' ) ); ?>" method="post">
-			<?php if ( ! $interim_login ) { ?>
-			<p>
+			<input id="form_type" name="form_type" type="hidden" value="<?php echo esc_attr( $form_type );?>">
+			<p class="user-email-wrap <?php echo $email_class;?>">
 				<label for="user_login"><?php _e( 'Email Address' ); ?></label>
-				<input type="text" name="log" id="user_login" <?php echo $aria_describedby_error; ?> class="input" value="<?php echo esc_attr( $user_login ); ?>" size="20" autocapitalize="off" />
+				<input type="text" name="log" id="user_login" <?php echo $aria_describedby_error; ?> class="input" value="<?php echo esc_attr( $user_email ); ?>" size="20" autocapitalize="off" />
 			</p>
-			<?php } else { ?>
-				<input type="hidden" name="log" id="user_login" value="<?php echo esc_attr( $user_email ); ?>" />
-			<?php } ?>
 
-			<div class="user-pass-wrap">
+			<div class="user-pass-wrap <?php echo $password_class; ?>">
 				<label for="user_pass"><?php _e( 'Password' ); ?></label>
 				<div class="wp-pwd">
 					<input type="password" name="pwd" id="user_pass"<?php echo $aria_describedby_error; ?> class="input password-input" value="" size="20" />
@@ -1096,25 +1162,24 @@ switch ( $action ) {
 			 * @since 2.1.0
 			 */
 			do_action( 'login_form' );
-			if ( $interim_login ) {
-				$button_label = __( 'Verify' );
-			} else {
-				$button_label = __( 'Log In' );
-			}
+
 			?>
 			<p class="submit">
-				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php echo esc_attr( $button_label ); ?>" />
 				<?php
 
-				if ( $interim_login ) {
+				$button_label = match ( $form_type ) {
+					'interim'   => __( 'Verify' ),
+					'magiclink' => __( 'Email a Log In link' ),
+					'password'  => __( 'Log In' ),
+				};
+
+				if ( $form_type === 'interim' ) {
 					?>
 					<input type="hidden" name="interim-login" value="1" />
-					<?php
-				} else {
-					?>
-					<input type="hidden" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
-					<?php
-				}
+				<?php } ?>
+				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php echo esc_attr( $button_label ); ?>" />
+				<input type="hidden" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
+				<?php
 
 				if ( $customize_login ) {
 					?>
@@ -1125,6 +1190,15 @@ switch ( $action ) {
 				?>
 				<input type="hidden" name="testcookie" value="1" />
 			</p>
+			<?php
+			if ( $form_type !== 'interim' ) {
+			?>
+				<div id="form_switch">
+					<h3><?php esc_html_e( 'Other login options:' ); ?></h3>
+					<button type="button" data-text="<?php esc_attr_e( 'Log In' );?>" <?php if ( $form_type === 'password' ) { echo 'class="hidden"';}?> id="use_password"><span class="emoji" aria-hidden="true">🔐 </span><span class="text"><?php esc_html_e( 'Enter password' );?></span></button>
+					<button type="button" data-text="<?php esc_attr_e( 'Email a Log In link' );?>" <?php if ( $form_type === 'magiclink' ) { echo 'class="hidden"';}?> id="use_magiclink"><span class="emoji" aria-hidden="true">📩 </span><span class="text"><?php esc_html_e( 'Email a login link' );?></span></button>
+				</div>
+			<?php } ?>
 		</form>
 
 		<?php
