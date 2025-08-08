@@ -938,6 +938,11 @@ switch ( $action ) {
 				}
 			}
 		} else {
+
+			// Will need session token if exists for interim login.
+			$cookie_parts  = wp_parse_auth_cookie( '', 'logged_in' );
+			$session_token = $cookie_parts['token'] ?? '';
+
 			$user = wp_signon( array(), $secure_cookie );
 
 			// If reauthentication failed, adjust message to be more relevant
@@ -948,6 +953,20 @@ switch ( $action ) {
 				}				
 			}
 
+			// wp_signon changes the session token at the cookie which invalidates
+			// nonces, therefor if reauth succeeded set the token to the original one.
+			if ( ! is_wp_error( $user ) && $interim_login && $session_token ) {
+
+				// Set the session token in the cookie back to original one.
+				wp_set_auth_cookie( $user->ID, true, '', $session_token );
+
+				// this might not be needed, but better make sure all globals are
+				// up to date after the session token change.
+			    wp_set_current_user( $user->ID );
+			}
+
+			// Check that we successfuly set the cookie. If not we basically
+			// failed to login the various messages are not very important by themself.
 			if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
 				if ( headers_sent() ) {
 					$user = new WP_Error(
