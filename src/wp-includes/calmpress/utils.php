@@ -242,7 +242,7 @@ function decrypt_int_from_base64URL( string $encrypted_value ): Decryption_Resul
  * 
  * @since 1.0.0
  * 
- * @param string The handle to use to identofy the style.
+ * @param string The handle to use to identify the style.
  * @param string The style to enqueue.
  */
 function enqueue_inline_style_once( string $handle, string $style ): void {
@@ -373,6 +373,14 @@ function heartbeat_check_session_freshness( $response, $data, $screen_id ) {
 	return $response;
 }
 
+/**
+ * Calculate a version string for an asset, based on a version from a asset versions
+ * file, or based on current calmpress version.
+ *
+ * @since 1.0.0
+ * 
+ * @return string A version string.
+ */
 function asset_version( string $asset ): string {
 	static $versions = [];
 
@@ -389,4 +397,119 @@ function asset_version( string $asset ): string {
 	} else {
 		return '';
 	}
+}
+
+/**
+ * Output the HTML, CSS and JS for a dismissable notice container and the JS enabling the
+ * dismissle.
+ * 
+ * To be used in admin pages.
+ * 
+ * @since 1.0.0
+ * 
+ * @param string $id The id of the generated div.
+ */
+function html_for_dissmissable_notice( string $id ): void {
+	static $css_js_done = false; // Indicate if the JS and CSS was already enqueued.
+	$id  = esc_attr( $id );
+	$msg = esc_html__( 'Dismiss this notice.' );
+ 
+	echo <<<EOT
+<div id="$id" class="dynamic-notice notice is-dismissible inline" role="status" aria-live="polite">
+  <p></p>
+  <button type="button" class="notice-dismiss">
+    <span class="screen-reader-text">$msg</span>
+  </button>
+</div>
+EOT;
+
+	if ( ! $css_js_done ) {
+$css = <<<CSS
+.wp-core-ui .notice.is-dismissible.dynamic-notice {
+	display:none;
+	opacity:0;
+	transition:opacity 0.2s ease;
+}
+.dynamic-notice.visible {
+  	opacity: 1 !important;
+}
+CSS;
+		enqueue_inline_style_once( 'hide-dynamic-notice', $css );
+
+		add_action(
+			'admin_footer',
+			function () {
+echo <<<JS
+<script>
+/**
+ * Manager to show, hide and dismiss inline notices which have a dismiss button, and
+ * automatic dismissle after a period of time.
+ */
+const inline_notice_manager = {
+    _timers: new Map(), //  Map of notice area ids to the timers controling the
+	                    // automatic hiding.
+	AUTO_HIDE_DELAY: 10000, // time period after which the notice will be hidden.
+
+	/**
+	 * Display a notice
+	 * 
+	 * @param {string} id The id of the div in which the notice should be displayed.
+	 * @param {string} type The type of the notice - 'error', 'success', 'info'
+	 * @param {string} message The message to display.
+	 */
+	show( id, type, message ) {
+		const notice = document.getElementById( id );
+		const text_el = notice.querySelector( 'p' );
+		text_el.textContent = message;
+		notice.classList.remove( 'notice-success', 'notice-error', 'notice-info', 'notice-warning' );
+		notice.classList.add( 'notice-' + type );
+		notice.style.display = 'block';
+		this._clear_timer( id );
+		const timer = setTimeout( () => this.hide( id ), this.AUTO_HIDE_DELAY );
+        this._timers.set( id, timer );
+		const dismiss_btn = notice.querySelector(' .notice-dismiss' );
+        if (dismiss_btn) {
+            dismiss_btn.onclick = () => this.hide( id );
+        }
+		requestAnimationFrame( () => {
+			notice.classList.add( 'visible' );
+		});
+	},
+
+	/**
+	 * Internal helper to hide a specific notice.
+	 * @param {string} id The id of the div of the notice
+	 */
+    hide( id ) {
+		const notice = document.getElementById( id );
+        notice.classList.remove( 'visible' );
+		notice.addEventListener(
+			'transitionend',
+			() => {
+				notice.style.display = '';
+			}, 
+			{ once: true }
+		);
+
+        this._clear_timer( id );
+    },
+
+	/**
+	 * Internal helper to clear a "hidding" timeout for specific notice.
+	 * 
+	 * @param {string} id The id of the div in which the notice should be displayed.
+	 */
+    _clear_timer( id ) {
+        if ( this._timers.has( id ) ) {
+            clearTimeout( this._timers.get( id ) );
+            this._timers.delete( id );
+        }
+    }
+};
+</script>
+JS;
+			}
+		);
+	}
+	$css_js_done = true;
 }

@@ -11,8 +11,14 @@ declare(strict_types=1);
 
 namespace calmpress\webauthn;
 
+use function calmpress\utils\base64URL_decode;
+use function calmpress\utils\base64URL_encode;
+
 /**
  * A representation of a webauthn authenticated user using a specific device.
+ * 
+ * Meant to be an internal class of Devices_Of_User, and its API should not
+ * be used from outside of that class.
  *
  * @since 1.0.0
  */
@@ -20,10 +26,19 @@ class User_Of_Device {
 
 	/**
 	 * The public key associated with the user's authentication on with the device.
+	 * A binary string.
 	 *
 	 * @since 1.0.0
 	 */
-	public readonly Public_Key $public_key;
+	public readonly string $public_key;
+
+	/**
+	 * The credential id associated with the user's authentication on with the device.
+	 * A binary string.
+	 *
+	 * @since 1.0.0
+	 */
+	public readonly string $credential_id;
 
 	/**
 	 * The human readable description.
@@ -52,7 +67,9 @@ class User_Of_Device {
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @param Public_Key $public_key  The public key identifying the user on the device
+	 * @param string     $credential_id The credential id identifying the user on the device
+	 *                                  when authenticating.
+	 * @param string     $public_key  The public key identifying the user on the device
 	 *                                when authenticating.
 	 * @param string     $description The human readable description.
 	 * @param \DateTime  $last_used   The latest date and time the user had authenticated
@@ -61,11 +78,13 @@ class User_Of_Device {
 	 *                                                 in which this device belongs.
 	 */
 	public function __construct(
-		Public_Key      $public_key,
+		string          $credential_id,
+		string          $public_key,
 		string          $description,
 		\DateTime       $last_used,
 		Devices_Of_User $user_devices_collection
 	) {
+		$this->credential_id           = $credential_id;
 		$this->public_key              = $public_key;
 		$this->description             = $description;
 		$this->last_autheticated_at    = $last_used;
@@ -119,12 +138,25 @@ class User_Of_Device {
 	}
 
 	/**
+	 * Helper function which creates a text describing how long ago the
+	 * device was used to authenticate.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @return string
+	 */
+	public function human_last_used(): string {
+		/* translators: %s: Time since last time the devie was used to authenticate. */
+		return sprintf( __( '%s ago' ), human_time_diff( $this->last_autheticated_at->format( 'U' ) ) );
+	}
+	/**
 	 * Create a string represantation of the object which can be unserialized.
 	 * 
 	 * The user context is not serialized and it is assumed that the correct user
 	 * information will be provided when unserializing. 
 	 * 
 	 * The generated json has the following fields
+	 * - c  which has the credential id as a base64URL encoded string.
 	 * - p  which has the public key as a base64URL encoded string.
 	 * - de which has the description
 	 * - da which contains latest authentication time formatted as a unix time stamp.
@@ -135,7 +167,8 @@ class User_Of_Device {
 	 */
 	public function serialize() : string {
 		$o = new \stdClass();
-		$o->p  = $this->public_key->base64URL;
+		$o->c  = base64URL_encode( $this->credential_id );
+		$o->p  = base64URL_encode( $this->public_key );
 		$o->de = $this->description;
 		$o->da = (string) $this->last_autheticated_at->getTimestamp();
 		return json_encode( $o );
@@ -170,7 +203,7 @@ class User_Of_Device {
 		}
 
 		// Check for all expected fields.
-		foreach ( ['p', 'de', 'da' ] as $key ) {
+		foreach ( ['c', 'p', 'de', 'da' ] as $key ) {
 			if ( ! isset( $o[ $key ] ) ) {
 				throw new \RuntimeException( 
 					sprintf(
@@ -205,6 +238,12 @@ class User_Of_Device {
 			}
 		}
 
-		return new User_Of_Device( new Public_Key( $o['p'] ), $o['de'], $date, $user );
+		return new User_Of_Device(
+			base64URL_decode( $o['c'] ),
+			base64URL_decode( $o['p'] ),
+			$o['de'],
+			$date,
+			$user
+		);
 	}
 }

@@ -306,9 +306,9 @@ class Controller {
 	 * - An array which is recursively printed with indentation.
 	 * - A string which contains valid json is printed like an array. 
 	 *
-	 * @param string $key            The key of the element in the array.
-	 * @param string|array $value    The value of the element.
-	 * @param int $offset            Indicator for the amount of indentation
+	 * @param string|int $key        The key of the element in the array.
+	 * @param mixed      $value      The value of the element.
+	 * @param int        $offset     Indicator for the amount of indentation
 	 *                               Each identation step is of two spaces.
 	 * @param int $max_string_length The max amount of characters used to
 	 *                               display a string value. Longer strings
@@ -319,7 +319,7 @@ class Controller {
 	 * @since 1.0.0
 	 */
 	static protected function pretty_print_array_element(
-		string $key,
+		string|int $key,
 		$value,
 		int $offset,
 		int $max_string_length

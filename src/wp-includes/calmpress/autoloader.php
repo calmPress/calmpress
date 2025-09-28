@@ -113,7 +113,6 @@ const MAP = [
 	'calmpress\utils\Decryption_Result'                 => __DIR__ . '/utils/class-decryption-result.php',
 	'calmpress\webauthn\User_Of_Device'                 => __DIR__ . '/webauthn/class-user-of-device.php',
 	'calmpress\webauthn\Devices_Of_User'                => __DIR__ . '/webauthn/class-devices-of-user.php',
-	'calmpress\webauthn\Public_Key'                     => __DIR__ . '/webauthn/class-public-key.php',
 	'Psr\SimpleCache\CacheInterface'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheInterface.php',
 	'Psr\SimpleCache\CacheException'                    => ABSPATH . 'wp-includes/Psr/SimpleCache/CacheException.php',
 	'Psr\SimpleCache\InvalidArgumentException'          => ABSPATH . 'wp-includes/Psr/SimpleCache/InvalidArgumentException.php',

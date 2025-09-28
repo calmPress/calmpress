@@ -1270,7 +1270,10 @@ if ( ! function_exists( 'check_ajax_referer' ) ) :
 
 		if ( $die && false === $result ) {
 			if ( wp_doing_ajax() ) {
-				wp_die( -1, 403 );
+				wp_send_json_error(
+                	[ 'message' => __( 'Security check failed. Reload the page and try again.' ) ],
+                403
+            	);
 			} else {
 				die( '-1' );
 			}

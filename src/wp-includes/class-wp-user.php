@@ -8,6 +8,7 @@
  */
 
 use calmpress\email\Email_Address;
+use calmpress\webauthn\Devices_Of_User;
 
 /**
  * Core class used to implement the WP_User object.
@@ -942,6 +943,41 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * The URL to be used by the user to login to the site.
+	 * 
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string  $redirect_to The url to redirect to after login
+	 * @return string the URL, unescaped.
+	 */
+	public function magic_login_link_url( string $redirect_to ): string {
+		$expiry = time() + 1 * HOUR_IN_SECONDS;
+		$url = wp_login_url( $redirect_to );
+		$url = add_query_arg(
+			[
+				'magiclink' => 1,
+    			'id'        => \calmpress\utils\encrypt_int_to_base64URL( $this->ID, $expiry ),
+			],
+			$url
+		);
+
+		return $url;
+	}
+
+	/**
+	 * Send email with magic login link to the user.
+	 * 
+	 * @since calmpress 1.0.0
+	 * 
+	 * @param string $redirect_to The URL to which the user should be redirected to
+	 *                            once logged in.
+	 */
+	function magic_login_email( string $redirect_to ) {
+		$email = new calmpress\email\User_Magic_Login_Email( $this, $redirect_to );
+		$email->send();
+	}
+
+	/**
 	 * All the administrator users of the site ordered by user ID which means
 	 * virtually by user creation time.
 	 *
@@ -1231,5 +1267,16 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 */
 	public function changed_email_from() : Email_Address {
 		return $this->email_from_meta( 'original_email', 'There is no configured email to change from or undo posibility expired' );
+	}
+
+	/**
+	 * The collection of devices the user had authenticated with using webauthn.
+	 * 
+	 * @since calmPress 1.0.0
+	 * 
+	 * return Devices_Of_User The collection of devices.
+	 */
+	public function webauthn_registered_devices(): Devices_Of_User {
+		return new Devices_Of_User( $this );
 	}
 }

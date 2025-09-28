@@ -130,31 +130,28 @@
 	/**
 	 * Helper function to insert an inline notice of success or failure.
 	 *
-	 * @param {jQuery Object} $this   The button element: the message will be inserted
-	 *                                above this button
-	 * @param {bool}          success Whether the message is a success message.
+	 * @param {string} container The id of the message container at which to insert the
+	 *                          message.
+	 * @param {string} type The type of message being inserted, can be either
+	 *                      'success', 'error', 'info'.
 	 * @param {string}        message The message to insert.
 	 */
-	function addInlineNotice( $this, success, message ) {
-		var resultDiv = $( '<div />' );
+	function addInlineNotice( container, type, message ) {
+		const $resultDiv = $( '#' + container );
 
-		// Set up the notice div.
-		resultDiv.addClass( 'notice inline' );
+		// Remove previous messages if there are any.
+		$resultDiv.empty();
 
-		// Add a class indicating success or failure.
-		resultDiv.addClass( 'notice-' + ( success ? 'success' : 'error' ) );
+		const $notice = jQuery(`
+			<div class="notice notice-${type} is-dismissible">
+				<p>${message}</p>
+				<button type="button" class="notice-dismiss">
+					<span class="screen-reader-text">Dismiss this notice.</span>
+				</button>
+			</div>
+		`);
 
-		// Add the message, wrapping in a p tag, with a fadein to highlight each message.
-		resultDiv.text( $( $.parseHTML( message ) ).text() ).wrapInner( '<p />');
-
-		// Disable the button when the callback has succeeded.
-		$this.prop( 'disabled', success );
-
-		// Remove any previous notices.
-		$this.siblings( '.notice' ).remove();
-
-		// Insert the notice.
-		$this.before( resultDiv );
+		$resultDiv.append( $notice );
 	}
 
 	function bindPasswordForm() {
@@ -323,6 +320,40 @@
 		}
 	}
 
+	/**
+	 * Convert a string which is assumed to be base64url encoded to its original
+	 * an Uint8Array representation.
+	 * 
+	 * @param {string} base64url A string assumed to be a base64url encoded string.
+	 * 
+	 * @returns Uint8Array
+	 */
+	function base64urlToUint8Array( base64url ) {
+		const padding = '='.repeat( ( 4 - base64url.length % 4 ) % 4 );
+		const base64 = ( base64url + padding )
+			.replace( /-/g, '+' )
+			.replace( /_/g, '/' );
+		const rawData = window.atob( base64 );
+		return Uint8Array.from( [...rawData].map( c => c.charCodeAt( 0 ) ) );
+	}
+
+	/**
+	 * If the device have authenticator, and devices can be added at the server
+	 * enable the register device input.
+	 */
+	function maybe_enable_webauthn_register_device() {
+		// enable the register webauthn button if webauthn is supported.
+		if ( webauthn_can_add_device && window.PublicKeyCredential ) {
+			PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+				.then( ( available ) => {
+					if ( available ) {
+						$( '#register_device_webauthn' ).show();
+						$( '#device_do_not_support_webauthn' ).hide();
+					} 
+				})
+		}
+	}
+
 	$( function() {
 		var $colorpicker, $stylesheet, user_id, current_user_id,
 			display_name_input = $( '#display_name' ),
@@ -334,6 +365,10 @@
 		$('.color-palette').on( 'click', function() {
 			$(this).siblings('input[name="admin_color"]').prop('checked', true);
 		});
+
+		// At least firefox seems to ignore the disabled state of the button
+		// after page "normal" refresh if button was enabled before it.
+		$( '#register_button' ).prop( 'disabled', 'disabled' );
 
 		if ( display_name_input ) {
 
@@ -404,11 +439,40 @@
 		bindPasswordForm();
 		bindPasswordResetLink();
 		bindPasswordResetLink();
+		maybe_enable_webauthn_register_device();
 
 		// if we have a fragment of password show password fields.
 		if ( window.location.hash === '#password' ) {
 			var $pwButton = $( '.wp-generate-pw' );
        		$pwButton.trigger('click');
+		}
+	});
+
+	/**
+	 * An handler for enabling and disabeling the register new device button based
+	 * on whether there is non empty string at the device name input.
+	 */
+	$( '#new_webautn_device_name' ).on( 'input', function () {
+		val = $( '#new_webautn_device_name' ).val();
+		if ( val.trim() != '' ) {
+			$( '#register_button' ).prop( 'disabled', '' );
+		} else {
+			$( '#register_button' ).prop( 'disabled', 'disabled' );
+		}
+	});
+
+	/**
+	 * An handler for starting registretion of new device triggered by enter on the input.
+	 *
+	 * @param {object} event The event
+	 */
+	$( '#new_webautn_device_name' ).on( 'keypress', function ( event ) {
+		if ( event.key === 'Enter' ) {
+			event.preventDefault();
+			val = event.target.value;
+			if ( val.trim() != '' ) {
+				$( '#register_button' ).trigger( 'click' );
+			}
 		}
 	});
 
@@ -576,15 +640,300 @@
 			} );
 		} );
 
-	$( '#register_device_webauthn' )
+	/**
+	 * Use a template to insert a new device row into the table.
+	 * 
+	 * @param {string} row  The row number
+	 * @param {string} cred The credential id of the device.
+	 * @param {string} description The description of the device.
+	 * @param {string} last_used   The 5textual description when the device was last used.
+	 */
+	function webauthn_add_row( row, cred, description, last_used ) {
+		const tmpl = document.getElementById( 'webauthn_row_template' );
+		const clone = tmpl.content.cloneNode( true );
+
+		// Process all elements in the clone to replace place holder with their actual values
+		clone.querySelectorAll('*').forEach( el => {
+			// replace place holders in attributes.
+			Array.from( el.attributes ).forEach( attr => {
+				if ( attr.value.includes( '__ROW__' ) ) {
+					el.setAttribute( attr.name, attr.value.replace(/__ROW__/g, row ) );
+				}
+				if ( attr.value.includes( '__CRED__' ) ) {
+					el.setAttribute( attr.name, attr.value.replace(/__CRED__/g, cred ) );
+				}
+			});
+
+			// Replace placeholders in text.
+			el.childNodes.forEach( node => {
+      			if ( node.nodeType === Node.TEXT_NODE ) {
+					if ( node.nodeValue.includes( '__DESC__' ) ) {
+						node.nodeValue = node.nodeValue.replace(/__DESC__/g, description);
+					}
+					if ( node.nodeValue.includes( '__LAST_USED__' ) ) {
+						node.nodeValue = node.nodeValue.replace(/__LAST_USED__/g, last_used);
+					}
+				}
+			} );
+		} );
+
+		document.querySelector( '#devices-grid tbody' ).appendChild( clone );
+	}
+
+	$( '#register_button' )
 		/**
-		 * Register the device for webauthn authentication.
+		 * Request an registeration challenge webauthn authentication.
 		 *
 		 * @param {object} event The event
 		 */
 		.on( 'click', function ( event ) {
+
+			var	data = {
+				'nonce':   userProfileL10n.nonce    // Nonce to validate the action.
+			};
+
+			// Send the request challenge request.
+			var action =  wp.ajax.post( 'webauthn-challenge', data );
+
+			// Handle success.
+			action.done( async function( response ) {
+				try {
+					const res = JSON.parse( response );
+					const options = { 'publicKey' : res };
+
+					// Convert base64url → ArrayBuffer for required fields
+					options.publicKey.challenge = base64urlToUint8Array( options.publicKey.challenge );
+					options.publicKey.user.id = base64urlToUint8Array( options.publicKey.user.id );
+					if ( options.publicKey.excludeCredentials ) {
+						options.publicKey.excludeCredentials = options.publicKey.excludeCredentials.map( cred => ( {
+							...cred,
+							id: base64urlToUint8Array( cred.id ),
+						} ) );
+					}
+
+					// Ask browser to create new credential
+					const credential = await navigator.credentials.create( options );
+
+					const payload = {
+						id: credential.id,
+						rawId: btoa( String.fromCharCode( ...new Uint8Array( credential.rawId ) ) ),
+            			type: credential.type,
+						response: {
+							attestationObject: btoa( String.fromCharCode( ...new Uint8Array( credential.response.attestationObject ) ) ),
+							clientDataJSON: btoa( String.fromCharCode( ...new Uint8Array( credential.response.clientDataJSON) ) ),
+						},
+					};
+
+					const data = {
+						'nonce'     : userProfileL10n.nonce,    // Nonce to validate the action.
+						'name'      : $( '#new_webautn_device_name' ).val(),
+						'payload'   : payload,
+					}
+
+					// Send AJAX request to verify & store the credential
+					const regiter = wp.ajax.post( 'webauthn-register-device', data );
+					regiter.done( async function( response ) {
+						$( '#new_webautn_device_name' ).val( '' );
+						$( '#register_button' ).prop( 'disabled', 'disabled' );
+						inline_notice_manager.show( 'webauthn_register_device_message', 'success', response.message );
+						if ( ! response.can_add ) {
+							$( '#register_device_webauthn' ).hide();
+						}
+						const $tbody = $( '#devices-grid tbody' );
+						row = $tbody.find( 'tr' ).length + 1;
+						webauthn_add_row( row, response.cred, response.description, response.last_used );
+						$( '#devices-grid' ).show();
+						$( '#no_devices_message' ).hide();
+					} );
+					regiter.fail( function( response ) {
+						inline_notice_manager.show( 'webauthn_register_device_message', 'error', response.responseJSON.data );
+					} );
+				} catch ( e ) {
+					switch ( e.name ) {
+						case 'NotAllowedError':
+							; // User canceled no need to do anything.
+							break;
+						case 'InvalidStateError':
+							; // Device is already registered
+							break;
+						default:
+							// Device can not authenticate or bug
+							inline_notice_manager.show( 'webauthn_register_device_message', 'error', userProfileL10n.error_can_not_register_device );
+							console.log( e );
+					}
+				}
+			} );
+
+			// Handle failure.
+			action.fail( function( response ) {
+				if ( response.status === 0 ) {
+					inline_notice_manager.show( 'webauthn_register_device_message', 'error', userProfileL10n.error_connetivity );
+				} else {
+					inline_notice_manager.show( 'webauthn_register_device_message', 'error', response.responseJSON.data );
+				}
+			} );
 		} );
 
+	/**
+	 * an handler for revoke of device authentication.
+	 *
+	 * @param {object} event The event
+	 */
+	$( '#devices-grid' ).on( 'click', '.actions .revoke',  function ( event ) {
+		const cred = $(this).parent().parent().data( 'cred' );
+		const $row = $(this).closest('tr');
+
+		var	data = {
+			'nonce':          userProfileL10n.nonce,    // Nonce to validate the action.
+			'credential_id' : cred
+		};
+
+		// Send the revoke request.
+		wp.ajax.post( 'webauthn-revoke', data )
+
+			// Handle success.
+			.done( async function( response ) {
+				inline_notice_manager.show( 'webauthn_devices_table_message', 'success', response.message );
+				webauthn_can_add_device = response.can_add;
+				maybe_enable_webauthn_register_device();
+				$row.fadeOut( 300, function() {
+					$row.remove();
+					const $tbody = $( '#devices-grid tbody' );
+					if ( $tbody.find( 'tr' ).length === 0 ) {
+						$( '#no_devices_message' ).show();
+						$( '#devices-grid' ).hide();
+					}
+				});
+			} )
+
+			// Handle failure.
+			.fail( function( response ) {
+				if ( response.status === 0 ) {
+					inline_notice_manager.show( 'webauthn_devices_table_message', 'error', userProfileL10n.error_connetivity );
+				} else {
+					inline_notice_manager.show( 'webauthn_devices_table_message', 'error', response.responseJSON.data );
+				}
+			} );
+	});
+
+	/**
+	 * an handler for starting edditing the device description.
+	 *
+	 * @param {object} event The event
+	 */
+	$( '#devices-grid' ).on( 'click', '.actions .edit', function ( event ) {
+	
+		const $row = $(this).closest( 'tr' );
+		const $box = $row.find( 'div' );
+		const $input = $box.find( 'input' );
+
+		// Set the text in the input to current description.
+		const text = $box.parent().find( 'span' ).text();
+		$input.val( text );
+
+		$box.show();
+		$(this).attr( 'aria-expanded', 'true' );
+		$input.trigger( 'focus' );
+	});
+
+	/**
+	 * An handler for canceling edit of a device description.
+	 *
+	 * @param {object} event The event
+	 */
+	$( '#devices-grid' ).on( 'click', '.close_change', function ( event ) {
+	
+		$(this).parent().parent().hide();
+
+		const $row = $(this).closest( 'tr' );
+		const $edit = $row.find( '.edit' );
+
+		$edit.attr( 'aria-expanded', 'false' );
+	});
+
+	/** 
+	 * A DRY for handling the submittion of the updated description to the server
+	 * @param {object} element The element on which the update was triggered either
+	 *                         the update button or the input.
+	 */
+	function update_description( element ) {
+		const $row   = element.closest( 'tr' );
+		const cred   = $row.data( 'cred' );
+		const $box   = $row.find( '.edit_form' );
+		const $input = $box.find( 'input' );
+
+		const data = {
+			'nonce'         : userProfileL10n.nonce, // Nonce to validate the action.
+			'credential_id' : cred,
+			'description'   : $input.val(),
+		};
+
+		// Send the update request.
+		wp.ajax.post( 'webauthn-set-description', data )
+
+			// Handle success.
+			.done( async function( response ) {
+				inline_notice_manager.show( 'webauthn_devices_table_message', 'success', response.message );
+				$box.hide(); // Hide edit box
+
+				// Indicate on edit button box is closed.
+				const $edit = $row.find( '.edit' );
+				$edit.attr( 'aria-expanded', 'false' );
+
+				// Update description.
+				$box.parent().find( 'span' ).text( response.description );
+			} )
+
+			// Handle failure.
+			.fail( function( response ) {
+				if ( response.status === 0 ) {
+					inline_notice_manager.show( 'webauthn_devices_table_message', 'error', userProfileL10n.error_connetivity );
+				} else {
+					inline_notice_manager.show( 'webauthn_devices_table_message', 'error', response.responseJSON.data );
+				}
+			} );
+	}
+
+	/**
+	 * an handler for sending updated device description to the server.
+	 *
+	 * @param {object} event The event
+	 */
+	$( '#devices-grid' ).on( 'click', '.update_description', function ( event ) {
+		update_description( $(this) );
+	});
+
+	/**
+	 * an handler for sending updated device description to the server.
+	 *
+	 * @param {object} event The event
+	 */
+	$( '#devices-grid' ).on( 'keypress', 'input', function ( event ) {
+		if ( event.key === 'Enter' ) {
+			event.preventDefault();
+			val = event.target.value;
+			if ( val.trim() != '' ) {
+				update_description( $(this) );
+			}
+		}
+	});
+
+	/**
+	 * an handler to disable update button if no description text given.
+	 *
+	 * @param {object} event The event
+	 */
+	$( '#devices-grid' ).on( 'input', 'input', function ( event ) {
+		val = event.target.value;
+		const $row = $( event.target ).closest( 'tr' );
+		const $but = $row.find( '.update_description' );
+		if ( val.trim() != '' ) {
+			$but.prop( 'disabled', '' );
+		} else {
+			$but.prop( 'disabled', 'disabled' );
+		}
+	});
+		
 	/*
 	 * We need to generate a password as soon as the Reset Password page is loaded,
 	 * to avoid double clicking the button to retrieve the first generated password.

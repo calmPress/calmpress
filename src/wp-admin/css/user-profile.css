@@ -1,0 +1,53 @@
+#devices-grid {
+  width: max-content;
+}
+
+#devices-grid td, #devices-grid th {
+  padding: 5px 10px;
+}
+
+#devices-grid th {
+  background-color: white;
+  border-bottom: 1px solid #c3c4c7;
+  color: #2c3338;
+  line-height: 1.4em;
+  font-weight: 400;
+  font-size: 15px;
+}
+
+#devices-grid th.actions {
+  text-align: center;
+}
+
+#devices-grid .description {
+	white-space: normal; /* allow wrapping */
+	word-break: break-word; /* just in case of very long text */
+  width:auto /* override core table width of 200px */
+}
+
+#devices-grid .description label {
+  display: block;
+  font-weight: bolder;
+}
+
+#devices-grid .description input {
+  width: 100%;
+}
+
+#devices-grid .last-used, #devices-grid .actions {
+	white-space: nowrap;
+  width:1%;
+}
+
+#devices-grid .actions button:first-child, #devices-grid .update_description {
+	margin-inline-end:10px;
+}
+
+#devices-grid td .edit_form {
+  display:none;
+  padding-top: 5px;
+}
+
+#devices-grid .edit_form div {
+  margin-top:5px;
+}
