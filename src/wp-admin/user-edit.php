@@ -449,9 +449,9 @@ switch ( $action ) {
 <?php
 	if ( IS_PROFILE_PAGE ) { // only the user can register device for himself.
 ?>
-<h2><?php esc_html_e( 'Devices Registered for Quick Login' ); ?></h2>
+<h2><?php esc_html_e( 'Devices Registered for Login' ); ?></h2>
 <p>
-	<?php esc_html_e( 'You can register your devices for quick login if your browser and device support it. This usually means using biometrics, a PIN, or a security key to sign in quickly and safely.' ); ?>
+	<?php esc_html_e( 'You can register your devices for login if your browser and device support it. This usually means using biometrics, a PIN, or a security key to sign in quickly and safely.' ); ?>
 	<span id="device_do_not_support_webauthn">
 		<?php esc_html_e( 'Your current browser or device do not support quick login.' );?>
 	</span>
