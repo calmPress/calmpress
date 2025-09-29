@@ -121,7 +121,7 @@ class Devices_Of_User {
 	 */
 	public function devices(): array {
 		$ret = [];
-		$data = get_post_meta( $this->user->ID, self::STORAGE_META_KEY, true );
+		$data = get_user_meta( $this->user->ID, self::STORAGE_META_KEY, true );
 
 		if ( ! is_array( $data ) ) {
 			// Data is curropted, log a warning and clean the data.
@@ -171,7 +171,7 @@ class Devices_Of_User {
 			$store[] = $d->serialize();
 		}
 
-		update_post_meta( $this->user->ID, self::STORAGE_META_KEY, $store );
+		update_user_meta( $this->user->ID, self::STORAGE_META_KEY, $store );
 
 		$this->sync_credial_ids( $devices );
 	}
@@ -403,7 +403,7 @@ class Devices_Of_User {
 		foreach ( $this->devices() as $cred ) {
 			$ret[] = new PublicKeyCredentialDescriptor(
 				'public-key',
-				base64URL_encode( $cred->credential_id ),
+				$cred->credential_id,
 				[] // optional transports, can leave empty
 			);
 		}
