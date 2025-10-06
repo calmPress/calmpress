@@ -17,6 +17,10 @@ use calmpress\webauthn\Devices_Of_User;
 
 /**
  * A DRY to generate a response indicating invalid reuest.
+ * 
+ * @since 1.0.0
+ * 
+ * @return \WP_REST_Response with a 400 code and invalid reuest style of message.
  */
 function invalid_request_response(): \WP_REST_Response {
     return new \WP_REST_Response(
@@ -30,6 +34,10 @@ function invalid_request_response(): \WP_REST_Response {
  * a new authenticator.
  * 
  * @since 1.0.0
+ * 
+ * @return \WP_REST_Response A 400 response with associate text if can not add device.
+ *                           A 200 with the challenge options as the brower expects
+ *                           to get to start registration.
  */
 function create_challenge(): \WP_REST_Response {
 	$user = wp_get_current_user();
@@ -46,9 +54,13 @@ function create_challenge(): \WP_REST_Response {
 }
 
 /**
- * Handle the reuest for revoking an authenticator credentials.
+ * Handle the request for revoking an authenticator credentials.
  *
  * @since 1.0.0
+ * 
+ * @return \WP_REST_Response A 500 response if was unexpected failure.
+ *                           A 200 with message and attributes indicating
+ *                           if more devices can be added.
  */
 function revoke( \WP_REST_Request $request ): \WP_REST_Response {
 
@@ -87,6 +99,11 @@ function revoke( \WP_REST_Request $request ): \WP_REST_Response {
  * Handle the request to register an authenticator.
  * 
  * @since 1.0.0
+ * 
+ * @return \WP_REST_Response A 400 if operation failed and message explaning the failure.
+ *                           A 200 If device added with a message indicating if
+ *                           more can be added and the various properties of the
+ *                           devie as know to the server (credential id, descripttion, last use time).
  */
 function register_device( \WP_REST_Request $request ): \WP_REST_Response {
 	$user = wp_get_current_user();
@@ -168,6 +185,10 @@ function register_device( \WP_REST_Request $request ): \WP_REST_Response {
  * Handler for reuest for changing an authenticator description.
  *
  * @since 1.0.0
+ *  
+ * @return \WP_REST_Response A 400 response with associate text if can not add device.
+ *                           A 200 with a success message and the description as
+ *                           stored in the server.
  */
 function set_description( \WP_REST_Request $request ): \WP_REST_Response {
 
@@ -202,6 +223,11 @@ function set_description( \WP_REST_Request $request ): \WP_REST_Response {
 
 add_action(
     'rest_api_init',
+    /**
+     * Register the various end points to handle webauthn rest requests.
+     * 
+     * @since 1.0.0
+     */
     function () {
         \calmpress\utils\add_current_user_post_endpoint(
             'calmpress',
