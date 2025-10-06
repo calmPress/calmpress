@@ -539,7 +539,7 @@ function default_password_nag_edit_user( $user_ID, $old_data ) {
 function default_password_nag() {
 	global $pagenow;
 	// Short-circuit it.
-	if ( 'profile.php' === $pagenow || ! get_user_option( 'default_password_nag' ) ) {
+	if ( 'user-edit.php' === $pagenow || ! get_user_option( 'default_password_nag' ) ) {
 		return;
 	}
 

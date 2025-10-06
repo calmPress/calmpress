@@ -131,10 +131,6 @@ $core_actions_post = array(
 	'resend-activation',
 	'undo-email-change',
 	'installer-email-verification',
-	'webauthn-challenge',
-	'webauthn-register-device',
-	'webauthn-revoke',
-	'webauthn-set-description',
 );
 
 // Deprecated.

@@ -152,7 +152,7 @@ class Admin_Notices {
 				$msg = sprintf(
 					/* translators: 1: Openning link to profile page, 2: Closing </a> */
 					esc_html__( 'It seems like you are using the administrator user to create content. You should probably create a dediated user for that, alternatively to reduce the admin clutter you can make your account to behave like editor or author in your %1$sprofile settings page%2$s.' ),
-					'<a href="' . esc_url( admin_url( 'profile.php' ) ) . '#mock-role-wrap">',
+					'<a href="' . esc_url( admin_url( 'user-edit.php' ) ) . '#mock-role-wrap">',
 					'</a>'
 				);
 				echo "<div class='notice notice-warning is-dismissible'><p>$msg</p></div>";
@@ -223,12 +223,12 @@ class Admin_Notices {
 		if ( get_user_meta( $user->ID, 'installer_verify_email', true ) ) {
 			// Show message when user is not on his profile page, prompting him to 
 			// go there.
-			if ( $pagenow !== 'profile.php' ) {
+			if ( $pagenow !== 'user-edit.php' ) {
 				$msg = sprintf(
 					/* translators: 1: Openning link to user's profile page, 2: Closing </a> */
 					esc_html__( 'You need to verify the email address you used when installing calmPress.
 	You can do this from your %1$sprofile page%2$s.' ),
-					'<a href="' . esc_url( admin_url( 'profile.php' ) ) . '">',
+					'<a href="' . esc_url( admin_url( 'user-edit.php' ) ) . '">',
 					'</a>'
 				);
 				echo "<div class='notice notice-info'><p>$msg</p></div>";

@@ -1569,7 +1569,7 @@ function add_users_page( $page_title, $menu_title, $capability, $menu_slug, $fun
 	if ( current_user_can( 'edit_users' ) ) {
 		$parent = 'users.php';
 	} else {
-		$parent = 'profile.php';
+		$parent = 'my-profile';
 	}
 	return add_submenu_page( $parent, $page_title, $menu_title, $capability, $menu_slug, $function, $position );
 }

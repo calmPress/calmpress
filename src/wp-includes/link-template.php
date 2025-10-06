@@ -3575,11 +3575,11 @@ function get_edit_profile_url( $user_id = 0, $scheme = 'admin' ) {
 	$user_id = $user_id ? (int) $user_id : get_current_user_id();
 
 	if ( is_user_admin() ) {
-		$url = user_admin_url( 'profile.php', $scheme );
+		$url = user_admin_url( 'user-edit.php', $scheme );
 	} elseif ( is_network_admin() ) {
-		$url = network_admin_url( 'profile.php', $scheme );
+		$url = network_admin_url( 'user-edit.php', $scheme );
 	} else {
-		$url = get_dashboard_url( $user_id, 'profile.php', $scheme );
+		$url = get_dashboard_url( $user_id, 'user-edit.php', $scheme );
 	}
 
 	/**

@@ -3041,7 +3041,7 @@ function _wp_get_current_user() {
 function new_user_email_admin_notice() {
 	global $pagenow;
 
-	if ( 'profile.php' === $pagenow && isset( $_GET['updated'] ) ) {
+	if ( 'user-edit.php' === $pagenow && isset( $_GET['updated'] ) ) {
 		$user = wp_get_current_user();
 		try {
 			// An exception is thrown if not in change process.

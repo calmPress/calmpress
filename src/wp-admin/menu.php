@@ -250,33 +250,28 @@ unset( $update_data );
 
 if ( current_user_can( 'list_users' ) ) {
 	$menu[70] = array( __( 'Users' ), 'list_users', 'users.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
-} else {
-	$menu[70] = array( __( 'Profile' ), 'read', 'profile.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
-}
 
-if ( current_user_can( 'list_users' ) ) {
-	$_wp_real_parent_file['profile.php'] = 'users.php'; // Back-compat for plugins adding submenus to profile.php.
 	$submenu['users.php'][5]             = array( __( 'All Users' ), 'list_users', 'users.php' );
 	if ( current_user_can( 'create_users' ) ) {
 		$submenu['users.php'][10] = array( _x( 'Add New', 'user' ), 'create_users', 'user-new.php' );
 	} elseif ( is_multisite() ) {
 		$submenu['users.php'][10] = array( _x( 'Add New', 'user' ), 'promote_users', 'user-new.php' );
 	}
+}
 
-	$submenu['users.php'][15] = array( __( 'Profile' ), 'read', 'profile.php' );
-} else {
-	$_wp_real_parent_file['users.php'] = 'profile.php';
-	$submenu['profile.php'][5]         = array( __( 'Profile' ), 'read', 'profile.php' );
-	if ( current_user_can( 'create_users' ) ) {
-		$submenu['profile.php'][10] = array( __( 'Add New User' ), 'create_users', 'user-new.php' );
-	} elseif ( is_multisite() ) {
-		$submenu['profile.php'][10] = array( __( 'Add New User' ), 'promote_users', 'user-new.php' );
-	}
+// Menu for when admin edditing a user.
+if ( array_key_exists( 'user_id', $_GET ) && current_user_can( 'edit_user', $_GET['user_id'] ) ) {
+	$user_id  = intval( $_GET['user_id'] );
+	$display_name = get_userdata( $user_id)->display_name;
+	/* translators: %s is the display name of the user being edited */
+	$top_menu_label = sprintf( 'User: %s', $display_name );
+	$menu[71] = array( $top_menu_label, 'edited-user', 'user-edit.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
+		$submenu['edited-user'][5] = array( __( 'Account' ), 'edited-user', 'user-edit.php?user_id=' . $user_id );
 }
 
 $menu[75]                     = array( __( 'Tools' ), 'tools_menu', 'tools.php', '', 'menu-top menu-icon-tools', 'menu-tools', 'dashicons-admin-tools' );
 	$submenu['tools.php'][10] = array( __( 'Site Health' ), 'manage_server', 'site-health.php' );
-	$submenu['tools.php'][20]  = array( __( 'Maintenance Mode' ), 'maintenance_mode', 'maintenance-mode.php' );
+	$submenu['tools.php'][20] = array( __( 'Maintenance Mode' ), 'maintenance_mode', 'maintenance-mode.php' );
 	if ( ! is_multisite() ) {
 		$submenu['tools.php'][21] = array( __( 'Opcode Cache' ), 'manage_server', 'opcache.php' );
 	}
@@ -328,6 +323,11 @@ $menu[85]                       = array( __( 'Backups' ), 'backup', 'backups.php
 }
 
 $_wp_last_utility_menu = 90; // The index of the last top-level menu in the utility menu group.
+
+// Try to keep the profile menu as the last admin menu.
+$menu[900] = array( __( 'My Profile' ), 'read', 'my-profile', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
+	$submenu['my-profile'][5] = array( __( 'Account' ), 'read', 'user-edit.php' );
+	$submenu['my-profile'][10] = array( __( 'Device Login' ), 'read', 'webauthn.php' );
 
 $menu[999] = array( '', 'read', 'separator-last', '', 'wp-menu-separator' );
 

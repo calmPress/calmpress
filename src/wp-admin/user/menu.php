@@ -11,11 +11,10 @@ $menu[2] = array( __( 'Dashboard' ), 'exist', 'index.php', '', 'menu-top menu-to
 
 $menu[4] = array( '', 'exist', 'separator1', '', 'wp-menu-separator' );
 
-$menu[70] = array( __( 'Profile' ), 'exist', 'profile.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
+$menu[900] = array( __( 'My Profile' ), 'exist', 'user-edit.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
 
-$menu[99] = array( '', 'exist', 'separator-last', '', 'wp-menu-separator' );
+$menu[999] = array( '', 'exist', 'separator-last', '', 'wp-menu-separator' );
 
-$_wp_real_parent_file['users.php'] = 'profile.php';
 $compat                            = array();
 $submenu                           = array();
 

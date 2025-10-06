@@ -217,7 +217,7 @@ function wp_admin_bar_my_account_item( $wp_admin_bar ) {
 	if ( current_user_can( 'read' ) ) {
 		$profile_url = get_edit_profile_url( $user_id );
 	} elseif ( is_multisite() ) {
-		$profile_url = get_dashboard_url( $user_id, 'profile.php' );
+		$profile_url = get_dashboard_url( $user_id, 'user-edit.php' );
 	} else {
 		$profile_url = false;
 	}
@@ -254,7 +254,7 @@ function wp_admin_bar_my_account_menu( $wp_admin_bar ) {
 	if ( current_user_can( 'read' ) ) {
 		$profile_url = get_edit_profile_url( $user_id );
 	} elseif ( is_multisite() ) {
-		$profile_url = get_dashboard_url( $user_id, 'profile.php' );
+		$profile_url = get_dashboard_url( $user_id, 'user-edit.php' );
 	} else {
 		$profile_url = false;
 	}

@@ -1055,6 +1055,15 @@ function wp_default_scripts( $scripts ) {
 		array(
 			'user_id' => $user_id,
 			'nonce'   => ( wp_installing() && ! is_multisite() ) ? '' : wp_create_nonce( 'reset-password-for-' . $user_id ),
+		)
+	);
+
+	$scripts->add( 'calm-webauthn', "/wp-admin/js/cp-webauthn$suffix.js", [ 'calm-util' ], false, 1 );
+	$scripts->localize(
+		'calm-webauthn',
+		'webauthnL10n',
+		array(
+			'user_id' => $user_id,
 			'error_connetivity' => __( 'Unable to connect. Check your internet connection and try again.' ),
 			'error_can_not_register_device' => __( 'Unexpected error.' ),
 		)
@@ -1345,6 +1354,13 @@ function wp_default_scripts( $scripts ) {
 
 		$scripts->add( 'calm-reauth', "/wp-includes/js/cp-reauth$suffix.js", ['wp-auth-check'] );
 
+		$scripts->add( 'calm-util', "/wp-includes/js/cp-util$suffix.js", [], false, 1 );
+		$scripts->add_inline_script(
+			'calm-util',
+			'calm_fetch.rest_root = "' . esc_js( esc_url_raw( get_rest_url() ) ) . '";' . "\n"
+			. 'calm_fetch.nonce = "' . esc_js( wp_create_nonce( 'wp_rest' ) ) . '";' . "\n"
+		);
+
 		$scripts->add( 'svg-painter', '/wp-admin/js/svg-painter.js', array( 'jquery' ), false, 1 );
 	}
 }
@@ -1405,7 +1421,7 @@ function wp_default_styles( $styles ) {
 	$styles->add( 'code-editor', "/wp-admin/css/code-editor$suffix.css", array( 'wp-codemirror' ) );
 	$styles->add( 'site-health', "/wp-admin/css/site-health$suffix.css" );
 	$styles->add( 'maintenance-mode', "/wp-admin/css/maintenance-mode$suffix.css" );
-	$styles->add( 'user-profile', "/wp-admin/css/user-profile$suffix.css" );
+	$styles->add( 'calm-webauthn', "/wp-admin/css/cp-webauthn$suffix.css" );
 
 	$styles->add( 'wp-admin', false, array( 'dashicons', 'common', 'forms', 'admin-menu', 'dashboard', 'list-tables', 'edit', 'revisions', 'media', 'themes', 'nav-menus', 'widgets', 'site-icon', 'l10n' ) );
 

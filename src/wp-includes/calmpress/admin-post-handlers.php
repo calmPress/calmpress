@@ -75,7 +75,7 @@ function add_handlers(): void {
 
 		try {
 			$user->approve_new_email();
-			wp_redirect( admin_url( 'profile.php' ) );
+			wp_redirect( admin_url( 'user-edit.php' ) );
 			die();
 		} catch ( \RuntimeException $e ) {
 			wp_die( __( 'Approval failed, link might have expired' ) );
@@ -96,7 +96,7 @@ function add_handlers(): void {
 
 		try {
 			$user->undo_change_email();
-			wp_redirect( admin_url( 'profile.php' ) );
+			wp_redirect( admin_url( 'user-edit.php' ) );
 			die();
 		} catch ( \RuntimeException $e ) {
 			wp_die( __( 'Undo failed, link might have expired' ) );
@@ -117,7 +117,7 @@ function add_handlers(): void {
 
 		try {
 			$user->approve_installer_email();
-			wp_redirect( admin_url( 'profile.php' ) );
+			wp_redirect( admin_url( 'user-edit.php' ) );
 			die();
 		} catch ( \RuntimeException $e ) {
 			wp_die( __( 'Verification failed, link might have expired' ) );

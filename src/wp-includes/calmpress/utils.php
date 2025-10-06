@@ -513,3 +513,65 @@ JS;
 	}
 	$css_js_done = true;
 }
+
+/**
+ * Add to the HTML a JS with a variable that include data about the root URL
+ * for rest end points and a nonce.
+ * 
+ * Ensure it is added only once.
+ * 
+ * @since 1.0.0
+ */
+function add_js_rest_api_data() {
+	static $done = false;
+
+	if ( ! $done ) {
+?>
+<script>
+	const rest_api_data = {
+		'root'          : esc_url_raw( get_rest_url() ),
+		'nonce'         : '<?php echo wp_create_nonce( 'wp_rest' );?>',
+		'versionString' : 'wp/v2/',
+	};
+</script>
+<?php
+	}
+}
+
+/**
+ * Add a rest API endpoint which handles POST reuests for the current user. The
+ * URL for the endpoint will be $namespace . '/' . $route "below" the rest API root URL.
+ *
+ * Expected to be called at the rest_api_init action.
+ * 
+ * @since 1.0
+ *
+ * @param string   $namespace The namespace, first part of the endpoint URL.
+ * @param string   $route     The rest of the endpoint URL. No leading "/".
+ * @param callable $handler   The function that will handle a reuest.
+ * @param string[] $mandatory_parameters The parameters which are mandatory at the request.
+ */
+function add_current_user_post_endpoint(
+	string $namespace,
+	string $name,
+	callable $handler,
+	array $mandatory_parameters
+):void {
+	$args = [];
+	foreach ( $mandatory_parameters as $v ) {
+		$args[ $v ] = [ 
+			'required' => true,
+		];
+	}
+
+	register_rest_route(
+		$namespace,
+		'/' . $name,
+		[
+			'methods'  => 'POST',
+			'callback' => $handler,
+			'args' => $args,			  
+			'permission_callback' => 'is_user_logged_in',
+		]
+	);
+}
