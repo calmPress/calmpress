@@ -374,7 +374,7 @@ class Devices_Of_User {
 	 *
 	 * @return PublicKeyCredentialRpEntity
 	 */
-	protected function rp_info():PublicKeyCredentialRpEntity {
+	static public function rp_info():PublicKeyCredentialRpEntity {
 		if ( is_multisite() ) {
 			$network = get_network();
 			$rp_name = $network->site_name;
@@ -428,7 +428,7 @@ class Devices_Of_User {
 
 		$this->throw_if_can_not_add_new_device();
 
-		$rp_entity = $this->rp_info();
+		$rp_entity = self::rp_info();
 
 		// Create User info to be displayed and reported on authentication, and
 		// reported back as needed when user autheticates.
@@ -470,8 +470,8 @@ class Devices_Of_User {
 
 		// Save challenge at the server for 10 min at an easily retrievable
 		// format which allows the user to register more than one device at same time.
-		// The dat of '1' is there just because some data is needed, it has no meaning by itsel.
-		set_transient( 'webauthn_challenge_' . $this->user->ID . '_' . base64URL_encode( $challenge ), 1, 10 * MINUTE_IN_SECONDS );
+		// The data of '1' is there just because some data is needed, it has no meaning by itsel.
+		set_transient( 'webauthn_challenge_' . $this->user->ID . '_' . base64URL_encode( $challenge ), 1, 1 * HOUR_IN_SECONDS );
 
 		return $options;
 	}
@@ -624,7 +624,7 @@ class Devices_Of_User {
 	 * @return false if the credential is not used, otherwise the user id of the user
 	 *         with which it is associated.
 	 */
-	private static function credential_is_used( string $credential_id ):bool|int {
+	public static function credential_is_used( string $credential_id ):bool|int {
 		$users = get_users( [
 			'meta_key'   => self::CREDENTIAL_ID_META_KEY,
 			'meta_value' => base64url_encode( $credential_id ),

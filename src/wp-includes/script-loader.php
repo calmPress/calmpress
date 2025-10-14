@@ -1058,16 +1058,7 @@ function wp_default_scripts( $scripts ) {
 		)
 	);
 
-	$scripts->add( 'calm-webauthn', "/wp-admin/js/cp-webauthn$suffix.js", [ 'calm-util' ], false, 1 );
-	$scripts->localize(
-		'calm-webauthn',
-		'webauthnL10n',
-		array(
-			'user_id' => $user_id,
-			'error_connetivity' => __( 'Unable to connect. Check your internet connection and try again.' ),
-			'error_can_not_register_device' => __( 'Unexpected error.' ),
-		)
-	);
+	$scripts->add( 'calm-webauthn', "/wp-admin/js/cp-webauthn$suffix.js", [ 'calm-utils' ], false, 1 );
 
 	$scripts->add( 'language-chooser', "/wp-admin/js/language-chooser$suffix.js", array( 'jquery' ), false, 1 );
 
@@ -1217,7 +1208,33 @@ function wp_default_scripts( $scripts ) {
 
 	$scripts->add( 'wp-api', "/wp-includes/js/wp-api$suffix.js", array( 'jquery', 'backbone', 'underscore', 'wp-api-request' ), false, 1 );
 
-	$scripts->add( 'calm-login', "/wp-includes/js/cp-login$suffix.js", [] );
+	$scripts->add( 'calm-utils', "/wp-includes/js/cp-utils$suffix.js", [], false, 1 );
+	if ( is_user_logged_in() ) {
+		$calm_fetch_nonce = wp_create_nonce( 'wp_rest' );
+	} else {
+		// The calm_fetch.post expects a nonce to be set even when useless, so just
+		// give it empty string.
+		$calm_fetch_nonce = '';
+	}
+
+	$scripts->localize(
+		'calm-utils',
+		'calmUtilsL10n',
+		[
+			'error_connetivity' => __( 'Unable to connect to the server. Check your internet connection and try again.' ),
+			'error_not_logged' => __( 'You have to be logged in to be able to do this.' ),
+			'error_not_allowed' => __( 'You are not allowed to perform this action. Make sure you are logged in and try refreshing the page.' ),
+			'error_unexpected' => \calmpress\utils\unknow_error_text(),
+		]
+	);
+
+	$scripts->add_inline_script(
+		'calm-utils',
+		'calm_fetch.rest_root = "' . esc_js( esc_url_raw( get_rest_url() ) ) . '";' . "\n"
+		. 'calm_fetch.nonce = "' . esc_js( $calm_fetch_nonce ) . '";' . "\n"
+	);
+
+	$scripts->add( 'calm-login', "/wp-includes/js/cp-login$suffix.js", [ 'calm-utils' ], false, 1 );
 
 	if ( is_admin() ) {
 		$scripts->add( 'admin-tags', "/wp-admin/js/tags$suffix.js", array( 'jquery', 'wp-ajax-response' ), false, 1 );
@@ -1353,13 +1370,6 @@ function wp_default_scripts( $scripts ) {
 		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate'] );
 
 		$scripts->add( 'calm-reauth', "/wp-includes/js/cp-reauth$suffix.js", ['wp-auth-check'] );
-
-		$scripts->add( 'calm-util', "/wp-includes/js/cp-util$suffix.js", [], false, 1 );
-		$scripts->add_inline_script(
-			'calm-util',
-			'calm_fetch.rest_root = "' . esc_js( esc_url_raw( get_rest_url() ) ) . '";' . "\n"
-			. 'calm_fetch.nonce = "' . esc_js( wp_create_nonce( 'wp_rest' ) ) . '";' . "\n"
-		);
 
 		$scripts->add( 'svg-painter', '/wp-admin/js/svg-painter.js', array( 'jquery' ), false, 1 );
 	}

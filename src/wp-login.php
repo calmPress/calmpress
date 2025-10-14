@@ -213,17 +213,6 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 			}
 		}
 
-		if ( ! empty( $errors ) ) {
-			/**
-			 * Filters the error messages displayed above the login form.
-			 *
-			 * @since 2.1.0
-			 *
-			 * @param string $errors Login error message.
-			 */
-			echo '<div id="login_error">' . apply_filters( 'login_errors', $errors ) . "</div>\n";
-		}
-
 		if ( ! empty( $messages ) ) {
 			/**
 			 * Filters instructional messages displayed above the login form.
@@ -234,6 +223,22 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 			 */
 			echo '<p class="message">' . apply_filters( 'login_messages', $messages ) . "</p>\n";
 		}
+
+		if ( ! empty( $errors ) ) {
+			/**
+			 * Filters the error messages displayed above the login form.
+			 *
+			 * @since 2.1.0
+			 *
+			 * @param string $errors Login error message.
+			 */
+			echo '<div id="login_error" aria-live="polite">' . apply_filters( 'login_errors', $errors ) . "</div>\n";
+		}
+	} 
+	
+	if ( ! $errors ) {
+		// area to display JS errors.
+		echo '<div id="login_error" class="hidden" aria-live="polite"></div>';
 	}
 
 } // End of login_header().
@@ -330,7 +335,7 @@ function login_footer( $input_id = '' ) {
 					<?php } ?>
 
 					<?php if ( isset( $_GET['redirect_to'] ) && '' !== $_GET['redirect_to'] ) { ?>
-						<input type="hidden" name="redirect_to" value="<?php echo esc_url_raw( $_GET['redirect_to'] ); ?>" />
+						<input type="hidden" id="redirect_to" name="redirect_to" value="<?php echo esc_url_raw( $_GET['redirect_to'] ); ?>" />
 					<?php } ?>
 
 					<?php if ( isset( $_GET['action'] ) && '' !== $_GET['action'] ) { ?>
@@ -634,7 +639,7 @@ switch ( $action ) {
 			do_action( 'lostpassword_form' );
 
 			?>
-			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
+			<input type="hidden" id="redirect_to" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
 			<p class="submit">
 				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Send Email' ); ?>" />
 			</p>
@@ -696,7 +701,7 @@ switch ( $action ) {
 		// Everything valid, log in the user and redirect to his profile page to
 		// potentialy change his password.
 		wp_set_auth_cookie( $user->ID, true );
-		wp_safe_redirect( admin_url( 'profile.php#password' ) );
+		wp_safe_redirect( admin_url( 'user-edit.php#password' ) );
 		break;
 
 	case 'register':
@@ -775,7 +780,7 @@ switch ( $action ) {
 				<?php _e( 'Registration confirmation will be emailed to you.' ); ?>
 			</p>
 			<br class="clear" />
-			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
+			<input type="hidden" id="redirect_to" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
 			<p class="submit">
 				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Register' ); ?>" />
 			</p>
@@ -873,6 +878,7 @@ switch ( $action ) {
 
 	case 'login':
 	default:
+		$user = null;
 		$secure_cookie   = '';
 		$customize_login = isset( $_REQUEST['customize-login'] );
 
@@ -916,7 +922,7 @@ switch ( $action ) {
 			$form_type = 'magiclink';
 		} elseif ( isset( $_POST['form_type'] ) ) {
 			$t = $_POST['form_type'];
-			if ( $t === 'password' || $t === 'magiclink' ) {
+			if ( in_array( $t, [ 'password', 'magiclink', 'webauthn' ] ) ) {
 				$form_type = $t;
 			}
 		} else {
@@ -1036,7 +1042,7 @@ switch ( $action ) {
 					} elseif ( is_multisite() && ! $user->has_cap( 'read' ) ) {
 						$redirect_to = get_dashboard_url( $user->ID );
 					} elseif ( ! $user->has_cap( 'edit_posts' ) ) {
-						$redirect_to = $user->has_cap( 'read' ) ? admin_url( 'profile.php' ) : home_url();
+						$redirect_to = $user->has_cap( 'read' ) ? admin_url( 'user-edit.php' ) : home_url();
 					}
 
 					wp_redirect( $redirect_to );
@@ -1054,7 +1060,7 @@ switch ( $action ) {
 			$errors = new WP_Error();
 		}
 
-		if ( empty( $_POST ) && $errors->get_error_codes() === array( 'empty_username', 'empty_password' ) ) {
+		if ( empty( $_POST ) && is_wp_error( $errors ) && $errors->get_error_codes() === array( 'empty_username', 'empty_password' ) ) {
 			$errors = new WP_Error( '', '' );
 		}
 
@@ -1140,7 +1146,7 @@ switch ( $action ) {
 				) ? esc_attr( wp_unslash( $_POST['log'] ) ) : '';
 		}
 
-		if ( $errors->has_errors() ) {
+		if ( is_wp_error( $errors) && $errors->has_errors() ) {
 			$aria_describedby_error = ' aria-describedby="login_error"';
 		} else {
 			$aria_describedby_error = '';
@@ -1150,11 +1156,19 @@ switch ( $action ) {
 
 		$email_class = '';
 		$password_class = '';
+		$webauthn_class = '';
 		if ( $interim_login ) {
 			$email_class = 'hidden';
-		} elseif ( $form_type !== 'password' ) {
-			$password_class = 'hidden';
+		} else {
+			if ( $form_type !== 'password' ) {
+				$password_class = 'hidden';
+			}
+
+			if ( $form_type !== 'webauthn' ) {
+				$webauthn_class = 'hidden';
+			}
 		}
+
 		?>
 
 		<form name="loginform" id="loginform" action="<?php echo esc_url( site_url( 'wp-login.php', 'login_post' ) ); ?>" method="post">
@@ -1172,6 +1186,10 @@ switch ( $action ) {
 						<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
 					</button>
 				</div>
+			</div>
+
+			<div class="webauthn <?php echo $webauthn_class; ?>" aria-hidden="true">
+				<button id="webauthn_button" type="button" class="button-primary"><?php esc_html_e( 'Log in with this device' );?></button>
 			</div>
 			<?php
 
@@ -1197,7 +1215,7 @@ switch ( $action ) {
 					<input type="hidden" name="interim-login" value="1" />
 				<?php } ?>
 				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php echo esc_attr( $button_label ); ?>" />
-				<input type="hidden" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
+				<input type="hidden" id="redirect_to" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
 				<?php
 
 				if ( $customize_login ) {
@@ -1214,11 +1232,13 @@ switch ( $action ) {
 			?>
 				<div id="form_switch">
 					<h3><?php esc_html_e( 'Other login options:' ); ?></h3>
-					<button type="button" data-text="<?php esc_attr_e( 'Log In' );?>" <?php if ( $form_type === 'password' ) { echo 'class="hidden"';}?> id="use_password"><span class="emoji" aria-hidden="true">🔐 </span><span class="text"><?php esc_html_e( 'Enter password' );?></span></button>
-					<button type="button" data-text="<?php esc_attr_e( 'Email a Log In link' );?>" <?php if ( $form_type === 'magiclink' ) { echo 'class="hidden"';}?> id="use_magiclink"><span class="emoji" aria-hidden="true">📩 </span><span class="text"><?php esc_html_e( 'Email a login link' );?></span></button>
+					<button type="button" data-text="<?php esc_attr_e( 'Log In' );?>" data-notice="<?php esc_attr_e( 'Enter email and password to login' );?>" <?php if ( $form_type === 'password' ) { echo 'class="hidden"';}?> id="use_password"><span class="emoji" aria-hidden="true">🔐 </span><span class="text"><?php esc_html_e( 'Enter password' );?></span></button>
+					<button type="button" data-text="<?php esc_attr_e( 'Email a Log In link' );?>" data-notice="<?php esc_attr_e( 'Enter email to receive a login link to your inbox' );?>" <?php if ( $form_type === 'magiclink' ) { echo 'class="hidden"';}?> id="use_magiclink"><span class="emoji" aria-hidden="true">📩 </span><span class="text"><?php esc_html_e( 'Email a login link' );?></span></button>
+					<button type="button" aria-hidden="true" <?php if ( $form_type === 'webauthn' ) { echo 'class="hidden"';}?> id="use_webauthn"><span class="emoji" aria-hidden="true">💻 </span><span class="text"><?php esc_html_e( 'Registered Device' );?></span></button>
 				</div>
 			<?php } ?>
 		</form>
+		<div id="login_aria_notice" class="screen-reader-only" aria-live="polite"></div>
 
 		<?php
 
@@ -1285,6 +1305,7 @@ switch ( $action ) {
 		?>
 		<script type="text/javascript">
 			<?php echo $login_script; ?>
+			const rest_root = '<?php echo esc_js( esc_url_raw( get_rest_url() ) );?>';
 		</script>
 		<?php
 

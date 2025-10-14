@@ -8,6 +8,87 @@
 const local_code = Symbol( 'local_code' );
 
 /**
+ * class for exceptions triggered by calm_fetch when the server do not
+ * respond with a 2xx code.
+ */
+class calm_fetch_error extends Error {
+
+/** @type {number} HTTP status code (0 for connectivity errors, 1 for response parsing error) */
+    status = 0;
+
+    /** @type {string} HTTP status text */
+    statusText = '';
+
+    /** @type {Object|string} Parsed response data, object if JSON, string otherwise */
+    data = '';
+    
+    /**
+     * Create an error object containing relevant response info.
+     *
+     * @param {number} status HTTP status code
+     * @param {string} statusText Status text (or 'could not connect')
+     * @param {Object|string} data Parsed JSON object or raw response text
+     */
+    constructor( status, statusText, data ) {
+        super(`HTTP ${status} ${statusText}`);
+        this.name = 'calm_fetch_error';
+        this.status = status;
+        this.statusText = statusText;
+        this.data = data;
+    }
+
+    /**
+     * Indiates if the reason for the exception is that the request could not be
+     * sent.
+     * 
+     * @returns bool true if exception indicates that there was connectivity error
+     */
+    could_not_connect() {
+        return this.status === 0;
+    }
+
+    /**
+     * Helper for getting the json parsed data of the response.
+     * 
+     * If response data is not a json string, returns null.
+     *
+     * @returns {object|null} json object from parsing the response data, null if
+     *                        the response data is not parsable as json.
+     */
+    parsed_json() {
+        return ( typeof this.data === 'object' ) ? this.data : null;
+    }
+
+    /**
+     * Generate a human readable description of the cause of the exception
+     * in a way that hopefully can let the user do something about it.
+     * 
+     * @returns {string} The message text.
+     */
+    cause_message() {
+        if (this.status === 0) {
+            return calmUtilsL10n.error_connetivity;
+        }
+
+        switch (this.status) {
+            case 401:
+                return calmUtilsL10n.error_not_logged;
+            case 403:
+                return calmUtilsL10n.error_not_allowed;
+            case 404:
+            case 500:
+                return calmUtilsL10n.error_unexpected;
+        }
+
+        if ( this.data && typeof this.data === 'object' && 'message' in this.data ) {
+            return this.data.message;
+        } else {
+            return calmUtilsL10n.error_unexpected;
+        }
+    }
+}
+
+/**
  * calm_fetch is basically a namespace for the wrapper over our fetch api.
  */
 const calm_fetch = {
@@ -23,65 +104,139 @@ const calm_fetch = {
     /**
      * POST JSON data to a REST endpoint with structured error handling.
      * 
+     * An helper function for post and posst_no_nonce methods which does the
+     * "heavy lifting".
+     * 
      * @param {string} route The route of the endpoint relative to rest apy root url.
      * @param {object} data  An object containing the data that will be jsonified when
      *                       sent to the endpoint.
+     * @param {string|undefined} nonce The nonce to use in the message if not empty,
+     *                                 if empty no noce is sent.
      * 
-     * @returns promise to a json structure of the content of the response if the
+     * @returns {object} A structure of the content of the response if the
      *          response has 2xx code and it inludes valid json.
      * 
-     * @throws If there was a connectivity issue at whih case error.type will be 'network'
-     *         or response had a 4xx or 5xx code in which case error.type will be 'http'
-     *         and error.body will contain the body of the response.
-     *         Will throw json parsing error if the response has valid code but
-     *         invalid json data.
+     * @throws {calm_fetch_error} If there was a connectivity issue at which case staus field will be 0
+     *                            or response had a 4xx or 5xx code
+     *                            or if the body of a 2xx response is not a json,
+     *                            in which case status will be set to 1.
      */
-    post: async ( route, data ) => {
-        if ( ! calm_fetch.rest_root || ! calm_fetch.nonce ) {
-            throw new Error( 'calm_fetch was not initialized with rest_root or nonce');
+    send_post: async ( route, data, nonce = undefined ) => {
+        if ( ! route || typeof route !== 'string' ) {
+            throw new Error( 'Invalid route: must be a non-empty string' );
+        }
+
+        if ( typeof data !== 'object' ) {
+            throw new Error( 'Invalid data: must be an object' );
+        }
+
+        if ( ! calm_fetch.rest_root ) {
+            throw new Error( 'calm_fetch was not initialized with rest_root' );
         }
 
         try {
+            if ( nonce ) {
+                headers = {
+                        'X-WP-Nonce': nonce,
+                        'Content-Type': 'application/json',
+                };
+            } else {
+                headers = {
+                        'Content-Type': 'application/json',
+                };
+            }
+
             const response = await fetch( calm_fetch.rest_root + route, {
                 method: 'POST',
-                headers: {
-                    'X-WP-Nonce': calm_fetch.nonce,
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 credentials: 'same-origin',
                 body: JSON.stringify( data ),
             });
 
-            if ( ! response.ok ) {
-                // HTTP error, return structured object, try to extract
-                // a message body if its a json string.
-                const text = await response.text().catch( () => '' );
-                let msg = text;
-                try {
-                    const json = JSON.parse(text);
-                    if ( json && typeof json.message === 'string' ) {
-                        msg = json.message;
-                    }
-                } catch (e) {
-                    // leave msg as plain text if JSON parse fails
-                }
-
-                throw {
-                    type: 'http',
-                    status: response.status,
-                    statusText: response.statusText,
-                    body: text,
-                    message: msg
-                };
+            // Refresh the nonce if server sent one.
+            const new_nonce = response.headers.get( 'X-WP-Nonce' );
+            if ( new_nonce ) {
+                calm_fetch.nonce = new_nonce;
             }
 
-            return await response.json(); // resolves to parsed JSON
+            // Read body and try to parse it as json
+            const text = await response.text().catch(() => '');
+            let parsed;
+            try {
+                parsed = JSON.parse(text);
+            } catch {
+                parsed = text;
+            }
 
-        } catch ( err ) {
-            // Network error (or JSON parsing error)
-            if ( err.type ) throw err; // already structured
-            throw { type: 'network', error: err };
+            if ( ! response.ok ) {
+                throw new calm_fetch_error( 
+                    response.status,
+                    response.statusText,
+                    parsed
+                );
+            }
+
+            if ( typeof parsed === 'string' ) {
+                // 2xx Responses should always have json formatted data
+                throw new calm_fetch_error( 1, 'Response not JSON', {} );
+            }
+
+            return parsed;
+
+        } catch ( error ) {
+
+            if ( error instanceof TypeError ) {
+                // No connectivity indication thrown by fetch.
+                throw new calm_fetch_error( 0, 'Could not connet', {} );
+            }
+
+            // re throw calm_fetch_error errors from 4xx responses, and
+            // syntax errors probably related to parsing a 2xx response.
+            throw error;
         }
+    },
+
+    /**
+     * POST JSON data to a REST endpoint with the preconfigured nonce with structured 
+     * error handling.
+     * 
+     * @param {string} route The route of the endpoint relative to rest apy root url.
+     * @param {object} data  An object containing the data that will be jsonified when
+     *                       sent to the endpoint.
+     * 
+     * @returns {object} A structure of the content of the response if the
+     *          response has 2xx code and it inludes valid json.
+     * 
+     * @throws {calm_fetch_error} If there was a connectivity issue at which case staus field will be 0
+     *                            or response had a 4xx or 5xx code
+     *                            or if the body of a 2xx response is not a json,
+     *                            in which case status will be set to 1.
+     */
+    post: async ( route, data ) => {
+        if ( ! calm_fetch.nonce ) {
+            throw new Error( 'calm_fetch was not initialized with a nonce');
+        }
+
+        return await calm_fetch.send_post( route, data, calm_fetch.nonce );
+    },
+
+    /**
+     * POST JSON data to a REST endpoint without a nonce with structured error handling.
+     * 
+     * @param {string} route The route of the endpoint relative to rest apy root url.
+     * @param {object} data  An object containing the data that will be jsonified when
+     *                       sent to the endpoint.
+     * 
+     * @returns {object} A structure of the content of the response if the
+     *          response has 2xx code and it inludes valid json.
+     * 
+     * @throws {calm_fetch_error} If there was a connectivity issue at which case staus field will be 0
+     *                            or response had a 4xx or 5xx code
+     *                            or if the body of a 2xx response is not a json,
+     *                            in which case status will be set to 1.
+     */
+    post_no_nonce: async ( route, data ) => {
+        return await calm_fetch.send_post( route, data );
     }
 };
 
@@ -103,7 +258,7 @@ class jquery_like_element_wrapper {
      */
     constructor( element, local_key ) {
         if ( local_key !== local_code ) {
-            throw new Error( 'jquery_like_element_wrapper constructor is private, use $() instead' );
+            throw new Error( 'jquery_like_element_wrapper constructor is private, use cp_$() instead' );
         }
 
         this.el = ( element instanceof HTMLElement ) ? element : document.querySelector(element);
@@ -408,7 +563,7 @@ class jquery_like_element_wrapper {
  * 
  * @return {jquery_like_element_wrapper|null} The element requested or null if do not exist.
  */
-function $( selector ) {
+function cp_$( selector ) {
     try {
         return new jquery_like_element_wrapper( selector, local_code );
     } catch ( e ) {
@@ -423,6 +578,6 @@ function $( selector ) {
  * 
  * @return {jquery_like_element_wrapper[]} An array of matching elements.
  */
-function $$( selector ) {
-    return Array.from( document.querySelectorAll( selector ) ).map( el => $( el ) );
+function cp_$$( selector ) {
+    return Array.from( document.querySelectorAll( selector ) ).map( el => cp_$( el ) );
 }

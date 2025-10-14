@@ -53,6 +53,10 @@ p {
 	word-wrap: break-word;
 }
 
+.login #login_error.hidden {
+	display:none;
+}
+
 .login .success {
 	border-left-color: #00a32a;
 }
@@ -338,6 +342,14 @@ p {
 	clip: rect(0, 0, 0, 0); /* prevent scrollbar */
 }
 
+.webauthn.hidden {
+	display:none;
+}
+
+.login .webauthn .button-primary {
+	width:100%
+}
+
 #form_switch {
 	padding-top:10px;
 	clear:both;
@@ -350,6 +362,7 @@ p {
 	cursor: pointer;
 	font: inherit;
 	padding: 0;
+	display:block;
 }
 
 #form_switch button.hidden {

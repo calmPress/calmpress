@@ -575,3 +575,15 @@ function add_current_user_post_endpoint(
 		]
 	);
 }
+
+/**
+ * Unified text to be displayed at browser side to indicate some bug happening
+ * where things are so bad it is impossible to give even a guess what is the problem.
+ * 
+ * @since 1.0.0
+ * 
+ * @return string The text.
+ */
+function unknow_error_text():string {
+	return __( 'The operation could not be completed due to an unknown error.' );
+}

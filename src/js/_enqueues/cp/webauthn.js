@@ -31,34 +31,31 @@ function maybe_enable_webauthn_register_device() {
 		PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
 			.then( ( available ) => {
 				if ( available ) {
-					$( '#register_device_webauthn' ).show();
-					$( '#device_do_not_support_webauthn' ).hide();
+					cp_$( '#register_device_webauthn' ).show();
+					cp_$( '#device_do_not_support_webauthn' ).hide();
 				} 
 			})
 	}
 }
 
 /**
- * A DRY to display an error which was thwon by calm_fetch.post in a speific div
+ * A DRY to display an error which was thrown by calm_fetch.post in a specific div.
+ * 
  * @param {Error} error The exception including error status and message.
  * @param {string} id   The id of the div in which to display the error.
- * 
- * @throws error if it do not much the structure of calm_fetch.post exceptions.
  */
 function display_error( error, id ) {
-	if ( error.status === 0 ) {
-		inline_notice_manager.show( id, 'error', webauthnL10n.error_connetivity );	
-	} else if ( error.type === 'http' ) {
-		inline_notice_manager.show( id , 'error', error.message );	
+	if ( error instanceof calm_fetch_error ) {
+		inline_notice_manager.show( id, 'error', error.cause_message() );
 	} else {
-		// Maybe syntax error.
-		throw error;
+		inline_notice_manager.show( id, 'error', calmUtilsL10n.error_unexpected );
+		console.log( error );
 	}
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
 
-	$( '#register_button' ).disable();
+	cp_$( '#register_button' ).disable();
 
 	maybe_enable_webauthn_register_device();
 
@@ -66,12 +63,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 * An handler for enabling and disabeling the register new device button based
 	 * on whether there is non empty string at the device name input.
 	 */
-	$( '#new_webautn_device_name' ).on( 'input', function () {
-		val = $( this ).getValue();
+	cp_$( '#new_webautn_device_name' ).on( 'input', function () {
+		val = cp_$( this ).getValue();
 		if ( val.trim() != '' ) {
-			$( '#register_button' ).enable();
+			cp_$( '#register_button' ).enable();
 		} else {
-			$( '#register_button' ).disable();
+			cp_$( '#register_button' ).disable();
 		}
 	});
 
@@ -80,11 +77,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 *
 	 * @param {object} event The event
 	 */
-	$( '#new_webautn_device_name' ).on( 'keypress', function ( event ) {
+	cp_$( '#new_webautn_device_name' ).on( 'keypress', function ( event ) {
 		if ( event.key === 'Enter' ) {
 			val = event.target.value;
 			if ( val.trim() != '' ) {
-				$('#register_button').trigger( 'click' );
+				cp_$('#register_button').trigger( 'click' );
 			}
 		}
 	});
@@ -98,7 +95,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 * @param {string} last_used   The 5textual description when the device was last used.
 	 */
 	function webauthn_add_row( row, cred, description, last_used ) {
-		const tmpl = $( '#webauthn_row_template' ).el;
+		const tmpl = cp_$( '#webauthn_row_template' ).el;
 		const clone = tmpl.content.cloneNode( true );
 
 		// Process all elements in the clone to replace place holder with their actual values
@@ -126,10 +123,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			} );
 		} );
 
-		$( '#devices-grid tbody' ).el.appendChild( clone );
+		cp_$( '#devices-grid tbody' ).el.appendChild( clone );
 	}
 
-	$( '#register_button' )
+	cp_$( '#register_button' )
 		/**
 		 * Request an registeration challenge webauthn authentication.
 		 *
@@ -139,7 +136,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 			try {
 				// Send the request challenge request.
-				const response = await calm_fetch.post('calmpress/webauthn/create_challenge', [] );
+				const response = await calm_fetch.post( 'calmpress/webauthn/create_challenge', {} );
 
 				const options = { 'publicKey' : response };
 
@@ -167,33 +164,33 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				};
 
 				const data = {
-					'name'      : $( '#new_webautn_device_name' ).getValue(),
+					'name'      : cp_$( '#new_webautn_device_name' ).getValue(),
 					'payload'   : payload,
 				}
 
 				// Send request to verify & store the credential
-				const register = await calm_fetch.post('calmpress/webauthn/register_device', data );
-				$( '#new_webautn_device_name' ).setValue( '' );
-				$( '#register_button' ).disable();
+				const register = await calm_fetch.post( 'calmpress/webauthn/register_device', data );
+				cp_$( '#new_webautn_device_name' ).setValue( '' );
+				cp_$( '#register_button' ).disable();
 				inline_notice_manager.show( 'webauthn_register_device_message', 'success', register.message );
 				if ( ! register.can_add ) {
-					$( '#register_device_webauthn' ).hide();
+					cp_$( '#register_device_webauthn' ).hide();
 				}
-				row = $$( '#devices-grid tbody tr' ).length + 1;
+				row = cp_$$( '#devices-grid tbody tr' ).length + 1;
 				webauthn_add_row( row, register.cred, register.description, register.last_used );
-				$( '#devices-grid' ).show();
-				$( '#no_devices_message' ).hide();
-			} catch ( e ) {
-				switch ( e.name ) {
-					case 'NotAllowedError':
-						; // User canceled no need to do anything.
-						break;
-					case 'InvalidStateError':
-						; // Device is already registered
-						break;
-					default:
-						// server returned error or bug
-						display_error( e, 'webauthn_register_device_message' );
+				cp_$( '#devices-grid' ).show();
+				cp_$( '#no_devices_message' ).hide();
+			} catch ( error ) {
+				if ( error instanceof calm_fetch_error ) {
+					display_error( error, 'webauthn_register_device_message' );
+				} else {
+					switch ( error.name ) {
+						case 'NotAllowedError':
+							; // User canceled no need to do anything.
+							break;
+						default:
+							console.log( error );			
+					}
 				}
 			}
 		} );
@@ -203,10 +200,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 *
 	 * @param {Event} event The event
 	 */
-	$( '#devices-grid' ).on( 'click', '.actions .revoke', async function ( event ) {
+	cp_$( '#devices-grid' ).on( 'click', '.actions .revoke', async function ( event ) {
 
-		const cred = $( this ).parent().parent().data( 'cred' );
-		const $row = $( this ).closest('tr');
+		const cred = cp_$( this ).parent().parent().data( 'cred' );
+		const $row = cp_$( this ).closest('tr');
 
 		var	data = {
 			'credential_id' : cred
@@ -214,7 +211,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		// Send the revoke request.
 		try {
-			const response = await calm_fetch.post('calmpress/webauthn/revoke', data );
+			const response = await calm_fetch.post( 'calmpress/webauthn/revoke', data );
 
 			inline_notice_manager.show( 'webauthn_devices_table_message', 'success', response.message );
 			webauthn_can_add_device = response.can_add;
@@ -222,10 +219,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			$row.addClass( 'fade-out' );
 			$row.on( 'transitionend', () => {
 				$row.el.remove();
-				const $tbody = $( '#devices-grid tbody' );
+				const $tbody = cp_$( '#devices-grid tbody' );
 				if ( $tbody.find( 'tr' ) === null ) {
-					$( '#no_devices_message' ).show();
-					$( '#devices-grid' ).hide();
+					cp_$( '#no_devices_message' ).show();
+					cp_$( '#devices-grid' ).hide();
 				}
 			});
 			$row.el.style.opacity = 0; // trigger the fadeout.
@@ -239,9 +236,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 *
 	 * @param {object} event The event
 	 */
-	$( '#devices-grid' ).on( 'click', '.actions .edit', function ( event ) {
+	cp_$( '#devices-grid' ).on( 'click', '.actions .edit', function ( event ) {
 	
-		const $row = $( this ).closest( 'tr' );
+		const $row = cp_$( this ).closest( 'tr' );
 		const $box = $row.find( 'div' );
 		const $input = $box.find( 'input' );
 
@@ -259,11 +256,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 *
 	 * @param {object} event The event
 	 */
-	$( '#devices-grid' ).on( 'click', '.close_change', function ( event ) {
+	cp_$( '#devices-grid' ).on( 'click', '.close_change', function ( event ) {
 	
-		$( this ).parent().parent().hide();
+		cp_$( this ).parent().parent().hide();
 
-		const $row = $( this ).closest( 'tr' );
+		const $row = cp_$( this ).closest( 'tr' );
 		const $edit = $row.find( '.edit' );
 
 		$edit.setAttribute( 'aria-expanded', 'false' );
@@ -276,7 +273,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 *                         the update button or the input.
 	 */
 	async function update_description( element ) {
-		const $row   = $( element ).closest( 'tr' );
+		const $row   = cp_$( element ).closest( 'tr' );
 		const cred   = $row.data( 'cred' );
 		const $box   = $row.find( '.edit_form' );
 		const $input = $box.find( 'input' );
@@ -288,7 +285,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		// Send the update request.
 		try {
-			const response = await calm_fetch.post('calmpress/webauthn/set_description', data );
+			const response = await calm_fetch.post( 'calmpress/webauthn/set_description', data );
 
 			inline_notice_manager.show( 'webauthn_devices_table_message', 'success', response.message );
 			$box.hide(); // Hide edit box
@@ -309,7 +306,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 *
 	 * @param {object} event The event
 	 */
-	$( '#devices-grid' ).on( 'click', '.update_description', function ( event ) {
+	cp_$( '#devices-grid' ).on( 'click', '.update_description', function ( event ) {
 		update_description( event.target );
 	});
 
@@ -318,10 +315,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 *
 	 * @param {Event} event The event
 	 */
-	$( '#devices-grid' ).on( 'keypress', 'input', function ( event ) {
+	cp_$( '#devices-grid' ).on( 'keypress', 'input', function ( event ) {
 
 		if ( event.key === 'Enter' ) {
-			val = $( this ).getValue();
+			val = cp_$( this ).getValue();
 			if ( val.trim() != '' ) {
 				update_description( event.target );
 			}
@@ -333,10 +330,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 *
 	 * @param {object} event The event
 	 */
-	$( '#devices-grid' ).on( 'input', 'input', function ( event ) {
+	cp_$( '#devices-grid' ).on( 'input', 'input', function ( event ) {
 
-		val = $( this ).getValue();
-		const $row = $( this ).closest( 'tr' );
+		val = cp_$( this ).getValue();
+		const $row = cp_$( this ).closest( 'tr' );
 		const $but = $row.find( '.update_description' );
 		if ( val.trim() != '' ) {
 			$but.enable();
