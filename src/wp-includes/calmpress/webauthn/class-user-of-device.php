@@ -149,6 +149,7 @@ class User_Of_Device {
 		/* translators: %s: Time since last time the devie was used to authenticate. */
 		return sprintf( __( '%s ago' ), human_time_diff( $this->last_autheticated_at->format( 'U' ) ) );
 	}
+
 	/**
 	 * Create a string represantation of the object which can be unserialized.
 	 * 

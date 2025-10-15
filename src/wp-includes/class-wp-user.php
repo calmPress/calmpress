@@ -8,6 +8,7 @@
  */
 
 use calmpress\email\Email_Address;
+use calmpress\utils\One_Time_Password;
 use calmpress\webauthn\Devices_Of_User;
 
 /**
@@ -943,38 +944,31 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * The URL to be used by the user to login to the site.
-	 * 
-	 * @since calmPress 1.0.0
-	 *
-	 * @param string  $redirect_to The url to redirect to after login
-	 * @return string the URL, unescaped.
-	 */
-	public function magic_login_link_url( string $redirect_to ): string {
-		$expiry = time() + 1 * HOUR_IN_SECONDS;
-		$url = wp_login_url( $redirect_to );
-		$url = add_query_arg(
-			[
-				'magiclink' => 1,
-    			'id'        => \calmpress\utils\encrypt_int_to_base64URL( $this->ID, $expiry ),
-			],
-			$url
-		);
-
-		return $url;
-	}
-
-	/**
-	 * Send email with magic login link to the user.
+	 * Generate a one time password, send email with with it to the user,
+	 * and sstores it in the meta.
 	 * 
 	 * @since calmpress 1.0.0
-	 * 
-	 * @param string $redirect_to The URL to which the user should be redirected to
-	 *                            once logged in.
 	 */
-	function magic_login_email( string $redirect_to ) {
-		$email = new calmpress\email\User_Magic_Login_Email( $this, $redirect_to );
+	public function generate_and_email_one_time_password(): void {
+		$password = One_Time_Password::new( 1 * HOUR_IN_SECONDS );
+		$email = new calmpress\email\User_One_Time_Password_Email( $this, $password );
 		$email->send();
+		update_user_meta( $this->ID, 'otp' , $password->serialize() );
+	}
+
+	public function is_matching_one_time_password( string $value ): bool {
+		$p = get_user_meta( $this->ID, '_otp', true );
+		if ( empty( $p) ) {
+			return false;
+		}
+
+		try {
+			$o = One_Time_Password::unserialize( (string) $p );
+			return $o->is_matching( $value );
+		} catch ( \RuntimeException $e ) {
+			delete_user_meta( $this->ID, '_otp' );
+			return false;
+		}
 	}
 
 	/**

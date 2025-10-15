@@ -1,7 +1,7 @@
 <?php
 /**
- * Implementation controller for email sent to the user which request a "magic"
- * login link.
+ * Implementation controller for email sent to the user which requested
+ * a one time password.
  *
  * @package calmPress
  * @since 1.0.0
@@ -11,46 +11,51 @@ declare(strict_types=1);
 
 namespace calmpress\email;
 
+use calmpress\utils\One_Time_Password;
+
 /**
- * A representation of email sent to a the user which request a magic login link.
+ * A representation of email sent to a the user which requested a one time password.
  * 
  * @since 1.0.0
  */
-class User_Magic_Login_Email {
+class User_One_Time_Password_Email {
 
 	use Email_To_User;
 
 	/**
-	 * The URL to redirect to after login.
+	 * The password.
 	 *
 	 * since 1.0.0
 	 */
-	public readonly string $redirect_to;
+	public readonly One_Time_Password $password;
 
 	/**
-	 * Create an Magic_Login_Email object based on the $user to
-	 * which the message is being sent.
+	 * Create an User_One_Time_Password_Email object based on the $user to
+	 * which the email is being sent.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \WP_User $user        The user to which the email is sent.
-	 * @param string   $redirect_to The URL to redirect to after login.
+	 * @param \WP_User          $user     The user to which the email is sent.
+	 * @param One_Time_Password $password The password to be sent.
 	 */
-	public function __construct( \WP_User $user, string $redirect_to ) {
+	public function __construct( \WP_User $user, One_Time_Password $password ) {
 		/* translators: %s: Site's name. */
-		$initial_subject_format = __( '[%s] Log In link' );
+		$initial_subject_format = __( '[%s] one-time password' );
 
 		/* translators:
 		 *	1: Users's display name.
 		 *  2: Site name.
-		 *  3: the url to use for instant login. 
+		 *  3: the password. 
 		 */
 		$initial_content_format = __(
 'Hi %1$s,
 
-You can follow the link below to login to [%2$s].
-%3$s.
-The link will expire in an hour.
+You requested a one-time password.  
+Your one-time password is:
+
+%2$s.
+
+You can use this code as your password to log in for the next hour.
 
 If you did not expect this notice you are welcome to ignore this email.
 '
@@ -62,15 +67,14 @@ If you did not expect this notice you are welcome to ignore this email.
 			sprintf( 
 				$initial_content_format,
 				$user->display_name,
-				$blog_name,
-				$user->magic_login_link_url( $redirect_to ),
+				$password->password,
 			),
 			false,
 			$user->email_address()
 		);
 
-		$this->user        = $user;
-		$this->redirect_to = $redirect_to;
+		$this->user     = $user;
+		$this->password = $password;
 	}
 
 	/**
@@ -78,13 +82,13 @@ If you did not expect this notice you are welcome to ignore this email.
 	 *
 	 * @since 1.0.0
 	 *
-	 * User_Magic_Email_Mutator |
+	 * User_One_Time_Password_Email_Mutator |
 	 * Email_Send_Abort_Mutator $mutator The object implementing the mutation observer.
 	 *                                   Can either be an actual mutator or an "mutator"
 	 *                                   that aborts the sending.
 	 */
 	public static function register_mutator(
-		User_Magic_Login_Email_Mutator |
+		User_One_Time_Password_Email_Mutator |
 		Email_Send_Abort_Mutator
 		$mutator ): void
 	{

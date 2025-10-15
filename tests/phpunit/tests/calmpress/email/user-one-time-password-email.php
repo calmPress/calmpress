@@ -8,20 +8,18 @@
 
 declare(strict_types=1);
 
-use calmpress\email\Email;
-use calmpress\email\Email_Address;
-use calmpress\email\User_Magic_Login_Email_Mutator;
-use calmpress\email\User_Magic_Login_Email;
-use calmpress\email\Email_Mutator;
+use calmpress\email\User_One_Time_Password_Email_Mutator;
+use calmpress\email\User_One_Time_Password_Email;
 use calmpress\observer\Observer;
 use calmpress\observer\Observer_Priority;
+use calmpress\utils\One_Time_Password;
 
 require_once __DIR__ . '/../../../includes/dummy-phpmailer.php';
 
 /**
  * An implementation of an Email_Address_Change_Notification_Email_Mutator interface to use in testing.
  */
-class Mock_Magic_Login_Observer implements User_Magic_Login_Email_Mutator {
+class Mock_OTP_Observer implements User_One_Time_Password_Email_Mutator {
 
 	public string $value;
 
@@ -33,12 +31,12 @@ class Mock_Magic_Login_Observer implements User_Magic_Login_Email_Mutator {
 		return Observer_Priority::NONE;
 	}
 
-	public function mutate_by_ref( User_Magic_Login_Email &$email ):void {
+	public function mutate_by_ref( User_One_Time_Password_Email &$email ):void {
 		$email->email->set_subject( $this->value );
 	}
 }
 
-class User_Magic_Login_Email_Test extends WP_UnitTestCase {
+class User_One_Time_Password_Email_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that the constructor set the properties
@@ -49,9 +47,10 @@ class User_Magic_Login_Email_Test extends WP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 		$user = get_user_by( 'id', $user_id );
 
-		$email = new User_Magic_Login_Email( $user, 'redirect' );
+		$password = One_Time_Password::new( 60 );
+		$email = new User_One_Time_Password_Email( $user, $password );
 		$this->assertSame( $user, $email->user );
-		$this->assertSame( 'redirect', $email->redirect_to );
+		$this->assertSame( $password, $email->password );
 	}
 
 	/**
@@ -67,11 +66,12 @@ class User_Magic_Login_Email_Test extends WP_UnitTestCase {
 		$user = get_user_by( 'id', $user_id );
 		$user->user_email = 'test@example.com';
 
-		$email = new User_Magic_Login_Email( $user, '' );
+		$password = One_Time_Password::new( 60 );
+		$email = new User_One_Time_Password_Email( $user, $password );
 
 		$email->send();
 
-		// Test mail is sent to the old address
+		// Test mail is sent to the user's address
 		$tos = $phpmailer->getToAddresses();
 		$this->assertSame( 1, count( $tos ) );
 		$this->assertSame( 'test@example.com', $tos[0][0] );
@@ -89,11 +89,12 @@ class User_Magic_Login_Email_Test extends WP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 		$user = get_user_by( 'id', $user_id );
 	
-		$email = new User_Magic_Login_Email( $user, '' );
+		$password = One_Time_Password::new( 60 );
+		$email = new User_One_Time_Password_Email( $user, $password );
 
 		// Test the specific notification mutators.
-		$mutate_notification = new Mock_Magic_Login_Observer( 'tasti' );
-		User_Magic_Login_Email::register_mutator( $mutate_notification );
+		$mutate_notification = new Mock_OTP_Observer( 'tasti' );
+		User_One_Time_Password_Email::register_mutator( $mutate_notification );
 		$email->send();
 		$this->assertSame( 'tasti', $phpmailer->Subject );
 
