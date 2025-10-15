@@ -127,9 +127,9 @@ class Tests_AdminBar extends WP_UnitTestCase {
 		// Site menu points to the admin URL.
 		$this->assertSame( admin_url( '/' ), $node_site_name->href );
 
-		$profile_url = admin_url( 'profile.php' );
+		$profile_url = admin_url( 'user-edit.php' );
 
-		// Profile URLs point to profile.php.
+		// Profile URLs point to user-edit.php.
 		$this->assertSame( $profile_url, $node_my_account->href );
 		$this->assertSame( $profile_url, $node_user_info->href );
 		$this->assertSame( $profile_url, $node_edit_profile->href );
