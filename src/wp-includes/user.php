@@ -206,13 +206,7 @@ function wp_authenticate_email_password( $user, $email, $password ) {
 	}
 
 	if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
-		return new WP_Error(
-			'incorrect_password',
-			__( 'Invalid email address or password.' ) .
-			' <a href="' . wp_lostpassword_url() . '">' .
-			__( 'Lost your password?' ) .
-			'</a>'
-		);
+		return new WP_Error( 'incorrect_password', __( 'Invalid email address or password.' ) );
 	}
 
 	return $user;
