@@ -95,38 +95,6 @@
 	}
 
 	/**
-	 * Handle the password reset button. Sets up an ajax callback to trigger sending
-	 * a password reset email.
-	 */
-	function bindPasswordResetLink() {
-		$( '#generate-reset-link' ).on( 'click', function() {
-			var $this  = $(this),
-				data = {
-					'user_id': userProfileL10n.user_id, // The user to send a reset to.
-					'nonce':   userProfileL10n.nonce    // Nonce to validate the action.
-				};
-
-				// Remove any previous error messages.
-				$this.parent().find( '.notice-error' ).remove();
-
-				// Send the reset request.
-				var resetAction =  wp.ajax.post( 'send-password-reset', data );
-
-				// Handle reset success.
-				resetAction.done( function( response ) {
-					addInlineNotice( $this, true, response );
-				} );
-
-				// Handle reset failure.
-				resetAction.fail( function( response ) {
-					addInlineNotice( $this, false, response );
-				} );
-
-		});
-
-	}
-
-	/**
 	 * Helper function to insert an inline notice of success or failure.
 	 *
 	 * @param {string} container The id of the message container at which to insert the

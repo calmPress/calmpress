@@ -4627,40 +4627,6 @@ function wp_ajax_rest_nonce() {
 }
 
 /**
- * Ajax handler sends a password reset link.
- *
- * @since 5.7.0
- */
-function wp_ajax_send_password_reset() {
-
-	// Validate the user for this action.
-	if ( ! isset( $_POST['user_id'] ) || ( (int) $_POST['user_id'] === 0 ) ) {
-		wp_die( -1, 403 );
-	}
-	$user_id = (int) $_POST['user_id'];
-
-	check_ajax_referer( 'reset-password-for-' . $user_id, 'nonce' );
-
-	// Verify user capabilities.
-	if ( ! current_user_can( 'edit_user', $user_id ) ) {
-		wp_send_json_error( __( 'Cannot send password reset, permission denied.' ) );
-	}
-
-	// Send the password reset link.
-	$user    = get_userdata( $user_id );
-	$results = retrieve_password( $user->user_email );
-
-	if ( true === $results ) {
-		wp_send_json_success(
-			/* translators: %s: User's display name. */
-			sprintf( __( 'A password reset link was emailed to %s.' ), $user->display_name )
-		);
-	} else {
-		wp_send_json_error( $results->get_error_message() );
-	}
-}
-
-/**
  * Ajax handler resend activation email.
  *
  * @since calmPress 1.0.0

@@ -127,7 +127,6 @@ $core_actions_post = array(
 	'wp-privacy-export-personal-data',
 	'wp-privacy-erase-personal-data',
 	'health-check-site-status-result',
-	'send-password-reset',
 	'resend-activation',
 	'undo-email-change',
 	'installer-email-verification',

@@ -274,11 +274,6 @@ class WP_Users_List_Table extends WP_List_Table {
 			}
 		}
 
-		// Add a password reset link to the bulk actions dropdown.
-		if ( current_user_can( 'edit_users' ) ) {
-			$actions['resetpassword'] = __( 'Send password reset' );
-		}
-
 		return $actions;
 	}
 
