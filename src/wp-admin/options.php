@@ -140,8 +140,6 @@ if ( ! is_multisite() ) {
 		$allowed_options['general'][] = 'home';
 	}
 
-	$allowed_options['general'][] = 'users_can_register';
-
 	$allowed_options['media'][] = 'uploads_use_yearmonth_folders';
 
 	/*

@@ -14,8 +14,11 @@ require __DIR__ . '/wp-load.php';
 require __DIR__ . '/wp-blog-header.php';
 
 if ( ! is_multisite() ) {
-	wp_redirect( wp_registration_url() );
-	die();
+	wp_die(
+		__( 'Registration is not available on this site.' ),
+		__( 'Registration Disabled' ),
+		array( 'response' => 404 )
+	);
 }
 
 $valid_error_codes = array( 'already_active', 'blog_taken' );

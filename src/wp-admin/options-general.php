@@ -86,19 +86,8 @@ if ( ! is_multisite() ) {
 
 <?php } ?>
 
-<?php if ( ! is_multisite() ) { ?>
 
-<tr>
-<th scope="row"><?php _e( 'Membership' ); ?></th>
-<td> <fieldset><legend class="screen-reader-text"><span><?php _e( 'Membership' ); ?></span></legend><label for="users_can_register">
-<input name="users_can_register" type="checkbox" id="users_can_register" value="1" <?php checked( '1', get_option( 'users_can_register' ) ); ?> />
-	<?php _e( 'Anyone can register' ); ?></label>
-</fieldset></td>
-</tr>
-
-	<?php
-}
-
+<?php
 $languages    = get_available_languages();
 $translations = wp_get_available_translations();
 if ( ! is_multisite() && defined( 'WPLANG' ) && '' !== WPLANG && 'en_US' !== WPLANG && ! in_array( WPLANG, $languages, true ) ) {

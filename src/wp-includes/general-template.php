@@ -460,24 +460,6 @@ function wp_login_url( $redirect = '', $force_reauth = false ) {
 }
 
 /**
- * Returns the URL that allows the user to register on the site.
- *
- * @since 3.6.0
- *
- * @return string User registration URL.
- */
-function wp_registration_url() {
-	/**
-	 * Filters the user registration URL.
-	 *
-	 * @since 3.6.0
-	 *
-	 * @param string $register The user registration URL.
-	 */
-	return apply_filters( 'register_url', site_url( 'wp-login.php?action=register', 'login' ) );
-}
-
-/**
  * Provides a simple login form for use anywhere within WordPress.
  *
  * The login form HTML is echoed by default. Pass a false value for `$echo` to return it instead.
@@ -613,16 +595,22 @@ function wp_login_form( $args = array() ) {
 }
 
 /**
- * Returns the URL that allows the user to retrieve the lost password
- *
+ * Returns the URL that allows the user to retrieve a temporary password.
+ * 
+ * Keep naming compatibility with the lost password functionality for compatibility
+ * with wordpress core and plugins and theme using the API to get the password
+ * recovery page url.
+ * 
  * @since 2.8.0
+ * @since calmPress 1.0.0 There is no lost password page, use the API for the
+ *                        temporary password page.
  *
  * @param string $redirect Path to redirect to on login.
- * @return string Lost password URL.
+ * @return string temporary password URL.
  */
 function wp_lostpassword_url( $redirect = '' ) {
 	$args = array(
-		'action' => 'lostpassword',
+		'action' => 'temporarypassword',
 	);
 
 	if ( ! empty( $redirect ) ) {
@@ -639,60 +627,18 @@ function wp_lostpassword_url( $redirect = '' ) {
 	$lostpassword_url = add_query_arg( $args, network_site_url( $wp_login_path, 'login' ) );
 
 	/**
-	 * Filters the Lost Password URL.
+	 * Filters the Temporary Password URL. Same filter name as in wordpress but
+	 * accepting a url for the temporary password page.
 	 *
 	 * @since 2.8.0
+	 * @since calmPress 1.0.0 The lostpassword_url parameter from wordpress changes 
+	 *                        its name to better reflect almPress functionality.
+	 *                        
 	 *
-	 * @param string $lostpassword_url The lost password page URL.
-	 * @param string $redirect         The path to redirect to on login.
+	 * @param string $temporarypassword_url The temporary password page URL.
+	 * @param string $redirect              The path to redirect to on login.
 	 */
-	return apply_filters( 'lostpassword_url', $lostpassword_url, $redirect );
-}
-
-/**
- * Display the Registration or Admin link.
- *
- * Display a link which allows the user to navigate to the registration page if
- * not logged in and registration is enabled or to the dashboard if logged in.
- *
- * @since 1.5.0
- *
- * @param string $before Text to output before the link. Default `<li>`.
- * @param string $after  Text to output after the link. Default `</li>`.
- * @param bool   $echo   Default to echo and not return the link.
- * @return void|string Void if `$echo` argument is true, registration or admin link
- *                     if `$echo` is false.
- */
-function wp_register( $before = '<li>', $after = '</li>', $echo = true ) {
-	if ( ! is_user_logged_in() ) {
-		if ( get_option( 'users_can_register' ) ) {
-			$link = $before . '<a href="' . esc_url( wp_registration_url() ) . '">' . __( 'Register' ) . '</a>' . $after;
-		} else {
-			$link = '';
-		}
-	} elseif ( current_user_can( 'read' ) ) {
-		$link = $before . '<a href="' . admin_url() . '">' . __( 'Site Admin' ) . '</a>' . $after;
-	} else {
-		$link = '';
-	}
-
-	/**
-	 * Filters the HTML link to the Registration or Admin page.
-	 *
-	 * Users are sent to the admin page if logged-in, or the registration page
-	 * if enabled and logged-out.
-	 *
-	 * @since 1.5.0
-	 *
-	 * @param string $link The HTML code for the link to the Registration or Admin page.
-	 */
-	$link = apply_filters( 'register', $link );
-
-	if ( $echo ) {
-		echo $link;
-	} else {
-		return $link;
-	}
+	return apply_filters( 'lostpassword_url', $temporarypassword_url, $redirect );
 }
 
 /**

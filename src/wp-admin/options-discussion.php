@@ -55,10 +55,6 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 <label for="comment_registration">
 <input name="comment_registration" type="checkbox" id="comment_registration" value="1" <?php checked( '1', get_option( 'comment_registration' ) ); ?> />
 <?php _e( 'Users must be registered and logged in to comment' ); ?>
-<?php
-if ( ! get_option( 'users_can_register' ) && is_multisite() ) {
-	echo ' ' . __( '(Signup has been disabled. Only members of this site can comment.)' );}
-?>
 </label>
 <br />
 

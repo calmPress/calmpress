@@ -30,8 +30,11 @@ function do_signup_header() {
 add_action( 'wp_head', 'do_signup_header' );
 
 if ( ! is_multisite() ) {
-	wp_redirect( wp_registration_url() );
-	die();
+	wp_die(
+		__( 'Registration is not available on this site.' ),
+		__( 'Registration Disabled' ),
+		array( 'response' => 404 )
+	);
 }
 
 if ( ! is_main_site() ) {

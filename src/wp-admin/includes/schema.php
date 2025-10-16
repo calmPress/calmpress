@@ -384,7 +384,6 @@ function populate_options( array $options = array() ) {
 		'blogname'                        => __( 'My Site' ),
 		/* translators: Site tagline. */
 		'blogdescription'                 => __( 'Just another calmPress site' ),
-		'users_can_register'              => 0,
 		/* translators: Default start of the week. 0 = Sunday, 1 = Monday. */
 		'start_of_week'                   => _x( '1', 'start of week' ),
 		'require_name_email'              => 1,

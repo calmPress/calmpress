@@ -30,7 +30,6 @@ class WP_Debug_Data {
 		$permalink_structure    = get_option( 'permalink_structure' );
 		$is_ssl                 = is_ssl();
 		$is_multisite           = is_multisite();
-		$users_can_register     = get_option( 'users_can_register' );
 		$blog_public            = get_option( 'blog_public' );
 		$default_comment_status = get_option( 'default_comment_status' );
 		$environment_type       = wp_get_environment_type();
@@ -86,11 +85,6 @@ class WP_Debug_Data {
 					'label' => __( 'Is this a multisite?' ),
 					'value' => $is_multisite ? __( 'Yes' ) : __( 'No' ),
 					'debug' => $is_multisite,
-				),
-				'user_registration'      => array(
-					'label' => __( 'Can anyone register on this site?' ),
-					'value' => $users_can_register ? __( 'Yes' ) : __( 'No' ),
-					'debug' => $users_can_register,
 				),
 				'blog_public'            => array(
 					'label' => __( 'Is this site discouraging search engines?' ),
