@@ -147,16 +147,16 @@ $blog_details = get_blog_details();
 			echo '<p class="lead-in">';
 			if ( '' === $signup->domain . $signup->path ) {
 				printf(
-					/* translators: 1: Login URL, 2: User email address, 3: lost password URL */
-					__( 'Your account has been activated. You may now <a href="%1$s">log in</a> to the site using your email address of &#8220;%2$s&#8221;. Please check your email inbox at %2$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%3$s">reset your password</a>.' ),
+					/* translators: 1: Login URL, 2: User email address, 3: temporary password URL */
+					__( 'Your account has been activated. You may now <a href="%1$s">log in</a> to the site using your email address of &#8220;%2$s&#8221;. Please check your email inbox at %2$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%3$s">get a temporary password</a>.' ),
 					network_site_url( $blog_details->path . 'wp-login.php', 'login' ),
 					$signup->user_email,
 					wp_lostpassword_url()
 				);
 			} else {
 				printf(
-					/* translators: 1: Site URL, 2: Username, 3: User email address, 4: Lost password URL. */
-					__( 'Your site at %1$s is active. You may now log in to your site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">reset your password</a>.' ),
+					/* translators: 1: Site URL, 2: Username, 3: User email address, 4: temporary password URL. */
+					__( 'Your site at %1$s is active. You may now log in to your site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">get a temporary password</a>.' ),
 					sprintf( '<a href="http://%1$s%2$s">%1$s%2$s</a>', $signup->domain, $blog_details->path ),
 					$signup->user_login,
 					$signup->user_email,
