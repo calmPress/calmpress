@@ -198,7 +198,15 @@ function wp_authenticate_email_password( $user, $email, $password ) {
 		return new WP_Error( 'incorrect_password', __( 'Invalid email address or password.' ) );
 	}
 
-	/** This filter is documented in wp-includes/user.php */
+	/**
+	 * Filters whether the given user can be authenticated with the provided password.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @param WP_User|WP_Error $user     WP_User or WP_Error object if a previous
+	 *                                   callback failed authentication.
+	 * @param string           $password Password to check against the user.
+	 */
 	$user = apply_filters( 'wp_authenticate_user', $user, $password );
 
 	if ( is_wp_error( $user ) ) {
@@ -208,6 +216,41 @@ function wp_authenticate_email_password( $user, $email, $password ) {
 	if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
 		return new WP_Error( 'incorrect_password', __( 'Invalid email address or password.' ) );
 	}
+
+	return $user;
+}
+
+/**
+ * Authenticates a user using a one-time password that might have been sent to him.
+ *
+ * Should run after only after wp_authenticate_email_password to make sure
+ * "idle cycles" are being wasted on the password.
+ * 
+ * @since calmPress 1.0.0
+ *
+ * @param WP_User|WP_Error|null $user     WP_User or WP_Error object if a previous
+ *                                        callback failed authentication.
+ * @param string                $email    Email address for authentication.
+ * @param string                $password Password for authentication.
+ * @return WP_User|WP_Error WP_User on success, WP_Error on failure.
+ */
+function wp_authenticate_email_otp_password( $user, $email, $password ) {
+	if ( $user instanceof WP_User ) {
+		return $user;
+	}
+
+	// Try to match OTP only if the only error is incorrect password.
+	if ( is_wp_error( $user ) ) {
+		$errors = $user->get_error_codes();
+        if ( count( $errors ) === 1 && in_array( 'incorrect_password', $errors, true ) ) {
+			$u = get_user_by( 'email', $email );
+			if ( $u ) {
+				if ( $u->is_matching_one_time_password( $password ) ) {
+					return $u;
+				}
+			}
+		}
+	} 
 
 	return $user;
 }

@@ -15,6 +15,8 @@ use calmpress\email\User_Email_Change_Undo_Email_Mutator;
 use calmpress\email\User_Email_Change_Undo_Email;
 use calmpress\email\User_Activation_Verification_Email_Mutator;
 use calmpress\email\User_Activation_Verification_Email;
+use calmpress\email\User_One_Time_Password_Email_Mutator;
+use calmpress\email\User_One_Time_Password_Email;
 use calmpress\observer\Observer;
 use calmpress\observer\Observer_Priority;
 use calmpress\email\Abort_Send_Exception;
@@ -67,6 +69,23 @@ class Mock_Undo_Mutator implements User_Email_Change_Undo_Email_Mutator {
 	}
 
 	public function mutate_by_ref( User_Email_Change_Undo_Email &$email ):void {
+		$this->email = $email;
+		throw new Abort_Send_Exception();
+	}
+}
+
+/**
+ * An implementation of an User_One_Time_Password_Email_Mutator interface to use in testing.
+ */
+class Mock_One_Time_Password_Email_Mutator implements User_One_Time_Password_Email_Mutator {
+
+	public User_One_Time_Password_Email $email;
+
+	public function notification_dependency_with( Observer $observer ) : Observer_Priority {
+		return Observer_Priority::NONE;
+	}
+
+	public function mutate_by_ref( User_One_Time_Password_Email &$email ):void {
 		$this->email = $email;
 		throw new Abort_Send_Exception();
 	}
@@ -480,5 +499,47 @@ class WP_User_Test extends WP_UnitTestCase {
 			;
 		}
 		$this->assertTrue( $thrown );
+	}
+
+	/**
+	 * test that generate_and_email_one_time_password sends mail and create passwords
+	 * which is_matching_one_time_password match against.
+	 */
+	function test_generate_and_match_one_time_password() {
+		$user_id = $this->factory->user->create();
+		$user    = get_user_by( 'id', $user_id );
+
+        $get_method = new ReflectionMethod( '\WP_User', 'the_one_time_password' );
+        $set_method = new ReflectionMethod( '\WP_User', 'set_one_time_password' );
+
+		// No one time password on new user.
+        $this->assertNull( $get_method->invoke( $user ) );
+		$this->assertFalse( $user->is_matching_one_time_password( 'junk' ) );
+
+		// Test email was sent and one time password set.
+		$mutator = new Mock_One_Time_Password_Email_Mutator();
+		calmpress\email\User_One_Time_Password_Email::register_mutator( $mutator );
+
+		$user->user_email = 'new@example.com';
+		$user->generate_and_email_one_time_password();
+		$tos = $mutator->email->email->to_addresses();
+		$this->assertSame( 1, count( $tos ) );
+		$this->assertSame( 'new@example.com', $tos[0]->address );
+
+		$p = $get_method->invoke( $user );
+        $this->assertNotNull( $p );
+		$this->assertFalse( $user->is_matching_one_time_password( 'junk' ) );
+
+		// match the generated random value of the one time password
+		$this->assertTrue( $user->is_matching_one_time_password( $p->password ) );
+
+		// Test mathing with expired one time passwords.
+		$otp = calmpress\utils\One_Time_Password::new( -60 );
+		
+		$get_method->invoke( $user, $otp );
+		$this->assertFalse( $user->is_matching_one_time_password( $otp->password ) );
+
+		// Cleanup of global state.
+		calmpress\email\User_One_Time_Password_Email::remove_all_mutation_observers();
 	}
 }

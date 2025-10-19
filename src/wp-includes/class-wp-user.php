@@ -118,6 +118,12 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	const AVATAR_ATTACHMENT_ID = 'calm_avatar_id';
 
 	/**
+	 * The user meta key in which the one time password is stored.
+	 * @since calmPress 1.0.0
+	 */
+	const OTP_META_ID = 'otp';
+
+	/**
 	 * Constructor.
 	 *
 	 * Retrieves the userdata and passes it to WP_User::init().
@@ -945,30 +951,74 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 
 	/**
 	 * Generate a one time password, send email with with it to the user,
-	 * and sstores it in the meta.
+	 * and stores it in the meta.
+	 * 
+	 * The one time password generated has an expiry time of one hour.
 	 * 
 	 * @since calmpress 1.0.0
 	 */
 	public function generate_and_email_one_time_password(): void {
 		$password = One_Time_Password::new( 1 * HOUR_IN_SECONDS );
+		$this->set_one_time_password( $password );
 		$email = new calmpress\email\User_One_Time_Password_Email( $this, $password );
 		$email->send();
-		update_user_meta( $this->ID, 'otp' , $password->serialize() );
 	}
 
-	public function is_matching_one_time_password( string $value ): bool {
-		$p = get_user_meta( $this->ID, '_otp', true );
+	/**
+	 * Set the one time password associated with the user.
+	 * 
+	 * An helper to faciliate better testing.
+	 * 
+	 * @since calmpress 1.0.0
+	 */
+	private function set_one_time_password( One_Time_Password $otp ): void {
+		update_user_meta( $this->ID, self::OTP_META_ID , $otp->serialize() );
+	}
+
+	/**
+	 * Gets the one time password associated with the user, if any.
+	 * 
+	 * An helper to faciliate better testing.
+	 * 
+	 * @since calmpress 1.0.0
+	 * 
+	 * @return ?One_Time_Password The the one time password if exists and
+	 *                            didn't expire yet, otherwisse null.
+	 */
+	private function the_one_time_password(): ?One_Time_Password {
+		$p = get_user_meta( $this->ID, self::OTP_META_ID, true );
+
 		if ( empty( $p) ) {
-			return false;
+			return null;
 		}
 
 		try {
 			$o = One_Time_Password::unserialize( (string) $p );
-			return $o->is_matching( $value );
+			return $o;
 		} catch ( \RuntimeException $e ) {
-			delete_user_meta( $this->ID, '_otp' );
+			delete_user_meta( $this->ID, self::OTP_META_ID );
+			return null;
+		}
+	}
+
+	/**
+	 * Check if a value is a one-time password of the user which has not expired yet.
+	 * 
+	 * @since calmPress 1.0.0
+	 * 
+	 * @param string $value The value to test.
+	 * 
+	 * @return bool true If $value is the one-time password and it has not expired,
+	 *              false otherwise.
+	 */
+	public function is_matching_one_time_password( string $value ): bool {
+		$p = $this->the_one_time_password();
+
+		if ( empty( $this->the_one_time_password() ) ) {
 			return false;
 		}
+
+		return $p->is_matching( $value );
 	}
 
 	/**

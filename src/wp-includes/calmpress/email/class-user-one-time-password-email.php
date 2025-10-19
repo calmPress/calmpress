@@ -53,9 +53,9 @@ class User_One_Time_Password_Email {
 You requested a one-time password.  
 Your one-time password is:
 
-%2$s.
+%2$s
 
-You can use this code as your password to log in for the next hour.
+This password will expire, so please use it as soon as possible. You can always request a new one if needed.
 
 If you did not expect this notice you are welcome to ignore this email.
 '

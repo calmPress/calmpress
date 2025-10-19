@@ -11,11 +11,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	const heading = document.querySelector( '.login h1' );
 	const headingLink = heading?.querySelector( 'a' );
 
+    // Disable webauthn if browser do not support it.
 	if ( window.PublicKeyCredential ) {
 		PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
 			.then( ( available ) => {
 				if ( ! available ) {
-					hide_webauthn();
+					cp_$( '.webauthn-separator' ).hide();
+					cp_$( '.webauthn' ).hide();
 				} 
 			})
 	}
@@ -25,59 +27,36 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		headingLink.style.margin = '0';
 	}
 
-    function show_password() {
-        const password_section = document.querySelector( '.user-pass-wrap' );
-        password_section.className = 'user-pass-wrap';
-        password_section.removeAttribute( 'aria-hidden' );
-        show_submit();
+    /**
+     * Enable and disable the login and OTP buttons based on value in the
+     * email and password input.
+     * Log in enable only when both inputs has value
+     * OTP enabled when email has value but no password.
+     */
+    function update_buttons_state() {
+        const form = document.getElementById( 'loginform' );
+        const submit = document.getElementById( 'wp-submit' );
+        const user_login = document.getElementById( 'user_login' );
+        const get_otp = document.getElementById( 'get_otp' );
+        submit.disabled = ! form.checkValidity();
+        get_otp.disabled = ! user_login.checkValidity();
     }
 
-    function hide_password() {
-        const password_section = document.querySelector( '.user-pass-wrap' );
-        password_section.className = 'user-pass-wrap hidden';
-        password_section.setAttribute( 'aria-hidden', 'true' );
+    /**
+     * Display a text in the message area.
+     * 
+     * @param {string} text The text to display.
+     */
+    function set_message( text ) {
+        const errorcont = document.getElementById( 'login_message' );
+        errorcont.textContent = text;
     }
 
-    function show_email() {
-        const email_section = document.querySelector( '.user-email-wrap' );
-        email_section.className = 'user-email-wrap';
-        email_section.setAttribute( 'aria-hidden', 'false' );
-        show_submit();
-    }
-
-    function hide_email() {
-        const email_section = document.querySelector( '.user-email-wrap' );
-        email_section.className = 'user-email-wrap hidden';
-        email_section.removeAttribute( 'aria-hidden' );
-    }
-
-    function show_webauthn() {
-        el = document.querySelector( '.webauthn' );
-        el.style.display = 'block';
-        hide_submit();
-    }
-
-    function hide_webauthn() {
-        el = document.querySelector( '.webauthn' );
-        el.style.display = 'none';
-    }
-
-    function show_submit() {
-        const submitButton = document.querySelector( '.submit' );
-        submitButton.style.display = 'block';
-    }
-
-    function hide_submit() {
-        const submitButton = document.querySelector( '.submit' );
-        submitButton.style.display = 'none';
-    }
-
-    function hide_error( text ) {
-        const errorcont = document.getElementById( 'login_error' );
-        errorcont.className = 'hidden';
-        errorcont.textContent = '';
-    }
-
+    /**
+     * Display a text in the error area.
+     * 
+     * @param {string} text The text to display.
+     */
     function set_error( text ) {
         const errorcont = document.getElementById( 'login_error' );
         errorcont.className = '';
@@ -122,42 +101,11 @@ document.addEventListener( 'DOMContentLoaded', function () {
         return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
 
-    // Handle the form type switch buttons.
-    const submitButton = document.getElementById( 'wp-submit' );
-    const form_type_input = document.getElementById( 'form_type' );
-    const aria_notification = document.getElementById( 'login_aria_notice' );
-    var buttons = document.querySelectorAll( '#form_switch button' );
-    buttons.forEach( function ( button ) {
-        button.addEventListener( 'click', function ( event ) {
-            for (const button of buttons) {
-                button.className = '';
-            }
-            const clickedButton = event.currentTarget;
-            const text = clickedButton.getAttribute('data-text');
-            submitButton.value = text;
-            aria_notification.textContent = clickedButton.getAttribute('data-notice');
-            clickedButton.className = 'hidden';
-            if ( clickedButton.id === 'use_password' ) {
-                show_password();
-                show_email();
-                hide_webauthn();
-                form_type_input.value="password";
-                aria_notification.textContent = clickedButton.getAttribute('data-notice');
-            }
-            if ( clickedButton.id === 'use_magiclink' ) {
-                hide_password();
-                show_email();
-                hide_webauthn();
-                form_type_input.value="magiclink";
-            }
-            if ( clickedButton.id === 'use_webauthn' ) {
-                hide_email();
-                hide_password();
-                show_webauthn();
-            }
+    update_buttons_state();
 
-            hide_error();
-        });
+    // Check enable/disable submit button state base on form validity
+    cp_$( '#loginform' ).on( 'input', () => {
+        update_buttons_state();
     });
 
     cp_$( '#webauthn_button' ).on( 'click', async function ( event ) {
@@ -185,6 +133,29 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
             const login_response = await calm_fetch.post_no_nonce( 'calmpress/webauthn/login', data );
             window.location.href = login_response.redirect_to;
+        } catch ( error ) {
+            if ( error instanceof calm_fetch_error ) {
+                set_error( error.cause_message() );
+            } else {
+                switch ( error.name ) {
+                    case 'NotAllowedError':
+                        ; // Most likely the user had canceled.
+                        break;
+                    default:
+                        console.log( error );
+                }
+            }
+        }
+    });
+
+    cp_$( '#get_otp' ).on( 'click', async function ( event ) {
+        try {
+            const email = cp_$( '#user_login' ).getValue();
+            const data = {
+                email: email
+            }
+            const response_data = await calm_fetch.post_no_nonce( 'calmpress/send_otp', data );
+            set_message( response_data.message );
         } catch ( error ) {
             if ( error instanceof calm_fetch_error ) {
                 set_error( error.cause_message() );

@@ -595,22 +595,16 @@ function wp_login_form( $args = array() ) {
 }
 
 /**
- * Returns the URL that allows the user to retrieve a temporary password.
- * 
- * Keep naming compatibility with the lost password functionality for compatibility
- * with wordpress core and plugins and theme using the API to get the password
- * recovery page url.
+ * Returns the URL that allows the user to retrieve a lost password.
  * 
  * @since 2.8.0
- * @since calmPress 1.0.0 There is no lost password page, use the API for the
- *                        temporary password page.
  *
  * @param string $redirect Path to redirect to on login.
- * @return string temporary password URL.
+ * @return string lost password URL.
  */
 function wp_lostpassword_url( $redirect = '' ) {
 	$args = array(
-		'action' => 'temporarypassword',
+		'action' => 'lostpassword',
 	);
 
 	if ( ! empty( $redirect ) ) {
@@ -627,18 +621,14 @@ function wp_lostpassword_url( $redirect = '' ) {
 	$lostpassword_url = add_query_arg( $args, network_site_url( $wp_login_path, 'login' ) );
 
 	/**
-	 * Filters the Temporary Password URL. Same filter name as in wordpress but
-	 * accepting a url for the temporary password page.
+	 * Filters the lost Password URL.
 	 *
 	 * @since 2.8.0
-	 * @since calmPress 1.0.0 The lostpassword_url parameter from wordpress changes 
-	 *                        its name to better reflect almPress functionality.
-	 *                        
 	 *
-	 * @param string $temporarypassword_url The temporary password page URL.
-	 * @param string $redirect              The path to redirect to on login.
+	 * @param string $lostpassword_url The lost password page URL.
+	 * @param string $redirect         The path to redirect to on login.
 	 */
-	return apply_filters( 'lostpassword_url', $temporarypassword_url, $redirect );
+	return apply_filters( 'lostpassword_url', $lostpassword_url, $redirect );
 }
 
 /**

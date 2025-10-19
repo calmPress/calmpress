@@ -30,6 +30,8 @@ require __DIR__ . '/wp-load.php';
 function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 	global $error, $interim_login, $action;
 
+	$errors = null;
+
 	// Don't index any of these forms.
 	add_filter( 'wp_robots', 'wp_robots_sensitive_page' );
 	add_action( 'login_head', 'wp_strict_cross_origin_referrer' );
@@ -221,7 +223,7 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 			 *
 			 * @param string $messages Login messages.
 			 */
-			echo '<p class="message">' . apply_filters( 'login_messages', $messages ) . "</p>\n";
+			echo '<p id="login_message" class="message" aria-live="polite">' . apply_filters( 'login_messages', $messages ) . "</p>\n";
 		}
 
 		if ( ! empty( $errors ) ) {
@@ -236,6 +238,11 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 		}
 	} 
 	
+	if ( ! $messages ) {
+		// area to display JS errors.
+		echo '<div id="login_message" class="message" aria-live="polite"></div>';
+	}
+
 	if ( ! $errors ) {
 		// area to display JS errors.
 		echo '<div id="login_error" class="hidden" aria-live="polite"></div>';
@@ -459,7 +466,6 @@ $default_actions = array(
 	'retrievepassword',
 	'resetpass',
 	'rp',
-	'register',
 	'checkemail',
 	'confirmaction',
 	'login',
@@ -507,7 +513,6 @@ do_action( 'login_init' );
  *  - `login_form_login`
  *  - `login_form_logout`
  *  - `login_form_lostpassword`
-  *  - `login_form_register`
  *  - `login_form_resetpass`
  *  - `login_form_retrievepassword`
  *  - `login_form_rp`
@@ -598,7 +603,7 @@ switch ( $action ) {
 
 		/**
 		 * Fires before the lost password form.
-		 *
+		 * 
 		 * @since 1.5.1
 		 * @since 5.1.0 Added the `$errors` parameter.
 		 *
@@ -647,18 +652,6 @@ switch ( $action ) {
 
 		<p id="nav">
 			<a href="<?php echo esc_url( wp_login_url() ); ?>"><?php _e( 'Log in' ); ?></a>
-			<?php
-
-			if ( get_option( 'users_can_register' ) ) {
-				$registration_url = sprintf( '<a href="%s">%s</a>', esc_url( wp_registration_url() ), __( 'Register' ) );
-
-				echo esc_html( $login_link_separator );
-
-				/** This filter is documented in wp-includes/general-template.php */
-				echo apply_filters( 'register', $registration_url );
-			}
-
-			?>
 		</p>
 		<?php
 
@@ -704,98 +697,6 @@ switch ( $action ) {
 		wp_safe_redirect( admin_url( 'user-edit.php#password' ) );
 		break;
 
-	case 'register':
-		if ( is_multisite() ) {
-			/**
-			 * Filters the Multisite sign up URL.
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param string $sign_up_url The sign up URL.
-			 */
-			wp_redirect( apply_filters( 'wp_signup_location', network_site_url( 'wp-signup.php' ) ) );
-			exit;
-		}
-
-		if ( ! get_option( 'users_can_register' ) ) {
-			wp_redirect( site_url( 'wp-login.php?registration=disabled' ) );
-			exit;
-		}
-
-		$user_email = '';
-
-		if ( $http_post ) {
-
-			if ( isset( $_POST['user_email'] ) && is_string( $_POST['user_email'] ) ) {
-				$user_email = wp_unslash( $_POST['user_email'] );
-			}
-		}
-
-		$errors = register_new_user( md5( $user_email ), $user_email );
-		if ( ! is_wp_error( $errors ) ) {
-			$redirect_to = !empty( $_POST['redirect_to'] ) ? $_POST['redirect_to'] : 'wp-login.php?checkemail=registered';
-			wp_safe_redirect( $redirect_to );
-			exit();
-		} elseif ( email_exists( $user_email ) ) {
-			// We got an error because someone tried to register with an email address of an existing user.
-			// In that case send an email with a link to password reset.
-			login_retrieve_password( $user_email );
-			$redirect_to = !empty( $_POST['redirect_to'] ) ? $_POST['redirect_to'] : 'wp-login.php?checkemail=registered';
-			wp_safe_redirect( $redirect_to );
-			exit();
-		}
-
-		$registration_redirect = ! empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
-
-		/**
-		 * Filters the registration redirect URL.
-		 *
-		 * @since 3.0.0
-		 * @since 5.9.0 Added the `$errors` parameter.
-		 *
-		 * @param string       $registration_redirect The redirect destination URL.
-		 * @param int|WP_Error $errors                User id if registration was successful,
-		 *                                            WP_Error object otherwise.
-		 */
-		$redirect_to = apply_filters( 'registration_redirect', $registration_redirect, $errors );
-
-		login_header( __( 'Registration Form' ), '<p class="message register">' . __( 'Register For This Site' ) . '</p>', $errors );
-
-		?>
-		<form name="registerform" id="registerform" action="<?php echo esc_url( site_url( 'wp-login.php?action=register', 'login_post' ) ); ?>" method="post" novalidate="novalidate">
-		<p>
-			<label for="user_email"><?php _e('Email') ?><br />
-			<input type="email" name="user_email" id="user_email" class="input" value="<?php echo esc_attr( wp_unslash( $user_email ) ); ?>" size="25" /></label>
-		</p>
-			<?php
-			/**
-			 * Fires following the 'Email' field in the user registration form.
-			 *
-			 * @since 2.1.0
-			 */
-			do_action( 'register_form' );
-			?>
-
-			<p id="reg_passmail">
-				<?php _e( 'Registration confirmation will be emailed to you.' ); ?>
-			</p>
-			<br class="clear" />
-			<input type="hidden" id="redirect_to" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>" />
-			<p class="submit">
-				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Register' ); ?>" />
-			</p>
-		</form>
-
-		<p id="nav">
-			<a href="<?php echo esc_url( wp_login_url() ); ?>"><?php _e( 'Log in' ); ?></a>
-				<?php echo esc_html( $login_link_separator ); ?>
-			<a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?' ); ?></a>
-		</p>
-		<?php
-
-		login_footer( 'user_login' );
-		break;
-
 	case 'checkemail':
 		$redirect_to = admin_url();
 		$errors      = new WP_Error();
@@ -810,18 +711,6 @@ switch ( $action ) {
 				),
 				'message'
 			);
-		} elseif ( 'registered' === $_GET['checkemail'] ) {
-			$errors->add(
-				'registered',
-				sprintf(
-					/* translators: %s: Link to the login page. */
-					__( 'Registration complete. Please check your email, then visit the <a href="%s">login page</a>.' ),
-					wp_login_url()
-				),
-				'message'
-			);
-		} elseif ( 'magiclink' === $_GET['checkemail'] ) {
-			$errors->add( 'newpass', __( 'Check your email for your log in link.' ), 'message' );
 		}
 
 
@@ -896,162 +785,114 @@ switch ( $action ) {
 			$redirect_to = admin_url();
 		}
 
-		// Handle a magi link
-		if ( isset( $_GET['magiclink' ] ) && $_GET['magiclink' ] === '1' && isset( $_GET['id'] )) {
-			$id   = $_GET['id'];
-			$user = \WP_User::user_from_encrypted_string( $id );
-			if ( $user ) {
-				wp_clear_auth_cookie();
-				wp_set_auth_cookie( $user->ID );
-				wp_set_current_user( $user->ID );
-				wp_redirect( $redirect_to );
-				die();
-			} else {
+		$reauth = empty( $_REQUEST['reauth'] ) ? false : true;
+
+		// Will need session token if exists for interim login.
+		$cookie_parts  = wp_parse_auth_cookie( '', 'logged_in' );
+		$session_token = $cookie_parts['token'] ?? '';
+
+		$user = wp_signon( array(), $secure_cookie );
+
+		// If reauthentication failed, adjust message to be more relevant
+		// to the reauthentication dialog.
+		if ( is_wp_error( $user ) && $interim_login ) {
+			if ( $user->get_error_code() === 'incorrect_password' || $user->get_error_code() === 'invalid_username' ) {
+				$user = new WP_Error( 'incorrect_password', __( 'The password you entered is incorrect.' ) );
+			}				
+		}
+
+		// wp_signon changes the session token at the cookie which invalidates
+		// nonces, therefor if reauth succeeded set the token to the original one.
+		if ( ! is_wp_error( $user ) && $interim_login && $session_token ) {
+
+			// Set the session token in the cookie back to original one.
+			wp_set_auth_cookie( $user->ID, true, '', $session_token );
+
+			// this might not be needed, but better make sure all globals are
+			// up to date after the session token change.
+			wp_set_current_user( $user->ID );
+		}
+
+		// Check that we successfuly set the cookie. If not we basically
+		// failed to login the various messages are not very important by themself.
+		if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
+			if ( headers_sent() ) {
 				$user = new WP_Error(
-					'faulty_magiclink',
-					__( 'This login link is invalid or expired. You can request a new one to be sent.' )
+					'test_cookie',
+					sprintf(
+						/* translators: 1: Browser cookie documentation URL, 2: Support forums URL. */
+						__( '<strong>Error</strong>: Cookies are blocked due to unexpected output. For help, please see <a href="%1$s">this documentation</a> or try the <a href="%2$s">support forums</a>.' ),
+						__( 'https://wordpress.org/support/article/cookies/' ),
+						__( 'https://wordpress.org/support/forums/' )
+					)
+				);
+			} elseif ( isset( $_POST['testcookie'] ) && empty( $_COOKIE[ TEST_COOKIE ] ) ) {
+				// If cookies are disabled, we can't log in even with a valid user and password.
+				$user = new WP_Error(
+					'test_cookie',
+					sprintf(
+						/* translators: %s: Browser cookie documentation URL. */
+						__( '<strong>Error</strong>: Cookies are blocked or not supported by your browser. You must <a href="%s">enable cookies</a> to use WordPress.' ),
+						__( 'https://wordpress.org/support/article/cookies/#enable-cookies-in-your-browser' )
+					)
 				);
 			}
 		}
 
-		$reauth = empty( $_REQUEST['reauth'] ) ? false : true;
+		$requested_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		/**
+		 * Filters the login redirect URL.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param string           $redirect_to           The redirect destination URL.
+		 * @param string           $requested_redirect_to The requested redirect destination URL passed as a parameter.
+		 * @param WP_User|WP_Error $user                  WP_User object if login was successful, WP_Error object otherwise.
+		 */
+		$redirect_to = apply_filters( 'login_redirect', $redirect_to, $requested_redirect_to, $user );
 
-		if ( $interim_login ) {
-			$form_type = 'interim';
-		} elseif ( isset( $_GET['magiclink' ] ) && $_GET['magiclink' ] === '1' ) {
-			$form_type = 'magiclink';
-		} elseif ( isset( $_POST['form_type'] ) ) {
-			$t = $_POST['form_type'];
-			if ( in_array( $t, [ 'password', 'magiclink', 'webauthn' ] ) ) {
-				$form_type = $t;
-			}
-		} else {
-			$form_type = 'magiclink';
-		}
+		if ( ! is_wp_error( $user ) && ! $reauth ) {
+			if ( $interim_login ) {
+				$message       = '<p class="message">' . __( 'You have logged in successfully.' ) . '</p>';
+				$interim_login = 'success';
+				login_header( '', $message );
 
-		// If the form is in magic link form, try to send the mail.
-		if ( $form_type === 'magiclink' ) {
-			if ( isset( $_POST['log'] ) ) {
-				$email = trim( wp_unslash( $_POST['log'] ) );
-				if ( ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
-					$user = new WP_Error( 'invalid_email', __( 'Please enter a valid email address.' ) );
-				} else {
-					$user = get_user_by( 'email', $email );
-					if ( $user ) {
-						$user->magic_login_email( $redirect_to );
-					}
-					wp_safe_redirect( 'wp-login.php?checkemail=magiclink' );
-				}
-			}
-		} else {
+				?>
+				</div>
+				<?php
 
-			// Will need session token if exists for interim login.
-			$cookie_parts  = wp_parse_auth_cookie( '', 'logged_in' );
-			$session_token = $cookie_parts['token'] ?? '';
+				/** This action is documented in wp-login.php */
+				do_action( 'login_footer' );
 
-			$user = wp_signon( array(), $secure_cookie );
-
-			// If reauthentication failed, adjust message to be more relevant
-			// to the reauthentication dialog.
-			if ( is_wp_error( $user ) && $interim_login ) {
-				if ( $user->get_error_code() === 'incorrect_password' || $user->get_error_code() === 'invalid_username' ) {
-					$user = new WP_Error( 'incorrect_password', __( 'The password you entered is incorrect.' ) );
-				}				
-			}
-
-			// wp_signon changes the session token at the cookie which invalidates
-			// nonces, therefor if reauth succeeded set the token to the original one.
-			if ( ! is_wp_error( $user ) && $interim_login && $session_token ) {
-
-				// Set the session token in the cookie back to original one.
-				wp_set_auth_cookie( $user->ID, true, '', $session_token );
-
-				// this might not be needed, but better make sure all globals are
-				// up to date after the session token change.
-			    wp_set_current_user( $user->ID );
-			}
-
-			// Check that we successfuly set the cookie. If not we basically
-			// failed to login the various messages are not very important by themself.
-			if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-				if ( headers_sent() ) {
-					$user = new WP_Error(
-						'test_cookie',
-						sprintf(
-							/* translators: 1: Browser cookie documentation URL, 2: Support forums URL. */
-							__( '<strong>Error</strong>: Cookies are blocked due to unexpected output. For help, please see <a href="%1$s">this documentation</a> or try the <a href="%2$s">support forums</a>.' ),
-							__( 'https://wordpress.org/support/article/cookies/' ),
-							__( 'https://wordpress.org/support/forums/' )
-						)
-					);
-				} elseif ( isset( $_POST['testcookie'] ) && empty( $_COOKIE[ TEST_COOKIE ] ) ) {
-					// If cookies are disabled, we can't log in even with a valid user and password.
-					$user = new WP_Error(
-						'test_cookie',
-						sprintf(
-							/* translators: %s: Browser cookie documentation URL. */
-							__( '<strong>Error</strong>: Cookies are blocked or not supported by your browser. You must <a href="%s">enable cookies</a> to use WordPress.' ),
-							__( 'https://wordpress.org/support/article/cookies/#enable-cookies-in-your-browser' )
-						)
-					);
-				}
-			}
-
-			$requested_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
-			/**
-			 * Filters the login redirect URL.
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param string           $redirect_to           The redirect destination URL.
-			 * @param string           $requested_redirect_to The requested redirect destination URL passed as a parameter.
-			 * @param WP_User|WP_Error $user                  WP_User object if login was successful, WP_Error object otherwise.
-			 */
-			$redirect_to = apply_filters( 'login_redirect', $redirect_to, $requested_redirect_to, $user );
-
-			if ( ! is_wp_error( $user ) && ! $reauth ) {
-				if ( $interim_login ) {
-					$message       = '<p class="message">' . __( 'You have logged in successfully.' ) . '</p>';
-					$interim_login = 'success';
-					login_header( '', $message );
-
+				if ( $customize_login ) {
 					?>
-					</div>
+					<script type="text/javascript">setTimeout( function(){ new wp.customize.Messenger({ url: '<?php echo wp_customize_url(); ?>', channel: 'login' }).send('login') }, 1000 );</script>
 					<?php
-
-					/** This action is documented in wp-login.php */
-					do_action( 'login_footer' );
-
-					if ( $customize_login ) {
-						?>
-						<script type="text/javascript">setTimeout( function(){ new wp.customize.Messenger({ url: '<?php echo wp_customize_url(); ?>', channel: 'login' }).send('login') }, 1000 );</script>
-						<?php
-					}
-
-					?>
-					</body></html>
-					<?php
-
-					exit;
 				}
 
-				if ( ( empty( $redirect_to ) || 'wp-admin/' === $redirect_to || admin_url() === $redirect_to ) ) {
-					// If the user doesn't belong to a blog, send them to user admin. If the user can't edit posts, send them to their profile.
-					if ( is_multisite() && ! get_active_blog_for_user( $user->ID ) && ! is_super_admin( $user->ID ) ) {
-						$redirect_to = user_admin_url();
-					} elseif ( is_multisite() && ! $user->has_cap( 'read' ) ) {
-						$redirect_to = get_dashboard_url( $user->ID );
-					} elseif ( ! $user->has_cap( 'edit_posts' ) ) {
-						$redirect_to = $user->has_cap( 'read' ) ? admin_url( 'user-edit.php' ) : home_url();
-					}
+				?>
+				</body></html>
+				<?php
 
-					wp_redirect( $redirect_to );
-					exit;
-				}
-
-				wp_safe_redirect( $redirect_to );
 				exit;
 			}
+
+			if ( ( empty( $redirect_to ) || 'wp-admin/' === $redirect_to || admin_url() === $redirect_to ) ) {
+				// If the user doesn't belong to a blog, send them to user admin. If the user can't edit posts, send them to their profile.
+				if ( is_multisite() && ! get_active_blog_for_user( $user->ID ) && ! is_super_admin( $user->ID ) ) {
+					$redirect_to = user_admin_url();
+				} elseif ( is_multisite() && ! $user->has_cap( 'read' ) ) {
+					$redirect_to = get_dashboard_url( $user->ID );
+				} elseif ( ! $user->has_cap( 'edit_posts' ) ) {
+					$redirect_to = $user->has_cap( 'read' ) ? admin_url( 'user-edit.php' ) : home_url();
+				}
+
+				wp_redirect( $redirect_to );
+				exit;
+			}
+
+			wp_safe_redirect( $redirect_to );
+			exit;
 		}
 
 		$errors = $user;
@@ -1072,14 +913,10 @@ switch ( $action ) {
 			// Some parts of this script use the main login form to display a message.
 			if ( isset( $_GET['loggedout'] ) && $_GET['loggedout'] ) {
 				$errors->add( 'loggedout', __( 'You are now logged out.' ), 'message' );
-			} elseif ( isset( $_GET['registration'] ) && 'disabled' === $_GET['registration'] ) {
-				$errors->add( 'registerdisabled', __( 'User registration is currently not allowed.' ) );
 			} elseif ( isset( $_GET['checkemail'] ) && 'confirm' === $_GET['checkemail'] ) {
 				$errors->add( 'confirm', __( 'Check your email for the confirmation link.' ), 'message' );
 			} elseif ( isset( $_GET['checkemail'] ) && 'newpass' === $_GET['checkemail'] ) {
 				$errors->add( 'newpass', __( 'Check your email for your new password.' ), 'message' );
-			} elseif ( isset( $_GET['checkemail'] ) && 'registered' === $_GET['checkemail'] ) {
-				$errors->add( 'registered', __( 'Registration complete. Please check your email.' ), 'message' );
 			} elseif ( isset( $_GET['redirect_to'] ) && false !== strpos( $_GET['redirect_to'], 'wp-admin/authorize-application.php' ) ) {
 				$query_component = wp_parse_url( $_GET['redirect_to'], PHP_URL_QUERY );
 				$query           = array();
@@ -1155,62 +992,47 @@ switch ( $action ) {
 		wp_enqueue_script( 'user-profile' );
 
 		$email_class = '';
-		$password_class = '';
-		$webauthn_class = '';
 		if ( $interim_login ) {
 			$email_class = 'hidden';
-		} else {
-			if ( $form_type !== 'password' ) {
-				$password_class = 'hidden';
-			}
-
-			if ( $form_type !== 'webauthn' ) {
-				$webauthn_class = 'hidden';
-			}
 		}
-
 		?>
 
 		<form name="loginform" id="loginform" action="<?php echo esc_url( site_url( 'wp-login.php', 'login_post' ) ); ?>" method="post">
-			<input id="form_type" name="form_type" type="hidden" value="<?php echo esc_attr( $form_type );?>">
 			<p class="user-email-wrap <?php echo $email_class;?>">
 				<label for="user_login"><?php _e( 'Email Address' ); ?></label>
-				<input type="text" name="log" id="user_login" <?php echo $aria_describedby_error; ?> class="input" value="<?php echo esc_attr( $user_email ); ?>" size="20" autocapitalize="off" />
+				<input name="log" id="user_login" autocomplete="email" type="email" <?php echo $aria_describedby_error; ?> class="input" value="<?php echo esc_attr( $user_login ); ?>" size="20" autocapitalize="off" required />
 			</p>
 
-			<div class="user-pass-wrap <?php echo $password_class; ?>">
+			<div class="user-pass-wrap">
 				<label for="user_pass"><?php _e( 'Password' ); ?></label>
 				<div class="wp-pwd">
-					<input type="password" name="pwd" id="user_pass"<?php echo $aria_describedby_error; ?> class="input password-input" value="" size="20" />
+					<input type="password" name="pwd" id="user_pass"<?php echo $aria_describedby_error; ?> class="input password-input" value="" size="20" required />
 					<button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0" aria-label="<?php esc_attr_e( 'Show password' ); ?>">
 						<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
 					</button>
 				</div>
 			</div>
+			<button id="get_otp" type="button" class="button button-secondary"><?php esc_html_e( 'Email me a temporary password' );?></button>
 
-			<div class="webauthn <?php echo $webauthn_class; ?>" aria-hidden="true">
-				<button id="webauthn_button" type="button" class="button-primary"><?php esc_html_e( 'Log in with this device' );?></button>
-			</div>
 			<?php
-
+			// The div has to be tight around the result of the login_form
+			// action for css to work properly.
+			echo '<div id="login-form-injections">';
 			/**
 			 * Fires following the 'Password' field in the login form.
 			 *
 			 * @since 2.1.0
 			 */
 			do_action( 'login_form' );
-
+			echo '</div>';
 			?>
 			<p class="submit">
 				<?php
 
-				$button_label = match ( $form_type ) {
-					'interim'   => __( 'Verify' ),
-					'magiclink' => __( 'Email a Log In link' ),
-					'password'  => __( 'Log In' ),
-				};
+				$button_label = __( 'Log In' );
 
-				if ( $form_type === 'interim' ) {
+				if ( $interim_login ) {
+					$button_label = __( 'Verify' );
 					?>
 					<input type="hidden" name="interim-login" value="1" />
 				<?php } ?>
@@ -1227,43 +1049,21 @@ switch ( $action ) {
 				?>
 				<input type="hidden" name="testcookie" value="1" />
 			</p>
-			<?php
-			if ( $form_type !== 'interim' ) {
-			?>
-				<div id="form_switch">
-					<h3><?php esc_html_e( 'Other login options:' ); ?></h3>
-					<button type="button" data-text="<?php esc_attr_e( 'Log In' );?>" data-notice="<?php esc_attr_e( 'Enter email and password to login' );?>" <?php if ( $form_type === 'password' ) { echo 'class="hidden"';}?> id="use_password"><span class="emoji" aria-hidden="true">🔐 </span><span class="text"><?php esc_html_e( 'Enter password' );?></span></button>
-					<button type="button" data-text="<?php esc_attr_e( 'Email a Log In link' );?>" data-notice="<?php esc_attr_e( 'Enter email to receive a login link to your inbox' );?>" <?php if ( $form_type === 'magiclink' ) { echo 'class="hidden"';}?> id="use_magiclink"><span class="emoji" aria-hidden="true">📩 </span><span class="text"><?php esc_html_e( 'Email a login link' );?></span></button>
-					<button type="button" aria-hidden="true" <?php if ( $form_type === 'webauthn' ) { echo 'class="hidden"';}?> id="use_webauthn"><span class="emoji" aria-hidden="true">💻 </span><span class="text"><?php esc_html_e( 'Registered Device' );?></span></button>
-				</div>
-			<?php } ?>
+
+			<div class="webauthn-separator" aria-hidden="true">
+				<span><?php esc_html_e( 'or' );?></span>
+			</div>
+
+			<p class="submit webauthn" aria-hidden="true">
+				<input type="button" id="webauthn_button" class="button button-primary" value="<?php esc_attr_e( 'Log in with this device' );?>">
+			</p>
 		</form>
-		<div id="login_aria_notice" class="screen-reader-only" aria-live="polite"></div>
 
 		<?php
 
-		if ( ! $interim_login ) {
-			?>
-			<p id="nav">
-				<?php
-
-				if ( get_option( 'users_can_register' ) ) {
-					$registration_url = sprintf( '<a href="%s">%s</a>', esc_url( wp_registration_url() ), __( 'Register' ) );
-
-					/** This filter is documented in wp-includes/general-template.php */
-					echo apply_filters( 'register', $registration_url );
-
-					echo esc_html( $login_link_separator );
-				}
-
-				?>
-				<a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?' ); ?></a>
-			</p>
-			<?php
-		} else {
+		if ( $interim_login ) {
 			?>
 			<div id="interim_nav">
-				<p><a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'Lost your password?' ); ?></a></p>
 				<p><a href="<?php echo esc_url( wp_logout_url() ); ?>"><?php esc_html_e( 'Log out' ); ?></a></p>
 			</div>
 			<?php
@@ -1278,7 +1078,7 @@ switch ( $action ) {
 		} else {
 			$login_script .= 'd = document.getElementById( "user_login" );';
 
-			if ( $errors->get_error_code() === 'invalid_username' ) {
+			if ( $errors && $errors->get_error_code() === 'invalid_username' ) {
 				$login_script .= 'd.value = "";';
 			}
 		}

@@ -366,8 +366,6 @@
 		});
 
 		bindPasswordForm();
-		bindPasswordResetLink();
-		bindPasswordResetLink();
 
 		// if we have a fragment of password show password fields.
 		if ( window.location.hash === '#password' ) {

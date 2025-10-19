@@ -65,6 +65,10 @@ p {
 	border-left-color: #d63638;
 }
 
+.login input:invalid {
+	border-color: #d63638;
+}
+
 #loginform p.submit,
 .login-action-lostpassword p.submit {
 	border: none;
@@ -127,6 +131,45 @@ p {
 
 .login .wp-pwd {
 	position: relative;
+}
+
+#login-form-injections {
+	clear:both;
+	margin-top:16px;
+}
+
+#login-form-injections:empty {
+	display:none;
+}
+
+#get_otp {
+	float:left;
+	display:block;
+}
+
+.webauthn-separator {
+  position: relative;
+  text-align: center;
+  padding: 24px 0;
+  color: #555;
+  font-size: 13px;
+  clear:both;
+}
+
+.webauthn-separator::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  border-top: 1px solid #ddd;
+  transform: translateY(-50%);
+}
+
+.webauthn-separator span {
+  position: relative;
+  background: #fff; /* match login page background */
+  padding: 0 10px;
 }
 
 .no-js .hide-if-no-js {
@@ -213,6 +256,10 @@ p {
 	padding: 0;
 }
 
+#loginform p.submit {
+	float:right;
+}
+
 .login label {
 	font-size: 14px;
 	line-height: 1.5;
@@ -256,7 +303,7 @@ p {
 }
 
 #login {
-	width: 320px;
+	width: 360px;
 	padding: 5% 0 0;
 	margin: auto;
 }
@@ -342,39 +389,16 @@ p {
 	clip: rect(0, 0, 0, 0); /* prevent scrollbar */
 }
 
-.webauthn.hidden {
-	display:none;
+#loginform p.submit.webauthn {
+	float:none;
 }
 
 .login .webauthn .button-primary {
-	width:100%
+	width:100%;
 }
 
-#form_switch {
-	padding-top:10px;
-	clear:both;
-}
-
-#form_switch button {
-	background: none;
-	border: none;
-	color: #0073aa;
-	cursor: pointer;
-	font: inherit;
-	padding: 0;
-	display:block;
-}
-
-#form_switch button.hidden {
+#login_message:empty{
 	display:none;
-}
-
-#form_switch button .text {
-	text-decoration: underline;
-}
-
-#form_switch h3 {
-	font-size: inherit;
 }
 
 .js.login-action-rp input[type="text"]:not([readonly]),
