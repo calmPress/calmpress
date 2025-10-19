@@ -956,13 +956,15 @@ switch ( $action ) {
 			$message = '<h2>' .
 					esc_html__( 'Confirm your identity' ) .
 				'</h2>';
-			$message .= '<div id="login_identity">';
 			$user   = new WP_User( wp_get_current_user() );
 			$avatar = $user->avatar();
 			$html   = $avatar->html( 64 );
-			$message .= "<p>$html</p>";
-			$message .= '<p id="login_display_name">'. esc_html( $user->display_name) . '</p>';
-			$message .= '<p id="login_email">' . esc_html( $user->user_email) . '</p>';
+			$message .= '<div class="reauth-identity">';
+				$message .= '<div class="reauth-avatar">' . $html . '</div>';
+				$message .= '<div class="reauth-user-info">';
+					$message .= '<div class="reauth-name">' . esc_html( $user->display_name ) . '</div>';
+					$message .= '<div class="reauth-email">' . esc_html( $user->user_email ) . '</div>';
+				$message .= '</div>';
 			$message .= '</div>';
 		} else {
 			$message ='<h2>' .

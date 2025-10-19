@@ -187,16 +187,29 @@ p {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.login #login_identity {
-	text-align: center;
+.login .reauth-identity {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	margin-bottom: 15px;
+	gap: 1em;
+	text-align: left;
+	line-height: 1.3;
 }
 
-.login #login_display_name {
+.login .reauth-avatar {
+	flex-shrink: 0;
+}
+
+.reauth-user-info {
+	line-height: 1.3;
+}
+
+.login .reauth-name {
 	font-size: 18px;
 }
 
-.login #login_email {
+.login .reauth-email {
 	font-size: 13px;
 }
 
