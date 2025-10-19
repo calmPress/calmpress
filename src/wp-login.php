@@ -1061,14 +1061,6 @@ switch ( $action ) {
 
 		<?php
 
-		if ( $interim_login ) {
-			?>
-			<div id="interim_nav">
-				<p><a href="<?php echo esc_url( wp_logout_url() ); ?>"><?php esc_html_e( 'Log out' ); ?></a></p>
-			</div>
-			<?php
-		}
-
 		$login_script  = 'function wp_attempt_focus() {';
 		$login_script .= 'setTimeout( function() {';
 		$login_script .= 'try {';
