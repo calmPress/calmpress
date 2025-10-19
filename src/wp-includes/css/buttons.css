@@ -389,13 +389,4 @@ TABLE OF CONTENTS:
 		margin-top: 10px;
 		margin-left: 5px;
 	}
-
-	/* Reset responsive styles on Log in button on iframed login form */
-
-	.interim-login .button.button-large {
-		min-height: 30px;
-		line-height: 2;
-		padding: 0 12px 2px;
-	}
-
 }
