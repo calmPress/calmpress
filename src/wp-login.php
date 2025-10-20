@@ -996,6 +996,8 @@ switch ( $action ) {
 		$email_class = '';
 		if ( $interim_login ) {
 			$email_class = 'hidden';
+			$user = wp_get_current_user();
+			$user_login = $user->user_email;
 		}
 		?>
 
