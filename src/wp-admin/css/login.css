@@ -142,6 +142,10 @@ p {
 	display:none;
 }
 
+.login .notice {
+	margin-bottom: 16px;
+}
+
 #get_otp {
 	float:left;
 	display:block;

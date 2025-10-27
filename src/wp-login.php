@@ -238,15 +238,6 @@ function login_header( $title = 'Log In', $message = '', $wp_error = null ) {
 		}
 	} 
 	
-	if ( ! $messages ) {
-		// area to display JS errors.
-		echo '<div id="login_message" class="message" aria-live="polite"></div>';
-	}
-
-	if ( ! $errors ) {
-		// area to display JS errors.
-		echo '<div id="login_error" class="hidden" aria-live="polite"></div>';
-	}
 
 } // End of login_header().
 
@@ -1016,6 +1007,7 @@ switch ( $action ) {
 					</button>
 				</div>
 			</div>
+			<?php calmpress\utils\notice_area( 'otp_message', 10 );?>
 			<button id="get_otp" type="button" class="button button-secondary"><?php esc_html_e( 'Email me a temporary password' );?></button>
 
 			<?php
@@ -1057,10 +1049,22 @@ switch ( $action ) {
 			<div class="webauthn-separator" aria-hidden="true">
 				<span><?php esc_html_e( 'or' );?></span>
 			</div>
-
-			<p class="submit webauthn" aria-hidden="true">
-				<input type="button" id="webauthn_button" class="button button-primary" value="<?php esc_attr_e( 'Log in with this device' );?>">
-			</p>
+			<?php calmpress\utils\notice_area( 'webauthn_message', 10 );?>
+			<?php
+				$button_label = __( 'Log in with this device' );
+				$show_webauthn = true;
+				if ( $interim_login ) {
+					$show_webauthn = count( $user->webauthn_registered_devices()->devices() ) > 0;
+					$button_label = __( 'Verify with this device' );
+				}
+				if ( $show_webauthn ) {
+			?>
+				<p class="submit webauthn" aria-hidden="true">
+					<input type="button" id="webauthn_button" class="button button-primary" value="<?php echo esc_attr( $button_label );?>">
+				</p>
+			<?php } else { ?>
+				<p><?php esc_html_e( 'You can register your device in your profile to enable log in or verification with it next time' );?></p>
+			<?php } ?>
 		</form>
 
 		<?php

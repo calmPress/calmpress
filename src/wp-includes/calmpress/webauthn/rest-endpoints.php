@@ -269,14 +269,24 @@ function login_challenge(): \WP_REST_Response {
 }
 
 /**
- * Handle the request to register an authenticator.
+ * Handle the request to log in a user based on authenticator data.
+ * 
+ * There are two possible flows here
+ * 1. There is no logged in user, in which case if the user matching the credentials
+ *    is found it is logged in (cookies set)
+ * 
+ * 2. A user is already logged in, in which case the API is successful only if
+ *    the user identified by the authenticator data is the same as the logged in user.
+ *    This is useful for refreshing user sessions.
+ * 
+ * API might fail if the challenge sent do not match any expected challenged in the
+ * server.
  * 
  * @since 1.0.0
  * 
  * @return \WP_REST_Response A 400 if operation failed and message explaning the failure.
- *                           A 200 If device added with a message indicating if
- *                           more can be added and the various properties of the
- *                           devie as know to the server (credential id, descripttion, last use time).
+ *                           A 500 if challenge was not matched.
+ *                           A 200 If user was logged in or reauthenticated.
  */
 function login( \WP_REST_Request $request ): \WP_REST_Response {
 
@@ -293,7 +303,7 @@ function login( \WP_REST_Request $request ): \WP_REST_Response {
 	$transient_key = 'webauthn_challenge_login_' . $challenge;
 	if ( ! get_transient( $transient_key ) ) {
 		return new \WP_REST_Response(
-			[ 'message' => __( 'Your login attempt took too long. Please try again.' ) ],
+			[ 'message' => __( 'Your attempt took too long. Please try again.' ) ],
 			400
 		);
 	}
@@ -308,6 +318,16 @@ function login( \WP_REST_Request $request ): \WP_REST_Response {
 		);
 	}
 
+	$current_user_id = get_current_user_id();
+	if ( $current_user_id !== 0 ) {
+		// If a user is already logged in very its the same user being authentiated.
+		if ( $current_user_id !== $user_id ) {
+			return new \WP_REST_Response(
+				[ 'message' => __( 'You can not verify in with this device for another user. Please use your own account.' ) ],
+				400
+			);
+		}
+	}
 	$webauthn_user = get_user_by( 'id', $user_id );
 
 	// Set the authenticate filter to always authenticate the user in the context

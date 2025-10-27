@@ -43,27 +43,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
     }
 
     /**
-     * Display a text in the message area.
-     * 
-     * @param {string} text The text to display.
-     */
-    function set_message( text ) {
-        const errorcont = document.getElementById( 'login_message' );
-        errorcont.textContent = text;
-    }
-
-    /**
-     * Display a text in the error area.
-     * 
-     * @param {string} text The text to display.
-     */
-    function set_error( text ) {
-        const errorcont = document.getElementById( 'login_error' );
-        errorcont.className = '';
-        errorcont.textContent = text;
-    }
-
-    /**
      * Convert a string which is assumed to be base64url encoded to its original
      * an Uint8Array representation.
      * 
@@ -132,10 +111,15 @@ document.addEventListener( 'DOMContentLoaded', function () {
             };
 
             const login_response = await calm_fetch.post_no_nonce( 'calmpress/webauthn/login', data );
-            window.location.href = login_response.redirect_to;
+            const isReauthDialog = new URLSearchParams(window.location.search).has('interim-login');
+            if ( isReauthDialog ) {
+                window.parent.jQuery( window.parent.document ).trigger( 'heartbeat-tick', [ { 'wp-auth-check':true }, 'heartbeat' ] );
+            } else {
+                window.location.href = login_response.redirect_to;
+            }
         } catch ( error ) {
             if ( error instanceof calm_fetch_error ) {
-                set_error( error.cause_message() );
+                notice_manager.show( 'webauthn_message', error.cause_message(), 'error' );
             } else {
                 switch ( error.name ) {
                     case 'NotAllowedError':
@@ -155,10 +139,11 @@ document.addEventListener( 'DOMContentLoaded', function () {
                 email: email
             }
             const response_data = await calm_fetch.post_no_nonce( 'calmpress/send_otp', data );
-            set_message( response_data.message );
+            notice_manager.show( 'otp_message', response_data.message, 'success' );
+            cp_$( '#user_pass' ).setAttribute( 'autocomplete', 'one-time-code' );
         } catch ( error ) {
             if ( error instanceof calm_fetch_error ) {
-                set_error( error.cause_message() );
+                notice_manager.show( 'otp_message', error.cause_message(), 'error' );
             } else {
                 switch ( error.name ) {
                     case 'NotAllowedError':
