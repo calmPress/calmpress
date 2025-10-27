@@ -1234,7 +1234,8 @@ function wp_default_scripts( $scripts ) {
 		. 'calm_fetch.nonce = "' . esc_js( $calm_fetch_nonce ) . '";' . "\n"
 	);
 
-	$scripts->add( 'calm-login', "/wp-includes/js/cp-login$suffix.js", [ 'calm-utils' ], false, 1 );
+	$scripts->add( 'calm-notice', "/wp-includes/js/cp-notice$suffix.js", [], false, 1 );
+	$scripts->add( 'calm-login', "/wp-includes/js/cp-login$suffix.js", [ 'calm-utils', 'calm-notice' ], false, 1 );
 
 	if ( is_admin() ) {
 		$scripts->add( 'admin-tags', "/wp-admin/js/tags$suffix.js", array( 'jquery', 'wp-ajax-response' ), false, 1 );
@@ -1435,7 +1436,7 @@ function wp_default_styles( $styles ) {
 
 	$styles->add( 'wp-admin', false, array( 'dashicons', 'common', 'forms', 'admin-menu', 'dashboard', 'list-tables', 'edit', 'revisions', 'media', 'themes', 'nav-menus', 'widgets', 'site-icon', 'l10n' ) );
 
-	$styles->add( 'login', "/wp-admin/css/login$suffix.css", array( 'dashicons', 'buttons', 'forms', 'l10n' ) );
+	$styles->add( 'login', "/wp-admin/css/login$suffix.css", array( 'dashicons', 'buttons', 'forms', 'l10n', 'calm-notice' ) );
 	$styles->add( 'install', "/wp-admin/css/install$suffix.css", array( 'dashicons', 'buttons', 'forms', 'l10n' ) );
 	$styles->add( 'wp-color-picker', "/wp-admin/css/color-picker$suffix.css" );
 	$styles->add( 'customize-controls', "/wp-admin/css/customize-controls$suffix.css", array( 'wp-admin', 'colors', 'imgareaselect' ) );
@@ -1471,6 +1472,12 @@ function wp_default_styles( $styles ) {
 	$styles->add(
 		'wp-editor-classic-layout-styles',
 		"/wp-includes/css/dist/edit-post/classic$suffix.css",
+		array()
+	);
+
+	$styles->add(
+		'calm-notice',
+		"/wp-includes/css/cp-notice$suffix.css",
 		array()
 	);
 
