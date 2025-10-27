@@ -295,28 +295,27 @@ class jquery_like_element_wrapper {
         return this;
     }
     /**
-     * Visualy show an element by manipulating its display style.
+     * Visualy show an element by manipulating its hidden attribute and display
+     * style, fetching the style from a data attribute where it should be
+     * if the element was hidden using hide() method.
      * 
      * @returns {jquery_like_element_wrapper} The element for easy chaining.
      */
     show() {
-        if ( this.el.tagName == 'SPAN' ) {
-            this.el.style.display = 'inline';
-        } else if ( this.el.tagName == 'BUTTON' ) {
-             this.el.style.display = 'inline-block';
-        } else {
-            this.el.style.display = 'block';
-        }
-
+        this.el.hidden == false;
+        this.el.style.display = this.el.dataset.display || 'block';
         return this;
     }
 
     /**
-     * Visually hide an element by manipulating its display style.
+     * Visually hide an element by manipulating its its hidden attribute and display
+     * style while storing the current style as a data attribute.
      * 
      * @returns {jquery_like_element_wrapper} The element for easy chaining.
      */
     hide() {
+        this.el.hidden = true;
+        this.el.dataset.display = getComputedStyle( this.el ).display;
         this.el.style.display = 'none';
         return this;
     }
