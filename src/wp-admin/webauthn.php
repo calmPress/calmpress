@@ -41,7 +41,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 <p><?php esc_html_e( 'Any changes you make here are saved automatically.' ); ?></p>
 
 <?php // the section is enabled in JS ?>
-<?php \calmpress\utils\html_for_dissmissable_notice( 'webauthn_register_device_message' );?>
+<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'webauthn_register_device_message' );?>
 <table id="register_device_webauthn" class="form-table" role="presentation" style="display:none">
 	<tr>
 		<th>
@@ -61,7 +61,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 	</tr>
 </table>
 
-<?php \calmpress\utils\html_for_dissmissable_notice( 'webauthn_devices_table_message' );?>
+<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'webauthn_devices_table_message' );?>
 <table id="webauthn_devices_table" class="form-table" role="presentation">
 	<tr>
 		<th>

@@ -400,6 +400,91 @@ function asset_version( string $asset ): string {
 }
 
 /**
+ * The types of noticess the notice APIs support.
+ * 
+ * The string associated with the enum value is the one that will be
+ * used as the type for the notice-{type} class
+ */
+enum notice_type: string {
+	case SUCCESS = 'success';
+	case ERROR   = 'error';
+	case WARNING = 'warning';
+	case INFO    = 'info';
+	case HIDDEN  = 'hidden';
+};
+
+/**
+ * Output the HTML, CSS and JS for a notice container with a message and the JS
+ * enabling the manual and auto dismissle.
+ * 
+ * @since 1.0.0
+ * 
+ * @param string $id      The id of the generated div.
+ * @param int    $auto_dismiss_time The time in seconds after which the notice will be
+ *                                  automatically hidden.
+ *                                  A value of 0 indicates that the notie should not be
+ *                                  automatically hidden.
+ * @param string $class   The class string that can be added to the class attribute of 
+ *                        the element.
+ * @param string $message The message to display at the notice, if empty the notice will
+ *                        be hidden.
+ *                        It should be a properly escaped HTML.
+ */
+function notice_area_with_message(
+	string $id,
+	int $auto_dismiss_time,
+	string $class = '',
+	notice_type $type = notice_type::HIDDEN,
+	string $message = '',
+): void {
+	$id          = esc_attr( $id );
+	$class       = esc_attr( $class );
+	$type        = $type->name;
+	$dismiss_msg = esc_attr__( 'Dismiss this notice.' );
+	$hidden      = '';
+
+	if ( empty( $message ) ) {
+		$type = notice_type::HIDDEN->name;
+	}
+
+	if ( $type === notice_type::HIDDEN->name ) {
+		$hidden = 'hidden';
+	}
+
+	$type = strtolower( $type );
+echo <<<EOT
+<div id="$id" class="notice notice-$type $class" $hidden data-dismiss="$auto_dismiss_time" role="alert">
+  <p>$message</p>
+  <button type="button" class="notice-dismiss" aria-label="$dismiss_msg"></button>
+</div>
+EOT;
+}
+
+/**
+ * Output the HTML, CSS and JS for a notice container with the JS
+ * enabling the manual and auto dismissle.
+ * 
+ * A simple wrapper around notice_area_with_message
+ * 
+ * @since 1.0.0
+ * 
+ * @param string $id      The id of the generated div.
+ * @param int    $auto_dismiss_time The time in seconds after which the notice will be
+ *                                  automatically hidden.
+ *                                  A value of 0 indicates that the notie should not be
+ *                                  automatically hidden.
+ * @param string $class   The class string that can be added to the class attribute of 
+ *                        the element.
+ */
+function notice_area(
+	string $id,
+	int $auto_dismiss_time,
+	string $class = '',
+): void {
+	notice_area_with_message( $id, $auto_dismiss_time, $class );
+}
+
+/**
  * Output the HTML, CSS and JS for a dismissable notice container and the JS enabling the
  * dismissle.
  * 
@@ -409,7 +494,7 @@ function asset_version( string $asset ): string {
  * 
  * @param string $id The id of the generated div.
  */
-function html_for_dissmissable_notice( string $id ): void {
+function html_for_dissmissable_admin_notice( string $id ): void {
 	static $css_js_done = false; // Indicate if the JS and CSS was already enqueued.
 	$id  = esc_attr( $id );
 	$msg = esc_html__( 'Dismiss this notice.' );

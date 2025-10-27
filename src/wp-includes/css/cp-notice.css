@@ -1,0 +1,79 @@
+/* default styles for notice area */
+.notice {
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* for dismiss button alignment */
+
+  /* fade out transition related */
+  transition: opacity 0.15s linear;
+  opacity: 1;
+}
+
+.notice[hidden] {
+  display:none;
+}
+
+.notice p {
+  padding: 0.5rem 1rem;
+  margin: 0; /* no extra spacing inside */
+  flex: 1;   /* allows message to fill available space */
+}
+
+/* Dismiss button */
+.notice .notice-dismiss {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.25em; /* makes clickable area slightly bigger */
+  margin-inline-start: auto; /* Push to the end of flex container, respects RTL */
+  cursor: pointer;
+  color:black;
+}
+
+.notice .notice-dismiss::before {
+  content: "×";
+  display: inline-block;
+}
+
+.notice .notice-dismiss:hover,
+.notice .notice-dismiss:focus {
+  transform: scale(1.1); /* slightly bigger on hover. */
+}
+
+/* lass to trigger transition. */
+.notice-fadeout {
+  opacity: 0;
+}
+
+.notice-hidden {
+  display:none;
+}
+
+.notice-success {
+  background-color: #d4edda;  /* light green background */
+  color: #155724;             /* dark green text */
+  border-color: #badbcc;
+}
+
+.notice-error {
+  background-color: #f8d7da;  /* light red/pink background */
+  color: #721c24;             /* dark red text */
+  border-color: #f5c2c7;
+}
+
+.notice-info {
+    background-color: #cff4fc; /* light blue */
+    color: #055160;            /* dark blue */
+	border-color: #b6effb;
+}
+
+.notice-warning {
+	background-color: #fff3cd; /* light yellow */
+    color: #664d03;            /* dark yellow/brown */
+	border-color: #ffecb5;
+}
