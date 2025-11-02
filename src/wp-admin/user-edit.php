@@ -30,7 +30,7 @@ if ( ! defined( 'IS_PROFILE_PAGE' ) ) {
 }
 
 wp_enqueue_media();
-wp_enqueue_script( 'calm-user-profile' );
+wp_enqueue_script( 'user-profile' );
 
 if ( wp_is_application_passwords_available_for_user( $user_id ) ) {
 	wp_enqueue_script( 'application-passwords' );
@@ -415,6 +415,28 @@ switch ( $action ) {
 		</td>
 	</tr>
 <?php endif; ?>
+	<tr id="qrlink">
+		<th><?php _e( 'Direct Login' ); ?></th>
+		<td>
+			<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'qr_message' );?>
+			<p><button type="button" class="button" id="show-qrlink"><?php esc_html_e( 'Generate QR Code' ); ?></button></p>
+			<p id="qrdesription" class="description">
+				<?php
+				esc_html_e( 'Log in on another device using a short-lived QR code.' );
+				?>
+			</p>
+			<div id="qr_section" style="display:none">
+				<p>
+					<img id="qr_image" width="200" alt="<?php esc_attr_e( 'QR code' );?>">
+				</p>
+				<p>
+					<?php
+					esc_html_e( 'Scan this code with your phone to log in. It will expire in few minutes.' );
+					?>
+				</p>
+			</div>
+		</td>
+	</tr>
 
 </table>
 

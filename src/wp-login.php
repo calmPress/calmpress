@@ -460,6 +460,7 @@ $default_actions = array(
 	'checkemail',
 	'confirmaction',
 	'login',
+	'qrcode',
 );
 
 // Validate action so as to default to the login screen.
@@ -507,6 +508,7 @@ do_action( 'login_init' );
  *  - `login_form_resetpass`
  *  - `login_form_retrievepassword`
  *  - `login_form_rp`
+ *  - `login_form_qrcode`
  *
  * @since 2.8.0
  */
@@ -526,6 +528,47 @@ $login_link_separator = apply_filters( 'login_link_separator', ' | ' );
 
 switch ( $action ) {
 
+	case 'qrcode':
+		if ( key_exists( 'email', $_GET ) && key_exists( 'nonce', $_GET ) ) {
+			$email = $_GET['email'];
+			$user = get_user_by( 'email', $email );
+			if ( $user ) {
+				wp_set_current_user( $user->ID );
+				$nonce = $_GET['nonce'];
+				add_filter(
+					'nonce_life',
+					/**
+					 * nonce life is 2 minutes.
+					 */
+					function ( $current ) {
+						return 120;
+					}
+				);
+
+				if ( wp_verify_nonce( $nonce, 'qr_nonce' ) ) {
+					// mimic wp_signon
+					wp_set_auth_cookie( $user->ID );
+					do_action( 'wp_login', $user->user_login, $user );
+
+					if ( is_multisite() && ! get_active_blog_for_user( $user->ID ) && ! is_super_admin( $user->ID ) ) {
+						$redirect_to = user_admin_url();
+					} elseif ( is_multisite() && ! $user->has_cap( 'read' ) ) {
+						$redirect_to = get_dashboard_url( $user->ID );
+					} elseif ( ! $user->has_cap( 'edit_posts' ) ) {
+						$redirect_to = $user->has_cap( 'read' ) ? admin_url( 'user-edit.php' ) : home_url();
+					} else {
+						$redirect_to = admin_url( 'user-edit.php' );
+					}
+
+					wp_redirect( $redirect_to );
+					exit;
+					
+				}
+
+			}
+		}
+		die('jjj');
+		break;	
 	case 'logout':
 		check_admin_referer( 'log-out' );
 
@@ -766,6 +809,32 @@ switch ( $action ) {
 			wp_enqueue_script( 'customize-base' );
 		}
 
+		// Try to handle QR login first
+		if ( key_exists( 'qremail', $_GET ) && key_exists( 'nonce', $_GET ) ) {
+			$email = $_GET['qremail'];
+			$user_login = $email; // Display the email at the login form
+			                      // if QR login fails.
+			$tuser = get_user_by( 'email', $email );
+			if ( $tuser ) {
+				$nonce = $_GET['nonce'];
+				if ( $tuser->is_matching_one_time_password( $nonce ) ) {
+					// Override authetication to use the user we found.
+					add_filter(
+						'authenticate',
+						function () use ( $tuser ) {
+							return $tuser;
+						},
+						19,
+						3
+					);
+				} else {
+					$user = new WP_Error( 'qr_invalid', __( 'Expired or invalid attempt to login with QR code URL.') );
+				}
+			} else {
+				$user = new WP_Error( 'qr_invalid', __( 'Expired or invalid attempt to login with QR code URL.') );
+			}
+		}
+
 		if ( isset( $_REQUEST['redirect_to'] ) ) {
 			$redirect_to = $_REQUEST['redirect_to'];
 			// Redirect to HTTPS if user wants SSL.
@@ -782,7 +851,9 @@ switch ( $action ) {
 		$cookie_parts  = wp_parse_auth_cookie( '', 'logged_in' );
 		$session_token = $cookie_parts['token'] ?? '';
 
-		$user = wp_signon( array(), $secure_cookie );
+		if ( ! $user ) { // If not set to an error before.
+			$user = wp_signon( array(), $secure_cookie );
+		}
 
 		// If reauthentication failed, adjust message to be more relevant
 		// to the reauthentication dialog.
@@ -974,6 +1045,10 @@ switch ( $action ) {
 				'empty_password' === $errors->get_error_code() ||
 				'invalid_email' === $errors->get_error_code()
 				) ? esc_attr( wp_unslash( $_POST['log'] ) ) : '';
+		} elseif ( 'qr_invalid' === $errors->get_error_code() ) {
+			// if QR code URL failed, set the email to the email given in the
+			// URL.
+			$user_login = $_GET['qremail'];
 		}
 
 		if ( is_wp_error( $errors) && $errors->has_errors() ) {
@@ -1045,6 +1120,12 @@ switch ( $action ) {
 				?>
 				<input type="hidden" name="testcookie" value="1" />
 			</p>
+
+			<?php if ( ! $interim_login ) { ?>
+				<div id="qrdescription" aria-hidden="true">
+					<?php esc_html_e( ' ℹ️ If you are signed in on another device, you can log in here using a QR code. Check your profile page.' );?>
+				</div>
+			<?php } ?>
 
 			<div class="webauthn-separator" aria-hidden="true">
 				<span><?php esc_html_e( 'or' );?></span>

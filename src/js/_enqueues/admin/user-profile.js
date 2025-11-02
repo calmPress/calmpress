@@ -94,33 +94,6 @@
 		});
 	}
 
-	/**
-	 * Helper function to insert an inline notice of success or failure.
-	 *
-	 * @param {string} container The id of the message container at which to insert the
-	 *                          message.
-	 * @param {string} type The type of message being inserted, can be either
-	 *                      'success', 'error', 'info'.
-	 * @param {string}        message The message to insert.
-	 */
-	function addInlineNotice( container, type, message ) {
-		const $resultDiv = $( '#' + container );
-
-		// Remove previous messages if there are any.
-		$resultDiv.empty();
-
-		const $notice = jQuery(`
-			<div class="notice notice-${type} is-dismissible">
-				<p>${message}</p>
-				<button type="button" class="notice-dismiss">
-					<span class="screen-reader-text">Dismiss this notice.</span>
-				</button>
-			</div>
-		`);
-
-		$resultDiv.append( $notice );
-	}
-
 	function bindPasswordForm() {
 		var $generateButton,
 			$cancelButton;
@@ -411,5 +384,33 @@
 			$( '.reset-pass-submit button.wp-generate-pw' ).trigger( 'click' );
 		}
 	});
+
+	let qrtimer = null;
+	$( '#show-qrlink' ).on( 'click', async function () {
+		try {
+			// Send the request to generate the QR.
+			const response = await calm_fetch.post( 'calmpress/qr/generate', {} );
+			$( '#qr_image' ).attr( 'src', response.image );
+			$( '#qrdesription' ).hide();
+			$( '#qr_section' ).show();
+			if ( qrtimer !== null ) {
+				clearTimeout( qrtimer );
+			}
+			qrtimer = setTimeout( function () {
+				$( '#qr_section' ).hide();
+				$( '#qrdesription' ).show();
+				qrtimer = null;
+			},
+			120 * 1000
+			);
+		} catch ( error ) {
+			if ( error instanceof calm_fetch_error ) {
+				inline_notice_manager.show( 'qr_message', 'error', error.cause_message() );
+			} else {
+				inline_notice_manager.show( 'qr_message', 'error', calmUtilsL10n.error_unexpected );
+				console.log( error );
+			}
+		}
+	} );
 
 })(jQuery);

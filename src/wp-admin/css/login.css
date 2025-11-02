@@ -151,6 +151,11 @@ p {
 	display:block;
 }
 
+#qrdescription {
+	padding-top: 5px;
+	clear:both;
+}
+
 .webauthn-separator {
   position: relative;
   text-align: center;

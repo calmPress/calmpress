@@ -13,6 +13,9 @@ namespace calmpress\rest_endpoints;
 // webauthn rest api routes.
 require ABSPATH . WPINC . '/calmpress/webauthn/rest-endpoints.php';
 
+// QR rest api routes.
+require ABSPATH . WPINC . '/calmpress/qr/rest-endpoints.php';
+
 add_action( 'rest_api_init', __NAMESPACE__ . '\create_routes', 2 );
 
 /**

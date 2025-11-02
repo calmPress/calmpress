@@ -965,6 +965,21 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * Generate a one time password, to be used in QR login URL.
+	 * 
+	 * The one time password generated has an expiry time of 2 minutes.
+	 * 
+	 * @since calmpress 1.0.0
+	 * 
+	 * @return string The password string.
+	 */
+	public function generate_QR_one_time_password(): string {
+		$password = One_Time_Password::new( 2 * MINUTE_IN_SECONDS );
+		$this->set_one_time_password( $password );
+		return $password->password;
+	}
+
+	/**
 	 * Set the one time password associated with the user.
 	 * 
 	 * An helper to faciliate better testing.
