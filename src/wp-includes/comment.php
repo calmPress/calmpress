@@ -1995,6 +1995,13 @@ function wp_filter_comment( $commentdata ) {
 	 * @param string $comment_author_ip The comment author's IP address.
 	 */
 	$commentdata['comment_author_IP'] = apply_filters( 'pre_comment_user_ip', $commentdata['comment_author_IP'] );
+
+	// Normal comments should not have this field, But easier to just set it to empty
+	// string istead of handling all the possible cases.
+	if ( ! isset( $commentdata['comment_author_url'] ) ) {
+		$commentdata['comment_author_url'] = '';
+	}
+
 	/** This filter is documented in wp-includes/comment.php */
 	$commentdata['comment_author_url'] = apply_filters( 'pre_comment_author_url', $commentdata['comment_author_url'] );
 	/** This filter is documented in wp-includes/comment.php */
@@ -2790,7 +2797,7 @@ function wp_handle_comment_submission( $comment_data ) {
 	$user_ID              = 0;
 	$comment_author       = null;
 	$comment_author_email = null;
-	$comment_author_url   = null;
+	$comment_author_url   = '';
 	$comment_content      = null;
 
 	if ( isset( $comment_data['comment_post_ID'] ) ) {
@@ -2899,7 +2906,6 @@ function wp_handle_comment_submission( $comment_data ) {
 	if ( $user->exists() ) {
 		$comment_author       = $user->display_name;
 		$comment_author_email = $user->user_email;
-		$comment_author_url   = site_url();
 		$user_ID              = $user->ID;
 	} else {
 		if ( get_option( 'comment_registration' ) ) {
@@ -2939,6 +2945,11 @@ function wp_handle_comment_submission( $comment_data ) {
 	$allow_empty_comment = apply_filters( 'allow_empty_comment', false, $commentdata );
 	if ( '' === $comment_content && ! $allow_empty_comment ) {
 		return new WP_Error( 'require_valid_comment', __( '<strong>Error</strong>: Please type your comment text.' ), 200 );
+	}
+
+	if ( ! empty( $comment_author_url ) ) {
+		// silently ignore bots filling this field as it is a honey pot.
+		return new WP_Error( 'spam_detected', '', 200 );
 	}
 
 	$check_max_lengths = wp_check_comment_data_max_lengths( $commentdata );
