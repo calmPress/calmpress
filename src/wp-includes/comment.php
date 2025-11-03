@@ -2941,6 +2941,11 @@ function wp_handle_comment_submission( $comment_data ) {
 		return new WP_Error( 'require_valid_comment', __( '<strong>Error</strong>: Please type your comment text.' ), 200 );
 	}
 
+	if ( ! empty( $comment_author_url ) ) {
+		// silently ignore bots filling this field as it is a honey pot.
+		return new WP_Error( 'spam_detected', '', 200 );
+	}
+
 	$check_max_lengths = wp_check_comment_data_max_lengths( $commentdata );
 	if ( is_wp_error( $check_max_lengths ) ) {
 		return $check_max_lengths;

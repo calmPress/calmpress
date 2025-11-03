@@ -2244,18 +2244,24 @@ function comment_form( $args = array(), $post_id = null ) {
 				( $req ? $required_attribute : '' )
 			)
 		),
-		'url'    => sprintf(
-			'<p class="comment-form-url">%s %s</p>',
-			sprintf(
-				'<label for="url">%s</label>',
-				__( 'Website' )
-			),
-			sprintf(
-				'<input id="url" name="url" %s value="%s" size="30" maxlength="200" />',
-				( $html5 ? 'type="url"' : 'type="text"' ),
-				esc_attr( $commenter['comment_author_url'] )
-			)
-		),
+		'url'    => '<input type="text" name="url" id="url" autocomplete="off">',
+	);
+
+	/**
+	 * Use JS to hide the URL field serving as honey pot.
+	 */
+	add_action(
+		'wp_footer',
+		function() {
+    		echo <<<JS
+<script>
+	document.addEventListener( 'DOMContentLoaded', function() {
+		var el = document.querySelector('#url');
+		if (el) el.style.display = 'none';
+	});
+</script>
+JS;
+		}
 	);
 
 	if ( has_action( 'set_comment_cookies', 'wp_set_comment_cookies' ) && get_option( 'show_comments_cookies_opt_in' ) ) {
@@ -2269,7 +2275,7 @@ function comment_form( $args = array(), $post_id = null ) {
 			),
 			sprintf(
 				'<label for="wp-comment-cookies-consent">%s</label>',
-				__( 'Save my name, email, and website in this browser for the next time I comment.' )
+				__( 'Save my name and email in this browser for the next time I comment.' )
 			)
 		);
 
