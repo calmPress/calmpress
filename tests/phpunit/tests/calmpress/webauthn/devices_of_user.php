@@ -371,12 +371,12 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		$devices_as_webauthn = $refMethod->invoke( $collection );
 		$this->assertSame( count( $devices_as_webauthn ), 5 );
 
-		// The array an't be expected to be ordered or indexed in any speific way
-		// so make sure all elements are there the hard wy.
+		// The array isn't be expected to be ordered or indexed in any speific way
+		// so make sure all elements are there the hard way.
 		for ( $i=1; $i<6; $i++ ) {
 			$found = false;
 			foreach ( $devices_as_webauthn as $cred => $descriptior ) {
-				if ( base64URL_encode( 'cred' . $i ) === $descriptior->id ) {
+				if ( 'cred' . $i  === $descriptior->id ) {
 					$this->assertSame( 'public-key', $descriptior->type );
 					$found = true;
 					break;
@@ -499,14 +499,12 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 
 		$mock = $this->getMockBuilder( Devices_Of_User::class )
 			->setConstructorArgs( [ $user ] ) 
-            ->onlyMethods( ['challenge', 'rp_info'] ) // tell PHPUnit we want to mock this method
+            ->onlyMethods( ['challenge'] ) // tell PHPUnit we want to mock this method
             ->getMock();
 
         $mock->method( 'challenge' )
              ->willReturn('abcd');
 
-		 $mock->method( 'rp_info' )
-             ->willReturn(new webauthn\PublicKeyCredentialRpEntity( 'name', 'id.org' ) );
 
 		$packed_method = new ReflectionMethod( Devices_Of_User::class, 'packed_number' );
 		$packed_method->setAccessible( true );
@@ -514,8 +512,14 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		$challenge = $mock->new_device_challenge();
 		
 		$this->assertSame( $challenge->challenge, 'abcd' );
-		$this->assertSame( $challenge->rp->name, 'name' );
-		$this->assertSame( $challenge->rp->id, 'id.org' );
+		if ( is_multisite() ) {
+			// Main site.
+			$this->assertSame( $challenge->rp->name, 'Test Blog Network' );
+			$this->assertSame( $challenge->rp->id, 'example.org' );
+		} else {
+			$this->assertSame( $challenge->rp->name, 'Test Blog' );
+			$this->assertSame( $challenge->rp->id, 'example.org' );
+		}
 		$this->assertSame( $challenge->user->name, 'user name' );
 		$this->assertSame( $challenge->user->displayName, 'user name' );
 		$this->assertSame( $challenge->user->id, $packed_method->invoke( null, $user_id ) );
@@ -527,7 +531,7 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		// Have one credential with the right value
 		$this->assertSame( 1, count( $challenge->excludeCredentials ) );
 		$this->assertSame( 'public-key', $challenge->excludeCredentials[0]->type );
-		$this->assertSame( base64URL_encode( 'cred1' ), $challenge->excludeCredentials[0]->id );
+		$this->assertSame( 'cred1', $challenge->excludeCredentials[0]->id );
 
 		// Check transient is set
 		$this->assertEquals( 1, get_transient( 'webauthn_challenge_' . $user_id . '_' . base64URL_encode( 'abcd' ) ) );
