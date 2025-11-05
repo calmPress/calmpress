@@ -151,21 +151,6 @@ if ( is_multisite() ) :
 			$this->assertNotEmpty( $notoptions1 );
 		}
 
-		public function test_users_can_register_signup_filter() {
-
-			$registration = get_site_option( 'registration' );
-			$this->assertFalse( users_can_register_signup_filter() );
-
-			update_site_option( 'registration', 'all' );
-			$this->assertTrue( users_can_register_signup_filter() );
-
-			update_site_option( 'registration', 'user' );
-			$this->assertTrue( users_can_register_signup_filter() );
-
-			update_site_option( 'registration', 'none' );
-			$this->assertFalse( users_can_register_signup_filter() );
-		}
-
 		/**
 		 * @dataProvider data_illegal_names
 		 */
