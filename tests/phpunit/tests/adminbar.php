@@ -171,10 +171,10 @@ class Tests_AdminBar extends WP_UnitTestCase {
 		// No Site menu as the user isn't a member of this blog.
 		$this->assertNull( $node_site_name );
 
-		$primary_profile_url = get_admin_url( $primary->blog_id, 'profile.php' );
+		$primary_profile_url = get_admin_url( $primary->blog_id, 'user-edit.php' );
 
 		// Ensure the user's primary blog is not the same as the main site.
-		$this->assertNotEquals( $primary_profile_url, admin_url( 'profile.php' ) );
+		$this->assertNotEquals( $primary_profile_url, admin_url( 'user-edit.php' ) );
 
 		// Profile URLs should go to the user's primary blog.
 		$this->assertSame( $primary_profile_url, $node_my_account->href );
@@ -227,9 +227,9 @@ class Tests_AdminBar extends WP_UnitTestCase {
 		// No Site menu as the user isn't a member of this site.
 		$this->assertNull( $node_site_name );
 
-		$user_profile_url = user_admin_url( 'profile.php' );
+		$user_profile_url = user_admin_url( 'user-edit.php' );
 
-		$this->assertNotEquals( $user_profile_url, admin_url( 'profile.php' ) );
+		$this->assertNotEquals( $user_profile_url, admin_url( 'user-edit.php' ) );
 
 		// Profile URLs should go to the user's primary blog.
 		$this->assertSame( $user_profile_url, $node_my_account->href );
