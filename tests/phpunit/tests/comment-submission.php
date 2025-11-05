@@ -193,6 +193,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$data    = array(
 			'comment_post_ID' => self::$post->ID,
 			'comment'         => 'Comment',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -214,6 +215,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'comment'         => 'Comment',
 			'author'          => 'Comment Author',
 			'email'           => 'comment@example.org',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -240,6 +242,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'comment'         => 'Comment with 1 slash: \\',
 			'author'          => 'Comment Author with 1 slash: \\',
 			'email'           => 'comment@example.org',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -350,6 +353,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment',
+			'timing_' . md5( $post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -374,6 +378,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$data    = array(
 			'comment_post_ID' => $post->ID,
 			'comment'         => 'Comment',
+			'timing_' . md5( $post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -390,6 +395,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'comment'         => 'Comment <script>alert(document.cookie);</script>',
 			'author'          => 'Comment Author',
 			'email'           => 'comment@example.org',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -408,6 +414,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$data    = array(
 			'comment_post_ID' => self::$post->ID,
 			'comment'         => 'Comment <script>alert(document.cookie);</script>',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -432,6 +439,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$data    = array(
 			'comment_post_ID' => self::$post->ID,
 			'comment'         => 'Comment <script>alert(document.cookie);</script>',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -551,6 +559,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'comment'         => rand_long_str( 65536 ),
 			'author'          => 'Comment Author',
 			'email'           => 'comment@example.org',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -569,6 +578,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'comment'         => 'Comment',
 			'author'          => rand_long_str( 255 ),
 			'email'           => 'comment@example.org',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -587,6 +597,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'author'          => 'Comment Author',
 			'email'           => 'comment@example.org',
 			'comment_type'    => '',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$comment = wp_handle_comment_submission( $data );
 
@@ -627,6 +638,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$data = array(
 			'comment_post_ID' => self::$post->ID,
 			'comment'         => 'Comment',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 
 		add_filter( 'preprocess_comment', array( $this, 'filter_preprocess_comment' ) );
@@ -670,6 +682,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'comment'         => 'Did I say that?',
 			'author'          => 'Repeat myself',
 			'email'           => 'mail@example.com',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$first_comment  = wp_handle_comment_submission( $data );
 		$second_comment = wp_handle_comment_submission( $data );
@@ -687,6 +700,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'comment'         => 'Did I say that?',
 			'author'          => 'Repeat myself',
 			'email'           => 'mail@example.com',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$first_comment = wp_handle_comment_submission( $data );
 
@@ -713,6 +727,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'comment'         => 'Did I say that?',
 			'author'          => 'Repeat myself',
 			'email'           => 'mail@example.com',
+			'timing_' . md5( self::$post->ID ) => 1,
 		);
 		$first_comment = wp_handle_comment_submission( $data );
 

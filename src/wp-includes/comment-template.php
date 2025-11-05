@@ -298,6 +298,7 @@ function comment_author_IP( $comment_ID = 0 ) { // phpcs:ignore WordPress.Naming
  *
  * @since 1.5.0
  * @since 4.4.0 Added the ability for `$comment_ID` to also accept a WP_Comment object.
+ * @since calmpress 1.0.0 Returns empty string for normal comments.
  *
  * @param int|WP_Comment $comment_ID Optional. WP_Comment or the ID of the comment for which to get the author's URL.
  *                                   Default current comment.
@@ -309,6 +310,10 @@ function get_comment_author_url( $comment_ID = 0 ) {
 	$id      = 0;
 
 	if ( ! empty( $comment ) ) {
+		if ( get_comment_type( $comment ) === 'comment' ) {
+			return '';
+		}
+
 		$author_url = ( 'http://' === $comment->comment_author_url ) ? '' : $comment->comment_author_url;
 		$url        = esc_url( $author_url, array( 'http', 'https' ) );
 		$id         = $comment->comment_ID;
@@ -338,6 +343,7 @@ function get_comment_author_url( $comment_ID = 0 ) {
  */
 function comment_author_url( $comment_ID = 0 ) {
 	$comment    = get_comment( $comment_ID );
+
 	$author_url = get_comment_author_url( $comment );
 
 	/**
@@ -2249,16 +2255,30 @@ function comment_form( $args = array(), $post_id = null ) {
 
 	/**
 	 * Use JS to hide the URL field serving as honey pot.
+	 * 
+	 * Use JS to verify the comment was submitted more than 3 seconds after
+	 * page load.
 	 */
 	add_action(
 		'wp_footer',
 		function() {
+			$postmd5 = md5( get_the_ID() ); 
     		echo <<<JS
 <script>
 	document.addEventListener( 'DOMContentLoaded', function() {
-		var el = document.querySelector('#url');
+		var el = document.querySelector( '#url' );
 		if (el) el.style.display = 'none';
-	});
+        setTimeout(function() {
+            var form = document.getElementById( 'commentform' );
+            if ( ! form ) return;
+
+            var input = document.createElement( 'input' );
+            input.type = 'hidden';
+            input.name = 'timing_$postmd5';
+            input.value = '1';
+            form.appendChild( input );
+        }, 3000);
+    });
 </script>
 JS;
 		}

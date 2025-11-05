@@ -2952,6 +2952,14 @@ function wp_handle_comment_submission( $comment_data ) {
 		return new WP_Error( 'spam_detected', '', 200 );
 	}
 
+	// Check that timing field exists.
+	$post_id = $comment_data['comment_post_ID'];
+	$field_name = 'timing_' . md5( $post_id );
+
+	if ( ! array_key_exists( $field_name, $comment_data ) ) {
+		return new WP_Error( 'spam_timing', '', 200 );
+	}
+
 	$check_max_lengths = wp_check_comment_data_max_lengths( $commentdata );
 	if ( is_wp_error( $check_max_lengths ) ) {
 		return $check_max_lengths;
