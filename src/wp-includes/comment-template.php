@@ -383,6 +383,9 @@ function comment_author_url( $comment_ID = 0 ) {
  */
 function get_comment_author_url_link( $linktext = '', $before = '', $after = '', $comment = 0 ) {
 	$url     = get_comment_author_url( $comment );
+	if ( empty( $url ) ) {
+		return $linktext;
+	}
 	$display = ( '' !== $linktext ) ? $linktext : $url;
 	$display = str_replace( 'http://www.', '', $display );
 	$display = str_replace( 'http://', '', $display );
