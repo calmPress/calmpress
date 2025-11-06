@@ -444,7 +444,20 @@ add_action(
 				'methods'             => 'POST',
 				'callback'            => __NAMESPACE__ . '\\login',
 				'permission_callback' => '__return_true', // No login required for login challenge
-				'args'                => [ 'credential_id', 'clientDataJSON', 'redirect_to' ],
+				'args'                => [
+					'credential_id' => [
+						'type'     => 'string',
+        				'required' => true,
+					],
+					'clientDataJSON' => [
+						'type'     => 'string',
+        				'required' => true,
+					],
+					'redirect_to' => [
+						'type'     => 'string',
+        				'required' => true,
+					],
+				],
 			]
 		);
 	}

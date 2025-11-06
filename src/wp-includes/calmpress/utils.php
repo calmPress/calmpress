@@ -634,7 +634,7 @@ function add_js_rest_api_data() {
  * @param string   $namespace The namespace, first part of the endpoint URL.
  * @param string   $route     The rest of the endpoint URL. No leading "/".
  * @param callable $handler   The function that will handle a reuest.
- * @param string[] $mandatory_parameters The parameters which are mandatory at the request.
+ * @param string[] $mandatory_parameters The string parameters which are mandatory at the request.
  */
 function add_current_user_post_endpoint(
 	string $namespace,
@@ -644,7 +644,8 @@ function add_current_user_post_endpoint(
 ):void {
 	$args = [];
 	foreach ( $mandatory_parameters as $v ) {
-		$args[ $v ] = [ 
+		$args[ $v ] = [
+			'type'     => 'string',
 			'required' => true,
 		];
 	}
