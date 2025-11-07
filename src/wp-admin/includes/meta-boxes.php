@@ -762,6 +762,38 @@ function post_slug_meta_box( $post ) {
 }
 
 /**
+ * Displays form field with list of possible editors.
+ *
+ * @since 2.6.0
+ *
+ * @global int $user_ID
+ *
+ * @param WP_Post $post Current post object.
+ */
+function post_author_meta_box( $post ) {
+	global $user_ID;
+
+	$post_type_object = get_post_type_object( $post->post_type );
+	?>
+<label class="screen-reader-text" for="post_author_override">
+	<?php
+	/* translators: Hidden accessibility text. */
+	_e( 'Author' );
+	?>
+</label>
+	<?php
+	wp_dropdown_users(
+		array(
+			'capability'       => array( $post_type_object->cap->edit_posts ),
+			'name'             => 'post_author_override',
+			'selected'         => empty( $post->ID ) ? $user_ID : $post->post_author,
+			'include_selected' => true,
+			'show'             => 'display_name_with_login',
+		)
+	);
+}
+
+/**
  * Display list of revisions.
  *
  * @since 2.6.0
@@ -1019,7 +1051,7 @@ function register_and_do_post_meta_boxes( $post ) {
 	}
 
 	if ( post_type_supports( $post_type, 'author' ) && current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-		add_meta_box( 'authordiv', __( 'Editor' ), 'post_author_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'authordiv', __( 'Content Editor' ), 'post_author_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
 	}
 
 	/**
