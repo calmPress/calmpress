@@ -61,9 +61,6 @@ function edit_comment() {
 	if ( isset( $_POST['newcomment_author_email'] ) ) {
 		$_POST['comment_author_email'] = $_POST['newcomment_author_email'];
 	}
-	if ( isset( $_POST['newcomment_author_url'] ) ) {
-		$_POST['comment_author_url'] = $_POST['newcomment_author_url'];
-	}
 	if ( isset( $_POST['comment_status'] ) ) {
 		$_POST['comment_approved'] = $_POST['comment_status'];
 	}

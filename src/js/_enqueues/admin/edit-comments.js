@@ -795,7 +795,7 @@ window.commentReply = {
 
 		$( '.cancel', row ).on( 'click', function() { return commentReply.revert(); } );
 		$( '.save', row ).on( 'click', function() { return commentReply.send(); } );
-		$( 'input#author-name, input#author-email, input#author-url', row ).on( 'keypress', function( e ) {
+		$( 'input#author-name, input#author-email', row ).on( 'keypress', function( e ) {
 			if ( e.which == 13 ) {
 				commentReply.send();
 				e.preventDefault();
@@ -982,7 +982,6 @@ window.commentReply = {
 		if ( action == 'edit' ) {
 			$( '#author-name', editRow ).val( $( 'div.author', rowData ).text() );
 			$('#author-email', editRow).val( $('div.author-email', rowData).text() );
-			$('#author-url', editRow).val( $('div.author-url', rowData).text() );
 			$('#status', editRow).val( $('div.comment_status', rowData).text() );
 			$('#replycontent', editRow).val( $('textarea.comment', rowData).val() );
 			$( '#edithead, #editlegend, #savebtn', editRow ).show();

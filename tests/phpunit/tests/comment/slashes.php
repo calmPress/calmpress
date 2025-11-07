@@ -87,7 +87,6 @@ class Tests_Comment_Slashes extends WP_UnitTestCase {
 		$_POST['comment_ID']              = $comment_id;
 		$_POST['comment_status']          = '';
 		$_POST['newcomment_author']       = $this->slash_1;
-		$_POST['newcomment_author_url']   = '';
 		$_POST['newcomment_author_email'] = '';
 		$_POST['content']                 = $this->slash_7;
 
@@ -103,7 +102,6 @@ class Tests_Comment_Slashes extends WP_UnitTestCase {
 		$_POST['comment_ID']              = $comment_id;
 		$_POST['comment_status']          = '';
 		$_POST['newcomment_author']       = $this->slash_2;
-		$_POST['newcomment_author_url']   = '';
 		$_POST['newcomment_author_email'] = '';
 		$_POST['content']                 = $this->slash_4;
 

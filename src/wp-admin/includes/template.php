@@ -431,11 +431,6 @@ function wp_comment_reply( $position = 1, $checkbox = false, $mode = 'single', $
 		<label for="author-email"><?php _e( 'Email' ); ?></label>
 		<input type="text" name="newcomment_author_email" size="50" value="" id="author-email" />
 		</div>
-
-		<div class="inside">
-		<label for="author-url"><?php _e( 'URL' ); ?></label>
-		<input type="text" id="author-url" name="newcomment_author_url" class="code" size="103" value="" />
-		</div>
 	</div>
 
 	<div id="replysubmit" class="submit">
