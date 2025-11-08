@@ -2954,7 +2954,7 @@ function wp_handle_comment_submission( $comment_data ) {
 
 	// Check that timing field exists.
 	$post_id = $comment_data['comment_post_ID'];
-	$field_name = 'timing_' . md5( $post_id );
+	$field_name = 'timing_' . md5( AUTH_SALT . $post_id );
 
 	if ( ! array_key_exists( $field_name, $comment_data ) ) {
 		return new WP_Error( 'spam_timing', '', 200 );

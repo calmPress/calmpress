@@ -2265,7 +2265,7 @@ function comment_form( $args = array(), $post_id = null ) {
 	add_action(
 		'wp_footer',
 		function() {
-			$postmd5 = md5( get_the_ID() ); 
+			$postmd5 = md5( AUTH_SALT . get_the_ID() ); 
     		echo <<<JS
 <script>
 	document.addEventListener( 'DOMContentLoaded', function() {
