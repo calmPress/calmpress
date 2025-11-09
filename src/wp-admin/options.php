@@ -77,7 +77,6 @@ $allowed_options            = array(
 		'comments_notify',
 		'moderation_notify',
 		'comment_moderation',
-		'require_name_email',
 		'comment_previously_approved',
 		'comment_max_links',
 		'show_avatars',
