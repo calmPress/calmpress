@@ -50,8 +50,6 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 <tr>
 <th scope="row"><?php _e( 'Other comment settings' ); ?></th>
 <td><fieldset><legend class="screen-reader-text"><span><?php _e( 'Other comment settings' ); ?></span></legend>
-<label for="require_name_email"><input type="checkbox" name="require_name_email" id="require_name_email" value="1" <?php checked( '1', get_option( 'require_name_email' ) ); ?> /> <?php _e( 'Comment author must fill out name and email' ); ?></label>
-<br />
 <label for="comment_registration">
 <input name="comment_registration" type="checkbox" id="comment_registration" value="1" <?php checked( '1', get_option( 'comment_registration' ) ); ?> />
 <?php _e( 'Users must be registered and logged in to comment' ); ?>
