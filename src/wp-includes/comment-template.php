@@ -1244,11 +1244,6 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 	 */
 	$comment_author_email = $commenter['comment_author_email'];
 
-	/*
-	 * The URL of the current comment author escaped for use in attributes.
-	 */
-	$comment_author_url = esc_url( $commenter['comment_author_url'] );
-
 	$comment_args = array(
 		'orderby'                   => 'comment_date_gmt',
 		'order'                     => 'ASC',

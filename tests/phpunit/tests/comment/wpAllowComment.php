@@ -15,7 +15,7 @@ class Tests_Comment_WpAllowComment extends WP_UnitTestCase {
 				'comment_approved'     => '1',
 				'comment_author'       => 'Bob',
 				'comment_author_email' => 'bobthebuilder@example.com',
-				'comment_author_url'   => 'http://example.com',
+				'comment_author_url'   => '',
 				'comment_content'      => 'Yes, we can!',
 			)
 		);
@@ -36,7 +36,7 @@ class Tests_Comment_WpAllowComment extends WP_UnitTestCase {
 			'comment_post_ID'      => self::$post_id,
 			'comment_author'       => 'Bob',
 			'comment_author_email' => 'sideshowbob@example.com',
-			'comment_author_url'   => 'http://example.com',
+			'comment_author_url'   => '',
 			'comment_content'      => 'Yes, we can!',
 			'comment_author_IP'    => '192.168.0.1',
 			'comment_parent'       => 0,
@@ -58,7 +58,7 @@ class Tests_Comment_WpAllowComment extends WP_UnitTestCase {
 			'comment_post_ID'      => self::$post_id,
 			'comment_author'       => 'Bob',
 			'comment_author_email' => 'bobthebuilder@example.com',
-			'comment_author_url'   => 'http://example.com',
+			'comment_author_url'   => '',
 			'comment_content'      => 'Yes, we can!',
 			'comment_author_IP'    => '192.168.0.1',
 			'comment_parent'       => 0,

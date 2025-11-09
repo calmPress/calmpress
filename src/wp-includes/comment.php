@@ -528,7 +528,6 @@ function wp_set_comment_cookies( $comment, $user, $cookies_consent = true ) {
 		$past = time() - YEAR_IN_SECONDS;
 		setcookie( 'comment_author_' . COOKIEHASH, ' ', $past, COOKIEPATH, COOKIE_DOMAIN );
 		setcookie( 'comment_author_email_' . COOKIEHASH, ' ', $past, COOKIEPATH, COOKIE_DOMAIN );
-		setcookie( 'comment_author_url_' . COOKIEHASH, ' ', $past, COOKIEPATH, COOKIE_DOMAIN );
 
 		return;
 	}
@@ -546,7 +545,6 @@ function wp_set_comment_cookies( $comment, $user, $cookies_consent = true ) {
 
 	setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
 	setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
-	setcookie( 'comment_author_url_' . COOKIEHASH, esc_url( $comment->comment_author_url ), $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
 }
 
 /**
@@ -592,23 +590,6 @@ function sanitize_comment_cookies() {
 		$comment_author_email = esc_attr( $comment_author_email );
 
 		$_COOKIE[ 'comment_author_email_' . COOKIEHASH ] = $comment_author_email;
-	}
-
-	if ( isset( $_COOKIE[ 'comment_author_url_' . COOKIEHASH ] ) ) {
-		/**
-		 * Filters the comment author's URL cookie before it is set.
-		 *
-		 * When this filter hook is evaluated in wp_filter_comment(),
-		 * the comment author's URL string is passed.
-		 *
-		 * @since 1.5.0
-		 *
-		 * @param string $author_url_cookie The comment author URL cookie.
-		 */
-		$comment_author_url = apply_filters( 'pre_comment_author_url', $_COOKIE[ 'comment_author_url_' . COOKIEHASH ] );
-		$comment_author_url = wp_unslash( $comment_author_url );
-
-		$_COOKIE[ 'comment_author_url_' . COOKIEHASH ] = $comment_author_url;
 	}
 }
 
@@ -767,7 +748,7 @@ function wp_allow_comment( $commentdata, $wp_error = false ) {
 		if ( check_comment(
 			$commentdata['comment_author'],
 			$commentdata['comment_author_email'],
-			$commentdata['comment_author_url'],
+			'',
 			$commentdata['comment_content'],
 			$commentdata['comment_author_IP'],
 			$commentdata['comment_agent'],

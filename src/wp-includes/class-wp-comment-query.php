@@ -143,12 +143,13 @@ class WP_Comment_Query {
 	 * @since 4.9.0 Introduced the `$paged` argument.
 	 * @since 5.1.0 Introduced the `$meta_compare_key` argument.
 	 * @since 5.3.0 Introduced the `$meta_type_key` argument.
+	 * @since calmpress 1.0.0 do not support 'author_url' for query and 
+	 *                        'comment_author_url' for orderby.
 	 *
 	 * @param string|array $query {
 	 *     Optional. Array or query string of comment query parameters. Default empty.
 	 *
 	 *     @type string          $author_email              Comment author email address. Default empty.
-	 *     @type string          $author_url                Comment author URL. Default empty.
 	 *     @type int[]           $author__in                Array of author IDs to include comments for. Default empty.
 	 *     @type int[]           $author__not_in            Array of author IDs to exclude comments for. Default empty.
 	 *     @type int[]           $comment__in               Array of comment IDs to include. Default empty.
@@ -194,7 +195,6 @@ class WP_Comment_Query {
 	 *                                                      - 'comment_author'
 	 *                                                      - 'comment_author_email'
 	 *                                                      - 'comment_author_IP'
-	 *                                                      - 'comment_author_url'
 	 *                                                      - 'comment_content'
 	 *                                                      - 'comment_date'
 	 *                                                      - 'comment_date_gmt'
@@ -274,7 +274,6 @@ class WP_Comment_Query {
 	public function __construct( $query = '' ) {
 		$this->query_var_defaults = array(
 			'author_email'              => '',
-			'author_url'                => '',
 			'author__in'                => '',
 			'author__not_in'            => '',
 			'include_unapproved'        => '',
@@ -757,10 +756,6 @@ class WP_Comment_Query {
 			$this->sql_clauses['where']['author_email'] = $wpdb->prepare( 'comment_author_email = %s', $this->query_vars['author_email'] );
 		}
 
-		if ( '' !== $this->query_vars['author_url'] ) {
-			$this->sql_clauses['where']['author_url'] = $wpdb->prepare( 'comment_author_url = %s', $this->query_vars['author_url'] );
-		}
-
 		if ( '' !== $this->query_vars['karma'] ) {
 			$this->sql_clauses['where']['karma'] = $wpdb->prepare( 'comment_karma = %d', $this->query_vars['karma'] );
 		}
@@ -819,7 +814,7 @@ class WP_Comment_Query {
 		if ( isset( $this->query_vars['search'] ) && strlen( $this->query_vars['search'] ) ) {
 			$search_sql = $this->get_search_sql(
 				$this->query_vars['search'],
-				array( 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_author_IP', 'comment_content' )
+				array( 'comment_author', 'comment_author_email', 'comment_author_IP', 'comment_content' )
 			);
 
 			// Strip leading 'AND'.
@@ -1138,6 +1133,7 @@ class WP_Comment_Query {
 	 * Parse and sanitize 'orderby' keys passed to the comment query.
 	 *
 	 * @since 4.2.0
+	 * @since calmpress 1.0.0 do not support ordering by author url.
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
@@ -1153,7 +1149,6 @@ class WP_Comment_Query {
 			'comment_author',
 			'comment_author_email',
 			'comment_author_IP',
-			'comment_author_url',
 			'comment_content',
 			'comment_date',
 			'comment_date_gmt',

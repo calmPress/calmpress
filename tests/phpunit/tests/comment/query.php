@@ -1330,45 +1330,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 35377
-	 */
-	public function test_get_comments_by_author_url() {
-		$c1 = self::factory()->comment->create(
-			array(
-				'comment_post_ID'      => self::$post_id,
-				'comment_author'       => 'bar',
-				'comment_author_email' => 'bar@example.com',
-				'comment_author_url'   => 'http://foo.bar',
-			)
-		);
-		$c2 = self::factory()->comment->create(
-			array(
-				'comment_post_ID'      => self::$post_id,
-				'comment_author'       => 'bar',
-				'comment_author_email' => 'bar@example.com',
-				'comment_author_url'   => 'http://foo.bar',
-			)
-		);
-		$c3 = self::factory()->comment->create(
-			array(
-				'comment_post_ID'      => self::$post_id,
-				'comment_author'       => 'bar',
-				'comment_author_email' => 'bar@example.com',
-				'comment_author_url'   => 'http://foo.bar/baz',
-			)
-		);
-
-		$comments = get_comments(
-			array(
-				'author_url' => 'http://foo.bar',
-				'fields'     => 'ids',
-			)
-		);
-
-		$this->assertSameSets( array( $c1, $c2 ), $comments );
-	}
-
-	/**
 	 * @ticket 28434
 	 */
 	public function test_fields_ids_query() {
@@ -2109,7 +2070,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 				'comment_approved'     => '0',
 				'comment_author'       => 'bar',
 				'comment_author_email' => 'bar@example.com',
-				'comment_author_url'   => 'http://foo.bar',
 			)
 		);
 		$c4 = self::factory()->comment->create(
@@ -2119,7 +2079,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 				'comment_approved'     => '0',
 				'comment_author'       => 'bar',
 				'comment_author_email' => 'bar@example.com',
-				'comment_author_url'   => 'http://example.com',
 				'comment_author_IP'    => 'foo.bar',
 			)
 		);
@@ -2130,7 +2089,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 				'comment_approved'     => '0',
 				'comment_author'       => 'bar',
 				'comment_author_email' => 'bar@example.com',
-				'comment_author_url'   => 'http://example.com',
 				'comment_content'      => 'Nice foo comment',
 			)
 		);
@@ -2141,7 +2099,6 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 				'comment_approved'     => '0',
 				'comment_author'       => 'bar',
 				'comment_author_email' => 'bar@example.com',
-				'comment_author_url'   => 'http://example.com',
 			)
 		);
 
@@ -2153,7 +2110,7 @@ class Tests_Comment_Query extends WP_UnitTestCase {
 			)
 		);
 
-		$this->assertSameSets( array( $c1, $c2, $c3, $c4, $c5 ), $found );
+		$this->assertSameSets( array( $c1, $c2, $c4, $c5 ), $found );
 	}
 
 	/**

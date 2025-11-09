@@ -37,7 +37,7 @@ class Tests_Comment_Slashes extends WP_UnitTestCase {
 	public function test_wp_new_comment() {
 		$post_id = self::$post_id;
 
-		// Not testing comment_author_email or comment_author_url
+		// Not testing comment_author_email
 		// as slashes are not permitted in that data.
 		$data       = array(
 			'comment_post_ID'      => $post_id,
@@ -81,7 +81,7 @@ class Tests_Comment_Slashes extends WP_UnitTestCase {
 			)
 		);
 
-		// Not testing comment_author_email or comment_author_url
+		// Not testing comment_author_email
 		// as slashes are not permitted in that data.
 		$_POST                            = array();
 		$_POST['comment_ID']              = $comment_id;
