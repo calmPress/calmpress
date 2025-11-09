@@ -1829,7 +1829,8 @@ function wp_get_unapproved_comment_author_email() {
  * @since 2.0.0
  * @since 4.4.0 Introduced the `$comment_meta` argument.
  * @since 5.5.0 Default value for `$comment_type` argument changed to `comment`.
- *
+ * @since calmpress 1.0.0 remove comment_karma.
+ * 
  * @global wpdb $wpdb WordPress database abstraction object.
  *
  * @param array $commentdata {
@@ -1848,7 +1849,6 @@ function wp_get_unapproved_comment_author_email() {
  *                                            Default is the current time.
  *     @type string     $comment_date_gmt     The date the comment was submitted in the GMT timezone.
  *                                            Default is `$comment_date` in the site's GMT timezone.
- *     @type int        $comment_karma        The karma of the comment. Default 0.
  *     @type int        $comment_parent       ID of this comment's parent, if any. Default 0.
  *     @type int        $comment_post_ID      ID of the post that relates to the comment, if any.
  *                                            Default 0.
@@ -1873,7 +1873,7 @@ function wp_insert_comment( $commentdata ) {
 
 	$comment_post_ID  = ! isset( $data['comment_post_ID'] ) ? 0 : $data['comment_post_ID'];
 	$comment_content  = ! isset( $data['comment_content'] ) ? '' : $data['comment_content'];
-	$comment_karma    = ! isset( $data['comment_karma'] ) ? 0 : $data['comment_karma'];
+	$comment_karma    = 0;
 	$comment_approved = ! isset( $data['comment_approved'] ) ? 1 : $data['comment_approved'];
 	$comment_agent    = ! isset( $data['comment_agent'] ) ? '' : $data['comment_agent'];
 	$comment_type     = empty( $data['comment_type'] ) ? 'comment' : $data['comment_type'];

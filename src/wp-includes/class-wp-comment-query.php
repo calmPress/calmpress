@@ -143,7 +143,7 @@ class WP_Comment_Query {
 	 * @since 4.9.0 Introduced the `$paged` argument.
 	 * @since 5.1.0 Introduced the `$meta_compare_key` argument.
 	 * @since 5.3.0 Introduced the `$meta_type_key` argument.
-	 * @since calmpress 1.0.0 do not support 'author_url' for query and 
+	 * @since calmpress 1.0.0 do not support 'author_url' and 'karma' for query and 
 	 *                        'comment_author_url' for orderby.
 	 *
 	 * @param string|array $query {
@@ -164,8 +164,6 @@ class WP_Comment_Query {
 	 *     @type array           $include_unapproved        Array of IDs or email addresses of users whose unapproved
 	 *                                                      comments will be returned by the query regardless of
 	 *                                                      `$status`. Default empty.
-	 *     @type int             $karma                     Karma score to retrieve matching comments for.
-	 *                                                      Default empty.
 	 *     @type string|string[] $meta_key                  Meta key or keys to filter by.
 	 *     @type string|string[] $meta_value                Meta value or values to filter by.
 	 *     @type string          $meta_compare              MySQL operator used for comparing the meta value.
@@ -756,10 +754,6 @@ class WP_Comment_Query {
 			$this->sql_clauses['where']['author_email'] = $wpdb->prepare( 'comment_author_email = %s', $this->query_vars['author_email'] );
 		}
 
-		if ( '' !== $this->query_vars['karma'] ) {
-			$this->sql_clauses['where']['karma'] = $wpdb->prepare( 'comment_karma = %d', $this->query_vars['karma'] );
-		}
-
 		// Filtering by comment_type: 'type', 'type__in', 'type__not_in'.
 		$raw_types = array(
 			'IN'     => array_merge( (array) $this->query_vars['type'], (array) $this->query_vars['type__in'] ),
@@ -1133,7 +1127,7 @@ class WP_Comment_Query {
 	 * Parse and sanitize 'orderby' keys passed to the comment query.
 	 *
 	 * @since 4.2.0
-	 * @since calmpress 1.0.0 do not support ordering by author url.
+	 * @since calmpress 1.0.0 do not support ordering by author url nor comment_karma.
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
@@ -1153,7 +1147,6 @@ class WP_Comment_Query {
 			'comment_date',
 			'comment_date_gmt',
 			'comment_ID',
-			'comment_karma',
 			'comment_parent',
 			'comment_post_ID',
 			'comment_type',

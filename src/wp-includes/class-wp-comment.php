@@ -232,7 +232,8 @@ class WP_Comment implements \calmpress\avatar\Has_Avatar {
 	 * Get the children of a comment.
 	 *
 	 * @since 4.4.0
-	 * @since calmpress 1.0.0 do not support comment_author_url for orderby.
+	 * @since calmpress 1.0.0 do not support comment_author_url nor comment_karma 
+	 *                        for orderby.
 	 *
 	 * @param array $args {
 	 *     Array of arguments used to pass to get_comments() and determine format.
@@ -256,7 +257,7 @@ class WP_Comment implements \calmpress\avatar\Has_Avatar {
 	 *                                 'comment_approved', 'comment_author',
 	 *                                 'comment_author_email', 'comment_author_IP',
 	 *                                 'comment_content', 'comment_date',
-	 *                                 'comment_date_gmt', 'comment_ID', 'comment_karma',
+	 *                                 'comment_date_gmt', 'comment_ID',
 	 *                                 'comment_parent', 'comment_post_ID', 'comment_type',
 	 *                                 'user_id', 'comment__in', 'meta_value', 'meta_value_num',
 	 *                                 the value of $meta_key, and the array keys of
