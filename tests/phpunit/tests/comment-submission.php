@@ -737,4 +737,37 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$this->assertNotWPError( $second_comment );
 		$this->assertEquals( self::$post->ID, $second_comment->comment_post_ID );
 	}
+
+	/**
+	 * Test the spam honeypots of author url and timing fields.
+	 */
+	public function test_spam_honeypots() {
+
+		// author url set, should fail.
+		$data = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Did I say that?',
+			'author'          => 'Repeat myself',
+			'email'           => 'mail@example.com',
+			'url'             => 'http://fail.com',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+
+		$comment = wp_handle_comment_submission( $data );
+		$this->assertTrue( is_wp_error( $comment ) );
+		$this->assertSame( 'spam_detected', $comment->get_error_code() );
+
+		// timing field not set, should fail.
+		$data = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Did I say that?',
+			'author'          => 'Repeat myself',
+			'email'           => 'mail@example.com',
+			'timing_fail'     => 1,
+		);
+
+		$comment = wp_handle_comment_submission( $data );
+		$this->assertTrue( is_wp_error( $comment ) );
+		$this->assertSame( 'spam_timing', $comment->get_error_code() );
+	}
 }
