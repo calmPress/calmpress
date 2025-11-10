@@ -88,27 +88,6 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 44126
-	 */
-	public function test_fields_should_include_cookies_consent() {
-		$p = self::factory()->post->create( ['comment_status' => 'open'] );
-
-		add_filter( 'option_show_comments_cookies_opt_in', '__return_true' );
-
-		$args = array(
-			'fields' => array(
-				'author' => 'Hello World!',
-			),
-		);
-
-		$form = get_echo( 'comment_form', array( $args, $p ) );
-
-		remove_filter( 'option_show_comments_cookies_opt_in', '__return_true' );
-
-		$this->assertMatchesRegularExpression( '|<p class="comment\-form\-cookies\-consent">.*?</p>|', $form );
-	}
-
-	/**
 	 * @ticket 47975
 	 */
 	public function test_aria_describedby_email_notes_should_not_be_added_if_no_email_notes() {

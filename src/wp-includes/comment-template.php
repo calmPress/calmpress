@@ -2282,27 +2282,6 @@ JS;
 		}
 	);
 
-	if ( has_action( 'set_comment_cookies', 'wp_set_comment_cookies' ) && get_option( 'show_comments_cookies_opt_in' ) ) {
-		$consent = empty( $commenter['comment_author_email'] ) ? '' : $checked_attribute;
-
-		$fields['cookies'] = sprintf(
-			'<p class="comment-form-cookies-consent">%s %s</p>',
-			sprintf(
-				'<input id="wp-comment-cookies-consent" name="wp-comment-cookies-consent" type="checkbox" value="yes"%s />',
-				$consent
-			),
-			sprintf(
-				'<label for="wp-comment-cookies-consent">%s</label>',
-				__( 'Save my name and email in this browser for the next time I comment.' )
-			)
-		);
-
-		// Ensure that the passed fields include cookies consent.
-		if ( isset( $args['fields'] ) && ! isset( $args['fields']['cookies'] ) ) {
-			$args['fields']['cookies'] = $fields['cookies'];
-		}
-	}
-
 	$required_text = sprintf(
 		/* translators: %s: Asterisk symbol (*). */
 		' <span class="required-field-message" aria-hidden="true">' . __( 'Required fields are marked %s' ) . '</span>',
