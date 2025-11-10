@@ -210,6 +210,7 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 	public function test_submitting_valid_comment_anonymously_succeeds() {
 
+		// With email given.
 		$data    = array(
 			'comment_post_ID' => self::$post->ID,
 			'comment'         => 'Comment',
@@ -225,6 +226,26 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 		$this->assertSame( 'Comment', $comment->comment_content );
 		$this->assertSame( 'Comment Author', $comment->comment_author );
 		$this->assertSame( 'comment@example.org', $comment->comment_author_email );
+		$this->assertSame( '', $comment->comment_author_url );
+		$this->assertSame( '0', $comment->user_id );
+
+		// Without email given.
+		add_filter('comment_flood_filter', '__return_false'); // Avoid flood.
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Another Comment',
+			'author'          => 'Comment Author',
+			'email'           => '',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+		add_filter('comment_flood_filter', '__return_true'); // Reenable flood.
+
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+
+		$this->assertSame( 'Another Comment', $comment->comment_content );
+		$this->assertSame( 'Comment Author', $comment->comment_author );
 		$this->assertSame( '', $comment->comment_author_url );
 		$this->assertSame( '0', $comment->user_id );
 
@@ -471,38 +492,12 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 		$error = 'require_name_email';
 
-		$_require_name_email = get_option( 'require_name_email' );
-		update_option( 'require_name_email', '1' );
-
 		$data    = array(
 			'comment_post_ID' => self::$post->ID,
 			'comment'         => 'Comment',
 			'email'           => 'comment@example.org',
 		);
 		$comment = wp_handle_comment_submission( $data );
-
-		update_option( 'require_name_email', $_require_name_email );
-
-		$this->assertWPError( $comment );
-		$this->assertSame( $error, $comment->get_error_code() );
-
-	}
-
-	public function test_submitting_comment_with_no_email_when_name_email_required_returns_error() {
-
-		$error = 'require_name_email';
-
-		$_require_name_email = get_option( 'require_name_email' );
-		update_option( 'require_name_email', '1' );
-
-		$data    = array(
-			'comment_post_ID' => self::$post->ID,
-			'comment'         => 'Comment',
-			'author'          => 'Comment Author',
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		update_option( 'require_name_email', $_require_name_email );
 
 		$this->assertWPError( $comment );
 		$this->assertSame( $error, $comment->get_error_code() );
@@ -513,9 +508,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 		$error = 'require_valid_email';
 
-		$_require_name_email = get_option( 'require_name_email' );
-		update_option( 'require_name_email', '1' );
-
 		$data    = array(
 			'comment_post_ID' => self::$post->ID,
 			'comment'         => 'Comment',
@@ -523,8 +515,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 			'email'           => 'not_an_email',
 		);
 		$comment = wp_handle_comment_submission( $data );
-
-		update_option( 'require_name_email', $_require_name_email );
 
 		$this->assertWPError( $comment );
 		$this->assertSame( $error, $comment->get_error_code() );

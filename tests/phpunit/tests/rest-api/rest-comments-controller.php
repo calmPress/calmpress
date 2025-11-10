@@ -1140,7 +1140,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 
 	public function test_create_comment_missing_required_author_name() {
 		add_filter( 'rest_allow_anonymous_comments', '__return_true' );
-		update_option( 'require_name_email', 1 );
 
 		$params = array(
 			'post'         => self::$post_id,
@@ -1159,7 +1158,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 
 	public function test_create_comment_empty_required_author_name() {
 		add_filter( 'rest_allow_anonymous_comments', '__return_true' );
-		update_option( 'require_name_email', 1 );
 
 		$params = array(
 			'author_name'  => '',
@@ -1180,8 +1178,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	public function test_create_comment_missing_required_author_email() {
 		wp_set_current_user( self::$admin_id );
 
-		update_option( 'require_name_email', 1 );
-
 		$params = array(
 			'post'        => self::$post_id,
 			'author_name' => 'Edna Krabappel',
@@ -1198,8 +1194,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 
 	public function test_create_comment_empty_required_author_email() {
 		wp_set_current_user( self::$admin_id );
-
-		update_option( 'require_name_email', 1 );
 
 		$params = array(
 			'post'         => self::$post_id,
@@ -2283,8 +2277,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	public function test_update_comment_author_email_only() {
 		wp_set_current_user( self::$editor_id );
 
-		update_option( 'require_name_email', 1 );
-
 		$params = array(
 			'post'         => self::$post_id,
 			'author_email' => 'ekrabappel@springfield-elementary.edu',
@@ -2301,8 +2293,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 
 	public function test_update_comment_empty_author_name() {
 		wp_set_current_user( self::$editor_id );
-
-		update_option( 'require_name_email', 1 );
 
 		$params = array(
 			'author_name'  => '',
@@ -2322,8 +2312,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	public function test_update_comment_author_name_only() {
 		wp_set_current_user( self::$admin_id );
 
-		update_option( 'require_name_email', 1 );
-
 		$params = array(
 			'post'        => self::$post_id,
 			'author_name' => 'Edna Krabappel',
@@ -2340,8 +2328,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 
 	public function test_update_comment_empty_author_email() {
 		wp_set_current_user( self::$admin_id );
-
-		update_option( 'require_name_email', 1 );
 
 		$params = array(
 			'post'         => self::$post_id,

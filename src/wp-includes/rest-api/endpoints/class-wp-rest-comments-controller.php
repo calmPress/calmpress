@@ -617,14 +617,12 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		}
 
 		// Honor the discussion setting that requires a name and email address of the comment author.
-		if ( get_option( 'require_name_email' ) ) {
-			if ( empty( $prepared_comment['comment_author'] ) || empty( $prepared_comment['comment_author_email'] ) ) {
-				return new WP_Error(
-					'rest_comment_author_data_required',
-					__( 'Creating a comment requires valid author name and email values.' ),
-					array( 'status' => 400 )
-				);
-			}
+		if ( empty( $prepared_comment['comment_author'] ) || empty( $prepared_comment['comment_author_email'] ) ) {
+			return new WP_Error(
+				'rest_comment_author_data_required',
+				__( 'Creating a comment requires valid author name and email values.' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		if ( ! isset( $prepared_comment['comment_author_email'] ) ) {

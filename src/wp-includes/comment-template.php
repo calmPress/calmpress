@@ -1225,8 +1225,6 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 		$file = '/comments.php';
 	}
 
-	$req = get_option( 'require_name_email' );
-
 	/*
 	 * Comment author information fetched from the comment cookies.
 	 */
@@ -2210,7 +2208,6 @@ function comment_form( $args = array(), $post_id = null ) {
 		$args['format'] = current_theme_supports( 'html5', 'comment-form' ) ? 'html5' : 'xhtml';
 	}
 
-	$req   = get_option( 'require_name_email' );
 	$html5 = 'html5' === $args['format'];
 
 	// Define attributes in HTML5 or XHTML syntax.
@@ -2226,26 +2223,29 @@ function comment_form( $args = array(), $post_id = null ) {
 			sprintf(
 				'<label for="author">%s%s</label>',
 				__( 'Name' ),
-				( $req ? $required_indicator : '' )
+				$required_indicator
 			),
 			sprintf(
 				'<input id="author" name="author" type="text" value="%s" size="30" maxlength="245"%s />',
 				esc_attr( $commenter['comment_author'] ),
-				( $req ? $required_attribute : '' )
+				$required_attribute
 			)
 		),
 		'email'  => sprintf(
-			'<p class="comment-form-email">%s %s</p>',
+			'<p class="comment-form-email">%s %s %s</p>',
 			sprintf(
-				'<label for="email">%s%s</label>',
+				'<label for="email">%s <span class="optional">%s</span></label>',
 				__( 'Email' ),
-				( $req ? $required_indicator : '' )
+				__( '(optional)' )
 			),
 			sprintf(
-				'<input id="email" name="email" %s value="%s" size="30" maxlength="100" aria-describedby="email-notes"%s />',
+				'<input id="email" name="email" %s value="%s" size="30" maxlength="100" aria-describedby="email-notes" />',
 				( $html5 ? 'type="email"' : 'type="text"' ),
-				esc_attr( $commenter['comment_author_email'] ),
-				( $req ? $required_attribute : '' )
+				esc_attr( $commenter['comment_author_email'] )
+			),
+			sprintf(
+				'<small id="email-description" class="description" style="display:block; margin-top:0.5em">%s</small>',
+				__( 'Shared only with site admins so they can contact you if necessary, and it helps identify comments you made from different devices.')
 			)
 		),
 		'url'    => '<input type="text" name="url" id="url" autocomplete="off">',
