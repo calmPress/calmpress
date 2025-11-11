@@ -2136,6 +2136,7 @@ function wp_list_comments( $args = array(), $comments = null ) {
  * @since 4.6.0 Introduced the 'action' argument.
  * @since 4.9.6 Introduced the 'cookies' default comment field.
  * @since 5.5.0 Introduced the 'class_container' argument.
+ * @since calmPress 1.0.0 Introduced the 'disclosure' argument.
  *
  * @param array       $args {
  *     Optional. Default arguments and form fields to override.
@@ -2179,6 +2180,7 @@ function wp_list_comments( $args = array(), $comments = null ) {
  *                                        fields. Default: '<p class="form-submit">%1$s %2$s</p>', where %1$s is the
  *                                        submit button markup and %2$s is the comment hidden fields.
  *     @type string $format               The comment form format. Default 'xhtml'. Accepts 'xhtml', 'html5'.
+ *     @type string $disclosure           The text for the disclosure notice.
  * }
  * @param int|WP_Post $post_id Post ID or WP_Post object to generate the form for. Default current post.
  */
@@ -2226,7 +2228,7 @@ function comment_form( $args = array(), $post_id = null ) {
 				$required_indicator
 			),
 			sprintf(
-				'<input id="author" name="author" type="text" value="%s" size="30" maxlength="245"%s />',
+				'<input id="author" name="author" type="text" autocomplete="name" value="%s" size="30" maxlength="245"%s />',
 				esc_attr( $commenter['comment_author'] ),
 				$required_attribute
 			)
@@ -2239,7 +2241,7 @@ function comment_form( $args = array(), $post_id = null ) {
 				__( '(optional)' )
 			),
 			sprintf(
-				'<input id="email" name="email" %s value="%s" size="30" maxlength="100" aria-describedby="email-notes" />',
+				'<input id="email" name="email" autocomplete="email" %s value="%s" size="30" maxlength="100" aria-describedby="email-notes" />',
 				( $html5 ? 'type="email"' : 'type="text"' ),
 				esc_attr( $commenter['comment_author_email'] )
 			),
@@ -2359,6 +2361,7 @@ JS;
 		'submit_button'        => '<input name="%1$s" type="submit" id="%2$s" class="%3$s" value="%4$s" />',
 		'submit_field'         => '<p class="form-submit">%1$s %2$s</p>',
 		'format'               => 'xhtml',
+		'disclosure'           => esc_html( 'By posting, you agree that your comment and the supplied name will be publicly published, and that we use a cookie to improve your experience when posting future comments.' ),
 	);
 
 	/**
@@ -2593,6 +2596,7 @@ JS;
 
 		endif;
 		?>
+		<p id="comment_disclosure"><small><?php echo $args['disclosure'];?></small></p>
 	</div><!-- #respond -->
 	<?php
 
