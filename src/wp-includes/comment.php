@@ -1767,9 +1767,6 @@ function wp_get_current_commenter() {
 	}
 
 	$comment_author_url = '';
-	if ( isset( $_COOKIE[ 'comment_author_url_' . COOKIEHASH ] ) ) {
-		$comment_author_url = $_COOKIE[ 'comment_author_url_' . COOKIEHASH ];
-	}
 
 	/**
 	 * Filters the current commenter's name, email, and URL.
