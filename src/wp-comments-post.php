@@ -39,33 +39,21 @@ if ( is_wp_error( $comment ) ) {
 	}
 }
 
-$user            = wp_get_current_user();
-$cookies_consent = ( isset( $_POST['wp-comment-cookies-consent'] ) );
+$user = wp_get_current_user();
 
 /**
  * Perform other actions when comment cookies are set.
  *
  * @since 3.4.0
  * @since 4.9.6 The `$cookies_consent` parameter was added.
- *
+ * 
  * @param WP_Comment $comment         Comment object.
  * @param WP_User    $user            Comment author's user object. The user may not exist.
  * @param bool       $cookies_consent Comment author's consent to store cookies.
  */
-do_action( 'set_comment_cookies', $comment, $user, $cookies_consent );
+do_action( 'set_comment_cookies', $comment, $user, true );
 
 $location = empty( $_POST['redirect_to'] ) ? get_comment_link( $comment ) : $_POST['redirect_to'] . '#comment-' . $comment->comment_ID;
-
-// If user didn't consent to cookies, add specific query arguments to display the awaiting moderation message.
-if ( ! $cookies_consent && 'unapproved' === wp_get_comment_status( $comment ) && ! empty( $comment->comment_author_email ) ) {
-	$location = add_query_arg(
-		array(
-			'unapproved'      => $comment->comment_ID,
-			'moderation-hash' => wp_hash( $comment->comment_date_gmt ),
-		),
-		$location
-	);
-}
 
 /**
  * Filters the location URI to send the commenter after posting.
