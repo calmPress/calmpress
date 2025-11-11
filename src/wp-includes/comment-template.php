@@ -2154,7 +2154,6 @@ function wp_list_comments( $args = array(), $comments = null ) {
  *     @type string $logged_in_as         HTML element for a 'logged in as [user]' message.
  *     @type string $comment_notes_before HTML element for a message displayed before the comment fields
  *                                        if the user is not logged in.
- *                                        Default 'Your email address will not be published.'.
  *     @type string $comment_notes_after  HTML element for a message displayed after the textarea field.
  *     @type string $action               The comment form element action attribute. Default '/wp-comments-post.php'.
  *     @type string $id_form              The comment form element id attribute. Default 'commentform'.
@@ -2246,7 +2245,7 @@ function comment_form( $args = array(), $post_id = null ) {
 				esc_attr( $commenter['comment_author_email'] )
 			),
 			sprintf(
-				'<small id="email-description" class="description" style="display:block; margin-top:0.5em">%s</small>',
+				'<small id="email-notes" class="description" style="display:block; margin-top:0.5em">%s</small>',
 				__( 'Shared only with site admins so they can contact you if necessary, and it helps identify comments you made from different devices.')
 			)
 		),
@@ -2333,14 +2332,7 @@ JS;
 			),
 			$required_text
 		),
-		'comment_notes_before' => sprintf(
-			'<p class="comment-notes">%s%s</p>',
-			sprintf(
-				'<span id="email-notes">%s</span>',
-				__( 'Your email address will not be published.' )
-			),
-			$required_text
-		),
+		'comment_notes_before' => '',
 		'comment_notes_after'  => '',
 		'action'               => site_url( '/wp-comments-post.php' ),
 		'id_form'              => 'commentform',
@@ -2378,15 +2370,6 @@ JS;
 	// Ensure that the filtered arguments contain all required default values.
 	$args = array_merge( $defaults, $args );
 
-	// Remove `aria-describedby` from the email field if there's no associated description.
-	if ( isset( $args['fields']['email'] ) && false === strpos( $args['comment_notes_before'], 'id="email-notes"' ) ) {
-		$args['fields']['email'] = str_replace(
-			' aria-describedby="email-notes"',
-			'',
-			$args['fields']['email']
-		);
-	}
-
 	/**
 	 * Fires before the comment form.
 	 *
@@ -2423,11 +2406,10 @@ JS;
 		else :
 
 			printf(
-				'<form action="%s" method="post" id="%s" class="%s"%s>',
+				'<form action="%s" method="post" id="%s" class="%s">',
 				esc_url( $args['action'] ),
 				esc_attr( $args['id_form'] ),
-				esc_attr( $args['class_form'] ),
-				( $html5 ? ' novalidate' : '' )
+				esc_attr( $args['class_form'] )
 			);
 
 			/**

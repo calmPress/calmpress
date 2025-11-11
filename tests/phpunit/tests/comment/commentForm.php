@@ -88,29 +88,6 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 47975
-	 */
-	public function test_aria_describedby_email_notes_should_not_be_added_if_no_email_notes() {
-		$p = self::factory()->post->create(
-			[
-				'comment_status' => 'open',
-			]
-		);
-
-		$form_with_aria = get_echo( 'comment_form', array( array(), $p ) );
-
-		$this->assertStringContainsString( 'aria-describedby="email-notes"', $form_with_aria );
-
-		$args = array(
-			'comment_notes_before' => '',
-		);
-
-		$form_without_aria = get_echo( 'comment_form', array( $args, $p ) );
-
-		$this->assertStringNotContainsString( 'aria-describedby="email-notes"', $form_without_aria );
-	}
-
-	/**
 	 * @ticket 32767
 	 */
 	public function test_when_thread_comments_enabled() {
