@@ -507,8 +507,9 @@ function wp_queue_comments_for_comment_meta_lazyload( $comments ) {
 }
 
 /**
- * Sets the cookies used to store an unauthenticated commentator's identity. Typically used
- * to recall previous comments by this commentator that are still held in moderation.
+ * Sets the cookies used to store commentator's identity. Typically used
+ * to recall previous comments by this commentator that are still held in moderation,
+ * and prefill values in the comment form.
  *
  * @since 3.4.0
  * @since 4.9.6 The `$cookies_consent` parameter was added.
@@ -518,17 +519,9 @@ function wp_queue_comments_for_comment_meta_lazyload( $comments ) {
  * @param bool       $cookies_consent Optional. Comment author's consent to store cookies. Default true.
  */
 function wp_set_comment_cookies( $comment, $user, $cookies_consent = true ) {
-	// If the user already exists, or the user opted out of cookies, don't set cookies.
-	if ( $user->exists() ) {
-		return;
-	}
 
-	if ( false === $cookies_consent ) {
-		// Remove any existing cookies.
-		$past = time() - YEAR_IN_SECONDS;
-		setcookie( 'comment_author_' . COOKIEHASH, ' ', $past, COOKIEPATH, COOKIE_DOMAIN );
-		setcookie( 'comment_author_email_' . COOKIEHASH, ' ', $past, COOKIEPATH, COOKIE_DOMAIN );
-
+	// Nothing to do if cookie already set,
+	if ( isset( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) ) {
 		return;
 	}
 
@@ -539,12 +532,11 @@ function wp_set_comment_cookies( $comment, $user, $cookies_consent = true ) {
 	 *
 	 * @param int $seconds Comment cookie lifetime. Default 30000000.
 	 */
-	$comment_cookie_lifetime = time() + apply_filters( 'comment_cookie_lifetime', 30000000 );
+	$comment_cookie_lifetime = time() + apply_filters( 'comment_cookie_lifetime', YEAR_IN_SECONDS );
 
 	$secure = ( 'https' === parse_url( home_url(), PHP_URL_SCHEME ) );
 
-	setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
-	setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
+	setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_ID, $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
 }
 
 /**
@@ -1754,19 +1746,21 @@ function _clear_modified_cache_on_transition_comment_status( $new_status, $old_s
  * }
  */
 function wp_get_current_commenter() {
-	// Cookies should already be sanitized.
 
 	$comment_author = '';
-	if ( isset( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) ) {
-		$comment_author = $_COOKIE[ 'comment_author_' . COOKIEHASH ];
-	}
-
 	$comment_author_email = '';
-	if ( isset( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) {
-		$comment_author_email = $_COOKIE[ 'comment_author_email_' . COOKIEHASH ];
-	}
-
 	$comment_author_url = '';
+
+	if ( isset( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) ) {
+		$comment_id = (int) $_COOKIE[ 'comment_author_' . COOKIEHASH ];
+		if ( $comment_id ) {
+			$comment = get_comment( $comment_id );
+			if ( $comment ) {
+				$comment_author       = $comment->comment_author;
+				$comment_author_email = $comment->comment_author_email;
+			}
+		}
+	}
 
 	/**
 	 * Filters the current commenter's name, email, and URL.
@@ -2766,6 +2760,12 @@ function wp_handle_comment_submission( $comment_data ) {
 	if ( isset( $comment_data['email'] ) && is_string( $comment_data['email'] ) ) {
 		$comment_author_email = trim( $comment_data['email'] );
 	}
+
+	// Assign dummy email if empty
+	if ( empty( $comment_author_email ) ) {
+		$comment_author_email = 'anon-' . uniqid() . '@example.com';
+	}
+
 	if ( isset( $comment_data['url'] ) && is_string( $comment_data['url'] ) ) {
 		$comment_author_url = trim( $comment_data['url'] );
 	}
