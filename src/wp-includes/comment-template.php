@@ -1610,9 +1610,7 @@ function get_comment_reply_link( $args = array(), $comment = null, $post = null 
 			esc_url(
 				add_query_arg(
 					array(
-						'replytocom'      => $comment->comment_ID,
-						'unapproved'      => false,
-						'moderation-hash' => false,
+						'replytocom'      => $comment->comment_ID
 					),
 					$permalink
 				)
@@ -1757,7 +1755,7 @@ function get_cancel_comment_reply_link( $text = '' ) {
 	}
 
 	$style = isset( $_GET['replytocom'] ) ? '' : ' style="display:none;"';
-	$link  = esc_html( remove_query_arg( array( 'replytocom', 'unapproved', 'moderation-hash' ) ) ) . '#respond';
+	$link  = esc_html( remove_query_arg( array( 'replytocom' ) ) ) . '#respond';
 
 	$formatted_link = '<a rel="nofollow" id="cancel-comment-reply-link" href="' . $link . '"' . $style . '>' . $text . '</a>';
 
