@@ -2317,18 +2317,12 @@ JS;
 			)
 		),
 		'logged_in_as'         => sprintf(
-			'<p class="logged-in-as">%s%s</p>',
+			'<p class="logged-in-as">%s</p>',
 			sprintf(
-				/* translators: 1: Edit user link, 2: Accessibility text, 3: User name, 4: Logout URL. */
-				__( '<a href="%1$s" aria-label="%2$s">Logged in as %3$s</a>. <a href="%4$s">Log out?</a>' ),
-				get_edit_user_link(),
-				/* translators: %s: User name. */
-				esc_attr( sprintf( __( 'Logged in as %s. Edit your profile.' ), $user_identity ) ),
-				$user_identity,
-				/** This filter is documented in wp-includes/link-template.php */
-				wp_logout_url( apply_filters( 'the_permalink', get_permalink( $post_id ), $post_id ) )
-			),
-			$required_text
+				/* translators: 1: User display name. */
+				__( 'Logged in as %1$s.' ),
+				$user_identity
+			)
 		),
 		'comment_notes_before' => '',
 		'comment_notes_after'  => '',
