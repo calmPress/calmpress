@@ -186,10 +186,6 @@ class Walker_Comment extends Walker {
 			return;
 		}
 
-		if ( 'comment' === $comment->comment_type ) {
-			add_filter( 'comment_text', array( $this, 'filter_comment_text' ), 40, 2 );
-		}
-
 		if ( 'html5' === $args['format'] ) {
 			ob_start();
 			$this->html5_comment( $comment, $depth, $args );
@@ -198,10 +194,6 @@ class Walker_Comment extends Walker {
 			ob_start();
 			$this->comment( $comment, $depth, $args );
 			$output .= ob_get_clean();
-		}
-
-		if ( 'comment' === $comment->comment_type ) {
-			remove_filter( 'comment_text', array( $this, 'filter_comment_text' ), 40 );
 		}
 	}
 
@@ -239,29 +231,6 @@ class Walker_Comment extends Walker {
 	}
 
 	/**
-	 * Filters the comment text.
-	 *
-	 * Removes links from the pending comment's text if the commenter did not consent
-	 * to the comment cookies.
-	 *
-	 * @since 5.4.2
-	 *
-	 * @param string          $comment_text Text of the current comment.
-	 * @param WP_Comment|null $comment      The comment object. Null if not found.
-	 * @return string Filtered text of the current comment.
-	 */
-	public function filter_comment_text( $comment_text, $comment ) {
-		$commenter          = wp_get_current_commenter();
-		$show_pending_links = ! empty( $commenter['comment_author'] );
-
-		if ( $comment && '0' == $comment->comment_approved && ! $show_pending_links ) {
-			$comment_text = wp_kses( $comment_text, array() );
-		}
-
-		return $comment_text;
-	}
-
-	/**
 	 * Outputs a single comment.
 	 *
 	 * @since 3.6.0
@@ -281,14 +250,7 @@ class Walker_Comment extends Walker {
 			$add_below = 'div-comment';
 		}
 
-		$commenter          = wp_get_current_commenter();
-		$show_pending_links = isset( $commenter['comment_author'] ) && $commenter['comment_author'];
-
-		if ( $commenter['comment_author_email'] ) {
-			$moderation_note = __( 'Your comment is awaiting moderation.' );
-		} else {
-			$moderation_note = __( 'Your comment is awaiting moderation. This is a preview; your comment will be visible after it has been approved.' );
-		}
+		$moderation_note = __( 'Your comment is awaiting moderation.' );
 		?>
 		<<?php echo $tag; ?> <?php comment_class( $this->has_children ? 'parent' : '', $comment ); ?> id="comment-<?php comment_ID(); ?>">
 		<?php if ( 'div' !== $args['style'] ) : ?>
@@ -301,11 +263,7 @@ class Walker_Comment extends Walker {
 			}
 			?>
 			<?php
-			$comment_author = get_comment_author_link( $comment );
-
-			if ( '0' == $comment->comment_approved && ! $show_pending_links ) {
-				$comment_author = get_comment_author( $comment );
-			}
+			$comment_author = get_comment_author( $comment );
 
 			printf(
 				/* translators: %s: Comment author link. */
@@ -385,14 +343,7 @@ class Walker_Comment extends Walker {
 	protected function html5_comment( $comment, $depth, $args ) {
 		$tag = ( 'div' === $args['style'] ) ? 'div' : 'li';
 
-		$commenter          = wp_get_current_commenter();
-		$show_pending_links = ! empty( $commenter['comment_author'] );
-
-		if ( $commenter['comment_author_email'] ) {
-			$moderation_note = __( 'Your comment is awaiting moderation.' );
-		} else {
-			$moderation_note = __( 'Your comment is awaiting moderation. This is a preview; your comment will be visible after it has been approved.' );
-		}
+		$moderation_note = __( 'Your comment is awaiting moderation.' );
 		?>
 		<<?php echo $tag; ?> id="comment-<?php comment_ID(); ?>" <?php comment_class( $this->has_children ? 'parent' : '', $comment ); ?>>
 			<article id="div-comment-<?php comment_ID(); ?>" class="comment-body">
@@ -404,11 +355,7 @@ class Walker_Comment extends Walker {
 						}
 						?>
 						<?php
-						$comment_author = get_comment_author_link( $comment );
-
-						if ( '0' == $comment->comment_approved && ! $show_pending_links ) {
-							$comment_author = get_comment_author( $comment );
-						}
+						$comment_author = get_comment_author( $comment );
 
 						printf(
 							/* translators: %s: Comment author link. */
@@ -446,20 +393,18 @@ class Walker_Comment extends Walker {
 				</div><!-- .comment-content -->
 
 				<?php
-				if ( '1' == $comment->comment_approved || $show_pending_links ) {
-					comment_reply_link(
-						array_merge(
-							$args,
-							array(
-								'add_below' => 'div-comment',
-								'depth'     => $depth,
-								'max_depth' => $args['max_depth'],
-								'before'    => '<div class="reply">',
-								'after'     => '</div>',
-							)
+				comment_reply_link(
+					array_merge(
+						$args,
+						array(
+							'add_below' => 'div-comment',
+							'depth'     => $depth,
+							'max_depth' => $args['max_depth'],
+							'before'    => '<div class="reply">',
+							'after'     => '</div>',
 						)
-					);
-				}
+					)
+				);
 				?>
 			</article><!-- .comment-body -->
 		<?php
