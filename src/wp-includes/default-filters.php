@@ -78,6 +78,18 @@ foreach ( array( 'comment_url', 'post_guid' ) as $filter ) {
 	}
 }
 
+// Maybe forget current comment identity.
+add_action( 'init', function() {
+    if ( isset( $_GET['reset_comment_identity'] ) ) {
+        // Clear pseudo-identity cookie
+        setcookie('comment_author_' . COOKIEHASH, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
+
+        // Redirect back to same URL without the parameter
+        wp_safe_redirect( remove_query_arg('reset_comment_identity') );
+        die();
+    }
+});
+
 // Slugs.
 add_filter( 'pre_term_slug', 'sanitize_title' );
 add_filter( 'wp_insert_post_data', '_wp_customize_changeset_filter_insert_post_data', 10, 2 );

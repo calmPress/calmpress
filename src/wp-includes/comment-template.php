@@ -1225,23 +1225,6 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 		$file = '/comments.php';
 	}
 
-	/*
-	 * Comment author information fetched from the comment cookies.
-	 */
-	$commenter = wp_get_current_commenter();
-
-	/*
-	 * The name of the current comment author escaped for use in attributes.
-	 * Escaped by sanitize_comment_cookies().
-	 */
-	$comment_author = $commenter['comment_author'];
-
-	/*
-	 * The email address of the current comment author escaped for use in attributes.
-	 * Escaped by sanitize_comment_cookies().
-	 */
-	$comment_author_email = $commenter['comment_author_email'];
-
 	$comment_args = array(
 		'orderby'                   => 'comment_date_gmt',
 		'order'                     => 'ASC',
@@ -2177,7 +2160,8 @@ function wp_list_comments( $args = array(), $comments = null ) {
  *                                        fields. Default: '<p class="form-submit">%1$s %2$s</p>', where %1$s is the
  *                                        submit button markup and %2$s is the comment hidden fields.
  *     @type string $format               The comment form format. Default 'xhtml'. Accepts 'xhtml', 'html5'.
- *     @type string $disclosure           The text for the disclosure notice.
+ *     @type string $disclosure           The text for the disclosure notice witha link
+ *                                        to reset the identity cookie.
  * }
  * @param int|WP_Post $post_id Post ID or WP_Post object to generate the form for. Default current post.
  */
@@ -2201,6 +2185,13 @@ function comment_form( $args = array(), $post_id = null ) {
 	$commenter     = wp_get_current_commenter();
 	$user          = wp_get_current_user();
 	$user_identity = $user->exists() ? $user->display_name : '';
+
+	// Replace dummy emails with empty string.
+	$comment_author_email = $commenter['comment_author_email'];
+	if ( preg_match('/^anon-[0-9a-f]+@example\.com$/', $comment_author_email ) ) {
+		// This is a dummy email, should not be made public.
+		$comment_author_email = '';
+	}
 
 	$args = wp_parse_args( $args );
 	if ( ! isset( $args['format'] ) ) {
@@ -2240,7 +2231,7 @@ function comment_form( $args = array(), $post_id = null ) {
 			sprintf(
 				'<input id="email" name="email" autocomplete="email" %s value="%s" size="30" maxlength="100" aria-describedby="email-notes" />',
 				( $html5 ? 'type="email"' : 'type="text"' ),
-				esc_attr( $commenter['comment_author_email'] )
+				esc_attr( $comment_author_email )
 			),
 			sprintf(
 				'<small id="email-notes" class="description" style="display:block; margin-top:0.5em">%s</small>',
@@ -2320,7 +2311,7 @@ JS;
 			'<p class="logged-in-as">%s</p>',
 			sprintf(
 				/* translators: 1: User display name. */
-				__( 'Logged in as %1$s.' ),
+				__( 'You are logged in, comment will show %1$s as author.' ),
 				$user_identity
 			)
 		),
@@ -2345,7 +2336,11 @@ JS;
 		'submit_button'        => '<input name="%1$s" type="submit" id="%2$s" class="%3$s" value="%4$s" />',
 		'submit_field'         => '<p class="form-submit">%1$s %2$s</p>',
 		'format'               => 'xhtml',
-		'disclosure'           => esc_html( 'By posting, you agree that your comment and the supplied name will be publicly published, and that we use a cookie to improve your experience when posting future comments.' ),
+		'disclosure'           => esc_html__( 'By posting, you agree that your comment and the supplied name will be publicly published, and that we use a cookie to improve your experience when posting future comments.' ) .
+		                          '<br>' .
+								  '<a href="?reset_comment_identity=1#respond">' .
+								  esc_html__( 'Forget current commenting info (clear cookie)' ) .
+								  '</a>'
 	);
 
 	/**
@@ -2411,7 +2406,7 @@ JS;
 			 */
 			do_action( 'comment_form_top' );
 
-			if ( is_user_logged_in() ) :
+			if ( is_user_logged_in() ) {
 
 				/**
 				 * Filters the 'logged in' message for the comment form for display.
@@ -2438,11 +2433,9 @@ JS;
 				 */
 				do_action( 'comment_form_logged_in_after', $commenter, $user_identity );
 
-			else :
-
+			} else {
 				echo $args['comment_notes_before'];
-
-			endif;
+			}
 
 			// Prepare an array of all fields, including the textarea.
 			$comment_fields = array( 'comment' => $args['comment_field'] ) + (array) $args['fields'];
@@ -2569,8 +2562,11 @@ JS;
 			echo '</form>';
 
 		endif;
+
+		if ( ! is_user_logged_in() ) {
 		?>
 		<p id="comment_disclosure"><small><?php echo $args['disclosure'];?></small></p>
+		<?php } ?>
 	</div><!-- #respond -->
 	<?php
 

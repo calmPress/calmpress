@@ -520,17 +520,12 @@ function wp_queue_comments_for_comment_meta_lazyload( $comments ) {
  */
 function wp_set_comment_cookies( $comment, $user, $cookies_consent = true ) {
 
-	// Nothing to do if cookie already set,
-	if ( isset( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) ) {
-		return;
-	}
-
 	/**
 	 * Filters the lifetime of the comment cookie in seconds.
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param int $seconds Comment cookie lifetime. Default 30000000.
+	 * @param int $seconds Comment cookie lifetime. Default one year.
 	 */
 	$comment_cookie_lifetime = time() + apply_filters( 'comment_cookie_lifetime', YEAR_IN_SECONDS );
 
@@ -564,24 +559,6 @@ function sanitize_comment_cookies() {
 		$comment_author = esc_attr( $comment_author );
 
 		$_COOKIE[ 'comment_author_' . COOKIEHASH ] = $comment_author;
-	}
-
-	if ( isset( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) {
-		/**
-		 * Filters the comment author's email cookie before it is set.
-		 *
-		 * When this filter hook is evaluated in wp_filter_comment(),
-		 * the comment author's email string is passed.
-		 *
-		 * @since 1.5.0
-		 *
-		 * @param string $author_email_cookie The comment author email cookie.
-		 */
-		$comment_author_email = apply_filters( 'pre_comment_author_email', $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] );
-		$comment_author_email = wp_unslash( $comment_author_email );
-		$comment_author_email = esc_attr( $comment_author_email );
-
-		$_COOKIE[ 'comment_author_email_' . COOKIEHASH ] = $comment_author_email;
 	}
 }
 
@@ -2726,6 +2703,7 @@ function _close_comments_for_old_post( $open, $post_id ) {
  * expect slashed data.
  *
  * @since 4.4.0
+ * @since calmPress 1.0.0 content of all comments is kses.
  *
  * @param array $comment_data {
  *     Comment data.
@@ -2736,8 +2714,6 @@ function _close_comments_for_old_post( $open, $post_id ) {
  *     @type string     $url                         The comment author URL.
  *     @type string     $comment                     The content of the comment.
  *     @type string|int $comment_parent              The ID of this comment's parent, if any. Default 0.
- *     @type string     $_wp_unfiltered_html_comment The nonce value for allowing unfiltered HTML.
- *                                                   Ignored in calmpress.
  * }
  * @return WP_Comment|WP_Error A WP_Comment object on success, a WP_Error object on failure.
  */
@@ -2759,11 +2735,6 @@ function wp_handle_comment_submission( $comment_data ) {
 	}
 	if ( isset( $comment_data['email'] ) && is_string( $comment_data['email'] ) ) {
 		$comment_author_email = trim( $comment_data['email'] );
-	}
-
-	// Assign dummy email if empty
-	if ( empty( $comment_author_email ) ) {
-		$comment_author_email = 'anon-' . uniqid() . '@example.com';
 	}
 
 	if ( isset( $comment_data['url'] ) && is_string( $comment_data['url'] ) ) {

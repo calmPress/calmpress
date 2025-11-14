@@ -22,6 +22,24 @@ require __DIR__ . '/wp-load.php';
 
 nocache_headers();
 
+// Assign dummy email if email not given, or based on previous comment if there was.
+if ( empty( $_POST['email'] ) ) {
+	if ( isset( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) ) {
+		$id = (int) $_COOKIE[ 'comment_author_' . COOKIEHASH ];
+		if ( $id ) {
+			$comment = get_comment( $id );
+			if ( $comment ) {
+				$_POST['email'] = $comment->comment_author_email;
+			}
+		}
+	}
+
+	// If there was no valid previous comment, get a unique dummy address.
+	if ( empty( $_POST['email'] ) ) {
+		$_POST['email'] = 'anon-' . uniqid() . '@example.com';
+	}
+}
+
 $comment = wp_handle_comment_submission( wp_unslash( $_POST ) );
 if ( is_wp_error( $comment ) ) {
 	$data = (int) $comment->get_error_data();
