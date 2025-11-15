@@ -2222,7 +2222,7 @@ function comment_form( $args = array(), $post_id = null ) {
 			)
 		),
 		'email'  => sprintf(
-			'<p class="comment-form-email">%s %s %s</p>',
+			'<p class="comment-form-email">%s %s %s %s</p>',
 			sprintf(
 				'<label for="email">%s <span class="optional">%s</span></label>',
 				__( 'Email' ),
@@ -2236,6 +2236,13 @@ function comment_form( $args = array(), $post_id = null ) {
 			sprintf(
 				'<small id="email-notes" class="description" style="display:block; margin-top:0.5em">%s</small>',
 				__( 'Shared only with site admins so they can contact you if necessary, and it helps identify comments you made from different devices.')
+			),
+			sprintf(
+				'<small id="email-login-reminder" class="description" style="display:none; margin-top:0.5em">%s</small>',
+				sprintf(
+					esc_html__( 'Have an account? %s to link this comment to it.' ),
+					'<a href="' . esc_url( wp_login_url( get_permalink() . '#respond' ) ). '"><b>' . esc_html__( 'Log in' ) . '</b></a>'
+				)
 			)
 		),
 		'url'    => '<input type="text" name="url" id="url" autocomplete="off">',
@@ -2266,6 +2273,19 @@ function comment_form( $args = array(), $post_id = null ) {
             input.value = '1';
             form.appendChild( input );
         }, 3000);
+
+		const email_input = document.getElementById( 'email' );
+		if ( email_input ) {
+			const login_hint = document.getElementById( 'email-login-reminder' );
+			const email_notes = document.getElementById( 'email-notes' );
+
+			email_input.addEventListener( 'input', () => {
+				if ( email_input.value.trim() ) {
+					login_hint.style.display = 'block';
+					email_notes.style.display = 'none';
+				}
+			});
+		};
     });
 </script>
 JS;
