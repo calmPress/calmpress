@@ -43,24 +43,66 @@ class Text_Based_Avatar implements Avatar {
 
 	/**
 	 * Conversion helper to get color base on a number. Based on the colors from
-	 * https://material-ui.com/style/color/ which have a good contrast for white
-	 * text.
+	 * https://material-ui.com/style/color/ and suggestions form chatgpt
+	 * which have a good contrast for white text.
 	 *
 	 * @var string[]
 	 *
 	 * @since 1.0.0
 	 */
 	const COLORS = [
-		0 => '#f44336', // Red.
-		1 => '#e91e63', // Pink.
-		2 => '#9c27b0', // Purple.
-		3 => '#673ab7', // Deep purple.
-		4 => '#3f51b5', // Indigo.
-		5 => '#2196f3', // Blue.
-		6 => '#009688', // Teal.
-		7 => '#ff5722', // Deep Orange.
-		8 => '#795548', // Brown.
-		9 => '#607d8b', // Blue gray.
+		0  => '#f44336', // Red
+		1  => '#e91e63', // Pink
+		2  => '#9c27b0', // Purple
+		3  => '#673ab7', // Deep purple
+		4  => '#3f51b5', // Indigo
+		5  => '#2196f3', // Blue
+		6  => '#009688', // Teal
+		7  => '#ff5722', // Deep Orange
+		8  => '#795548', // Brown
+		9  => '#607d8b', // Blue gray
+		10 => '#4caf50', // Green
+		11 => '#00bcd4', // Cyan / Turquoise
+		12 => '#8bc34a', // Light Green
+		13 => '#ff9800', // Orange
+		14 => '#3e2723', // Dark Brown
+		15 => '#1a237e', // Dark Indigo
+		16 => '#d32f2f', // Dark Red
+		17 => '#7b1fa2', // Deep Purple variant
+		18 => '#1976d2', // Strong Blue
+		19 => '#00796b', // Dark Teal
+
+		// Additional 30 colors
+		20 => '#c2185b', // Magenta
+		21 => '#512da8', // Indigo variant
+		22 => '#303f9f', // Blue variant
+		23 => '#0288d1', // Cyan-Blue
+		24 => '#388e3c', // Dark Green
+		25 => '#689f38', // Olive Green
+		26 => '#f57c00', // Amber-Orange
+		27 => '#e64a19', // Rust Orange
+		28 => '#455a64', // Slate Gray
+		29 => '#6a1b9a', // Purple variant
+		30 => '#283593', // Blue-indigo
+		31 => '#0097a7', // Teal-Cyan
+		32 => '#2e7d32', // Forest Green
+		33 => '#f4511e', // Strong Orange
+		34 => '#ad1457', // Dark Pink / Magenta
+		35 => '#4a148c', // Deep Purple variant
+		36 => '#01579b', // Dark Cyan-Blue
+		37 => '#00695c', // Teal variant
+		38 => '#f57f17', // Golden Orange
+		39 => '#bf360c', // Dark Orange-Brown
+		40 => '#4e342e', // Cocoa variant
+		41 => '#263238', // Deep Slate
+		42 => '#2c387e', // Navy variant
+		43 => '#007bb2', // Medium Blue
+		44 => '#33691e', // Dark Olive Green
+		45 => '#8e24aa', // Violet
+		46 => '#f06292', // Bright Pink
+		47 => '#ba68c8', // Light Purple
+		48 => '#1e88e5', // Bright Blue
+		49 => '#00897b', // Medium Teal
 	];
 
 	/**
