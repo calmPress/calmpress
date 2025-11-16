@@ -23,7 +23,9 @@ require __DIR__ . '/wp-load.php';
 nocache_headers();
 
 // Assign dummy email if email not given, or based on previous comment if there was.
+
 if ( empty( $_POST['email'] ) ) {
+	// Try to restore email from cookie if no email was submitted.
 	if ( isset( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) ) {
 		$id = (int) $_COOKIE[ 'comment_author_' . COOKIEHASH ];
 		if ( $id ) {
@@ -33,11 +35,18 @@ if ( empty( $_POST['email'] ) ) {
 			}
 		}
 	}
-
-	// If there was no valid previous comment, get a unique dummy address.
-	if ( empty( $_POST['email'] ) ) {
-		$_POST['email'] = 'anon-' . uniqid() . '@example.com';
+} else {
+	// email address was given, check whether it belongs to a registered user.
+	$existing_user = get_user_by( 'email', $_POST['email'] );
+	if ( $existing_user ) {
+		// Treat as if no email was supplied to avoid impersonation.
+		$_POST['email'] = '';
 	}
+}
+
+// If still empty generate a dummy.
+if ( empty( $_POST['email'] ) ) {
+	$_POST['email'] = 'anon-' . uniqid() . '@example.com';
 }
 
 $comment = wp_handle_comment_submission( wp_unslash( $_POST ) );
