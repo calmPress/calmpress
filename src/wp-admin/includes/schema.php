@@ -386,7 +386,6 @@ function populate_options( array $options = array() ) {
 		'blogdescription'                 => __( 'Just another calmPress site' ),
 		/* translators: Default start of the week. 0 = Sunday, 1 = Monday. */
 		'start_of_week'                   => _x( '1', 'start of week' ),
-		'require_name_email'              => 1,
 		'comments_notify'                 => 1,
 		'posts_per_rss'                   => 0,
 		'rss_use_excerpt'                 => 0,
@@ -442,8 +441,6 @@ function populate_options( array $options = array() ) {
 		'image_default_link_type'         => 'none',
 		'image_default_size'              => '',
 		'image_default_align'             => '',
-		'close_comments_for_old_posts'    => 0,
-		'close_comments_days_old'         => 14,
 		'thread_comments'                 => 1,
 		'thread_comments_depth'           => 5,
 		'page_comments'                   => 0,
@@ -470,9 +467,6 @@ function populate_options( array $options = array() ) {
 		// 4.4.0
 		'medium_large_size_w'             => 768,
 		'medium_large_size_h'             => 0,
-
-		// 4.9.8
-		'show_comments_cookies_opt_in'    => 1,
 
 		// 5.5.0
 		'disallowed_keys'                 => '',
@@ -574,7 +568,8 @@ function populate_options( array $options = array() ) {
 		'can_compress_scripts', 'page_uris', 'update_core', 'update_plugins', 'update_themes', 'doing_cron',
 		'random_seed', 'rss_excerpt_length', 'secret', 'use_linksupdate', 'default_comment_status_page',
 		'wporg_popular_tags', 'what_to_show', 'rss_language', 'language', 'enable_xmlrpc', 'enable_app',
-		'embed_autourls', 'default_post_edit_rows', 'gzipcompression', 'advanced_edit'
+		'embed_autourls', 'default_post_edit_rows', 'gzipcompression', 'advanced_edit', 'require_name_email',
+		'show_comments_cookies_opt_in', 'close_comments_for_old_posts', 'close_comments_days_old'
 	);
 	foreach ( $unusedoptions as $option ) {
 		delete_option( $option );

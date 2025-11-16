@@ -80,8 +80,6 @@ $allowed_options            = array(
 		'comment_previously_approved',
 		'comment_max_links',
 		'show_avatars',
-		'close_comments_for_old_posts',
-		'close_comments_days_old',
 		'thread_comments',
 		'thread_comments_depth',
 		'page_comments',

@@ -56,18 +56,6 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 </label>
 <br />
 
-<label for="close_comments_for_old_posts">
-<input name="close_comments_for_old_posts" type="checkbox" id="close_comments_for_old_posts" value="1" <?php checked( '1', get_option( 'close_comments_for_old_posts' ) ); ?> />
-<?php
-printf(
-	/* translators: %s: Number of days. */
-	__( 'Automatically close comments on posts older than %s days' ),
-	'</label> <label for="close_comments_days_old"><input name="close_comments_days_old" type="number" min="0" step="1" id="close_comments_days_old" value="' . esc_attr( get_option( 'close_comments_days_old' ) ) . '" class="small-text" />'
-);
-?>
-</label>
-<br />
-
 <label for="thread_comments">
 <input name="thread_comments" type="checkbox" id="thread_comments" value="1" <?php checked( '1', get_option( 'thread_comments' ) ); ?> />
 <?php
