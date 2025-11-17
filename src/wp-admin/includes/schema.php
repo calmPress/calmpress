@@ -569,7 +569,8 @@ function populate_options( array $options = array() ) {
 		'random_seed', 'rss_excerpt_length', 'secret', 'use_linksupdate', 'default_comment_status_page',
 		'wporg_popular_tags', 'what_to_show', 'rss_language', 'language', 'enable_xmlrpc', 'enable_app',
 		'embed_autourls', 'default_post_edit_rows', 'gzipcompression', 'advanced_edit', 'require_name_email',
-		'show_comments_cookies_opt_in', 'close_comments_for_old_posts', 'close_comments_days_old'
+		'show_comments_cookies_opt_in', 'require_name_email',
+		'close_comments_for_old_posts', 'close_comments_days_old'
 	);
 	foreach ( $unusedoptions as $option ) {
 		delete_option( $option );
