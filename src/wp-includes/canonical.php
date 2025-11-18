@@ -425,18 +425,6 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 				}
 			}
 
-			$default_comments_page = get_option( 'default_comments_page' );
-
-			if ( get_option( 'page_comments' )
-				&& ( 'newest' === $default_comments_page && $cpage > 0
-					|| 'newest' !== $default_comments_page && $cpage > 1 )
-			) {
-				$addl_path  = ( ! empty( $addl_path ) ? trailingslashit( $addl_path ) : '' );
-				$addl_path .= user_trailingslashit( $wp_rewrite->comments_pagination_base . '-' . $cpage, 'commentpaged' );
-
-				$redirect['query'] = remove_query_arg( 'cpage', $redirect['query'] );
-			}
-
 			if ( ! empty( $addl_path ) ) {
 				$redirect['path'] = trailingslashit( $redirect['path'] ) . $addl_path;
 			}

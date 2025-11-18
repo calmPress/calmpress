@@ -747,14 +747,8 @@ function get_comment_link( $comment = null, $args = array() ) {
 
 		// No 'cpage' is provided, so we calculate one.
 	} else {
-		if ( '' === $args['per_page'] && get_option( 'page_comments' ) ) {
-			$args['per_page'] = get_option( 'comments_per_page' );
-		}
-
-		if ( empty( $args['per_page'] ) ) {
-			$args['per_page'] = 0;
-			$args['page']     = 0;
-		}
+		$args['per_page'] = 0;
+		$args['page']     = 0;
 
 		$cpage = $args['page'];
 
@@ -766,21 +760,6 @@ function get_comment_link( $comment = null, $args = array() ) {
 				$cpage = get_page_of_comment( $comment->comment_ID, $args );
 			}
 		}
-
-		/*
-		 * If the default page displays the oldest comments, the permalinks for comments on the default page
-		 * do not need a 'cpage' query var.
-		 */
-		if ( 'oldest' === get_option( 'default_comments_page' ) && 1 === $cpage ) {
-			$cpage = '';
-		}
-	}
-
-	if ( $cpage && get_option( 'page_comments' ) ) {
-		if ( $cpage ) {
-			$link = trailingslashit( $link ) . $wp_rewrite->comments_pagination_base . '-' . $cpage;
-		}
-		$link = user_trailingslashit( $link, 'comment' );
 	}
 
 	$link = user_trailingslashit( $link, 'comment' );
@@ -1250,62 +1229,6 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 		}
 	}
 
-	$per_page = 0;
-	if ( get_option( 'page_comments' ) ) {
-		$per_page = (int) get_query_var( 'comments_per_page' );
-		if ( 0 === $per_page ) {
-			$per_page = (int) get_option( 'comments_per_page' );
-		}
-
-		$comment_args['number'] = $per_page;
-		$page                   = (int) get_query_var( 'cpage' );
-
-		if ( $page ) {
-			$comment_args['offset'] = ( $page - 1 ) * $per_page;
-		} elseif ( 'oldest' === get_option( 'default_comments_page' ) ) {
-			$comment_args['offset'] = 0;
-		} else {
-			// If fetching the first page of 'newest', we need a top-level comment count.
-			$top_level_query = new WP_Comment_Query();
-			$top_level_args  = array(
-				'count'   => true,
-				'orderby' => false,
-				'post_id' => $post->ID,
-				'status'  => 'approve',
-			);
-
-			if ( $comment_args['hierarchical'] ) {
-				$top_level_args['parent'] = 0;
-			}
-
-			if ( isset( $comment_args['include_unapproved'] ) ) {
-				$top_level_args['include_unapproved'] = $comment_args['include_unapproved'];
-			}
-
-			/**
-			 * Filters the arguments used in the top level comments query.
-			 *
-			 * @since 5.6.0
-			 *
-			 * @see WP_Comment_Query::__construct()
-			 *
-			 * @param array $top_level_args {
-			 *     The top level query arguments for the comments template.
-			 *
-			 *     @type bool         $count   Whether to return a comment count.
-			 *     @type string|array $orderby The field(s) to order by.
-			 *     @type int          $post_id The post ID.
-			 *     @type string|array $status  The comment status to limit results by.
-			 * }
-			 */
-			$top_level_args = apply_filters( 'comments_template_top_level_query_args', $top_level_args );
-
-			$top_level_count = $top_level_query->query( $top_level_args );
-
-			$comment_args['offset'] = ( ceil( $top_level_count / $per_page ) - 1 ) * $per_page;
-		}
-	}
-
 	/**
 	 * Filters the arguments used to query comments in comments_template().
 	 *
@@ -1547,11 +1470,7 @@ function get_comment_reply_link( $args = array(), $comment = null, $post = null 
 		return false;
 	}
 
-	if ( get_option( 'page_comments' ) ) {
-		$permalink = str_replace( '#comment-' . $comment->comment_ID, '', get_comment_link( $comment ) );
-	} else {
-		$permalink = get_permalink( $post->ID );
-	}
+	$permalink = get_permalink( $post->ID );
 
 	/**
 	 * Filters the comment reply link arguments.
@@ -2042,14 +1961,8 @@ function wp_list_comments( $args = array(), $comments = null ) {
 		}
 	}
 
-	if ( '' === $parsed_args['per_page'] && get_option( 'page_comments' ) ) {
-		$parsed_args['per_page'] = get_query_var( 'comments_per_page' );
-	}
-
-	if ( empty( $parsed_args['per_page'] ) ) {
-		$parsed_args['per_page'] = 0;
-		$parsed_args['page']     = 0;
-	}
+	$parsed_args['per_page'] = 0;
+	$parsed_args['page']     = 0;
 
 	if ( '' === $parsed_args['max_depth'] ) {
 		if ( get_option( 'thread_comments' ) ) {

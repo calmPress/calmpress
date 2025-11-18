@@ -15,21 +15,13 @@ class Tests_Comment_GetCommentsPagesCount extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->option_page_comments = get_option( 'page_comments' );
-		$this->option_page_comments = get_option( 'comments_per_page' );
-		$this->option_page_comments = get_option( 'thread_comments' );
 		$this->option_posts_per_rss = get_option( 'posts_per_rss' );
-
-		update_option( 'page_comments', true );
 	}
 
 	/**
 	 * tearDown options
 	 */
 	public function tear_down() {
-		update_option( 'page_comments', $this->option_page_comments );
-		update_option( 'comments_per_page', $this->option_page_comments );
-		update_option( 'thread_comments', $this->option_page_comments );
 		update_option( 'posts_per_rss', $this->option_posts_per_rss );
 		parent::tear_down();
 	}
@@ -76,9 +68,9 @@ class Tests_Comment_GetCommentsPagesCount extends WP_UnitTestCase {
 		self::factory()->comment->create_post_comments( $post->ID, 6, array( 'comment_parent' => $comments[0] ) );
 		$comments = get_comments( array( 'post_id' => $post->ID ) );
 
-		$this->assertEquals( 3, get_comment_pages_count( $comments, 10, false ) );
-		$this->assertEquals( 2, get_comment_pages_count( $comments, 10, true ) );
-		$this->assertEquals( 4, get_comment_pages_count( $comments, 4, true ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10, false ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10, true ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 4, true ) );
 	}
 
 	/**
@@ -99,17 +91,17 @@ class Tests_Comment_GetCommentsPagesCount extends WP_UnitTestCase {
 
 		update_option( 'thread_comments', false );
 
-		$this->assertEquals( 3, get_comment_pages_count( $comments, 10, false ) );
-		$this->assertEquals( 2, get_comment_pages_count( $comments, 10, true ) );
-		$this->assertEquals( 3, get_comment_pages_count( $comments, 10, null ) );
-		$this->assertEquals( 3, get_comment_pages_count( $comments, 10 ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10, false ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10, true ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10, null ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10 ) );
 
 		update_option( 'thread_comments', true );
 
-		$this->assertEquals( 3, get_comment_pages_count( $comments, 10, false ) );
-		$this->assertEquals( 2, get_comment_pages_count( $comments, 10, true ) );
-		$this->assertEquals( 2, get_comment_pages_count( $comments, 10, null ) );
-		$this->assertEquals( 2, get_comment_pages_count( $comments, 10 ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10, false ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10, true ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10, null ) );
+		$this->assertEquals( 1, get_comment_pages_count( $comments, 10 ) );
 	}
 
 	/**

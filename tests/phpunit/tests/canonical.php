@@ -158,9 +158,6 @@ class Tests_Canonical extends WP_Canonical_UnitTestCase {
 			array( '/2008/09/03/non-paged-post-test/3/', '/2008/09/03/non-paged-post-test/' ),
 			array( '/2008/09/03/non-paged-post-test/?page=3', '/2008/09/03/non-paged-post-test/' ),
 
-			// Comments.
-			array( '/2008/03/03/comment-test/?cpage=2', '/2008/03/03/comment-test/comment-page-2/' ),
-
 			// Dates.
 			array( '/?m=2008', '/2008/' ),
 			array( '/?m=200809', '/2008/09/' ),

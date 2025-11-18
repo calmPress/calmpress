@@ -443,9 +443,6 @@ function populate_options( array $options = array() ) {
 		'image_default_align'             => '',
 		'thread_comments'                 => 1,
 		'thread_comments_depth'           => 5,
-		'page_comments'                   => 0,
-		'comments_per_page'               => 50,
-		'default_comments_page'           => 'newest',
 		'comment_order'                   => 'asc',
 		'sticky_posts'                    => array(),
 		'widget_categories'               => array(),
@@ -569,8 +566,9 @@ function populate_options( array $options = array() ) {
 		'random_seed', 'rss_excerpt_length', 'secret', 'use_linksupdate', 'default_comment_status_page',
 		'wporg_popular_tags', 'what_to_show', 'rss_language', 'language', 'enable_xmlrpc', 'enable_app',
 		'embed_autourls', 'default_post_edit_rows', 'gzipcompression', 'advanced_edit', 'require_name_email',
-		'show_comments_cookies_opt_in', 'require_name_email',
-		'close_comments_for_old_posts', 'close_comments_days_old'
+		'show_comments_cookies_opt_in', 'require_name_email', 'default_comments_page',
+		'close_comments_for_old_posts', 'close_comments_days_old', 'page_comments',
+		'comments_per_page'	
 	);
 	foreach ( $unusedoptions as $option ) {
 		delete_option( $option );

@@ -1874,10 +1874,6 @@ class WP_Query {
 			$q['posts_per_page'] = 1;
 		}
 
-		if ( ! isset( $q['comments_per_page'] ) || 0 == $q['comments_per_page'] ) {
-			$q['comments_per_page'] = get_option( 'comments_per_page' );
-		}
-
 		if ( $this->is_home && ( empty( $this->query ) || 'true' === $q['preview'] ) && ( 'page' === get_option( 'show_on_front' ) ) && get_option( 'page_on_front' ) ) {
 			$this->is_page = true;
 			$this->is_home = false;
