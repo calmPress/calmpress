@@ -1677,7 +1677,7 @@ p.update-last-checked {
 	margin: 0 20px -1px 0;
 	position: relative;
 	background-color: #fff;
-	border: 1px solid #c3c4c7;
+	border: 1px solid #1d2327;
 	border-top: none;
 	box-shadow: 0 0 0 transparent;
 }
@@ -1694,7 +1694,7 @@ p.update-last-checked {
 }
 
 #screen-meta-links .show-settings {
-	border: 1px solid #c3c4c7;
+	border: 1px solid #1d2327;
 	border-top: none;
 	height: auto;
 	margin-bottom: 0;

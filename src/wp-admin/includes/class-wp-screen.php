@@ -913,7 +913,7 @@ class WP_Screen {
 		<div id="screen-meta-links">
 		<?php if ( $this->show_screen_options() ) : ?>
 			<div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
-			<button type="button" id="show-settings-link" class="button show-settings" aria-controls="screen-options-wrap" aria-expanded="false"><?php _e( 'Screen Options' ); ?></button>
+			<button type="button" id="show-settings-link" class="button show-settings" aria-controls="screen-options-wrap" aria-expanded="false"><?php _e( 'Customize View' ); ?></button>
 			</div>
 			<?php
 		endif;
@@ -1005,7 +1005,7 @@ class WP_Screen {
 
 		// Output optional wrapper.
 		if ( $options['wrap'] ) {
-			$wrapper_start = '<div id="screen-options-wrap" class="hidden" tabindex="-1" aria-label="' . esc_attr__( 'Screen Options Tab' ) . '">';
+			$wrapper_start = '<div id="screen-options-wrap" class="hidden" tabindex="-1" aria-label="' . esc_attr__( 'Customize View Tab' ) . '">';
 			$wrapper_end   = '</div>';
 		}
 
@@ -1016,6 +1016,7 @@ class WP_Screen {
 		}
 
 		echo $wrapper_start . $form_start;
+		echo '<p>' . esc_html_e( 'Adjust your personal settings that control the layout, behavior, and display of this screen.' ) . '</p>';
 
 		$this->render_meta_boxes_preferences();
 		$this->render_list_table_columns_preferences();
@@ -1056,11 +1057,11 @@ class WP_Screen {
 		}
 		?>
 		<fieldset class="metabox-prefs">
-		<legend><?php _e( 'Screen elements' ); ?></legend>
+		<legend><?php _e( 'Panel Arrangement' ); ?></legend>
 		<p>
-			<?php _e( 'Some screen elements can be shown or hidden by using the checkboxes.' ); ?>
-			<?php _e( 'They can be expanded and collapsed by clickling on their headings, and arranged by dragging their headings or by clicking on the up and down arrows.' ); ?>
+			<?php _e( 'Drag panel headings to rearrange them, or use the arrows in the headings to move them up and down.' ); ?>
 		</p>
+		<legend><?php _e( 'Visible Pannels' ); ?></legend>
 		<?php
 
 		meta_box_prefs( $this );
@@ -1084,7 +1085,7 @@ class WP_Screen {
 			return;
 		}
 
-		$legend = ! empty( $columns['_title'] ) ? $columns['_title'] : __( 'Columns' );
+		$legend = ! empty( $columns['_title'] ) ? $columns['_title'] : __( 'Visible Columns' );
 		?>
 		<fieldset class="metabox-prefs">
 		<legend><?php echo $legend; ?></legend>
@@ -1162,7 +1163,7 @@ class WP_Screen {
 
 		$per_page_label = $this->get_option( 'per_page', 'label' );
 		if ( null === $per_page_label ) {
-			$per_page_label = __( 'Number of items per page:' );
+			$per_page_label = __( 'Number of rows per page:' );
 		}
 
 		$option = $this->get_option( 'per_page', 'option' );
@@ -1202,7 +1203,7 @@ class WP_Screen {
 
 		?>
 		<fieldset class="screen-options">
-		<legend><?php _e( 'Pagination' ); ?></legend>
+		<legend><?php _e( 'Rows per page' ); ?></legend>
 			<?php if ( $per_page_label ) : ?>
 				<label for="<?php echo esc_attr( $option ); ?>"><?php echo $per_page_label; ?></label>
 				<input type="number" step="1" min="1" max="999" class="screen-per-page" name="wp_screen_options[value]"
