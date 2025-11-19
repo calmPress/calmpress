@@ -58,7 +58,7 @@ function wp_register_tinymce_scripts( $scripts, $force_uncompressed = false ) {
 	$suffix     = wp_scripts_get_suffix();
 	$dev_suffix = wp_scripts_get_suffix( 'dev' );
 
-	if ( ! SCRIPT_DEBUG && ! $force_uncompressed ) {
+	if ( ! $force_uncompressed ) {
 		$scripts->add( 'wp-tinymce', includes_url( 'js/tinymce/' ) . 'wp-tinymce.js', array(), $tinymce_version );
 	} else {
 		$scripts->add( 'wp-tinymce-root', includes_url( 'js/tinymce/' ) . "tinymce$dev_suffix.js", array(), $tinymce_version );
