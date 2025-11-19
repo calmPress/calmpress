@@ -15,14 +15,6 @@ if ( ! current_user_can( 'backup' ) ) {
 
 $title = __( 'Backups' );
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => esc_html__( 'Overview' ),
-		'content' => '<p>' . __( 'This screen lists backups of the site.  You can delete unneeded ones.') . '</p>'
-	)
-);
-
 require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 class Backup_List extends WP_List_Table {

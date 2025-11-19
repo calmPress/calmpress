@@ -56,16 +56,6 @@ switch ( $action ) {
 		// Used in the HTML title tag.
 		$title = __( 'Edit Comment' );
 
-		get_current_screen()->add_help_tab(
-			array(
-				'id'      => 'overview',
-				'title'   => __( 'Overview' ),
-				'content' =>
-					'<p>' . __( 'You can edit the information left in a comment if needed. This is often useful when you notice that a commenter has made a typographical error.' ) . '</p>' .
-					'<p>' . __( 'You can also moderate the comment from this screen using the Status box, where you can also change the timestamp of the comment.' ) . '</p>',
-			)
-		);
-
 		wp_enqueue_script( 'comment' );
 		require_once ABSPATH . 'wp-admin/admin-header.php';
 

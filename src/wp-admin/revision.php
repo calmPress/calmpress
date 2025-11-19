@@ -145,14 +145,6 @@ $revisions_overview .= '<ul><li>' . __( 'To navigate between revisions, <strong>
 $revisions_overview .= '<li>' . __( 'Compare two different revisions by <strong>selecting the &#8220;Compare any two revisions&#8221; box</strong> to the side.' ) . '</li>';
 $revisions_overview .= '<li>' . __( 'To restore a revision, <strong>click Restore This Revision</strong>.' ) . '</li></ul>';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'revisions-overview',
-		'title'   => __( 'Overview' ),
-		'content' => $revisions_overview,
-	)
-);
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 ?>

@@ -238,17 +238,6 @@ add_thickbox();
 
 add_screen_option( 'per_page' );
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . __( 'This screen enables and disables the inclusion of themes available to choose in the Appearance menu for each site. It does not activate or deactivate which theme a site is currently using.' ) . '</p>' .
-			'<p>' . __( 'If the network admin disables a theme that is in use, it can still remain selected on that site. If another theme is chosen, the disabled theme will not appear in the site&#8217;s Appearance > Themes screen.' ) . '</p>' .
-			'<p>' . __( 'Themes can be enabled on a site by site basis by the network admin on the Edit Site screen (which has a Themes tab); get there via the Edit action link on the All Sites screen. Only network admins are able to install or edit themes.' ) . '</p>',
-	)
-);
-
 get_current_screen()->set_screen_reader_content(
 	array(
 		'heading_views'      => __( 'Filter themes list' ),

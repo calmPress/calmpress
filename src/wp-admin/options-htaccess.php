@@ -27,18 +27,6 @@ if ( is_multisite() ) {
 $title       = __( '.htaccess Settings' );
 $parent_file = 'options-general.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			/* translators: %s: placeholder for the file name. */
-			'<p>' . sprintf( __( 'The %s file contains configuration instructions for the Apache web server that control how it handles URLs in the local context.' ), '<code>.htaccess</code>' ) . '</p>' .
-			/* translators: %s: placeholder for the file name. */
-			'<p>' . sprintf( __( 'This screen allows you to add rules to the %s file without having to edit the full file with an FTP software.' ), '<code>.htaccess</code>' ) . '</p>',
-	)
-);
-
 $home_path = ABSPATH;
 $file_path = ABSPATH . '.htaccess';
 

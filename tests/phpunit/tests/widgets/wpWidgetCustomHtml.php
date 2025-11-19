@@ -66,7 +66,6 @@ class Tests_Widgets_wpWidgetCustomHtml extends WP_UnitTestCase {
 
 		$this->assertSame( 10, has_action( 'admin_print_scripts-widgets.php', array( $widget, 'enqueue_admin_scripts' ) ) );
 		$this->assertSame( 10, has_action( 'admin_footer-widgets.php', array( 'WP_Widget_Custom_HTML', 'render_control_template_scripts' ) ) );
-		$this->assertSame( 10, has_action( 'admin_head-widgets.php', array( 'WP_Widget_Custom_HTML', 'add_help_text' ) ) );
 		$this->assertContains( 'wp.customHtmlWidgets.idBases.push( "custom_html" );', wp_scripts()->registered['custom-html-widgets']->extra['after'] );
 	}
 
@@ -259,19 +258,6 @@ class Tests_Widgets_wpWidgetCustomHtml extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<script type="text/html" id="tmpl-widget-custom-html-control-fields">', $output );
-	}
-
-	/**
-	 * Test add_help_text method.
-	 *
-	 * @covers WP_Widget_Custom_HTML::add_help_text
-	 */
-	public function test_add_help_text() {
-		set_current_screen( 'widgets.php' );
-		WP_Widget_Custom_HTML::add_help_text();
-		$help_tab = get_current_screen()->get_help_tab( 'custom_html_widget' );
-
-		$this->assertStringContainsString( 'Use the Custom HTML widget to add arbitrary HTML code to your widget areas.', $help_tab['content'] );
 	}
 
 	/**

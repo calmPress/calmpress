@@ -38,15 +38,6 @@ if ( 'updateblogsettings' === $action && isset( $_POST['primary_blog'] ) ) {
 $title       = __( 'My Sites' );
 $parent_file = 'index.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . __( 'This screen shows an individual user all of their sites in this network, and also allows that user to set a primary site. They can use the links under each site to visit either the front end or the dashboard for that site.' ) . '</p>',
-	)
-);
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 if ( $updated ) { ?>

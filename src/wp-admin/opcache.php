@@ -19,15 +19,6 @@ if ( ! current_user_can( 'manage_server' ) ) {
 $title       = __( 'Opcode Cache (opcache)' );
 $parent_file = 'tools.php';
 
-get_current_screen()->add_help_tab(
-	[
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . esc_html__( 'The Opcode Cache is used by PHP make script execute faster and may be used for object caching.' ) . '</p>',
-	]
-);
-
 require ABSPATH . 'wp-admin/admin-header.php';
 
 ?>

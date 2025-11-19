@@ -37,16 +37,6 @@ if ( null === $backup ) {
 $title       = esc_html( sprintf( __( 'Backup Details of %s' ), $backup->description() ) );
 $parent_file = 'backups.php';
 
-$help = '<p>' . esc_html__( 'At this screen you can see information on a specific backup, delete it and restore from it.' ) . '</p>';
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' => $help,
-	)
-);
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 

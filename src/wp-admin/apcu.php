@@ -19,15 +19,6 @@ if ( ! current_user_can( 'manage_server' ) ) {
 $title       = __( 'APCu Cache' );
 $parent_file = 'tools.php';
 
-get_current_screen()->add_help_tab(
-	[
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . esc_html__( 'The APCu Cache is used to keep value in the servers`s memory between request eliminating the need to request them from the database, resultins with faster site.' ) . '</p>',
-	]
-);
-
 require ABSPATH . 'wp-admin/admin-header.php';
 
 ?>

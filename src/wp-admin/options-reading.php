@@ -19,35 +19,6 @@ $parent_file = 'options-general.php';
 
 add_action( 'admin_head', 'options_reading_add_js' );
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' => '<p>' . __( 'This screen contains the settings that affect the display of your content.' ) . '</p>' .
-			'<p>' . sprintf(
-				/* translators: %s: URL to create a new page. */
-				__( 'You can choose what&#8217;s displayed on the homepage of your site. It can be posts in reverse chronological order (classic blog), or a fixed/static page. To set a static homepage, you first need to create two <a href="%s">Pages</a>. One will become the homepage, and the other will be where your posts are displayed.' ),
-				'post-new.php?post_type=page'
-			) . '</p>' .
-			'<p>' . sprintf(
-				/* translators: %s: Documentation URL. */
-				__( 'You can also control the display of your content in RSS feeds, including the maximum number of posts to display and whether to show full text or an excerpt. <a href="%s">Learn more about feeds</a>.' ),
-				__( 'https://wordpress.org/support/article/wordpress-feeds/' )
-			) . '</p>' .
-			'<p>' . __( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.' ) . '</p>',
-	)
-);
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'site-visibility',
-		'title'   => has_action( 'blog_privacy_selector' ) ? __( 'Site visibility' ) : __( 'Search engine visibility' ),
-		'content' => '<p>' . __( 'You can choose whether or not your site will be crawled by robots, ping services, and spiders. If you want those services to ignore your site, click the checkbox next to &#8220;Discourage search engines from indexing this site&#8221; and click the Save Changes button at the bottom of the screen.' ) . '</p>' .
-			'<p>' . __( 'Note that even when set to discourage search engines, your site is still visible on the web and not all search engines adhere to this directive.' ) . '</p>' .
-			'<p>' . __( 'When this setting is in effect, a reminder is shown in the At a Glance box of the Dashboard that says, &#8220;Search engines discouraged&#8221;, to remind you that you have directed search engines to not crawl your site.' ) . '</p>',
-	)
-);
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 

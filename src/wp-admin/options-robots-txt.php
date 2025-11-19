@@ -19,16 +19,6 @@ if ( ! is_super_admin() ) {
 $title       = __( 'robots.txt Settings' );
 $parent_file = 'options-general.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . esc_html__( 'The robots.txt file contains crawling instructions for search engine, and points to relevant site maps.' ) . '</p>' .
-			'<p>' . esc_html__( 'This screen allows you to control its content.' ) . '</p>',
-	)
-);
-
 add_settings_section(
 	'calm-robots-txt-section',
 	'',

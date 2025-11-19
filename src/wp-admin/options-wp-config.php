@@ -19,17 +19,6 @@ if ( ! is_super_admin() ) {
 $title       = __( 'wp-config.php Additional Settings' );
 $parent_file = 'options-general.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			/* translators: %s: placeholder for the file name. */
-			'<p>' . sprintf( __( 'The %s file contains configuration settings for calmPress written as PHP code, most ly as defines.' ), '<code>wp-config.php</code>' ) . '</p>' .
-			'<p>' . __( 'This screen allows you to add code including defines to it in a secure way.' ) . '</p>',
-	)
-);
-
 add_settings_section(
 	'calm-wp-config-user-section',
 	__( 'User section' ),

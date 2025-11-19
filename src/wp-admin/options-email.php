@@ -21,15 +21,6 @@ wp_enqueue_script( 'calm-options-email' );
 $title       = __( 'Email Delivery Settings' );
 $parent_file = 'options-general.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . esc_html__( 'This screen allows you to control how emails are delivered.' ) . '</p>',
-	)
-);
-
 add_settings_section(
 	'calm-email-delivery-outgoing-section',
 	'',

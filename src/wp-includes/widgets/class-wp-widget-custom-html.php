@@ -79,8 +79,6 @@ class WP_Widget_Custom_HTML extends WP_Widget {
 		// the 'admin_footer-widgets.php' action in WP_Customize_Widgets::print_footer_scripts().
 		add_action( 'admin_footer-widgets.php', array( 'WP_Widget_Custom_HTML', 'render_control_template_scripts' ) );
 
-		// Note this action is used to ensure the help text is added to the end.
-		add_action( 'admin_head-widgets.php', array( 'WP_Widget_Custom_HTML', 'add_help_text' ) );
 	}
 
 	/**
@@ -291,47 +289,5 @@ class WP_Widget_Custom_HTML extends WP_Widget {
 			<div class="code-editor-error-container"></div>
 		</script>
 		<?php
-	}
-
-	/**
-	 * Add help text to widgets admin screen.
-	 *
-	 * @since 4.9.0
-	 */
-	public static function add_help_text() {
-		$screen = get_current_screen();
-
-		$content  = '<p>';
-		$content .= __( 'Use the Custom HTML widget to add arbitrary HTML code to your widget areas.' );
-		$content .= '</p>';
-
-		$content .= '<p>';
-		$content .= sprintf(
-			/* translators: 1: Link to user profile, 2: Additional link attributes, 3: Accessibility text. */
-			__( 'The edit field automatically highlights code syntax. You can disable this in your <a href="%1$s" %2$s>user profile%3$s</a> to work in plain text mode.' ),
-			esc_url( get_edit_profile_url() ),
-			'class="external-link" target="_blank"',
-			sprintf(
-				'<span class="screen-reader-text"> %s</span>',
-				/* translators: Accessibility text. */
-				__( '(opens in a new tab)' )
-			)
-		);
-		$content .= '</p>';
-
-		$content .= '<p id="editor-keyboard-trap-help-1">' . __( 'When using a keyboard to navigate:' ) . '</p>';
-		$content .= '<ul>';
-		$content .= '<li id="editor-keyboard-trap-help-2">' . __( 'In the editing area, the Tab key enters a tab character.' ) . '</li>';
-		$content .= '<li id="editor-keyboard-trap-help-3">' . __( 'To move away from this area, press the Esc key followed by the Tab key.' ) . '</li>';
-		$content .= '<li id="editor-keyboard-trap-help-4">' . __( 'Screen reader users: when in forms mode, you may need to press the Esc key twice.' ) . '</li>';
-		$content .= '</ul>';
-
-		$screen->add_help_tab(
-			array(
-				'id'      => 'custom_html_widget',
-				'title'   => __( 'Custom HTML Widget' ),
-				'content' => $content,
-			)
-		);
 	}
 }

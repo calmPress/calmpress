@@ -22,15 +22,6 @@ wp_enqueue_style( 'maintenance-mode' );
 $title       = __( 'Safe Mode' );
 $parent_file = 'tools.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . esc_html__( 'The safe mode enables you to investigate why your normal login fails while ptentially keeping the site running.' ) . '</p>',
-	)
-);
-
 require ABSPATH . 'wp-admin/admin-header.php';
 
 ?>

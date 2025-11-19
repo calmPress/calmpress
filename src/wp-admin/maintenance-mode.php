@@ -21,16 +21,6 @@ wp_enqueue_style( 'maintenance-mode' );
 $title       = __( 'Maintenance Mode' );
 $parent_file = 'tools.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . esc_html__( 'The maintenance mode enable you to softly disable the site while showing some explenation to users.' ) . '</p>' .
-			'<p>' . esc_html__( 'This screen allows you to control its activation and the content displayed on it.' ) . '</p>',
-	)
-);
-
 require ABSPATH . 'wp-admin/admin-header.php';
 
 ?>

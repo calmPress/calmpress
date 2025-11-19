@@ -21,36 +21,6 @@ if ( ! current_user_can( 'manage_network' ) ) {
 $title       = __( 'Dashboard' );
 $parent_file = 'index.php';
 
-$overview  = '<p>' . __( 'Welcome to your Network Admin. This area of the Administration Screens is used for managing all aspects of your Multisite Network.' ) . '</p>';
-$overview .= '<p>' . __( 'From here you can:' ) . '</p>';
-$overview .= '<ul><li>' . __( 'Add and manage sites or users' ) . '</li>';
-$overview .= '<li>' . __( 'Install and activate themes or plugins' ) . '</li>';
-$overview .= '<li>' . __( 'Update your network' ) . '</li>';
-$overview .= '<li>' . __( 'Modify global network settings' ) . '</li></ul>';
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' => $overview,
-	)
-);
-
-$quick_tasks  = '<p>' . __( 'The Right Now widget on this screen provides current user and site counts on your network.' ) . '</p>';
-$quick_tasks .= '<ul><li>' . __( 'To add a new user, <strong>click Create a New User</strong>.' ) . '</li>';
-$quick_tasks .= '<li>' . __( 'To add a new site, <strong>click Create a New Site</strong>.' ) . '</li></ul>';
-$quick_tasks .= '<p>' . __( 'To search for a user or site, use the search boxes.' ) . '</p>';
-$quick_tasks .= '<ul><li>' . __( 'To search for a user, <strong>enter an email address or username</strong>. Use a wildcard to search for a partial username, such as user&#42;.' ) . '</li>';
-$quick_tasks .= '<li>' . __( 'To search for a site, <strong>enter the path or domain</strong>.' ) . '</li></ul>';
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'quick-tasks',
-		'title'   => __( 'Quick Tasks' ),
-		'content' => $quick_tasks,
-	)
-);
-
 wp_dashboard_setup();
 
 wp_enqueue_script( 'dashboard' );

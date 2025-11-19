@@ -15,14 +15,6 @@ if ( ! current_user_can( 'backup' ) ) {
 
 $title = __( 'Import' );
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __('Overview'),
-		'content' => '<p>' . __('This screen lists importers installed at the site. Importers are a functionality provided by plugins, and if you need a specific type of importer you should look for a plugin that implements it.') . '</p>'
-	)
-);
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 $parent_file = 'tools.php';
 ?>

@@ -17,45 +17,6 @@ if ( ! current_user_can( 'manage_options' ) ) {
 $title       = __( 'Permalink Settings' );
 $parent_file = 'options-general.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' => '<p>' . __( 'Permalinks are the permanent URLs to your individual pages and blog posts, as well as your category and tag archives. A permalink is the web address used to link to your content. The URL to each post should be permanent, and never change &#8212; hence the name permalink.' ) . '</p>' .
-			'<p>' . __( 'This screen allows you to choose your permalink structure. You can choose from common settings or create custom URL structures.' ) . '</p>' .
-			'<p>' . __( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.' ) . '</p>',
-	)
-);
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'permalink-settings',
-		'title'   => __( 'Permalink Settings' ),
-		'content' => '<p>' . __( 'Permalinks can contain useful information, such as the post date, title, or other elements. You can choose from any of the suggested permalink formats, or you can craft your own if you select Custom Structure.' ) . '</p>' .
-			'<p>' . sprintf(
-				/* translators: %s: Percent sign (%). */
-				__( 'If you pick an option other than Plain, your general URL path with structure tags (terms surrounded by %s) will also appear in the custom structure field and your path can be further modified there.' ),
-				'<code>%</code>'
-			) . '</p>' .
-			'<p>' . sprintf(
-				/* translators: 1: %category%, 2: %tag% */
-				__( 'When you assign multiple categories or tags to a post, only one can show up in the permalink: the lowest numbered category. This applies if your custom structure includes %1$s or %2$s.' ),
-				'<code>%category%</code>',
-				'<code>%tag%</code>'
-			) . '</p>' .
-			'<p>' . __( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.' ) . '</p>',
-	)
-);
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'custom-structures',
-		'title'   => __( 'Custom Structures' ),
-		'content' => '<p>' . __( 'The Optional fields let you customize the &#8220;category&#8221; and &#8220;tag&#8221; base names that will appear in archive URLs. For example, the page listing all posts in the &#8220;Uncategorized&#8221; category could be <code>/topics/uncategorized</code> instead of <code>/category/uncategorized</code>.' ) . '</p>' .
-			'<p>' . __( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.' ) . '</p>',
-	)
-);
-
 $home_path           = ABSPATH;
 $permalink_structure = get_option( 'permalink_structure' );
 

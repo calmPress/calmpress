@@ -25,15 +25,6 @@ if ( ! empty( $_POST ) &&
 $title       = __( 'Test Email Delivery' );
 $parent_file = 'tools.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . esc_html__( 'Test possible settings for email delivery.' ) . '</p>',
-	)
-);
-
 add_action(
 	'admin_head',
 	static function () {

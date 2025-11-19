@@ -20,16 +20,6 @@ wp_enqueue_script( 'calm-backup' );
 $title       = esc_html__( 'Create Backup' );
 $parent_file = 'backups.php';
 
-$help = '<p>' . esc_html__( 'To create a new backup, fill in the form on this screen and click the Create button at the bottom.' ) . '</p>';
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' => $help,
-	)
-);
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 

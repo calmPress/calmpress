@@ -13,39 +13,6 @@ if ( ! current_user_can( 'erase_others_personal_data' ) || ! current_user_can( '
 	wp_die( __( 'Sorry, you are not allowed to erase personal data on this site.' ) );
 }
 
-// Contextual help - choose Help on the top right of admin panel to preview this.
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-					'<p>' . __( 'This screen allows you to manage requests to erase or delete personal data.' ) . '</p>' .
-					'<p>' . __( 'Deleting, anonymizing, or forgetting all data that a business or website has collected about an individual is a requirement of many Privacy Laws around the world, and is sometimes referred to as the "Right To Be Forgotten".' ) . '</p>' .
-					'<p>' . __( 'The tool associates data stored in WordPress by a supplied email address, including profile data and comments.' ) . '</p>' .
-					'<p><strong>' . __( 'Note: As this tool only gathers data from WordPress and participating plugins, you may need to do more to comply with erasure requests. You should also delete any data collected by or stored with any 3rd party services used by your business or site.' ) . '</strong></p>',
-	)
-);
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'default-data',
-		'title'   => __( 'Default Data' ),
-		'content' =>
-					'<p>' . __( 'Personal data that is collected by WordPress and is deleted or anonymized include:' ) . '</p>' .
-					'<p>' . __( '<strong>Profile Information</strong> &mdash; user email address, username, display name, nickname, first name, last name, description/bio, and registration date.' ) . '</p>' .
-					'<p>' . __( '<strong>Community Events Location</strong> &mdash; The IP Address of the user which is used for the Upcoming Community Events shown in the dashboard widget.' ) . '</p>' .
-					'<p>' . __( '<strong>Session Tokens</strong> &mdash; User login information, IP Addresses, Expiration Date, User Agent (Browser/OS), and Last Login.' ) . '</p>' .
-					'<p>' . __( '<strong>Comments</strong> &mdash; Comments are not deleted, but user data is anonymized, including Email Address, IP Address, and User Agent (Browser/OS).' ) . '</p>' .
-					'<p>' . __( '<strong>Media</strong> &mdash; A list of URLs for all media file uploads made by the user.' ) . '</p>',
-	)
-);
-
-get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/article/tools-erase-personal-data-screen/">Documentation on Erase Personal Data</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
-);
-
 // Handle list table actions.
 _wp_personal_data_handle_actions();
 

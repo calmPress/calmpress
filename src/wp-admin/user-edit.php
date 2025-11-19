@@ -51,21 +51,6 @@ if ( ! IS_PROFILE_PAGE ) {
 	$parent_file = 'my-profile';
 }
 
-$profile_help = '<p>' . __( 'Your profile contains information about you (your &#8220;account&#8221;) as well as some personal options related to using calmPress.' ) . '</p>' .
-	'<p>' . __( 'You can change your password among other things. You can hide the Toolbar (formerly called the Admin Bar) from the front end of your site, however it cannot be disabled on the admin screens.' ) . '</p>' .
-	'<p>' . __( 'You can select the language you wish to use while using the calmPress administration screen without affecting the language site visitors see.' ) . '</p>' .
-	'<p>' . __( 'You can log out of other devices, such as your phone or a public computer, by clicking the Log Out Everywhere Else button.' ) . '</p>' .
-	'<p>' . __( 'Required fields are indicated; the rest are optional. Profile information will only be displayed if your theme is set up to do so.' ) . '</p>' .
-	'<p>' . __( 'Remember to click the Update Profile button when you are finished.' ) . '</p>';
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' => $profile_help,
-	)
-);
-
 $wp_http_referer = remove_query_arg( array( 'update', 'delete_count', 'user_id' ), $wp_http_referer );
 
 $user_can_edit = current_user_can( 'edit_posts' ) || current_user_can( 'edit_pages' );

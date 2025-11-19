@@ -19,15 +19,6 @@ if ( ! current_user_can( 'delete_users' ) ) {
 $title       = __( 'Switch User' );
 $parent_file = 'tools.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-			'<p>' . esc_html__( 'Switch the effective user under which you authenticate, useful for debug and support other users.' ) . '</p>',
-	)
-);
-
 require ABSPATH . 'wp-admin/admin-header.php';
 ?>
 <div class="wrap">

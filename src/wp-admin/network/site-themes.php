@@ -14,9 +14,6 @@ if ( ! current_user_can( 'manage_sites' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to manage themes for this site.' ) );
 }
 
-get_current_screen()->add_help_tab( get_site_screen_help_tab_args() );
-get_current_screen()->set_help_sidebar( get_site_screen_help_sidebar_content() );
-
 get_current_screen()->set_screen_reader_content(
 	array(
 		'heading_views'      => __( 'Filter site themes list' ),

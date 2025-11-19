@@ -43,20 +43,6 @@ if ( $_POST ) {
 $title       = __( 'Upload New Media' );
 $parent_file = 'upload.php';
 
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' =>
-				'<p>' . __( 'You can upload media files here without creating a post first. This allows you to upload files to use with posts and pages later and/or to get a web link for a particular file that you can share. There are three options for uploading files:' ) . '</p>' .
-				'<ul>' .
-					'<li>' . __( '<strong>Drag and drop</strong> your files into the area below. Multiple files are allowed.' ) . '</li>' .
-					'<li>' . __( 'Clicking <strong>Select Files</strong> opens a navigation window showing you files in your operating system. Selecting <strong>Open</strong> after clicking on the file you want activates a progress bar on the uploader screen.' ) . '</li>' .
-					'<li>' . __( 'Revert to the <strong>Browser Uploader</strong> by clicking the link below the drag and drop box.' ) . '</li>' .
-				'</ul>',
-	)
-);
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 $form_class = 'media-upload-form type-form validate';

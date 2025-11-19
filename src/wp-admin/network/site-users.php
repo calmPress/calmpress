@@ -17,9 +17,6 @@ if ( ! current_user_can( 'manage_sites' ) ) {
 $wp_list_table = _get_list_table( 'WP_Users_List_Table' );
 $wp_list_table->prepare_items();
 
-get_current_screen()->add_help_tab( get_site_screen_help_tab_args() );
-get_current_screen()->set_help_sidebar( get_site_screen_help_sidebar_content() );
-
 get_current_screen()->set_screen_reader_content(
 	array(
 		'heading_views'      => __( 'Filter site users list' ),

@@ -79,16 +79,6 @@ switch ( $action ) {
 		wp_enqueue_script( 'wp-ajax-response' );
 		wp_enqueue_style( 'imgareaselect' );
 
-		get_current_screen()->add_help_tab(
-			array(
-				'id'      => 'overview',
-				'title'   => __( 'Overview' ),
-				'content' =>
-					  '<p>' . __( 'This screen allows you to edit fields for metadata in a file within the media library.' ) . '</p>' .
-					  '<p>' . __( 'Remember to click Update Media to save metadata entered or changed.' ) . '</p>',
-			)
-		);
-
 		require ABSPATH . 'wp-admin/admin-header.php';
 
 		$parent_file = 'upload.php';

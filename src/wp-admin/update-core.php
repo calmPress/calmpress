@@ -685,32 +685,6 @@ if ( ( 'do-theme-upgrade' === $action || ( 'do-plugin-upgrade' === $action && ! 
 $title       = __( 'calmPress Updates' );
 $parent_file = 'index.php';
 
-$updates_overview  = '<p>' . __( 'On this screen, you can update to the latest version of calmPress, as well as update your themes, plugins, and translations from the WordPress.org repositories.' ) . '</p>';
-$updates_overview .= '<p>' . __( 'If an update is available, you&#8127;ll see a notification appear in the Toolbar and navigation menu.' ) . ' ' . __( 'Keeping your site updated is important for security. It also makes the internet a safer place for you and your readers.' ) . '</p>';
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'overview',
-		'title'   => __( 'Overview' ),
-		'content' => $updates_overview,
-	)
-);
-
-$updates_howto  = '<p>' . __( '<strong>calmPress</strong> &mdash; Updating your calmPress installation is a simple one-click procedure: just <strong>click on the &#8220;Update Now&#8221; button</strong> when you are notified that a new version is available.' ) . '</p>';
-$updates_howto .= '<p>' . __( '<strong>Themes and Plugins</strong> &mdash; To update individual themes or plugins from this screen, use the checkboxes to make your selection, then <strong>click on the appropriate &#8220;Update&#8221; button</strong>. To update all of your themes or plugins at once, you can check the box at the top of the section to select all before clicking the update button.' ) . '</p>';
-
-if ( 'en_US' != get_locale() ) {
-	$updates_howto .= '<p>' . __( '<strong>Translations</strong> &mdash; The files translating calmPress into your language are updated for you whenever any other updates occur. But if these files are out of date, you can <strong>click the &#8220;Update Translations&#8221;</strong> button.' ) . '</p>';
-}
-
-get_current_screen()->add_help_tab(
-	array(
-		'id'      => 'how-to-update',
-		'title'   => __( 'How to Update' ),
-		'content' => $updates_howto,
-	)
-);
-
 if ( 'upgrade-core' === $action ) {
 	// Force a update check when requested.
 	$force_check = ! empty( $_GET['force-check'] );
