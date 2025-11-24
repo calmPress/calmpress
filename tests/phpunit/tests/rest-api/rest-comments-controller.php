@@ -2988,7 +2988,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->assertEquals( $comment->user_id, $data['author'] );
 		$this->assertSame( $comment->comment_author, $data['author_name'] );
 		$this->assertSame( $comment->comment_author_url, $data['author_url'] );
-		$this->assertSame( wpautop( $comment->comment_content ), $data['content']['rendered'] );
+		$this->assertSame( calmpress\markdown\Utils::comment_markdown_to_html( $comment->comment_content ), $data['content']['rendered'] );
 		$this->assertSame( mysql_to_rfc3339( $comment->comment_date ), $data['date'] );
 		$this->assertSame( mysql_to_rfc3339( $comment->comment_date_gmt ), $data['date_gmt'] );
 		$this->assertSame( get_comment_link( $comment ), $data['link'] );

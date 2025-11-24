@@ -180,6 +180,33 @@ add_filter( 'get_the_excerpt', 'wp_trim_excerpt', 10, 2 );
 add_filter( 'the_post_thumbnail_caption', 'wptexturize'     );
 add_filter( 'the_post_thumbnail_caption', 'convert_chars'   );
 
+add_filter(
+	'comment_text',
+	/**
+	 * Remove unneeded filteres for comments using markdown.
+	 * anf add some that are needed.
+	 * 
+	 * @since calmPress 1.0.0
+	 * 
+	 * @param string $text    The comment text.
+	 * @param string $comment The comment to which the text belongs.
+	 * 
+	 * @return string $text
+	 */
+	function ( $text, $comment ) {
+		if ( $comment === null || $comment->comment_type === 'comment' ) {
+			add_filter( 'comment_text', 'calmpress\markdown\Utils::comment_markdown_to_html', 8 );
+			remove_filter( 'comment_text', 'force_balance_tags', 25 );
+			remove_filter( 'comment_text', 'wpautop',            30 );
+			remove_filter( 'comment_text', 'wptexturize' );
+			remove_filter( 'comment_text', 'convert_chars' );
+		}
+
+		return $text;
+	},
+	1,
+	2
+);
 add_filter( 'comment_text', 'wptexturize' );
 add_filter( 'comment_text', 'convert_chars' );
 add_filter( 'comment_text', 'make_clickable', 9 );
@@ -250,8 +277,8 @@ add_filter( 'pre_kses', 'wp_pre_kses_less_than' );
 add_filter( 'sanitize_title', 'sanitize_title_with_dashes', 10, 3 );
 add_action( 'check_comment_flood', 'check_comment_flood_db', 10, 4 );
 add_filter( 'comment_flood_filter', 'wp_throttle_comment_flood', 10, 3 );
-add_filter( 'pre_comment_content', 'wp_rel_ugc', 15 );
-add_filter( 'pre_comment_content', 'wp_filter_kses' );
+//add_filter( 'pre_comment_content', 'wp_rel_ugc', 15 );
+//add_filter( 'pre_comment_content', 'wp_filter_kses' );
 add_filter( 'comment_email', 'antispambot' );
 add_filter( 'option_tag_base', '_wp_filter_taxonomy_base' );
 add_filter( 'option_category_base', '_wp_filter_taxonomy_base' );

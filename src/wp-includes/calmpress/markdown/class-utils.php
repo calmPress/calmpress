@@ -52,6 +52,11 @@ class Utils {
 		 */
 		$markdown_parser = new class extends \Parsedown {
 
+			// Override the list of characters that can be esaped with "\".
+			protected $specialCharacters = array(
+				'\\', '~', '*'
+			);
+
 			// no H support
 			protected function blockHeader( $Line ) { return null; }
 
@@ -130,10 +135,6 @@ class Utils {
 
 				return parent::inlineStrong( $Excerpt );
 			}
-
-			protected $specialCharacters = array(
-				'\\', '~', '*'
-			);
 		};
 
 		// Disable automatic URL linking

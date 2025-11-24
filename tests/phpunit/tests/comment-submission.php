@@ -409,66 +409,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 	}
 
-	public function test_anonymous_user_cannot_comment_unfiltered_html() {
-
-		$data    = array(
-			'comment_post_ID' => self::$post->ID,
-			'comment'         => 'Comment <script>alert(document.cookie);</script>',
-			'author'          => 'Comment Author',
-			'email'           => 'comment@example.org',
-			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		$this->assertNotWPError( $comment );
-		$this->assertInstanceOf( 'WP_Comment', $comment );
-		$this->assertStringNotContainsString( '<script', $comment->comment_content );
-
-	}
-
-	public function test_unprivileged_user_cannot_comment_unfiltered_html() {
-
-		wp_set_current_user( self::$author_id );
-
-		$this->assertFalse( current_user_can( 'unfiltered_html' ) );
-
-		$data    = array(
-			'comment_post_ID' => self::$post->ID,
-			'comment'         => 'Comment <script>alert(document.cookie);</script>',
-			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		$this->assertNotWPError( $comment );
-		$this->assertInstanceOf( 'WP_Comment', $comment );
-		$this->assertStringNotContainsString( '<script', $comment->comment_content );
-
-	}
-
-	public function test_privileged_user_cannot_comment_unfiltered_html_without_valid_nonce() {
-
-		if ( is_multisite() ) {
-			// In multisite, only Super Admins can post unfiltered HTML.
-			$this->assertFalse( user_can( self::$editor_id, 'unfiltered_html' ) );
-			grant_super_admin( self::$editor_id );
-		}
-
-		wp_set_current_user( self::$editor_id );
-
-		$this->assertTrue( current_user_can( 'unfiltered_html' ) );
-
-		$data    = array(
-			'comment_post_ID' => self::$post->ID,
-			'comment'         => 'Comment <script>alert(document.cookie);</script>',
-			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		$this->assertNotWPError( $comment );
-		$this->assertInstanceOf( 'WP_Comment', $comment );
-		$this->assertStringNotContainsString( '<script', $comment->comment_content );
-	}
-
 	public function test_submitting_comment_as_anonymous_user_when_registration_required_returns_error() {
 
 		$error = 'not_logged_in';
