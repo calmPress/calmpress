@@ -2115,7 +2115,6 @@ function comment_form( $args = array(), $post_id = null ) {
 
 	// Define attributes in HTML5 or XHTML syntax.
 	$required_attribute = ( $html5 ? ' required' : ' required="required"' );
-	$checked_attribute  = ( $html5 ? ' checked' : ' checked="checked"' );
 
 	// Identify required fields visually.
 	$required_indicator = ' <span class="required" aria-hidden="true">*</span>';
@@ -2205,12 +2204,6 @@ JS;
 		}
 	);
 
-	$required_text = sprintf(
-		/* translators: %s: Asterisk symbol (*). */
-		' <span class="required-field-message" aria-hidden="true">' . __( 'Required fields are marked %s' ) . '</span>',
-		trim( $required_indicator )
-	);
-
 	/**
 	 * Filters the default comment form fields.
 	 *
@@ -2229,7 +2222,20 @@ JS;
 				_x( 'Comment', 'noun' ),
 				$required_indicator
 			),
-			'<textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525"' . $required_attribute . '></textarea>'
+			'<textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525"' . $required_attribute . '></textarea>' . 
+			'<input type="checkbox" id="show-comment-help" autocomplete="off" style="display:none;">
+				<label id="comment-help-label" for="show-comment-help" style="cursor:pointer; font-weight:normal;margin-bottom:0;">
+					<small>Formatting help</small>
+				</label>
+				<small id="comment-help">
+				<code>*' . esc_html__( 'italic' ) . '*</code><span><i>' . esc_html__( 'italic' ) . '</i></span>
+				<code>**' . esc_html__( 'bold' ) . '**</code><span><b>' . esc_html__( 'bold' ) . '</b></span>
+				<code>~' . esc_html__( 'strike' ) . '~</code><span><s>' . esc_html__( 'strike' ) . '</s></span>
+				<code>\*, \~, \\\\</code><span>' . esc_html__( 'Literal *, ~, \ characters respectively' ) . '</span>
+				<code>&gt; ' . esc_html__( 'quote' ) . ' ' . esc_html__( '(at start of line)' ) . '</code><span>' . esc_html__( 'quote' ) . ' ' . esc_html__( 'as block styled as a quote, usually with different bakcground and indentation' ) . '</span>
+				<code>- ' . esc_html__( 'list item' ) . ' ' . esc_html__( '(at start of line)' ) . '</code><span>' . esc_html__( 'list item' ) . ' ' . esc_html__( 'as an item in a list, usually indicated with a bullet' ) . '</span>
+				<code>'. esc_html__( 'Empty line' ) . '</code><span>' . esc_html__( 'Creates a new paragraph. Lines which are not separate by an empty line remain in the same paragraph' ) . '</span>
+				</small>			'			
 		),
 		'must_log_in'          => sprintf(
 			'<p class="must-log-in">%s</p>',
@@ -2296,6 +2302,36 @@ JS;
 	 * @since 3.0.0
 	 */
 	do_action( 'comment_form_before' );
+
+	$comment_form_css = <<<CSS
+#comment-help {
+	display:none;
+    grid-template-columns: max-content auto;
+    column-gap: 0.5em;
+	line-height: 1.5em;
+	margin-inline-start:2em;
+}
+
+#comment-help span {
+    display: contents;
+}
+
+#show-comment-help:checked + #comment-help-label + #comment-help {
+    display: inline-grid;
+}
+
+#comment-help-label small::after {
+    content: '▼';
+    display: inline-block;
+    transition: transform 0.2s;
+	margin-inline-start:2px;
+}
+#show-comment-help:checked + #comment-help-label small::after {
+	content:'▲';
+}
+CSS;
+
+	calmpress\utils\enqueue_inline_style_once( 'comment_form', $comment_form_css );
 	?>
 	<div id="respond" class="<?php echo esc_attr( $args['class_container'] ); ?>">
 		<?php
