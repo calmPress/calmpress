@@ -39,7 +39,6 @@ if ( is_admin() ) {
 	foreach ( array( 'term_description', 'user_description' ) as $filter ) {
 		add_filter( $filter, 'wp_kses_data' );
 	}
-	add_filter( 'comment_text', 'wp_kses_post' );
 }
 
 // Email saves.
