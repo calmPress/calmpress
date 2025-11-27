@@ -1883,20 +1883,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->assertSame( 403, $response->get_status() );
 	}
 
-	public function test_create_comment_require_login() {
-		wp_set_current_user( 0 );
-
-		update_option( 'comment_registration', 1 );
-		add_filter( 'rest_allow_anonymous_comments', '__return_true' );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/comments' );
-		$request->set_param( 'post', self::$post_id );
-		$response = rest_get_server()->dispatch( $request );
-		$this->assertSame( 401, $response->get_status() );
-		$data = $response->get_data();
-		$this->assertSame( 'rest_comment_login_required', $data['code'] );
-	}
-
 	public function test_create_item_invalid_author() {
 		wp_set_current_user( self::$admin_id );
 

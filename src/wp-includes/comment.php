@@ -2586,10 +2586,6 @@ function wp_handle_comment_submission( $comment_data ) {
 		$comment_author       = $user->display_name;
 		$comment_author_email = $user->user_email;
 		$user_ID              = $user->ID;
-	} else {
-		if ( get_option( 'comment_registration' ) ) {
-			return new WP_Error( 'not_logged_in', __( 'Sorry, you must be logged in to comment.' ), 403 );
-		}
 	}
 
 	$comment_type = 'comment';

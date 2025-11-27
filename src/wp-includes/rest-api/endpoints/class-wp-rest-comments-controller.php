@@ -439,13 +439,6 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 	 */
 	public function create_item_permissions_check( $request ) {
 		if ( ! is_user_logged_in() ) {
-			if ( get_option( 'comment_registration' ) ) {
-				return new WP_Error(
-					'rest_comment_login_required',
-					__( 'Sorry, you must be logged in to comment.' ),
-					array( 'status' => 401 )
-				);
-			}
 
 			/**
 			 * Filters whether comments can be created via the REST API without authentication.

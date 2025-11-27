@@ -409,25 +409,6 @@ class Tests_Comment_Submission extends WP_UnitTestCase {
 
 	}
 
-	public function test_submitting_comment_as_anonymous_user_when_registration_required_returns_error() {
-
-		$error = 'not_logged_in';
-
-		$_comment_registration = get_option( 'comment_registration' );
-		update_option( 'comment_registration', '1' );
-
-		$data    = array(
-			'comment_post_ID' => self::$post->ID,
-		);
-		$comment = wp_handle_comment_submission( $data );
-
-		update_option( 'comment_registration', $_comment_registration );
-
-		$this->assertWPError( $comment );
-		$this->assertSame( $error, $comment->get_error_code() );
-
-	}
-
 	public function test_submitting_comment_with_no_name_when_name_email_required_returns_error() {
 
 		$error = 'require_name_email';

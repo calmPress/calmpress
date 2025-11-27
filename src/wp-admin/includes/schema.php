@@ -412,7 +412,6 @@ function populate_options( array $options = array() ) {
 		'template'                        => $template,
 		'stylesheet'                      => $stylesheet,
 		'comment_whitelist'               => 1,
-		'comment_registration'            => 0,
 		'html_type'                       => 'text/html',
 
 		// 2.0.1
@@ -568,7 +567,7 @@ function populate_options( array $options = array() ) {
 		'embed_autourls', 'default_post_edit_rows', 'gzipcompression', 'advanced_edit', 'require_name_email',
 		'show_comments_cookies_opt_in', 'require_name_email', 'default_comments_page',
 		'close_comments_for_old_posts', 'close_comments_days_old', 'page_comments',
-		'comments_per_page'	
+		'comments_per_page', 'comment_registration'
 	);
 	foreach ( $unusedoptions as $option ) {
 		delete_option( $option );
