@@ -71,7 +71,7 @@ if ( 'approved' === wp_get_comment_status( $comment ) && $comment->comment_post_
 		array(
 			'media_buttons' => false,
 			'tinymce'       => false,
-			'quicktags'     => $quicktags_settings,
+			'quicktags'     => false,
 		)
 	);
 	wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
