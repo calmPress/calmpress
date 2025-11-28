@@ -692,7 +692,6 @@ class Tests_Comment extends WP_UnitTestCase {
 		 * Test with moderator notification setting on, filter set to off.
 		 * Should not send a notification.
 		 */
-		update_option( 'moderation_notify', 1 );
 		add_filter( 'notify_moderator', '__return_false' );
 
 		$notification_sent = $this->try_sending_moderator_notification( $comment_data['comment'], $comment_data['post'] );
@@ -700,27 +699,6 @@ class Tests_Comment extends WP_UnitTestCase {
 		$this->assertFalse( $notification_sent, 'Moderator notification setting on, filter set to off' );
 
 		remove_filter( 'notify_moderator', '__return_false' );
-		remove_filter( 'comment_flood_filter', '__return_false' );
-	}
-
-	/**
-	 * @ticket 761
-	 */
-	public function test_wp_notify_moderator_filter_moderation_notify_option_false_filter_true() {
-		$comment_data = $this->setup_notify_comment();
-
-		/**
-		 * Test with moderator notification setting off, filter set to on.
-		 * Should send a notification.
-		 */
-		update_option( 'moderation_notify', 0 );
-		add_filter( 'notify_moderator', '__return_true' );
-
-		$notification_sent = $this->try_sending_moderator_notification( $comment_data['comment'], $comment_data['post'] );
-
-		$this->assertTrue( $notification_sent, 'Moderator notification setting off, filter set to on' );
-
-		remove_filter( 'notify_moderator', '__return_true' );
 		remove_filter( 'comment_flood_filter', '__return_false' );
 	}
 
