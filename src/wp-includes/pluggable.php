@@ -1771,7 +1771,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) ) :
 	function wp_notify_moderator( $comment_id ) {
 		global $wpdb;
 
-		$maybe_notify = get_option( 'moderation_notify' );
+		$maybe_notify = 1; // By default always notify.
 
 		/**
 		 * Filters whether to send the site moderator email notifications, overriding the site setting.

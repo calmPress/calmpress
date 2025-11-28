@@ -398,7 +398,6 @@ function populate_options( array $options = array() ) {
 		/* translators: Links last updated date format, see https://www.php.net/manual/datetime.format.php */
 		'links_updated_date_format'       => __( 'F j, Y g:i a' ),
 		'comment_moderation'              => 0,
-		'moderation_notify'               => 1,
 		'permalink_structure'             => '/%year%/%monthnum%/%day%/%postname%/',
 		'rewrite_rules'                   => '',
 		'blog_charset'                    => 'UTF-8',
@@ -567,7 +566,7 @@ function populate_options( array $options = array() ) {
 		'embed_autourls', 'default_post_edit_rows', 'gzipcompression', 'advanced_edit', 'require_name_email',
 		'show_comments_cookies_opt_in', 'require_name_email', 'default_comments_page',
 		'close_comments_for_old_posts', 'close_comments_days_old', 'page_comments',
-		'comments_per_page', 'comment_registration'
+		'comments_per_page', 'comment_registration', 'moderation_notify'
 	);
 	foreach ( $unusedoptions as $option ) {
 		delete_option( $option );

@@ -75,7 +75,6 @@ $allowed_options            = array(
 	'discussion' => array(
 		'default_comment_status',
 		'comments_notify',
-		'moderation_notify',
 		'comment_moderation',
 		'comment_previously_approved',
 		'comment_max_links',
