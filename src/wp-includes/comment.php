@@ -17,7 +17,7 @@
  * check fails. If any of the parameter contents contain any disallowed words,
  * then the check fails.
  *
- * If the comment author was approved before, then the comment is automatically
+ * If the comment author was approved before on the same post, then the comment is automatically
  * approved.
  *
  * If all checks pass, the function will return true.
@@ -33,9 +33,10 @@
  * @param string $user_ip      Comment author IP address.
  * @param string $user_agent   Comment author User-Agent.
  * @param string $comment_type Comment type.
+ * @param int    $post_id       Comment post id
  * @return bool If all checks pass, true, otherwise false.
  */
-function check_comment( $author, $email, $url, $comment, $user_ip, $user_agent, $comment_type ) {
+function check_comment( $author, $email, $url, $comment, $user_ip, $user_agent, $comment_type, $post_id ) {
 	global $wpdb;
 
 	// If manual moderation is enabled, skip all checks and return false.
@@ -83,10 +84,38 @@ function check_comment( $author, $email, $url, $comment, $user_ip, $user_agent, 
 		if ( '' != $author && '' != $email ) {
 			$comment_user = get_user_by( 'email', wp_unslash( $email ) );
 			if ( ! empty( $comment_user->ID ) ) {
-				$ok_to_comment = $wpdb->get_var( $wpdb->prepare( "SELECT comment_approved FROM $wpdb->comments WHERE user_id = %d AND comment_approved = '1' LIMIT 1", $comment_user->ID ) );
+				$ok_to_comment = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT comment_approved
+						FROM $wpdb->comments 
+						WHERE
+							user_id = %d
+							AND comment_post_ID = %d
+							AND comment_approved = '1'
+							LIMIT 1
+						",
+					    $comment_user->ID,
+						$post_id,
+					)
+				);
 			} else {
 				// expected_slashed ($author, $email)
-				$ok_to_comment = $wpdb->get_var( $wpdb->prepare( "SELECT comment_approved FROM $wpdb->comments WHERE comment_author = %s AND comment_author_email = %s and comment_approved = '1' LIMIT 1", $author, $email ) );
+				$ok_to_comment = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT comment_approved
+						FROM $wpdb->comments
+						WHERE
+							comment_author = %s
+							AND comment_author_email = %s
+							AND comment_post_ID = %d
+							AND comment_approved = '1'
+							LIMIT 1
+						",
+						$author,
+						$email,
+						$post_id,
+					) 
+				);
 			}
 			if ( ( 1 == $ok_to_comment ) &&
 				( empty( $mod_keys ) || false === strpos( $email, $mod_keys ) ) ) {
@@ -721,7 +750,8 @@ function wp_allow_comment( $commentdata, $wp_error = false ) {
 			$commentdata['comment_content'],
 			$commentdata['comment_author_IP'],
 			$commentdata['comment_agent'],
-			$commentdata['comment_type']
+			$commentdata['comment_type'],
+			(int) $commentdata['comment_post_ID'],
 		) ) {
 			$approved = 1;
 		} else {
