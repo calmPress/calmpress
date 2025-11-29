@@ -199,7 +199,7 @@ class Controller {
 	}
 
 	/**
-	 * Shutdown handler, try to log unhandled error and log slow request.
+	 * Shutdown handler, try to log unhandled errors and log slow request.
 	 *
 	 * @since 1.0.0
 	 */
@@ -220,9 +220,12 @@ class Controller {
 			);
 		}
 
+		// Log php level errors.
 		$error = error_get_last();
-		if ( $error ) {
-			self::error_handler( $error['type'], $error['message'], $error['file'],$error['line'] );
+		$fatal_types = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+
+		if ( $error && in_array( $error['type'], $fatal_types, true ) ) {
+		    self::error_handler( $error['type'], $error['message'], $error['file'], $error['line'] );
 		}
 	 }
 
@@ -249,7 +252,18 @@ class Controller {
 		);
 
 		self::$handling_error = false;
-		die( 500 );
+
+		// Make sure no partial output if there clear everything in the
+		// output buffer.
+		while ( ob_get_level() ) { 
+    		ob_end_clean();
+		}
+		
+		wp_die(
+			'A critical error occurred.',
+			'Critical Error',
+			[ 'response' => 500 ]
+		);
 	}
 
 	/**
