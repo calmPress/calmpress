@@ -242,9 +242,9 @@ switch ( $wp_list_table->current_action() ) {
 		$go_delete = 0;
 		foreach ( $all_userids as $id ) {
 			$user = get_userdata( $id );
-			if ( $id == $current_user->ID ) {
+			if ( ! current_user_can( 'delete_user', $id ) ) {
 				/* translators: 1: User ID, 2: User login. */
-				echo '<li>' . sprintf( __( 'ID #%1$s: %2$s <strong>The current user will not be deleted.</strong>' ), $id, $user->user_email ) . "</li>\n";
+				echo '<li>' . sprintf( __( 'ID #%1$s: %2$s <strong>The user can not be deleted by you.</strong>' ), $id, $user->user_email ) . "</li>\n";
 			} else {
 				/* translators: 1: User ID, 2: User login. */
 				echo '<li><input type="hidden" name="users[]" value="' . esc_attr( $id ) . '" />' . sprintf( __( 'ID #%1$s: %2$s' ), $id, $user->user_email ) . "</li>\n";
