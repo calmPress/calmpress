@@ -1043,20 +1043,47 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @since calmPress 1.0.0
 	 *
 	 * @return WP_User[] The array of users.
+	 * 
+	 * @throws \RuntimeException if the are no admins.
 	 */
 	public static function administrators(): array {
 		$admins = get_users( [ 'role' => 'administrator', 'orderby' => 'ID' ] );
+		if ( count( $admins ) === 0 ) {
+			throw new \RuntimeException( 'No administrators found on this site. Please configure at least one administrator.' );
+		}
 		return $admins;
 	}
 
 	/**
-	 * The email address of one (the "first") admin.
+	 * The email address which is target of notifications. 
+	 * 
+	 * Mostly respect the value in admin_email option, but make sure it matches an actual
+	 * administrator, if not set the value to be an email of another administrator
+	 * and return it.
 	 *
 	 * @since calmPress 1.0.0
 	 *
+	 * @param string $email_address The email address set in the option.
+	 * 
 	 * @return string The email address.
 	 */
-	public static function admin_email(): string {
+	public static function admin_email( string $email_address ): string {
+
+		// At install time there are no users, so just trust what is given.
+		if ( wp_installing() ) {
+			return $email_address;
+		}
+
+		$user = get_user_by( 'email', $email_address );
+
+		// If user exists and has administrator role, just return the email
+		if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) {
+			return $email_address;
+		}
+	
+		// email is not of an administrator, just select one of them to get a better
+		// email address.
+
 		$admins = self::administrators();
 		return $admins[0]->user_email;
 	}

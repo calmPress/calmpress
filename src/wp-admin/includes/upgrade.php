@@ -52,6 +52,7 @@ if ( ! function_exists( 'wp_install' ) ) :
 		populate_roles();
 
 		update_option( 'blogname', $blog_title );
+		update_option( 'admin_email', $user_email );
 		update_option( 'blog_public', $public );
 
 		// Freshness of site - in the future, this could get more specific about actions taken, perhaps.

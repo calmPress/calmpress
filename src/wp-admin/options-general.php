@@ -64,6 +64,27 @@ if ( ! is_multisite() ) {
 </td>
 </tr>
 
+<tr>
+	<th scope="row"><label for="admin_email"><?php esc_html_e( 'System notifications recipient' ); ?></label></th>
+	<td>
+		<?php
+			$email = get_option( 'admin_email' );
+			echo '<select name="admin_email">';
+			foreach ( WP_User::administrators() as $user ) {
+				$selected = '';
+				if ( $user->user_email === $email ) {
+					$selected = ' selected';
+				}
+				echo '<option value="' . esc_attr( $user->user_email ) . '"' . $selected .'>'
+				     . esc_html( $user->display_name . ' ('. $user->user_email . ')' ) . '</option>';
+			}
+			echo '</select>';
+		?>
+		<p class="description">
+			<?php esc_html_e( 'The administrator who will receive email notifications for site administration related events.' ); ?>
+		</p>
+	</td>
+</tr>
 <?php } ?>
 
 
