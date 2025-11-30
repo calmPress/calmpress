@@ -449,7 +449,7 @@ class WP_Users_List_Table extends WP_List_Table {
 				$edit = '<strong>' . esc_html( $user_object->display_name . $super_admin ) . '</strong><br />';
 			}
 
-			if ( ! is_multisite() && get_current_user_id() != $user_object->ID && current_user_can( 'delete_user', $user_object->ID ) ) {
+			if ( ! is_multisite() && current_user_can( 'delete_user', $user_object->ID ) ) {
 				$actions['delete'] = "<a class='submitdelete' href='" . wp_nonce_url( "users.php?action=delete&amp;user=$user_object->ID", 'bulk-users' ) . "'>" . __( 'Delete' ) . '</a>';
 			}
 			if ( is_multisite() && current_user_can( 'remove_user', $user_object->ID ) ) {

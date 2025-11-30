@@ -2065,7 +2065,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertNotEmpty( $user );
 	}
 
-	public function test_delete_current_item() {
+	public function test_cant_delete_current_item() {
 		$user_id = $this->factory->user->create(
 			array(
 				'role'         => 'administrator',
@@ -2088,13 +2088,12 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			return;
 		}
 
-		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 403, $response->get_status() );
 		$data = $response->get_data();
-		$this->assertTrue( $data['deleted'] );
-		$this->assertSame( 'Deleted User', $data['previous']['name'] );
+		$this->assertFalse( isset( $data['deleted'] ) );
 	}
 
-	public function test_delete_current_item_no_trash() {
+	public function test_cant_delete_current_item_no_trash() {
 		$user_id = $this->factory->user->create(
 			array(
 				'role'         => 'administrator',
@@ -2116,11 +2115,11 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			return;
 		}
 
-		$this->assertErrorResponse( 'rest_trash_not_supported', $response, 501 );
+		$this->assertErrorResponse( 'rest_user_cannot_delete', $response, 403 );
 
 		$request->set_param( 'force', 'false' );
 		$response = rest_get_server()->dispatch( $request );
-		$this->assertErrorResponse( 'rest_trash_not_supported', $response, 501 );
+		$this->assertErrorResponse( 'rest_user_cannot_delete', $response, 403 );
 
 		// Ensure the user still exists.
 		$user = get_user_by( 'id', $user_id );

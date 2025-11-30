@@ -431,6 +431,15 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			}
 			break;
 		case 'delete_user':
+			$user_id_to_delete = $args[0];
+
+			// Prevent deleting yourself
+			if ( $user_id === $user_id_to_delete ) {
+				$caps[] = 'do_not_allow';
+				return $caps;
+			}
+
+			// fall through intentionally to apply multisite / delete_users mapping
 		case 'delete_users':
 			// If multisite only super admins can delete users.
 			if ( is_multisite() && ! is_super_admin( $user_id ) ) {
