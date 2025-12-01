@@ -2084,7 +2084,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 
 		// Not implemented in multisite.
 		if ( is_multisite() ) {
-			$this->assertErrorResponse( 'rest_cannot_delete', $response, 501 );
+			$this->assertErrorResponse( 'rest_user_cannot_delete', $response, 403 );
 			return;
 		}
 
@@ -2111,7 +2111,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 
 		// Not implemented in multisite.
 		if ( is_multisite() ) {
-			$this->assertErrorResponse( 'rest_cannot_delete', $response, 501 );
+			$this->assertErrorResponse( 'rest_user_cannot_delete', $response, 403 );
 			return;
 		}
 
