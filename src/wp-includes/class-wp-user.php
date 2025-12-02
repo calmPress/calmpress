@@ -1055,6 +1055,19 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * Indicates whether the user is the target for notification about system events.
+	 * 
+	 * @since calmPress 1.0.0
+	 * 
+	 * @return bool true if the user configured to recieve system notification,
+	 *              otherwise false.
+	 */
+	public function is_system_notification_recipient():bool {
+		$email = get_option( 'admin_email' );
+		return $this->user_email === $email;
+	}
+
+	/**
 	 * The email address which is target of notifications. 
 	 * 
 	 * Mostly respect the value in admin_email option, but make sure it matches an actual

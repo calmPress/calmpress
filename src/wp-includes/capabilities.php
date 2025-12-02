@@ -50,9 +50,19 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			// In multisite the user must be a super admin to remove themselves.
 			if ( isset( $args[0] ) && $user_id == $args[0] && ! is_super_admin( $user_id ) ) {
 				$caps[] = 'do_not_allow';
+				return $caps;
+			}
+
+			$user_id_to_delete = $args[0];
+
+			// Prevent deleting the administrator getting notifications.
+			$user = get_user_by( 'id', $user_id_to_delete );
+			if ( $user->is_system_notification_recipient() ) {
+				$caps[] = 'do_not_allow';
 			} else {
 				$caps[] = 'remove_users';
 			}
+
 			break;
 		case 'promote_user':
 		case 'add_users':
@@ -437,6 +447,16 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			if ( $user_id === $user_id_to_delete ) {
 				$caps[] = 'do_not_allow';
 				return $caps;
+			}
+
+			if ( ! is_multisite() || ! is_super_admin( $user_id ) ) {
+				// Prevent deleting the administrator getting notifications,
+				// except for super user on network.
+				$user = get_user_by( 'id', $user_id_to_delete );
+				if ( $user && $user->is_system_notification_recipient() ) {
+					$caps[] = 'do_not_allow';
+					return $caps;
+				}
 			}
 
 			// fall through intentionally to apply multisite / delete_users mapping

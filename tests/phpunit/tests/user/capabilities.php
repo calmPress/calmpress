@@ -25,11 +25,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	 */
 	protected static $super_admin = null;
 
-	/**
-	 * @var int $block_id
-	 */
-	protected static $block_id;
-
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		self::$users       = array(
 			'anonymous'     => new WP_User( 0 ),
@@ -41,16 +36,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		);
 		self::$super_admin = $factory->user->create_and_get( array( 'role' => 'contributor' ) );
 		grant_super_admin( self::$super_admin->ID );
-
-		self::$block_id = $factory->post->create(
-			array(
-				'post_author'  => self::$users['administrator']->ID,
-				'post_type'    => 'wp_block',
-				'post_status'  => 'publish',
-				'post_title'   => 'Test Block',
-				'post_content' => '<!-- wp:core/paragraph --><p>Hello world!</p><!-- /wp:core/paragraph -->',
-			)
-		);
 	}
 
 	public function set_up() {
@@ -1684,6 +1669,37 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertFalse( user_can( self::$users['author']->ID, 'delete_user', self::$users['subscriber']->ID ) );
 		$this->assertFalse( user_can( self::$users['contributor']->ID, 'delete_user', self::$users['subscriber']->ID ) );
 		$this->assertFalse( user_can( self::$users['subscriber']->ID, 'delete_user', self::$users['subscriber']->ID ) );
+	}
+
+	/**
+	 * @group ms-excluded
+	 */
+	public function test_admins_can_not_delete_notification_target_admin() {
+		$notification_admin_id = $this->factory->user->create( [
+			'role' => 'administrator',
+			'user_email' => 'notification@example.com',
+		] );
+
+		update_option( 'admin_email', 'notification@example.com' );
+
+		$this->assertFalse( user_can( self::$users['administrator']->ID, 'delete_user', $notification_admin_id ) );
+	}
+
+	/**
+	 * @group ms-required
+	 */
+	public function test_admins_can_not_remove_notification_target_admin() {
+		$notification_admin_id = $this->factory->user->create( [
+			'role' => 'administrator',
+			'user_email' => 'notification@example.com',
+		] );
+
+		update_option( 'admin_email', 'notification@example.com' );
+
+		$this->assertFalse( user_can( self::$users['administrator']->ID, 'remove_user', $notification_admin_id ) );
+
+		// but can be deleted by super admin.
+		$this->assertTrue( user_can( self::$super_admin->ID, 'delete_user', $notification_admin_id ) );
 	}
 
 	public function test_only_admins_and_super_admins_can_promote_users() {

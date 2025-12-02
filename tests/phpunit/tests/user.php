@@ -49,7 +49,12 @@ class Tests_User extends WP_UnitTestCase {
 		);
 		self::$user_ids[] = self::$author_id;
 
-		self::$admin_id   = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$admin_id   = $factory->user->create(
+			[
+				'role'       => 'administrator',
+				'user_email' => 'admin@test.com',
+			]
+		);
 		self::$user_ids[] = self::$admin_id;
 		self::$editor_id  = $factory->user->create(
 			array(
@@ -1646,5 +1651,61 @@ class Tests_User extends WP_UnitTestCase {
 			[ 'for.me.you@stam.com', 'For Me You' ],
 			[ 'lets.go+test@calm.com', "Lets Go" ], // With tag.
 		];
+	}
+
+	/**
+	 * test admin_email returns an email of an administrator
+	 * 
+	 * @since @calmPress 1.0.0
+	 */
+	public function test_admin_email() {
+		// For an email which is not related to an administrator
+		// return the email of the administrator
+
+		// Just an irrelevant email
+		$email = WP_User::admin_email( 'dummy' );
+		$user = get_user_by( 'email', $email );
+		$this->assertSame( ['administrator'], $user->roles );
+
+		// An email of non admin user
+		$email = WP_User::admin_email( 'author@email.com' );
+		$user = get_user_by( 'email', $email );
+		$this->assertSame( ['administrator'], $user->roles );
+
+		// An actual administrator, check its the same user.
+		$email = WP_User::admin_email( 'admin@test.com' );
+		$user = get_user_by( 'email', $email );
+		$this->assertSame( 'admin@test.com', $user->user_email );
+	}
+
+	/**
+	 * test is_system_notification_recipient
+	 * 
+	 * @since calmPress 1.0.0
+	 */
+	public function test_is_system_notification_recipient() {
+
+		$admin2_id   = $this->factory->user->create(
+			[
+				'role'       => 'administrator',
+				'user_email' => 'admin2@test.com',
+			]
+		);
+
+		update_option( 'admin_email', 'admin@test.com' );
+
+		$user = get_user_by( 'id', self::$admin_id );
+		$this->assertTrue( $user->is_system_notification_recipient() );
+
+		$user = get_user_by( 'id', $admin2_id );
+		$this->assertFalse( $user->is_system_notification_recipient() );
+
+		update_option( 'admin_email', 'admin2@test.com' );
+
+		$user = get_user_by( 'id', self::$admin_id );
+		$this->assertFalse( $user->is_system_notification_recipient() );
+
+		$user = get_user_by( 'id', $admin2_id );
+		$this->assertTrue( $user->is_system_notification_recipient() );
 	}
 }
