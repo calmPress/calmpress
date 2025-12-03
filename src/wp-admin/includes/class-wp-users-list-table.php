@@ -443,7 +443,11 @@ class WP_Users_List_Table extends WP_List_Table {
 			}
 		}
 
-		$extended_string = join( ',', $extended_info );
+		if ( $user_object->is_system_notification_recipient() ) {
+			$extended_info[] = 'System notifications';
+		}
+
+		$extended_string = join( ', ', $extended_info );
 		if ( $extended_string ) {
 			$extended_string = ' &mdash; ' . $extended_string;
 		}
