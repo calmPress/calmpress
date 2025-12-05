@@ -15,6 +15,7 @@
 		$submitButtons,
 		$submitButton,
 		currentPass,
+		avatar_images_modal,
 		$passwordWrapper;
 
 	function generatePassword() {
@@ -94,6 +95,33 @@
 		});
 	}
 
+	/**
+	 * Helper function to insert an inline notice of success or failure.
+	 *
+	 * @param {string} container The id of the message container at which to insert the
+	 *                          message.
+	 * @param {string} type The type of message being inserted, can be either
+	 *                      'success', 'error', 'info'.
+	 * @param {string}        message The message to insert.
+	 */
+	function addInlineNotice( container, type, message ) {
+		const $resultDiv = $( '#' + container );
+
+		// Remove previous messages if there are any.
+		$resultDiv.empty();
+
+		const $notice = jQuery(`
+			<div class="notice notice-${type} is-dismissible">
+				<p>${message}</p>
+				<button type="button" class="notice-dismiss">
+					<span class="screen-reader-text">Dismiss this notice.</span>
+				</button>
+			</div>
+		`);
+
+		$resultDiv.append( $notice );
+	}
+	
 	function bindPasswordForm() {
 		var $generateButton,
 			$cancelButton;
@@ -373,6 +401,143 @@
 			return __( 'Your new password has not been saved.' );
 		}
 	} );
+
+$( '#select_avatar_image' )
+
+		/**
+		 * Invoke the media modal
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			event.preventDefault();
+
+			// Initialize the modal the first time.
+			if ( ! avatar_images_modal ) {
+				avatar_images_modal = wp.media.frames.author_images_modal || wp.media( {
+					title:    userProfileL10n.avatarMediaTitle,
+					button:   { text: userProfileL10n.avatarSelectText },
+					library:  { type: 'image' },
+					multiple: false
+				} );
+
+				// Picking an image
+				avatar_images_modal.on( 'select', function () {
+
+					// Get the image URL
+					var image = avatar_images_modal.state().get( 'selection' ).first().toJSON();
+
+					if ( '' !== image ) {
+						$( '#calm_avatar_image_attachement_id' ).val( image.id );
+						$( '#avatar_image_preview img' ).attr( 'src', image.url );
+						$( '#avatar_image_preview img' ).attr( 'srcset', '' );
+						$( '#avatar_image_preview img' ).attr( 'sizes', '' );
+						$( '#revert_avatar_image' ).removeAttr( 'disabled' );
+						$( '#avatar_image_preview' ).show();
+						$( '#avatar_text_preview' ).hide();
+					}
+				} );
+			}
+
+			// Open the modal
+			avatar_images_modal.open();
+		} );
+
+	$( '#revert_avatar_image' )
+		/**
+		 * Revert avatar to textual form
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			$( '#calm_avatar_image_attachement_id' ).val( 0 );
+			$( '#revert_avatar_image' ).attr( 'disabled', '' );
+			$( '#avatar_image_preview' ).hide();
+			$( '#avatar_text_preview' ).show();
+		} );
+
+	$( '#resend-activation' )
+		/**
+		 * Resend activation
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			var $this  = $(this);
+			var	data = {
+				'user_id': userProfileL10n.user_id, // The user to send a reset to.
+				'nonce':   userProfileL10n.nonce    // Nonce to validate the action.
+			};
+
+			// Send the resend activation request.
+			var resetAction =  wp.ajax.post( 'resend-activation', data );
+
+			// Handle success.
+			resetAction.done( function( response ) {
+				addInlineNotice( $this, true, response );
+			} );
+
+			// Handle failure.
+			resetAction.fail( function( response ) {
+				addInlineNotice( $this, false, response );
+			} );
+		} );
+		
+	$( '#verify-installer' )
+		/**
+		 * Send installer email verificattion mail.
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			var $this  = $(this);
+			var	data = {
+				'user_id': userProfileL10n.user_id, // The user to send a reset to.
+				'nonce':   userProfileL10n.nonce    // Nonce to validate the action.
+			};
+
+			// Send the resend activation request.
+			var resetAction =  wp.ajax.post( 'installer-email-verification', data );
+
+			// Handle success.
+			resetAction.done( function( response ) {
+				addInlineNotice( $this, true, response );
+			} );
+
+			// Handle failure.
+			resetAction.fail( function( response ) {
+				addInlineNotice( $this, false, response );
+			} );
+		} );
+		
+	$( '#cancel-email-change' )
+		/**
+		 * Cancel/undo email change.
+		 *
+		 * @param {object} event The event
+		 */
+		.on( 'click', function ( event ) {
+			var $this  = $(this);
+			var	data = {
+				'user_id': userProfileL10n.user_id, // The user to send a reset to.
+				'nonce':   userProfileL10n.nonce    // Nonce to validate the action.
+			};
+
+			// Send the resend activation request.
+			var action =  wp.ajax.post( 'undo-email-change', data );
+
+			// Handle success.
+			action.done( function( response ) {
+				$( '#email' ).removeAttr( 'readonly' ).val( response );
+				$( '#email' ).siblings( '.notice' ).hide();
+				$( '#email' ).siblings( '.description' ).show();
+			} );
+
+			// Handle failure.
+			action.fail( function( response ) {
+				addInlineNotice( $this, false, response );
+			} );
+		} );
 
 	/*
 	 * We need to generate a password as soon as the Reset Password page is loaded,
