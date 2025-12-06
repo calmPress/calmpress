@@ -670,6 +670,6 @@ function add_current_user_post_endpoint(
  * 
  * @return string The text.
  */
-function unknow_error_text():string {
+function unknown_error_text():string {
 	return __( 'The operation could not be completed due to an unknown error.' );
 }

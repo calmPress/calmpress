@@ -113,7 +113,7 @@ function revoke( \WP_REST_Request $request ): \WP_REST_Response {
 		);
 	} catch ( \RuntimeException $e ) {
 		return new \WP_REST_Response(
-			[ 'message' => \calmpress\utils\unknow_error_text() ],
+			[ 'message' => \calmpress\utils\unknown_error_text() ],
 			500
 		);
 	}
@@ -191,7 +191,7 @@ function register_device( \WP_REST_Request $request ): \WP_REST_Response {
 			Devices_Of_User::EXCEPTION_PUBLIC_KEY_MISMATCH => __( 'The device being registered was already registered for you but with incompatible data. You should try to remove it from the registered devices and try to register again.' ),
 			Devices_Of_User::EXCEPTION_DESCRIPTION_USED => __( 'The description is already used by another registered device. You should use a unique description.' ),
 			Devices_Of_User::EXCEPTION_NO_DESCRIPTION => __( 'No description was given.' ),
-			default => \calmpress\utils\unknow_error_text()
+			default => \calmpress\utils\unknown_error_text()
 		};
 		return new \WP_REST_Response(
 			[ 'message' => $message ],
@@ -231,7 +231,7 @@ function set_description( \WP_REST_Request $request ): \WP_REST_Response {
 			Devices_Of_User::EXCEPTION_DESCRIPTION_USED => __( 'The description is already used by another registered device. You should use a unique description.' ),
 			Devices_Of_User::EXCEPTION_NO_DESCRIPTION => __( 'No description was given.' ),
 			Devices_Of_User::EXCEPTION_DEVICE_NOT_FOUND => __( 'No such device.' ),
-			default => \calmpress\utils\unknow_error_text()
+			default => \calmpress\utils\unknown_error_text()
 		};
 		return new \WP_REST_Response(
 			[ 'message' => $message ],

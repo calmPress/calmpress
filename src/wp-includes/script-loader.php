@@ -1224,7 +1224,7 @@ function wp_default_scripts( $scripts ) {
 			'error_connetivity' => __( 'Unable to connect to the server. Check your internet connection and try again.' ),
 			'error_not_logged' => __( 'You have to be logged in to be able to do this.' ),
 			'error_not_allowed' => __( 'You are not allowed to perform this action. Make sure you are logged in and try refreshing the page.' ),
-			'error_unexpected' => \calmpress\utils\unknow_error_text(),
+			'error_unexpected' => \calmpress\utils\unknown_error_text(),
 		]
 	);
 
