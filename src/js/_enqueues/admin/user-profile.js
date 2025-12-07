@@ -95,33 +95,6 @@
 		});
 	}
 
-	/**
-	 * Helper function to insert an inline notice of success or failure.
-	 *
-	 * @param {string} container The id of the message container at which to insert the
-	 *                          message.
-	 * @param {string} type The type of message being inserted, can be either
-	 *                      'success', 'error', 'info'.
-	 * @param {string}        message The message to insert.
-	 */
-	function addInlineNotice( container, type, message ) {
-		const $resultDiv = $( '#' + container );
-
-		// Remove previous messages if there are any.
-		$resultDiv.empty();
-
-		const $notice = jQuery(`
-			<div class="notice notice-${type} is-dismissible">
-				<p>${message}</p>
-				<button type="button" class="notice-dismiss">
-					<span class="screen-reader-text">Dismiss this notice.</span>
-				</button>
-			</div>
-		`);
-
-		$resultDiv.append( $notice );
-	}
-	
 	function bindPasswordForm() {
 		var $generateButton,
 			$cancelButton;
@@ -470,16 +443,16 @@ $( '#select_avatar_image' )
 			};
 
 			// Send the resend activation request.
-			var resetAction =  wp.ajax.post( 'resend-activation', data );
+			var resendAction =  wp.ajax.post( 'resend-activation', data );
 
 			// Handle success.
-			resetAction.done( function( response ) {
-				addInlineNotice( $this, true, response );
+			resendAction.done( function( response ) {
+				inline_notice_manager.show( 'resend-activation-notice', 'success', response );
 			} );
 
 			// Handle failure.
-			resetAction.fail( function( response ) {
-				addInlineNotice( $this, false, response );
+			resendAction.fail( function( response ) {
+				inline_notice_manager.show( 'resend-activation-notice', 'error', response );
 			} );
 		} );
 		
@@ -501,12 +474,12 @@ $( '#select_avatar_image' )
 
 			// Handle success.
 			resetAction.done( function( response ) {
-				addInlineNotice( $this, true, response );
+				inline_notice_manager.show( 'verify-installer-notice', 'success', response );
 			} );
 
 			// Handle failure.
 			resetAction.fail( function( response ) {
-				addInlineNotice( $this, false, response );
+				inline_notice_manager.show( 'verify-installer-notice', 'error', response );
 			} );
 		} );
 		
@@ -535,7 +508,7 @@ $( '#select_avatar_image' )
 
 			// Handle failure.
 			action.fail( function( response ) {
-				addInlineNotice( $this, false, response );
+				inline_notice_manager.show( 'cancel-email-change-notice', 'error', response );
 			} );
 		} );
 

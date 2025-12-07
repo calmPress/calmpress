@@ -6,8 +6,6 @@
  * @subpackage Administration
  */
 
-use function calmpress\utils\base64URL_encode;
-
 /** WordPress Administration Bootstrap */
 require_once __DIR__ . '/admin.php';
 
@@ -246,6 +244,7 @@ switch ( $action ) {
 						?>
 					</p>
 				</div>
+				<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'verify-installer-notice' );?>
 				<div>
 					<button id="verify-installer" class="button" type="button">
 						<?php esc_html_e( 'Send verification email' );?>
@@ -260,6 +259,7 @@ switch ( $action ) {
 						<?php esc_html_e( 'Was not verified yet. If the email is changed, an activation email will be sent to the new address' ); ?>
 					</p>
 				</div>
+				<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'resend-activation-notice' );?>
 				<div>
 					<button id="resend-activation" class="button" type="button">
 						<?php esc_html_e( 'Resend the activation email' );?>
@@ -290,6 +290,7 @@ switch ( $action ) {
 							}
 						?>
 					</p>
+					<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'cancel-email-change-notice' );?>
 					<p>
 						<button type="button" class="button button-secondary" id="cancel-email-change">
 							<?php esc_html_e( 'Cancle email change' ); ?>
