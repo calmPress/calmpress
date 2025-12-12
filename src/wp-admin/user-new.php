@@ -326,7 +326,7 @@ if ( is_multisite() && current_user_can( 'promote_users' ) ) {
 		$type  = 'text';
 	}
 	?>
-<form method="post" name="adduser" id="adduser" class="validate" novalidate="novalidate"
+<form method="post" name="adduser" id="adduser" novalidate="novalidate"
 	<?php
 	/**
 	 * Fires inside the adduser form tag.
@@ -378,12 +378,18 @@ if ( current_user_can( 'create_users' ) ) {
 	?>
 <p>
 	<?php
-	esc_html_e( 'Create a brand new user and add them to this site.
- The user will recieve an invitation in mail and will be in pending state untill he
- will accept it at which point its role will be change to the one specified below.' );
+	/* translators: %s: link to Login page URL, <br> can be used. */
+	echo str_replace( '&lt;br&gt;', '<br>', sprintf(
+		esc_html__( 'Create a new user account and add it to this site.<br>
+After creating the account, notify the user to visit %s and request 
+ a temporary password using the email address assigned to the account.<br>
+Until they log in for the first time, the account will appear with the 
+ "Pending Activation" role. After login, it will switch to the role you selected.' ),
+		'<code style="user-select:all">' . esc_url( wp_login_url() ) . '</code>'
+ 	) );
 	?>
 </p>
-<form method="post" name="createuser" id="createuser" class="validate" novalidate="novalidate"
+<form method="post" name="createuser" id="createuser" novalidate="novalidate"
 	<?php
 	/** This action is documented in wp-admin/user-new.php */
 	do_action( 'user_new_form_tag' );
@@ -407,7 +413,7 @@ $new_user_role         = $creating && isset( $_POST['role'] ) ? wp_unslash( $_PO
 		<td>
 			<input name="email" type="email" id="email" value="<?php echo esc_attr( $new_user_email ); ?>" />
 			<p class="decription">
-				<?php esc_html_e( 'The user`s email address which will be used at user creation and to which the invitation will be sent.' );?>
+				<?php esc_html_e( 'The user\'s email address.' );?>
 			</p>
 		</td>
 	</tr>
@@ -416,9 +422,8 @@ $new_user_role         = $creating && isset( $_POST['role'] ) ? wp_unslash( $_PO
 		<td>
 			<input name="display_name" type="test" id="display_name" value="<?php echo esc_attr( $new_user_display_name ); ?>" />
 			<p class="decription">
-				<?php esc_html_e( 'The initial display name of the user,
- which can be changed later.
- If left empty it will be automattically assigned base on the email address.' );?>
+				<?php esc_html_e( 'The user\'s initial display name, which can be changed later. If left empty,
+ it will be automatically generated from the email address.' );?>
 			</p>
 		</td>
 	</tr>
@@ -434,7 +439,7 @@ $new_user_role         = $creating && isset( $_POST['role'] ) ? wp_unslash( $_PO
 			?>
 			</select>
 			<p class="decription">
-				<?php esc_html_e( 'The role which will be assigned to the user once he accepts the invitation.' );?>
+				<?php esc_html_e( 'The role that will be assigned to the user when they log in for the first time.' );?>
 			</p>
 		</td>
 	</tr>
