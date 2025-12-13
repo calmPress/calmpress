@@ -13,8 +13,6 @@ use calmpress\email\User_Email_Change_Verification_Email_Mutator;
 use calmpress\email\User_Email_Change_Verification_Email;
 use calmpress\email\User_Email_Change_Undo_Email_Mutator;
 use calmpress\email\User_Email_Change_Undo_Email;
-use calmpress\email\User_Activation_Verification_Email_Mutator;
-use calmpress\email\User_Activation_Verification_Email;
 use calmpress\email\User_One_Time_Password_Email_Mutator;
 use calmpress\email\User_One_Time_Password_Email;
 use calmpress\observer\Observer;
@@ -22,23 +20,6 @@ use calmpress\observer\Observer_Priority;
 use calmpress\email\Abort_Send_Exception;
 
 require_once __DIR__ . '/../../../includes/dummy-phpmailer.php';
-
-/**
- * An implementation of an User_Activation_Verification_Email_Mutator interface to use in testing.
- */
-class Mock_Activation_Mutator implements User_Activation_Verification_Email_Mutator {
-
-	public User_Activation_Verification_Email $email;
-
-	public function notification_dependency_with( Observer $observer ) : Observer_Priority {
-		return Observer_Priority::NONE;
-	}
-
-	public function mutate_by_ref( User_Activation_Verification_Email &$email ):void {
-		$this->email = $email;
-		throw new Abort_Send_Exception();
-	}
-}
 
 /**
  * An implementation of an User_Email_Change_Verification_Email_Mutator interface to use in testing.
@@ -271,18 +252,15 @@ class WP_User_Test extends WP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 		$user    = get_user_by( 'id', $user_id );
 
-		// For pending users an activation should be sent to new email.
+		// For pending users email is just updated with no emails sent.
 		$user->set_role( 'pending_activation' );
-		$activation_mutator = new Mock_activation_Mutator();
-		calmpress\email\User_Activation_Verification_Email::register_mutator( $activation_mutator );
 
 		// need to set the email address on the object as it is assumed that at this point
 		// DB changes where done.
+		$phpmailer = new dummy_PHPMailer();
 		$user->user_email = 'new@example.com';
 		$user->change_email( new Email_address( 'change@example.com' ) );
-		$tos = $activation_mutator->email->email->to_addresses();
-		$this->assertSame( 1, count( $tos ) );
-		$this->assertSame( 'new@example.com', $tos[0]->address );
+		$this->assertSame( '', $phpmailer->Subject );
 
 		// For an active installer no email should be sent.
 		global $phpmailer;

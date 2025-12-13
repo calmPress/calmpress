@@ -428,34 +428,7 @@ $( '#select_avatar_image' )
 			$( '#avatar_image_preview' ).hide();
 			$( '#avatar_text_preview' ).show();
 		} );
-
-	$( '#resend-activation' )
-		/**
-		 * Resend activation
-		 *
-		 * @param {object} event The event
-		 */
-		.on( 'click', function ( event ) {
-			var $this  = $(this);
-			var	data = {
-				'user_id': userProfileL10n.user_id, // The user to send a reset to.
-				'nonce':   userProfileL10n.nonce    // Nonce to validate the action.
-			};
-
-			// Send the resend activation request.
-			var resendAction =  wp.ajax.post( 'resend-activation', data );
-
-			// Handle success.
-			resendAction.done( function( response ) {
-				inline_notice_manager.show( 'resend-activation-notice', 'success', response );
-			} );
-
-			// Handle failure.
-			resendAction.fail( function( response ) {
-				inline_notice_manager.show( 'resend-activation-notice', 'error', response );
-			} );
-		} );
-		
+	
 	$( '#verify-installer' )
 		/**
 		 * Send installer email verificattion mail.

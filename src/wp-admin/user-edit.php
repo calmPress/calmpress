@@ -190,7 +190,12 @@ switch ( $action ) {
 		?>
 
 <hr class="wp-header-end">
-
+<?php
+	if ( in_array( 'pending_activation', $profileuser->roles, true ) ) {
+		echo '<p>' . esc_html( 'This user account is pending activation.
+The user has not yet logged in and should request a temporary password from the login page and log in to activate the account.' ) . '</p>';
+	}
+?>
 <form id="your-profile" action="<?php echo esc_url( self_admin_url( IS_PROFILE_PAGE ? 'profile.php' : 'user-edit.php' ) ); ?>" method="post" novalidate="novalidate"
 		<?php
 		/**
@@ -251,21 +256,6 @@ switch ( $action ) {
 					</button>
 				</div>
 				<?php
-			} elseif ( in_array( 'pending_activation', $profileuser->roles, true ) ) {
-				// If user is not active yet, indicate it.
-				?>
-				<div class="notice inline">
-					<p>
-						<?php esc_html_e( 'Was not verified yet. If the email is changed, an activation email will be sent to the new address' ); ?>
-					</p>
-				</div>
-				<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'resend-activation-notice' );?>
-				<div>
-					<button id="resend-activation" class="button" type="button">
-						<?php esc_html_e( 'Resend the activation email' );?>
-					</button>
-				</div>
-				<?php
 			} elseif ( $profileuser->email_change_in_progress() ) {
 				$hide_description = true;
 				?>
@@ -298,6 +288,10 @@ switch ( $action ) {
 					</p>
 				</div>
 				<?php
+			}
+			// Do not show description for pending users as no email will be sent.
+			if ( in_array( 'pending_activation', $profileuser->roles, true ) ) {
+				$hide_description = true;
 			}
 			?>
 			<p class="description" <?php if ( $hide_description ) echo 'style="display:none"';?>>

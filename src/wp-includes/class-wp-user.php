@@ -890,21 +890,6 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * The URL to be used to activate the user.
-	 * 
-	 * In practice returns the URL to reset the user's password when the user is newly
-	 * added to the site.
-	 *
-	 * @since calmPress 1.0.0
-	 *
-	 * @return string the URL, unescaped.
-	 */
-	public function activation_url() : string {
-		$key = get_password_reset_key( $this );
-		return network_site_url( "wp-login.php?action=rp&key=$key&email=" . rawurlencode( $this->user_email ) );
-	}
-
-	/**
 	 * The URL to be used to approve installer's email.
 	 * 
 	 * @since calmPress 1.0.0
@@ -1180,8 +1165,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 			// If the installer was not verified yet, ignore the change related logic. 
 			;
 		} elseif ( in_array( 'pending_activation', $this->roles, true ) ) {
-			$email = new calmpress\email\User_Activation_Verification_Email( $this );
-			$email->send();
+			; // Original email was not verified yet, no point in sending.
 		} else {
 			// Can not change to another email while change is in progress,
 			// but permit call with the same email address as a virtual noop

@@ -2180,13 +2180,6 @@ function wp_insert_user( $userdata ) {
 		}
 	}
 
-	// New user is created, send an activation request mail and mark it as waiting
-	// for activation.
-	if ( ! $update ) {
-		$email = new calmpress\email\User_Activation_Verification_Email( $user );
-		$email->send();
-	}
-
 	clean_user_cache( $user_id );
 
 	if ( $update ) {

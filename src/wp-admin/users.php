@@ -460,6 +460,7 @@ switch ( $wp_list_table->current_action() ) {
 							),
 							__( 'Edit user' )
 						);
+						$message .= '<br>' . __( 'Notify the user to visit the login page and request a temporary password to activate the account.' );
 					}
 
 					$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . $message . '</p></div>';
