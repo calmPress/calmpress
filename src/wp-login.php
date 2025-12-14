@@ -729,7 +729,7 @@ switch ( $action ) {
 		// potentialy change his password.
 		wp_set_auth_cookie( $user->ID, true );
 		wp_safe_redirect( admin_url( 'user-edit.php#password' ) );
-		break;
+		exit;
 
 	case 'checkemail':
 		$redirect_to = admin_url();
@@ -852,6 +852,13 @@ switch ( $action ) {
 		$session_token = $cookie_parts['token'] ?? '';
 
 		if ( ! $user ) { // If not set to an error before.
+			// Detect if its a user ativation, if so redirect to the user's profile
+			add_action(
+				'user_account_activate',
+				function ( $user ) use ( $redirect_to) {
+					$redirect_to = get_edit_user_link( $user->ID );
+				}
+			);
 			$user = wp_signon( array(), $secure_cookie );
 		}
 

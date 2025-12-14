@@ -124,6 +124,16 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 		}
 
 		delete_user_meta( $user->ID, 'activate_to_role' );
+
+		/**
+		 * Fires after a user pendiang activation was authenticated and
+		 * set its role.
+		 *
+		 * @since calmPress 1.0.0
+		 *
+		 * @param WP_User $user       WP_User object of the logged-in user.
+		 */
+		do_action( 'user_account_activate' , $user );
 	}
 
 	/**

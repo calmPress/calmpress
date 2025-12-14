@@ -209,7 +209,7 @@ class WP_User_Test extends WP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 		$user    = get_user_by( 'id', $user_id );
 
-		// For pending users always true.
+		// For pending users always false.
 		$user->set_role( 'pending_activation' );
 		$this->assertFalse( $user->email_change_in_progress() );
 
