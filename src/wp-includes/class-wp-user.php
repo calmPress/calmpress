@@ -1053,7 +1053,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * The email address which is target of notifications. 
+	 * The email address which is target of system notifications. 
 	 * 
 	 * Mostly respect the value in admin_email option, but make sure it matches an actual
 	 * administrator, if not set the value to be an email of another administrator
@@ -1084,6 +1084,50 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 
 		$admins = self::administrators();
 		return $admins[0]->user_email;
+	}
+
+	/**
+	 * Indicates whether the user is the default target for notification about comment
+	 * moderation events.
+	 * 
+	 * @since calmPress 1.0.0
+	 * 
+	 * @return bool true if the user configured to recieve moderation notification,
+	 *              otherwise false.
+	 */
+	public function is_default_comment_moderation_notification_recipient():bool {
+		// Can not just compare id in option as it might not be of a valid user.
+		$email = self::default_comment_moderator_email();
+		return $this->user_email === $email;
+	}
+
+	/**
+	 * The email address which is default target of comment moderation notifications. 
+	 * 
+	 * Mostly respect the value in comment_moderator_user option, but make sure it
+	 * matches an actual editor or administrator,
+	 * if not set the value to be the email of admin which gets site notification
+	 *
+	 * @since calmPress 1.0.0
+	 * 
+	 * @return string The email address.
+	 */
+	public static function default_comment_moderator_email(): string {
+
+		$user_id = get_option( 'comment_moderator_user' );
+		$user = get_user_by( 'id', $user_id );
+
+		// If user exists and has administrator or editior role, just return the email
+		if (
+			$user &&
+		    ! empty( array_intersect( ['administrator', 'editor'],	(array) $user->roles ) ) 
+		   ) {
+			return $user->user_email;
+		}
+	
+		// email is not of an administrator nor editor, use the target email for system 
+		// notification.
+		return self::admin_email( get_option( 'admin_email' ));
 	}
 
 	/**

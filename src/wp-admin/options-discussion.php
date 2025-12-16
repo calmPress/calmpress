@@ -121,6 +121,31 @@ printf(
 </label></p>
 </fieldset></td>
 </tr>
+<tr>
+	<th scope="row"><label for="comment_moderator_user"><?php esc_html_e( 'Default moderation notifications recipient' ); ?></label></th>
+	<td>
+		<?php
+			$user_email = WP_User::default_comment_moderator_email();
+			echo '<select name="comment_moderator_user">';
+			$users = get_users( [
+				'role__in' => ['administrator', 'editor'],
+			] );
+
+			foreach ( $users as $user ) {
+				$selected = '';
+				if ( $user->user_email === $user_email ) {
+					$selected = ' selected';
+				}
+				echo '<option value="' . esc_attr( $user->ID ) . '"' . $selected .'>'
+				     . esc_html( $user->display_name . ' ('. $user->user_email . ')' ) . '</option>';
+			}
+			echo '</select>';
+		?>
+		<p class="description">
+			<?php esc_html_e( 'The administrator or editor who is the default receipient for email notifications related to comment moderation event.' ); ?>
+		</p>
+	</td>
+</tr>
 <?php do_settings_fields( 'discussion', 'default' ); ?>
 </table>
 

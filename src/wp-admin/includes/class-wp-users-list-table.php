@@ -444,7 +444,11 @@ class WP_Users_List_Table extends WP_List_Table {
 		}
 
 		if ( $user_object->is_system_notification_recipient() ) {
-			$extended_info[] = 'System notifications';
+			$extended_info[] = __( 'System notifications' );
+		}
+
+		if ( $user_object->is_default_comment_moderation_notification_recipient() ) {
+			$extended_info[] = __( 'Comment moderator' );
 		}
 
 		$extended_string = join( ', ', $extended_info );

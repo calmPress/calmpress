@@ -83,6 +83,7 @@ $allowed_options            = array(
 		'thread_comments',
 		'thread_comments_depth',
 		'comment_order',
+		'comment_moderator_user',
 	),
 	'media'      => array(
 		'thumbnail_size_w',

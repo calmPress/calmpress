@@ -509,7 +509,8 @@ function populate_options( array $options = array() ) {
 		'wp_config_user_section',
 		'robots_txt',
 		'calm_email_delivery',
-		'admin_email'
+		'admin_email',
+		'comment_moderator_user',
 	);
 
 	$keys             = "'" . implode( "', '", array_keys( $options ) ) . "'";

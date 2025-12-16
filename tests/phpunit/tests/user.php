@@ -1708,4 +1708,54 @@ class Tests_User extends WP_UnitTestCase {
 		$user = get_user_by( 'id', $admin2_id );
 		$this->assertTrue( $user->is_system_notification_recipient() );
 	}
+
+	/**
+	 * test default_comment_moderator_email returns an email of
+	 * the configured target for comment moderation emails. 
+	 * 
+	 * @since @calmPress 1.0.0
+	 */
+	public function test_default_comment_moderator_email() {
+		
+		// no user id at the option, returns an admin.
+		$email = WP_User::default_comment_moderator_email();
+		$user = get_user_by( 'email', $email );
+		$this->assertSame( ['administrator'], $user->roles );
+
+		// option set to author, returns an admin
+		update_option( 'comment_moderator_user', self::$_author);
+		$email = WP_User::default_comment_moderator_email();
+		$user = get_user_by( 'email', $email );
+		$this->assertSame( ['administrator'], $user->roles );
+
+		// An administrator, check its the same user.
+		update_option( 'comment_moderator_user', self::$admin_id );
+		$email = WP_User::default_comment_moderator_email();
+		$this->assertSame( 'admin@test.com', $email );
+
+		// An editor, check its the same user.
+		update_option( 'comment_moderator_user', self::$editor_id );
+		$email = WP_User::default_comment_moderator_email();
+		$this->assertSame( 'test@test.com', $email );
+	}
+
+	/**
+	 * test is_default_comment_moderation_notification_recipient
+	 * 
+	 * @since calmPress 1.0.0
+	 */
+	public function test_is_default_comment_moderation_notification_recipient() {
+
+		// if no user set the admin is a recipient.
+		$user = get_user_by( 'email', 'admin@example.org' );
+		$this->assertTrue( $user->is_default_comment_moderation_notification_recipient() );
+
+		update_option( 'comment_moderator_user', self::$editor_id );
+
+		$user = get_user_by( 'id', self::$admin_id );
+		$this->assertFalse( $user->is_default_comment_moderation_notification_recipient() );
+
+		$user = get_user_by( 'id', self::$editor_id );
+		$this->assertTrue( $user->is_default_comment_moderation_notification_recipient() );
+	}
 }
