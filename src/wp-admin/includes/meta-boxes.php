@@ -1028,7 +1028,7 @@ function register_and_do_post_meta_boxes( $post ) {
 
 	// Allow the Discussion meta box to show up if the post type supports comments,
 	// or if comments or pings are open.
-	if ( comments_open( $post ) || pings_open( $post ) || post_type_supports( $post_type, 'comments' ) ) {
+	if ( comments_open( $post ) || post_type_supports( $post_type, 'comments' ) ) {
 		add_meta_box( 'commentstatusdiv', __( 'Discussion' ), 'post_comment_status_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
 	}
 

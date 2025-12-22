@@ -122,6 +122,11 @@ function meta_box_prefs( $screen ) {
 					continue;
 				}
 
+				// Discussion settings can not be hidden.
+				if ( 'commentstatusdiv' == $box['id'] ) {
+					continue;
+				}
+
 				$widget_title = $box['title'];
 
 				if ( is_array( $box['args'] ) && isset( $box['args']['__widget_basename'] ) ) {
