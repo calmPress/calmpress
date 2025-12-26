@@ -696,12 +696,19 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 			__( 'Edit' )
 		);
 
-		$actions['reply'] = sprintf(
-			'<button type="button" onclick="window.commentReply && commentReply.open(\'%s\',\'%s\');" class="vim-r button-link hide-if-no-js" aria-label="%s">%s</button>',
+		$format = '<a aria-label="%s" href="%s">%s</a>';
+
+		$url = add_query_arg(
+			'replytocom',
 			$comment->comment_ID,
-			$comment->comment_post_ID,
+			get_comment_link( $comment )
+		);
+
+		$actions['reply'] = sprintf(
+			$format,
 			esc_attr__( 'Reply to this comment' ),
-			__( 'Reply' )
+			esc_url( $url ),
+			esc_html__( 'Reply' )
 		);
 
 		$actions['spam'] = sprintf(
@@ -764,8 +771,8 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 				$sep = ' | ';
 			}
 
-			// Reply and quickedit need a hide-if-no-js span.
-			if ( 'reply' === $action || 'quickedit' === $action ) {
+			// Quickedit need a hide-if-no-js span.
+			if ( 'quickedit' === $action ) {
 				$action .= ' hide-if-no-js';
 			}
 
@@ -1048,7 +1055,6 @@ function wp_dashboard_recent_comments( $total_items = 5 ) {
 			_get_list_table( 'WP_Comments_List_Table' )->views();
 		}
 
-		wp_comment_reply( -1, false, 'dashboard', false );
 		wp_comment_trashnotice();
 
 		echo '</div>';

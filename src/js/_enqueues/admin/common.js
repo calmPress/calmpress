@@ -192,8 +192,6 @@ window.adminCommentsL10n = window.adminCommentsL10n || {
 		alternative: 'window.adminCommentsSettings.hotkeys_highlight_last',
 		func: function() { return window.adminCommentsSettings.hotkeys_highlight_last; }
 	},
-	replyApprove: '',
-	reply: '',
 	warnQuickEdit: '',
 	warnCommentChanges: '',
 	docTitleComments: '',
@@ -279,22 +277,6 @@ window.postL10n = window.postL10n || {
 };
 
 window.postL10n = deprecateL10nObject( 'postL10n', window.postL10n, '5.5.0' );
-
-/**
- * Removed in 5.5.0, needed for back-compatibility.
- *
- * @since 2.7.0
- * @deprecated 5.5.0
- */
-window.inlineEditL10n = window.inlineEditL10n || {
-	error: '',
-	ntdeltitle: '',
-	notitle: '',
-	comma: '',
-	saved: ''
-};
-
-window.inlineEditL10n = deprecateL10nObject( 'inlineEditL10n', window.inlineEditL10n, '5.5.0' );
 
 /**
  * Removed in 5.5.0, needed for back-compatibility.

@@ -638,7 +638,7 @@ class WP_Comments_List_Table extends WP_List_Table {
 		$untrash_url   = esc_url( $url . "&action=untrashcomment&$del_nonce" );
 		$delete_url    = esc_url( $url . "&action=deletecomment&$del_nonce" );
 
-		// Preorder it: Approve | Reply | Quick Edit | Edit | Spam | Trash.
+		// Preorder it: Approve | Reply | Edit | Spam | Trash.
 		$actions = array(
 			'approve'   => '',
 			'unapprove' => '',
@@ -744,26 +744,19 @@ class WP_Comments_List_Table extends WP_List_Table {
 				__( 'Edit' )
 			);
 
-			$format = '<button type="button" data-comment-id="%d" data-post-id="%d" data-action="%s" class="%s button-link" aria-expanded="false" aria-label="%s">%s</button>';
+			$format = '<a aria-label="%s" href="%s">%s</a>';
 
-			$actions['quickedit'] = sprintf(
-				$format,
+			$url = add_query_arg(
+				'replytocom',
 				$comment->comment_ID,
-				$comment->comment_post_ID,
-				'edit',
-				'vim-q comment-inline',
-				esc_attr__( 'Quick edit this comment inline' ),
-				__( 'Quick&nbsp;Edit' )
+				get_comment_link( $comment )
 			);
 
 			$actions['reply'] = sprintf(
 				$format,
-				$comment->comment_ID,
-				$comment->comment_post_ID,
-				'replyto',
-				'vim-r comment-inline',
 				esc_attr__( 'Reply to this comment' ),
-				__( 'Reply' )
+				esc_url( $url ),
+				esc_html__( 'Reply' )
 			);
 		}
 
@@ -793,8 +786,8 @@ class WP_Comments_List_Table extends WP_List_Table {
 				$sep = ' | ';
 			}
 
-			// Reply and quickedit need a hide-if-no-js span when not added with Ajax.
-			if ( ( 'reply' === $action || 'quickedit' === $action ) && ! wp_doing_ajax() ) {
+			// Quickedit need a hide-if-no-js span when not added with Ajax.
+			if ( ( 'quickedit' === $action ) && ! wp_doing_ajax() ) {
 				$action .= ' hide-if-no-js';
 			} elseif ( ( 'untrash' === $action && 'trash' === $the_comment_status )
 				|| ( 'unspam' === $action && 'spam' === $the_comment_status )
