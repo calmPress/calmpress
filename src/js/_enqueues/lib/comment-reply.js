@@ -64,6 +64,35 @@ window.addComment = ( function( window ) {
 
 		// Set up a MutationObserver to check for comments loaded late.
 		observeChanges();
+
+		// Move comment form to the requested comment indiated in replytocom
+		// url parameter if given
+		const params  = new URLSearchParams( window.location.search );
+		const replyTo = params.get( 'replytocom' );
+		if ( ! replyTo ) {
+			return;
+		}
+
+		// Bail out if no comment or no form.
+		const comment = document.getElementById( 'comment-' + replyTo );
+		const respond = document.getElementById( 'respond' );
+
+		if ( ! comment || ! respond ) {
+			return;
+		}
+
+		// Match what WP normally passes when clicking a reply link
+		addComment.moveForm(
+			'comment-' + replyTo,
+			replyTo,
+			'respond',
+			comment.dataset.postId || respond.dataset.postId || 0
+		);
+
+		// Remove the replytocom parameter from the URL.
+		const url = new URL( window.location.href );
+		url.searchParams.delete( 'replytocom' );
+		window.history.replaceState( {}, document.title, url.toString() );
 	}
 
 	/**
