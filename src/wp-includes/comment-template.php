@@ -1502,14 +1502,7 @@ function get_comment_reply_link( $args = array(), $comment = null, $post = null 
 
 	$link = sprintf(
 		"<a rel='nofollow' class='comment-reply-link' href='%s' %s aria-label='%s'>%s</a>",
-		esc_url(
-			add_query_arg(
-				array(
-					'replytocom'      => $comment->comment_ID
-				),
-				$permalink
-			)
-		) . '#' . $args['respond_id'],
+		esc_url( $permalink ) . '#' . $args['respond_id'],
 		$data_attribute_string,
 		esc_attr( sprintf( $args['reply_to_text'], get_comment_author( $comment ) ) ),
 		$args['reply_text']
@@ -1641,10 +1634,9 @@ function get_cancel_comment_reply_link( $text = '' ) {
 		$text = __( 'Click here to cancel reply.' );
 	}
 
-	$style = isset( $_GET['replytocom'] ) ? '' : ' style="display:none;"';
-	$link  = esc_html( remove_query_arg( array( 'replytocom' ) ) ) . '#respond';
+	$link  = '#respond';
 
-	$formatted_link = '<a rel="nofollow" id="cancel-comment-reply-link" href="' . $link . '"' . $style . '>' . $text . '</a>';
+	$formatted_link = '<a rel="nofollow" id="cancel-comment-reply-link" href="' . $link . '">' . $text . '</a>';
 
 	/**
 	 * Filters the cancel comment reply link HTML.
@@ -1683,7 +1675,7 @@ function get_comment_id_fields( $post_id = 0 ) {
 		$post_id = get_the_ID();
 	}
 
-	$reply_to_id = isset( $_GET['replytocom'] ) ? (int) $_GET['replytocom'] : 0;
+	$reply_to_id = 0;
 	$result      = "<input type='hidden' name='comment_post_ID' value='$post_id' id='comment_post_ID' />\n";
 	$result     .= "<input type='hidden' name='comment_parent' id='comment_parent' value='$reply_to_id' />\n";
 
@@ -1740,31 +1732,12 @@ function comment_id_fields( $post_id = 0 ) {
 function comment_form_title( $no_reply_text = false, $reply_text = false, $link_to_parent = true ) {
 	global $comment;
 
+	
 	if ( false === $no_reply_text ) {
 		$no_reply_text = __( 'Leave a Reply' );
 	}
 
-	if ( false === $reply_text ) {
-		/* translators: %s: Author of the comment being replied to. */
-		$reply_text = __( 'Leave a Reply to %s' );
-	}
-
-	$reply_to_id = isset( $_GET['replytocom'] ) ? (int) $_GET['replytocom'] : 0;
-
-	if ( 0 == $reply_to_id ) {
-		echo $no_reply_text;
-	} else {
-		// Sets the global so that template tags can be used in the comment form.
-		$comment = get_comment( $reply_to_id );
-
-		if ( $link_to_parent ) {
-			$author = '<a href="#comment-' . get_comment_ID() . '">' . get_comment_author( $comment ) . '</a>';
-		} else {
-			$author = get_comment_author( $comment );
-		}
-
-		printf( $reply_text, $author );
-	}
+	echo $no_reply_text;
 }
 
 /**

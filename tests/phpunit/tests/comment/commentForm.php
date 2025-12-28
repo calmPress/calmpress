@@ -94,7 +94,7 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 		update_option( 'thread_comments', true );
 
 		$form     = get_echo( 'comment_form', array( array(), self::$post_id ) );
-		$expected = '<a rel="nofollow" id="cancel-comment-reply-link" href="#respond" style="display:none;">Cancel reply</a>';
+		$expected = '<a rel="nofollow" id="cancel-comment-reply-link" href="#respond">Cancel reply</a>';
 		$this->assertStringContainsString( $expected, $form );
 	}
 
