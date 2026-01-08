@@ -2185,15 +2185,9 @@ JS;
 				<label id="comment-help-label" for="show-comment-help" style="cursor:pointer; font-weight:normal;margin-bottom:0;">
 					<small>Formatting help</small>
 				</label>
-				<small id="comment-help">
-				<code>*' . esc_html__( 'italic' ) . '*</code><span><i>' . esc_html__( 'italic' ) . '</i></span>
-				<code>**' . esc_html__( 'bold' ) . '**</code><span><b>' . esc_html__( 'bold' ) . '</b></span>
-				<code>~' . esc_html__( 'strike' ) . '~</code><span><s>' . esc_html__( 'strike' ) . '</s></span>
-				<code>\*, \~, \\\\</code><span>' . esc_html__( 'Literal *, ~, \ characters respectively' ) . '</span>
-				<code>&gt; ' . esc_html__( 'quote' ) . ' ' . esc_html__( '(at start of line)' ) . '</code><span>' . esc_html__( 'quote' ) . ' ' . esc_html__( 'as block styled as a quote, usually with different bakcground and indentation' ) . '</span>
-				<code>- ' . esc_html__( 'list item' ) . ' ' . esc_html__( '(at start of line)' ) . '</code><span>' . esc_html__( 'list item' ) . ' ' . esc_html__( 'as an item in a list, usually indicated with a bullet' ) . '</span>
-				<code>'. esc_html__( 'Empty line' ) . '</code><span>' . esc_html__( 'Creates a new paragraph. Lines which are not separate by an empty line remain in the same paragraph' ) . '</span>
-				</small>			'			
+				<small id="comment-help"> ' .
+				calmpress\comments\Functions::formatting_help_html( 'code', 'span' ) .
+				'</small>			'			
 		),
 		'must_log_in'          => sprintf(
 			'<p class="must-log-in">%s</p>',
