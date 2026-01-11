@@ -64,7 +64,6 @@ if ( 'approved' === wp_get_comment_status( $comment ) && $comment->comment_post_
 <div id="postdiv" class="postarea">
 <?php
 	echo '<label for="content" class="screen-reader-text">' . __( 'Comment' ) . '</label>';
-	$quicktags_settings = array( 'buttons' => 'strong,em,link,block,del,ins,img,ul,ol,li,code,close' );
 	wp_editor(
 		$comment->comment_content,
 		'content',
@@ -75,7 +74,9 @@ if ( 'approved' === wp_get_comment_status( $comment ) && $comment->comment_post_
 		)
 	);
 	wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
-	?>
+	echo calmpress\comments\Functions::formatting_help_html( 'code', 'span' );
+?>
+
 </div>
 </div><!-- /post-body-content -->
 

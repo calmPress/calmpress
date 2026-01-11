@@ -122,6 +122,10 @@ class Functions {
     display: contents;
 }
 
+#comment-help code {
+    width: fit-content;
+}
+
 #show-comment-help:checked + #comment-help-label + #comment-help {
     display: inline-grid;
 }
