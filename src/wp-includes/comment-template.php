@@ -2181,13 +2181,7 @@ JS;
 				$required_indicator
 			),
 			'<textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525"' . $required_attribute . '></textarea>' . 
-			'<input type="checkbox" id="show-comment-help" autocomplete="off" style="display:none;">
-				<label id="comment-help-label" for="show-comment-help" style="cursor:pointer; font-weight:normal;margin-bottom:0;">
-					<small>Formatting help</small>
-				</label>
-				<small id="comment-help"> ' .
-				calmpress\comments\Functions::formatting_help_html( 'code', 'span' ) .
-				'</small>			'			
+			calmpress\comments\Functions::formatting_help_html( 'code', 'span' )
 		),
 		'must_log_in'          => sprintf(
 			'<p class="must-log-in">%s</p>',
@@ -2255,35 +2249,6 @@ JS;
 	 */
 	do_action( 'comment_form_before' );
 
-	$comment_form_css = <<<CSS
-#comment-help {
-	display:none;
-    grid-template-columns: max-content auto;
-    column-gap: 0.5em;
-	line-height: 1.5em;
-	margin-inline-start:2em;
-}
-
-#comment-help span {
-    display: contents;
-}
-
-#show-comment-help:checked + #comment-help-label + #comment-help {
-    display: inline-grid;
-}
-
-#comment-help-label small::after {
-    content: '▼';
-    display: inline-block;
-    transition: transform 0.2s;
-	margin-inline-start:2px;
-}
-#show-comment-help:checked + #comment-help-label small::after {
-	content:'▲';
-}
-CSS;
-
-	calmpress\utils\enqueue_inline_style_once( 'comment_form', $comment_form_css );
 	?>
 	<div id="respond" class="<?php echo esc_attr( $args['class_container'] ); ?>">
 		<?php
