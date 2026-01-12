@@ -151,6 +151,7 @@ if ( isset( $_POST['test'] ) ) {
 	}
 } elseif ( isset( $_POST[ 'save_smtp' ] ) ) {
 	$opt = get_option( 'calm_email_delivery' );
+	$opt['type']     = 'smtp';
 	$opt['host']     = $server;
 	$opt['user']     = $user;
 	$opt['password'] = $password;
@@ -202,7 +203,7 @@ if ( isset( $_POST['test'] ) ) {
 <?php
 	if ( 
 		isset( $_POST['test'] ) ||
-		isset( $_POST[ 'save_smtp' ] ) ||
+		isset( $_POST['save_smtp'] ) ||
 		isset( $_POST['test_email'] ) ||
 		isset( $_POST['save_sender'] )
 		 ) {
