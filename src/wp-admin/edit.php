@@ -224,7 +224,6 @@ if ( $doaction ) {
 
 $wp_list_table->prepare_items();
 
-wp_enqueue_script( 'inline-edit-post' );
 wp_enqueue_script( 'heartbeat' );
 
 // Used in the HTML title tag.
@@ -379,12 +378,6 @@ $_SERVER['REQUEST_URI'] = remove_query_arg( array( 'locked', 'skipped', 'updated
 <?php $wp_list_table->display(); ?>
 
 </form>
-
-<?php
-if ( $wp_list_table->has_items() ) {
-	$wp_list_table->inline_edit();
-}
-?>
 
 <div id="ajax-response"></div>
 <div class="clear"></div>

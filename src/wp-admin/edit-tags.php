@@ -246,10 +246,6 @@ if ( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME === $taxono
 	wp_enqueue_script( 'calm-author' );
 }
 
-if ( current_user_can( $tax->cap->edit_terms ) ) {
-	wp_enqueue_script( 'inline-edit-tax' );
-}
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 // Also used by the Edit Tag form.
@@ -543,7 +539,5 @@ try{document.forms.addtag['tag-name'].focus();}catch(e){}
 </script>
 	<?php
 endif;
-
-$wp_list_table->inline_edit();
 
 require_once ABSPATH . 'wp-admin/admin-footer.php';

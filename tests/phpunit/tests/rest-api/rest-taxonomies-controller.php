@@ -267,7 +267,6 @@ class WP_Test_REST_Taxonomies_Controller extends WP_Test_REST_Controller_Testcas
 			$this->assertSame( $tax_obj->publicly_queryable, $data['visibility']['publicly_queryable'] );
 			$this->assertSame( $tax_obj->show_admin_column, $data['visibility']['show_admin_column'] );
 			$this->assertSame( $tax_obj->show_in_nav_menus, $data['visibility']['show_in_nav_menus'] );
-			$this->assertSame( $tax_obj->show_in_quick_edit, $data['visibility']['show_in_quick_edit'] );
 			$this->assertSame( $tax_obj->show_ui, $data['visibility']['show_ui'] );
 		} else {
 			$this->assertArrayNotHasKey( 'capabilities', $data );

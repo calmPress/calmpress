@@ -643,7 +643,6 @@ class WP_Comments_List_Table extends WP_List_Table {
 			'approve'   => '',
 			'unapprove' => '',
 			'reply'     => '',
-			'quickedit' => '',
 			'edit'      => '',
 			'spam'      => '',
 			'unspam'    => '',
@@ -786,10 +785,7 @@ class WP_Comments_List_Table extends WP_List_Table {
 				$sep = ' | ';
 			}
 
-			// Quickedit need a hide-if-no-js span when not added with Ajax.
-			if ( ( 'quickedit' === $action ) && ! wp_doing_ajax() ) {
-				$action .= ' hide-if-no-js';
-			} elseif ( ( 'untrash' === $action && 'trash' === $the_comment_status )
+			if ( ( 'untrash' === $action && 'trash' === $the_comment_status )
 				|| ( 'unspam' === $action && 'spam' === $the_comment_status )
 			) {
 				if ( '1' === get_comment_meta( $comment->comment_ID, '_wp_trash_meta_status', true ) ) {

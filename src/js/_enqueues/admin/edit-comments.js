@@ -909,13 +909,6 @@ window.commentReply = {
 			} ).css( 'backgroundColor', '' );
 		}
 
-		// When closing the Reply form, move focus back to the Reply button.
-		if ( 'replyto-comment' === this.act ) {
-			commentRow.find( '.vim-r' )
-				.attr( 'aria-expanded', 'false' )
-				.trigger( 'focus' );
-		}
-
 		// Reset the Quicktags buttons.
  		if ( typeof QTags != 'undefined' )
 			QTags.closeAllTags('replycontent');
@@ -944,7 +937,7 @@ window.commentReply = {
 	 *
 	 * @param {number} comment_id The comment ID to open an editor for.
 	 * @param {number} post_id The post ID to open an editor for.
-	 * @param {string} action The action to perform. Either 'edit' or 'replyto'.
+	 * @param {string} action The action to perform. can only be 'edit'.
 	 *
 	 * @return {boolean} Always false.
 	 */
@@ -969,11 +962,6 @@ window.commentReply = {
 		act = t.act = act + '-comment';
 		t.originalContent = $('textarea.comment', rowData).val();
 		colspanVal = $( '> th:visible, > td:visible', c ).length;
-
-		// Make sure it's actually a table and there's a `colspan` value to apply.
-		if ( editRow.hasClass( 'inline-edit-row' ) && 0 !== colspanVal ) {
-			$( 'td', editRow ).attr( 'colspan', colspanVal );
-		}
 
 		$('#action', editRow).val(act);
 		$('#comment_post_ID', editRow).val(post_id);

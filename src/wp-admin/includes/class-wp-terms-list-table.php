@@ -465,12 +465,6 @@ class WP_Terms_List_Table extends WP_List_Table {
 				esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $tag->name ) ),
 				__( 'Edit' )
 			);
-			$actions['inline hide-if-no-js'] = sprintf(
-				'<button type="button" class="button-link editinline" aria-label="%s" aria-expanded="false">%s</button>',
-				/* translators: %s: Taxonomy term name. */
-				esc_attr( sprintf( __( 'Quick edit &#8220;%s&#8221; inline' ), $tag->name ) ),
-				__( 'Quick&nbsp;Edit' )
-			);
 		}
 
 		if ( current_user_can( 'delete_term', $tag->term_id ) ) {
@@ -501,7 +495,7 @@ class WP_Terms_List_Table extends WP_List_Table {
 		 * @since 5.4.2 Restored (un-deprecated).
 		 *
 		 * @param string[] $actions An array of action links to be displayed. Default
-		 *                          'Edit', 'Quick Edit', 'Delete', and 'View'.
+		 *                          'Edit', 'Delete', and 'View'.
 		 * @param WP_Term  $tag     Term object.
 		 */
 		$actions = apply_filters( 'tag_row_actions', $actions, $tag );
@@ -606,84 +600,5 @@ class WP_Terms_List_Table extends WP_List_Table {
 		 * @param int    $term_id     Term ID.
 		 */
 		return apply_filters( "manage_{$this->screen->taxonomy}_custom_column", '', $column_name, $item->term_id );
-	}
-
-	/**
-	 * Outputs the hidden row displayed when inline editing
-	 *
-	 * @since 3.1.0
-	 */
-	public function inline_edit() {
-		$tax = get_taxonomy( $this->screen->taxonomy );
-
-		if ( ! current_user_can( $tax->cap->edit_terms ) ) {
-			return;
-		}
-		?>
-
-		<form method="get">
-		<table style="display: none"><tbody id="inlineedit">
-
-			<tr id="inline-edit" class="inline-edit-row" style="display: none">
-			<td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
-
-			<fieldset>
-				<legend class="inline-edit-legend"><?php _e( 'Quick Edit' ); ?></legend>
-				<div class="inline-edit-col">
-				<label>
-					<span class="title"><?php _ex( 'Name', 'term name' ); ?></span>
-					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" /></span>
-				</label>
-
-				<?php if ( ! global_terms_enabled() ) : ?>
-					<label>
-						<span class="title"><?php _e( 'Slug' ); ?></span>
-						<span class="input-text-wrap"><input type="text" name="slug" class="ptitle" value="" /></span>
-					</label>
-				<?php endif; ?>
-				</div>
-			</fieldset>
-
-			<?php
-			$core_columns = array(
-				'cb'          => true,
-				'description' => true,
-				'name'        => true,
-				'slug'        => true,
-				'posts'       => true,
-			);
-
-			list( $columns ) = $this->get_column_info();
-
-			foreach ( $columns as $column_name => $column_display_name ) {
-				if ( isset( $core_columns[ $column_name ] ) ) {
-					continue;
-				}
-
-				/** This action is documented in wp-admin/includes/class-wp-posts-list-table.php */
-				do_action( 'quick_edit_custom_box', $column_name, 'edit-tags', $this->screen->taxonomy );
-			}
-			?>
-
-			<div class="inline-edit-save submit">
-				<button type="button" class="cancel button alignleft"><?php _e( 'Cancel' ); ?></button>
-				<button type="button" class="save button button-primary alignright"><?php echo $tax->labels->update_item; ?></button>
-				<span class="spinner"></span>
-
-				<?php wp_nonce_field( 'taxinlineeditnonce', '_inline_edit', false ); ?>
-				<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $this->screen->taxonomy ); ?>" />
-				<input type="hidden" name="post_type" value="<?php echo esc_attr( $this->screen->post_type ); ?>" />
-				<br class="clear" />
-
-				<div class="notice notice-error notice-alt inline hidden">
-					<p class="error"></p>
-				</div>
-			</div>
-
-			</td></tr>
-
-		</tbody></table>
-		</form>
-		<?php
 	}
 }

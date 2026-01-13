@@ -192,7 +192,6 @@ window.adminCommentsL10n = window.adminCommentsL10n || {
 		alternative: 'window.adminCommentsSettings.hotkeys_highlight_last',
 		func: function() { return window.adminCommentsSettings.hotkeys_highlight_last; }
 	},
-	warnQuickEdit: '',
 	warnCommentChanges: '',
 	docTitleComments: '',
 	docTitleCommentsCount: ''

@@ -34,8 +34,6 @@ body.locale-he-il {
 .locale-zh-cn .tablenav .displaying-num,
 .locale-zh-cn .js .input-with-default-title,
 .locale-zh-cn .link-to-original,
-.locale-zh-cn .inline-edit-row fieldset span.title,
-.locale-zh-cn .inline-edit-row fieldset span.checkbox-title,
 .locale-zh-cn #utc-time,
 .locale-zh-cn #local-time,
 .locale-zh-cn p.install-help,
@@ -73,14 +71,6 @@ body.locale-he-il {
 .locale-ru-ru #wpbody {
 	margin-left: 0; /* back-compat for pre-3.2 */
 }
-.locale-ru-ru .inline-edit-row fieldset label span.title,
-.locale-ru-ru .inline-edit-row fieldset.inline-edit-date legend {
-	width: 8em; /* default 6em */
-}
-.locale-ru-ru .inline-edit-row fieldset label span.input-text-wrap,
-.locale-ru-ru .inline-edit-row fieldset .timestamp-wrap {
-	margin-left: 8em; /* default 6em */
-}
 .locale-ru-ru.post-php .tagsdiv .newtag,
 .locale-ru-ru.post-new-php .tagsdiv .newtag {
 	width: 165px; /* default 180px - 15px */
@@ -90,23 +80,4 @@ body.locale-he-il {
 }
 .locale-ru-ru #customize-header-actions .spinner {
 	margin: 16px 3px 0; /* default 16px 4px 0 5px */
-}
-
-/* lt_LT: QuickEdit */
-.locale-lt-lt .inline-edit-row fieldset label span.title,
-.locale-lt-lt .inline-edit-row fieldset.inline-edit-date legend {
-	width: 8em; /* default 6em */
-}
-.locale-lt-lt .inline-edit-row fieldset label span.input-text-wrap,
-.locale-lt-lt .inline-edit-row fieldset .timestamp-wrap {
-	margin-left: 8em; /* default 6em */
-}
-
-@media screen and (max-width: 782px) {
-	.locale-ru-ru .inline-edit-row fieldset label span.input-text-wrap,
-	.locale-ru-ru .inline-edit-row fieldset .timestamp-wrap,
-	.locale-lt-lt .inline-edit-row fieldset label span.input-text-wrap,
-	.locale-lt-lt .inline-edit-row fieldset .timestamp-wrap {
-		margin-left: 0;
-	}
 }

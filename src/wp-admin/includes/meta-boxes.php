@@ -873,7 +873,7 @@ function page_attributes_meta_box( $post ) {
 		 *
 		 * @param string $label   The display value for the default page template title.
 		 * @param string $context Where the option label is displayed. Possible values
-		 *                        include 'meta-box' or 'quick-edit'.
+		 *                        include 'meta-box'.
 		 */
 		$default_title = apply_filters( 'default_page_template_title', __( 'Default template' ), 'meta-box' );
 		?>

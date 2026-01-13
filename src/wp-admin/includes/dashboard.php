@@ -771,11 +771,6 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 				$sep = ' | ';
 			}
 
-			// Quickedit need a hide-if-no-js span.
-			if ( 'quickedit' === $action ) {
-				$action .= ' hide-if-no-js';
-			}
-
 			if ( 'view' === $action && '1' !== $comment->comment_approved ) {
 				$action .= ' hidden';
 			}

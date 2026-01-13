@@ -340,7 +340,7 @@ function is_taxonomy_hierarchical( $taxonomy ) {
  * overwritten.
  *
  * @since 2.3.0
- * @since 4.2.0 Introduced `show_in_quick_edit` argument.
+ * @since 4.2.0 Introduced `show_in_quick_edit` argument. depreated at calmPress 1.0.0
  * @since 4.4.0 The `show_ui` argument is now enforced on the term editing screen.
  * @since 4.4.0 The `public` argument now controls whether the taxonomy can be queried on the front end.
  * @since 4.5.0 Introduced `publicly_queryable` argument.
@@ -385,8 +385,6 @@ function is_taxonomy_hierarchical( $taxonomy ) {
  *     @type string        $rest_namespace        To change the namespace URL of REST API route. Default is wp/v2.
  *     @type string        $rest_controller_class REST API Controller class name. Default is 'WP_REST_Terms_Controller'.
  *     @type bool          $show_tagcloud         Whether to list the taxonomy in the Tag Cloud Widget controls. If not set,
- *                                                the default is inherited from `$show_ui` (default true).
- *     @type bool          $show_in_quick_edit    Whether to show the taxonomy in the quick/bulk edit panel. It not set,
  *                                                the default is inherited from `$show_ui` (default true).
  *     @type bool          $show_admin_column     Whether to display a column for the taxonomy on its post type listing
  *                                                screens. Default false.

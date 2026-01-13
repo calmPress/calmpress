@@ -111,10 +111,15 @@ class WP_Taxonomy {
 	/**
 	 * Whether to show the taxonomy in the quick/bulk edit panel.
 	 *
+	 * Deprecated at calmPress 1.0.0 as there is no quick edit funtionality,
+	 * kept for backward ompatibility.
+	 * 
 	 * @since 4.7.0
+	 * @deprecated
+	 * 
 	 * @var bool
 	 */
-	public $show_in_quick_edit = true;
+	public $show_in_quick_edit = false;
 
 	/**
 	 * Whether to display a column for the taxonomy on its post type listing screens.
@@ -317,7 +322,6 @@ class WP_Taxonomy {
 			'show_in_menu'          => null,
 			'show_in_nav_menus'     => null,
 			'show_tagcloud'         => null,
-			'show_in_quick_edit'    => null,
 			'show_admin_column'     => false,
 			'meta_box_cb'           => null,
 			'meta_box_sanitize_cb'  => null,
@@ -383,11 +387,6 @@ class WP_Taxonomy {
 		// If not set, default to the setting for 'show_ui'.
 		if ( null === $args['show_tagcloud'] ) {
 			$args['show_tagcloud'] = $args['show_ui'];
-		}
-
-		// If not set, default to the setting for 'show_ui'.
-		if ( null === $args['show_in_quick_edit'] ) {
-			$args['show_in_quick_edit'] = $args['show_ui'];
 		}
 
 		// If not set, default rest_namespace to wp/v2 if show_in_rest is true.

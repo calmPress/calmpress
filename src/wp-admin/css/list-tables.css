@@ -769,152 +769,15 @@ tr:hover .row-actions,
 
 /*------------------------------------------------------------------------------
   10.1 - Inline Editing
+
+  Not used in calmPress 1.0.0
 ------------------------------------------------------------------------------*/
 
 /*
-.quick-edit* is for Quick Edit
 .bulk-edit* is for Bulk Edit
-.inline-edit* is for everything
 */
 
-/*	Layout */
-
-#wpbody-content .inline-edit-row fieldset {
-	font-size: 12px;
-	float: left;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-}
-
-tr.inline-edit-row td,
-#wpbody-content .inline-edit-row fieldset .inline-edit-col {
-	padding: 0 0.5em;
-}
-
-.inline-edit-row .submit {
-	clear: both;
-	padding: 0.5em;
-	margin: 0.5em 0 0;
-}
-
-.inline-edit-row .notice-error {
-	margin-top: 1em;
-}
-
-.inline-edit-row .notice-error .error {
-	margin: 0.5em 0;
-	padding: 2px;
-}
-
-/*	Positioning */
-
-/* Needs higher specificity for the padding */
-#the-list .inline-edit-row .inline-edit-legend {
-	margin: 0;
-	padding: 0.2em 0.5em 0;
-	line-height: 2.5;
-	font-weight: 600;
-}
-
-#the-list #bulk-edit.inline-edit-row .inline-edit-legend {
-	padding: 0.2em 0.5em;
-}
-
-.inline-edit-row fieldset span.title,
-.inline-edit-row fieldset span.checkbox-title {
-	margin: 0;
-	padding: 0;
-}
-
-.inline-edit-row fieldset label,
-.inline-edit-row fieldset span.inline-edit-categories-label {
-	display: block;
-	margin: .2em 0;
-	line-height: 2.5;
-}
-
-.inline-edit-row fieldset.inline-edit-date label {
-	display: inline-block;
-	margin: 0;
-	vertical-align: baseline;
-	line-height: 2;
-}
-
-.inline-edit-row fieldset label.inline-edit-tags {
-	margin-top: 0;
-}
-
-.inline-edit-row fieldset label.inline-edit-tags span.title {
-	margin: .2em 0;
-	width: auto;
-}
-
-.inline-edit-row fieldset label span.title,
-.inline-edit-row fieldset.inline-edit-date legend {
-	display: block;
-	float: left;
-	width: 6em;
-	line-height: 2.5;
-}
-
-#posts-filter fieldset.inline-edit-date legend {
-	padding: 0;
-}
-
-.inline-edit-row fieldset label span.input-text-wrap,
-.inline-edit-row fieldset .timestamp-wrap {
-	display: block;
-	margin-left: 6em;
-}
-
-.quick-edit-row-post fieldset.inline-edit-col-right label span.title {
-	width: auto;
-	padding-right: 0.5em;
-}
-
-.inline-edit-row .inline-edit-or {
-	margin: .2em 6px .2em 0;
-	line-height: 2.5;
-}
-
-.inline-edit-row .input-text-wrap input[type=text] {
-	width: 100%;
-}
-
-.inline-edit-row fieldset label input[type=checkbox] {
-	vertical-align: middle;
-}
-
-.inline-edit-row fieldset label textarea {
-	width: 100%;
-	height: 4em;
-	vertical-align: top;
-}
-
-/*	Styling */
-.inline-edit-row .inline-edit-legend {
-	text-transform: uppercase;
-}
-
 /*	Specific Elements */
-.inline-edit-row fieldset .inline-edit-date {
-	float: left;
-}
-
-.inline-edit-row fieldset input[name=jj],
-.inline-edit-row fieldset input[name=hh],
-.inline-edit-row fieldset input[name=mn],
-.inline-edit-row fieldset input[name=aa] {
-	vertical-align: middle;
-	text-align: center;
-	padding: 0 4px;
-}
-
-.inline-edit-row fieldset label input.inline-edit-password-input {
-	width: 8em;
-}
-
 ul.cat-checklist {
 	height: 12em;
 	border: solid 1px #dcdcde;
@@ -931,35 +794,6 @@ ul.cat-checklist {
 	overflow-y: scroll;
 	padding: 0 5px;
 	margin: 0 0 5px;
-}
-
-.inline-edit-row fieldset ul.cat-checklist li,
-.inline-edit-row fieldset ul.cat-checklist input {
-	margin: 0;
-	position: relative; /* RTL fix, #WP27629 */
-}
-
-.inline-edit-row fieldset ul.cat-checklist label,
-.inline-edit-row #bulk-titles div {
-	font-style: normal;
-	font-size: 11px;
-}
-
-.inline-edit-row fieldset label input.inline-edit-menu-order-input {
-	width: 3em;
-}
-
-.inline-edit-row fieldset label input.inline-edit-slug-input {
-	width: 75%;
-}
-
-.inline-edit-row #post_parent,
-.inline-edit-row select[name="page_template"] {
-	max-width: 80%;
-}
-
-.quick-edit-row-post fieldset label.inline-edit-status {
-	float: left;
 }
 
 #bulk-titles {
@@ -1588,7 +1422,7 @@ div.action-links,
 	}
 
 	.wp-list-table th.column-primary ~ th,
-	.wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column) {
+	.wp-list-table tr:not(.no-items) td.column-primary ~ td:not(.check-column) {
 		display: none;
 	}
 
@@ -1609,7 +1443,7 @@ div.action-links,
 		display: block;
 	}
 
-	.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.check-column) {
+	.wp-list-table tr:not(.no-items) td:not(.check-column) {
 		position: relative;
 		clear: both;
 		width: auto !important; /* needs to override some columns that are more specifically targeted */
@@ -1619,11 +1453,11 @@ div.action-links,
 		padding-right: 50px; /* space for toggle button */
 	}
 
-	.wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column) {
+	.wp-list-table tr:not(.no-items) td.column-primary ~ td:not(.check-column) {
 		padding: 3px 8px 3px 35%;
 	}
 
-	.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary)::before {
+	.wp-list-table tr:not(.no-items) td:not(.column-primary)::before {
 		position: absolute;
 		left: 10px; /* match padding of regular table cell */
 		display: block;
@@ -1763,42 +1597,6 @@ div.action-links,
 		width: 100%;
 		max-width: none;
 		box-sizing: border-box;
-	}
-
-	.inline-edit-row fieldset input[name=jj],
-	.inline-edit-row fieldset input[name=hh],
-	.inline-edit-row fieldset input[name=mn],
-	.inline-edit-row fieldset input[name=aa] {
-		font-size: 16px;
-		line-height: 2;
-		padding: 3px 4px;
-	}
-
-	.inline-edit-row fieldset ul.cat-checklist label,
-	.inline-edit-row #bulk-titles div {
-		font-size: 16px;
-	}
-
-	.inline-edit-row fieldset label span.title,
-	.inline-edit-row fieldset.inline-edit-date legend {
-		float: none;
-	}
-
-	.inline-edit-row fieldset label.inline-edit-tags {
-		padding: 0 0.5em;
-	}
-
-	.inline-edit-row fieldset .inline-edit-col label.inline-edit-tags {
-		padding: 0;
-	}
-
-	.inline-edit-row fieldset label span.input-text-wrap,
-	.inline-edit-row fieldset .timestamp-wrap {
-		margin-left: 0;
-	}
-
-	.inline-edit-row .inline-edit-or {
-		margin: 0 6px 0 0;
 	}
 
 	#edithead .inside,

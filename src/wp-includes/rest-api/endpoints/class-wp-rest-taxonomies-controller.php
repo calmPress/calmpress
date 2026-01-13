@@ -260,7 +260,6 @@ class WP_REST_Taxonomies_Controller extends WP_REST_Controller {
 				'publicly_queryable' => (bool) $taxonomy->publicly_queryable,
 				'show_admin_column'  => (bool) $taxonomy->show_admin_column,
 				'show_in_nav_menus'  => (bool) $taxonomy->show_in_nav_menus,
-				'show_in_quick_edit' => (bool) $taxonomy->show_in_quick_edit,
 				'show_ui'            => (bool) $taxonomy->show_ui,
 			);
 		}
@@ -403,10 +402,6 @@ class WP_REST_Taxonomies_Controller extends WP_REST_Controller {
 						),
 						'show_in_nav_menus'  => array(
 							'description' => 'Whether to make the taxonomy available for selection in navigation menus.',
-							'type'        => 'boolean',
-						),
-						'show_in_quick_edit' => array(
-							'description' => 'Whether to show the taxonomy in the quick/bulk edit panel.',
 							'type'        => 'boolean',
 						),
 
