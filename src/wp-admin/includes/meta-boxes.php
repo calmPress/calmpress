@@ -960,7 +960,7 @@ function register_and_do_post_meta_boxes( $post ) {
 		}
 	}
 
-	$publish_callback_args = array( '__back_compat_meta_box' => true );
+	$publish_callback_args = array();
 
 	if ( post_type_supports( $post_type, 'revisions' ) && 'auto-draft' !== $post->post_status ) {
 		$revisions = wp_get_post_revisions( $post->ID, array( 'fields' => 'ids' ) );
@@ -970,20 +970,19 @@ function register_and_do_post_meta_boxes( $post ) {
 			$publish_callback_args = array(
 				'revisions_count'        => count( $revisions ),
 				'revision_id'            => reset( $revisions ),
-				'__back_compat_meta_box' => true,
 			);
 
-			add_meta_box( 'revisionsdiv', __( 'Revisions' ), 'post_revisions_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
+			add_meta_box( 'revisionsdiv', __( 'Revisions' ), 'post_revisions_meta_box', null, 'normal', 'core', array() );
 		}
 	}
 
 	if ( 'attachment' === $post_type ) {
 		wp_enqueue_style( 'imgareaselect' );
-		add_meta_box( 'submitdiv', __( 'Save' ), 'attachment_submit_meta_box', null, 'side', 'core', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'submitdiv', __( 'Save' ), 'attachment_submit_meta_box', null, 'side', 'core', array() );
 		add_action( 'edit_form_after_title', 'edit_form_image_editor' );
 
 		if ( wp_attachment_is( 'audio', $post ) ) {
-			add_meta_box( 'attachment-id3', __( 'Metadata' ), 'attachment_id3_data_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
+			add_meta_box( 'attachment-id3', __( 'Metadata' ), 'attachment_id3_data_meta_box', null, 'normal', 'core', array() );
 		}
 	} else {
 		add_meta_box( 'submitdiv', __( 'Publish' ), 'post_submit_meta_box', null, 'side', 'core', $publish_callback_args );
@@ -1013,23 +1012,22 @@ function register_and_do_post_meta_boxes( $post ) {
 			'core',
 			array(
 				'taxonomy'               => $tax_name,
-				'__back_compat_meta_box' => true,
 			)
 		);
 	}
 
 	if ( post_type_supports( $post_type, 'page-attributes' ) || count( get_page_templates( $post ) ) > 0 ) {
-		add_meta_box( 'pageparentdiv', $post_type_object->labels->attributes, 'page_attributes_meta_box', null, 'side', 'core', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'pageparentdiv', $post_type_object->labels->attributes, 'page_attributes_meta_box', null, 'side', 'core', array() );
 	}
 
 	if ( $thumbnail_support && current_user_can( 'upload_files' ) ) {
-		add_meta_box( 'postimagediv', esc_html( $post_type_object->labels->featured_image ), 'post_thumbnail_meta_box', null, 'side', 'low', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'postimagediv', esc_html( $post_type_object->labels->featured_image ), 'post_thumbnail_meta_box', null, 'side', 'low', array() );
 	}
 
 	// Allow the Discussion meta box to show up if the post type supports comments,
 	// or if comments or pings are open.
 	if ( comments_open( $post ) || post_type_supports( $post_type, 'comments' ) ) {
-		add_meta_box( 'commentstatusdiv', __( 'Discussion' ), 'post_comment_status_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'commentstatusdiv', __( 'Discussion' ), 'post_comment_status_meta_box', null, 'normal', 'core', array() );
 	}
 
 	$stati = get_post_stati( array( 'public' => true ) );
@@ -1042,16 +1040,16 @@ function register_and_do_post_meta_boxes( $post ) {
 		// If the post type support comments, or the post has comments,
 		// allow the Comments meta box.
 		if ( comments_open( $post ) || pings_open( $post ) || $post->comment_count > 0 || post_type_supports( $post_type, 'comments' ) ) {
-			add_meta_box( 'commentsdiv', __( 'Comments' ), 'post_comment_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
+			add_meta_box( 'commentsdiv', __( 'Comments' ), 'post_comment_meta_box', null, 'normal', 'core', array() );
 		}
 	}
 
 	if ( ! ( 'pending' === get_post_status( $post ) && ! current_user_can( $post_type_object->cap->publish_posts ) ) ) {
-		add_meta_box( 'slugdiv', __( 'Slug' ), 'post_slug_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'slugdiv', __( 'Slug' ), 'post_slug_meta_box', null, 'normal', 'core', array() );
 	}
 
 	if ( post_type_supports( $post_type, 'author' ) && current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-		add_meta_box( 'authordiv', __( 'Content Editor' ), 'post_author_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'authordiv', __( 'Content Editor' ), 'post_author_meta_box', null, 'normal', 'core', array() );
 	}
 
 	/**
