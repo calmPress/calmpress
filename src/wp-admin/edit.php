@@ -179,18 +179,6 @@ if ( $doaction ) {
 			}
 			$sendback = add_query_arg( 'deleted', $deleted, $sendback );
 			break;
-		case 'edit':
-			if ( isset( $_REQUEST['bulk_edit'] ) ) {
-				$done = bulk_edit_posts( $_REQUEST );
-
-				if ( is_array( $done ) ) {
-					$done['updated'] = count( $done['updated'] );
-					$done['skipped'] = count( $done['skipped'] );
-					$done['locked']  = count( $done['locked'] );
-					$sendback        = add_query_arg( $done, $sendback );
-				}
-			}
-			break;
 		default:
 			$screen = get_current_screen()->id;
 

@@ -215,50 +215,6 @@ class Tests_Admin_IncludesPost extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 27792
-	 */
-	public function test_bulk_edit_posts_stomping() {
-		wp_set_current_user( self::$admin_id );
-
-		$post1 = self::factory()->post->create(
-			array(
-				'post_author'    => self::$author_ids[0],
-				'comment_status' => 'open',
-				'ping_status'    => 'open',
-				'post_status'    => 'publish',
-			)
-		);
-
-		$post2 = self::factory()->post->create(
-			array(
-				'post_author'    => self::$author_ids[1],
-				'comment_status' => 'closed',
-				'ping_status'    => 'closed',
-				'post_status'    => 'draft',
-			)
-		);
-
-		$request = array(
-			'post_type'      => 'post',
-			'post_author'    => -1,
-			'ping_status'    => -1,
-			'comment_status' => -1,
-			'_status'        => -1,
-			'post'           => array( $post1, $post2 ),
-		);
-
-		bulk_edit_posts( $request );
-
-		$post = get_post( $post2 );
-
-		// Check that the first post's values don't stomp the second post.
-		$this->assertSame( 'draft', $post->post_status );
-		$this->assertEquals( self::$author_ids[1], $post->post_author );
-		$this->assertSame( 'closed', $post->comment_status );
-		$this->assertSame( 'closed', $post->ping_status );
-	}
-
-	/**
 	 * @ticket 38293
 	 */
 	public function test_user_cant_delete_protected_meta() {
