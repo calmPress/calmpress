@@ -122,7 +122,7 @@ printf(
 </fieldset></td>
 </tr>
 <tr>
-	<th scope="row"><label for="comment_moderator_user"><?php esc_html_e( 'Default moderation notifications recipient' ); ?></label></th>
+	<th scope="row"><label for="comment_moderator_user"><?php esc_html_e( 'Default recipient for comment moderation notifications' ); ?></label></th>
 	<td>
 		<?php
 			$user_email = WP_User::default_comment_moderator_email();
@@ -142,7 +142,7 @@ printf(
 			echo '</select>';
 		?>
 		<p class="description">
-			<?php esc_html_e( 'The administrator or editor who is the default receipient for email notifications related to comment moderation event.' ); ?>
+			<?php esc_html_e( 'An administrator or editor who receives comment moderation notifications by default. Used when a post does not specify a different recipient.' ); ?>
 		</p>
 	</td>
 </tr>

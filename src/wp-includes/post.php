@@ -4100,6 +4100,14 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 		$comment_status = $postarr['comment_status'];
 	}
 
+	if ( array_key_exists( 'comment_moderation_notification_recipient', $postarr ) ) {
+		$post = get_post( $post_ID );
+
+		$post->set_comment_moderation_notification_recipient(
+			$postarr['comment_moderation_notification_recipient'] ===  'post_author'
+		);
+	}
+
 	// These variables are needed by compact() later.
 	$post_content_filtered = $postarr['post_content_filtered'];
 	$post_author = isset( $postarr['post_author'] ) ? $postarr['post_author'] : $user_id;

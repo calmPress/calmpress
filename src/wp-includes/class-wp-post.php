@@ -400,4 +400,69 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 		}
 		return new \calmpress\avatar\Text_Based_Avatar( $authors[0]->name(), '' );
 	}
+
+	/**
+     * Determine if moderation notifications for this post are sent to the post author.
+     *
+	 * @since calmPress 1.0.0
+	 * 
+     * @return bool true if the post author should be nodified about omments requiring
+	 *              moderation.
+	 *              false if the moderation notification should be sent to the 
+	 *              user configured as the default comment moderation notifications
+	 *              recipient.
+	 * 
+	 * @throws RuntimeExeption if no user could be found.
+     */
+    public function comment_moderation_notifications_user(): \WP_User {
+
+		// If it is configured to send notifiation to the post author,
+		// return the relevant user if exists.
+		if ( $this->comment_moderation_notifications_sent_to_post_author() ) {
+			$post_author = get_user_by( 'id', $this->post_author );
+			if ( $post_author instanceof \WP_User ) {
+				return $post_author;
+			}
+		}
+
+		// Otherwise return the globaly configured user.
+		return WP_User::default_comment_moderator_user();
+    }
+
+	/**
+     * Determine if moderation notifications for this post are sent to the post author.
+     *
+	 * @since calmPress 1.0.0
+	 * 
+     * @return bool true if the post author should be nodified about omments requiring
+	 *              moderation.
+	 *              false if the moderation notification should be sent to the 
+	 *              user configured as the default comment moderation notifications
+	 *              recipient.
+     */
+    public function comment_moderation_notifications_sent_to_post_author(): bool {
+        $value = get_post_meta( $this->ID, '_comment_moderation_notify', true );
+
+        if ( ! empty( $value ) ) {
+            return $value === 'post_author';
+        }
+
+		return false;
+    }
+
+    /**
+     * Set whether moderation notifications for this post should be sent to the post author.
+     *
+	 * @param bool $post_author true to notify the post author,
+	 *                          false`to notify the user configured as the default comment moderation
+	 *                          notifications recipient.
+     */
+    public function set_comment_moderation_notification_recipient( bool $post_author ): void {
+
+        if ( $post_author ) {
+            update_post_meta( $this->ID, '_comment_moderation_notify', 'post_author' );
+        } else {
+			delete_post_meta( $this->ID, '_comment_moderation_notify' );
+        }
+    }
 }

@@ -678,6 +678,37 @@ function post_comment_status_meta_box( $post ) {
 <input name="advanced_view" type="hidden" value="1" />
 <p class="meta-options">
 	<label for="comment_status" class="selectit"><input name="comment_status" type="checkbox" id="comment_status" value="open" <?php checked($post->comment_status, 'open'); ?> /> <?php _e( 'Allow comments' ) ?></label><br />
+	<?php 
+		$moderation_style = $post->comment_status === 'open' ? 'style=display:hidden' : '';
+		echo '<div ' . $moderation_style . '>';
+		if ( $post->comment_moderation_notifications_sent_to_post_author() ) {
+			$post_author_selected = 'selected';
+			$global_selected     = '';
+		} else {
+			$post_author_selected = '';
+			$global_selected     = 'selected';
+		}
+	?>
+			<label
+				for="comment_moderation_notification_recipient"
+				class="selectit"
+			>
+				<?php esc_html_e( 'Send moderation notifications to');?>
+			</label>
+			<select
+				name="comment_moderation_notification_recipient"
+				id="comment_moderation_notification_recipient"
+				select="<?php echo $comment_notification_target;?>"
+			>
+				<option value="post_author" <?php echo $post_author_selected;?> >
+					<?php esc_html_e( 'Content Editor' );?>
+				</option>
+				<option value="global_moderator" <?php echo $global_selected;?>>
+					<?php esc_html_e( 'Site default recipient' );?>
+				</option>
+			</select>
+			<p class="description"><?php esc_html_e( 'The site default recipient is configured in Settings → Discussion.' ); ?></p>
+		</div>
 	<?php
 	/**
 	 * Fires at the end of the Discussion meta box on the post editing screen.

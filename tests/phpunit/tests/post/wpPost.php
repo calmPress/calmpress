@@ -99,4 +99,58 @@ class Tests_Post_wpPost extends WP_UnitTestCase {
 		// Cleanup.
 		wp_delete_post( $attachment_id, true );
 	}
+
+	/**
+	 * test comment_moderation_notifications_sent_to_post_author and
+	 * set_comment_moderation_notification_recipient
+	 * 
+	 * @since calmPress 1.0.0
+	 */
+	public function test_comment_moderation_notifications_sent_to_post_author() {
+		$pid  = $this->factory->post->create();
+		$post = get_post( $pid );
+
+		// When post create autho not set to be notified.
+		$this->assertFalse( $post->comment_moderation_notifications_sent_to_post_author() );
+
+		// Set the post author to be notified
+		$post->set_comment_moderation_notification_recipient( true );
+		$this->assertTrue( $post->comment_moderation_notifications_sent_to_post_author() );
+
+		// Check changing from post author to global defaul.
+		$post->set_comment_moderation_notification_recipient( false );
+		$this->assertFalse( $post->comment_moderation_notifications_sent_to_post_author() );
+	}
+
+	/**
+	 * test comment_moderation_notifications_user
+	 * 
+	 * @since @calmPress 1.0.0
+	 */
+	public function test_comment_moderation_notifications_user() {
+		
+		$user_id = $this->factory->user->create( [ 'name' => 'test', 'display_name' => 'display name', 'description' => 'test description' ] );
+
+		$pid = $this->factory->post->create( [
+			'post_title' => 'test1',
+			'post_author' => $user_id,
+			'post_status' => 'publish',
+		] );
+
+		$post = get_post( $pid );
+
+		// moderation norification sent to the author
+		$post->set_comment_moderation_notification_recipient( true );
+		$this->assertSame( $post->comment_moderation_notifications_user()->ID, $user_id );
+
+		// moderation norification sent to the global moderator
+		$user_id2 = $this->factory->user->create( 
+			[
+			 'role' => 'editor',
+			 'email' => 'a@b.c' 
+			] );
+		$post->set_comment_moderation_notification_recipient( false );
+		update_option( 'comment_moderator_user', $user_id2 );
+		$this->assertSame( $post->comment_moderation_notifications_user()->ID, $user_id2 );
+	}
 }

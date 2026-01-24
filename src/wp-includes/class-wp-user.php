@@ -1131,6 +1131,29 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * The user which is default target of comment moderation notifications. 
+	 * 
+	 * Mostly a syntatic sugar around default_comment_moderator_email
+	 *
+	 * @since calmPress 1.0.0
+	 * 
+	 * @return WP_User The configure user, or the default admin user.
+	 * 
+	 * @throws RuntimeExeption if no user could be found.
+	 */
+	public static function default_comment_moderator_user(): WP_User {
+
+		$user = get_user_by( 'email', self::default_comment_moderator_email() );
+		if ( ! $user instanceof \WP_User ) {
+			throw new \RuntimeException(
+				'Site default comment moderation recipient user could not be found.'
+			);
+		}
+
+		return $user;
+	}
+
+	/**
 	 * Try to create a user out of the id encrypted in a string which is supposed
 	 * to be encrypted by encrypt_int_to_base64URL and verify the value had not expired.
 	 *

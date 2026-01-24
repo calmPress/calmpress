@@ -1236,6 +1236,66 @@ class Tests_Post extends WP_UnitTestCase {
 	}
 
 	/**
+	 * test setting the response to comment_moderation_notification_recipient setting
+	 */
+	public function test_comment_moderation_notification_recipient() {
+		$post_data = [
+			'post_author'  => self::$editor_id,
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+			'post_title'   => 'title',
+		];
+
+		// create new post.
+		$pid = wp_insert_post( $post_data, true );
+
+		$post = get_post( $pid );
+
+		// comment_moderation_notification_recipient set to indicate
+		// post author as moderator.
+		$update_data = [
+			'ID'           => $pid,
+			'post_title'   => 'title',
+			'comment_moderation_notification_recipient' => 'post_author',
+		];
+
+		wp_insert_post( $update_data );
+		$this->assertTrue( $post->comment_moderation_notifications_sent_to_post_author() );
+
+		// When comment_moderation_notification_recipient is not set, the state
+		// is kept.
+		$update_data = [
+			'ID'           => $pid,
+			'post_title'   => 'title',
+		];
+
+		wp_insert_post( $update_data );
+		$this->assertTrue( $post->comment_moderation_notifications_sent_to_post_author() );
+
+		// comment_moderation_notification_recipient set to indicate
+		// global default moderator.
+		$update_data = [
+			'ID'           => $pid,
+			'post_title'   => 'title',
+			'comment_moderation_notification_recipient' => 'global_moderator',
+		];
+
+		wp_insert_post( $update_data );
+		$this->assertFalse( $post->comment_moderation_notifications_sent_to_post_author() );
+
+		// When comment_moderation_notification_recipient is not set, the state
+		// is kept.
+		$update_data = [
+			'ID'           => $pid,
+			'post_title'   => 'title',
+		];
+
+		wp_insert_post( $update_data );
+		$this->assertFalse( $post->comment_moderation_notifications_sent_to_post_author() );
+
+	}
+
+	/**
 	 * Test ensuring that the post_slug can be filtered with a custom value short circuiting the built in
 	 * function that tries to create a unique name based on the post name.
 	 *
