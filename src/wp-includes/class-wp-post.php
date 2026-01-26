@@ -402,15 +402,13 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-     * Determine if moderation notifications for this post are sent to the post author.
+     * The user to which to send comment moderation notificcation for comment
+	 * on this post.
      *
 	 * @since calmPress 1.0.0
 	 * 
-     * @return bool true if the post author should be nodified about omments requiring
-	 *              moderation.
-	 *              false if the moderation notification should be sent to the 
-	 *              user configured as the default comment moderation notifications
-	 *              recipient.
+     * @return WP_User The post author or the global user to notify when moderation
+	 *                 is needed based on the post settings.
 	 * 
 	 * @throws RuntimeExeption if no user could be found.
      */

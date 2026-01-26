@@ -1789,14 +1789,9 @@ if ( ! function_exists( 'wp_notify_moderator' ) ) :
 
 		$comment = get_comment( $comment_id );
 		$post    = get_post( $comment->comment_post_ID );
-		$user    = get_userdata( $post->post_author );
-		// Send to the administration and to the post author if the author can modify the comment.
-		$emails = array( get_option( 'admin_email' ) );
-		if ( $user && user_can( $user->ID, 'edit_comment', $comment_id ) && ! empty( $user->user_email ) ) {
-			if ( 0 !== strcasecmp( $user->user_email, get_option( 'admin_email' ) ) ) {
-				$emails[] = $user->user_email;
-			}
-		}
+		$user    = get_userdata( $post->comment_moderation_notifications_user()->ID );
+
+		$emails = array( $user->user_email );
 
 		$switched_locale = switch_to_locale( get_locale() );
 
