@@ -359,7 +359,7 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 				return array( 'edit_others_posts' );
 			}
 
-			$comment = get_comment( (int) $args[0] );
+			$comment = get_comment( $args[0] );
 			if ( ! $comment ) {
 				return array( 'do_not_allow' );
 			}
