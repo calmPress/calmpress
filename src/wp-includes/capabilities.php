@@ -352,6 +352,22 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 				}
 			}
 			break;
+		case 'moderate_comments':
+			// A user can moderate a comment if he can edit the post on which its on.
+			if ( empty( $args[0] ) ) {
+				// No specific comment is given, just map to the edit all post capability.
+				return array( 'edit_others_posts' );
+			}
+
+			$comment = get_comment( (int) $args[0] );
+			if ( ! $comment ) {
+				return array( 'do_not_allow' );
+			}
+
+			// For a specific comment, map to being able to edit the specific post it
+			// is on.
+			return map_meta_cap( 'edit_post', $user_id, $comment->comment_post_ID );
+			break;
 		case 'edit_comment':
 			$comment = get_comment( $args[0] );
 			if ( ! $comment ) {

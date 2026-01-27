@@ -37,7 +37,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'Comment Moderator',
 			array(
 				'read'              => true,
-				'moderate_comments' => true,
 			)
 		);
 
@@ -59,7 +58,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		);
 		self::$moderator_id  = $factory->user->create(
 			array(
-				'role' => 'comment_moderator',
+				'role' => 'editor',
 			)
 		);
 		self::$subscriber_id = $factory->user->create(

@@ -618,7 +618,6 @@ function populate_roles_160() {
 	$role->add_cap( 'activate_plugins' );
 	$role->add_cap( 'edit_users' );
 	$role->add_cap( 'manage_options' );
-	$role->add_cap( 'moderate_comments' );
 	$role->add_cap( 'manage_categories' );
 	$role->add_cap( 'upload_files' );
 	$role->add_cap( 'unfiltered_html' );
@@ -642,7 +641,6 @@ function populate_roles_160() {
 
 	// Add caps for Editor role.
 	$role = get_role( 'editor' );
-	$role->add_cap( 'moderate_comments' );
 	$role->add_cap( 'manage_categories' );
 	$role->add_cap( 'upload_files' );
 	$role->add_cap( 'unfiltered_html' );

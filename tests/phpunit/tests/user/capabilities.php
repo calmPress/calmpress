@@ -98,7 +98,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'manage_server'           => array( 'administrator' ),
 			
 
-			'moderate_comments'       => array( 'administrator', 'editor' ),
 			'manage_categories'       => array( 'administrator', 'editor' ),
 			'edit_others_posts'       => array( 'administrator', 'editor' ),
 			'edit_pages'              => array( 'administrator', 'editor' ),
@@ -177,7 +176,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'edit_dashboard'          => array( 'administrator' ),
 			'maintenance_mode'        => array( 'administrator' ),
 
-			'moderate_comments'       => array( 'administrator', 'editor' ),
 			'manage_categories'       => array( 'administrator', 'editor' ),
 			'edit_others_posts'       => array( 'administrator', 'editor' ),
 			'edit_pages'              => array( 'administrator', 'editor' ),
@@ -521,6 +519,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			$expected['safe_mode'],
 			$expected['maintenance_mode'],
 			$expected['manage_server'],
+			$expected['moderate_comments'],
 		);
 
 		$expected = array_keys( $expected );
@@ -2226,16 +2225,92 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$u = get_user_by( 'id', $admin->ID );
 		$this->assertFalse( $u->has_cap( 'maintenance_mode' ) );
 		
-		// When set to author should not have moderate comments cap.
-		update_user_meta( $admin->ID, 'mock_role', 'author' );
-		update_user_meta( $admin->ID, 'mock_role_expiry', time() + 1000 );
-
-		// Capabilities are initiated at user object creation.
-		$u = get_user_by( 'id', $admin->ID );
-		$this->assertFalse( $u->has_cap( 'moderate_comments' ) );
-		
 		// cleanup.
 		delete_user_meta( $admin->ID, 'mock_role' );
 		delete_user_meta( $admin->ID, 'mock_role_expiry' );
 	}
+
+	/**
+	 * test indirectly moderate_comments capability mapping at
+	 * map_meta_cap
+	 * 
+	 * @since calmPress 1.0.0
+	 */
+	public function test_map_meta_cap_moderate_comments() {
+		$admin       = self::$users['administrator'];
+		$author      = self::$users['author'];
+		$editor      = self::$users['editor'];
+		$other_id  = $this->factory->user->create( array( 'role' => 'author' ) );
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_author' => $author->ID,
+				'post_status' => 'publish',
+			]
+		);
+
+		$comment_id = $this->factory->comment->create(
+			[
+				'comment_post_ID' => $post_id,
+				'user_id'         => $author->ID,
+			]
+		);
+
+		/*
+		* Administrator: allowed without context
+		*/
+		$this->assertTrue(
+			user_can( $admin->ID, 'moderate_comments' ),
+			'Administrator should be able to moderate comments'
+		);
+
+		/*
+		* Administrator: allowed with context
+		*/
+		$this->assertTrue(
+			user_can( $admin->ID, 'moderate_comments', $comment_id ),
+			'Administrator should be able to moderate comments'
+		);
+
+		/*
+		* Editor: allowed with context
+		*/
+		$this->assertTrue(
+			user_can( $editor->ID, 'moderate_comments', $comment_id ),
+			'Editor should be able to moderate comments'
+		);
+
+		/*
+		* Editor: allowed without context
+		*/
+		$this->assertTrue(
+			user_can( $editor->ID, 'moderate_comments' ),
+			'Editor should be able to moderate comments'
+		);
+
+		/*
+		* Post author: allowed only if user is author of post.
+		*/
+		$this->assertTrue(
+			user_can( $author->ID, 'moderate_comments', $comment_id ),
+			'Post author should be able to moderate comments on their own post'
+		);
+
+		/*
+		* Post author: not allowed without context.
+		*/
+		$this->assertFalse(
+			user_can( $author->ID, 'moderate_comments' ),
+			'Post author should not be able to moderate comments on others posts'
+		);
+
+		/*
+		* User who cannot edit the post: denied
+		*/
+		$this->assertFalse(
+			user_can( $other_id, 'moderate_comments', $comment_id ),
+			'User who cannot edit the post should not be able to moderate comments'
+		);
+	}
 }
+
