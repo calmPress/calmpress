@@ -2249,13 +2249,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			]
 		);
 
-		$comment_id = $this->factory->comment->create(
-			[
-				'comment_post_ID' => $post_id,
-				'user_id'         => $author->ID,
-			]
-		);
-
 		/*
 		* Administrator: allowed without context
 		*/
@@ -2268,7 +2261,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		* Administrator: allowed with context
 		*/
 		$this->assertTrue(
-			user_can( $admin->ID, 'moderate_comments', $comment_id ),
+			user_can( $admin->ID, 'moderate_comments', $post_id ),
 			'Administrator should be able to moderate comments'
 		);
 
@@ -2276,7 +2269,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		* Editor: allowed with context
 		*/
 		$this->assertTrue(
-			user_can( $editor->ID, 'moderate_comments', $comment_id ),
+			user_can( $editor->ID, 'moderate_comments', $post_id ),
 			'Editor should be able to moderate comments'
 		);
 
@@ -2292,7 +2285,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		* Post author: allowed only if user is author of post.
 		*/
 		$this->assertTrue(
-			user_can( $author->ID, 'moderate_comments', $comment_id ),
+			user_can( $author->ID, 'moderate_comments', $post_id ),
 			'Post author should be able to moderate comments on their own post'
 		);
 
@@ -2308,7 +2301,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		* User who cannot edit the post: denied
 		*/
 		$this->assertFalse(
-			user_can( $other_id, 'moderate_comments', $comment_id ),
+			user_can( $other_id, 'moderate_comments', $post_id ),
 			'User who cannot edit the post should not be able to moderate comments'
 		);
 	}

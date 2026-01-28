@@ -1662,7 +1662,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 				/* translators: %s: Comment author URL. */
 				$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
 
-				if ( $comment->comment_parent && user_can( $post->post_author, 'edit_comment', $comment->comment_parent ) ) {
+				if ( $comment->comment_parent ) {
 					/* translators: Comment moderation. %s: Parent comment edit URL. */
 					$notify_message .= sprintf( __( 'In reply to: %s' ), admin_url( "comment.php?action=editcomment&c={$comment->comment_parent}#wpbody-content" ) ) . "\r\n";
 				}
@@ -1679,17 +1679,15 @@ if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 		/* translators: %s: Comment URL. */
 		$notify_message .= sprintf( __( 'Permalink: %s' ), get_comment_link( $comment ) ) . "\r\n";
 
-		if ( user_can( $post->post_author, 'edit_comment', $comment->comment_ID ) ) {
-			if ( EMPTY_TRASH_DAYS ) {
-				/* translators: Comment moderation. %s: Comment action URL. */
-				$notify_message .= sprintf( __( 'Trash it: %s' ), admin_url( "comment.php?action=trash&c={$comment->comment_ID}#wpbody-content" ) ) . "\r\n";
-			} else {
-				/* translators: Comment moderation. %s: Comment action URL. */
-				$notify_message .= sprintf( __( 'Delete it: %s' ), admin_url( "comment.php?action=delete&c={$comment->comment_ID}#wpbody-content" ) ) . "\r\n";
-			}
+		if ( EMPTY_TRASH_DAYS ) {
 			/* translators: Comment moderation. %s: Comment action URL. */
-			$notify_message .= sprintf( __( 'Spam it: %s' ), admin_url( "comment.php?action=spam&c={$comment->comment_ID}#wpbody-content" ) ) . "\r\n";
+			$notify_message .= sprintf( __( 'Trash it: %s' ), admin_url( "comment.php?action=trash&c={$comment->comment_ID}#wpbody-content" ) ) . "\r\n";
+		} else {
+			/* translators: Comment moderation. %s: Comment action URL. */
+			$notify_message .= sprintf( __( 'Delete it: %s' ), admin_url( "comment.php?action=delete&c={$comment->comment_ID}#wpbody-content" ) ) . "\r\n";
 		}
+		/* translators: Comment moderation. %s: Comment action URL. */
+		$notify_message .= sprintf( __( 'Spam it: %s' ), admin_url( "comment.php?action=spam&c={$comment->comment_ID}#wpbody-content" ) ) . "\r\n";
 
 		$wp_email = 'calmpress@' . preg_replace( '#^www\.#', '', wp_parse_url( network_home_url(), PHP_URL_HOST ) );
 

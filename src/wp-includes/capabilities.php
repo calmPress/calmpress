@@ -359,14 +359,9 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 				return array( 'edit_others_posts' );
 			}
 
-			$comment = get_comment( $args[0] );
-			if ( ! $comment ) {
-				return array( 'do_not_allow' );
-			}
-
 			// For a specific comment, map to being able to edit the specific post it
 			// is on.
-			return map_meta_cap( 'edit_post', $user_id, $comment->comment_post_ID );
+			return map_meta_cap( 'edit_post', $user_id, $args[0] );
 			break;
 		case 'edit_comment':
 			$comment = get_comment( $args[0] );
