@@ -2666,11 +2666,7 @@ function get_comments_pagenum_link( $pagenum = 1, $max_page = 0 ) {
 
 	$result = get_permalink();
 
-	if ( 'newest' === get_option( 'default_comments_page' ) ) {
-		if ( $pagenum != $max_page ) {
-			$result = user_trailingslashit( trailingslashit($result) . $wp_rewrite->comments_pagination_base . '-' . $pagenum, 'commentpaged');
-		}
-	} elseif ( $pagenum > 1 ) {
+	if ( $pagenum != $max_page ) {
 		$result = user_trailingslashit( trailingslashit($result) . $wp_rewrite->comments_pagination_base . '-' . $pagenum, 'commentpaged');
 	}
 

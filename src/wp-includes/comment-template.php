@@ -1302,7 +1302,7 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 	$overridden_cpage = false;
 
 	if ( '' == get_query_var( 'cpage' ) && $wp_query->max_num_comment_pages > 1 ) {
-		set_query_var( 'cpage', 'newest' === get_option( 'default_comments_page' ) ? get_comment_pages_count() : 1 );
+		set_query_var( 'cpage', get_comment_pages_count() );
 		$overridden_cpage = true;
 	}
 
@@ -1844,7 +1844,7 @@ function wp_list_comments( $args = array(), $comments = null ) {
 		if ( $parsed_args['page'] || $parsed_args['per_page'] ) {
 			$current_cpage = get_query_var( 'cpage' );
 			if ( ! $current_cpage ) {
-				$current_cpage = 'newest' === get_option( 'default_comments_page' ) ? 1 : $wp_query->max_num_comment_pages;
+				$current_cpage = 1;
 			}
 
 			$current_per_page = get_query_var( 'comments_per_page' );
@@ -1898,21 +1898,8 @@ function wp_list_comments( $args = array(), $comments = null ) {
 			}
 
 			if ( $wp_query->max_num_comment_pages ) {
-				$default_comments_page = get_option( 'default_comments_page' );
 				$cpage                 = get_query_var( 'cpage' );
-				if ( 'newest' === $default_comments_page ) {
-					$parsed_args['cpage'] = $cpage;
-
-					/*
-					* When first page shows oldest comments, post permalink is the same as
-					* the comment permalink.
-					*/
-				} elseif ( 1 == $cpage ) {
-					$parsed_args['cpage'] = '';
-				} else {
-					$parsed_args['cpage'] = $cpage;
-				}
-
+				$parsed_args['cpage']  = $cpage;
 				$parsed_args['page']     = 0;
 				$parsed_args['per_page'] = 0;
 			}
@@ -1935,7 +1922,7 @@ function wp_list_comments( $args = array(), $comments = null ) {
 			$parsed_args['page'] = get_query_var( 'cpage' );
 		} else {
 			$threaded            = ( -1 != $parsed_args['max_depth'] );
-			$parsed_args['page'] = ( 'newest' === get_option( 'default_comments_page' ) ) ? get_comment_pages_count( $_comments, $parsed_args['per_page'], $threaded ) : 1;
+			$parsed_args['page'] = get_comment_pages_count( $_comments, $parsed_args['per_page'], $threaded );
 			set_query_var( 'cpage', $parsed_args['page'] );
 		}
 	}
