@@ -199,17 +199,7 @@ class WP_Comments_List_Table extends WP_List_Table {
 	 * @return int
 	 */
 	public function get_per_page( $comment_status = 'all' ) {
-		$comments_per_page = $this->get_items_per_page( 'edit_comments_per_page' );
-
-		/**
-		 * Filters the number of comments listed per page in the comments list table.
-		 *
-		 * @since 2.6.0
-		 *
-		 * @param int    $comments_per_page The number of comments to list per page.
-		 * @param string $comment_status    The comment status name. Default 'All'.
-		 */
-		return apply_filters( 'comments_per_page', $comments_per_page, $comment_status );
+		return $this->get_items_per_page( 'edit_comments_per_page' );
 	}
 
 	/**
