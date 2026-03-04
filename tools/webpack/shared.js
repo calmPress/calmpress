@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
+const { DefinePlugin } = require( 'webpack' );
 const TerserPlugin = require( 'terser-webpack-plugin' );
 const postcss = require( 'postcss' );
 const { join } = require( 'path' );
 
 const baseDir = join( __dirname, '../../' );
 
-const baseConfig = ( env ) => {
+const getBaseConfig = ( env ) => {
 	const mode = env.environment;
 
 	const config = {
@@ -19,7 +20,7 @@ const baseConfig = ( env ) => {
 				new TerserPlugin( {
 					extractComments: false,
 				} ),
-			]
+			],
 		},
 		module: {
 			rules: [
@@ -31,16 +32,23 @@ const baseConfig = ( env ) => {
 			],
 		},
 		resolve: {
-			modules: [
-				baseDir,
-				'node_modules',
-			],
+			modules: [ baseDir, 'node_modules' ],
 			alias: {
 				'lodash-es': 'lodash',
 			},
 		},
 		stats: 'errors-only',
 		watch: env.watch,
+		plugins: [
+			new DefinePlugin( {
+				// Inject the `IS_WORDPRESS_CORE` global, used for feature flagging.
+				'globalThis.IS_WORDPRESS_CORE': JSON.stringify( true ),
+				// Inject the `SCRIPT_DEBUG` global, used for dev versions of JavaScript.
+				'globalThis.SCRIPT_DEBUG': JSON.stringify(
+					false
+				),
+			} ),
+		],
 	};
 
 	if ( mode === 'development' && env.buildTarget === 'build/' ) {
@@ -76,10 +84,32 @@ const stylesTransform = ( mode ) => ( content ) => {
 
 const normalizeJoin = ( ...paths ) => join( ...paths ).replace( /\\/g, '/' );
 
+const BUNDLED_PACKAGES = [
+	'@wordpress/dataviews',
+	'@wordpress/icons',
+	'@wordpress/interface',
+	'@wordpress/interactivity',
+	'@wordpress/sync',
+	'@wordpress/undo-manager',
+	'@wordpress/upload-media',
+	'@wordpress/fields',
+];
+const MODULES = [
+	'@wordpress/interactivity',
+	'@wordpress/interactivity-router',
+];
+const SCRIPT_AND_MODULE_DUAL_PACKAGES = [
+	'@wordpress/a11y',
+];
+const WORDPRESS_NAMESPACE = '@wordpress/';
 
 module.exports = {
 	baseDir,
-	baseConfig,
+	getBaseConfig,
 	normalizeJoin,
 	stylesTransform,
+	BUNDLED_PACKAGES,
+	MODULES,
+	SCRIPT_AND_MODULE_DUAL_PACKAGES,
+	WORDPRESS_NAMESPACE,
 };

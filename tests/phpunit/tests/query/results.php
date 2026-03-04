@@ -157,7 +157,7 @@ class Tests_Query_Results extends WP_UnitTestCase {
 		self::$post_ids[] = $factory->post->create(
 			array(
 				'post_title' => 'no-comments',
-				'post_date'  => '2009-10-01 00:00:00',
+				'post_date'  => '2009-10-15 00:00:00',
 			)
 		);
 		self::$post_ids[] = $factory->post->create(
@@ -770,7 +770,6 @@ class Tests_Query_Results extends WP_UnitTestCase {
 			$this->assertIsInt( $post->ID );
 			$this->assertIsInt( $post->post_parent );
 		}
-
 	}
 
 	/**

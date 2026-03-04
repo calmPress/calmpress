@@ -7,27 +7,30 @@
  */
 define( 'WP_REPAIRING', true );
 
-require_once dirname( dirname( __DIR__ ) ) . '/wp-load.php';
+require_once dirname( __DIR__, 2 ) . '/wp-load.php';
 
 header( 'Content-Type: text/html; charset=utf-8' );
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta name="viewport" content="width=device-width" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="robots" content="noindex,nofollow" />
 	<title><?php _e( 'calmPress &rsaquo; Database Repair' ); ?></title>
 	<?php wp_admin_css( 'install', true ); ?>
 </head>
 <body class="wp-core-ui">
-<p id="logo"><a href="<?php echo esc_url( __( 'https://calmpress.org/' ) ); ?>"><?php _e( 'calmPress' ); ?></a></p>
+<p id="logo"><?php _e( 'calmPress' ); ?></p>
 
 <?php
 
 if ( ! defined( 'WP_ALLOW_REPAIR' ) || ! WP_ALLOW_REPAIR ) {
 
-	echo '<h1 class="screen-reader-text">' . __( 'Allow automatic database repair' ) . '</h1>';
+	echo '<h1 class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( 'Allow automatic database repair' ) .
+	'</h1>';
 
 	echo '<p>';
 	printf(
@@ -39,19 +42,16 @@ if ( ! defined( 'WP_ALLOW_REPAIR' ) || ! WP_ALLOW_REPAIR ) {
 
 } elseif ( isset( $_GET['repair'] ) ) {
 
-	echo '<h1 class="screen-reader-text">' . __( 'Database repair results' ) . '</h1>';
+	echo '<h1 class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( 'Database repair results' ) .
+	'</h1>';
 
-	$optimize = 2 == $_GET['repair'];
+	$optimize = '2' === $_GET['repair'];
 	$okay     = true;
 	$problems = array();
 
 	$tables = $wpdb->tables();
-
-	// Sitecategories may not exist if global terms are disabled.
-	$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->sitecategories ) );
-	if ( is_multisite() && ! $wpdb->get_var( $query ) ) {
-		unset( $tables['sitecategories'] );
-	}
 
 	/**
 	 * Filters additional database tables to repair.
@@ -64,7 +64,7 @@ if ( ! defined( 'WP_ALLOW_REPAIR' ) || ! WP_ALLOW_REPAIR ) {
 
 	// Loop over the tables, checking and repairing as needed.
 	foreach ( $tables as $table ) {
-		$check = $wpdb->get_row( "CHECK TABLE $table" );
+		$check = $wpdb->get_row( $wpdb->prepare( 'CHECK TABLE %i', $table ) );
 
 		echo '<p>';
 		if ( 'OK' === $check->Msg_text ) {
@@ -74,7 +74,7 @@ if ( ! defined( 'WP_ALLOW_REPAIR' ) || ! WP_ALLOW_REPAIR ) {
 			/* translators: 1: Table name, 2: Error message. */
 			printf( __( 'The %1$s table is not okay. It is reporting the following error: %2$s. WordPress will attempt to repair this table&hellip;' ), "<code>$table</code>", "<code>$check->Msg_text</code>" );
 
-			$repair = $wpdb->get_row( "REPAIR TABLE $table" );
+			$repair = $wpdb->get_row( $wpdb->prepare( 'REPAIR TABLE %i', $table ) );
 
 			echo '<br />&nbsp;&nbsp;&nbsp;&nbsp;';
 			if ( 'OK' === $repair->Msg_text ) {
@@ -89,14 +89,14 @@ if ( ! defined( 'WP_ALLOW_REPAIR' ) || ! WP_ALLOW_REPAIR ) {
 		}
 
 		if ( $okay && $optimize ) {
-			$analyze = $wpdb->get_row( "ANALYZE TABLE $table" );
+			$analyze = $wpdb->get_row( $wpdb->prepare( 'ANALYZE TABLE %i', $table ) );
 
 			echo '<br />&nbsp;&nbsp;&nbsp;&nbsp;';
 			if ( 'Table is already up to date' === $analyze->Msg_text ) {
 				/* translators: %s: Table name. */
 				printf( __( 'The %s table is already optimized.' ), "<code>$table</code>" );
 			} else {
-				$optimize = $wpdb->get_row( "OPTIMIZE TABLE $table" );
+				$optimize = $wpdb->get_row( $wpdb->prepare( 'OPTIMIZE TABLE %i', $table ) );
 
 				echo '<br />&nbsp;&nbsp;&nbsp;&nbsp;';
 				if ( 'OK' === $optimize->Msg_text || 'Table is already up to date' === $optimize->Msg_text ) {
@@ -127,7 +127,10 @@ if ( ! defined( 'WP_ALLOW_REPAIR' ) || ! WP_ALLOW_REPAIR ) {
 	}
 } else {
 
-	echo '<h1 class="screen-reader-text">' . __( 'calmPress database repair' ) . '</h1>';
+	echo '<h1 class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( 'calmPress database repair' ) .
+	'</h1>';
 
 	if ( isset( $_GET['referrer'] ) && 'is_blog_installed' == $_GET['referrer'] ) {
 		echo '<p>' . __( 'One or more database tables are unavailable. To allow calmPress to attempt to repair these tables, press the &#8220;Repair Database&#8221; button. Repairing can take a while, so please be patient.' ) . '</p>';

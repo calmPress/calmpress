@@ -7,8 +7,24 @@ require_once ABSPATH . '/wp-admin/includes/post.php';
  * @group taxonomy
  */
 class Tests_Taxonomy extends WP_UnitTestCase {
+
+	/**
+	 * Editor user ID.
+	 *
+	 * @var int $editor_id
+	 */
+	public static $editor_id;
+
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		self::$editor_id = $factory->user->create( array( 'role' => 'editor' ) );
+	}
+
 	public function test_get_post_taxonomies() {
 		$this->assertSame( array( 'category', 'post_tag', 'post_format', 'calm_authors' ), get_object_taxonomies( 'post' ), \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+	}
+
+	public function test_get_block_taxonomies() {
+		$this->assertSame( array( 'wp_pattern_category' ), get_object_taxonomies( 'wp_block' ) );
 	}
 
 	/**
@@ -23,7 +39,11 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 	}
 
 	public function test_get_post_taxonomy() {
-		foreach ( get_object_taxonomies( 'post' ) as $taxonomy ) {
+		$taxonomies = get_object_taxonomies( 'post' );
+
+		$this->assertNotEmpty( $taxonomies );
+
+		foreach ( $taxonomies as $taxonomy ) {
 			$tax = get_taxonomy( $taxonomy );
 			// Should return an object with the correct taxonomy object type.
 			$this->assertIsObject( $tax );
@@ -126,6 +146,41 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 		$this->assertFalse( taxonomy_exists( null ) );
 	}
 
+	/**
+	 * Tests that `taxonomy_exists()` returns `false` when the `$taxonomy`
+	 * argument is not a string.
+	 *
+	 * @ticket 56338
+	 *
+	 * @covers ::taxonomy_exists
+	 *
+	 * @dataProvider data_taxonomy_exists_should_return_false_with_non_string_taxonomy
+	 *
+	 * @param mixed $taxonomy The non-string taxonomy.
+	 */
+	public function test_taxonomy_exists_should_return_false_with_non_string_taxonomy( $taxonomy ) {
+		$this->assertFalse( taxonomy_exists( $taxonomy ) );
+	}
+
+	/**
+	 * Data provider with non-string values.
+	 *
+	 * @return array
+	 */
+	public function data_taxonomy_exists_should_return_false_with_non_string_taxonomy() {
+		return array(
+			'array'        => array( array() ),
+			'object'       => array( new stdClass() ),
+			'bool (true)'  => array( true ),
+			'bool (false)' => array( false ),
+			'null'         => array( null ),
+			'integer (0)'  => array( 0 ),
+			'integer (1)'  => array( 1 ),
+			'float (0.0)'  => array( 0.0 ),
+			'float (1.1)'  => array( 1.1 ),
+		);
+	}
+
 	public function test_is_taxonomy_hierarchical() {
 		$this->assertTrue( is_taxonomy_hierarchical( 'category' ) );
 		$this->assertFalse( is_taxonomy_hierarchical( 'post_tag' ) );
@@ -192,6 +247,22 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 53212
+	 */
+	public function test_register_taxonomy_fires_registered_actions() {
+		$taxonomy = 'taxonomy53212';
+		$action   = new MockAction();
+
+		add_action( 'registered_taxonomy', array( $action, 'action' ) );
+		add_action( "registered_taxonomy_{$taxonomy}", array( $action, 'action' ) );
+
+		register_taxonomy( $taxonomy, 'post' );
+		register_taxonomy( 'random', 'post' );
+
+		$this->assertSame( 3, $action->get_call_count() );
+	}
+
+	/**
 	 * @ticket 11058
 	 */
 	public function test_registering_taxonomies_to_object_types() {
@@ -203,7 +274,7 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 		// Create a post type to test with.
 		$post_type = 'test_cpt';
 		$this->assertFalse( get_post_type( $post_type ) );
-		$this->assertObjectHasAttribute( 'name', register_post_type( $post_type ) );
+		$this->assertObjectHasProperty( 'name', register_post_type( $post_type ) );
 
 		// Core taxonomy, core post type.
 		$this->assertTrue( unregister_taxonomy_for_object_type( 'category', 'post' ) );
@@ -237,7 +308,6 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 
 		unset( $GLOBALS['wp_taxonomies'][ $tax ] );
 		_unregister_post_type( $post_type );
-
 	}
 
 	/**
@@ -602,13 +672,13 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 				'publicly_queryable' => false,
 			)
 		);
-		$t = $this->factory->term->create_and_get(
+		$t = self::factory()->term->create_and_get(
 			array(
 				'taxonomy' => 'wptests_tax',
 			)
 		);
 
-		$p = $this->factory->post->create();
+		$p = self::factory()->post->create();
 		wp_set_object_terms( $p, $t->slug, 'wptests_tax' );
 
 		add_filter( 'do_parse_request', array( $this, 'register_query_var' ) );
@@ -919,7 +989,7 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 			)
 		);
 
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( self::$editor_id );
 		$updated_post_id = edit_post(
 			array(
 				'post_ID'   => $post->ID,
@@ -938,4 +1008,87 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 		$this->assertSame( $problematic_term, $term_name );
 	}
 
+	/**
+	 * Test default term for custom taxonomy.
+	 *
+	 * @ticket 43517
+	 */
+	public function test_default_term_for_custom_taxonomy() {
+
+		wp_set_current_user( self::$editor_id );
+
+		$tax = 'custom-tax';
+
+		// Create custom taxonomy to test with.
+		register_taxonomy(
+			$tax,
+			'post',
+			array(
+				'hierarchical' => true,
+				'public'       => true,
+				'default_term' => array(
+					'name' => 'Default category',
+					'slug' => 'default-category',
+				),
+			)
+		);
+
+		// Add post.
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title' => 'Foo',
+				'post_type'  => 'post',
+			)
+		);
+
+		// Test default term.
+		$term = wp_get_post_terms( $post_id, $tax );
+		$this->assertSame( get_option( 'default_term_' . $tax ), $term[0]->term_id );
+
+		// Test default term deletion.
+		$this->assertSame( wp_delete_term( $term[0]->term_id, $tax ), 0 );
+
+		// Add custom post type.
+		register_post_type(
+			'post-custom-tax',
+			array(
+				'taxonomies' => array( $tax ),
+			)
+		);
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title' => 'Foo',
+				'post_type'  => 'post-custom-tax',
+			)
+		);
+
+		// Test default term.
+		$term = wp_get_post_terms( $post_id, $tax );
+		$this->assertSame( get_option( 'default_term_' . $tax ), $term[0]->term_id );
+
+		// wp_set_object_terms() should not assign default term.
+		wp_set_object_terms( $post_id, array(), $tax );
+		$term = wp_get_post_terms( $post_id, $tax );
+		$this->assertSame( array(), $term );
+	}
+
+	/**
+	 * @ticket 51320
+	 */
+	public function test_default_term_for_post_in_multiple_taxonomies() {
+		$post_type = 'test_post_type';
+		$tax1      = 'test_tax1';
+		$tax2      = 'test_tax2';
+
+		register_post_type( $post_type, array( 'taxonomies' => array( $tax1, $tax2 ) ) );
+		register_taxonomy( $tax1, $post_type, array( 'default_term' => 'term_1' ) );
+		register_taxonomy( $tax2, $post_type, array( 'default_term' => 'term_2' ) );
+
+		$post_id = self::factory()->post->create( array( 'post_type' => $post_type ) );
+
+		$taxonomies = get_post_taxonomies( $post_id );
+
+		$this->assertContains( $tax1, $taxonomies );
+		$this->assertContains( $tax2, $taxonomies );
+	}
 }

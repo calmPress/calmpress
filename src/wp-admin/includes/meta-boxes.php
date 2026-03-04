@@ -76,7 +76,7 @@ function post_submit_meta_box( $post, $args = array() ) {
 				$preview_button = sprintf(
 					'%1$s<span class="screen-reader-text"> %2$s</span>',
 					$preview_button_text,
-					/* translators: Accessibility text. */
+					/* translators: Hidden accessibility text. */
 					__( '(opens in a new tab)' )
 				);
 				?>
@@ -132,11 +132,21 @@ function post_submit_meta_box( $post, $args = array() ) {
 					$private_style = 'style="display:none"';
 				}
 				?>
-				<a href="#post_status" <?php echo $private_style; ?> class="edit-post-status hide-if-no-js" role="button"><span aria-hidden="true"><?php _e( 'Edit' ); ?></span> <span class="screen-reader-text"><?php _e( 'Edit status' ); ?></span></a>
+				<a href="#post_status" <?php echo $private_style; ?> class="edit-post-status hide-if-no-js" role="button"><span aria-hidden="true"><?php _e( 'Edit' ); ?></span> <span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( 'Edit status' );
+					?>
+				</span></a>
 
 				<div id="post-status-select" class="hide-if-js">
 					<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $post->post_status ) ? 'draft' : $post->post_status ); ?>" />
-					<label for="post_status" class="screen-reader-text"><?php _e( 'Set status' ); ?></label>
+					<label for="post_status" class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( 'Set status' );
+						?>
+					</label>
 					<select name="post_status" id="post_status">
 						<?php if ( 'publish' === $post->post_status ) : ?>
 							<option<?php selected( $post->post_status, 'publish' ); ?> value='publish'><?php _e( 'Published' ); ?></option>
@@ -184,7 +194,12 @@ function post_submit_meta_box( $post, $args = array() ) {
 			</span>
 
 			<?php if ( $can_publish ) { ?>
-				<a href="#visibility" class="edit-visibility hide-if-no-js" role="button"><span aria-hidden="true"><?php _e( 'Edit' ); ?></span> <span class="screen-reader-text"><?php _e( 'Edit visibility' ); ?></span></a>
+				<a href="#visibility" class="edit-visibility hide-if-no-js" role="button"><span aria-hidden="true"><?php _e( 'Edit' ); ?></span> <span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( 'Edit visibility' );
+					?>
+				</span></a>
 
 				<div id="post-visibility-select" class="hide-if-js">
 					<input type="hidden" name="hidden_post_password" id="hidden-post-password" value="<?php echo esc_attr( $post->post_password ); ?>" />
@@ -257,7 +272,12 @@ function post_submit_meta_box( $post, $args = array() ) {
 				/* translators: Post revisions heading. %s: The number of available revisions. */
 				printf( __( 'Revisions: %s' ), '<b>' . number_format_i18n( $args['args']['revisions_count'] ) . '</b>' );
 				?>
-				<a class="hide-if-no-js" href="<?php echo esc_url( get_edit_post_link( $args['args']['revision_id'] ) ); ?>"><span aria-hidden="true"><?php _ex( 'Browse', 'revisions' ); ?></span> <span class="screen-reader-text"><?php _e( 'Browse revisions' ); ?></span></a>
+				<a class="hide-if-no-js" href="<?php echo esc_url( get_edit_post_link( $args['args']['revision_id'] ) ); ?>"><span aria-hidden="true"><?php _ex( 'Browse', 'revisions' ); ?></span> <span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( 'Browse revisions' );
+					?>
+				</span></a>
 			</div>
 			<?php
 		endif;
@@ -270,10 +290,20 @@ function post_submit_meta_box( $post, $args = array() ) {
 				</span>
 				<a href="#edit_timestamp" class="edit-timestamp hide-if-no-js" role="button">
 					<span aria-hidden="true"><?php _e( 'Edit' ); ?></span>
-					<span class="screen-reader-text"><?php _e( 'Edit date and time' ); ?></span>
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( 'Edit date and time' );
+						?>
+					</span>
 				</a>
 				<fieldset id="timestampdiv" class="hide-if-js">
-					<legend class="screen-reader-text"><?php _e( 'Date and time' ); ?></legend>
+					<legend class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( 'Date and time' );
+						?>
+					</legend>
 					<?php touch_time( ( 'edit' === $action ), 1 ); ?>
 				</fieldset>
 			</div>
@@ -281,25 +311,24 @@ function post_submit_meta_box( $post, $args = array() ) {
 		endif;
 
 		if ( 'draft' === $post->post_status && get_post_meta( $post_id, '_customize_changeset_uuid', true ) ) :
-			?>
-			<div class="notice notice-info notice-alt inline">
-				<p>
-					<?php
-					printf(
-						/* translators: %s: URL to the Customizer. */
-						__( 'This draft comes from your <a href="%s">unpublished customization changes</a>. You can edit, but there&#8217;s no need to publish now. It will be published automatically with those changes.' ),
-						esc_url(
-							add_query_arg(
-								'changeset_uuid',
-								rawurlencode( get_post_meta( $post_id, '_customize_changeset_uuid', true ) ),
-								admin_url( 'customize.php' )
-							)
-						)
-					);
-					?>
-				</p>
-			</div>
-			<?php
+			$message = sprintf(
+				/* translators: %s: URL to the Customizer. */
+				__( 'This draft comes from your <a href="%s">unpublished customization changes</a>. You can edit, but there is no need to publish now. It will be published automatically with those changes.' ),
+				esc_url(
+					add_query_arg(
+						'changeset_uuid',
+						rawurlencode( get_post_meta( $post_id, '_customize_changeset_uuid', true ) ),
+						admin_url( 'customize.php' )
+					)
+				)
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'               => 'info',
+					'additional_classes' => array( 'notice-alt', 'inline' ),
+				)
+			);
 		endif;
 
 		/**
@@ -382,11 +411,11 @@ function post_submit_meta_box( $post, $args = array() ) {
 }
 
 /**
- * Display attachment submit form fields.
+ * Displays attachment submit form fields.
  *
  * @since 3.5.0
  *
- * @param WP_Post $post
+ * @param WP_Post $post Current post object.
  */
 function attachment_submit_meta_box( $post ) {
 	?>
@@ -405,7 +434,7 @@ function attachment_submit_meta_box( $post ) {
 		<span id="timestamp">
 			<?php
 			$uploaded_on = sprintf(
-				/* translators: Publish box date string. 1: Date, 2: Time. See https://www.php.net/manual/datetime.format.php */
+				/* translators: Publish box date string. 1: Date, 2: Time. */
 				__( '%1$s at %2$s' ),
 				/* translators: Publish box date format, see https://www.php.net/manual/datetime.format.php */
 				date_i18n( _x( 'M j, Y', 'publish box date format' ), strtotime( $post->post_date ) ),
@@ -439,10 +468,20 @@ function attachment_submit_meta_box( $post ) {
 	<?php
 	if ( current_user_can( 'delete_post', $post->ID ) ) {
 		if ( EMPTY_TRASH_DAYS && MEDIA_TRASH ) {
-			echo "<a class='submitdelete deletion' href='" . get_delete_post_link( $post->ID ) . "'>" . __( 'Move to Trash' ) . '</a>';
+			printf(
+				'<a class="submitdelete deletion" href="%1$s">%2$s</a>',
+				get_delete_post_link( $post->ID ),
+				__( 'Move to Trash' )
+			);
 		} else {
-			$delete_ays = ! MEDIA_TRASH ? " onclick='return showNotice.warn();'" : '';
-			echo "<a class='submitdelete deletion'$delete_ays href='" . get_delete_post_link( $post->ID, null, true ) . "'>" . __( 'Delete permanently' ) . '</a>';
+			$show_confirmation = ! MEDIA_TRASH ? " onclick='return showNotice.warn();'" : '';
+
+			printf(
+				'<a class="submitdelete deletion"%1$s href="%2$s">%3$s</a>',
+				$show_confirmation,
+				get_delete_post_link( $post->ID, '', true ),
+				__( 'Delete permanently' )
+			);
 		}
 	}
 	?>
@@ -468,7 +507,7 @@ function attachment_submit_meta_box( $post ) {
  *
  * @todo Create taxonomy-agnostic wrapper for this.
  *
- * @param WP_Post $post Post object.
+ * @param WP_Post $post Current post object.
  * @param array   $box {
  *     Tags meta box arguments.
  *
@@ -525,13 +564,13 @@ function post_tags_meta_box( $post, $box ) {
 }
 
 /**
- * Display post categories form fields.
+ * Displays post categories form fields.
  *
  * @since 2.6.0
  *
  * @todo Create taxonomy-agnostic wrapper for this.
  *
- * @param WP_Post $post Post object.
+ * @param WP_Post $post Current post object.
  * @param array   $box {
  *     Categories meta box arguments.
  *
@@ -649,7 +688,7 @@ function post_categories_meta_box( $post, $box ) {
 }
 
 /**
- * Display post excerpt form fields.
+ * Displays post excerpt form fields.
  *
  * For calmPress it is a backward compatibility shim that does noting unless
  * the manual excerpt plugin is installed, in which case it calls the relevant function.
@@ -667,11 +706,11 @@ function post_excerpt_meta_box( \WP_Post $post ) {
 }
 
 /**
- * Display comments status form fields.
+ * Displays comments status form fields.
  *
  * @since 2.6.0
  *
- * @param WP_Post $post
+ * @param WP_Post $post Current post object.
  */
 function post_comment_status_meta_box( $post ) {
 	?>
@@ -715,7 +754,7 @@ function post_comment_status_meta_box( $post ) {
 	 *
 	 * @since 3.1.0
 	 *
-	 * @param WP_Post $post WP_Post object of the current post.
+	 * @param WP_Post $post WP_Post object for the current post.
 	 */
 	do_action( 'post_comment_status_meta_box-options', $post ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 	?>
@@ -724,11 +763,11 @@ function post_comment_status_meta_box( $post ) {
 }
 
 /**
- * Display comments for post table header
+ * Displays comments for post table header
  *
  * @since 3.0.0
  *
- * @param array $result table header rows
+ * @param array $result Table header rows.
  * @return array
  */
 function post_comment_meta_box_thead( $result ) {
@@ -737,11 +776,11 @@ function post_comment_meta_box_thead( $result ) {
 }
 
 /**
- * Display comments for post.
+ * Displays comments for post.
  *
  * @since 2.8.0
  *
- * @param WP_Post $post
+ * @param WP_Post $post Current post object.
  */
 function post_comment_meta_box( $post ) {
 	wp_nonce_field( 'get-comments', 'add_comment_nonce', false );
@@ -752,8 +791,8 @@ function post_comment_meta_box( $post ) {
 	$total         = get_comments(
 		array(
 			'post_id' => $post->ID,
-			'number'  => 1,
 			'count'   => true,
+			'orderby' => 'none',
 		)
 	);
 	$wp_list_table = _get_list_table( 'WP_Post_Comments_List_Table' );
@@ -778,17 +817,22 @@ function post_comment_meta_box( $post ) {
 }
 
 /**
- * Display slug form fields.
+ * Displays slug form fields.
  *
  * @since 2.6.0
  *
- * @param WP_Post $post
+ * @param WP_Post $post Current post object.
  */
 function post_slug_meta_box( $post ) {
 	/** This filter is documented in wp-admin/edit-tag-form.php */
 	$editable_slug = apply_filters( 'editable_slug', $post->post_name, $post );
 	?>
-<label class="screen-reader-text" for="post_name"><?php _e( 'Slug' ); ?></label><input name="post_name" type="text" size="13" id="post_name" value="<?php echo esc_attr( $editable_slug ); ?>" />
+<label class="screen-reader-text" for="post_name">
+	<?php
+	/* translators: Hidden accessibility text. */
+	_e( 'Slug' );
+	?>
+</label><input name="post_name" type="text" class="large-text" id="post_name" value="<?php echo esc_attr( $editable_slug ); ?>" />
 	<?php
 }
 
@@ -825,11 +869,11 @@ function post_author_meta_box( $post ) {
 }
 
 /**
- * Display list of revisions.
+ * Displays list of revisions.
  *
  * @since 2.6.0
  *
- * @param WP_Post $post
+ * @param WP_Post $post Current post object.
  */
 function post_revisions_meta_box( $post ) {
 	wp_list_post_revisions( $post );
@@ -840,11 +884,11 @@ function post_revisions_meta_box( $post ) {
 //
 
 /**
- * Display page attributes form fields.
+ * Displays page attributes form fields.
  *
  * @since 2.7.0
  *
- * @param WP_Post $post
+ * @param WP_Post $post Current post object.
  */
 function page_attributes_meta_box( $post ) {
 	if ( is_post_type_hierarchical( $post->post_type ) ) :
@@ -878,7 +922,7 @@ function page_attributes_meta_box( $post ) {
 		endif; // End empty pages check.
 	endif;  // End hierarchical check.
 
-	if ( count( get_page_templates( $post ) ) > 0 && get_option( 'page_for_posts' ) != $post->ID ) :
+	if ( count( get_page_templates( $post ) ) > 0 && (int) get_option( 'page_for_posts' ) !== $post->ID ) :
 		$template = ! empty( $post->page_template ) ? $post->page_template : false;
 		?>
 <p class="post-attributes-label-wrapper page-template-label-wrapper"><label class="post-attributes-label" for="page_template"><?php _e( 'Template' ); ?></label>
@@ -933,11 +977,11 @@ function page_attributes_meta_box( $post ) {
 }
 
 /**
- * Display post thumbnail meta box.
+ * Displays post thumbnail meta box.
  *
  * @since 2.9.0
  *
- * @param WP_Post $post A post object.
+ * @param WP_Post $post Current post object.
  */
 function post_thumbnail_meta_box( $post ) {
 	$thumbnail_id = get_post_meta( $post->ID, '_thumbnail_id', true );
@@ -945,11 +989,11 @@ function post_thumbnail_meta_box( $post ) {
 }
 
 /**
- * Display fields for ID3 data
+ * Displays fields for ID3 data.
  *
  * @since 3.9.0
  *
- * @param WP_Post $post A post object.
+ * @param WP_Post $post Current post object.
  */
 function attachment_id3_data_meta_box( $post ) {
 	$meta = array();
@@ -994,13 +1038,13 @@ function register_and_do_post_meta_boxes( $post ) {
 	$publish_callback_args = array();
 
 	if ( post_type_supports( $post_type, 'revisions' ) && 'auto-draft' !== $post->post_status ) {
-		$revisions = wp_get_post_revisions( $post->ID, array( 'fields' => 'ids' ) );
+		$revisions = wp_get_latest_revision_id_and_total_count( $post->ID );
 
 		// We should aim to show the revisions meta box only when there are revisions.
-		if ( count( $revisions ) > 1 ) {
+		if ( ! is_wp_error( $revisions ) && $revisions['count'] > 1 ) {
 			$publish_callback_args = array(
-				'revisions_count'        => count( $revisions ),
-				'revision_id'            => reset( $revisions ),
+				'revisions_count'        => $revisions['count'],
+				'revision_id'            => $revisions['latest_id'],
 			);
 
 			add_meta_box( 'revisionsdiv', __( 'Revisions' ), 'post_revisions_meta_box', null, 'normal', 'core', array() );
@@ -1061,15 +1105,19 @@ function register_and_do_post_meta_boxes( $post ) {
 		add_meta_box( 'commentstatusdiv', __( 'Discussion' ), 'post_comment_status_meta_box', null, 'normal', 'core', array() );
 	}
 
-	$stati = get_post_stati( array( 'public' => true ) );
-	if ( empty( $stati ) ) {
-		$stati = array( 'publish' );
-	}
-	$stati[] = 'private';
+	$statuses = get_post_stati( array( 'public' => true ) );
 
-	if ( in_array( get_post_status( $post ), $stati, true ) ) {
-		// If the post type support comments, or the post has comments,
-		// allow the Comments meta box.
+	if ( empty( $statuses ) ) {
+		$statuses = array( 'publish' );
+	}
+
+	$statuses[] = 'private';
+
+	if ( in_array( get_post_status( $post ), $statuses, true ) ) {
+		/*
+		 * If the post type support comments, or the post has comments,
+		 * allow the Comments meta box.
+		 */
 		if ( comments_open( $post ) || pings_open( $post ) || $post->comment_count > 0 || post_type_supports( $post_type, 'comments' ) ) {
 			add_meta_box( 'commentsdiv', __( 'Comments' ), 'post_comment_meta_box', null, 'normal', 'core', array() );
 		}

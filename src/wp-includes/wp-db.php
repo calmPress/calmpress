@@ -1,57 +1,12 @@
 <?php
 /**
- * WordPress database access abstraction class
- *
- * Original code from {@link http://php.justinvincent.com Justin Vincent (justin@visunet.ie)}
- *
- * @package WordPress
- * @subpackage Database
- * @since 0.71
- */
-
-/**
- * @since 0.71
- */
-define( 'EZSQL_VERSION', 'WP1.25' );
-
-/**
- * @since 0.71
- */
-define( 'OBJECT', 'OBJECT' );
-// phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ConstantNotUpperCase
-define( 'object', 'OBJECT' ); // Back compat.
-
-/**
- * @since 2.5.0
- */
-define( 'OBJECT_K', 'OBJECT_K' );
-
-/**
- * @since 0.71
- */
-define( 'ARRAY_A', 'ARRAY_A' );
-
-/**
- * @since 0.71
- */
-define( 'ARRAY_N', 'ARRAY_N' );
-
-/**
  * WordPress database access abstraction class.
  *
- * This class is used to interact with a database without needing to use raw SQL statements.
- * By default, WordPress uses this class to instantiate the global $wpdb object, providing
- * access to the WordPress database.
+ * This file is deprecated, use 'wp-includes/class-wpdb.php' instead.
  *
- * It is possible to replace this class with your own by setting the $wpdb global variable
- * in wp-content/db.php file to your class. The wpdb class will still be included, so you can
- * extend it or simply use your own.
- *
- * @link https://developer.wordpress.org/reference/classes/wpdb/
- *
- * @since 0.71
+ * @deprecated 6.1.0
+ * @package WordPress
  */
-class wpdb {
 
 	/**
 	 * Whether to show SQL/DB errors.
@@ -3535,3 +3490,6 @@ class wpdb {
 		return $server_info;
 	}
 }
+
+/** wpdb class */
+require_once __DIR__ . '/class-wpdb.php';

@@ -1,0 +1,869 @@
+<?php
+
+/**
+ * @group comment
+ *
+ * @covers ::wp_handle_comment_submission
+ */
+class Tests_Comment_wpHandleCommentSubmission extends WP_UnitTestCase {
+
+	protected static $post;
+	protected static $author_id;
+	protected static $author_id2;
+	protected static $editor_id;
+
+	protected $preprocess_comment_data = array();
+
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		self::$post = $factory->post->create_and_get( ['comment_status' => 'open'] );
+
+		self::$author_id = $factory->user->create(
+			array(
+				'role' => 'author',
+			)
+		);
+
+		self::$author_id2 = $factory->user->create(
+			array(
+				'role'     => 'author',
+				'user_url' => 'http://user.example.org',
+			)
+		);
+
+		self::$editor_id = $factory->user->create(
+			array(
+				'role' => 'editor',
+			)
+		);
+	}
+
+	public static function wpTearDownAfterClass() {
+		wp_delete_post( self::$post->ID, true );
+
+		self::delete_user( self::$author_id );
+		self::delete_user( self::$editor_id );
+	}
+
+	public function set_up() {
+		parent::set_up();
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+	}
+
+	public function test_submitting_comment_to_invalid_post_returns_error() {
+		$error = 'comment_id_not_found';
+
+		$this->assertSame( 0, did_action( $error ) );
+
+		$data    = array(
+			'comment_post_ID' => 0,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertSame( 1, did_action( $error ) );
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	public function test_submitting_comment_to_post_with_closed_comments_returns_error() {
+
+		$error = 'comment_closed';
+
+		$this->assertSame( 0, did_action( $error ) );
+
+		$post = self::factory()->post->create_and_get(
+			array(
+				'comment_status' => 'closed',
+			)
+		);
+
+		$data    = array(
+			'comment_post_ID' => $post->ID,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertSame( 1, did_action( $error ) );
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	public function test_submitting_comment_to_trashed_post_returns_error() {
+
+		$error = 'comment_on_trash';
+
+		$this->assertSame( 0, did_action( $error ) );
+
+		wp_trash_post( self::$post->ID );
+
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		wp_untrash_post( self::$post->ID );
+
+		$this->assertSame( 1, did_action( $error ) );
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	public function test_submitting_comment_to_draft_post_returns_error() {
+		$error = 'comment_on_draft';
+
+		$this->assertSame( 0, did_action( $error ) );
+
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_status' => 'draft',
+				'comment_status' => 'open',
+			)
+		);
+
+		$data    = array(
+			'comment_post_ID' => $post->ID,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertSame( 1, did_action( $error ) );
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+		$this->assertEmpty( $comment->get_error_message() );
+	}
+
+	/**
+	 * @ticket 39650
+	 */
+	public function test_submitting_comment_to_draft_post_returns_error_message_for_user_with_correct_caps() {
+		$error = 'comment_on_draft';
+
+		wp_set_current_user( self::$author_id );
+
+		$this->assertSame( 0, did_action( $error ) );
+
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_status' => 'draft',
+				'post_author' => self::$author_id,
+				'comment_status' => 'open',
+			)
+		);
+
+		$data    = array(
+			'comment_post_ID' => $post->ID,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertSame( 1, did_action( $error ) );
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+		$this->assertNotEmpty( $comment->get_error_message() );
+	}
+
+	public function test_submitting_comment_to_scheduled_post_returns_error() {
+
+		// Same error as commenting on a draft.
+		$error = 'comment_on_draft';
+
+		$this->assertSame( 0, did_action( $error ) );
+
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_date'      => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day' ) ),
+				'comment_status' => 'open',
+			)
+		);
+
+		$this->assertSame( 'future', $post->post_status );
+
+		$data    = array(
+			'comment_post_ID' => $post->ID,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertSame( 1, did_action( $error ) );
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	public function test_submitting_valid_comment_as_logged_in_user_succeeds() {
+
+		$user = self::factory()->user->create_and_get(
+			array(
+				'user_url' => 'http://user.example.org',
+				'comment_status' => 'open',
+			)
+		);
+
+		wp_set_current_user( $user->ID );
+
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+
+		$this->assertSame( 'Comment', $comment->comment_content );
+		$this->assertSame( $user->display_name, $comment->comment_author );
+		$this->assertSame( $user->user_email, $comment->comment_author_email );
+		$this->assertSame( '', $comment->comment_author_url );
+		$this->assertSame( $user->ID, (int) $comment->user_id );
+	}
+
+	public function test_submitting_valid_comment_anonymously_succeeds() {
+
+		// With email given.
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment',
+			'author'          => 'Comment Author',
+			'email'           => 'comment@example.org',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+
+		$this->assertSame( 'Comment', $comment->comment_content );
+		$this->assertSame( 'Comment Author', $comment->comment_author );
+		$this->assertSame( 'comment@example.org', $comment->comment_author_email );
+		$this->assertSame( '', $comment->comment_author_url );
+		$this->assertSame( '0', $comment->user_id );
+
+		// Without email given.
+		add_filter('comment_flood_filter', '__return_false'); // Avoid flood.
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Another Comment',
+			'author'          => 'Comment Author',
+			'email'           => '',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+		add_filter('comment_flood_filter', '__return_true'); // Reenable flood.
+
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+
+		$this->assertSame( 'Another Comment', $comment->comment_content );
+		$this->assertSame( 'Comment Author', $comment->comment_author );
+		$this->assertSame( '', $comment->comment_author_url );
+		$this->assertSame( '0', $comment->user_id );
+	}
+
+	/**
+	 * wp_handle_comment_submission() expects un-slashed data.
+	 *
+	 * @group slashes
+	 */
+	public function test_submitting_comment_handles_slashes_correctly() {
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment with 1 slash: \\',
+			'author'          => 'Comment Author with 1 slash: \\',
+			'email'           => 'comment@example.org',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+
+		$this->assertSame( 'Comment with 1 slash: \\', $comment->comment_content );
+		$this->assertSame( 'Comment Author with 1 slash: \\', $comment->comment_author );
+		$this->assertSame( 'comment@example.org', $comment->comment_author_email );
+	}
+
+	public function test_submitting_comment_anonymously_to_private_post_returns_error() {
+
+		$error = 'comment_id_not_found';
+
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_status' => 'private',
+				'comment_status' => 'open',
+			)
+		);
+
+		$data    = array(
+			'comment_post_ID' => $post->ID,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertFalse( is_user_logged_in() );
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	public function test_submitting_comment_as_logged_in_user_to_inaccessible_private_post_returns_error() {
+
+		$error = 'comment_id_not_found';
+
+		$user = get_user_by( 'id', self::$author_id2 );
+
+		wp_set_current_user( $user->ID );
+
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_status' => 'private',
+				'post_author' => self::$author_id,
+			)
+		);
+
+		$data    = array(
+			'comment_post_ID' => $post->ID,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertFalse( current_user_can( 'read_post', $post->ID ) );
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	public function test_submitting_comment_to_private_post_with_closed_comments_returns_correct_error() {
+
+		$error = 'comment_id_not_found';
+
+		$user = get_user_by( 'id', self::$author_id2 );
+
+		wp_set_current_user( $user->ID );
+
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_status'    => 'private',
+				'post_author'    => self::$author_id,
+				'comment_status' => 'closed',
+			)
+		);
+
+		$data    = array(
+			'comment_post_ID' => $post->ID,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertFalse( current_user_can( 'read_post', $post->ID ) );
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	public function test_submitting_comment_to_own_private_post_succeeds() {
+
+		wp_set_current_user( self::$author_id );
+
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_status' => 'private',
+				'post_author' => self::$author_id,
+				'comment_status' => 'open',
+			)
+		);
+
+		$data    = array(
+			'comment_post_ID' => $post->ID,
+			'comment'         => 'Comment',
+			'timing_' . md5( AUTH_SALT . $post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertTrue( current_user_can( 'read_post', $post->ID ) );
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+	}
+
+	public function test_submitting_comment_to_accessible_private_post_succeeds() {
+
+		wp_set_current_user( self::$editor_id );
+
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_status' => 'private',
+				'post_author' => self::$author_id,
+				'comment_status' => 'open',
+			)
+		);
+
+		$data    = array(
+			'comment_post_ID' => $post->ID,
+			'comment'         => 'Comment',
+			'timing_' . md5( AUTH_SALT . $post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertTrue( current_user_can( 'read_post', $post->ID ) );
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+	}
+
+	public function test_submitting_comment_with_no_name_when_name_email_required_returns_error() {
+
+		$error = 'require_name_email';
+
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment',
+			'email'           => 'comment@example.org',
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	public function test_submitting_comment_with_invalid_email_when_name_email_required_returns_error() {
+
+		$error = 'require_valid_email';
+
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment',
+			'author'          => 'Comment Author',
+			'email'           => 'not_an_email',
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	public function test_submitting_comment_with_no_comment_content_returns_error() {
+
+		$error = 'require_valid_comment';
+
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => '',
+			'author'          => 'Comment Author',
+			'email'           => 'comment@example.org',
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	/**
+	 * @ticket 10377
+	 */
+	public function test_submitting_comment_with_content_too_long_returns_error() {
+		$error = 'comment_content_column_length';
+
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => rand_long_str( 65536 ),
+			'author'          => 'Comment Author',
+			'email'           => 'comment@example.org',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	/**
+	 * @ticket 10377
+	 */
+	public function test_submitting_comment_with_author_too_long_returns_error() {
+		$error = 'comment_author_column_length';
+
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment',
+			'author'          => rand_long_str( 255 ),
+			'email'           => 'comment@example.org',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertWPError( $comment );
+		$this->assertSame( $error, $comment->get_error_code() );
+	}
+
+	/**
+	 * @ticket 49236
+	 */
+	public function test_submitting_comment_with_empty_type_results_in_correct_type() {
+		$data    = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment',
+			'author'          => 'Comment Author',
+			'email'           => 'comment@example.org',
+			'comment_type'    => '',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+
+		$this->assertSame( 'comment', $comment->comment_type );
+	}
+
+	/**
+	 * @ticket 49236
+	 *
+	 * @covers ::wp_insert_comment
+	 */
+	public function test_inserting_comment_with_empty_type_results_in_correct_type() {
+		$data       = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment',
+			'author'          => 'Comment Author',
+			'email'           => 'comment@example.org',
+			'comment_type'    => '',
+		);
+		$comment_id = wp_insert_comment( $data );
+		$comment    = get_comment( $comment_id );
+
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+
+		$this->assertSame( 'comment', $comment->comment_type );
+	}
+
+	/**
+	 * @ticket 34997
+	 */
+	public function test_comment_submission_sends_all_expected_parameters_to_preprocess_comment_filter() {
+		$user = get_userdata( self::$author_id );
+		wp_set_current_user( $user->ID );
+
+		$data = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+
+		add_filter( 'preprocess_comment', array( $this, 'filter_preprocess_comment' ) );
+
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertNotWPError( $comment );
+		$this->assertSameSetsWithIndex(
+			array(
+				'comment_post_ID'      => self::$post->ID,
+				'comment_author'       => $user->display_name,
+				'comment_author_email' => $user->user_email,
+				'comment_author_url'   => '',
+				'comment_content'      => $data['comment'],
+				'comment_type'         => 'comment',
+				'comment_parent'       => 0,
+				'user_ID'              => $user->ID,
+				'user_id'              => $user->ID,
+				'comment_author_IP'    => '127.0.0.1',
+				'comment_agent'        => '',
+			),
+			$this->preprocess_comment_data
+		);
+	}
+
+	/**
+	 * @ticket 56712
+	 */
+	public function test_submitting_comment_without_optional_parameters_sets_them_to_empty_strings() {
+		$data = array(
+			'comment_post_ID' => self::$post->ID,
+		);
+
+		add_filter( 'pre_option_require_name_email', '__return_zero' );
+		add_filter( 'allow_empty_comment', '__return_true' );
+
+		add_filter( 'preprocess_comment', array( $this, 'filter_preprocess_comment' ) );
+
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertNotWPError( $comment );
+		$this->assertInstanceOf( 'WP_Comment', $comment );
+
+		$commentdata = $this->preprocess_comment_data;
+
+		$this->assertSame( '', $commentdata['comment_author'], 'Comment author should default to an empty string.' );
+		$this->assertSame( '', $commentdata['comment_author_email'], 'Comment author email should default to an empty string.' );
+		$this->assertSame( '', $commentdata['comment_author_url'], 'Comment author URL should default to an empty string.' );
+		$this->assertSame( '', $commentdata['comment_content'], 'Comment content should default to an empty string.' );
+	}
+
+	public function filter_preprocess_comment( $commentdata ) {
+		$this->preprocess_comment_data = $commentdata;
+		return $commentdata;
+	}
+
+	/**
+	 * @ticket 36901
+	 */
+	public function test_submitting_duplicate_comments() {
+		$data           = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Did I say that?',
+			'author'          => 'Repeat myself',
+			'email'           => 'mail@example.com',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$first_comment  = wp_handle_comment_submission( $data );
+		$second_comment = wp_handle_comment_submission( $data );
+		$this->assertWPError( $second_comment );
+		$this->assertSame( 'comment_duplicate', $second_comment->get_error_code() );
+	}
+
+	/**
+	 * @ticket 36901
+	 */
+	public function test_comments_flood() {
+		$data          = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Did I say that?',
+			'author'          => 'Repeat myself',
+			'email'           => 'mail@example.com',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$first_comment = wp_handle_comment_submission( $data );
+
+		$data['comment'] = 'Wow! I am quick!';
+		$second_comment  = wp_handle_comment_submission( $data );
+
+		$this->assertWPError( $second_comment );
+		$this->assertSame( 'comment_flood', $second_comment->get_error_code() );
+	}
+
+	/**
+	 * @ticket 36901
+	 */
+	public function test_comments_flood_user_can_moderate_comments() {
+		$user = get_user_by( 'id', self::$editor_id );
+		wp_set_current_user( $user->ID );
+
+		$data          = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Did I say that?',
+			'author'          => 'Repeat myself',
+			'email'           => 'mail@example.com',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+		$first_comment = wp_handle_comment_submission( $data );
+
+		$data['comment'] = 'Wow! I am quick!';
+		$second_comment  = wp_handle_comment_submission( $data );
+
+		$this->assertTrue( current_user_can( 'moderate_comments' ), 'Test user should have the moderate_comments capability' );
+		$this->assertNotWPError( $second_comment, 'Second comment should not trigger comment flooding error.' );
+		$this->assertSame( (string) self::$post->ID, $second_comment->comment_post_ID, 'Second comment should be made against initial post.' );
+	}
+
+	/**
+	 * Tests that wp_handle_comment_submission() only allows replying to
+	 * an approved parent comment.
+	 *
+	 * @ticket 53962
+	 *
+	 * @dataProvider data_should_only_allow_replying_to_an_approved_parent_comment
+	 *
+	 * @param int $approved Whether the parent comment is approved.
+	 */
+	public function test_should_only_allow_replying_to_an_approved_parent_comment( $approved ) {
+		wp_set_current_user( self::$editor_id );
+
+		$comment_parent = self::factory()->comment->create(
+			array(
+				'comment_post_ID'  => self::$post->ID,
+				'comment_approved' => $approved,
+			)
+		);
+
+		$comment = wp_handle_comment_submission(
+			array(
+				'comment_post_ID'      => self::$post->ID,
+				'comment_author'       => 'A comment author',
+				'comment_author_email' => 'comment_author@example.org',
+				'comment'              => 'Howdy, comment!',
+				'comment_parent'       => $comment_parent,
+			)
+		);
+
+		if ( $approved ) {
+			$this->assertInstanceOf(
+				'WP_Comment',
+				$comment,
+				'The comment was not submitted.'
+			);
+		} else {
+			$this->assertWPError( $comment, 'The comment was submitted.' );
+			$this->assertSame(
+				'comment_reply_to_unapproved_comment',
+				$comment->get_error_code(),
+				'The wrong error code was returned.'
+			);
+		}
+	}
+
+	/**
+	 * Data provider.
+	 *
+	 * @return array[]
+	 */
+	public function data_should_only_allow_replying_to_an_approved_parent_comment() {
+		return array(
+			'an approved parent comment'   => array( 'approved' => 1 ),
+			'an unapproved parent comment' => array( 'approved' => 0 ),
+		);
+	}
+
+	/**
+	 * Tests that wp_handle_comment_submission() only allows replying to
+	 * an existing parent comment.
+	 *
+	 * @ticket 53962
+	 *
+	 * @dataProvider data_should_only_allow_replying_to_an_existing_parent_comment
+	 *
+	 * @param bool $exists Whether the parent comment exists.
+	 */
+	public function test_should_only_allow_replying_to_an_existing_parent_comment( $exists ) {
+		wp_set_current_user( self::$editor_id );
+
+		$parent_comment = -99999;
+
+		if ( $exists ) {
+			$parent_comment = self::factory()->comment->create(
+				array(
+					'comment_post_ID'  => self::$post->ID,
+					'comment_approved' => 1,
+				)
+			);
+		}
+
+		$comment = wp_handle_comment_submission(
+			array(
+				'comment_post_ID'      => self::$post->ID,
+				'comment_author'       => 'A comment author',
+				'comment_author_email' => 'comment_author@example.org',
+				'comment'              => 'Howdy, comment!',
+				'comment_parent'       => $parent_comment,
+			)
+		);
+
+		if ( $exists ) {
+			$this->assertInstanceOf(
+				'WP_Comment',
+				$comment,
+				'The comment was not submitted.'
+			);
+		} else {
+			$this->assertWPError( $comment, 'The comment was submitted.' );
+			$this->assertSame(
+				'comment_reply_to_unapproved_comment',
+				$comment->get_error_code(),
+				'The wrong error code was returned.'
+			);
+		}
+	}
+
+	/**
+	 * Data provider.
+	 *
+	 * @return array[]
+	 */
+	public function data_should_only_allow_replying_to_an_existing_parent_comment() {
+		return array(
+			'an existing parent comment'    => array( 'exists' => true ),
+			'a non-existent parent comment' => array( 'exists' => false ),
+		);
+	}
+
+	public function test_disallowed_keys_match_gives_approved_status_of_trash() {
+		$data = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Comment',
+			'author'          => 'Comment Author',
+			'email'           => 'comment@example.org',
+		);
+
+		update_option( 'disallowed_keys', "Comment\nfoo" );
+
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertInstanceOf( 'WP_Comment', $comment, 'The comment was not submitted.' );
+		$this->assertSame( 'trash', $comment->comment_approved, 'The wrong approved status was returned.' );
+	}
+
+	/**
+	 * @ticket 61827
+	 */
+	public function test_disallowed_keys_html_match_gives_approved_status_of_trash() {
+		$data = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => '<a href=http://example.com/>example</a>',
+			'author'          => 'Comment Author',
+			'email'           => 'comment@example.org',
+		);
+
+		update_option( 'disallowed_keys', "href=http\nfoo" );
+
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertInstanceOf( 'WP_Comment', $comment, 'The comment was not submitted.' );
+		$this->assertSame( 'trash', $comment->comment_approved, 'The wrong approved status was returned.' );
+	}
+
+	/**
+	 * @ticket 61827
+	 */
+	public function test_disallowed_keys_filtered_html_match_does_not_call_check_comment_flood_action_twice() {
+		$data = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => '<a href=http://example.com/>example</a>',
+			'author'          => 'Comment Author',
+			'email'           => 'comment@example.org',
+		);
+
+		update_option( 'disallowed_keys', "href=\\\"http\nfoo" );
+
+		$pre_comment_approved = new MockAction();
+		$check_comment_flood  = new MockAction();
+		add_filter( 'pre_comment_approved', array( $pre_comment_approved, 'filter' ), 10, 2 );
+		add_action( 'check_comment_flood', array( $check_comment_flood, 'action' ), 10, 4 );
+
+		$comment = wp_handle_comment_submission( $data );
+
+		$this->assertInstanceOf( 'WP_Comment', $comment, 'The comment was not submitted.' );
+		$this->assertSame( 'trash', $comment->comment_approved, 'The wrong approved status was returned.' );
+
+		$this->assertSame( 2, $pre_comment_approved->get_call_count(), 'The `pre_comment_approved` filter was not called twice.' );
+		$this->assertSame( 1, $check_comment_flood->get_call_count(), 'The `check_comment_flood` action was not called exactly once.' );
+	}
+
+	/**
+	 * Test the spam honeypots of author url and timing fields.
+	 */
+	public function test_spam_honeypots() {
+
+		// author url set, should fail.
+		$data = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Did I say that?',
+			'author'          => 'Repeat myself',
+			'email'           => 'mail@example.com',
+			'url'             => 'http://fail.com',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
+		);
+
+		$comment = wp_handle_comment_submission( $data );
+		$this->assertTrue( is_wp_error( $comment ) );
+		$this->assertSame( 'spam_detected', $comment->get_error_code() );
+
+		// timing field not set, should fail.
+		$data = array(
+			'comment_post_ID' => self::$post->ID,
+			'comment'         => 'Did I say that?',
+			'author'          => 'Repeat myself',
+			'email'           => 'mail@example.com',
+			'timing_fail'     => 1,
+		);
+
+		$comment = wp_handle_comment_submission( $data );
+		$this->assertTrue( is_wp_error( $comment ) );
+		$this->assertSame( 'spam_timing', $comment->get_error_code() );
+	}
+}

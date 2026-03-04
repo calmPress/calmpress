@@ -35,7 +35,7 @@ global $hook_suffix;
 		$text = sprintf(
 			/* translators: %s: https://calmpress.org/ */
 			__( 'Thank you for creating with <a href="%s">calmPress</a>.' ),
-			__( 'https://calmpress.org/' )
+			esc_url( __( 'https://calmpress.org/' ) )
 		);
 
 		/**
@@ -105,19 +105,10 @@ do_action( 'admin_print_footer_scripts' );
 do_action( "admin_footer-{$hook_suffix}" ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 
 /*
- * Close the buffer that was opened in admin-header.php and add noopener
- * and noreferer rel attributes to links that open in new window.
- *
- * The detection if the wp_targeted_link_rel function exists is require since
- * the admin footer is called during upgrade and the upgrade might be done from
- * an older release that do not contain the function.
- * 
- * Add inlined CSS and "late" enqueued CSS to the header of the page.
+ * Close the buffer that was opened in admin-header.php and add inlined CSS and "late" enqueued CSS 
+ * to the header of the page.
  */
 $buffer = ob_get_clean();
-if ( function_exists( 'wp_targeted_link_rel' ) ) {
-	$buffer = wp_targeted_link_rel( $buffer );
-}
 echo calmpress\utils\insert_style_into_html_head( $buffer );
 
 ?>

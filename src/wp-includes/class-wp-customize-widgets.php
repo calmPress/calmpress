@@ -16,6 +16,7 @@
  *
  * @see WP_Customize_Manager
  */
+#[AllowDynamicProperties]
 class WP_Customize_Widgets {
 
 	/**
@@ -234,13 +235,13 @@ class WP_Customize_Widgets {
 	 *
 	 * @since 3.9.0
 	 *
-	 * @param string $name    Post value.
-	 * @param mixed  $default Default post value.
+	 * @param string $name          Post value.
+	 * @param mixed  $default_value Default post value.
 	 * @return mixed Unslashed post value or default value.
 	 */
-	protected function get_post_value( $name, $default = null ) {
+	protected function get_post_value( $name, $default_value = null ) {
 		if ( ! isset( $_POST[ $name ] ) ) {
-			return $default;
+			return $default_value;
 		}
 
 		return wp_unslash( $_POST[ $name ] );
@@ -414,6 +415,7 @@ class WP_Customize_Widgets {
 				'priority'                 => 110,
 				'active_callback'          => array( $this, 'is_panel_active' ),
 				'auto_expand_sole_section' => true,
+				'theme_supports'           => 'widgets',
 			)
 		);
 
@@ -527,6 +529,7 @@ class WP_Customize_Widgets {
 	 * @see WP_Customize_Panel::$active_callback
 	 *
 	 * @global array $wp_registered_sidebars
+	 *
 	 * @return bool Active.
 	 */
 	public function is_panel_active() {
@@ -706,7 +709,10 @@ class WP_Customize_Widgets {
 				<p class="description">{description}</p>
 				<ul class="widget-area-select">
 					<% _.each( sidebars, function ( sidebar ){ %>
-						<li class="" data-id="<%- sidebar.id %>" title="<%- sidebar.description %>" tabindex="0"><%- sidebar.name %></li>
+						<li class="" data-id="<%- sidebar.id %>" tabindex="0">
+							<div><strong><%- sidebar.name %></strong></div>
+							<div><%- sidebar.description %></div>
+						</li>
 					<% }); %>
 				</ul>
 				<div class="move-widget-actions">
@@ -721,7 +727,7 @@ class WP_Customize_Widgets {
 		 */
 		$some_non_rendered_areas_messages    = array();
 		$some_non_rendered_areas_messages[1] = html_entity_decode(
-			__( 'Your theme has 1 other widget area, but this particular page doesn&#8217;t display it.' ),
+			__( 'Your theme has 1 other widget area, but this particular page does not display it.' ),
 			ENT_QUOTES,
 			get_bloginfo( 'charset' )
 		);
@@ -731,8 +737,8 @@ class WP_Customize_Widgets {
 				sprintf(
 					/* translators: %s: The number of other widget areas registered but not rendered. */
 					_n(
-						'Your theme has %s other widget area, but this particular page doesn&#8217;t display it.',
-						'Your theme has %s other widget areas, but this particular page doesn&#8217;t display them.',
+						'Your theme has %s other widget area, but this particular page does not display it.',
+						'Your theme has %s other widget areas, but this particular page does not display them.',
 						$non_rendered_count
 					),
 					number_format_i18n( $non_rendered_count )
@@ -745,7 +751,7 @@ class WP_Customize_Widgets {
 		if ( 1 === $registered_sidebar_count ) {
 			$no_areas_shown_message = html_entity_decode(
 				sprintf(
-					__( 'Your theme has 1 widget area, but this particular page doesn&#8217;t display it.' )
+					__( 'Your theme has 1 widget area, but this particular page does not display it.' )
 				),
 				ENT_QUOTES,
 				get_bloginfo( 'charset' )
@@ -755,8 +761,8 @@ class WP_Customize_Widgets {
 				sprintf(
 					/* translators: %s: The total number of widget areas registered. */
 					_n(
-						'Your theme has %s widget area, but this particular page doesn&#8217;t display it.',
-						'Your theme has %s widget areas, but this particular page doesn&#8217;t display them.',
+						'Your theme has %s widget area, but this particular page does not display it.',
+						'Your theme has %s widget areas, but this particular page does not display them.',
 						$registered_sidebar_count
 					),
 					number_format_i18n( $registered_sidebar_count )
@@ -796,13 +802,13 @@ class WP_Customize_Widgets {
 		);
 
 		foreach ( $settings['registeredWidgets'] as &$registered_widget ) {
-			unset( $registered_widget['callback'] ); // May not be JSON-serializeable.
+			unset( $registered_widget['callback'] ); // May not be JSON-serializable.
 		}
 
 		$wp_scripts->add_data(
 			'customize-widgets',
 			'data',
-			sprintf( 'var _wpCustomizeWidgetsSettings = %s;', wp_json_encode( $settings ) )
+			sprintf( 'var _wpCustomizeWidgetsSettings = %s;', wp_json_encode( $settings, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ) )
 		);
 
 	}
@@ -818,24 +824,46 @@ class WP_Customize_Widgets {
 		<div id="available-widgets">
 			<div class="customize-section-title">
 				<button class="customize-section-back" tabindex="-1">
-					<span class="screen-reader-text"><?php _e( 'Back' ); ?></span>
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( 'Back' );
+						?>
+					</span>
 				</button>
 				<h3>
 					<span class="customize-action">
-					<?php
+						<?php
+						$panel       = $this->manager->get_panel( 'widgets' );
+						$panel_title = isset( $panel->title ) ? $panel->title : __( 'Widgets' );
 						/* translators: &#9656; is the unicode right-pointing triangle. %s: Section title in the Customizer. */
-						printf( __( 'Customizing &#9656; %s' ), esc_html( $this->manager->get_panel( 'widgets' )->title ) );
-					?>
+						printf( __( 'Customizing &#9656; %s' ), esc_html( $panel_title ) );
+						?>
 					</span>
 					<?php _e( 'Add a Widget' ); ?>
 				</h3>
 			</div>
 			<div id="available-widgets-filter">
-				<label class="screen-reader-text" for="widgets-search"><?php _e( 'Search Widgets' ); ?></label>
-				<input type="text" id="widgets-search" placeholder="<?php esc_attr_e( 'Search widgets&hellip;' ); ?>" aria-describedby="widgets-search-desc" />
+				<label for="widgets-search">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( 'Search Widgets' );
+					?>
+				</label>
+				<input type="text" id="widgets-search" aria-describedby="widgets-search-desc" />
 				<div class="search-icon" aria-hidden="true"></div>
-				<button type="button" class="clear-results"><span class="screen-reader-text"><?php _e( 'Clear Results' ); ?></span></button>
-				<p class="screen-reader-text" id="widgets-search-desc"><?php _e( 'The search results will be updated as you type.' ); ?></p>
+				<button type="button" class="clear-results"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( 'Clear Results' );
+					?>
+				</span></button>
+				<p class="screen-reader-text" id="widgets-search-desc">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( 'The search results will be updated as you type.' );
+					?>
+				</p>
 			</div>
 			<div id="available-widgets-list">
 			<?php foreach ( $this->get_available_widgets() as $available_widget ) : ?>
@@ -889,10 +917,10 @@ class WP_Customize_Widgets {
 			$args['transport']            = current_theme_supports( 'customize-selective-refresh-widgets' ) ? 'postMessage' : 'refresh';
 		} elseif ( preg_match( $this->setting_id_patterns['widget_instance'], $id, $matches ) ) {
 			$id_base                      = $matches['id_base'];
-			$args['sanitize_callback']    = function( $value ) use ( $id_base ) {
+			$args['sanitize_callback']    = function ( $value ) use ( $id_base ) {
 				return $this->sanitize_widget_instance( $value, $id_base );
 			};
-			$args['sanitize_js_callback'] = function( $value ) use ( $id_base ) {
+			$args['sanitize_js_callback'] = function ( $value ) use ( $id_base ) {
 				return $this->sanitize_widget_js_instance( $value, $id_base );
 			};
 			$args['transport']            = $this->is_widget_selective_refreshable( $matches['id_base'] ) ? 'postMessage' : 'refresh';
@@ -1174,7 +1202,7 @@ class WP_Customize_Widgets {
 	public function export_preview_data() {
 		global $wp_registered_sidebars, $wp_registered_widgets;
 
-		$switched_locale = switch_to_locale( get_user_locale() );
+		$switched_locale = switch_to_user_locale( get_current_user_id() );
 
 		$l10n = array(
 			'widgetTooltip' => __( 'Shift-click to edit this widget.' ),
@@ -1198,14 +1226,11 @@ class WP_Customize_Widgets {
 		);
 
 		foreach ( $settings['registeredWidgets'] as &$registered_widget ) {
-			unset( $registered_widget['callback'] ); // May not be JSON-serializeable.
+			unset( $registered_widget['callback'] ); // May not be JSON-serializable.
 		}
-
-		?>
-		<script type="text/javascript">
-			var _wpWidgetCustomizerPreviewSettings = <?php echo wp_json_encode( $settings ); ?>;
-		</script>
-		<?php
+		wp_print_inline_script_tag(
+			sprintf( 'var _wpWidgetCustomizerPreviewSettings = %s;', wp_json_encode( $settings, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ) ) . "\n//# sourceURL=" . rawurlencode( __METHOD__ )
+		);
 	}
 
 	/**
@@ -1655,14 +1680,14 @@ class WP_Customize_Widgets {
 	 *
 	 * @since 4.5.0
 	 *
+	 * @see WP_Customize_Nav_Menus::filter_wp_nav_menu_args()
+	 *
 	 * @param array $params {
 	 *     Dynamic sidebar params.
 	 *
 	 *     @type array $args        Sidebar args.
 	 *     @type array $widget_args Widget args.
 	 * }
-	 * @see WP_Customize_Nav_Menus::filter_wp_nav_menu_args()
-	 *
 	 * @return array Params.
 	 */
 	public function filter_dynamic_sidebar_params( $params ) {
@@ -1927,7 +1952,7 @@ class WP_Customize_Widgets {
 	 * @return bool Whether the option capture is ignored.
 	 */
 	protected function is_option_capture_ignored( $option_name ) {
-		return ( 0 === strpos( $option_name, '_transient_' ) );
+		return ( str_starts_with( $option_name, '_transient_' ) );
 	}
 
 	/**
@@ -1946,15 +1971,15 @@ class WP_Customize_Widgets {
 	 *
 	 * @since 4.2.0
 	 *
-	 * @param string $option_name Option name.
-	 * @param mixed  $default     Optional. Default value to return if the option does not exist. Default false.
+	 * @param string $option_name   Option name.
+	 * @param mixed  $default_value Optional. Default value to return if the option does not exist. Default false.
 	 * @return mixed Value set for the option.
 	 */
-	protected function get_captured_option( $option_name, $default = false ) {
+	protected function get_captured_option( $option_name, $default_value = false ) {
 		if ( array_key_exists( $option_name, $this->_captured_options ) ) {
 			$value = $this->_captured_options[ $option_name ];
 		} else {
-			$value = $default;
+			$value = $default_value;
 		}
 		return $value;
 	}

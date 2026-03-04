@@ -16,7 +16,8 @@ $submenu_file = 'edit-comments.php';
  * @global string $action
  */
 global $action;
-wp_reset_vars( array( 'action' ) );
+
+$action = ! empty( $_REQUEST['action'] ) ? sanitize_text_field( $_REQUEST['action'] ) : '';
 
 if ( isset( $_POST['deletecomment'] ) ) {
 	$action = 'deletecomment';
@@ -43,7 +44,7 @@ if ( isset( $_REQUEST['c'] ) ) {
 	// Prevent actions on a comment associated with a trashed post.
 	if ( $comment && 'trash' === get_post_status( $comment->comment_post_ID ) ) {
 		wp_die(
-			__( 'You can&#8217;t edit this comment because the associated post is in the Trash. Please restore the post first, then try again.' )
+			__( 'You cannot edit this comment because the associated post is in the Trash. Please restore the post first, then try again.' )
 		);
 	}
 } else {
@@ -145,11 +146,23 @@ switch ( $action ) {
 					break;
 			}
 			if ( $message ) {
-				echo '<div id="message" class="notice notice-info"><p>' . $message . '</p></div>';
+				wp_admin_notice(
+					$message,
+					array(
+						'type' => 'info',
+						'id'   => 'message',
+					)
+				);
 			}
 		}
+		wp_admin_notice(
+			'<strong>' . __( 'Caution:' ) . '</strong> ' . $caution_msg,
+			array(
+				'type' => 'warning',
+				'id'   => 'message',
+			)
+		);
 		?>
-<div id="message" class="notice notice-warning"><p><strong><?php _e( 'Caution:' ); ?></strong> <?php echo $caution_msg; ?></p></div>
 
 <table class="form-table comment-ays">
 <tr>
@@ -266,7 +279,7 @@ switch ( $action ) {
 			comment_footer_die( __( 'Sorry, you are not allowed to edit comments on this post.' ) );
 		}
 
-		if ( wp_get_referer() && ! $noredir && false === strpos( wp_get_referer(), 'comment.php' ) ) {
+		if ( wp_get_referer() && ! $noredir && ! str_contains( wp_get_referer(), 'comment.php' ) ) {
 			$redir = wp_get_referer();
 		} elseif ( wp_get_original_referer() && ! $noredir ) {
 			$redir = wp_get_original_referer();

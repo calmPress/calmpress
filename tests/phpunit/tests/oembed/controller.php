@@ -50,7 +50,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
-		$wp_rest_server = new Spy_REST_Server;
+		$wp_rest_server = new Spy_REST_Server();
 		do_action( 'rest_api_init', $wp_rest_server );
 
 		add_filter( 'pre_http_request', array( $this, 'mock_embed_request' ), 10, 3 );
@@ -85,13 +85,13 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 	/**
 	 * Intercept oEmbed requests and mock responses.
 	 *
-	 * @param mixed  $preempt Whether to preempt an HTTP request's return value. Default false.
-	 * @param mixed  $r       HTTP request arguments.
-	 * @param string $url     The request URL.
+	 * @param false|array|WP_Error $response    A preemptive return value of an HTTP request. Default false.
+	 * @param array                $parsed_args HTTP request arguments.
+	 * @param string               $url         The request URL.
 	 * @return array Response data.
 	 */
-	public function mock_embed_request( $preempt, $r, $url ) {
-		unset( $preempt, $r );
+	public function mock_embed_request( $response, $parsed_args, $url ) {
+		unset( $response, $parsed_args );
 
 		$parsed_url = wp_parse_url( $url );
 		$query      = isset( $parsed_url['query'] ) ? $parsed_url['query'] : '';
@@ -128,7 +128,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 				'response' => array(
 					'code' => 200,
 				),
-				'body'     => '<html><head><link rel="alternate" type="application/json+oembed" href="' . self::UNTRUSTED_PROVIDER_URL . '" /></head><body></body></html>',
+				'body'     => '<html><head><link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="' . self::UNTRUSTED_PROVIDER_URL . '" /></head><body></body></html>',
 			);
 		}
 
@@ -173,7 +173,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		}
 		$this->assertIsString( $url );
 		$this->assertIsArray( $args );
-		$this->oembed_result_filter_count++;
+		++$this->oembed_result_filter_count;
 		return $data;
 	}
 
@@ -292,7 +292,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 	}
 
 	public function test_request_invalid_format() {
-		$post_id = $this->factory()->post->create();
+		$post_id = self::factory()->post->create();
 
 		$request = new WP_REST_Request( 'GET', '/oembed/1.0/embed' );
 		$request->set_param( 'url', get_permalink( $post_id ) );
@@ -306,11 +306,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 	}
 
 	public function test_request_json() {
-		$user = self::factory()->user->create_and_get(
-			array(
-				'display_name' => 'John Doe',
-			)
-		);
+		$user = get_user_by( 'id', self::$subscriber );
 		$post = self::factory()->post->create_and_get(
 			array(
 				'post_author' => $user->ID,
@@ -344,7 +340,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		$this->assertSame( get_author_posts_url( $user->ID, $user->user_nicename ), $data['author_url'] );
 		$this->assertSame( $post->post_title, $data['title'] );
 		$this->assertSame( 'rich', $data['type'] );
-		$this->assertTrue( $data['width'] <= $request['maxwidth'] );
+		$this->assertLessThanOrEqual( $request['maxwidth'], $data['width'] );
 	}
 
 	/**
@@ -387,17 +383,13 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		$this->assertSame( home_url(), $data['author_url'] );
 		$this->assertSame( $post->post_title, $data['title'] );
 		$this->assertSame( 'rich', $data['type'] );
-		$this->assertTrue( $data['width'] <= $request['maxwidth'] );
+		$this->assertLessThanOrEqual( $request['maxwidth'], $data['width'] );
 
 		update_option( 'show_on_front', 'posts' );
 	}
 
 	public function test_request_xml() {
-		$user = self::factory()->user->create_and_get(
-			array(
-				'display_name' => 'John Doe',
-			)
-		);
+		$user = get_user_by( 'id', self::$subscriber );
 		$post = self::factory()->post->create_and_get(
 			array(
 				'post_author' => $user->ID,
@@ -432,7 +424,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		$this->assertSame( get_author_posts_url( $user->ID, $user->user_nicename ), $data['author_url'] );
 		$this->assertSame( $post->post_title, $data['title'] );
 		$this->assertSame( 'rich', $data['type'] );
-		$this->assertTrue( $data['width'] <= $request['maxwidth'] );
+		$this->assertLessThanOrEqual( $request['maxwidth'], $data['width'] );
 	}
 
 	/**
@@ -463,12 +455,8 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 	}
 
 	public function test_rest_pre_serve_request() {
-		$user = $this->factory()->user->create_and_get(
-			array(
-				'display_name' => 'John Doe',
-			)
-		);
-		$post = $this->factory()->post->create_and_get(
+		$user = get_user_by( 'id', self::$subscriber );
+		$post = self::factory()->post->create_and_get(
 			array(
 				'post_author' => $user->ID,
 				'post_title'  => 'Hello World',
@@ -487,7 +475,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 	}
 
 	public function test_rest_pre_serve_request_wrong_format() {
-		$post = $this->factory()->post->create_and_get();
+		$post = self::factory()->post->create_and_get();
 
 		$request = new WP_REST_Request( 'GET', '/oembed/1.0/embed' );
 		$request->set_param( 'url', get_permalink( $post->ID ) );
@@ -499,7 +487,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 	}
 
 	public function test_rest_pre_serve_request_wrong_method() {
-		$post = $this->factory()->post->create_and_get();
+		$post = self::factory()->post->create_and_get();
 
 		$request = new WP_REST_Request( 'HEAD', '/oembed/1.0/embed' );
 		$request->set_param( 'url', get_permalink( $post->ID ) );
@@ -516,7 +504,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		$this->assertSame( home_url() . '/wp-json/oembed/1.0/embed', get_oembed_endpoint_url() );
 		$this->assertSame( home_url() . '/wp-json/oembed/1.0/embed', get_oembed_endpoint_url( '', 'xml' ) );
 
-		$post_id     = $this->factory()->post->create();
+		$post_id     = self::factory()->post->create();
 		$url         = get_permalink( $post_id );
 		$url_encoded = urlencode( $url );
 
@@ -595,8 +583,8 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		$this->assertIsObject( $data );
 		$this->assertSame( 'YouTube', $data->provider_name );
 		$this->assertSame( 'https://i.ytimg.com/vi/' . self::YOUTUBE_VIDEO_ID . '/hqdefault.jpg', $data->thumbnail_url );
-		$this->assertEquals( $data->width, $request['maxwidth'] );
-		$this->assertEquals( $data->height, $request['maxheight'] );
+		$this->assertSame( (int) $data->width, $request['maxwidth'] );
+		$this->assertSame( (int) $data->height, $request['maxheight'] );
 	}
 
 	/**
@@ -666,11 +654,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 	public function test_proxy_with_internal_url() {
 		wp_set_current_user( self::$editor );
 
-		$user = self::factory()->user->create_and_get(
-			array(
-				'display_name' => 'John Doe',
-			)
-		);
+		$user = get_user_by( 'id', self::$subscriber );
 		$post = self::factory()->post->create_and_get(
 			array(
 				'post_author' => $user->ID,
@@ -705,7 +689,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		$this->assertSame( get_author_posts_url( $user->ID, $user->user_nicename ), $data['author_url'] );
 		$this->assertSame( $post->post_title, $data['title'] );
 		$this->assertSame( 'rich', $data['type'] );
-		$this->assertTrue( $data['width'] <= $request['maxwidth'] );
+		$this->assertLessThanOrEqual( $request['maxwidth'], $data['width'] );
 	}
 
 	/**
@@ -754,7 +738,7 @@ class Test_oEmbed_Controller extends WP_UnitTestCase {
 		$this->assertSame( home_url(), $data['author_url'] );
 		$this->assertSame( $post->post_title, $data['title'] );
 		$this->assertSame( 'rich', $data['type'] );
-		$this->assertTrue( $data['width'] <= $request['maxwidth'] );
+		$this->assertLessThanOrEqual( $request['maxwidth'], $data['width'] );
 
 		update_option( 'show_on_front', 'posts' );
 	}

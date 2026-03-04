@@ -30,7 +30,7 @@ class Walker_Comment extends Walker {
 	 * Database fields to use.
 	 *
 	 * @since 2.7.0
-	 * @var array
+	 * @var string[]
 	 *
 	 * @see Walker::$db_fields
 	 * @todo Decouple this
@@ -150,7 +150,6 @@ class Walker_Comment extends Walker {
 
 			unset( $children_elements[ $id ] );
 		}
-
 	}
 
 	/**
@@ -175,7 +174,7 @@ class Walker_Comment extends Walker {
 		// Restores the more descriptive, specific name for use within this method.
 		$comment = $data_object;
 
-		$depth++;
+		++$depth;
 		$GLOBALS['comment_depth'] = $depth;
 		$GLOBALS['comment']       = $comment;
 
@@ -258,7 +257,7 @@ class Walker_Comment extends Walker {
 		<?php endif; ?>
 		<div class="comment-author vcard">
 			<?php
-			if ( 0 != $args['avatar_size'] ) {
+			if ( 0 !== $args['avatar_size'] ) {
 				echo get_avatar( $comment, $args['avatar_size'] );
 			}
 			?>
@@ -272,7 +271,7 @@ class Walker_Comment extends Walker {
 			);
 			?>
 		</div>
-		<?php if ( '0' == $comment->comment_approved ) : ?>
+		<?php if ( '0' === $comment->comment_approved ) : ?>
 		<em class="comment-awaiting-moderation"><?php echo $moderation_note; ?></em>
 		<br />
 		<?php endif; ?>
@@ -350,7 +349,7 @@ class Walker_Comment extends Walker {
 				<footer class="comment-meta">
 					<div class="comment-author vcard">
 						<?php
-						if ( 0 != $args['avatar_size'] ) {
+						if ( 0 !== $args['avatar_size'] ) {
 							echo get_avatar( $comment, $args['avatar_size'] );
 						}
 						?>
@@ -383,7 +382,7 @@ class Walker_Comment extends Walker {
 						?>
 					</div><!-- .comment-metadata -->
 
-					<?php if ( '0' == $comment->comment_approved ) : ?>
+					<?php if ( '0' === $comment->comment_approved ) : ?>
 					<em class="comment-awaiting-moderation"><?php echo $moderation_note; ?></em>
 					<?php endif; ?>
 				</footer><!-- .comment-meta -->

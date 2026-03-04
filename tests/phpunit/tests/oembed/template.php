@@ -52,7 +52,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$doc = new DOMDocument();
 		$this->assertTrue( $doc->loadHTML( $actual ) );
-		$this->assertStringNotContainsString( 'That embed can&#8217;t be found.', $actual );
+		$this->assertStringNotContainsString( 'That embed cannot be found.', $actual );
 		$this->assertStringContainsString( 'Hello World', $actual );
 	}
 
@@ -85,7 +85,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$doc = new DOMDocument();
 		$this->assertTrue( $doc->loadHTML( $actual ) );
-		$this->assertStringNotContainsString( 'That embed can&#8217;t be found.', $actual );
+		$this->assertStringNotContainsString( 'That embed cannot be found.', $actual );
 		$this->assertStringContainsString( 'Hello World', $actual );
 		$this->assertStringContainsString( 'canola.jpg', $actual );
 	}
@@ -103,7 +103,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$doc = new DOMDocument();
 		$this->assertTrue( $doc->loadHTML( $actual ) );
-		$this->assertStringContainsString( 'That embed can&#8217;t be found.', $actual );
+		$this->assertStringContainsString( 'That embed cannot be found.', $actual );
 	}
 
 	public function test_oembed_output_draft_post() {
@@ -127,7 +127,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$doc = new DOMDocument();
 		$this->assertTrue( $doc->loadHTML( $actual ) );
-		$this->assertStringContainsString( 'That embed can&#8217;t be found.', $actual );
+		$this->assertStringContainsString( 'That embed cannot be found.', $actual );
 	}
 
 	public function test_oembed_output_scheduled_post() {
@@ -152,7 +152,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$doc = new DOMDocument();
 		$this->assertTrue( $doc->loadHTML( $actual ) );
-		$this->assertStringContainsString( 'That embed can&#8217;t be found.', $actual );
+		$this->assertStringContainsString( 'That embed cannot be found.', $actual );
 	}
 
 	public function test_oembed_output_private_post_with_permissions() {
@@ -180,7 +180,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$doc = new DOMDocument();
 		$this->assertTrue( $doc->loadHTML( $actual ) );
-		$this->assertStringNotContainsString( 'That embed can&#8217;t be found.', $actual );
+		$this->assertStringNotContainsString( 'That embed cannot be found.', $actual );
 		$this->assertStringContainsString( 'Hello World', $actual );
 	}
 
@@ -277,7 +277,7 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 
 		$this->assertFalse( $scripts->query( 'wp-embed', 'enqueued' ) );
 
-		$post_embed     = '<blockquote class="wp-embedded-content" data-secret="S24AQCJW9i"><a href="https://make.wordpress.org/core/2016/03/11/embeds-changes-in-wordpress-4-5/">Embeds Changes in WordPress 4.5</a></blockquote><iframe class="wp-embedded-content" sandbox="allow-scripts" security="restricted" style="position: absolute; clip: rect(1px, 1px, 1px, 1px);" title="&#8220;Embeds Changes in WordPress 4.5&#8221; &#8212; Make WordPress Core" src="https://make.wordpress.org/core/2016/03/11/embeds-changes-in-wordpress-4-5/embed/#?secret=S24AQCJW9i" data-secret="S24AQCJW9i" width="600" height="338" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>';
+		$post_embed     = '<blockquote class="wp-embedded-content" data-secret="S24AQCJW9i"><a href="https://make.wordpress.org/core/2016/03/11/embeds-changes-in-wordpress-4-5/">Embeds Changes in WordPress 4.5</a></blockquote><iframe class="wp-embedded-content" sandbox="allow-scripts" security="restricted" style="position: absolute; visibility: hidden;" title="&#8220;Embeds Changes in WordPress 4.5&#8221; &#8212; Make WordPress Core" src="https://make.wordpress.org/core/2016/03/11/embeds-changes-in-wordpress-4-5/embed/#?secret=S24AQCJW9i" data-secret="S24AQCJW9i" width="600" height="338" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>';
 		$non_post_embed = '<iframe title="Zoo Cares For 23 Tiny Pond Turtles" width="750" height="422" src="https://www.youtube.com/embed/6ZXHqUjL6f8?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
 
 		wp_maybe_enqueue_oembed_host_js( $non_post_embed );
@@ -295,18 +295,14 @@ class Tests_Embed_Template extends WP_UnitTestCase {
 		remove_action( 'wp_head', 'wp_oembed_add_host_js' );
 		$this->assertFalse( $scripts->query( 'wp-embed', 'enqueued' ) );
 
-		$post_embed = '<blockquote class="wp-embedded-content" data-secret="S24AQCJW9i"><a href="https://make.wordpress.org/core/2016/03/11/embeds-changes-in-wordpress-4-5/">Embeds Changes in WordPress 4.5</a></blockquote><iframe class="wp-embedded-content" sandbox="allow-scripts" security="restricted" style="position: absolute; clip: rect(1px, 1px, 1px, 1px);" title="&#8220;Embeds Changes in WordPress 4.5&#8221; &#8212; Make WordPress Core" src="https://make.wordpress.org/core/2016/03/11/embeds-changes-in-wordpress-4-5/embed/#?secret=S24AQCJW9i" data-secret="S24AQCJW9i" width="600" height="338" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>';
+		$post_embed = '<blockquote class="wp-embedded-content" data-secret="S24AQCJW9i"><a href="https://make.wordpress.org/core/2016/03/11/embeds-changes-in-wordpress-4-5/">Embeds Changes in WordPress 4.5</a></blockquote><iframe class="wp-embedded-content" sandbox="allow-scripts" security="restricted" style="position: absolute; visibility: hidden;" title="&#8220;Embeds Changes in WordPress 4.5&#8221; &#8212; Make WordPress Core" src="https://make.wordpress.org/core/2016/03/11/embeds-changes-in-wordpress-4-5/embed/#?secret=S24AQCJW9i" data-secret="S24AQCJW9i" width="600" height="338" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>';
 
 		wp_maybe_enqueue_oembed_host_js( $post_embed );
 		$this->assertFalse( $scripts->query( 'wp-embed', 'enqueued' ) );
 	}
 
 	/**
-	 * Confirms that no ampersands exist in src/wp-includes/js/wp-embed.js.
-	 *
-	 * See also the `verify:wp-embed` Grunt task for verifying the built file.
-	 *
-	 * @ticket 34698
+	 * @ticket 35567
 	 */
 	public function test_js_no_ampersands() {
 		update_option( 'calm_embedding_on', 1 );

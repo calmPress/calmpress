@@ -40,9 +40,17 @@ $parent_file = 'index.php';
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
-if ( $updated ) { ?>
-	<div id="message" class="updated notice is-dismissible"><p><strong><?php _e( 'Settings saved.' ); ?></strong></p></div>
-<?php } ?>
+if ( $updated ) {
+	wp_admin_notice(
+		'<strong>' . __( 'Settings saved.' ) . '</strong>',
+		array(
+			'type'        => 'success',
+			'dismissible' => true,
+			'id'          => 'message',
+		)
+	);
+}
+?>
 
 <div class="wrap">
 <h1 class="wp-heading-inline">
@@ -55,13 +63,19 @@ echo esc_html( $title );
 if ( in_array( get_site_option( 'registration' ), array( 'all', 'blog' ), true ) ) {
 	/** This filter is documented in wp-login.php */
 	$sign_up_url = apply_filters( 'wp_signup_location', network_site_url( 'wp-signup.php' ) );
-	printf( ' <a href="%s" class="page-title-action">%s</a>', esc_url( $sign_up_url ), esc_html_x( 'Add New', 'site' ) );
+	printf( ' <a href="%s" class="page-title-action">%s</a>', esc_url( $sign_up_url ), esc_html__( 'Add New Site' ) );
 }
 
 if ( empty( $blogs ) ) :
-	echo '<p>';
-	_e( 'You must be a member of at least one site to use this page.' );
-	echo '</p>';
+	wp_admin_notice(
+		'<strong>' . __( 'You must be a member of at least one site to use this page.' ) . '</strong>',
+		array(
+			'type'        => 'error',
+			'dismissible' => true,
+		)
+	);
+	?>
+	<?php
 else :
 	?>
 
@@ -81,7 +95,7 @@ else :
 	<ul class="my-sites striped">
 	<?php
 	/**
-	 * Enable the Global Settings section on the My Sites screen.
+	 * Filters the settings HTML markup in the Global Settings section on the My Sites screen.
 	 *
 	 * By default, the Global Settings section is hidden. Passing a non-empty
 	 * string to this filter will enable the section, and allow new settings

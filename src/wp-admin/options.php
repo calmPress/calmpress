@@ -23,7 +23,8 @@ $title       = __( 'Settings' );
 $this_file   = 'options.php';
 $parent_file = 'options-general.php';
 
-wp_reset_vars( array( 'action', 'option_page' ) );
+$action      = ! empty( $_REQUEST['action'] ) ? sanitize_text_field( $_REQUEST['action'] ) : '';
+$option_page = ! empty( $_REQUEST['option_page'] ) ? sanitize_text_field( $_REQUEST['option_page'] ) : '';
 
 $capability = 'manage_options';
 
@@ -65,6 +66,7 @@ $allowed_options            = array(
 	'general'    => array(
 		'blogname',
 		'blogdescription',
+		'site_icon',
 		'gmt_offset',
 		'date_format',
 		'time_format',
@@ -124,7 +126,7 @@ $allowed_options['misc']    = array();
 $allowed_options['options'] = array();
 $allowed_options['privacy'] = array();
 
-if ( ! in_array( get_option( 'blog_charset' ), array( 'utf8', 'utf-8', 'UTF8', 'UTF-8' ) ) ) {
+if ( ! is_utf8_charset() ) {
 	$allowed_options['reading'][] = 'blog_charset';
 }
 
@@ -170,7 +172,7 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 		wp_die(
 			sprintf(
 				/* translators: %s: The options page name. */
-				__( '<strong>Error</strong>: Options page %s not found in the allowed options list.' ),
+				__( '<strong>Error:</strong> The %s options page is not in the allowed options list.' ),
 				'<code>' . esc_html( $option_page ) . '</code>'
 			)
 		);
@@ -180,7 +182,7 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 		if ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) {
 			wp_die( __( 'Sorry, you are not allowed to modify unregistered settings for this site.' ) );
 		}
-		$options = explode( ',', wp_unslash( $_POST['page_options'] ) );
+		$options = isset( $_POST['page_options'] ) ? explode( ',', wp_unslash( $_POST['page_options'] ) ) : null;
 	} else {
 		$options = $allowed_options[ $option_page ];
 	}
@@ -204,6 +206,23 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 			$_POST['gmt_offset']      = $_POST['timezone_string'];
 			$_POST['gmt_offset']      = preg_replace( '/UTC\+?/', '', $_POST['gmt_offset'] );
 			$_POST['timezone_string'] = '';
+		} elseif ( isset( $_POST['timezone_string'] ) && ! in_array( $_POST['timezone_string'], timezone_identifiers_list( DateTimeZone::ALL_WITH_BC ), true ) ) {
+			// Reset to the current value.
+			$current_timezone_string = get_option( 'timezone_string' );
+
+			if ( ! empty( $current_timezone_string ) ) {
+				$_POST['timezone_string'] = $current_timezone_string;
+			} else {
+				$_POST['gmt_offset']      = get_option( 'gmt_offset' );
+				$_POST['timezone_string'] = '';
+			}
+
+			add_settings_error(
+				'general',
+				'settings_updated',
+				__( 'The timezone you have entered is not valid. Please select a valid timezone.' ),
+				'error'
+			);
 		}
 	}
 
@@ -234,6 +253,8 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 		if ( $user_language_old !== $user_language_new ) {
 			load_default_textdomain( $user_language_new );
 		}
+	} else {
+		add_settings_error( 'general', 'settings_updated', __( 'Settings save failed.' ), 'error' );
 	}
 
 	/*
@@ -244,7 +265,8 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 	if ( ! count( get_settings_errors() ) ) {
 		add_settings_error( 'general', 'settings_updated', __( 'Settings saved.' ), 'success' );
 	}
-	set_transient( 'settings_errors', get_settings_errors(), 30 );
+
+	set_transient( 'settings_errors', get_settings_errors(), 30 ); // 30 seconds.
 
 	// Redirect back to the settings page that was submitted.
 	$goback = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
@@ -252,15 +274,20 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 	exit;
 }
 
-require_once ABSPATH . 'wp-admin/admin-header.php'; ?>
+require_once ABSPATH . 'wp-admin/admin-header.php';
+?>
 
 <div class="wrap">
 	<h1><?php esc_html_e( 'All Settings' ); ?></h1>
 
-	<div class="notice notice-warning">
-		<p><strong><?php _e( 'Warning:' ); ?></strong> <?php _e( 'This page allows direct access to your site settings. You can break things here. Please be cautious!' ); ?></p>
-	</div>
-
+	<?php
+	wp_admin_notice(
+		'<strong>' . __( 'Warning:' ) . '</strong> ' . __( 'This page allows direct access to your site settings. You can break things here. Please be cautious!' ),
+		array(
+			'type' => 'warning',
+		)
+	);
+	?>
 	<form name="form" action="options.php" method="post" id="all-options">
 		<?php wp_nonce_field( 'options-options' ); ?>
 		<input type="hidden" name="action" value="update" />
@@ -276,21 +303,32 @@ foreach ( (array) $options as $option ) :
 		continue;
 	}
 
+	if ( 'home' === $option->option_name && defined( 'WP_HOME' ) ) {
+		$disabled = true;
+	}
+
+	if ( 'siteurl' === $option->option_name && defined( 'WP_SITEURL' ) ) {
+		$disabled = true;
+	}
+
 	if ( is_serialized( $option->option_value ) ) {
 		if ( is_serialized_string( $option->option_value ) ) {
 			// This is a serialized string, so we should display it.
 			$value               = maybe_unserialize( $option->option_value );
 			$options_to_update[] = $option->option_name;
-			$class               = 'all-options';
 		} else {
 			$value    = 'SERIALIZED DATA';
 			$disabled = true;
-			$class    = 'all-options disabled';
 		}
 	} else {
 		$value               = $option->option_value;
 		$options_to_update[] = $option->option_name;
-		$class               = 'all-options';
+	}
+
+	$class = 'all-options';
+
+	if ( $disabled ) {
+		$class .= ' disabled';
 	}
 
 	$name = esc_attr( $option->option_name );
@@ -298,7 +336,7 @@ foreach ( (array) $options as $option ) :
 <tr>
 	<th scope="row"><label for="<?php echo $name; ?>"><?php echo esc_html( $option->option_name ); ?></label></th>
 <td>
-	<?php if ( strpos( $value, "\n" ) !== false ) : ?>
+	<?php if ( str_contains( $value, "\n" ) ) : ?>
 		<textarea class="<?php echo $class; ?>" name="<?php echo $name; ?>" id="<?php echo $name; ?>" cols="30" rows="5"><?php echo esc_textarea( $value ); ?></textarea>
 	<?php else : ?>
 		<input class="regular-text <?php echo $class; ?>" type="text" name="<?php echo $name; ?>" id="<?php echo $name; ?>" value="<?php echo esc_attr( $value ); ?>"<?php disabled( $disabled, true ); ?> />

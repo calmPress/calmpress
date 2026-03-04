@@ -32,16 +32,17 @@ function list_core_update( $update ) {
 	global $wpdb;
 	static $first_pass = true;
 
-	$submit = __('Update Now');
+	$submit = __( 'Update Now' );
 	$form_action = 'update-core.php?action=do-core-upgrade';
 	$php_version    = phpversion();
 	$mysql_version  = $wpdb->db_version();
 	$show_buttons = true;
 	$php_compat     = version_compare( $php_version, $update->min_php, '>=' );
-	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) )
+	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) && empty( $wpdb->is_mysql ) ) {
 		$mysql_compat = true;
-	else
+	} else {
 		$mysql_compat = version_compare( $mysql_version, $update->min_mysql, '>=' );
+	}
 
 	$version_slug_parts = explode( '.', calmpress_version() );
 	$version_slug = $version_slug_parts[0] . '-' . $version_slug_parts[1];
@@ -111,7 +112,6 @@ function list_core_update( $update ) {
 	}
 	echo '</p>';
 	echo '</form>';
-
 }
 
 /**
@@ -164,7 +164,6 @@ function dismissed_updates() {
  * @since 2.7.0
  */
 function core_upgrade_preamble() {
-
 	$updates = get_core_updates();
 
 	if ( empty( $updates ) ) {
@@ -257,7 +256,7 @@ function list_plugin_updates() {
 		$preferred_icons = array( 'svg', '2x', '1x', 'default' );
 		foreach ( $preferred_icons as $preferred_icon ) {
 			if ( ! empty( $plugin_data->update->icons[ $preferred_icon ] ) ) {
-				$icon = '<img src="' . esc_url( $plugin_data->update->icons[ $preferred_icon ] ) . '" alt="" />';
+				$icon = '<img src="' . esc_url( $plugin_data->update->icons[ $preferred_icon ] ) . '" alt="" class="plugin-icon" />';
 				break;
 			}
 		}
@@ -285,7 +284,7 @@ function list_plugin_updates() {
 		$compatible_php = is_php_version_compatible( $requires_php );
 
 		if ( ! $compatible_php && current_user_can( 'update_php' ) ) {
-			$compat .= '<br>' . __( 'This update doesn&#8217;t work with your version of PHP.' ) . '&nbsp;';
+			$compat .= '<br />' . __( 'This update does not work with your version of PHP.' ) . '&nbsp;';
 			$compat .= sprintf(
 				/* translators: %s: URL to Update PHP page. */
 				__( '<a href="%s">Learn more about updating PHP</a>.' ),
@@ -322,11 +321,13 @@ function list_plugin_updates() {
 		<td class="check-column">
 			<?php if ( $compatible_php ) : ?>
 				<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $plugin_file ); ?>" />
-				<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
+				<label for="<?php echo $checkbox_id; ?>">
+					<span class="screen-reader-text">
 					<?php
-					/* translators: %s: Plugin name. */
+					/* translators: Hidden accessibility text. %s: Plugin name. */
 					printf( __( 'Select %s' ), $plugin_data->Name );
 					?>
+					</span>
 				</label>
 			<?php endif; ?>
 		</td>
@@ -421,12 +422,12 @@ function list_theme_updates() {
 		$compat = '';
 
 		if ( ! $compatible_wp && ! $compatible_php ) {
-			$compat .= '<br>' . __( 'This update doesn&#8217;t work with your versions of WordPress and PHP.' ) . '&nbsp;';
+			$compat .= '<br />' . __( 'This update does not work with your versions of WordPress and PHP.' ) . '&nbsp;';
 			if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
 				$compat .= sprintf(
 					/* translators: 1: URL to WordPress Updates screen, 2: URL to Update PHP page. */
 					__( '<a href="%1$s">Please update WordPress</a>, and then <a href="%2$s">learn more about updating PHP</a>.' ),
-					self_admin_url( 'update-core.php' ),
+					esc_url( self_admin_url( 'update-core.php' ) ),
 					esc_url( wp_get_update_php_url() )
 				);
 
@@ -439,7 +440,7 @@ function list_theme_updates() {
 				$compat .= sprintf(
 					/* translators: %s: URL to WordPress Updates screen. */
 					__( '<a href="%s">Please update WordPress</a>.' ),
-					self_admin_url( 'update-core.php' )
+					esc_url( self_admin_url( 'update-core.php' ) )
 				);
 			} elseif ( current_user_can( 'update_php' ) ) {
 				$compat .= sprintf(
@@ -455,16 +456,16 @@ function list_theme_updates() {
 				}
 			}
 		} elseif ( ! $compatible_wp ) {
-			$compat .= '<br>' . __( 'This update doesn&#8217;t work with your version of WordPress.' ) . '&nbsp;';
+			$compat .= '<br />' . __( 'This update does not work with your version of WordPress.' ) . '&nbsp;';
 			if ( current_user_can( 'update_core' ) ) {
 				$compat .= sprintf(
 					/* translators: %s: URL to WordPress Updates screen. */
 					__( '<a href="%s">Please update WordPress</a>.' ),
-					self_admin_url( 'update-core.php' )
+					esc_url( self_admin_url( 'update-core.php' ) )
 				);
 			}
 		} elseif ( ! $compatible_php ) {
-			$compat .= '<br>' . __( 'This update doesn&#8217;t work with your version of PHP.' ) . '&nbsp;';
+			$compat .= '<br />' . __( 'This update does not work with your version of PHP.' ) . '&nbsp;';
 			if ( current_user_can( 'update_php' ) ) {
 				$compat .= sprintf(
 					/* translators: %s: URL to Update PHP page. */
@@ -486,16 +487,18 @@ function list_theme_updates() {
 		<td class="check-column">
 			<?php if ( $compatible_wp && $compatible_php ) : ?>
 				<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $stylesheet ); ?>" />
-				<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
+				<label for="<?php echo $checkbox_id; ?>">
+					<span class="screen-reader-text">
 					<?php
-					/* translators: %s: Theme name. */
+					/* translators: Hidden accessibility text. %s: Theme name. */
 					printf( __( 'Select %s' ), $theme->display( 'Name' ) );
 					?>
+					</span>
 				</label>
 			<?php endif; ?>
 		</td>
 		<td class="plugin-title"><p>
-			<img src="<?php echo esc_url( $theme->get_screenshot() ); ?>" width="85" height="64" class="updates-table-screenshot" alt="" />
+			<img src="<?php echo esc_url( $theme->get_screenshot() . '?ver=' . $theme->version ); ?>" width="85" height="64" class="updates-table-screenshot" alt="" />
 			<strong><?php echo $theme->display( 'Name' ); ?></strong>
 			<?php
 			printf(
@@ -553,7 +556,7 @@ function list_translation_updates() {
 }
 
 /**
- * Upgrade WordPress core display.
+ * Upgrades WordPress core display.
  *
  * @since 2.7.0
  *
@@ -580,8 +583,10 @@ function do_core_upgrade( $reinstall = false ) {
 		return;
 	}
 
-	// Allow relaxed file ownership writes for User-initiated upgrades when the API specifies
-	// that it's safe to do so. This only happens when there are no new files to create.
+	/*
+	 * Allow relaxed file ownership writes for User-initiated upgrades when the API specifies
+	 * that it's safe to do so. This only happens when there are no new files to create.
+	 */
 	$allow_relaxed_file_ownership = ! $reinstall && isset( $update->new_files ) && ! $update->new_files;
 
 	?>
@@ -626,7 +631,7 @@ function do_core_upgrade( $reinstall = false ) {
 
 	if ( is_wp_error( $result ) ) {
 		show_message( $result );
-		if ( 'up_to_date' != $result->get_error_code() && 'locked' != $result->get_error_code() ) {
+		if ( 'up_to_date' !== $result->get_error_code() && 'locked' !== $result->get_error_code() ) {
 			show_message( __( 'Installation failed.' ) );
 		}
 		echo '</div>';
@@ -686,7 +691,7 @@ $title       = __( 'calmPress Updates' );
 $parent_file = 'index.php';
 
 if ( 'upgrade-core' === $action ) {
-	// Force a update check when requested.
+	// Force an update check when requested.
 	$force_check = ! empty( $_GET['force-check'] );
 	wp_version_check( array(), $force_check );
 
@@ -698,20 +703,34 @@ if ( 'upgrade-core' === $action ) {
 
 	<?php
 	if ( $upgrade_error ) {
-		echo '<div class="error"><p>';
 		if ( 'themes' === $upgrade_error ) {
-			_e( 'Please select one or more themes to update.' );
+			$theme_updates = get_theme_updates();
+			if ( ! empty( $theme_updates ) ) {
+				wp_admin_notice(
+					__( 'Please select one or more themes to update.' ),
+					array(
+						'additional_classes' => array( 'error' ),
+					)
+				);
+			}
 		} else {
-			_e( 'Please select one or more plugins to update.' );
+			$plugin_updates = get_plugin_updates();
+			if ( ! empty( $plugin_updates ) ) {
+				wp_admin_notice(
+					__( 'Please select one or more plugins to update.' ),
+					array(
+						'additional_classes' => array( 'error' ),
+					)
+				);
+			}
 		}
-		echo '</p></div>';
 	}
 
 	$last_update_check = false;
 	$current           = get_site_transient( 'update_core' );
 
 	if ( $current && isset( $current->last_checked ) ) {
-		$last_update_check = $current->last_checked + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+		$last_update_check = $current->last_checked + (int) ( (float) get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
 	}
 
 	echo '<h2 class="wp-current-version">';
@@ -720,8 +739,15 @@ if ( 'upgrade-core' === $action ) {
 	echo '</h2>';
 
 	echo '<p class="update-last-checked">';
-	/* translators: 1: Date, 2: Time. */
-	printf( __( 'Last checked on %1$s at %2$s.' ), date_i18n( __( 'F j, Y' ), $last_update_check ), date_i18n( __( 'g:i a T' ), $last_update_check ) );
+
+	printf(
+		/* translators: 1: Date, 2: Time. */
+		__( 'Last checked on %1$s at %2$s.' ),
+		/* translators: Last update date format. See https://www.php.net/manual/datetime.format.php */
+		date_i18n( __( 'F j, Y' ), $last_update_check ),
+		/* translators: Last update time format. See https://www.php.net/manual/datetime.format.php */
+		date_i18n( __( 'g:i a T' ), $last_update_check )
+	);
 	echo ' <a href="' . esc_url( self_admin_url( 'update-core.php?force-check=1' ) ) . '">' . __( 'Check again.' ) . '</a>';
 	echo '</p>';
 

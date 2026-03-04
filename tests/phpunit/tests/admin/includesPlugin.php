@@ -10,8 +10,17 @@
  require_once ABSPATH . 'wp-admin/includes/user.php';
  require_once ABSPATH . 'wp-admin/includes/file.php';
 
-class Tests_Admin_includesPlugin extends WP_UnitTestCase {
+class Tests_Admin_IncludesPlugin extends WP_UnitTestCase {
+
+	/**
+	 * Admin user ID.
+	 *
+	 * @var int $admin_id
+	 */
+	public static $admin_id;
+
 	public static function wpSetUpBeforeClass( $factory ) {
+		self::$admin_id = $factory->user->create( array( 'role' => 'administrator' ) );
 		self::_back_up_mu_plugins();
 	}
 
@@ -29,7 +38,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 			'Description' => 'This is not just a plugin, it symbolizes the hope and enthusiasm of an entire generation summed up in two words sung most famously by Louis Armstrong: Hello, Dolly. When activated you will randomly see a lyric from Hello, Dolly in the upper right of your admin screen on every page. <cite>By <a href="http://ma.tt/">Matt Mullenweg</a>.</cite>',
 			'Author'      => '<a href="http://ma.tt/">Matt Mullenweg</a>',
 			'AuthorURI'   => 'http://ma.tt/',
-			'Version'     => '1.5.1',
+			'Version'     => '1.7.2',
 			'TextDomain'  => 'hello-dolly',
 			'DomainPath'  => '',
 		);
@@ -44,7 +53,8 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 
 	public function test_menu_page_url() {
 		$current_user = get_current_user_id();
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::$admin_id );
+		update_option( 'home', 'http://example.com' );
 
 		// Add some pages.
 		add_options_page( 'Test Settings', 'Test Settings', 'manage_options', 'testsettings', 'mt_settings_page' );
@@ -87,7 +97,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		global $submenu;
 		global $menu;
 		$current_user = get_current_user_id();
-		$admin_user   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$admin_user   = self::$admin_id;
 		wp_set_current_user( $admin_user );
 		set_current_screen( 'dashboard' );
 
@@ -102,7 +112,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		wp_set_current_user( $current_user );
 
 		// Clean up the temporary user.
-		wp_delete_user( $admin_user );
+		self::delete_user( $admin_user );
 
 		// Verify the menu was inserted at the expected position.
 		$this->assertSame( 'custom-position', $submenu[ $parent ][ $expected_position ][2] );
@@ -140,7 +150,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		$menu    = array();
 
 		$current_user = get_current_user_id();
-		$admin_user   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$admin_user   = self::$admin_id;
 		wp_set_current_user( $admin_user );
 		set_current_screen( 'dashboard' );
 
@@ -206,7 +216,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		}
 
 		// Clean up the temporary user.
-		wp_delete_user( $admin_user );
+		self::delete_user( $admin_user );
 
 		foreach ( $actual_positions as $test => $actual_position ) {
 			// Verify the menu was inserted at the expected position.
@@ -258,8 +268,16 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 			array( 0, 0 ),                     // Insert at the beginning of the menu if 0 is passed.
 			array( -1, 0 ),                    // Negative numbers are treated the same as passing 0.
 			array( -7, 0 ),                    // Negative numbers are treated the same as passing 0.
+			array( '-7', 0 ),                  // Negative numbers are treated the same as passing 0.
 			array( 1, 1 ),                     // Insert as the second item.
+			array( '1', 1 ),                   // Insert as the second item.
+			array( 1.5, 1 ),                   // Insert as the second item.
+			array( '1.5', 1 ),                 // Insert as the second item.
 			array( 3, 3 ),                     // Insert as the 4th item.
+			array( '3', 3 ),                   // Insert as the 4th item.
+			array( '3e0', 3 ),                 // Insert as the 4th item.
+			array( 3.5, 3 ),                   // Insert as the 4th item.
+			array( '3.5', 3 ),                 // Insert as the 4th item.
 			array( $menu_count, $menu_count ), // Numbers equal to the number of items are added at the end.
 			array( 123456, $menu_count ),      // Numbers higher than the number of items are added at the end.
 		);
@@ -277,7 +295,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		$submenu      = array();
 		$menu         = array();
 		$current_user = get_current_user_id();
-		$admin_user   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$admin_user   = self::$admin_id;
 		wp_set_current_user( $admin_user );
 		set_current_screen( 'dashboard' );
 
@@ -289,7 +307,7 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 
 		// Clean up the temporary user.
 		wp_set_current_user( $current_user );
-		wp_delete_user( $admin_user );
+		self::delete_user( $admin_user );
 
 		// Verify the menu was inserted at the expected position.
 		$this->assertSame( 'main_slug', $submenu['main_slug'][0][2] );
@@ -298,11 +316,11 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Passing a string as position will fail.
+	 * Passing a string as position will fail in submenu.
 	 *
 	 * @ticket 48599
 	 */
-	public function test_passing_string_as_position_fires_doing_it_wrong() {
+	public function test_passing_string_as_position_fires_doing_it_wrong_submenu() {
 		$this->setExpectedIncorrectUsage( 'add_submenu_page' );
 		global $submenu, $menu;
 
@@ -310,20 +328,52 @@ class Tests_Admin_includesPlugin extends WP_UnitTestCase {
 		$submenu      = array();
 		$menu         = array();
 		$current_user = get_current_user_id();
-		$admin_user   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$admin_user   = self::$admin_id;
 		wp_set_current_user( $admin_user );
 		set_current_screen( 'dashboard' );
 
 		// Setup a menu with some items.
 		add_menu_page( 'Main Menu', 'Main Menu', 'manage_options', 'main_slug', 'main_page_callback' );
-		add_submenu_page( 'main_slug', 'SubMenu 1', 'SubMenu 1', 'manage_options', 'submenu_page_1', 'submenu_callback_1', '2' );
+		add_submenu_page( 'main_slug', 'SubMenu 1', 'SubMenu 1', 'manage_options', 'submenu_page_1', 'submenu_callback_1', 'First' );
 
 		// Clean up the temporary user.
 		wp_set_current_user( $current_user );
-		wp_delete_user( $admin_user );
+		self::delete_user( $admin_user );
 
 		// Verify the menu was inserted at the expected position.
 		$this->assertSame( 'submenu_page_1', $submenu['main_slug'][1][2] );
+	}
+
+	/**
+	 * Passing a string as position will fail in menu.
+	 *
+	 * @ticket 54798
+	 */
+	public function test_passing_float_as_position_does_not_override_int() {
+		global $submenu, $menu;
+
+		// Reset menus.
+		$submenu      = array();
+		$menu         = array();
+		$current_user = get_current_user_id();
+		$admin_user   = self::$admin_id;
+		wp_set_current_user( $admin_user );
+		set_current_screen( 'dashboard' );
+
+		// Setup a menu with some items.
+		add_menu_page( 'Main Menu 1', 'Main Menu 1', 'manage_options', 'main_slug_1', 'main_page_callback_1', 'icon_url_1', 1 );
+		add_menu_page( 'Main Menu 2', 'Main Menu 2', 'manage_options', 'main_slug_2', 'main_page_callback_2', 'icon_url_2', 2 );
+		add_menu_page( 'Main Menu 1.5', 'Main Menu 1.5', 'manage_options', 'main_slug_15', 'main_page_callback_15', 'icon_url_15', 1.5 );
+
+		// Clean up the temporary user.
+		wp_set_current_user( $current_user );
+		self::delete_user( $admin_user );
+
+		// Verify the menus were inserted.
+		$this->assertSame( 'main_slug_1', $menu[1][2] );
+		$this->assertSame( 'main_slug_2', $menu[2][2] );
+		// Verify the menu was inserted correctly on passing float as position.
+		$this->assertSame( 'main_slug_15', $menu['1.5'][2] );
 	}
 
 	public function test_is_plugin_active_true() {

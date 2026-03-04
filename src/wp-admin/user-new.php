@@ -34,7 +34,8 @@ if ( isset( $_REQUEST['action'] ) && 'adduser' === $_REQUEST['action'] ) {
 
 	$user_details = null;
 	$user_email   = wp_unslash( $_REQUEST['email'] );
-	if ( false !== strpos( $user_email, '@' ) ) {
+
+	if ( str_contains( $user_email, '@' ) ) {
 		$user_details = get_user_by( 'email', $user_email );
 	} else {
 		wp_redirect( add_query_arg( array( 'update' => 'enter_email' ), 'user-new.php' ) );
@@ -59,7 +60,8 @@ if ( isset( $_REQUEST['action'] ) && 'adduser' === $_REQUEST['action'] ) {
 	$redirect       = 'user-new.php';
 	$username       = $user_details->user_login;
 	$user_id        = $user_details->ID;
-	if ( null != $username && array_key_exists( $blog_id, get_blogs_of_user( $user_id ) ) ) {
+
+	if ( array_key_exists( $blog_id, get_blogs_of_user( $user_id ) ) ) {
 		$redirect = add_query_arg( array( 'update' => 'addexisting' ), 'user-new.php' );
 	} else {
 		$newuser_key = wp_generate_password( 20, false );
@@ -86,7 +88,13 @@ if ( isset( $_REQUEST['action'] ) && 'adduser' === $_REQUEST['action'] ) {
 		 */
 		do_action( 'invite_user', $user_id, $role, $newuser_key );
 
-		$switched_locale = switch_to_locale( get_user_locale( $user_details ) );
+		$switched_locale = switch_to_user_locale( $user_id );
+
+		if ( '' !== get_option( 'blogname' ) ) {
+			$site_title = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+		} else {
+			$site_title = parse_url( home_url(), PHP_URL_HOST );
+		}
 
 		/* translators: 1: Site title, 2: Site URL, 3: User role, 4: Activation URL. */
 		$message = __(
@@ -103,7 +111,7 @@ Please click the following link to confirm the invite:
 		$new_user_email['subject'] = sprintf(
 			/* translators: Joining confirmation notification email subject. %s: Site title. */
 			__( '[%s] Joining Confirmation' ),
-			wp_specialchars_decode( get_option( 'blogname' ) )
+			$site_title
 		);
 		$new_user_email['message'] = sprintf(
 			$message,
@@ -147,6 +155,7 @@ Please click the following link to confirm the invite:
 
 		$redirect = add_query_arg( array( 'update' => 'add' ), 'user-new.php' );
 	}
+
 	wp_redirect( $redirect );
 	die();
 } elseif ( isset( $_REQUEST['action'] ) && 'createuser' === $_REQUEST['action'] ) {
@@ -176,17 +185,21 @@ Please click the following link to confirm the invite:
 			} else {
 				$redirect = add_query_arg( 'update', 'add', 'user-new.php' );
 			}
+
 			wp_redirect( $redirect );
 			die();
 		}
 	} else {
 		// Adding a new user to this site.
 		$new_user_email = wp_unslash( $_REQUEST['email'] );
-		$user_details = wpmu_validate_user_signup( md5( $new_user_email ), $new_user_email );
-		if ( is_wp_error( $user_details[ 'errors' ] ) && !empty( $user_details[ 'errors' ]->errors ) ) {
-			$add_user_errors = $user_details[ 'errors' ];
+		$user_details   = wpmu_validate_user_signup( md5( $new_user_email ), $new_user_email );
+
+		if ( is_wp_error( $user_details['errors'] ) && $user_details['errors']->has_errors() ) {
+			$add_user_errors = $user_details['errors'];
 		} else {
 			$new_user_login = md5( $new_user_email );
+			wp_ensure_editable_role( $_REQUEST['role'] );
+
 			wpmu_signup_user(
 				$new_user_login,
 				$new_user_email,
@@ -203,7 +216,7 @@ Please click the following link to confirm the invite:
 }
 
 // Used in the HTML title tag.
-$title       = __( 'Add New User' );
+$title       = __( 'Add User' );
 $parent_file = 'users.php';
 
 $do_both = false;
@@ -273,42 +286,57 @@ if ( isset( $_GET['update'] ) ) {
 <h1 id="add-new-user">
 <?php
 if ( current_user_can( 'create_users' ) ) {
-	_e( 'Add New User' );
+	_e( 'Add User' );
 } elseif ( current_user_can( 'promote_users' ) ) {
 	_e( 'Add Existing User' );
 }
 ?>
 </h1>
 
-<?php if ( isset( $errors ) && is_wp_error( $errors ) ) : ?>
-	<div class="error">
-		<ul>
-		<?php
-		foreach ( $errors->get_error_messages() as $err ) {
-			echo "<li>$err</li>\n";
-		}
-		?>
-		</ul>
-	</div>
-	<?php
+<?php
+if ( isset( $errors ) && is_wp_error( $errors ) ) :
+	$error_message = '';
+	foreach ( $errors->get_error_messages() as $err ) {
+		$error_message .= "<li>$err</li>\n";
+	}
+	wp_admin_notice(
+		'<ul>' . $error_message . '</ul>',
+		array(
+			'additional_classes' => array( 'error' ),
+			'paragraph_wrap'     => false,
+		)
+	);
 endif;
 
 if ( ! empty( $messages ) ) {
 	foreach ( $messages as $msg ) {
-		echo '<div id="message" class="updated notice is-dismissible"><p>' . $msg . '</p></div>';
+		wp_admin_notice(
+			$msg,
+			array(
+				'id'                 => 'message',
+				'additional_classes' => array( 'updated' ),
+				'dismissible'        => true,
+			)
+		);
 	}
 }
 ?>
 
-<?php if ( isset( $add_user_errors ) && is_wp_error( $add_user_errors ) ) : ?>
-	<div class="error">
-		<?php
-		foreach ( $add_user_errors->get_error_messages() as $message ) {
-			echo "<p>$message</p>";
-		}
-		?>
-	</div>
-<?php endif; ?>
+<?php
+if ( isset( $add_user_errors ) && is_wp_error( $add_user_errors ) ) :
+	$error_message = '';
+	foreach ( $add_user_errors->get_error_messages() as $message ) {
+		$error_message .= "<p>$message</p>\n";
+	}
+	wp_admin_notice(
+		$error_message,
+		array(
+			'additional_classes' => array( 'error' ),
+			'paragraph_wrap'     => false,
+		)
+	);
+endif;
+?>
 <div id="ajax-response"></div>
 
 <?php
@@ -341,8 +369,8 @@ if ( is_multisite() && current_user_can( 'promote_users' ) ) {
 
 <table class="form-table" role="presentation">
 	<tr class="form-field form-required">
-		<th scope="row"><label for="adduser-email"><?php echo $label; ?></label></th>
-		<td><input name="email" type="<?php echo $type; ?>" id="adduser-email" class="wp-suggest-user" value="" /></td>
+		<th scope="row"><label for="adduser-email"><?php echo esc_html( $label ); ?></label></th>
+		<td><input name="email" type="<?php echo esc_attr( $type ); ?>" id="adduser-email" class="wp-suggest-user" value="" /></td>
 	</tr>
 	<tr class="form-field">
 		<th scope="row"><label for="adduser-role"><?php _e( 'Role' ); ?></label></th>
@@ -373,7 +401,7 @@ if ( is_multisite() && current_user_can( 'promote_users' ) ) {
 
 if ( current_user_can( 'create_users' ) ) {
 	if ( $do_both ) {
-		echo '<h2 id="create-new-user">' . __( 'Add New User' ) . '</h2>';
+		echo '<h2 id="create-new-user">' . __( 'Add User' ) . '</h2>';
 	}
 	?>
 <p>
@@ -451,7 +479,7 @@ $new_user_role         = $creating && isset( $_POST['role'] ) ? wp_unslash( $_PO
 	do_action( 'user_new_form', 'add-new-user' );
 	?>
 
-	<?php submit_button( __( 'Add New User' ), 'primary', 'createuser', true, array( 'id' => 'createusersub' ) ); ?>
+	<?php submit_button( __( 'Add User' ), 'primary', 'createuser', true, array( 'id' => 'createusersub' ) ); ?>
 
 </form>
 <?php } // End if current_user_can( 'create_users' ). ?>

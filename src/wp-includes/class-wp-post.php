@@ -14,11 +14,12 @@
  *
  * @property string $page_template
  *
- * @property-read int[]  $ancestors
- * @property-read int    $post_category
- * @property-read string $tag_input
+ * @property-read int[]    $ancestors
+ * @property-read int[]    $post_category
+ * @property-read string[] $tags_input
  */
-class WP_Post implements \calmpress\avatar\Has_Avatar {
+#[AllowDynamicProperties]
+class WP_Post {
 
 	/**
 	 * Post ID.
@@ -36,7 +37,7 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 	 * @since 3.5.0
 	 * @var string
 	 */
-	public $post_author = 0;
+	public $post_author = '0';
 
 	/**
 	 * The post's local publication time.
@@ -190,7 +191,7 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 	 * @since 3.5.0
 	 * @var string
 	 */
-	public $comment_count = 0;
+	public $comment_count = '0';
 
 	/**
 	 * Stores the post object's sanitization level.
@@ -216,7 +217,7 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 		global $wpdb;
 
 		$post_id = (int) $post_id;
-		if ( ! $post_id ) {
+		if ( $post_id <= 0 ) {
 			return false;
 		}
 
@@ -231,7 +232,7 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 
 			$_post = sanitize_post( $_post, 'raw' );
 			wp_cache_add( $_post->ID, $_post, 'posts' );
-		} elseif ( empty( $_post->filter ) ) {
+		} elseif ( empty( $_post->filter ) || 'raw' !== $_post->filter ) {
 			$_post = sanitize_post( $_post, 'raw' );
 		}
 

@@ -12,6 +12,11 @@ require_once __DIR__ . '/admin.php';
 
 require_once ABSPATH . WPINC . '/http.php';
 
+/**
+ * @global int $wp_db_version WordPress database version.
+ */
+global $wp_db_version;
+
 // Used in the HTML title tag.
 $title       = __( 'Upgrade Network' );
 $parent_file = 'upgrade.php';
@@ -32,7 +37,7 @@ switch ( $action ) {
 		$n = ( isset( $_GET['n'] ) ) ? (int) $_GET['n'] : 0;
 
 		if ( $n < 5 ) {
-			update_site_option( 'calmpress_wpmu_upgrade_site', calmpress_version() );
+			update_site_option( 'wpmu_upgrade_site', calmpress_version() );
 		}
 
 		$site_ids = get_sites(
@@ -100,7 +105,7 @@ switch ( $action ) {
 			do_action( 'wpmu_upgrade_site', $site_id );
 		}
 		echo '</ul>';
-		?><p><?php _e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:' ); ?> <a class="button" href="upgrade.php?action=upgrade&amp;n=<?php echo ( $n + 5 ); ?>"><?php _e( 'Next Sites' ); ?></a></p>
+		?><p><?php _e( 'If your browser does not start loading the next page automatically, click this link:' ); ?> <a class="button" href="upgrade.php?action=upgrade&amp;n=<?php echo ( $n + 5 ); ?>"><?php _e( 'Next Sites' ); ?></a></p>
 		<script type="text/javascript">
 		<!--
 		function nextpage() {
@@ -113,10 +118,10 @@ switch ( $action ) {
 		break;
 	case 'show':
 	default:
-		if ( get_site_option( 'calmpress_wpmu_upgrade_site' ) != calmpress_version() ) :
+		if ( (int) get_site_option( 'wpmu_upgrade_site' ) !== calmpress_version() ) :
 			?>
 		<h2><?php _e( 'Database Update Required' ); ?></h2>
-		<p><?php _e( 'calmPress has been updated! Before we send you on your way, we need to individually upgrade the sites in your network.' ); ?></p>
+		<p><?php _e( 'calmPress has been updated! Next and final step is to individually upgrade the sites in your network.' ); ?></p>
 		<?php endif; ?>
 
 		<p><?php _e( 'The database update process may take a little while, so please be patient.' ); ?></p>

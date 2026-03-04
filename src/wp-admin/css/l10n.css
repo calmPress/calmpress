@@ -62,6 +62,14 @@ body.locale-he-il {
 .locale-de-de-formal #customize-header-actions .spinner {
 	margin: 16px 3px 0; /* default 16px 4px 0 5px */
 }
+body[class*="locale-de-"] .inline-edit-row fieldset label span.title,
+body[class*="locale-de-"] .inline-edit-row fieldset.inline-edit-date legend {
+	width: 7em; /* default 6em */
+}
+body[class*="locale-de-"] .inline-edit-row fieldset label span.input-text-wrap,
+body[class*="locale-de-"] .inline-edit-row fieldset .timestamp-wrap {
+	margin-left: 7em; /* default 6em */
+}
 
 /* ru_RU: Text needs more room to breathe. */
 .locale-ru-ru #adminmenu {

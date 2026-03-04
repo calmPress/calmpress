@@ -29,7 +29,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 <?php
 settings_fields( 'reading' );
 
-if ( ! in_array( get_option( 'blog_charset' ), array( 'utf8', 'utf-8', 'UTF8', 'UTF-8' ), true ) ) {
+if ( ! is_utf8_charset() ) {
 	add_settings_field( 'blog_charset', __( 'Encoding for pages and feeds' ), 'options_reading_blog_charset', 'reading', 'default', array( 'label_for' => 'blog_charset' ) );
 }
 ?>
@@ -46,11 +46,14 @@ else :
 	if ( 'page' === get_option( 'show_on_front' ) && ! get_option( 'page_on_front' ) && ! get_option( 'page_for_posts' ) ) {
 		update_option( 'show_on_front', 'posts' );
 	}
+
+	$your_homepage_displays_title = __( 'Your homepage displays' );
 	?>
 <table class="form-table" role="presentation">
 <tr>
-<th scope="row"><?php _e( 'Your homepage displays' ); ?></th>
-<td id="front-static-pages"><fieldset><legend class="screen-reader-text"><span><?php _e( 'Your homepage displays' ); ?></span></legend>
+<th scope="row"><?php echo $your_homepage_displays_title; ?></th>
+<td id="front-static-pages"><fieldset>
+	<legend class="screen-reader-text"><span><?php echo $your_homepage_displays_title; ?></span></legend>
 	<p><label>
 		<input name="show_on_front" type="radio" value="posts" class="tog" <?php checked( 'posts', get_option( 'show_on_front' ) ); ?> />
 		<?php _e( 'Your latest posts' ); ?>
@@ -103,9 +106,18 @@ else :
 	?>
 </label></li>
 </ul>
-	<?php if ( 'page' === get_option( 'show_on_front' ) && get_option( 'page_for_posts' ) === get_option( 'page_on_front' ) ) : ?>
-	<div id="front-page-warning" class="notice notice-warning inline"><p><?php _e( '<strong>Warning:</strong> these pages should not be the same!' ); ?></p></div>
-	<?php endif; ?>
+	<?php
+	if ( 'page' === get_option( 'show_on_front' ) && get_option( 'page_for_posts' ) === get_option( 'page_on_front' ) ) :
+		wp_admin_notice(
+			__( '<strong>Warning:</strong> these pages should not be the same!' ),
+			array(
+				'type'               => 'warning',
+				'id'                 => 'front-page-warning',
+				'additional_classes' => array( 'inline' ),
+			)
+		);
+	endif;
+	?>
 </fieldset></td>
 </tr>
 <?php endif; ?>
@@ -121,9 +133,12 @@ else :
 <p class="description"><?php esc_html_e( 'A value of zero can be used to turn off the feeds.' ); ?></p>
 </td>
 </tr>
+
+<?php $rss_use_excerpt_title = __( 'For each post in a feed, include' ); ?>
 <tr>
-<th scope="row"><?php _e( 'For each post in a feed, include' ); ?> </th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( 'For each post in a feed, include' ); ?> </span></legend>
+<th scope="row"><?php echo $rss_use_excerpt_title; ?> </th>
+<td><fieldset>
+	<legend class="screen-reader-text"><span><?php echo $rss_use_excerpt_title; ?></span></legend>
 	<p>
 		<label><input name="rss_use_excerpt" type="radio" value="0" <?php checked( 0, get_option( 'rss_use_excerpt' ) ); ?>	/> <?php _e( 'Full text' ); ?></label><br />
 		<label><input name="rss_use_excerpt" type="radio" value="1" <?php checked( 1, get_option( 'rss_use_excerpt' ) ); ?> /> <?php _e( 'Excerpt' ); ?></label>
@@ -133,7 +148,7 @@ else :
 		printf(
 			/* translators: %s: Documentation URL. */
 			__( 'Your theme determines how content is displayed in browsers. <a href="%s">Learn more about feeds</a>.' ),
-			__( 'https://wordpress.org/support/article/wordpress-feeds/' )
+			__( 'https://developer.wordpress.org/advanced-administration/wordpress/feeds/' )
 		);
 		?>
 	</p>
@@ -146,18 +161,20 @@ else :
 </fieldset></td>
 </tr>
 
+<?php $blog_privacy_selector_title = has_action( 'blog_privacy_selector' ) ? __( 'Site visibility' ) : __( 'Search engine visibility' ); ?>
 <tr class="option-site-visibility">
-<th scope="row"><?php has_action( 'blog_privacy_selector' ) ? _e( 'Site visibility' ) : _e( 'Search engine visibility' ); ?> </th>
-<td><fieldset><legend class="screen-reader-text"><span><?php has_action( 'blog_privacy_selector' ) ? _e( 'Site visibility' ) : _e( 'Search engine visibility' ); ?> </span></legend>
+<th scope="row"><?php echo $blog_privacy_selector_title; ?> </th>
+<td><fieldset>
+	<legend class="screen-reader-text"><span><?php echo $blog_privacy_selector_title; ?></span></legend>
 <?php if ( has_action( 'blog_privacy_selector' ) ) : ?>
 	<input id="blog-public" type="radio" name="blog_public" value="1" <?php checked( '1', get_option( 'blog_public' ) ); ?> />
-	<label for="blog-public"><?php _e( 'Allow search engines to index this site' ); ?></label><br/>
+	<label for="blog-public"><?php _e( 'Allow search engines to index this site' ); ?></label><br />
 	<input id="blog-norobots" type="radio" name="blog_public" value="0" <?php checked( '0', get_option( 'blog_public' ) ); ?> />
 	<label for="blog-norobots"><?php _e( 'Discourage search engines from indexing this site' ); ?></label>
 	<p class="description"><?php _e( 'Note: Neither of these options blocks access to your site &mdash; it is up to search engines to honor your request.' ); ?></p>
 	<?php
 	/**
-	 * Enable the legacy 'Site visibility' privacy options.
+	 * Enables the legacy 'Site visibility' privacy options.
 	 *
 	 * By default the privacy options form displays a single checkbox to 'discourage' search
 	 * engines from indexing the site. Hooking to this action serves a dual purpose:

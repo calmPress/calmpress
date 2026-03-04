@@ -17,6 +17,22 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	protected $page_ids;
 	protected $post_ids;
 
+	/**
+	 * ID of the user-a.
+	 *
+	 * @var int
+	 */
+	public static $user_a_id;
+
+	/**
+	 * Set up the shared fixture.
+	 *
+	 * @param WP_UnitTest_Factory $factory Factory instance.
+	 */
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		self::$user_a_id = $factory->user->create( array( 'user_login' => 'user-a' ) );
+	}
+
 	public function set_up() {
 
 		// Tests the results of adding feeds using the filter as well.
@@ -458,7 +474,6 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 		$this->go_to( get_permalink( $post_id ) . '2/' );
 		// Should is_paged be true also?
 		$this->assertQueryTrue( 'is_single', 'is_singular' );
-
 	}
 
 	/**
@@ -649,13 +664,13 @@ class Tests_Query_Conditionals extends WP_UnitTestCase {
 	public function test_is_single_with_slug_that_clashes_with_attachment() {
 		$this->set_permalink_structure( '/%postname%/' );
 
-		$attachment_id = $this->factory->post->create(
+		$attachment_id = self::factory()->post->create(
 			array(
 				'post_type' => 'attachment',
 			)
 		);
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_title' => get_post( $attachment_id )->post_title,
 			)

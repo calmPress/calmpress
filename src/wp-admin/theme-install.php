@@ -10,7 +10,7 @@
 require_once __DIR__ . '/admin.php';
 require ABSPATH . 'wp-admin/includes/theme-install.php';
 
-wp_reset_vars( array( 'tab' ) );
+$tab = ! empty( $_REQUEST['tab'] ) ? sanitize_text_field( $_REQUEST['tab'] ) : '';
 
 if ( ! current_user_can( 'install_themes' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to install themes on this site.' ) );
@@ -54,9 +54,8 @@ wp_localize_script(
 			'adminUrl'   => parse_url( self_admin_url(), PHP_URL_PATH ),
 		),
 		'l10n'            => array(
-			'addNew'              => __( 'Add New Theme' ),
+			'addNew'              => __( 'Add Theme' ),
 			'search'              => __( 'Search Themes' ),
-			'searchPlaceholder'   => __( 'Search themes...' ), // Placeholder (no ellipsis).
 			'upload'              => __( 'Upload Theme' ),
 			'back'                => __( 'Back' ),
 			'error'               => sprintf(
@@ -70,7 +69,7 @@ wp_localize_script(
 			'noThemesFound'       => __( 'No themes found. Try a different search.' ),
 			'collapseSidebar'     => __( 'Collapse Sidebar' ),
 			'expandSidebar'       => __( 'Expand Sidebar' ),
-			/* translators: Accessibility text. */
+			/* translators: Hidden accessibility text. */
 			'selectFeatureFilter' => __( 'Select one or more Theme features to filter by' ),
 		),
 		'installedThemes' => array_keys( $installed_themes ),
@@ -90,16 +89,18 @@ if ( $tab ) {
 	 *
 	 * Possible hook names include:
 	 *
+	 *  - `install_themes_pre_block-themes`
 	 *  - `install_themes_pre_dashboard`
 	 *  - `install_themes_pre_search`
 	 *  - `install_themes_pre_upload`
 	 *
 	 * @since 2.8.0
+	 * @since 6.1.0 Added the `install_themes_pre_block-themes` hook name.
 	 */
 	do_action( "install_themes_pre_{$tab}" );
 }
 
-include( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 
 ?>
 <div class="wrap">
@@ -124,15 +125,25 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 
 	<hr class="wp-header-end">
 
-	<div class="error hide-if-js">
-		<p><?php _e( 'The Theme Installer screen requires JavaScript.' ); ?></p>
-	</div>
+	<?php
+	wp_admin_notice(
+		__( 'The Theme Installer screen requires JavaScript.' ),
+		array(
+			'additional_classes' => array( 'error', 'hide-if-js' ),
+		)
+	);
+	?>
 
 	<div class="upload-theme">
 	<?php install_themes_upload(); ?>
 	</div>
 
-	<h2 class="screen-reader-text hide-if-no-js"><?php _e( 'Filter themes list' ); ?></h2>
+	<h2 class="screen-reader-text hide-if-no-js">
+		<?php
+		/* translators: Hidden accessibility text. */
+		_e( 'Filter themes list' );
+		?>
+	</h2>
 
 	<div class="wp-filter hide-if-no-js">
 		<div class="filter-count">
@@ -145,7 +156,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 
 		<button type="button" class="button drawer-toggle" aria-expanded="false"><?php _e( 'Feature Filter' ); ?></button>
 
-		<form class="search-form"></form>
+		<form class="search-form"><p class="search-box"></p></form>
 
 		<div class="favorites-form">
 			<?php
@@ -159,7 +170,7 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 			?>
 			<p class="install-help"><?php _e( 'If you have marked themes as favorites on WordPress.org, you can browse them here.' ); ?></p>
 
-			<p>
+			<p class="favorites-username">
 				<label for="wporg-username-input"><?php _e( 'Your WordPress.org username:' ); ?></label>
 				<input type="hidden" id="wporg-username-nonce" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( $action ) ); ?>" />
 				<input type="search" id="wporg-username-input" value="<?php echo esc_attr( $user ); ?>" />
@@ -201,7 +212,12 @@ include( ABSPATH . 'wp-admin/admin-header.php' );
 			</div>
 		</div>
 	</div>
-	<h2 class="screen-reader-text hide-if-no-js"><?php _e( 'Themes list' ); ?></h2>
+	<h2 class="screen-reader-text hide-if-no-js">
+		<?php
+		/* translators: Hidden accessibility text. */
+		_e( 'Themes list' );
+		?>
+	</h2>
 	<div class="theme-browser content-filterable"></div>
 	<div class="theme-install-overlay wp-full-overlay expanded"></div>
 
@@ -218,6 +234,7 @@ if ( $tab ) {
 	 *
 	 * Possible hook names include:
 	 *
+	 *  - `install_themes_block-themes`
 	 *  - `install_themes_dashboard`
 	 *  - `install_themes_featured`
 	 *  - `install_themes_new`
@@ -226,6 +243,7 @@ if ( $tab ) {
 	 *  - `install_themes_upload`
 	 *
 	 * @since 2.8.0
+	 * @since 6.1.0 Added the `install_themes_block-themes` hook name.
 	 *
 	 * @param int $paged Number of the current page of results being viewed.
 	 */
@@ -237,21 +255,29 @@ if ( $tab ) {
 <script id="tmpl-theme" type="text/template">
 	<# if ( data.screenshot_url ) { #>
 		<div class="theme-screenshot">
-			<img src="{{ data.screenshot_url }}" alt="" />
+			<img src="{{ data.screenshot_url }}?ver={{ data.version }}" alt="" />
 		</div>
 	<# } else { #>
 		<div class="theme-screenshot blank"></div>
 	<# } #>
 
 	<# if ( data.installed ) { #>
-		<div class="notice notice-success notice-alt"><p><?php _ex( 'Installed', 'theme' ); ?></p></div>
+		<?php
+		wp_admin_notice(
+			_x( 'Installed', 'theme' ),
+			array(
+				'type'               => 'success',
+				'additional_classes' => array( 'notice-alt' ),
+			)
+		);
+		?>
 	<# } #>
 
 	<# if ( ! data.compatible_wp || ! data.compatible_php ) { #>
 		<div class="notice notice-error notice-alt"><p>
 			<# if ( ! data.compatible_wp && ! data.compatible_php ) { #>
 				<?php
-				_e( 'This theme doesn&#8217;t work with your versions of WordPress and PHP.' );
+				_e( 'This theme does not work with your versions of WordPress and PHP.' );
 				if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
 					printf(
 						/* translators: 1: URL to WordPress Updates screen, 2: URL to Update PHP page. */
@@ -277,7 +303,7 @@ if ( $tab ) {
 				?>
 			<# } else if ( ! data.compatible_wp ) { #>
 				<?php
-				_e( 'This theme doesn&#8217;t work with your version of WordPress.' );
+				_e( 'This theme does not work with your version of WordPress.' );
 				if ( current_user_can( 'update_core' ) ) {
 					printf(
 						/* translators: %s: URL to WordPress Updates screen. */
@@ -288,7 +314,7 @@ if ( $tab ) {
 				?>
 			<# } else if ( ! data.compatible_php ) { #>
 				<?php
-				_e( 'This theme doesn&#8217;t work with your version of PHP.' );
+				_e( 'This theme does not work with your version of PHP.' );
 				if ( current_user_can( 'update_php' ) ) {
 					printf(
 						/* translators: %s: URL to Update PHP page. */
@@ -376,9 +402,24 @@ if ( $tab ) {
 <script id="tmpl-theme-preview" type="text/template">
 	<div class="wp-full-overlay-sidebar">
 		<div class="wp-full-overlay-header">
-			<button class="close-full-overlay"><span class="screen-reader-text"><?php _e( 'Close' ); ?></span></button>
-			<button class="previous-theme"><span class="screen-reader-text"><?php _e( 'Previous theme' ); ?></span></button>
-			<button class="next-theme"><span class="screen-reader-text"><?php _e( 'Next theme' ); ?></span></button>
+			<button class="close-full-overlay"><span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( 'Close' );
+				?>
+			</span></button>
+			<button class="previous-theme"><span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( 'Previous theme' );
+				?>
+			</span></button>
+			<button class="next-theme"><span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( 'Next theme' );
+				?>
+			</span></button>
 			<# if ( data.installed ) { #>
 				<# if ( data.compatible_wp && data.compatible_php ) { #>
 					<?php
@@ -411,7 +452,9 @@ if ( $tab ) {
 						?>
 					</span>
 
-					<img class="theme-screenshot" src="{{ data.screenshot_url }}" alt="" />
+					<div class="theme-screenshot">
+						<img class="theme-screenshot" src="{{ data.screenshot_url }}?ver={{ data.version }}" alt="" />
+					</div>
 
 					<div class="theme-details">
 						<# if ( data.rating ) { #>
@@ -439,7 +482,7 @@ if ( $tab ) {
 							<div class="notice notice-error notice-alt notice-large"><p>
 								<# if ( ! data.compatible_wp && ! data.compatible_php ) { #>
 									<?php
-									_e( 'This theme doesn&#8217;t work with your versions of WordPress and PHP.' );
+									_e( 'This theme does not work with your versions of WordPress and PHP.' );
 									if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
 										printf(
 											/* translators: 1: URL to WordPress Updates screen, 2: URL to Update PHP page. */
@@ -465,7 +508,7 @@ if ( $tab ) {
 									?>
 								<# } else if ( ! data.compatible_wp ) { #>
 									<?php
-									_e( 'This theme doesn&#8217;t work with your version of WordPress.' );
+									_e( 'This theme does not work with your version of WordPress.' );
 									if ( current_user_can( 'update_core' ) ) {
 										printf(
 											/* translators: %s: URL to WordPress Updates screen. */
@@ -476,7 +519,7 @@ if ( $tab ) {
 									?>
 								<# } else if ( ! data.compatible_php ) { #>
 									<?php
-									_e( 'This theme doesn&#8217;t work with your version of PHP.' );
+									_e( 'This theme does not work with your version of PHP.' );
 									if ( current_user_can( 'update_php' ) ) {
 										printf(
 											/* translators: %s: URL to Update PHP page. */
@@ -496,7 +539,7 @@ if ( $tab ) {
 			</div>
 			<div class="wp-full-overlay-footer">
 				<button type="button" class="collapse-sidebar button" aria-expanded="true" aria-label="<?php esc_attr_e( 'Collapse Sidebar' ); ?>">
-					<span class="collapse-sidebar-arrow"></span>
+					<span class="collapse-sidebar-arrow" aria-hidden="true"></span>
 					<span class="collapse-sidebar-label"><?php _e( 'Collapse' ); ?></span>
 				</button>
 			</div>

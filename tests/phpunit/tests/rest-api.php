@@ -27,6 +27,15 @@ class Tests_REST_API extends WP_UnitTestCase {
 		parent::tear_down();
 	}
 
+	public function filter_wp_rest_server_class( $class_name ) {
+		return 'Spy_REST_Server';
+	}
+
+	public function test_rest_get_server_fails_with_undefined_method() {
+		$this->expectException( Error::class );
+		rest_get_server()->does_not_exist();
+	}
+
 	/**
 	 * Checks that the main classes are loaded.
 	 */
@@ -810,7 +819,14 @@ class Tests_REST_API extends WP_UnitTestCase {
 		unset( $filter );
 	}
 
-	public function jsonp_callback_provider() {
+	/**
+	 * @dataProvider data_jsonp_callback_check
+	 */
+	public function test_jsonp_callback_check( $callback, $expected ) {
+		$this->assertSame( $expected, wp_check_jsonp_callback( $callback ) );
+	}
+
+	public function data_jsonp_callback_check() {
 		return array(
 			// Standard names.
 			array( 'Springfield', true ),
@@ -829,13 +845,13 @@ class Tests_REST_API extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider jsonp_callback_provider
+	 * @dataProvider data_rest_parse_date
 	 */
-	public function test_jsonp_callback_check( $callback, $valid ) {
-		$this->assertSame( $valid, wp_check_jsonp_callback( $callback ) );
+	public function test_rest_parse_date( $date, $expected ) {
+		$this->assertEquals( $expected, rest_parse_date( $date ) );
 	}
 
-	public function rest_date_provider() {
+	public function data_rest_parse_date() {
 		return array(
 			// Valid dates with timezones.
 			array( '2017-01-16T11:30:00-05:00', gmmktime( 11, 30, 0, 1, 16, 2017 ) + 5 * HOUR_IN_SECONDS ),
@@ -861,13 +877,13 @@ class Tests_REST_API extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider rest_date_provider
+	 * @dataProvider data_rest_parse_date_force_utc
 	 */
-	public function test_rest_parse_date( $string, $value ) {
-		$this->assertEquals( $value, rest_parse_date( $string ) );
+	public function test_rest_parse_date_force_utc( $date, $expected ) {
+		$this->assertSame( $expected, rest_parse_date( $date, true ) );
 	}
 
-	public function rest_date_force_utc_provider() {
+	public function data_rest_parse_date_force_utc() {
 		return array(
 			// Valid dates with timezones.
 			array( '2017-01-16T11:30:00-05:00', gmmktime( 11, 30, 0, 1, 16, 2017 ) ),
@@ -890,17 +906,6 @@ class Tests_REST_API extends WP_UnitTestCase {
 			array( '2017-01', false ),
 			array( '2017', false ),
 		);
-	}
-
-	/**
-	 * @dataProvider rest_date_force_utc_provider
-	 */
-	public function test_rest_parse_date_force_utc( $string, $value ) {
-		$this->assertSame( $value, rest_parse_date( $string, true ) );
-	}
-
-	public function filter_wp_rest_server_class( $class_name ) {
-		return 'Spy_REST_Server';
 	}
 
 	public function test_register_rest_route_without_server() {
@@ -943,28 +948,44 @@ class Tests_REST_API extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider data_rest_preload_api_request_removes_trailing_slashes
+	 *
 	 * @ticket 51636
+	 * @ticket 57048
+	 *
+	 * @param string       $preload_path          The path to preload.
+	 * @param array|string $expected_preload_path Expected path after preloading.
 	 */
-	public function test_rest_preload_api_request_removes_trailing_slashes() {
+	public function test_rest_preload_api_request_removes_trailing_slashes( $preload_path, $expected_preload_path ) {
 		$rest_server               = $GLOBALS['wp_rest_server'];
 		$GLOBALS['wp_rest_server'] = null;
 
-		$preload_paths = array(
-			'/wp/v2/types//',
-			array( '/wp/v2/media///', 'OPTIONS' ),
-			'////',
-		);
-
-		$preload_data = array_reduce(
-			$preload_paths,
-			'rest_preload_api_request',
-			array()
-		);
-
-		$this->assertSame( array_keys( $preload_data ), array( '/wp/v2/types', 'OPTIONS', '/' ) );
-		$this->assertArrayHasKey( '/wp/v2/media', $preload_data['OPTIONS'] );
+		$actual_preload_path = rest_preload_api_request( array(), $preload_path );
+		if ( '' !== $preload_path ) {
+			$actual_preload_path = key( $actual_preload_path );
+		}
+		$this->assertSame( $expected_preload_path, $actual_preload_path );
 
 		$GLOBALS['wp_rest_server'] = $rest_server;
+	}
+
+	/**
+	 * Data provider.
+	 *
+	 * @return array
+	 */
+	public static function data_rest_preload_api_request_removes_trailing_slashes() {
+		return array(
+			'no query part'                     => array( '/wp/v2/types//', '/wp/v2/types' ),
+			'no query part, more slashes'       => array( '/wp/v2/media///', '/wp/v2/media' ),
+			'only slashes'                      => array( '////', '/' ),
+			'empty path'                        => array( '', array() ),
+			'no query parameters'               => array( '/wp/v2/types//?////', '/wp/v2/types?' ),
+			'no query parameters, with slashes' => array( '/wp/v2/types//?fields////', '/wp/v2/types?fields' ),
+			'query parameters with no values'   => array( '/wp/v2/types//?fields=////', '/wp/v2/types?fields=' ),
+			'single query parameter'            => array( '/wp/v2/types//?_fields=foo,bar////', '/wp/v2/types?_fields=foo,bar' ),
+			'multiple query parameters'         => array( '/wp/v2/types////?_fields=foo,bar&limit=1000////', '/wp/v2/types?_fields=foo,bar&limit=1000' ),
+		);
 	}
 
 	/**
@@ -1771,7 +1792,7 @@ class Tests_REST_API extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider rest_ensure_response_data_provider
+	 * @dataProvider data_rest_ensure_response_returns_instance_of_wp_rest_response
 	 *
 	 * @param mixed $response      The response passed to rest_ensure_response().
 	 * @param mixed $expected_data The expected data a response should include.
@@ -1787,7 +1808,7 @@ class Tests_REST_API extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function rest_ensure_response_data_provider() {
+	public function data_rest_ensure_response_returns_instance_of_wp_rest_response() {
 		return array(
 			array( null, null ),
 			array( array( 'chocolate' => 'cookies' ), array( 'chocolate' => 'cookies' ) ),
@@ -2425,5 +2446,129 @@ class Tests_REST_API extends WP_UnitTestCase {
 				array( 'integer', 'string' ),
 			),
 		);
+	}
+
+	/**
+	 * @ticket 51722
+	 * @dataProvider data_rest_preload_api_request_embeds_links
+	 *
+	 * @param string   $embed        The embed parameter.
+	 * @param string[] $expected     The list of link relations that should be embedded.
+	 * @param string[] $not_expected The list of link relations that should not be embedded.
+	 */
+	public function test_rest_preload_api_request_embeds_links( $embed, $expected, $not_expected ) {
+		wp_set_current_user( 1 );
+		$post_id = self::factory()->post->create();
+		self::factory()->comment->create_post_comments( $post_id );
+
+		$url           = sprintf( '/wp/v2/posts/%d?%s', $post_id, $embed );
+		$preload_paths = array( $url );
+
+		$preload_data = array_reduce(
+			$preload_paths,
+			'rest_preload_api_request',
+			array()
+		);
+
+		$this->assertSame( array_keys( $preload_data ), $preload_paths );
+		$this->assertArrayHasKey( 'body', $preload_data[ $url ] );
+		$this->assertArrayHasKey( '_links', $preload_data[ $url ]['body'] );
+
+		if ( $expected ) {
+			$this->assertArrayHasKey( '_embedded', $preload_data[ $url ]['body'] );
+		} else {
+			$this->assertArrayNotHasKey( '_embedded', $preload_data[ $url ]['body'] );
+		}
+
+		foreach ( $expected as $rel ) {
+			$this->assertArrayHasKey( $rel, $preload_data[ $url ]['body']['_embedded'] );
+		}
+
+		foreach ( $not_expected as $rel ) {
+			$this->assertArrayNotHasKey( $rel, $preload_data[ $url ]['body']['_embedded'] );
+		}
+	}
+
+	public function data_rest_preload_api_request_embeds_links() {
+		return array(
+			array( '_embed=wp:term,author', array( 'wp:term', 'author' ), array( 'replies' ) ),
+			array( '_embed[]=wp:term&_embed[]=author', array( 'wp:term', 'author' ), array( 'replies' ) ),
+			array( '_embed', array( 'wp:term', 'author', 'replies' ), array() ),
+			array( '_embed=1', array( 'wp:term', 'author', 'replies' ), array() ),
+			array( '_embed=true', array( 'wp:term', 'author', 'replies' ), array() ),
+			array( '', array(), array() ),
+		);
+	}
+
+	/**
+	 * @ticket 55213
+	 */
+	public function test_rest_preload_api_request_fields() {
+		$preload_paths = array(
+			'/',
+			'/?_fields=description',
+		);
+
+		$preload_data = array_reduce(
+			$preload_paths,
+			'rest_preload_api_request',
+			array()
+		);
+
+		$this->assertSame( array_keys( $preload_data ), array( '/', '/?_fields=description' ) );
+
+		// Unfiltered request has all fields
+		$this->assertArrayHasKey( 'description', $preload_data['/']['body'] );
+		$this->assertArrayHasKey( 'routes', $preload_data['/']['body'] );
+
+		// Filtered request only has the desired fields.
+		$this->assertSame(
+			array_keys( $preload_data['/?_fields=description']['body'] ),
+			array( 'description' )
+		);
+	}
+
+	/**
+	 * @ticket 51986
+	 */
+	public function test_route_args_is_array_of_arrays() {
+		$this->setExpectedIncorrectUsage( 'register_rest_route' );
+
+		$registered = register_rest_route(
+			'my-ns/v1',
+			'/my-route',
+			array(
+				'callback'            => '__return_true',
+				'permission_callback' => '__return_true',
+				'args'                => array( 'pattern' ),
+			)
+		);
+
+		$this->assertTrue( $registered );
+	}
+
+	/**
+	 * @ticket 62932
+	 */
+	public function test_should_return_error_if_rest_route_not_string() {
+		global $wp;
+
+		$wp = new stdClass();
+
+		$wp->query_vars = array(
+			'rest_route' => array( 'invalid' ),
+		);
+
+		$this->expectException( WPDieException::class );
+
+		try {
+			rest_api_loaded();
+		} catch ( WPDieException $e ) {
+			$this->assertStringContainsString(
+				'The REST route parameter must be a string.',
+				$e->getMessage()
+			);
+			throw $e; // Re-throw to satisfy expectException
+		}
 	}
 }

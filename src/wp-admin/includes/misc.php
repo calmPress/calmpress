@@ -42,14 +42,21 @@ function extract_from_markers( $filename, $marker, $line_prefix = '#' ) {
 	$markerdata = explode( "\n", implode( '', file( $filename ) ) );
 
 	$state = false;
+
 	foreach ( $markerdata as $markerline ) {
-		if ( 0 === strpos( $markerline, $line_prefix . ' END ' . $marker ) ) {
+		if ( str_contains( $markerline, $line_prefix . ' END ' . $marker ) ) {
 			$state = false;
 		}
+
 		if ( $state ) {
+			if ( str_starts_with( $markerline, $line_prefix ) ) {
+				continue;
+			}
+
 			$result[] = $markerline;
 		}
-		if ( 0 === strpos( $markerline, $line_prefix . ' BEGIN ' . $marker ) ) {
+
+		if ( str_contains( $markerline, $line_prefix . ' BEGIN ' . $marker ) ) {
 			$state = true;
 		}
 	}
@@ -85,10 +92,10 @@ function insert_with_markers_into_array( array $lines, string $marker, array $in
 	$found_end_marker = false;
 
 	foreach ( $lines as $line ) {
-		if ( ! $found_marker && 0 === strpos( $line, $start_marker ) ) {
+		if ( ! $found_marker && str_contains( $line, $start_marker ) ) {
 			$found_marker = true;
 			continue;
-		} elseif ( ! $found_end_marker && 0 === strpos( $line, $end_marker ) ) {
+		} elseif ( ! $found_end_marker && str_contains( $line, $end_marker ) ) {
 			$found_end_marker = true;
 			continue;
 		}
@@ -191,17 +198,30 @@ function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#', $c
  *
  * @return bool|null True on write success, false on failure. Null in multisite.
  */
-function save_mod_rewrite_rules( $file = '' ) {
-	if ( is_multisite() ) {
-		return;
-	}
-
+function save_mod_rewrite_rules() {
 	global $wp_rewrite;
 
-	// Check the webserver is apache before trying to save .htaccess.
-	if ( got_mod_rewrite() ) {
-		if ( '' === $file ) {
-			$file = ABSPATH . '.htaccess';
+	if ( is_multisite() ) {
+		return null;
+	}
+
+	// Ensure get_home_path() is declared.
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+
+	$home_path     = get_home_path();
+	$htaccess_file = $home_path . '.htaccess';
+
+	/*
+	 * If the file doesn't already exist check for write access to the directory
+	 * and whether we have some rules. Else check for write access to the file.
+	 */
+	if ( ! file_exists( $htaccess_file ) && is_writable( $home_path )
+		|| is_writable( $htaccess_file )
+	) {
+		if ( got_mod_rewrite() ) {
+			$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
+
+			return insert_with_markers( $htaccess_file, 'WordPress', $rules );
 		}
 
 		// Lock the file by its known location.
@@ -233,13 +253,12 @@ function update_home_siteurl( $old_value, $value ) {
 	}
 }
 
-
 /**
- * Resets global variables based on $_GET and $_POST
+ * Resets global variables based on `$_GET` and `$_POST`.
  *
  * This function resets global variables based on the names passed
- * in the $vars array to the value of $_POST[$var] or $_GET[$var] or ''
- * if neither is defined.
+ * in the `$vars` array to the value of `$_POST[$var]` or `$_GET[$var]` or an
+ * empty string if neither is defined.
  *
  * @since 2.0.0
  *
@@ -274,6 +293,7 @@ function show_message( $message ) {
 			$message = $message->get_error_message();
 		}
 	}
+
 	echo "<p>$message</p>\n";
 	wp_ob_end_flush_all();
 	flush();
@@ -285,113 +305,122 @@ function show_message( $message ) {
  * @since 2.8.0
  */
 function set_screen_options() {
+	if ( ! isset( $_POST['wp_screen_options'] ) || ! is_array( $_POST['wp_screen_options'] ) ) {
+		return;
+	}
 
-	if ( isset( $_POST['wp_screen_options'] ) && is_array( $_POST['wp_screen_options'] ) ) {
-		check_admin_referer( 'screen-options-nonce', 'screenoptionnonce' );
+	check_admin_referer( 'screen-options-nonce', 'screenoptionnonce' );
 
-		$user = wp_get_current_user();
-		if ( ! $user ) {
-			return;
-		}
-		$option = $_POST['wp_screen_options']['option'];
-		$value  = $_POST['wp_screen_options']['value'];
+	$user = wp_get_current_user();
 
-		if ( sanitize_key( $option ) != $option ) {
-			return;
-		}
+	if ( ! $user ) {
+		return;
+	}
 
-		$map_option = $option;
-		$type       = str_replace( 'edit_', '', $map_option );
-		$type       = str_replace( '_per_page', '', $type );
-		if ( in_array( $type, get_taxonomies(), true ) ) {
-			$map_option = 'edit_tags_per_page';
-		} elseif ( in_array( $type, get_post_types(), true ) ) {
-			$map_option = 'edit_per_page';
-		} else {
-			$option = str_replace( '-', '_', $option );
-		}
+	$option = $_POST['wp_screen_options']['option'];
+	$value  = $_POST['wp_screen_options']['value'];
 
-		switch ( $map_option ) {
-			case 'edit_per_page':
-			case 'users_per_page':
-			case 'edit_comments_per_page':
-			case 'upload_per_page':
-			case 'edit_tags_per_page':
-			case 'plugins_per_page':
-			case 'export_personal_data_requests_per_page':
-			case 'remove_personal_data_requests_per_page':
-				// Network admin.
-			case 'sites_network_per_page':
-			case 'users_network_per_page':
-			case 'site_users_network_per_page':
-			case 'plugins_network_per_page':
-			case 'themes_network_per_page':
-			case 'site_themes_network_per_page':
-				$value = (int) $value;
-				if ( $value < 1 || $value > 999 ) {
-					return;
-				}
-				break;
-			default:
-				$screen_option = false;
+	if ( sanitize_key( $option ) !== $option ) {
+		return;
+	}
 
-				if ( '_page' === substr( $option, -5 ) || 'layout_columns' === $option ) {
-					/**
-					 * Filters a screen option value before it is set.
-					 *
-					 * The filter can also be used to modify non-standard [items]_per_page
-					 * settings. See the parent function for a full list of standard options.
-					 *
-					 * Returning false from the filter will skip saving the current option.
-					 *
-					 * @since 2.8.0
-					 * @since 5.4.2 Only applied to options ending with '_page',
-					 *              or the 'layout_columns' option.
-					 *
-					 * @see set_screen_options()
-					 *
-					 * @param mixed  $screen_option The value to save instead of the option value.
-					 *                              Default false (to skip saving the current option).
-					 * @param string $option        The option name.
-					 * @param int    $value         The option value.
-					 */
-					$screen_option = apply_filters( 'set-screen-option', $screen_option, $option, $value ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-				}
+	$map_option = $option;
+	$type       = str_replace( 'edit_', '', $map_option );
+	$type       = str_replace( '_per_page', '', $type );
 
+	if ( in_array( $type, get_taxonomies(), true ) ) {
+		$map_option = 'edit_tags_per_page';
+	} elseif ( in_array( $type, get_post_types(), true ) ) {
+		$map_option = 'edit_per_page';
+	} else {
+		$option = str_replace( '-', '_', $option );
+	}
+
+	switch ( $map_option ) {
+		case 'edit_per_page':
+		case 'users_per_page':
+		case 'edit_comments_per_page':
+		case 'upload_per_page':
+		case 'edit_tags_per_page':
+		case 'plugins_per_page':
+		case 'export_personal_data_requests_per_page':
+		case 'remove_personal_data_requests_per_page':
+			// Network admin.
+		case 'sites_network_per_page':
+		case 'users_network_per_page':
+		case 'site_users_network_per_page':
+		case 'plugins_network_per_page':
+		case 'themes_network_per_page':
+		case 'site_themes_network_per_page':
+			$value = (int) $value;
+
+			if ( $value < 1 || $value > 999 ) {
+				return;
+			}
+
+			break;
+
+		default:
+			$screen_option = false;
+
+			if ( str_ends_with( $option, '_page' ) || 'layout_columns' === $option ) {
 				/**
 				 * Filters a screen option value before it is set.
 				 *
-				 * The dynamic portion of the hook name, `$option`, refers to the option name.
+				 * The filter can also be used to modify non-standard `[items]_per_page`
+				 * settings. See the parent function for a full list of standard options.
 				 *
 				 * Returning false from the filter will skip saving the current option.
 				 *
-				 * @since 5.4.2
+				 * @since 2.8.0
+				 * @since 5.4.2 Only applied to options ending with '_page',
+				 *              or the 'layout_columns' option.
 				 *
 				 * @see set_screen_options()
 				 *
-				 * @param mixed   $screen_option The value to save instead of the option value.
-				 *                               Default false (to skip saving the current option).
-				 * @param string  $option        The option name.
-				 * @param int     $value         The option value.
+				 * @param mixed  $screen_option The value to save instead of the option value.
+				 *                              Default false (to skip saving the current option).
+				 * @param string $option        The option name.
+				 * @param int    $value         The option value.
 				 */
-				$value = apply_filters( "set_screen_option_{$option}", $screen_option, $option, $value );
+				$screen_option = apply_filters( 'set-screen-option', $screen_option, $option, $value ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+			}
 
-				if ( false === $value ) {
-					return;
-				}
-				break;
-		}
+			/**
+			 * Filters a screen option value before it is set.
+			 *
+			 * The dynamic portion of the hook name, `$option`, refers to the option name.
+			 *
+			 * Returning false from the filter will skip saving the current option.
+			 *
+			 * @since 5.4.2
+			 *
+			 * @see set_screen_options()
+			 *
+			 * @param mixed   $screen_option The value to save instead of the option value.
+			 *                               Default false (to skip saving the current option).
+			 * @param string  $option        The option name.
+			 * @param int     $value         The option value.
+			 */
+			$value = apply_filters( "set_screen_option_{$option}", $screen_option, $option, $value );
 
-		update_user_meta( $user->ID, $option, $value );
+			if ( false === $value ) {
+				return;
+			}
 
-		$url = remove_query_arg( array( 'pagenum', 'apage', 'paged' ), wp_get_referer() );
-		if ( isset( $_POST['mode'] ) ) {
-			$url = add_query_arg( array( 'mode' => $_POST['mode'] ), $url );
-		}
-
-		wp_safe_redirect( $url );
-		exit;
+			break;
 	}
+
+	update_user_meta( $user->ID, $option, $value );
+
+	$url = remove_query_arg( array( 'pagenum', 'apage', 'paged' ), wp_get_referer() );
+
+	if ( isset( $_POST['mode'] ) ) {
+		$url = add_query_arg( array( 'mode' => $_POST['mode'] ), $url );
+	}
+
+	wp_safe_redirect( $url );
+	exit;
 }
 
 /**
@@ -405,13 +434,14 @@ function set_screen_options() {
 function saveDomDocument( $doc, $filename ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 	$config = $doc->saveXML();
 	$config = preg_replace( "/([^\r])\n/", "$1\r\n", $config );
-	$fp     = fopen( $filename, 'w' );
+
+	$fp = fopen( $filename, 'w' );
 	fwrite( $fp, $config );
 	fclose( $fp );
 }
 
 /**
- * Display the default admin color scheme picker (Used in user-edit.php)
+ * Displays the default administration color scheme picker (Used in user-edit.php).
  *
  * @since 3.0.0
  *
@@ -443,44 +473,40 @@ function admin_color_scheme_picker( $user_id ) {
 	if ( empty( $current_color ) || ! isset( $_wp_admin_css_colors[ $current_color ] ) ) {
 		$current_color = 'fresh';
 	}
-
 	?>
 	<fieldset id="color-picker" class="scheme-list">
-		<legend class="screen-reader-text"><span><?php _e( 'Admin Color Scheme' ); ?></span></legend>
+		<legend class="screen-reader-text"><span><?php _e( 'Administration Color Scheme' ); ?></span></legend>
 		<?php
 		wp_nonce_field( 'save-color-scheme', 'color-nonce', false );
 		foreach ( $_wp_admin_css_colors as $color => $color_info ) :
 
 			?>
-			<div class="color-option <?php echo ( $color == $current_color ) ? 'selected' : ''; ?>">
+			<div class="color-option <?php echo ( $color === $current_color ) ? 'selected' : ''; ?>">
 				<input name="admin_color" id="admin_color_<?php echo esc_attr( $color ); ?>" type="radio" value="<?php echo esc_attr( $color ); ?>" class="tog" <?php checked( $color, $current_color ); ?> />
 				<input type="hidden" class="css_url" value="<?php echo esc_url( $color_info->url ); ?>" />
 				<input type="hidden" class="icon_colors" value="<?php echo esc_attr( wp_json_encode( array( 'icons' => $color_info->icon_colors ) ) ); ?>" />
 				<label for="admin_color_<?php echo esc_attr( $color ); ?>"><?php echo esc_html( $color_info->name ); ?></label>
-				<table class="color-palette">
-					<tr>
-					<?php
-
-					foreach ( $color_info->colors as $html_color ) {
-						?>
-						<td style="background-color: <?php echo esc_attr( $html_color ); ?>">&nbsp;</td>
-						<?php
-					}
-
+				<div class="color-palette">
+				<?php
+				foreach ( $color_info->colors as $html_color ) {
 					?>
-					</tr>
-				</table>
+					<div class="color-palette-shade" style="background-color: <?php echo esc_attr( $html_color ); ?>">&nbsp;</div>
+					<?php
+				}
+				?>
+				</div>
 			</div>
 			<?php
 
 		endforeach;
-
 		?>
 	</fieldset>
 	<?php
 }
 
 /**
+ *
+ * @since 3.8.0
  *
  * @global array $_wp_admin_css_colors
  */
@@ -507,7 +533,7 @@ function wp_color_scheme_settings() {
 		);
 	}
 
-	echo '<script type="text/javascript">var _wpColorScheme = ' . wp_json_encode( array( 'icons' => $icon_colors ) ) . ";</script>\n";
+	echo '<script type="text/javascript">var _wpColorScheme = ' . wp_json_encode( array( 'icons' => $icon_colors ), JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ) . ";</script>\n";
 }
 
 /**
@@ -547,7 +573,7 @@ function _customizer_mobile_viewport_meta( $viewport_meta ) {
 }
 
 /**
- * Check lock status for posts displayed on the Posts screen
+ * Checks lock status for posts displayed on the Posts screen.
  *
  * @since 3.6.0
  *
@@ -562,15 +588,19 @@ function wp_check_locked_posts( $response, $data, $screen_id ) {
 	if ( array_key_exists( 'wp-check-locked-posts', $data ) && is_array( $data['wp-check-locked-posts'] ) ) {
 		foreach ( $data['wp-check-locked-posts'] as $key ) {
 			$post_id = absint( substr( $key, 5 ) );
+
 			if ( ! $post_id ) {
 				continue;
 			}
 
 			$user_id = wp_check_post_lock( $post_id );
+
 			if ( $user_id ) {
 				$user = get_userdata( $user_id );
+
 				if ( $user && current_user_can( 'edit_post', $post_id ) ) {
 					$send = array(
+						'name' => $user->display_name,
 						/* translators: %s: User's display name. */
 						'text' => sprintf( __( '%s is currently editing' ), $user->display_name ),
 					);
@@ -594,7 +624,7 @@ function wp_check_locked_posts( $response, $data, $screen_id ) {
 }
 
 /**
- * Check lock status on the New/Edit Post screen and refresh the lock
+ * Checks lock status on the New/Edit Post screen and refresh the lock.
  *
  * @since 3.6.0
  *
@@ -609,6 +639,7 @@ function wp_refresh_post_lock( $response, $data, $screen_id ) {
 		$send     = array();
 
 		$post_id = absint( $received['post_id'] );
+
 		if ( ! $post_id ) {
 			return $response;
 		}
@@ -619,8 +650,10 @@ function wp_refresh_post_lock( $response, $data, $screen_id ) {
 
 		$user_id = wp_check_post_lock( $post_id );
 		$user    = get_userdata( $user_id );
+
 		if ( $user ) {
 			$error = array(
+				'name' => $user->display_name,
 				/* translators: %s: User's display name. */
 				'text' => sprintf( __( '%s has taken over and is currently editing.' ), $user->display_name ),
 			);
@@ -633,6 +666,7 @@ function wp_refresh_post_lock( $response, $data, $screen_id ) {
 			$send['lock_error'] = $error;
 		} else {
 			$new_lock = wp_set_post_lock( $post_id );
+
 			if ( $new_lock ) {
 				$send['new_lock'] = implode( ':', $new_lock );
 			}
@@ -645,7 +679,7 @@ function wp_refresh_post_lock( $response, $data, $screen_id ) {
 }
 
 /**
- * Check nonce expiration on the New/Edit Post screen and refresh if needed
+ * Checks nonce expiration on the New/Edit Post screen and refresh if needed.
  *
  * @since 3.6.0
  *
@@ -656,10 +690,12 @@ function wp_refresh_post_lock( $response, $data, $screen_id ) {
  */
 function wp_refresh_post_nonces( $response, $data, $screen_id ) {
 	if ( array_key_exists( 'wp-refresh-post-nonces', $data ) ) {
-		$received                           = $data['wp-refresh-post-nonces'];
+		$received = $data['wp-refresh-post-nonces'];
+
 		$response['wp-refresh-post-nonces'] = array( 'check' => 1 );
 
 		$post_id = absint( $received['post_id'] );
+
 		if ( ! $post_id ) {
 			return $response;
 		}
@@ -683,7 +719,42 @@ function wp_refresh_post_nonces( $response, $data, $screen_id ) {
 }
 
 /**
- * Add the latest Heartbeat and REST-API nonce to the Heartbeat response.
+ * Refresh nonces used with meta boxes in the block editor.
+ *
+ * @since 6.1.0
+ *
+ * @param array  $response  The Heartbeat response.
+ * @param array  $data      The $_POST data sent.
+ * @return array The Heartbeat response.
+ */
+function wp_refresh_metabox_loader_nonces( $response, $data ) {
+	if ( empty( $data['wp-refresh-metabox-loader-nonces'] ) ) {
+		return $response;
+	}
+
+	$received = $data['wp-refresh-metabox-loader-nonces'];
+	$post_id  = (int) $received['post_id'];
+
+	if ( ! $post_id ) {
+		return $response;
+	}
+
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return $response;
+	}
+
+	$response['wp-refresh-metabox-loader-nonces'] = array(
+		'replace' => array(
+			'metabox_loader_nonce' => wp_create_nonce( 'meta-box-loader' ),
+			'_wpnonce'             => wp_create_nonce( 'update-post_' . $post_id ),
+		),
+	);
+
+	return $response;
+}
+
+/**
+ * Adds the latest Heartbeat and REST API nonce to the Heartbeat response.
  *
  * @since 5.0.0
  *
@@ -696,15 +767,16 @@ function wp_refresh_heartbeat_nonces( $response ) {
 
 	// Refresh the Heartbeat nonce.
 	$response['heartbeat_nonce'] = wp_create_nonce( 'heartbeat-nonce' );
+
 	return $response;
 }
 
 /**
- * Disable suspension of Heartbeat on the Add/Edit Post screens.
+ * Disables suspension of Heartbeat on the Add/Edit Post screens.
  *
  * @since 3.8.0
  *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  *
  * @param array $settings An array of Heartbeat settings.
  * @return array Filtered Heartbeat settings.
@@ -720,7 +792,7 @@ function wp_heartbeat_set_suspension( $settings ) {
 }
 
 /**
- * Autosave with heartbeat
+ * Performs autosave with heartbeat.
  *
  * @since 3.9.0
  *
@@ -757,9 +829,9 @@ function heartbeat_autosave( $response, $data ) {
 }
 
 /**
- * Remove single-use URL parameters and create canonical link based on new URL.
+ * Removes single-use URL parameters and create canonical link based on new URL.
  *
- * Remove specific query string parameters from a URL, create the canonical link,
+ * Removes specific query string parameters from a URL, create the canonical link,
  * put it in the admin header, and change the current URL to match.
  *
  * @since 4.2.0
@@ -774,6 +846,15 @@ function wp_admin_canonical_url() {
 	// Ensure we're using an absolute URL.
 	$current_url  = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 	$filtered_url = remove_query_arg( $removable_query_args, $current_url );
+
+	/**
+	 * Filters the admin canonical URL value.
+	 *
+	 * @since 6.5.0
+	 *
+	 * @param string $filtered_url The admin canonical URL value.
+	 */
+	$filtered_url = apply_filters( 'wp_admin_canonical_url', $filtered_url );
 	?>
 	<link id="wp-admin-canonical" rel="canonical" href="<?php echo esc_url( $filtered_url ); ?>" />
 	<script>
@@ -782,29 +863,6 @@ function wp_admin_canonical_url() {
 		}
 	</script>
 	<?php
-}
-
-/**
- * Send a referrer policy header so referrers are not sent externally from administration screens.
- *
- * @since 4.9.0
- */
-function wp_admin_headers() {
-	$policy = 'strict-origin-when-cross-origin';
-
-	/**
-	 * Filters the admin referrer policy header value.
-	 *
-	 * @since 4.9.0
-	 * @since 4.9.5 The default value was changed to 'strict-origin-when-cross-origin'.
-	 *
-	 * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
-	 *
-	 * @param string $policy The admin referrer policy header value. Default 'strict-origin-when-cross-origin'.
-	 */
-	$policy = apply_filters( 'admin_referrer_policy', $policy );
-
-	header( sprintf( 'Referrer-Policy: %s', $policy ) );
 }
 
 /**

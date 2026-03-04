@@ -9,8 +9,8 @@
 
 /**
  * Finds a script handle for the selected block metadata field. It detects
- * when a path to file was provided and finds a corresponding asset file
- * with details necessary to register the script under automatically
+ * when a path to file was provided and optionally finds a corresponding asset
+ * file with details necessary to register the script under automatically
  * generated handle name. It returns unprocessed script handle otherwise.
  *
  * @since 5.5.0
@@ -18,10 +18,12 @@
  *
  * @param array  $metadata   Block metadata.
  * @param string $field_name Field name to pick from metadata.
+ * @param int    $index      Optional. Index of the script to register when multiple items passed.
+ *                           Default 0.
  * @return string|false Script handle provided directly or created through
  *                      script's registration, or false on failure.
  */
-function register_block_script_handle( $metadata, $field_name ) {
+function register_block_script_handle( $metadata, $field_name, $index = 0 ) {
 }
 
 /**
@@ -34,10 +36,12 @@ function register_block_script_handle( $metadata, $field_name ) {
  *
  * @param array  $metadata   Block metadata.
  * @param string $field_name Field name to pick from metadata.
+ * @param int    $index      Optional. Index of the style to register when multiple items passed.
+ *                           Default 0.
  * @return string|false Style handle provided directly or created through
  *                      style's registration, or false on failure.
  */
-function register_block_style_handle( $metadata, $field_name ) {
+function register_block_style_handle( $metadata, $field_name, $index = 0 ) {
 	return false;
 }
 
@@ -46,7 +50,7 @@ function register_block_style_handle( $metadata, $field_name ) {
  *
  * @since 5.9.0
  *
- * @return array The schema for block's metadata.
+ * @return object The schema for block's metadata.
  */
 function get_block_metadata_i18n_schema() {
 	static $i18n_block_schema;
@@ -59,20 +63,56 @@ function get_block_metadata_i18n_schema() {
 }
 
 /**
+ * Registers all block types from a block metadata collection.
+ *
+ * This can either reference a previously registered metadata collection or, if the `$manifest` parameter is provided,
+ * register the metadata collection directly within the same function call.
+ *
+ * @since 6.8.0
+ * @see wp_register_block_metadata_collection()
+ * @see register_block_type_from_metadata()
+ *
+ * @param string $path     The absolute base path for the collection ( e.g., WP_PLUGIN_DIR . '/my-plugin/blocks/' ).
+ * @param string $manifest Optional. The absolute path to the manifest file containing the metadata collection, in
+ *                         order to register the collection. If this parameter is not provided, the `$path` parameter
+ *                         must reference a previously registered block metadata collection.
+ */
+function wp_register_block_types_from_metadata_collection( $path, $manifest = '' ) {
+	if ( $manifest ) {
+		wp_register_block_metadata_collection( $path, $manifest );
+	}
+
+	$block_metadata_files = WP_Block_Metadata_Registry::get_collection_block_metadata_files( $path );
+	foreach ( $block_metadata_files as $block_metadata_file ) {
+		register_block_type_from_metadata( $block_metadata_file );
+	}
+}
+
+/**
+ * Registers a block metadata collection.
+ *
+ * This function allows core and third-party plugins to register their block metadata
+ * collections in a centralized location. Registering collections can improve performance
+ * by avoiding multiple reads from the filesystem and parsing JSON.
+ *
+ * @since 6.7.0
+ *
+ * @param string $path     The base path in which block files for the collection reside.
+ * @param string $manifest The path to the manifest file for the collection.
+ */
+function wp_register_block_metadata_collection( $path, $manifest ) {
+	WP_Block_Metadata_Registry::register_collection( $path, $manifest );
+}
+
+/**
  * Registers a block type from the metadata stored in the `block.json` file.
  *
  * @since 5.5.0
  * @since calmPress 1.0.0 Does nothing, returns false.
  *
- * @param string $file_or_folder Path to the JSON file with metadata definition for
- *                               the block or path to the folder where the `block.json` file is located.
- *                               If providing the path to a JSON file, the filename must end with `block.json`.
- * @param array  $args           Optional. Array of block type arguments. Accepts any public property
- *                               of `WP_Block_Type`. See WP_Block_Type::__construct() for information
- *                               on accepted arguments. Default empty array.
- * @return WP_Block_Type|false The registered block type on success, or false on failure.
+ * @return false
  */
-function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
+function register_block_type_from_metadata() {
 	return false;
 }
 
@@ -113,7 +153,7 @@ function unregister_block_type( $name ) {
 }
 
 /**
- * Determine whether a post or content string has blocks.
+ * Determines whether a post or content string has blocks.
  *
  * This test optimizes for performance rather than strict accuracy, detecting
  * the pattern of a block but not validating its structure. For strict accuracy,
@@ -134,11 +174,12 @@ function has_blocks( $post = null ) {
 }
 
 /**
- * Determine whether a $post or a string contains a specific block type.
+ * Determines whether a $post or a string contains a specific block type.
  *
  * This test optimizes for performance rather than strict accuracy, detecting
  * whether the block type exists but not validating its structure and not checking
- * reusable blocks. For strict accuracy, you should use the block parser on post content.
+ * synced patterns (formerly called reusable blocks). For strict accuracy,
+ * you should use the block parser on post content.
  *
  * Always returns false for calmPress.
  *
@@ -194,7 +235,17 @@ function excerpt_remove_blocks( $content ) {
  * 
  * @since calmPress 1.0.0 returns empty string
  *
- * @param array $parsed_block A single parsed block object.
+ * @param array $parsed_block {
+ *     An associative array of the block being rendered. See WP_Block_Parser_Block.
+ *
+ *     @type string|null $blockName    Name of block.
+ *     @type array       $attrs        Attributes from block comment delimiters.
+ *     @type array[]     $innerBlocks  List of inner blocks. An array of arrays that
+ *                                     have the same structure as this one.
+ *     @type string      $innerHTML    HTML from inside block comment delimiters.
+ *     @type array       $innerContent List of string fragments and null markers where
+ *                                     inner blocks were found.
+ * }
  * @return string String of rendered HTML.
  */
 function render_block( $block ) {
@@ -204,23 +255,39 @@ function render_block( $block ) {
 /**
  * Parses blocks out of a content string.
  *
- * @since 5.0.0
+ * Given an HTML document, this function fully-parses block content, producing
+ * a tree of blocks and their contents, as well as top-level non-block content,
+ * which will appear as a block with no `blockName`.
  *
+ * This function can be memory heavy for certain documents, particularly those
+ * with deeply-nested blocks or blocks with extensive attribute values. Further,
+ * this function must parse an entire document in one atomic operation.
+ *
+ * If the entire parsed document is not necessary, consider using {@see WP_Block_Processor}
+ * instead, as it provides a streaming and low-overhead interface for finding blocks.
+ *
+ * @since 5.0.0
+ * @since calmPress 1.0.0 returns empty array.
+ * 
  * @param string $content Post content.
- * @return array[] Array of parsed block objects.
+ * @return array[] {
+ *     Array of block structures.
+ *
+ *     @type array ...$0 {
+ *         An associative array of a single parsed block object. See WP_Block_Parser_Block.
+ *
+ *         @type string|null $blockName    Name of block.
+ *         @type array       $attrs        Attributes from block comment delimiters.
+ *         @type array[]     $innerBlocks  List of inner blocks. An array of arrays that
+ *                                         have the same structure as this one.
+ *         @type string      $innerHTML    HTML from inside block comment delimiters.
+ *         @type array       $innerContent List of string fragments and null markers where
+ *                                         inner blocks were found.
+ *     }
+ * }
  */
 function parse_blocks( $content ) {
-	/**
-	 * Filter to allow plugins to replace the server-side block parser
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param string $parser_class Name of block parser class.
-	 */
-	$parser_class = apply_filters( 'block_parser_class', 'WP_Block_Parser' );
-
-	$parser = new $parser_class();
-	return $parser->parse( $content );
+	return [];
 }
 
 /**
@@ -234,7 +301,6 @@ function parse_blocks( $content ) {
  * @return string Updated post content.
  */
 function do_blocks( $content ) {
-	return $content;
 }
 
 /**
@@ -257,11 +323,16 @@ function block_version( $content ) {
  * Registers a new block style.
  *
  * @since 5.3.0
+ * @since 6.6.0 Added support for registering styles for multiple block types.
  *
- * @param string $block_name       Block type name including namespace.
- * @param array  $style_properties Array containing the properties of the style name,
- *                                 label, style (name of the stylesheet to be enqueued),
- *                                 inline_style (string containing the CSS to be added).
+ * @link https://developer.wordpress.org/block-editor/reference-guides/block-api/block-styles/
+ *
+ * @param string|string[] $block_name       Block type name including namespace or array of namespaced block type names.
+ * @param array           $style_properties Array containing the properties of the style name, label,
+ *                                          style_handle (name of the stylesheet to be enqueued),
+ *                                          inline_style (string containing the CSS to be added),
+ *                                          style_data (theme.json-like array to generate CSS from).
+ *                                          See WP_Block_Styles_Registry::register().
  * @return bool True if the block style was registered with success and false otherwise.
  */
 function register_block_style( $block_name, $style_properties ) {
@@ -270,6 +341,8 @@ function register_block_style( $block_name, $style_properties ) {
 
 /**
  * Unregisters a block style.
+ * 
+ * for calmPress always returns true.
  *
  * @since 5.3.0
  *
@@ -278,153 +351,5 @@ function register_block_style( $block_name, $style_properties ) {
  * @return bool True if the block style was unregistered with success and false otherwise.
  */
 function unregister_block_style( $block_name, $block_style_name ) {
-	return false;
+	return true;
 }
-
-/**
- * Helper function that returns the proper pagination arrow html for
- * `QueryPaginationNext` and `QueryPaginationPrevious` blocks based
- * on the provided `paginationArrow` from `QueryPagination` context.
- *
- * It's used in QueryPaginationNext and QueryPaginationPrevious blocks.
- *
- * @since 5.9.0
- *
- * @param WP_Block $block   Block instance.
- * @param boolean  $is_next Flag for hanlding `next/previous` blocks.
- *
- * @return string|null Returns the constructed WP_Query arguments.
- */
-function get_query_pagination_arrow( $block, $is_next ) {
-	$arrow_map = array(
-		'none'    => '',
-		'arrow'   => array(
-			'next'     => '→',
-			'previous' => '←',
-		),
-		'chevron' => array(
-			'next'     => '»',
-			'previous' => '«',
-		),
-	);
-	if ( ! empty( $block->context['paginationArrow'] ) && array_key_exists( $block->context['paginationArrow'], $arrow_map ) && ! empty( $arrow_map[ $block->context['paginationArrow'] ] ) ) {
-		$pagination_type = $is_next ? 'next' : 'previous';
-		$arrow_attribute = $block->context['paginationArrow'];
-		$arrow           = $arrow_map[ $block->context['paginationArrow'] ][ $pagination_type ];
-		$arrow_classes   = "wp-block-query-pagination-$pagination_type-arrow is-arrow-$arrow_attribute";
-		return "<span class='$arrow_classes'>$arrow</span>";
-	}
-	return null;
-}
-
-/**
- * Enqueues a stylesheet for a specific block.
- *
- * If the theme has opted-in to separate-styles loading,
- * then the stylesheet will be enqueued on-render,
- * otherwise when the block inits.
- *
- * @since 5.9.0
- *
- * @param string $block_name The block-name, including namespace.
- * @param array  $args       An array of arguments [handle,src,deps,ver,media].
- * @return void
- */
-function wp_enqueue_block_style( $block_name, $args ) {
-	$args = wp_parse_args(
-		$args,
-		array(
-			'handle' => '',
-			'src'    => '',
-			'deps'   => array(),
-			'ver'    => false,
-			'media'  => 'all',
-		)
-	);
-
-	/**
-	 * Callback function to register and enqueue styles.
-	 *
-	 * @param string $content When the callback is used for the render_block filter,
-	 *                        the content needs to be returned so the function parameter
-	 *                        is to ensure the content exists.
-	 * @return string Block content.
-	 */
-	$callback = static function( $content ) use ( $args ) {
-		// Register the stylesheet.
-		if ( ! empty( $args['src'] ) ) {
-			wp_register_style( $args['handle'], $args['src'], $args['deps'], $args['ver'], $args['media'] );
-		}
-
-		// Add `path` data if provided.
-		if ( isset( $args['path'] ) ) {
-			wp_style_add_data( $args['handle'], 'path', $args['path'] );
-
-			// Get the RTL file path.
-			$rtl_file_path = str_replace( '.css', '-rtl.css', $args['path'] );
-
-			// Add RTL stylesheet.
-			if ( file_exists( $rtl_file_path ) ) {
-				wp_style_add_data( $args['handle'], 'rtl', 'replace' );
-
-				if ( is_rtl() ) {
-					wp_style_add_data( $args['handle'], 'path', $rtl_file_path );
-				}
-			}
-		}
-
-		// Enqueue the stylesheet.
-		wp_enqueue_style( $args['handle'] );
-
-		return $content;
-	};
-
-	$hook = did_action( 'wp_enqueue_scripts' ) ? 'wp_footer' : 'wp_enqueue_scripts';
-
-	/*
-	 * The filter's callback here is an anonymous function because
-	 * using a named function in this case is not possible.
-	 *
-	 * The function cannot be unhooked, however, users are still able
-	 * to dequeue the stylesheets registered/enqueued by the callback
-	 * which is why in this case, using an anonymous function
-	 * was deemed acceptable.
-	 */
-	add_filter( $hook, $callback );
-
-	// Enqueue assets in the editor.
-	add_action( 'enqueue_block_assets', $callback );
-}
-
-/**
- * Allow multiple block styles.
- *
- * @since 5.9.0
- *
- * @param array $metadata Metadata for registering a block type.
- * @return array Metadata for registering a block type.
- */
-function _wp_multiple_block_styles( $metadata ) {
-	foreach ( array( 'style', 'editorStyle' ) as $key ) {
-		if ( ! empty( $metadata[ $key ] ) && is_array( $metadata[ $key ] ) ) {
-			$default_style = array_shift( $metadata[ $key ] );
-			foreach ( $metadata[ $key ] as $handle ) {
-				$args = array( 'handle' => $handle );
-				if ( 0 === strpos( $handle, 'file:' ) && isset( $metadata['file'] ) ) {
-					$style_path = remove_block_asset_path_prefix( $handle );
-					$args       = array(
-						'handle' => sanitize_key( "{$metadata['name']}-{$style_path}" ),
-						'src'    => plugins_url( $style_path, $metadata['file'] ),
-					);
-				}
-
-				wp_enqueue_block_style( $metadata['name'], $args );
-			}
-
-			// Only return the 1st item in the array.
-			$metadata[ $key ] = $default_style;
-		}
-	}
-	return $metadata;
-}
-add_filter( 'block_type_metadata', '_wp_multiple_block_styles' );

@@ -266,7 +266,7 @@ class Tests_Query_Search extends WP_UnitTestCase {
 	 * @ticket 31025
 	 */
 	public function test_s_zero() {
-		$p1 = $this->factory->post->create(
+		$p1 = self::factory()->post->create(
 			array(
 				'post_status'  => 'publish',
 				'post_title'   => '1',
@@ -275,12 +275,12 @@ class Tests_Query_Search extends WP_UnitTestCase {
 			)
 		);
 
-		$p2 = $this->factory->post->create(
+		$p2 = self::factory()->post->create(
 			array(
 				'post_status'  => 'publish',
 				'post_title'   => '0',
 				'post_content' => 'this post contains zeroes',
-				'post_excerpt' => 'this post containts zeroes',
+				'post_excerpt' => 'this post contains zeroes',
 			)
 		);
 
@@ -408,7 +408,7 @@ class Tests_Query_Search extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Unfiltered search queries for attachment post types should not inlcude
+	 * Unfiltered search queries for attachment post types should not include
 	 * filenames to ensure the postmeta JOINs don't happen on the front end.
 	 *
 	 * @ticket 22744
@@ -635,7 +635,7 @@ class Tests_Query_Search extends WP_UnitTestCase {
 
 		/*
 		 * WP_Query should have removed the wp_allow_query_attachment_by_filename filter
-		 * and thus not match the attachment created above
+		 * and thus not match the attachment created above.
 		 */
 		$q->get_posts();
 		$this->assertEmpty( $q->posts );

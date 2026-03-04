@@ -14,7 +14,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 */
 	protected $table;
 
-	function set_up() {
+	public function set_up() {
 		parent::set_up();
 		$this->table = _get_list_table( 'WP_Posts_List_Table', array( 'screen' => 'edit-page' ) );
 	}
@@ -85,7 +85,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 * @covers WP_Posts_List_Table::display_rows
 	 * @covers WP_Posts_List_Table::set_hierarchical_display
 	 */
-	function test_list_hierarchical_pages_first_page() {
+	public function test_list_hierarchical_pages_first_page() {
 		$this->_test_list_hierarchical_page(
 			array(
 				'paged'          => 1,
@@ -104,7 +104,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 * @covers WP_Posts_List_Table::display_rows
 	 * @covers WP_Posts_List_Table::set_hierarchical_display
 	 */
-	function test_list_hierarchical_pages_second_page() {
+	public function test_list_hierarchical_pages_second_page() {
 		$this->_test_list_hierarchical_page(
 			array(
 				'paged'          => 2,
@@ -124,7 +124,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 * @covers WP_Posts_List_Table::display_rows
 	 * @covers WP_Posts_List_Table::set_hierarchical_display
 	 */
-	function test_search_hierarchical_pages_first_page() {
+	public function test_search_hierarchical_pages_first_page() {
 		$this->_test_list_hierarchical_page(
 			array(
 				'paged'          => 1,
@@ -144,7 +144,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 * @covers WP_Posts_List_Table::display_rows
 	 * @covers WP_Posts_List_Table::set_hierarchical_display
 	 */
-	function test_search_hierarchical_pages_second_page() {
+	public function test_search_hierarchical_pages_second_page() {
 		$this->_test_list_hierarchical_page(
 			array(
 				'paged'          => 2,
@@ -164,7 +164,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 * @covers WP_Posts_List_Table::display_rows
 	 * @covers WP_Posts_List_Table::set_hierarchical_display
 	 */
-	function test_grandchildren_hierarchical_pages_first_page() {
+	public function test_grandchildren_hierarchical_pages_first_page() {
 		// Page 6 is the first page with grandchildren.
 		$this->_test_list_hierarchical_page(
 			array(
@@ -186,7 +186,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 * @covers WP_Posts_List_Table::display_rows
 	 * @covers WP_Posts_List_Table::set_hierarchical_display
 	 */
-	function test_grandchildren_hierarchical_pages_second_page() {
+	public function test_grandchildren_hierarchical_pages_second_page() {
 		// Page 7 is the second page with grandchildren.
 		$this->_test_list_hierarchical_page(
 			array(
@@ -209,7 +209,6 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 * @param array $expected_ids Expected IDs of pages returned.
 	 */
 	protected function _test_list_hierarchical_page( array $args, array $expected_ids ) {
-
 		$matches = array();
 
 		$_REQUEST['paged']   = $args['paged'];
@@ -222,7 +221,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 			$args
 		);
 
-		// Mimic the behaviour of `wp_edit_posts_query()`:
+		// Mimic the behavior of `wp_edit_posts_query()`:
 		if ( ! isset( $args['orderby'] ) ) {
 			$args['orderby']                = 'menu_order title';
 			$args['order']                  = 'asc';
@@ -257,7 +256,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 *
 	 * @covers WP_Posts_List_Table::extra_tablenav
 	 */
-	function test_filter_button_should_not_be_shown_if_there_are_no_posts() {
+	public function test_filter_button_should_not_be_shown_if_there_are_no_posts() {
 		// Set post type to a non-existent one.
 		$this->table->screen->post_type = 'foo';
 
@@ -273,7 +272,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 *
 	 * @covers WP_Posts_List_Table::extra_tablenav
 	 */
-	function test_months_dropdown_should_not_be_shown_if_there_are_no_posts() {
+	public function test_months_dropdown_should_not_be_shown_if_there_are_no_posts() {
 		// Set post type to a non-existent one.
 		$this->table->screen->post_type = 'foo';
 
@@ -289,7 +288,7 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 *
 	 * @covers WP_Posts_List_Table::extra_tablenav
 	 */
-	function test_category_dropdown_should_not_be_shown_if_there_are_no_posts() {
+	public function test_category_dropdown_should_not_be_shown_if_there_are_no_posts() {
 		// Set post type to a non-existent one.
 		$this->table->screen->post_type = 'foo';
 
@@ -316,4 +315,25 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'id="delete_all"', $output );
 	}
 
+	/**
+	 * @ticket 42066
+	 *
+	 * @covers WP_Posts_List_Table::get_views
+	 */
+	public function test_get_views_should_return_views_by_default() {
+		global $avail_post_stati;
+
+		$avail_post_stati_backup = $avail_post_stati;
+		$avail_post_stati        = get_available_post_statuses();
+
+		$actual           = $this->table->get_views();
+		$avail_post_stati = $avail_post_stati_backup;
+
+		$expected = array(
+			'all'     => '<a href="edit.php?post_type=page">All <span class="count">(38)</span></a>',
+			'publish' => '<a href="edit.php?post_status=publish&#038;post_type=page">Published <span class="count">(38)</span></a>',
+		);
+
+		$this->assertSame( $expected, $actual );
+	}
 }

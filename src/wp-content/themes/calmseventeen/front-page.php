@@ -35,6 +35,8 @@ get_header(); ?>
 			 *
 			 * @since calm Seventeen 1.0
 			 *
+			 * @global int|string $twentyseventeencounter Front page section counter.
+			 *
 			 * @param int $num_sections Number of front page sections.
 			 */
 			$num_sections = apply_filters( 'calmseventeen_front_page_sections', 4 );

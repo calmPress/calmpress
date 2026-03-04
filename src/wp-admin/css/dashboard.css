@@ -120,48 +120,48 @@
 #dashboard_right_now .search-engines-info:before,
 #dashboard_right_now li a:before,
 #dashboard_right_now li > span:before { /* get only the first level span to exclude screen-reader-text in mu-storage */
-	color: #646970;
-	font: normal 20px/1 dashicons;
-	speak: never;
-	display: inline-block;
-	padding: 0 10px 0 0;
-	position: relative;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-decoration: none !important;
-	vertical-align: top;
-	content: "\f159"; /* generic icon for items added by CPTs ? */
 	padding: 0 5px 0 0;
+	/* generic icon for items added by CPTs ? */
+	content: "\f159";
+	content: "\f159" / '';
 }
 
 #dashboard_right_now .page-count a:before,
 #dashboard_right_now .page-count span:before {
 	content: "\f105";
+	content: "\f105" / '';
 }
 
 #dashboard_right_now .post-count a:before,
 #dashboard_right_now .post-count span:before {
 	content: "\f109";
+	content: "\f109" / '';
 }
 
 #dashboard_right_now .comment-count a:before {
 	content: "\f101";
+	content: "\f101" / '';
 }
 
 #dashboard_right_now .comment-mod-count a:before {
 	content: "\f125";
+	content: "\f125" / '';
 }
 
 #dashboard_right_now .storage-count a:before {
 	content: "\f104";
+	content: "\f104" / '';
 }
 
 #dashboard_right_now .storage-count.warning a:before {
 	content: "\f153";
+	content: "\f153" / '';
 }
 
 #dashboard_right_now .search-engines-info:before {
 	content: "\f348";
+	content: "\f348" / '';
+	color: #d63638;
 }
 
 body #dashboard-widgets .postbox form .submit {
@@ -225,6 +225,11 @@ body #dashboard-widgets .postbox form .submit {
 	padding: 0;
 	font-size: 14px;
 	font-weight: 400;
+}
+
+#network_dashboard_right_now p input {
+	margin: 2px 1px;
+	vertical-align: middle;
 }
 
 /* Dashboard right now - Colors */
@@ -366,6 +371,7 @@ body #dashboard-widgets .postbox form .submit {
 
 #dashboard_activity .comment-meta span.approve:before {
 	content: "\f227";
+	content: "\f227" / '';
 	font: 20px/.5 dashicons;
 	margin-left: 5px;
 	vertical-align: middle;
@@ -404,31 +410,32 @@ body #dashboard-widgets .postbox form .submit {
 
 #future-posts ul,
 #published-posts ul {
-	clear: both;
-	margin-bottom: 0;
+	margin: 8px -12px 0 -12px;
 }
 
 #future-posts li,
 #published-posts li {
-	margin-bottom: 8px;
+	display: grid;
+	grid-template-columns: clamp(160px, calc(2vw + 140px), 200px) auto;
+	column-gap: 10px;
+	color: #646970;
+	padding: 4px 12px;
 }
 
-#future-posts ul span,
-#published-posts ul span {
-	display: inline-block;
-	margin-right: 5px;
-	min-width: 150px;
-	color: #646970;
+#future-posts li:nth-child(odd),
+#published-posts li:nth-child(odd) {
+	background-color: #f6f7f7;
 }
 
 .activity-block {
 	border-bottom: 1px solid #f0f0f1;
-	margin: 0 -12px;
+	margin: 0 -12px 6px -12px;
 	padding: 8px 12px 4px;
 }
 
 .activity-block:last-child {
 	border-bottom: none;
+	margin-bottom: 0;
 }
 
 .activity-block .subsubsub li {
@@ -628,6 +635,7 @@ a.rsswidget {
 
 .rss-widget cite:before {
 	content: "\2014";
+	content: "\2014" / '';
 }
 
 .dashboard-comment-wrap {

@@ -104,6 +104,7 @@ class Tests_Post_GetBodyClass extends WP_UnitTestCase {
 		$class = get_body_class();
 		$this->assertContains( 'single-post', $class );
 		$this->assertContains( "postid-{$post_id}", $class );
+		$this->assertContains( 'wp-singular', $class );
 	}
 
 	public function test_page_template_body_classes_no_template() {

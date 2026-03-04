@@ -4,9 +4,7 @@
  *
  * @package WordPress
  * @subpackage REST API
- */
-
-/**
+ *
  * @group restapi
  */
 class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
@@ -46,6 +44,13 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 	private static $admin;
 
 	/**
+	 * JSON decoded response from the WordPress.org plugin API.
+	 *
+	 * @var stdClass
+	 */
+	private static $plugin_api_decoded_response;
+
+	/**
 	 * Set up class test fixtures.
 	 *
 	 * @since 5.5.0
@@ -72,6 +77,8 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 		if ( is_multisite() ) {
 			grant_super_admin( self::$super_admin );
 		}
+
+		self::$plugin_api_decoded_response = json_decode( file_get_contents( DIR_TESTDATA . '/plugins/link-manager.json' ) );
 	}
 
 	/**
@@ -92,11 +99,21 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 		for managing plugins have no real value at this point"
 		
 		if ( file_exists( WP_PLUGIN_DIR . '/test-plugin/test-plugin.php' ) ) {
+			// Remove plugin files.
 			$this->rmdir( WP_PLUGIN_DIR . '/test-plugin' );
+			// Delete empty directory.
+			rmdir( WP_PLUGIN_DIR . '/test-plugin' );
 		}
 		*/
 		if ( file_exists( DIR_TESTDATA . '/link-manager.zip' ) ) {
 			unlink( DIR_TESTDATA . '/link-manager.zip' );
+		}
+
+		if ( file_exists( WP_PLUGIN_DIR . '/link-manager/link-manager.php' ) ) {
+			// Remove plugin files.
+			$this->rmdir( WP_PLUGIN_DIR . '/link-manager' );
+			// Delete empty directory.
+			rmdir( WP_PLUGIN_DIR . '/link-manager' );
 		}
 
 		parent::tear_down();
@@ -364,10 +381,6 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 	 * @ticket 50321
 	 */
 	public function test_create_item() {
-		if ( isset( get_plugins()['link-manager/link-manager.php'] ) ) {
-			delete_plugins( array( 'link-manager/link-manager.php' ) );
-		}
-
 		wp_set_current_user( self::$super_admin );
 		$this->setup_plugin_download();
 
@@ -384,10 +397,6 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 	 * @ticket 50321
 	 */
 	public function test_create_item_and_activate() {
-		if ( isset( get_plugins()['link-manager/link-manager.php'] ) ) {
-			delete_plugins( array( 'link-manager/link-manager.php' ) );
-		}
-
 		wp_set_current_user( self::$super_admin );
 		$this->setup_plugin_download();
 
@@ -410,10 +419,6 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 	 * @ticket 50321
 	 */
 	public function test_create_item_and_activate_errors_if_no_permission_to_activate_plugin() {
-		if ( isset( get_plugins()['link-manager/link-manager.php'] ) ) {
-			delete_plugins( array( 'link-manager/link-manager.php' ) );
-		}
-
 		wp_set_current_user( self::$super_admin );
 		$this->setup_plugin_download();
 		$this->disable_activate_permission( 'link-manager/link-manager.php' );
@@ -436,10 +441,6 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 	 * @ticket 50321
 	 */
 	public function test_create_item_and_network_activate_rejected_if_not_multisite() {
-		if ( isset( get_plugins()['link-manager/link-manager.php'] ) ) {
-			delete_plugins( array( 'link-manager/link-manager.php' ) );
-		}
-
 		wp_set_current_user( self::$super_admin );
 		$this->setup_plugin_download();
 
@@ -460,10 +461,6 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 	 * @ticket 50321
 	 */
 	public function test_create_item_and_network_activate() {
-		if ( isset( get_plugins()['link-manager/link-manager.php'] ) ) {
-			delete_plugins( array( 'link-manager/link-manager.php' ) );
-		}
-
 		wp_set_current_user( self::$super_admin );
 		$this->setup_plugin_download();
 
@@ -542,7 +539,7 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 		wp_set_current_user( self::$super_admin );
 		add_filter(
 			'pre_http_request',
-			static function() {
+			static function () {
 				/*
 				 * Mocks the request to:
 				 * https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=alex-says-this-block-definitely-doesnt-exist&request%5Bfields%5D%5Bsections%5D=0&request%5Bfields%5D%5Blanguage_packs%5D=1&request%5Blocale%5D=en_US&request%5Bwp_version%5D=5.9
@@ -991,12 +988,17 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 		$this->assertSame( 'My &#8216;Cool&#8217; Plugin <cite>By <a href="https://wordpress.org/">WordPress.org</a>.</cite>', $data['description']['rendered'] );
 		$this->assertSame( $network_only, $data['network_only'] );
 		$this->assertSame( '5.6.0', $data['requires_php'] );
-		$this->assertSame( '5.4.0', $data['requires_wp'] );
+		$this->assertSame( '5.4', $data['requires_wp'] );
 		$this->assertSame( 'test-plugin', $data['textdomain'] );
 	}
 
 	/**
-	 * Sets up the plugin download to come locally instead of downloading it from .org
+	 * Sets up the plugin repository requests to use local data.
+	 *
+	 * Requests to the plugin repository are mocked to avoid external HTTP requests so
+	 * the test suite does not produce false negatives due to network failures.
+	 *
+	 * Both the plugin ZIP file and the plugin API response are mocked.
 	 *
 	 * @since 5.5.0
 	 */
@@ -1015,8 +1017,23 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 			3
 		);
 
-		// Remove upgrade hooks which are not required for plugin installation tests
-		// and may interfere with the results due to a timeout in external HTTP requests.
+		add_filter(
+			'plugins_api',
+			function ( $bypass, $action, $args ) {
+				// Only mock the plugin_information (link-manager) request.
+				if ( 'plugin_information' !== $action || 'link-manager' !== $args->slug ) {
+					return $bypass;
+				}
+				return self::$plugin_api_decoded_response;
+			},
+			10,
+			3
+		);
+
+		/*
+		 * Remove upgrade hooks which are not required for plugin installation tests
+		 * and may interfere with the results due to a timeout in external HTTP requests.
+		 */
 		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_plugins' );
@@ -1088,13 +1105,13 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 	private function prevent_requests_to_host( $blocked_host = 'api.wordpress.org' ) {
 		add_filter(
 			'pre_http_request',
-			static function ( $return, $args, $url ) use ( $blocked_host ) {
+			static function ( $response, $parsed_args, $url ) use ( $blocked_host ) {
 				if ( @parse_url( $url, PHP_URL_HOST ) === $blocked_host ) {
 					return new WP_Error( 'plugins_api_failed', "An expected error occurred connecting to $blocked_host because of a unit test", "cURL error 7: Failed to connect to $blocked_host port 80: Connection refused" );
 
 				}
 
-				return $return;
+				return $response;
 			},
 			10,
 			3

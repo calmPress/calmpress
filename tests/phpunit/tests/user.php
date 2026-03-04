@@ -58,7 +58,7 @@ class Tests_User extends WP_UnitTestCase {
 		self::$user_ids[] = self::$admin_id;
 		self::$editor_id  = $factory->user->create(
 			array(
-				'user_email' => 'test@test.com',
+				'user_email' => 'test@example.com',
 				'role'       => 'editor',
 			)
 		);
@@ -72,7 +72,35 @@ class Tests_User extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		add_action( 'set_auth_cookie', array( $this, 'action_set_auth_cookie' ), 10, 6 );
+		add_action( 'set_logged_in_cookie', array( $this, 'action_set_logged_in_cookie' ), 10 );
+		add_action( 'clear_auth_cookie', array( $this, 'action_clear_auth_cookie' ) );
+
+		$_COOKIE = array();
+
 		$this->author = clone self::$_author;
+	}
+
+	final public function action_set_auth_cookie(
+		string $cookie,
+		int $expire,
+		int $expiration,
+		int $user_id,
+		string $scheme,
+		string $token
+	): void {
+		$_COOKIE[ SECURE_AUTH_COOKIE ] = $cookie;
+		$_COOKIE[ AUTH_COOKIE ]        = $cookie;
+	}
+
+	final public function action_set_logged_in_cookie( string $cookie ): void {
+		$_COOKIE[ LOGGED_IN_COOKIE ] = $cookie;
+	}
+
+	final public function action_clear_auth_cookie(): void {
+		unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
+		unset( $_COOKIE[ SECURE_AUTH_COOKIE ] );
+		unset( $_COOKIE[ AUTH_COOKIE ] );
 	}
 
 	public function test_get_users_of_blog() {
@@ -149,7 +177,6 @@ class Tests_User extends WP_UnitTestCase {
 		// Correct key: deleted.
 		delete_user_meta( self::$author_id, $key, $val );
 		$this->assertSame( '', get_user_meta( self::$author_id, $key, true ) );
-
 	}
 
 	/**
@@ -508,6 +535,8 @@ class Tests_User extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 21431
+	 *
+	 * @covers ::count_many_users_posts
 	 */
 	public function test_count_many_users_posts() {
 		$user_id_b = self::factory()->user->create( array( 'role' => 'author' ) );
@@ -522,21 +551,245 @@ class Tests_User extends WP_UnitTestCase {
 
 		wp_set_current_user( self::$author_id );
 		$counts = count_many_users_posts( array( self::$author_id, $user_id_b ), 'post', false );
-		$this->assertEquals( 1, $counts[ self::$author_id ] );
-		$this->assertEquals( 1, $counts[ $user_id_b ] );
+		$this->assertSame( '1', $counts[ self::$author_id ] );
+		$this->assertSame( '1', $counts[ $user_id_b ] );
 
 		$counts = count_many_users_posts( array( self::$author_id, $user_id_b ), 'post', true );
-		$this->assertEquals( 1, $counts[ self::$author_id ] );
-		$this->assertEquals( 1, $counts[ $user_id_b ] );
+		$this->assertSame( '1', $counts[ self::$author_id ] );
+		$this->assertSame( '1', $counts[ $user_id_b ] );
 
 		wp_set_current_user( $user_id_b );
 		$counts = count_many_users_posts( array( self::$author_id, $user_id_b ), 'post', false );
-		$this->assertEquals( 1, $counts[ self::$author_id ] );
-		$this->assertEquals( 2, $counts[ $user_id_b ] );
+		$this->assertSame( '1', $counts[ self::$author_id ] );
+		$this->assertSame( '2', $counts[ $user_id_b ] );
 
 		$counts = count_many_users_posts( array( self::$author_id, $user_id_b ), 'post', true );
-		$this->assertEquals( 1, $counts[ self::$author_id ] );
-		$this->assertEquals( 1, $counts[ $user_id_b ] );
+		$this->assertSame( '1', $counts[ self::$author_id ] );
+		$this->assertSame( '1', $counts[ $user_id_b ] );
+	}
+
+	/**
+	 * Ensure the second and subsequent calls to count_many_users_posts() are cached.
+	 *
+	 * @ticket 63045
+	 *
+	 * @covers ::count_many_users_posts
+	 */
+	public function test_count_many_users_posts_is_cached() {
+		$user_1 = self::$user_ids[0];
+		$user_2 = self::$user_ids[1];
+
+		// Create posts for both users.
+		self::factory()->post->create( array( 'post_author' => $user_1 ) );
+		self::factory()->post->create( array( 'post_author' => $user_2 ) );
+
+		// Warm the cache.
+		$count1 = count_many_users_posts( array( $user_1, $user_2 ), 'post', false );
+
+		// Ensure cache is hit for second call.
+		$start_queries = get_num_queries();
+		$count2        = count_many_users_posts( array( $user_1, $user_2 ), 'post', false );
+		$end_queries   = get_num_queries();
+		$this->assertSame( 0, $end_queries - $start_queries, 'No database queries expected for second call to count_many_users_posts()' );
+		$this->assertSameSetsWithIndex( $count1, $count2, 'Expected same results from both calls to count_many_users_posts()' );
+	}
+
+	/**
+	 * Ensure equivalent arguments hit the same cache in count_many_users_posts().
+	 *
+	 * @ticket 63045
+	 *
+	 * @covers ::count_many_users_posts
+	 *
+	 * @dataProvider data_count_many_users_posts_cached_for_equivalent_arguments
+	 *
+	 * @param array $first_args  First set of arguments to pass to count_many_users_posts().
+	 * @param array $second_args Second set of arguments to pass to count_many_users_posts().
+	 */
+	public function test_count_many_users_posts_cached_for_equivalent_arguments( $first_args, $second_args ) {
+		// Replace placeholder user IDs with real ones.
+		$first_args[0]  = array_map(
+			static function ( $user ) {
+				return self::$user_ids[ $user ];
+			},
+			$first_args[0]
+		);
+		$second_args[0] = array_map(
+			static function ( $user ) {
+				return self::$user_ids[ $user ];
+			},
+			$second_args[0]
+		);
+
+		// Warm the cache with the first set of arguments.
+		$count1 = count_many_users_posts( ...$first_args );
+
+		// Ensure the cache is hit for the second set of equivalent arguments.
+		$start_queries = get_num_queries();
+		$count2        = count_many_users_posts( ...$second_args );
+		$end_queries   = get_num_queries();
+		$this->assertSame( 0, $end_queries - $start_queries, 'No database queries expected for second call to count_many_users_posts() with equivalent arguments' );
+		$this->assertSameSetsWithIndex( $count1, $count2, 'Expected same results from both calls to count_many_users_posts()' );
+	}
+
+	/**
+	 * Data provider for test_count_many_users_posts_cached_for_equivalent_arguments().
+	 *
+	 * @return array[] Data provider.
+	 */
+	public function data_count_many_users_posts_cached_for_equivalent_arguments(): array {
+		return array(
+			'single post string vs array'  => array(
+				array( array( 0 ), 'post' ),
+				array( array( 0 ), array( 'post' ) ),
+			),
+			'duplicate post type in array' => array(
+				array( array( 0 ), array( 'post', 'post' ) ),
+				array( array( 0 ), array( 'post' ) ),
+			),
+			'different post type order'    => array(
+				array( array( 0 ), array( 'post', 'page' ) ),
+				array( array( 0 ), array( 'page', 'post' ) ),
+			),
+			'duplicate user IDs in array'  => array(
+				array( array( 0, 1, 1 ), 'post' ),
+				array( array( 0, 1 ), 'post' ),
+			),
+			'different user order'         => array(
+				array( array( 0, 1 ), 'post' ),
+				array( array( 1, 0 ), 'post' ),
+			),
+			'integer vs string user IDs'   => array(
+				array( array( 0, 1 ), 'post' ),
+				array( array( '0', '1' ), 'post' ),
+			),
+		);
+	}
+
+	/**
+	 * Test cache invalidation for count_many_users_posts().
+	 *
+	 * @ticket 63045
+	 *
+	 * @covers ::count_many_users_posts
+	 */
+	public function test_count_many_users_posts_cache_invalidation() {
+		$user_1 = self::$user_ids[0];
+		$user_2 = self::$user_ids[1];
+
+		// Create posts for both users.
+		self::factory()->post->create( array( 'post_author' => $user_1 ) );
+		self::factory()->post->create( array( 'post_author' => $user_2 ) );
+
+		$counts1 = count_many_users_posts( array( $user_1, $user_2 ), 'post', false );
+		$this->assertSame(
+			array(
+				$user_1 => '1',
+				$user_2 => '1',
+			),
+			$counts1,
+			'Initial call is expected to have one post for each user.'
+		);
+
+		// Create another post for user 1.
+		self::factory()->post->create( array( 'post_author' => $user_1 ) );
+
+		$counts2 = count_many_users_posts( array( $user_1, $user_2 ), 'post', false );
+		$this->assertSame(
+			array(
+				$user_1 => '2',
+				$user_2 => '1',
+			),
+			$counts2,
+			'Second call is expected to have two posts for user 1 and one post for user 2.'
+		);
+	}
+
+	/**
+	 * Ensure different post types use different caches in count_many_users_posts().
+	 *
+	 * @ticket 63045
+	 *
+	 * @covers ::count_many_users_posts
+	 */
+	public function test_different_post_types_use_different_caches() {
+		$user_id = self::$user_ids[0];
+
+		// Create one post and two pages for the user.
+		self::factory()->post->create(
+			array(
+				'post_author' => $user_id,
+				'post_type'   => 'post',
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_author' => $user_id,
+				'post_type'   => 'page',
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_author' => $user_id,
+				'post_type'   => 'page',
+			)
+		);
+
+		$start_queries = get_num_queries();
+		$count1        = count_many_users_posts( array( $user_id ), 'post', false );
+		$end_queries   = get_num_queries();
+		$this->assertSame( 1, $end_queries - $start_queries, 'Expected to hit database for first call to count_many_users_posts() with post type "post".' );
+		$this->assertSame( '1', $count1[ $user_id ], 'Expected to have one post for user with post type "post".' );
+
+		$start_queries = get_num_queries();
+		$count2        = count_many_users_posts( array( $user_id ), 'page', false );
+		$end_queries   = get_num_queries();
+		$this->assertSame( 1, $end_queries - $start_queries, 'Expected to hit database for first call to count_many_users_posts() with post type "page".' );
+		$this->assertSame( '2', $count2[ $user_id ], 'Expected to have two pages for user with post type "page".' );
+	}
+
+	/**
+	 * Ensure different users use different caches in count_many_users_posts().
+	 *
+	 * @ticket 63045
+	 *
+	 * @covers ::count_many_users_posts
+	 */
+	public function test_different_users_use_different_caches() {
+		$user_1 = self::$user_ids[0];
+		$user_2 = self::$user_ids[1];
+
+		// Create one post for user 1, two for user 2.
+		self::factory()->post->create(
+			array(
+				'post_author' => $user_1,
+				'post_type'   => 'post',
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_author' => $user_2,
+				'post_type'   => 'post',
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_author' => $user_2,
+				'post_type'   => 'post',
+			)
+		);
+
+		$start_queries = get_num_queries();
+		$count1        = count_many_users_posts( array( $user_1 ), 'post', false );
+		$end_queries   = get_num_queries();
+		$this->assertSame( 1, $end_queries - $start_queries, 'Expected to hit database for first call to count_many_users_posts() with user 1.' );
+		$this->assertSame( '1', $count1[ $user_1 ], 'Expected to have one post for user 1 with post type "post".' );
+
+		$start_queries = get_num_queries();
+		$count2        = count_many_users_posts( array( $user_2 ), 'post', false );
+		$end_queries   = get_num_queries();
+		$this->assertSame( 1, $end_queries - $start_queries, 'Expected to hit database for first call to count_many_users_posts() with user 2.' );
+		$this->assertSame( '2', $count2[ $user_2 ], 'Expected to have two posts for user 2 with post type "post".' );
 	}
 
 	/**
@@ -726,7 +979,7 @@ class Tests_User extends WP_UnitTestCase {
 	 */
 	public function test_validate_username_string() {
 		$this->assertTrue( validate_username( 'johndoe' ) );
-		$this->assertTrue( validate_username( 'test@test.com' ) );
+		$this->assertTrue( validate_username( 'test@example.com' ) );
 	}
 
 	/**
@@ -934,6 +1187,24 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 44107
+	 */
+	public function test_wp_insert_user_should_reject_user_url_over_100_characters() {
+		$user_url = str_repeat( 'a', 101 );
+		$u        = wp_insert_user(
+			array(
+				'user_login' => 'test',
+				'user_email' => 'urltest@example.com',
+				'user_pass'  => 'password',
+				'user_url'   => $user_url,
+			)
+		);
+
+		$this->assertWPError( $u );
+		$this->assertSame( 'user_url_too_long', $u->get_error_code() );
+	}
+
+	/**
 	 * @ticket 28004
 	 */
 	public function test_wp_insert_user_with_invalid_user_id() {
@@ -971,7 +1242,7 @@ class Tests_User extends WP_UnitTestCase {
 	 * @ticket 35750
 	 */
 	public function test_wp_update_user_should_delete_userslugs_cache() {
-		$u    = self::factory()->user->create();
+		$u    = self::$sub_id;
 		$user = get_userdata( $u );
 
 		wp_update_user(
@@ -1038,6 +1309,50 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertEmpty( $user->user_activation_key );
 	}
 
+	/**
+	 * @ticket 61366
+	 * @dataProvider data_remember_user
+	 */
+	public function test_changing_own_password_retains_current_session( bool $remember ) {
+		$user    = $this->author;
+		$manager = WP_Session_Tokens::get_instance( $user->ID );
+		$expiry  = $remember ? ( 2 * WEEK_IN_SECONDS ) : ( 2 * DAY_IN_SECONDS );
+		$token   = $manager->create( time() + $expiry );
+		$pass    = $user->user_pass;
+
+		wp_set_current_user( $user->ID );
+		wp_set_auth_cookie( $user->ID, $remember, '', $token );
+
+		$cookie   = $_COOKIE[ AUTH_COOKIE ];
+		$userdata = array(
+			'ID'        => $user->ID,
+			'user_pass' => 'my_new_password',
+		);
+		$updated  = wp_update_user( $userdata, $manager );
+		$parsed   = wp_parse_auth_cookie();
+
+		// Check the prerequisites:
+		$this->assertNotWPError( $updated );
+		$this->assertNotSame( $pass, get_userdata( $user->ID )->user_pass );
+
+		// Check the session token:
+		$this->assertSame( $token, $parsed['token'] );
+		$this->assertCount( 1, $manager->get_all() );
+
+		// Check that the newly set auth cookie is valid:
+		$this->assertSame( $user->ID, wp_validate_auth_cookie() );
+
+		// Check that, despite the session token reuse, the old auth cookie should now be invalid because the password changed:
+		$this->assertFalse( wp_validate_auth_cookie( $cookie ) );
+	}
+
+	public function data_remember_user() {
+		return array(
+			array( true ),
+			array( false ),
+		);
+	}
+
 	public function test_search_users_login() {
 		$users = get_users(
 			array(
@@ -1089,7 +1404,7 @@ class Tests_User extends WP_UnitTestCase {
 		// Alter the case of the email address (which stays the same).
 		$userdata = array(
 			'ID'         => self::$editor_id,
-			'user_email' => 'test@TEST.com',
+			'user_email' => 'test@EXAMPLE.com',
 		);
 		$update   = wp_update_user( $userdata );
 
@@ -1178,11 +1493,7 @@ class Tests_User extends WP_UnitTestCase {
 		$_GET     = array();
 		$_REQUEST = array();
 
-		$administrator = self::factory()->user->create(
-			array(
-				'role' => 'administrator',
-			)
-		);
+		$administrator = self::$admin_id;
 
 		wp_set_current_user( $administrator );
 
@@ -1196,11 +1507,7 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertSame( array( 'administrator' ), get_userdata( $administrator )->roles );
 
 		// Promote an editor to an administrator.
-		$editor = self::factory()->user->create(
-			array(
-				'role' => 'editor',
-			)
-		);
+		$editor = self::$editor_id;
 
 		$_POST['role']     = 'administrator';
 		$_POST['email']    = 'administrator@administrator.test';
@@ -1217,7 +1524,7 @@ class Tests_User extends WP_UnitTestCase {
 	 * @ticket 43547
 	 */
 	public function test_wp_user_personal_data_exporter_no_user() {
-		$actual = wp_user_personal_data_exporter( 'not-a-user-email@test.com' );
+		$actual = wp_user_personal_data_exporter( 'not-a-user-email@example.com' );
 
 		$expected = array(
 			'data' => array(),
@@ -1439,7 +1746,7 @@ class Tests_User extends WP_UnitTestCase {
 		$update_data = array(
 			'ID'         => $create_user,
 			'user_login' => 'test_user',
-			'user_email' => 'test.user@example.com',
+			'user_email' => 'user@example.com',
 			'meta_input' => array(
 				'test_meta_key' => 'test_meta_updated',
 				'custom_meta'   => 'updated_value',
@@ -1514,20 +1821,18 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertCount( 12, $actual['data'][0]['data'] );
 
 		// Check that the item added by the filter was retained.
-		$this->assertSame(
+		$this->assertCount(
 			1,
-			count(
-				wp_list_filter(
-					$actual['data'][0]['data'],
-					array(
-						'name'  => 'Test Additional Data Name',
-						'value' => 'Test Additional Data Value',
-					)
+			wp_list_filter(
+				$actual['data'][0]['data'],
+				array(
+					'name'  => 'Test Additional Data Name',
+					'value' => 'Test Additional Data Value',
 				)
 			)
 		);
 
-		// _doing_wrong() should be called because the filter callback
+		// _doing_it_wrong() should be called because the filter callback
 		// adds a item with a 'name' that is the same as one generated by core.
 		$this->setExpectedIncorrectUsage( 'wp_user_personal_data_exporter' );
 		add_filter( 'wp_privacy_additional_user_profile_data', array( $this, 'export_additional_user_profile_data_with_dup_name' ) );
@@ -1546,28 +1851,24 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertCount( 12, $actual['data'][0]['data'] );
 
 		// Check that the duplicate 'name' => 'User ID' was stripped.
-		$this->assertSame(
+		$this->assertCount(
 			1,
-			count(
-				wp_list_filter(
-					$actual['data'][0]['data'],
-					array(
-						'name' => 'User ID',
-					)
+			wp_list_filter(
+				$actual['data'][0]['data'],
+				array(
+					'name' => 'User ID',
 				)
 			)
 		);
 
 		// Check that the item added by the filter was retained.
-		$this->assertSame(
+		$this->assertCount(
 			1,
-			count(
-				wp_list_filter(
-					$actual['data'][0]['data'],
-					array(
-						'name'  => 'Test Additional Data Name',
-						'value' => 'Test Additional Data Value',
-					)
+			wp_list_filter(
+				$actual['data'][0]['data'],
+				array(
+					'name'  => 'Test Additional Data Name',
+					'value' => 'Test Additional Data Value',
 				)
 			)
 		);
@@ -1656,7 +1957,7 @@ class Tests_User extends WP_UnitTestCase {
 	/**
 	 * test admin_email returns an email of an administrator
 	 * 
-	 * @since @calmPress 1.0.0
+	 * @since calmPress 1.0.0
 	 */
 	public function test_admin_email() {
 		// For an email which is not related to an administrator

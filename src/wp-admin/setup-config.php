@@ -93,7 +93,7 @@ function setup_config_display_header( $body_classes = array() ) {
 <!DOCTYPE html>
 <html<?php echo $dir_attr; ?>>
 <head>
-	<meta name="viewport" content="width=device-width" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="robots" content="noindex,nofollow" />
 	<title><?php _e( 'calmPress &rsaquo; Setup Configuration File' ); ?></title>
@@ -104,6 +104,10 @@ function setup_config_display_header( $body_classes = array() ) {
 	<?php
 } // End function setup_config_display_header();
 
+/**
+ * @global string    $wp_local_package Locale code of the package.
+ * @global WP_Locale $wp_locale        WordPress date and time locale object.
+ */
 $language = '';
 if ( ! empty( $_REQUEST['language'] ) ) {
 	$language = preg_replace( '/[^a-zA-Z0-9_]/', '', $_REQUEST['language'] );
@@ -119,8 +123,13 @@ switch ( $step ) {
 			$step_1 .= '&amp;language=' . $loaded_language;
 		}
 		?>
-<h1 class="screen-reader-text"><?php _e( 'Before getting started' ) ?></h1>
-<p><?php _e( 'Welcome to calmPress. Before getting started, we need some information on the database. You will need to know the following items before proceeding.' ) ?></p>
+<h1 class="screen-reader-text">
+		<?php
+		/* translators: Hidden accessibility text. */
+		_e( 'Before getting started' );
+		?>
+</h1>
+<p><?php _e( 'Welcome to calmPress. Before getting started, you will need to know the following items.' ); ?></p>
 <ol>
 	<li><?php _e( 'Database name' ); ?></li>
 	<li><?php _e( 'Database username' ); ?></li>
@@ -135,12 +144,12 @@ switch ( $step ) {
 		<?php
 		printf(
 			/* translators: %s: wp-config.php */
-			__( 'We&#8217;re going to use this information to create a %s file.' ),
+			__( 'This information is being used to create a %s file.' ),
 			'<code>wp-config.php</code>'
 		);
 		?>
 </p>
-<p><?php _e( 'In all likelihood, these items were supplied to you by your web host. If you don&#8217;t have this information, then you will need to contact them before you can continue. If you&#8217;re all ready&hellip;' ); ?></p>
+<p><?php _e( 'In all likelihood, these items were supplied to you by your web host. If you do not have this information, then you will need to contact them before you can continue. If you are ready&hellip;' ); ?></p>
 
 <p class="step"><a href="<?php echo $step_1; ?>" class="button button-large"><?php _e( 'Let&#8217;s go!' ); ?></a></p>
 		<?php
@@ -154,9 +163,14 @@ switch ( $step ) {
 
 		$autofocus = wp_is_mobile() ? '' : ' autofocus';
 		?>
-<h1 class="screen-reader-text"><?php _e( 'Set up your database connection' ); ?></h1>
+<h1 class="screen-reader-text">
+		<?php
+		/* translators: Hidden accessibility text. */
+		_e( 'Set up your database connection' );
+		?>
+</h1>
 <form method="post" action="setup-config.php?step=2">
-	<p><?php _e( 'Below you should enter your database connection details. If you&#8217;re not sure about these, contact your host.' ); ?></p>
+	<p><?php _e( 'Below you should enter your database connection details. If you are not sure about these, contact your host.' ); ?></p>
 	<table class="form-table" role="presentation">
 		<tr>
 			<th scope="row"><label for="dbname"><?php _e( 'Database Name' ); ?></label></th>
@@ -201,6 +215,7 @@ switch ( $step ) {
 	<p class="step"><input name="submit" type="submit" value="<?php echo htmlspecialchars( __( 'Submit' ), ENT_QUOTES ); ?>" class="button button-large" /></p>
 </form>
 		<?php
+		wp_print_scripts( 'password-toggle' );
 		break;
 
 	case 2:
@@ -219,12 +234,12 @@ switch ( $step ) {
 		$tryagain_link = '</p><p class="step"><a href="' . $step_1 . '" onclick="javascript:history.go(-1);return false;" class="button button-large">' . __( 'Try Again' ) . '</a>';
 
 		if ( empty( $prefix ) ) {
-			wp_die( __( '<strong>Error</strong>: "Table Prefix" must not be empty.' ) . $tryagain_link );
+			wp_die( __( '<strong>Error:</strong> "Table Prefix" must not be empty.' ) . $tryagain_link );
 		}
 
 		// Validate $prefix: it can only contain letters, numbers and underscores.
 		if ( preg_match( '|[^a-z0-9_]|i', $prefix ) ) {
-			wp_die( __( '<strong>Error</strong>: "Table Prefix" can only contain numbers, letters, and underscores.' ) . $tryagain_link );
+			wp_die( __( '<strong>Error:</strong> "Table Prefix" can only contain numbers, letters, and underscores.' ) . $tryagain_link );
 		}
 
 		// Validate $prefix: its length can be at most 25 characters.
@@ -260,7 +275,7 @@ switch ( $step ) {
 		$wpdb->suppress_errors( $errors );
 		if ( ! $wpdb->last_error ) {
 			// MySQL was able to parse the prefix as a value, which we don't want. Bail.
-			wp_die( __( '<strong>Error</strong>: "Table Prefix" is invalid.' ) );
+			wp_die( __( '<strong>Error:</strong> "Table Prefix" is invalid.' ) );
 		}
 
 		// Generate keys and salts using secure CSPRNG.
@@ -276,7 +291,7 @@ switch ( $step ) {
 
 		$key = 0;
 		foreach ( $config_file as $line_num => $line ) {
-			if ( '$table_prefix =' === substr( $line, 0, 15 ) ) {
+			if ( str_starts_with( $line, '$table_prefix =' ) ) {
 				$config_file[ $line_num ] = '$table_prefix = \'' . addcslashes( $prefix, "\\'" ) . "';\r\n";
 				continue;
 			}
@@ -325,13 +340,13 @@ switch ( $step ) {
 		if ( ! is_writable( ABSPATH ) ) :
 			setup_config_display_header();
 			?>
-	<p>
+<p>
 			<?php
 			/* translators: %s: wp-config.php */
 			printf( __( 'Unable to write to %s file.' ), '<code>wp-config.php</code>' );
 			?>
 </p>
-<p>
+<p id="wp-config-description">
 			<?php
 			/* translators: %s: wp-config.php */
 			printf( __( 'You can create the %s file manually and paste the following text into it.' ), '<code>wp-config.php</code>' );
@@ -343,7 +358,13 @@ switch ( $step ) {
 			}
 			?>
 </p>
-<textarea id="wp-config" cols="98" rows="15" class="code" readonly="readonly"><?php echo $config_text; ?></textarea>
+<p class="configuration-rules-label"><label for="wp-config">
+			<?php
+			/* translators: %s: wp-config.php */
+			printf( __( 'Configuration rules for %s:' ), '<code>wp-config.php</code>' );
+			?>
+	</label></p>
+<textarea id="wp-config" cols="98" rows="15" class="code" readonly="readonly" aria-describedby="wp-config-description"><?php echo $config_text; ?></textarea>
 <p><?php _e( 'After you&#8217;ve done that, click &#8220;Run the installation&#8221;.' ); ?></p>
 <p class="step"><a href="<?php echo $install; ?>" class="button button-large"><?php _e( 'Run the installation' ); ?></a></p>
 <script>
@@ -356,20 +377,45 @@ if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
 })();
 </script>
 			<?php
-	else :
-		$path_to_wp_config = ABSPATH . 'wp-config.php';
+		else :
+			$path_to_wp_config = ABSPATH . 'wp-config.php';
 
-		$handle = fopen( $path_to_wp_config, 'w' );
-		foreach ( $config_file as $line ) {
-			fwrite( $handle, $line );
-		}
-		fclose( $handle );
-		chmod( $path_to_wp_config, 0666 );
-		?>
-		<?php
-			wp_redirect( $install );
-			die();
-	endif;
+			$error_message = '';
+			$handle        = fopen( $path_to_wp_config, 'w' );
+			/*
+			 * Why check for the absence of false instead of checking for resource with is_resource()?
+			 * To future-proof the check for when fopen returns object instead of resource, i.e. a known
+			 * change coming in PHP.
+			 */
+			if ( false !== $handle ) {
+				foreach ( $config_file as $line ) {
+					fwrite( $handle, $line );
+				}
+				fclose( $handle );
+				chmod( $path_to_wp_config, 0666 );
+				wp_redirect( $install );
+				die();
+			} else {
+				$wp_config_perms = fileperms( $path_to_wp_config );
+				if ( ! empty( $wp_config_perms ) && ! is_writable( $path_to_wp_config ) ) {
+					$error_message = sprintf(
+						/* translators: 1: wp-config.php, 2: Documentation URL. */
+						__( 'You need to make the file %1$s writable before you can save your changes. See <a href="%2$s">Changing File Permissions</a> for more information.' ),
+						'<code>wp-config.php</code>',
+						__( 'https://developer.wordpress.org/advanced-administration/server/file-permissions/' )
+					);
+				} else {
+					$error_message = sprintf(
+						/* translators: %s: wp-config.php */
+						__( 'Unable to write to %s file.' ),
+						'<code>wp-config.php</code>'
+					);
+				}
+			}
+
+			setup_config_display_header();
+			printf( '<p>%s</p>', $error_message );
+		endif;
 		break;
 } // End of the steps switch.
 ?>

@@ -2,9 +2,9 @@
 /**
  * WordPress core upgrade functionality.
  *
- * This file is the instalation driver when a new version is installed. At that
- * case the file from the new version is being run instead of the one from the
- * old version.
+ * Note: Newly introduced functions and methods cannot be used here.
+ * All functions must be present in the previous version being upgraded from
+ * as this file is used there too.
  *
  * @package WordPress
  * @subpackage Administration
@@ -14,16 +14,18 @@
 /**
  * Stores files to be deleted.
  *
+ * Bundled theme files should not be included in this list.
+ *
  * @since 2.7.0
  *
- * @global array $_old_files
- * @var array
+ * @global string[] $_old_files
+ * @var string[]
  * @name $_old_files
  */
 global $_old_files;
 
 $_old_files = array(
-	// 0.9 to 1.0.
+	// calmPress 0.9 to 1.0.
 	'wp-admin/admin-functions.php',
 	'wp-admin/css/deprecated-media.css',
 	'wp-admin/css/farbtastic.css',
@@ -109,6 +111,674 @@ $_old_files = array(
 	'wp-trackback.php',
 	'wp-config-sample.php',
 	'wp-includes/js/codemirror/jshint.js',
+	// 2.0
+	'wp-admin/import-b2.php',
+	'wp-admin/import-blogger.php',
+	'wp-admin/import-greymatter.php',
+	'wp-admin/import-livejournal.php',
+	'wp-admin/import-mt.php',
+	'wp-admin/import-rss.php',
+	'wp-admin/import-textpattern.php',
+	'wp-admin/quicktags.js',
+	'wp-images/fade-butt.png',
+	'wp-images/get-firefox.png',
+	'wp-images/header-shadow.png',
+	'wp-images/smilies',
+	'wp-images/wp-small.png',
+	'wp-images/wpminilogo.png',
+	'wp.php',
+	// 2.1
+	'wp-admin/edit-form-ajax-cat.php',
+	'wp-admin/execute-pings.php',
+	'wp-admin/inline-uploading.php',
+	'wp-admin/link-categories.php',
+	'wp-admin/list-manipulation.js',
+	'wp-admin/list-manipulation.php',
+	'wp-includes/comment-functions.php',
+	'wp-includes/feed-functions.php',
+	'wp-includes/functions-compat.php',
+	'wp-includes/functions-formatting.php',
+	'wp-includes/functions-post.php',
+	'wp-includes/js/dbx-key.js',
+	'wp-includes/links.php',
+	'wp-includes/pluggable-functions.php',
+	'wp-includes/template-functions-author.php',
+	'wp-includes/template-functions-category.php',
+	'wp-includes/template-functions-general.php',
+	'wp-includes/template-functions-links.php',
+	'wp-includes/template-functions-post.php',
+	'wp-includes/wp-l10n.php',
+	// 2.2
+	'wp-admin/cat-js.php',
+	'wp-includes/js/autosave-js.php',
+	'wp-includes/js/list-manipulation-js.php',
+	'wp-includes/js/wp-ajax-js.php',
+	// 2.3
+	'wp-admin/admin-db.php',
+	'wp-admin/cat.js',
+	'wp-admin/categories.js',
+	'wp-admin/custom-fields.js',
+	'wp-admin/dbx-admin-key.js',
+	'wp-admin/edit-comments.js',
+	'wp-admin/install-rtl.css',
+	'wp-admin/install.css',
+	'wp-admin/upgrade-schema.php',
+	'wp-admin/upload-functions.php',
+	'wp-admin/upload-rtl.css',
+	'wp-admin/upload.css',
+	'wp-admin/upload.js',
+	'wp-admin/users.js',
+	'wp-admin/widgets-rtl.css',
+	'wp-admin/widgets.css',
+	'wp-admin/xfn.js',
+	'wp-includes/js/tinymce/license.html',
+	// 2.5
+	'wp-admin/css/upload.css',
+	'wp-admin/images/box-bg-left.gif',
+	'wp-admin/images/box-bg-right.gif',
+	'wp-admin/images/box-bg.gif',
+	'wp-admin/images/box-butt-left.gif',
+	'wp-admin/images/box-butt-right.gif',
+	'wp-admin/images/box-butt.gif',
+	'wp-admin/images/box-head-left.gif',
+	'wp-admin/images/box-head-right.gif',
+	'wp-admin/images/box-head.gif',
+	'wp-admin/images/heading-bg.gif',
+	'wp-admin/images/login-bkg-bottom.gif',
+	'wp-admin/images/login-bkg-tile.gif',
+	'wp-admin/images/notice.gif',
+	'wp-admin/images/toggle.gif',
+	'wp-admin/includes/upload.php',
+	'wp-admin/js/dbx-admin-key.js',
+	'wp-admin/js/link-cat.js',
+	'wp-admin/profile-update.php',
+	'wp-admin/templates.php',
+	'wp-includes/js/dbx.js',
+	'wp-includes/js/fat.js',
+	'wp-includes/js/list-manipulation.js',
+	'wp-includes/js/tinymce/langs/en.js',
+	'wp-includes/js/tinymce/plugins/directionality/images',
+	'wp-includes/js/tinymce/plugins/directionality/langs',
+	'wp-includes/js/tinymce/plugins/paste/images',
+	'wp-includes/js/tinymce/plugins/paste/jscripts',
+	'wp-includes/js/tinymce/plugins/paste/langs',
+	'wp-includes/js/tinymce/plugins/wordpress/images',
+	'wp-includes/js/tinymce/plugins/wordpress/langs',
+	'wp-includes/js/tinymce/plugins/wordpress/wordpress.css',
+	'wp-includes/js/tinymce/plugins/wphelp',
+	// 2.5.1
+	'wp-includes/js/tinymce/tiny_mce_gzip.php',
+	// 2.6
+	'wp-admin/bookmarklet.php',
+	'wp-includes/js/jquery/jquery.dimensions.min.js',
+	'wp-includes/js/tinymce/plugins/wordpress/popups.css',
+	'wp-includes/js/wp-ajax.js',
+	// 2.7
+	'wp-admin/css/press-this-ie-rtl.css',
+	'wp-admin/css/press-this-ie.css',
+	'wp-admin/css/upload-rtl.css',
+	'wp-admin/edit-form.php',
+	'wp-admin/images/comment-pill.gif',
+	'wp-admin/images/comment-stalk-classic.gif',
+	'wp-admin/images/comment-stalk-fresh.gif',
+	'wp-admin/images/comment-stalk-rtl.gif',
+	'wp-admin/images/del.png',
+	'wp-admin/images/gear.png',
+	'wp-admin/images/media-button-gallery.gif',
+	'wp-admin/images/media-buttons.gif',
+	'wp-admin/images/postbox-bg.gif',
+	'wp-admin/images/tab.png',
+	'wp-admin/images/tail.gif',
+	'wp-admin/js/forms.js',
+	'wp-admin/js/upload.js',
+	'wp-admin/link-import.php',
+	'wp-includes/images/audio.png',
+	'wp-includes/images/css.png',
+	'wp-includes/images/default.png',
+	'wp-includes/images/doc.png',
+	'wp-includes/images/exe.png',
+	'wp-includes/images/html.png',
+	'wp-includes/images/js.png',
+	'wp-includes/images/pdf.png',
+	'wp-includes/images/swf.png',
+	'wp-includes/images/tar.png',
+	'wp-includes/images/text.png',
+	'wp-includes/images/video.png',
+	'wp-includes/images/zip.png',
+	'wp-includes/js/tinymce/tiny_mce_config.php',
+	'wp-includes/js/tinymce/tiny_mce_ext.js',
+	// 2.8
+	'wp-admin/js/users.js',
+	'wp-includes/js/swfupload/swfupload_f9.swf',
+	'wp-includes/js/tinymce/plugins/autosave',
+	'wp-includes/js/tinymce/plugins/paste/css',
+	'wp-includes/js/tinymce/utils/mclayer.js',
+	'wp-includes/js/tinymce/wordpress.css',
+	// 2.9
+	'wp-admin/js/page.dev.js',
+	'wp-admin/js/page.js',
+	'wp-admin/js/set-post-thumbnail-handler.dev.js',
+	'wp-admin/js/set-post-thumbnail-handler.js',
+	'wp-admin/js/slug.dev.js',
+	'wp-admin/js/slug.js',
+	'wp-includes/gettext.php',
+	'wp-includes/js/tinymce/plugins/wordpress/js',
+	'wp-includes/streams.php',
+	// MU
+	'README.txt',
+	'htaccess.dist',
+	'index-install.php',
+	'wp-admin/css/mu-rtl.css',
+	'wp-admin/css/mu.css',
+	'wp-admin/images/site-admin.png',
+	'wp-admin/includes/mu.php',
+	'wp-admin/wpmu-admin.php',
+	'wp-admin/wpmu-blogs.php',
+	'wp-admin/wpmu-edit.php',
+	'wp-admin/wpmu-options.php',
+	'wp-admin/wpmu-themes.php',
+	'wp-admin/wpmu-upgrade-site.php',
+	'wp-admin/wpmu-users.php',
+	'wp-includes/images/wordpress-mu.png',
+	'wp-includes/wpmu-default-filters.php',
+	'wp-includes/wpmu-functions.php',
+	'wpmu-settings.php',
+	// 3.0
+	'wp-admin/categories.php',
+	'wp-admin/edit-category-form.php',
+	'wp-admin/edit-page-form.php',
+	'wp-admin/edit-pages.php',
+	'wp-admin/images/admin-header-footer.png',
+	'wp-admin/images/browse-happy.gif',
+	'wp-admin/images/ico-add.png',
+	'wp-admin/images/ico-close.png',
+	'wp-admin/images/ico-edit.png',
+	'wp-admin/images/ico-viewpage.png',
+	'wp-admin/images/fav-top.png',
+	'wp-admin/images/screen-options-left.gif',
+	'wp-admin/images/wp-logo-vs.gif',
+	'wp-admin/images/wp-logo.gif',
+	'wp-admin/import',
+	'wp-admin/js/wp-gears.dev.js',
+	'wp-admin/js/wp-gears.js',
+	'wp-admin/options-misc.php',
+	'wp-admin/page-new.php',
+	'wp-admin/page.php',
+	'wp-admin/rtl.css',
+	'wp-admin/rtl.dev.css',
+	'wp-admin/update-links.php',
+	'wp-admin/wp-admin.css',
+	'wp-admin/wp-admin.dev.css',
+	'wp-includes/js/codepress',
+	'wp-includes/js/jquery/autocomplete.dev.js',
+	'wp-includes/js/jquery/autocomplete.js',
+	'wp-includes/js/jquery/interface.js',
+	// Following file added back in 5.1, see #45645.
+	//'wp-includes/js/tinymce/wp-tinymce.js',
+	// 3.1
+	'wp-admin/edit-attachment-rows.php',
+	'wp-admin/edit-link-categories.php',
+	'wp-admin/edit-link-category-form.php',
+	'wp-admin/edit-post-rows.php',
+	'wp-admin/images/button-grad-active-vs.png',
+	'wp-admin/images/button-grad-vs.png',
+	'wp-admin/images/fav-arrow-vs-rtl.gif',
+	'wp-admin/images/fav-arrow-vs.gif',
+	'wp-admin/images/fav-top-vs.gif',
+	'wp-admin/images/list-vs.png',
+	'wp-admin/images/screen-options-right-up.gif',
+	'wp-admin/images/screen-options-right.gif',
+	'wp-admin/images/visit-site-button-grad-vs.gif',
+	'wp-admin/images/visit-site-button-grad.gif',
+	'wp-admin/link-category.php',
+	'wp-admin/sidebar.php',
+	'wp-includes/classes.php',
+	'wp-includes/js/tinymce/blank.htm',
+	'wp-includes/js/tinymce/plugins/media/img',
+	'wp-includes/js/tinymce/plugins/safari',
+	// 3.2
+	'wp-admin/images/logo-login.gif',
+	'wp-admin/images/star.gif',
+	'wp-admin/js/list-table.dev.js',
+	'wp-admin/js/list-table.js',
+	'wp-includes/default-embeds.php',
+	// 3.3
+	'wp-admin/css/colors-classic-rtl.css',
+	'wp-admin/css/colors-classic-rtl.dev.css',
+	'wp-admin/css/colors-fresh-rtl.css',
+	'wp-admin/css/colors-fresh-rtl.dev.css',
+	'wp-admin/css/dashboard-rtl.dev.css',
+	'wp-admin/css/dashboard.dev.css',
+	'wp-admin/css/global-rtl.css',
+	'wp-admin/css/global-rtl.dev.css',
+	'wp-admin/css/global.css',
+	'wp-admin/css/global.dev.css',
+	'wp-admin/css/install-rtl.dev.css',
+	'wp-admin/css/login-rtl.dev.css',
+	'wp-admin/css/login.dev.css',
+	'wp-admin/css/ms.css',
+	'wp-admin/css/ms.dev.css',
+	'wp-admin/css/nav-menu-rtl.css',
+	'wp-admin/css/nav-menu-rtl.dev.css',
+	'wp-admin/css/nav-menu.css',
+	'wp-admin/css/nav-menu.dev.css',
+	'wp-admin/css/plugin-install-rtl.css',
+	'wp-admin/css/plugin-install-rtl.dev.css',
+	'wp-admin/css/plugin-install.css',
+	'wp-admin/css/plugin-install.dev.css',
+	'wp-admin/css/press-this-rtl.dev.css',
+	'wp-admin/css/press-this.dev.css',
+	'wp-admin/css/theme-editor-rtl.css',
+	'wp-admin/css/theme-editor-rtl.dev.css',
+	'wp-admin/css/theme-editor.css',
+	'wp-admin/css/theme-editor.dev.css',
+	'wp-admin/css/theme-install-rtl.css',
+	'wp-admin/css/theme-install-rtl.dev.css',
+	'wp-admin/css/theme-install.css',
+	'wp-admin/css/theme-install.dev.css',
+	'wp-admin/css/widgets-rtl.dev.css',
+	'wp-admin/css/widgets.dev.css',
+	'wp-admin/includes/internal-linking.php',
+	'wp-includes/images/admin-bar-sprite-rtl.png',
+	'wp-includes/js/jquery/ui.button.js',
+	'wp-includes/js/jquery/ui.core.js',
+	'wp-includes/js/jquery/ui.dialog.js',
+	'wp-includes/js/jquery/ui.draggable.js',
+	'wp-includes/js/jquery/ui.droppable.js',
+	'wp-includes/js/jquery/ui.mouse.js',
+	'wp-includes/js/jquery/ui.position.js',
+	'wp-includes/js/jquery/ui.resizable.js',
+	'wp-includes/js/jquery/ui.selectable.js',
+	'wp-includes/js/jquery/ui.sortable.js',
+	'wp-includes/js/jquery/ui.tabs.js',
+	'wp-includes/js/jquery/ui.widget.js',
+	'wp-includes/js/l10n.dev.js',
+	'wp-includes/js/l10n.js',
+	'wp-includes/js/tinymce/plugins/wplink/css',
+	'wp-includes/js/tinymce/plugins/wplink/img',
+	'wp-includes/js/tinymce/plugins/wplink/js',
+	// Don't delete, yet: 'wp-rss.php',
+	// Don't delete, yet: 'wp-rdf.php',
+	// Don't delete, yet: 'wp-rss2.php',
+	// Don't delete, yet: 'wp-commentsrss2.php',
+	// Don't delete, yet: 'wp-atom.php',
+	// Don't delete, yet: 'wp-feed.php',
+	// 3.4
+	'wp-admin/images/gray-star.png',
+	'wp-admin/images/logo-login.png',
+	'wp-admin/images/star.png',
+	'wp-admin/index-extra.php',
+	'wp-admin/network/index-extra.php',
+	'wp-admin/user/index-extra.php',
+	'wp-includes/css/editor-buttons.css',
+	'wp-includes/css/editor-buttons.dev.css',
+	'wp-includes/js/tinymce/plugins/paste/blank.htm',
+	'wp-includes/js/tinymce/plugins/wordpress/css',
+	'wp-includes/js/tinymce/plugins/wordpress/editor_plugin.dev.js',
+	'wp-includes/js/tinymce/plugins/wpdialogs/editor_plugin.dev.js',
+	'wp-includes/js/tinymce/plugins/wpeditimage/editor_plugin.dev.js',
+	'wp-includes/js/tinymce/plugins/wpgallery/editor_plugin.dev.js',
+	'wp-includes/js/tinymce/plugins/wplink/editor_plugin.dev.js',
+	// Don't delete, yet: 'wp-pass.php',
+	// Don't delete, yet: 'wp-register.php',
+	// 3.5
+	'wp-admin/gears-manifest.php',
+	'wp-admin/includes/manifest.php',
+	'wp-admin/images/archive-link.png',
+	'wp-admin/images/blue-grad.png',
+	'wp-admin/images/button-grad-active.png',
+	'wp-admin/images/button-grad.png',
+	'wp-admin/images/ed-bg-vs.gif',
+	'wp-admin/images/ed-bg.gif',
+	'wp-admin/images/fade-butt.png',
+	'wp-admin/images/fav-arrow-rtl.gif',
+	'wp-admin/images/fav-arrow.gif',
+	'wp-admin/images/fav-vs.png',
+	'wp-admin/images/fav.png',
+	'wp-admin/images/gray-grad.png',
+	'wp-admin/images/loading-publish.gif',
+	'wp-admin/images/logo-ghost.png',
+	'wp-admin/images/logo.gif',
+	'wp-admin/images/menu-arrow-frame-rtl.png',
+	'wp-admin/images/menu-arrow-frame.png',
+	'wp-admin/images/menu-arrows.gif',
+	'wp-admin/images/menu-bits-rtl-vs.gif',
+	'wp-admin/images/menu-bits-rtl.gif',
+	'wp-admin/images/menu-bits-vs.gif',
+	'wp-admin/images/menu-bits.gif',
+	'wp-admin/images/menu-dark-rtl-vs.gif',
+	'wp-admin/images/menu-dark-rtl.gif',
+	'wp-admin/images/menu-dark-vs.gif',
+	'wp-admin/images/menu-dark.gif',
+	'wp-admin/images/required.gif',
+	'wp-admin/images/screen-options-toggle-vs.gif',
+	'wp-admin/images/screen-options-toggle.gif',
+	'wp-admin/images/toggle-arrow-rtl.gif',
+	'wp-admin/images/toggle-arrow.gif',
+	'wp-admin/images/upload-classic.png',
+	'wp-admin/images/upload-fresh.png',
+	'wp-admin/images/white-grad-active.png',
+	'wp-admin/images/white-grad.png',
+	'wp-admin/images/widgets-arrow-vs.gif',
+	'wp-admin/images/widgets-arrow.gif',
+	'wp-admin/images/wpspin_dark.gif',
+	'wp-includes/images/upload.png',
+	'wp-includes/js/prototype.js',
+	'wp-includes/js/scriptaculous',
+	'wp-admin/css/wp-admin-rtl.dev.css',
+	'wp-admin/css/wp-admin.dev.css',
+	'wp-admin/css/media-rtl.dev.css',
+	'wp-admin/css/media.dev.css',
+	'wp-admin/css/colors-classic.dev.css',
+	'wp-admin/css/customize-controls-rtl.dev.css',
+	'wp-admin/css/customize-controls.dev.css',
+	'wp-admin/css/ie-rtl.dev.css',
+	'wp-admin/css/ie.dev.css',
+	'wp-admin/css/install.dev.css',
+	'wp-admin/css/colors-fresh.dev.css',
+	'wp-includes/js/customize-base.dev.js',
+	'wp-includes/js/json2.dev.js',
+	'wp-includes/js/comment-reply.dev.js',
+	'wp-includes/js/customize-preview.dev.js',
+	'wp-includes/js/wplink.dev.js',
+	'wp-includes/js/tw-sack.dev.js',
+	'wp-includes/js/wp-list-revisions.dev.js',
+	'wp-includes/js/autosave.dev.js',
+	'wp-includes/js/admin-bar.dev.js',
+	'wp-includes/js/quicktags.dev.js',
+	'wp-includes/js/wp-ajax-response.dev.js',
+	'wp-includes/js/wp-pointer.dev.js',
+	'wp-includes/js/hoverIntent.dev.js',
+	'wp-includes/js/colorpicker.dev.js',
+	'wp-includes/js/wp-lists.dev.js',
+	'wp-includes/js/customize-loader.dev.js',
+	'wp-includes/js/jquery/jquery.table-hotkeys.dev.js',
+	'wp-includes/js/jquery/jquery.color.dev.js',
+	'wp-includes/js/jquery/jquery.color.js',
+	'wp-includes/js/jquery/jquery.hotkeys.dev.js',
+	'wp-includes/js/jquery/jquery.form.dev.js',
+	'wp-includes/js/jquery/suggest.dev.js',
+	'wp-admin/js/xfn.dev.js',
+	'wp-admin/js/set-post-thumbnail.dev.js',
+	'wp-admin/js/comment.dev.js',
+	'wp-admin/js/theme.dev.js',
+	'wp-admin/js/cat.dev.js',
+	'wp-admin/js/password-strength-meter.dev.js',
+	'wp-admin/js/user-profile.dev.js',
+	'wp-admin/js/theme-preview.dev.js',
+	'wp-admin/js/post.dev.js',
+	'wp-admin/js/media-upload.dev.js',
+	'wp-admin/js/word-count.dev.js',
+	'wp-admin/js/plugin-install.dev.js',
+	'wp-admin/js/edit-comments.dev.js',
+	'wp-admin/js/media-gallery.dev.js',
+	'wp-admin/js/custom-fields.dev.js',
+	'wp-admin/js/custom-background.dev.js',
+	'wp-admin/js/common.dev.js',
+	'wp-admin/js/inline-edit-tax.dev.js',
+	'wp-admin/js/gallery.dev.js',
+	'wp-admin/js/utils.dev.js',
+	'wp-admin/js/widgets.dev.js',
+	'wp-admin/js/wp-fullscreen.dev.js',
+	'wp-admin/js/nav-menu.dev.js',
+	'wp-admin/js/dashboard.dev.js',
+	'wp-admin/js/link.dev.js',
+	'wp-admin/js/user-suggest.dev.js',
+	'wp-admin/js/postbox.dev.js',
+	'wp-admin/js/tags.dev.js',
+	'wp-admin/js/image-edit.dev.js',
+	'wp-admin/js/media.dev.js',
+	'wp-admin/js/customize-controls.dev.js',
+	'wp-admin/js/inline-edit-post.dev.js',
+	'wp-admin/js/categories.dev.js',
+	'wp-admin/js/editor.dev.js',
+	'wp-includes/js/plupload/handlers.dev.js',
+	'wp-includes/js/plupload/wp-plupload.dev.js',
+	'wp-includes/js/swfupload/handlers.dev.js',
+	'wp-includes/js/jcrop/jquery.Jcrop.dev.js',
+	'wp-includes/js/jcrop/jquery.Jcrop.js',
+	'wp-includes/js/jcrop/jquery.Jcrop.css',
+	'wp-includes/js/imgareaselect/jquery.imgareaselect.dev.js',
+	'wp-includes/css/wp-pointer.dev.css',
+	'wp-includes/css/editor.dev.css',
+	'wp-includes/css/jquery-ui-dialog.dev.css',
+	'wp-includes/css/admin-bar-rtl.dev.css',
+	'wp-includes/css/admin-bar.dev.css',
+	'wp-includes/js/jquery/ui/jquery.effects.clip.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.scale.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.blind.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.core.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.shake.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.fade.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.explode.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.slide.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.drop.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.highlight.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.bounce.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.pulsate.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.transfer.min.js',
+	'wp-includes/js/jquery/ui/jquery.effects.fold.min.js',
+	'wp-admin/js/utils.js',
+	// Added back in 5.3 [45448], see #43895.
+	// 'wp-admin/options-privacy.php',
+	'wp-app.php',
+	'wp-includes/class-wp-atom-server.php',
+	// 3.5.2
+	'wp-includes/js/swfupload/swfupload-all.js',
+	// 3.6
+	'wp-admin/js/revisions-js.php',
+	'wp-admin/images/screenshots',
+	'wp-admin/js/categories.js',
+	'wp-admin/js/categories.min.js',
+	'wp-admin/js/custom-fields.js',
+	'wp-admin/js/custom-fields.min.js',
+	// 3.7
+	'wp-admin/js/cat.js',
+	'wp-admin/js/cat.min.js',
+	// 3.8
+	'wp-includes/js/thickbox/tb-close-2x.png',
+	'wp-includes/js/thickbox/tb-close.png',
+	'wp-includes/images/wpmini-blue-2x.png',
+	'wp-includes/images/wpmini-blue.png',
+	'wp-admin/css/colors-fresh.css',
+	'wp-admin/css/colors-classic.css',
+	'wp-admin/css/colors-fresh.min.css',
+	'wp-admin/css/colors-classic.min.css',
+	'wp-admin/js/about.min.js',
+	'wp-admin/js/about.js',
+	'wp-admin/images/arrows-dark-vs-2x.png',
+	'wp-admin/images/wp-logo-vs.png',
+	'wp-admin/images/arrows-dark-vs.png',
+	'wp-admin/images/wp-logo.png',
+	'wp-admin/images/arrows-pr.png',
+	'wp-admin/images/arrows-dark.png',
+	'wp-admin/images/press-this.png',
+	'wp-admin/images/press-this-2x.png',
+	'wp-admin/images/arrows-vs-2x.png',
+	'wp-admin/images/welcome-icons.png',
+	'wp-admin/images/wp-logo-2x.png',
+	'wp-admin/images/stars-rtl-2x.png',
+	'wp-admin/images/arrows-dark-2x.png',
+	'wp-admin/images/arrows-pr-2x.png',
+	'wp-admin/images/menu-shadow-rtl.png',
+	'wp-admin/images/arrows-vs.png',
+	'wp-admin/images/about-search-2x.png',
+	'wp-admin/images/bubble_bg-rtl-2x.gif',
+	'wp-admin/images/wp-badge-2x.png',
+	'wp-admin/images/wordpress-logo-2x.png',
+	'wp-admin/images/bubble_bg-rtl.gif',
+	'wp-admin/images/wp-badge.png',
+	'wp-admin/images/menu-shadow.png',
+	'wp-admin/images/about-globe-2x.png',
+	'wp-admin/images/welcome-icons-2x.png',
+	'wp-admin/images/stars-rtl.png',
+	'wp-admin/images/wp-logo-vs-2x.png',
+	'wp-admin/images/about-updates-2x.png',
+	// 3.9
+	'wp-admin/css/colors.css',
+	'wp-admin/css/colors.min.css',
+	'wp-admin/css/colors-rtl.css',
+	'wp-admin/css/colors-rtl.min.css',
+	// Following files added back in 4.5, see #36083.
+	// 'wp-admin/css/media-rtl.min.css',
+	// 'wp-admin/css/media.min.css',
+	// 'wp-admin/css/farbtastic-rtl.min.css',
+	'wp-admin/images/lock-2x.png',
+	'wp-admin/images/lock.png',
+	'wp-admin/js/theme-preview.js',
+	'wp-admin/js/theme-install.min.js',
+	'wp-admin/js/theme-install.js',
+	'wp-admin/js/theme-preview.min.js',
+	'wp-includes/js/plupload/plupload.html4.js',
+	'wp-includes/js/plupload/plupload.html5.js',
+	'wp-includes/js/plupload/changelog.txt',
+	'wp-includes/js/plupload/plupload.silverlight.js',
+	'wp-includes/js/plupload/plupload.flash.js',
+	// Added back in 4.9 [41328], see #41755.
+	// 'wp-includes/js/plupload/plupload.js',
+	'wp-includes/js/tinymce/plugins/spellchecker',
+	'wp-includes/js/tinymce/plugins/inlinepopups',
+	'wp-includes/js/tinymce/plugins/media/js',
+	'wp-includes/js/tinymce/plugins/media/css',
+	'wp-includes/js/tinymce/plugins/wordpress/img',
+	'wp-includes/js/tinymce/plugins/wpdialogs/js',
+	'wp-includes/js/tinymce/plugins/wpeditimage/img',
+	'wp-includes/js/tinymce/plugins/wpeditimage/js',
+	'wp-includes/js/tinymce/plugins/wpeditimage/css',
+	'wp-includes/js/tinymce/plugins/wpgallery/img',
+	'wp-includes/js/tinymce/plugins/paste/js',
+	'wp-includes/js/tinymce/themes/advanced',
+	'wp-includes/js/tinymce/tiny_mce.js',
+	'wp-includes/js/tinymce/mark_loaded_src.js',
+	'wp-includes/js/tinymce/wp-tinymce-schema.js',
+	'wp-includes/js/tinymce/plugins/media/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/media/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/media/media.htm',
+	'wp-includes/js/tinymce/plugins/wpview/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/wpview/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/directionality/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/directionality/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/wordpress/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/wordpress/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/wpdialogs/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/wpdialogs/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/wpeditimage/editimage.html',
+	'wp-includes/js/tinymce/plugins/wpeditimage/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/wpeditimage/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/fullscreen/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/fullscreen/fullscreen.htm',
+	'wp-includes/js/tinymce/plugins/fullscreen/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/wplink/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/wplink/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/wpgallery/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/wpgallery/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/tabfocus/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/tabfocus/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/paste/editor_plugin.js',
+	'wp-includes/js/tinymce/plugins/paste/pasteword.htm',
+	'wp-includes/js/tinymce/plugins/paste/editor_plugin_src.js',
+	'wp-includes/js/tinymce/plugins/paste/pastetext.htm',
+	'wp-includes/js/tinymce/langs/wp-langs.php',
+	// 4.1
+	'wp-includes/js/jquery/ui/jquery.ui.accordion.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.autocomplete.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.button.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.core.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.datepicker.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.dialog.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.draggable.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.droppable.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-blind.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-bounce.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-clip.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-drop.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-explode.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-fade.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-fold.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-highlight.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-pulsate.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-scale.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-shake.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-slide.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect-transfer.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.effect.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.menu.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.mouse.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.position.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.progressbar.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.resizable.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.selectable.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.slider.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.sortable.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.spinner.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.tabs.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.tooltip.min.js',
+	'wp-includes/js/jquery/ui/jquery.ui.widget.min.js',
+	'wp-includes/js/tinymce/skins/wordpress/images/dashicon-no-alt.png',
+	// 4.3
+	'wp-admin/js/wp-fullscreen.js',
+	'wp-admin/js/wp-fullscreen.min.js',
+	'wp-includes/js/tinymce/wp-mce-help.php',
+	'wp-includes/js/tinymce/plugins/wpfullscreen',
+	// 4.5
+	'wp-includes/theme-compat/comments-popup.php',
+	// 4.6
+	'wp-admin/includes/class-wp-automatic-upgrader.php', // Wrong file name, see #37628.
+	// 4.8
+	'wp-includes/js/tinymce/plugins/wpembed',
+	'wp-includes/js/tinymce/plugins/media/moxieplayer.swf',
+	'wp-includes/js/tinymce/skins/lightgray/fonts/readme.md',
+	'wp-includes/js/tinymce/skins/lightgray/fonts/tinymce-small.json',
+	'wp-includes/js/tinymce/skins/lightgray/fonts/tinymce.json',
+	'wp-includes/js/tinymce/skins/lightgray/skin.ie7.min.css',
+	// 4.9
+	'wp-admin/css/press-this-editor-rtl.css',
+	'wp-admin/css/press-this-editor-rtl.min.css',
+	'wp-admin/css/press-this-editor.css',
+	'wp-admin/css/press-this-editor.min.css',
+	'wp-admin/css/press-this-rtl.css',
+	'wp-admin/css/press-this-rtl.min.css',
+	'wp-admin/css/press-this.css',
+	'wp-admin/css/press-this.min.css',
+	'wp-admin/includes/class-wp-press-this.php',
+	'wp-admin/js/bookmarklet.js',
+	'wp-admin/js/bookmarklet.min.js',
+	'wp-admin/js/press-this.js',
+	'wp-admin/js/press-this.min.js',
+	'wp-includes/js/mediaelement/background.png',
+	'wp-includes/js/mediaelement/bigplay.png',
+	'wp-includes/js/mediaelement/bigplay.svg',
+	'wp-includes/js/mediaelement/controls.png',
+	'wp-includes/js/mediaelement/controls.svg',
+	'wp-includes/js/mediaelement/flashmediaelement.swf',
+	'wp-includes/js/mediaelement/froogaloop.min.js',
+	'wp-includes/js/mediaelement/jumpforward.png',
+	'wp-includes/js/mediaelement/loading.gif',
+	'wp-includes/js/mediaelement/silverlightmediaelement.xap',
+	'wp-includes/js/mediaelement/skipback.png',
+	'wp-includes/js/plupload/plupload.flash.swf',
+	'wp-includes/js/plupload/plupload.full.min.js',
+	'wp-includes/js/plupload/plupload.silverlight.xap',
+	'wp-includes/js/swfupload/plugins',
+	'wp-includes/js/swfupload/swfupload.swf',
+	// 4.9.2
+	'wp-includes/js/mediaelement/lang',
+	'wp-includes/js/mediaelement/mediaelement-flash-audio-ogg.swf',
+	'wp-includes/js/mediaelement/mediaelement-flash-audio.swf',
+	'wp-includes/js/mediaelement/mediaelement-flash-video-hls.swf',
+	'wp-includes/js/mediaelement/mediaelement-flash-video-mdash.swf',
+	'wp-includes/js/mediaelement/mediaelement-flash-video.swf',
+	'wp-includes/js/mediaelement/renderers/dailymotion.js',
+	'wp-includes/js/mediaelement/renderers/dailymotion.min.js',
+	'wp-includes/js/mediaelement/renderers/facebook.js',
+	'wp-includes/js/mediaelement/renderers/facebook.min.js',
+	'wp-includes/js/mediaelement/renderers/soundcloud.js',
+	'wp-includes/js/mediaelement/renderers/soundcloud.min.js',
+	'wp-includes/js/mediaelement/renderers/twitch.js',
+	'wp-includes/js/mediaelement/renderers/twitch.min.js',
+	// 5.0
+	'wp-includes/js/codemirror/jshint.js',
+	// 5.1
 	'wp-includes/js/tinymce/wp-tinymce.js.gz',
 	'wp-includes/feed-atom.php',
 	'wp-includes/atomlib.php',
@@ -202,7 +872,6 @@ $_old_files = array(
 	'wp-includes/block-patterns/text-two-columns-with-images.php',
 	'wp-includes/block-patterns/text-two-columns.php',
 	'wp-includes/block-patterns/large-header-button.php',
-	'wp-includes/blocks/subhead/block.json',
 	'wp-includes/blocks/subhead',
 	'wp-includes/css/dist/editor/editor-styles.css',
 	'wp-includes/css/dist/editor/editor-styles.min.css',
@@ -213,10 +882,6 @@ $_old_files = array(
 	'wp-includes/blocks/heading/editor.min.css',
 	'wp-includes/blocks/heading/editor-rtl.css',
 	'wp-includes/blocks/heading/editor-rtl.min.css',
-	'wp-includes/blocks/post-content/editor.css',
-	'wp-includes/blocks/post-content/editor.min.css',
-	'wp-includes/blocks/post-content/editor-rtl.css',
-	'wp-includes/blocks/post-content/editor-rtl.min.css',
 	'wp-includes/blocks/query-title/editor.css',
 	'wp-includes/blocks/query-title/editor.min.css',
 	'wp-includes/blocks/query-title/editor-rtl.css',
@@ -225,39 +890,120 @@ $_old_files = array(
 	'wp-includes/blocks/tag-cloud/editor.min.css',
 	'wp-includes/blocks/tag-cloud/editor-rtl.css',
 	'wp-includes/blocks/tag-cloud/editor-rtl.min.css',
-);
-
-/**
- * Stores new files in wp-content to copy
- *
- * The contents of this array indicate any new bundled plugins/themes which
- * should be installed with the WordPress Upgrade. These items will not be
- * re-installed in future upgrades, this behaviour is controlled by the
- * introduced version present here being older than the current installed version.
- *
- * The content of this array should follow the following format:
- * Filename (relative to wp-content) => Introduced version
- * Directories should be noted by suffixing it with a trailing slash (/)
- *
- * @since 3.2.0
- * @since 4.7.0 New themes were not automatically installed for 4.4-4.6 on
- *              upgrade. New themes are now installed again. To disable new
- *              themes from being installed on upgrade, explicitly define
- *              CORE_UPGRADE_SKIP_NEW_BUNDLED as true.
- * @global array $_new_bundled_files
- * @var array
- * @name $_new_bundled_files
- */
-global $_new_bundled_files;
-
-$_new_bundled_files = array(
+	/*
+	 * Restored in WordPress 6.7
+	 *
+	 * 'wp-includes/blocks/tag-cloud/editor.css',
+	 * 'wp-includes/blocks/tag-cloud/editor.min.css',
+	 * 'wp-includes/blocks/tag-cloud/editor-rtl.css',
+	 * 'wp-includes/blocks/tag-cloud/editor-rtl.min.css',
+	 */
+	// 6.1
+	'wp-includes/blocks/post-comments.php',
+	'wp-includes/blocks/post-comments',
+	'wp-includes/blocks/comments-query-loop',
+	// 6.3
+	'wp-includes/images/wlw',
+	'wp-includes/wlwmanifest.xml',
+	'wp-includes/random_compat',
+	// 6.4
+	'wp-includes/navigation-fallback.php',
+	'wp-includes/blocks/navigation/view-modal.min.js',
+	'wp-includes/blocks/navigation/view-modal.js',
+	// 6.5
+	'wp-includes/ID3/license.commercial.txt',
+	'wp-includes/blocks/query/style-rtl.min.css',
+	'wp-includes/blocks/query/style.min.css',
+	'wp-includes/blocks/query/style-rtl.css',
+	'wp-includes/blocks/query/style.css',
+	'wp-admin/images/about-header-privacy.svg',
+	'wp-admin/images/about-header-about.svg',
+	'wp-admin/images/about-header-credits.svg',
+	'wp-admin/images/about-header-freedoms.svg',
+	'wp-admin/images/about-header-contribute.svg',
+	'wp-admin/images/about-header-background.svg',
+	// 6.6
+	'wp-includes/blocks/block/editor.css',
+	'wp-includes/blocks/block/editor.min.css',
+	'wp-includes/blocks/block/editor-rtl.css',
+	'wp-includes/blocks/block/editor-rtl.min.css',
+	/*
+	 * 6.7
+	 *
+	 * WordPress 6.7 included a SimplePie upgrade that included a major
+	 * refactoring of the file structure and library. The old files are
+	 * split in to two sections to account for this: files and directories.
+	 *
+	 * See https://core.trac.wordpress.org/changeset/59141
+	 */
+	// 6.7 - files
+	'wp-includes/js/dist/interactivity-router.asset.php',
+	'wp-includes/js/dist/interactivity-router.js',
+	'wp-includes/js/dist/interactivity-router.min.js',
+	'wp-includes/js/dist/interactivity-router.min.asset.php',
+	'wp-includes/js/dist/interactivity.js',
+	'wp-includes/js/dist/interactivity.min.js',
+	'wp-includes/js/dist/vendor/react-dom.min.js.LICENSE.txt',
+	'wp-includes/js/dist/vendor/react.min.js.LICENSE.txt',
+	'wp-includes/js/dist/vendor/wp-polyfill-importmap.js',
+	'wp-includes/js/dist/vendor/wp-polyfill-importmap.min.js',
+	'wp-includes/sodium_compat/src/Core/Base64/Common.php',
+	'wp-includes/SimplePie/Author.php',
+	'wp-includes/SimplePie/Cache.php',
+	'wp-includes/SimplePie/Caption.php',
+	'wp-includes/SimplePie/Category.php',
+	'wp-includes/SimplePie/Copyright.php',
+	'wp-includes/SimplePie/Core.php',
+	'wp-includes/SimplePie/Credit.php',
+	'wp-includes/SimplePie/Enclosure.php',
+	'wp-includes/SimplePie/Exception.php',
+	'wp-includes/SimplePie/File.php',
+	'wp-includes/SimplePie/gzdecode.php',
+	'wp-includes/SimplePie/IRI.php',
+	'wp-includes/SimplePie/Item.php',
+	'wp-includes/SimplePie/Locator.php',
+	'wp-includes/SimplePie/Misc.php',
+	'wp-includes/SimplePie/Parser.php',
+	'wp-includes/SimplePie/Rating.php',
+	'wp-includes/SimplePie/Registry.php',
+	'wp-includes/SimplePie/Restriction.php',
+	'wp-includes/SimplePie/Sanitize.php',
+	'wp-includes/SimplePie/Source.php',
+	// 6.7 - directories
+	'wp-includes/SimplePie/Cache/',
+	'wp-includes/SimplePie/Content/',
+	'wp-includes/SimplePie/Decode/',
+	'wp-includes/SimplePie/HTTP/',
+	'wp-includes/SimplePie/Net/',
+	'wp-includes/SimplePie/Parse/',
+	'wp-includes/SimplePie/XML/',
+	// 6.8
+	'wp-includes/blocks/post-content/editor.css',
+	'wp-includes/blocks/post-content/editor.min.css',
+	'wp-includes/blocks/post-content/editor-rtl.css',
+	'wp-includes/blocks/post-content/editor-rtl.min.css',
+	'wp-includes/blocks/post-template/editor.css',
+	'wp-includes/blocks/post-template/editor.min.css',
+	'wp-includes/blocks/post-template/editor-rtl.css',
+	'wp-includes/blocks/post-template/editor-rtl.min.css',
+	'wp-includes/js/dist/undo-manager.js',
+	'wp-includes/js/dist/undo-manager.min.js',
+	'wp-includes/js/dist/fields.min.js',
+	'wp-includes/js/dist/fields.js',
+	// 6.9
+	'wp-includes/blocks/post-author/editor.css',
+	'wp-includes/blocks/post-author/editor.min.css',
+	'wp-includes/blocks/post-author/editor-rtl.css',
+	'wp-includes/blocks/post-author/editor-rtl.min.css',
+	'wp-includes/SimplePie/src/Decode',
+	'wp-includes/SimplePie/src/Core.php',
 );
 
 /**
  * Upgrades the core of calmPress.
  *
  * This will create a .maintenance file at the base of the calmPress directory
- * to ensure that people can not access the web site, when the files are being
+ * to ensure that people can not access the website, when the files are being
  * copied to their locations.
  *
  * The files in the `$_old_files` list will be removed and the new files
@@ -265,6 +1011,7 @@ $_new_bundled_files = array(
  *
  * The steps for the upgrader for after the new release is downloaded and
  * unzipped is:
+ *
  *   1. Test unzipped location for select files to ensure that unzipped worked.
  *   2. Create the .maintenance file in current calmPress base.
  *   3. Copy new calmPress directory over old calmPress files.
@@ -291,7 +1038,7 @@ $_new_bundled_files = array(
  * @since 2.7.0
  *
  * @global WP_Filesystem_Base $wp_filesystem          WordPress filesystem subclass.
- * @global array              $_old_files
+ * @global string[]           $_old_files
  * @global wpdb               $wpdb                   WordPress database abstraction object.
  *
  * @param string $from New release unzipped path.
@@ -301,9 +1048,15 @@ $_new_bundled_files = array(
 function update_core( $from, $to ) {
 	global $wp_filesystem, $_old_files, $wpdb;
 
-	$calmpress_version      = '1.0.0-alpha18';
+	$calmpress_version      = '1.0.0-alpha26';
 
-	set_time_limit( 300 );
+	/*
+	 * Give core update script an additional 300 seconds (5 minutes)
+	 * to finish updating large files when running on slower servers.
+	 */
+	if ( function_exists( 'set_time_limit' ) ) {
+		set_time_limit( 300 );
+	}
 
 	/**
 	 * Filters feedback messages displayed during the core update process.
@@ -324,7 +1077,7 @@ function update_core( $from, $to ) {
 	 */
 	apply_filters( 'update_feedback', __( 'Verifying the unpacked files&#8230;' ) );
 
-	// Sanity check the unzipped distribution.
+	// Confidence check the unzipped distribution.
 	$distro = '';
 	$roots  = array( '/' );
 
@@ -344,8 +1097,8 @@ function update_core( $from, $to ) {
 	}
 
 	/*
-	 * Import $wp_version, $required_php_version, and $required_mysql_version from the new version.
-	 * DO NOT globalise any variables imported from `version-current.php` in this function.
+	 * Import $wp_version, $required_php_version, $required_php_extensions, and $required_mysql_version from the new version.
+	 * DO NOT globalize any variables imported from `version-current.php` in this function.
 	 *
 	 * BC Note: $wp_filesystem->wp_content_dir() returned unslashed pre-2.8.
 	 */
@@ -356,7 +1109,7 @@ function update_core( $from, $to ) {
 
 		return new WP_Error(
 			'copy_failed_for_version_file',
-			__( 'The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions.' ),
+			__( 'The update cannot be installed because some files could not be copied. This is usually due to inconsistent file permissions.' ),
 			'wp-includes/version.php'
 		);
 	}
@@ -375,8 +1128,9 @@ function update_core( $from, $to ) {
 	require WP_CONTENT_DIR . '/upgrade/version-current.php';
 	$wp_filesystem->delete( $versions_file );
 
-	$php_version   = phpversion();
-	$mysql_version = $wpdb->db_version();
+	$php_version    = PHP_VERSION;
+	$mysql_version  = $wpdb->db_version();
+	$php_compat        = version_compare( $php_version, $required_php_version, '>=' );
 
 	$annotation = wp_get_update_php_annotation();
 
@@ -442,59 +1196,53 @@ function update_core( $from, $to ) {
 		}
 	}
 
-	// Check for require php extensions.
-	foreach ( $required_php_extensions as $extension ) {
-		if ( ! extension_loaded( $extension ) ) {
-			if ( isset( $alternative_php_extensions[ $extension ] ) ) {
-				// Check if an alternative can be found.
-				$found = false;
-				foreach ( $alternative_php_extensions[ $extension ] as $altenative ) {
-					if ( extension_loaded( $extension ) ) {
-						$found = true;
-					}
-				}
-				// No alternative found, set an error message.
-				if ( ! $found ) {
-					$errors[] = sprintf(
-						/* translators: 1: The name of the extension, 2: List of alternative extensions. */
-						esc_html__( 'The required PHP extension %1$s is not enabled. Possible alternatives: %2$s' ),
-						esc_html( $extension ),
-						esc_html( join( ', ', $alternative_php_extensions[ $extension ] ) )
-					);
-				}
-			} else {
-				$errors[] = sprintf(
-					/* translators: 1: The name of the extension. */
-					esc_html__( 'The required PHP extension %1$s is not enabled.' ),
-					esc_html( $extension )
-				);
-			}
-		}
-	}
+	$missing_extensions = new WP_Error();
 
-	// Check for require apache modules if it is being used.
+	// Check for required apache modules if it is being used.
 	if ( is_apache() ) {
 		foreach ( $required_apache_modules as $module ) {
 			if ( false === apache_mod_loaded( $module, 'unknown' ) ) {
-				$errors[] = sprintf(
-					/* translators: 1: The name of the module. */
-					esc_html__( 'The required Apache module %1$s is not enabled.' ),
-					esc_html( $module )
+				$missing_extensions->add(
+					"apache_not_compatible_{$module}",
+					sprintf(
+						/* translators: 1: The apache module name needed. */
+						__( 'The update cannot be installed because installed calmPress requires the %1$s Apache module to be enabled.' ),
+						$module
+					)
 				);
 			}
 		}
 	}
 
-	if ( ! empty( $errors ) ) {
-		$error_msg = esc_html__( 'The update cannot be installed because of the following errors:' );
-		foreach ( $errors as $error ) {
-			$error_msg .= '<br />' . $error;
+	// Check for required php extensions.
+	if ( isset( $required_php_extensions ) && is_array( $required_php_extensions ) ) {
+
+		foreach ( $required_php_extensions as $extension ) {
+			if ( extension_loaded( $extension ) ) {
+				continue;
+			}
+
+			foreach ( $alternative_php_extensions[ $extension ] as $altenative ) {
+				if ( extension_loaded( $extension ) ) {
+					continue 2; // continue the previous foreach loop.
+				}
+			}
+
+			$missing_extensions->add(
+				"php_not_compatible_{$extension}",
+				sprintf(
+					/* translators: 1: The PHP extension name needed. */
+					__( 'The update cannot be installed because instaled calmPress requires the %1$s PHP extension.' ),
+					$extension
+				)
+			);
 		}
 
-		return new WP_Error(
-			'not_compatible',
-			$error_msg
-		);
+	}
+
+	// Add a warning when required PHP extensions are missing.
+	if ( ! empty( $missing_extensions->errors ) ) {
+		return $missing_extensions;
 	}
 
 	/** This filter is documented in wp-admin/includes/update-core.php */
@@ -526,7 +1274,7 @@ function update_core( $from, $to ) {
 			if ( $files_not_writable ) {
 				return new WP_Error(
 					'files_not_writable',
-					__( 'The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions.' ),
+					__( 'The update cannot be installed because your site is unable to copy some files. This is usually due to inconsistent file permissions.' ),
 					implode( ', ', $error_data )
 				);
 			}
@@ -546,7 +1294,8 @@ function update_core( $from, $to ) {
 	apply_filters( 'update_feedback', __( 'Copying the required files&#8230;' ) );
 
 	// Copy new versions of WP files into place.
-	$result = _copy_dir( $from, $to, $skip );
+	$result = copy_dir( $from . $distro, $to, $skip );
+
 	if ( is_wp_error( $result ) ) {
 		$result = new WP_Error(
 			$result->get_error_code(),
@@ -561,7 +1310,7 @@ function update_core( $from, $to ) {
 			$wp_filesystem->delete( $from, true );
 			$result = new WP_Error(
 				'copy_failed_for_version_file',
-				__( 'The update cannot be installed because we will be unable to copy some files. This is usually due to inconsistent file permissions.' ),
+				__( 'The update cannot be installed because your site is unable to copy some files. This is usually due to inconsistent file permissions.' ),
 				'wp-includes/version.php'
 			);
 		}
@@ -591,14 +1340,17 @@ function update_core( $from, $to ) {
 			}
 		}
 
-		// If we don't have enough free space, it isn't worth trying again.
-		// Unlikely to be hit due to the check in unzip_file().
-		$available_space = @disk_free_space( ABSPATH );
+		/*
+		 * If we don't have enough free space, it isn't worth trying again.
+		 * Unlikely to be hit due to the check in unzip_file().
+		 */
+		$available_space = function_exists( 'disk_free_space' ) ? @disk_free_space( ABSPATH ) : false;
 
 		if ( $available_space && $total_size >= $available_space ) {
 			$result = new WP_Error( 'disk_full', __( 'There is not enough free disk space to complete the update.' ) );
 		} else {
-			$result = _copy_dir( $from, $to, $skip );
+			$result = copy_dir( $from . $distro, $to, $skip );
+
 			if ( is_wp_error( $result ) ) {
 				$result = new WP_Error(
 					$result->get_error_code() . '_retry',
@@ -668,93 +1420,4 @@ function update_core( $from, $to ) {
 	do_action( '_core_updated_successfully', $calmpress_version );
 
 	return $calmpress_version;
-}
-
-/**
- * Copies a directory from one location to another via the WordPress Filesystem Abstraction.
- *
- * Assumes that WP_Filesystem() has already been called and setup.
- *
- * This is a standalone copy of the `copy_dir()` function that is used to
- * upgrade the core files. It is placed here so that the version of this
- * function from the *new* WordPress version will be called.
- *
- * It was initially added for the 3.1 -> 3.2 upgrade.
- *
- * @ignore
- * @since 3.2.0
- * @since 3.7.0 Updated not to use a regular expression for the skip list.
- *
- * @see copy_dir()
- * @link https://core.trac.wordpress.org/ticket/17173
- *
- * @global WP_Filesystem_Base $wp_filesystem
- *
- * @param string   $from      Source directory.
- * @param string   $to        Destination directory.
- * @param string[] $skip_list Array of files/folders to skip copying.
- * @return true|WP_Error True on success, WP_Error on failure.
- */
-function _copy_dir( $from, $to, $skip_list = array() ) {
-	global $wp_filesystem;
-
-	$dirlist = $wp_filesystem->dirlist( $from );
-
-	if ( false === $dirlist ) {
-		return new WP_Error( 'dirlist_failed__copy_dir', __( 'Directory listing failed.' ), basename( $to ) );
-	}
-
-	$from = trailingslashit( $from );
-	$to   = trailingslashit( $to );
-
-	foreach ( (array) $dirlist as $filename => $fileinfo ) {
-		if ( in_array( $filename, $skip_list, true ) ) {
-			continue;
-		}
-
-		if ( 'f' === $fileinfo['type'] ) {
-			if ( ! $wp_filesystem->copy( $from . $filename, $to . $filename, true, FS_CHMOD_FILE ) ) {
-				// If copy failed, chmod file to 0644 and try again.
-				$wp_filesystem->chmod( $to . $filename, FS_CHMOD_FILE );
-
-				if ( ! $wp_filesystem->copy( $from . $filename, $to . $filename, true, FS_CHMOD_FILE ) ) {
-					return new WP_Error( 'copy_failed__copy_dir', __( 'Could not copy file.' ), $to . $filename );
-				}
-			}
-
-			/*
-			 * `wp_opcache_invalidate()` only exists in WordPress 5.5 or later,
-			 * so don't run it when upgrading from older versions.
-			 */
-			if ( function_exists( 'wp_opcache_invalidate' ) ) {
-				wp_opcache_invalidate( $to . $filename );
-			}
-		} elseif ( 'd' === $fileinfo['type'] ) {
-			if ( ! $wp_filesystem->is_dir( $to . $filename ) ) {
-				if ( ! $wp_filesystem->mkdir( $to . $filename, FS_CHMOD_DIR ) ) {
-					return new WP_Error( 'mkdir_failed__copy_dir', __( 'Could not create directory.' ), $to . $filename );
-				}
-			}
-
-			/*
-			 * Generate the $sub_skip_list for the subdirectory as a sub-set
-			 * of the existing $skip_list.
-			 */
-			$sub_skip_list = array();
-
-			foreach ( $skip_list as $skip_item ) {
-				if ( 0 === strpos( $skip_item, $filename . '/' ) ) {
-					$sub_skip_list[] = preg_replace( '!^' . preg_quote( $filename, '!' ) . '/!i', '', $skip_item );
-				}
-			}
-
-			$result = _copy_dir( $from . $filename, $to . $filename, $sub_skip_list );
-
-			if ( is_wp_error( $result ) ) {
-				return $result;
-			}
-		}
-	}
-
-	return true;
 }

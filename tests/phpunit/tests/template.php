@@ -47,8 +47,43 @@ class Tests_Template extends WP_UnitTestCase {
 		add_post_meta( self::$post->ID, '_wp_page_template', 'templates/post.php' );
 	}
 
+	/**
+	 * @var WP_Scripts|null
+	 */
+	protected $original_wp_scripts;
+
+	/**
+	 * @var WP_Styles|null
+	 */
+	protected $original_wp_styles;
+
+	/**
+	 * @var array|null
+	 */
+	protected $original_theme_features;
+
+	/**
+	 * @var array
+	 */
+	const RESTORED_CONFIG_OPTIONS = array(
+		'display_errors',
+		'error_reporting',
+		'log_errors',
+		'error_log',
+		'default_mimetype',
+		'html_errors',
+		'error_prepend_string',
+		'error_append_string',
+	);
+
+	/**
+	 * @var array
+	 */
+	protected $original_ini_config;
+
 	public function set_up() {
 		parent::set_up();
+
 		register_post_type(
 			'cpt',
 			array(
@@ -64,12 +99,36 @@ class Tests_Template extends WP_UnitTestCase {
 			)
 		);
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+
+		global $wp_scripts, $wp_styles;
+		$this->original_wp_scripts = $wp_scripts;
+		$this->original_wp_styles  = $wp_styles;
+		$wp_scripts                = null;
+		$wp_styles                 = null;
+
+		foreach ( self::RESTORED_CONFIG_OPTIONS as $option ) {
+			$this->original_ini_config[ $option ] = ini_get( $option );
+		}
 	}
 
 	public function tear_down() {
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = $this->original_wp_scripts;
+		$wp_styles  = $this->original_wp_styles;
+
+		foreach ( $this->original_ini_config as $option => $value ) {
+			ini_set( $option, $value );
+		}
+
 		unregister_post_type( 'cpt' );
 		unregister_taxonomy( 'taxo' );
 		$this->set_permalink_structure( '' );
+
+		$registry = WP_Block_Type_Registry::get_instance();
+		if ( $registry->is_registered( 'third-party/test' ) ) {
+			$registry->unregister( 'third-party/test' );
+		}
+
 		parent::tear_down();
 	}
 
@@ -143,6 +202,7 @@ class Tests_Template extends WP_UnitTestCase {
 			array(
 				'taxonomy-taxo-foo-😀.php',
 				'taxonomy-taxo-foo-%f0%9f%98%80.php',
+				"taxonomy-taxo-{$term->term_id}.php",
 				'taxonomy-taxo.php',
 				'taxonomy.php',
 				'archive.php',
@@ -350,7 +410,7 @@ class Tests_Template extends WP_UnitTestCase {
 		);
 	}
 
-/**
+	/**
 	 * @ticket 17851
 	 * @covers ::add_settings_section
 	 */
@@ -530,6 +590,49 @@ class Tests_Template extends WP_UnitTestCase {
 		$this->assertSame( $expected, $hierarchy, $message );
 	}
 
+	/**
+	 * Exports PHP array as string formatted as a snapshot for pasting into a data provider.
+	 *
+	 * Unfortunately, `var_export()` always includes array indices even for lists. For example:
+	 *
+	 *     var_export( array( 'a', 'b', 'c' ) );
+	 *
+	 * Results in:
+	 *
+	 *     array (
+	 *       0 => 'a',
+	 *       1 => 'b',
+	 *       2 => 'c',
+	 *     )
+	 *
+	 * This makes it unhelpful when outputting a snapshot to update a unit test. So this function strips out the indices
+	 * to facilitate copy/pasting the snapshot from an assertion error message into the data provider. For example:
+	 *
+	 *      array(
+	 *          'a',
+	 *          'b',
+	 *          'c',
+	 *      )
+	 *
+	 *
+	 * @param array $snapshot Snapshot.
+	 * @return string Snapshot export.
+	 */
+	private static function get_array_snapshot_export( array $snapshot ): string {
+		$export = var_export( $snapshot, true );
+		$export = preg_replace( '/\barray \($/m', 'array(', $export );
+		$export = preg_replace( '/^(\s+)\d+\s+=>\s+/m', '$1', $export );
+		$export = preg_replace( '/=> *\n +/', '=> ', $export );
+		$export = preg_replace( '/array\(\n\s+\)/', 'array()', $export );
+		return preg_replace_callback(
+			'/(^ +)/m',
+			static function ( $matches ) {
+				return str_repeat( "\t", strlen( $matches[0] ) / 2 );
+			},
+			$export
+		);
+	}
+
 	protected static function get_query_template_conditions() {
 		return array(
 			'embed'             => 'is_embed',
@@ -571,5 +674,4 @@ class Tests_Template extends WP_UnitTestCase {
 		$this->hierarchy = array_merge( $this->hierarchy, $hierarchy );
 		return $hierarchy;
 	}
-
 }

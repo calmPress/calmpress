@@ -119,7 +119,13 @@ function edit_user( $user_id = 0 ) {
 		} elseif ( '' === $locale ) {
 			$locale = 'en_US';
 		} elseif ( ! in_array( $locale, get_available_languages(), true ) ) {
-			$locale = '';
+			if ( current_user_can( 'install_languages' ) && wp_can_install_language_pack() ) {
+				if ( ! wp_download_language_pack( $locale ) ) {
+					$locale = '';
+				}
+			} else {
+				$locale = '';
+			}
 		}
 
 		$user->locale = $locale;
@@ -177,17 +183,17 @@ function edit_user( $user_id = 0 ) {
 
 	// Check for blank password when adding a user.
 	if ( ! $update && empty( $pass1 ) ) {
-		$errors->add( 'pass', __( '<strong>Error</strong>: Please enter a password.' ), array( 'form-field' => 'pass1' ) );
+		$errors->add( 'pass', __( '<strong>Error:</strong> Please enter a password.' ), array( 'form-field' => 'pass1' ) );
 	}
 
 	// Check for "\" in password.
-	if ( false !== strpos( wp_unslash( $pass1 ), '\\' ) ) {
-		$errors->add( 'pass', __( '<strong>Error</strong>: Passwords may not contain the character "\\".' ), array( 'form-field' => 'pass1' ) );
+	if ( str_contains( wp_unslash( $pass1 ), '\\' ) ) {
+		$errors->add( 'pass', __( '<strong>Error:</strong> Passwords may not contain the character "\\".' ), array( 'form-field' => 'pass1' ) );
 	}
 
 	// Checking the password has been typed twice the same.
-	if ( ( $update || ! empty( $pass1 ) ) && $pass1 != $pass2 ) {
-		$errors->add( 'pass', __( '<strong>Error</strong>: Passwords don&#8217;t match. Please enter the same password in both password fields.' ), array( 'form-field' => 'pass1' ) );
+	if ( ( $update || ! empty( $pass1 ) ) && $pass1 !== $pass2 ) {
+		$errors->add( 'pass', __( '<strong>Error:</strong> Passwords do not match. Please enter the same password in both password fields.' ), array( 'form-field' => 'pass1' ) );
 	}
 
 	if ( ! empty( $pass1 ) ) {
@@ -195,7 +201,7 @@ function edit_user( $user_id = 0 ) {
 	}
 
 	if ( ! $update && isset( $_POST['user_login'] ) && ! validate_username( $_POST['user_login'] ) ) {
-		$errors->add( 'user_login', __( '<strong>Error</strong>: This username is invalid because it uses illegal characters. Please enter a valid username.' ) );
+		$errors->add( 'user_login', __( '<strong>Error:</strong> This username is invalid because it uses illegal characters. Please enter a valid username.' ) );
 	}
 
 	/* checking email address */
@@ -217,13 +223,6 @@ function edit_user( $user_id = 0 ) {
 				sprintf( __( '<strong>Error</strong>: The email %s is already registered.' ), $user->user_email ),
 				array( 'form-field' => 'email' ) );
 		}
-	}
-
-	/** This filter is documented in wp-includes/user.php */
-	$illegal_logins = (array) apply_filters( 'illegal_user_logins', array() );
-
-	if ( in_array( strtolower( $user->user_login ), array_map( 'strtolower', $illegal_logins ) ) ) {
-		$errors->add( 'invalid_username', __( '<strong>ERROR</strong>: Sorry, that username is not allowed.' ) );
 	}
 
 	// Check if user email is being changed while an email change already in progress.
@@ -346,7 +345,7 @@ function get_users_drafts( $user_id ) {
 	$query = $wpdb->prepare( "SELECT ID, post_title FROM $wpdb->posts WHERE post_type = 'post' AND post_status = 'draft' AND post_author = %d ORDER BY post_modified DESC", $user_id );
 
 	/**
-	 * Filters the user's drafts query string.
+	 * Filters the SQL query string for the user's drafts query.
 	 *
 	 * @since 2.0.0
 	 *
@@ -357,18 +356,21 @@ function get_users_drafts( $user_id ) {
 }
 
 /**
- * Remove user and optionally reassign posts and links to another user.
+ * Delete user and optionally reassign posts and links to another user.
  *
- * If the $reassign parameter is not assigned to a User ID, then all posts will
- * be deleted of that user. The action {@see 'delete_user'} that is passed the User ID
+ * Note that on a Multisite installation the user only gets removed from the site
+ * and does not get deleted from the database.
+ *
+ * If the `$reassign` parameter is not assigned to a user ID, then all posts will
+ * be deleted of that user. The action {@see 'delete_user'} that is passed the user ID
  * being deleted will be run after the posts are either reassigned or deleted.
- * The user meta will also be deleted that are for that User ID.
+ * The user meta will also be deleted that are for that user ID.
  *
  * @since 2.0.0
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
- * @param int $id User ID.
+ * @param int $id       User ID.
  * @param int $reassign Optional. Reassign posts and links to new User ID.
  * @return bool True when finished.
  */
@@ -394,7 +396,10 @@ function wp_delete_user( $id, $reassign = null ) {
 	}
 
 	/**
-	 * Fires immediately before a user is deleted from the database.
+	 * Fires immediately before a user is deleted from the site.
+	 *
+	 * Note that on a Multisite installation the user only gets removed from the site
+	 * and does not get deleted from the database.
 	 *
 	 * @since 2.0.0
 	 * @since 5.5.0 Added the `$user` parameter.
@@ -458,7 +463,11 @@ function wp_delete_user( $id, $reassign = null ) {
 	clean_user_cache( $user );
 
 	/**
-	 * Fires immediately after a user is deleted from the database.
+	 * Fires immediately after a user is deleted from the site.
+	 *
+	 * Note that on a Multisite installation the user may not have been deleted from
+	 * the database depending on whether `wp_delete_user()` or `wpmu_delete_user()`
+	 * was called.
 	 *
 	 * @since 2.9.0
 	 * @since 5.5.0 Added the `$user` parameter.
@@ -503,7 +512,7 @@ function default_password_nag_handler( $errors = false ) {
 
 	// get_user_setting() = JS-saved UI setting. Else no-js-fallback code.
 	if ( 'hide' === get_user_setting( 'default_password_nag' )
-		|| isset( $_GET['default_password_nag'] ) && '0' == $_GET['default_password_nag']
+		|| isset( $_GET['default_password_nag'] ) && '0' === $_GET['default_password_nag']
 	) {
 		delete_user_setting( 'default_password_nag' );
 		update_user_meta( $user_ID, 'default_password_nag', false );
@@ -525,7 +534,7 @@ function default_password_nag_edit_user( $user_ID, $old_data ) {
 	$new_data = get_userdata( $user_ID );
 
 	// Remove the nag if the password has been changed.
-	if ( $new_data->user_pass != $old_data->user_pass ) {
+	if ( $new_data->user_pass !== $old_data->user_pass ) {
 		delete_user_setting( 'default_password_nag' );
 		update_user_meta( $user_ID, 'default_password_nag', false );
 	}
@@ -534,23 +543,39 @@ function default_password_nag_edit_user( $user_ID, $old_data ) {
 /**
  * @since 2.8.0
  *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  */
 function default_password_nag() {
 	global $pagenow;
+
 	// Short-circuit it.
 	if ( 'user-edit.php' === $pagenow || ! get_user_option( 'default_password_nag' ) ) {
 		return;
 	}
 
-	echo '<div class="error default-password-nag">';
-	echo '<p>';
-	echo '<strong>' . __( 'Notice:' ) . '</strong> ';
-	_e( 'You&rsquo;re using the auto-generated password for your account. Would you like to change it?' );
-	echo '</p><p>';
-	printf( '<a href="%s">' . __( 'Yes, take me to my profile page' ) . '</a> | ', get_edit_profile_url() . '#password' );
-	printf( '<a href="%s" id="default-password-nag-no">' . __( 'No thanks, do not remind me again' ) . '</a>', '?default_password_nag=0' );
-	echo '</p></div>';
+	$default_password_nag_message  = sprintf(
+		'<p><strong>%1$s</strong> %2$s</p>',
+		__( 'Notice:' ),
+		__( 'You are using the auto-generated password for your account. Would you like to change it?' )
+	);
+	$default_password_nag_message .= sprintf(
+		'<p><a href="%1$s">%2$s</a> | ',
+		esc_url( get_edit_profile_url() . '#password' ),
+		__( 'Yes, take me to my profile page' )
+	);
+	$default_password_nag_message .= sprintf(
+		'<a href="%1$s" id="default-password-nag-no">%2$s</a></p>',
+		'?default_password_nag=0',
+		__( 'No thanks, do not remind me again' )
+	);
+
+	wp_admin_notice(
+		$default_password_nag_message,
+		array(
+			'additional_classes' => array( 'error', 'default-password-nag' ),
+			'paragraph_wrap'     => false,
+		)
+	);
 }
 
 /**
@@ -583,6 +608,12 @@ function admin_created_user_email( $text ) {
 	$roles = get_editable_roles();
 	$role  = $roles[ $_REQUEST['role'] ];
 
+	if ( '' !== get_bloginfo( 'name' ) ) {
+		$site_title = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+	} else {
+		$site_title = parse_url( home_url(), PHP_URL_HOST );
+	}
+
 	return sprintf(
 		/* translators: 1: Site title, 2: Site URL, 3: User role. */
 		__(
@@ -595,7 +626,7 @@ this email. This invitation will expire in a few days.
 Please click the following link to activate your user account:
 %%s'
 		),
-		wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+		$site_title,
 		home_url(),
 		wp_specialchars_decode( translate_user_role( $role['name'] ) )
 	);
@@ -605,6 +636,8 @@ Please click the following link to activate your user account:
  * Checks if the Authorize Application Password request is valid.
  *
  * @since 5.6.0
+ * @since 6.2.0 Allow insecure HTTP connections for the local environment.
+ * @since 6.3.2 Validates the success and reject URLs to prevent `javascript` pseudo protocol from being executed.
  *
  * @param array   $request {
  *     The array of request data. All arguments are optional and may be empty.
@@ -620,24 +653,22 @@ Please click the following link to activate your user account:
 function wp_is_authorize_application_password_request_valid( $request, $user ) {
 	$error = new WP_Error();
 
-	if ( ! empty( $request['success_url'] ) ) {
-		$scheme = wp_parse_url( $request['success_url'], PHP_URL_SCHEME );
-
-		if ( 'http' === $scheme ) {
+	if ( isset( $request['success_url'] ) ) {
+		$validated_success_url = wp_is_authorize_application_redirect_url_valid( $request['success_url'] );
+		if ( is_wp_error( $validated_success_url ) ) {
 			$error->add(
-				'invalid_redirect_scheme',
-				__( 'The success URL must be served over a secure connection.' )
+				$validated_success_url->get_error_code(),
+				$validated_success_url->get_error_message()
 			);
 		}
 	}
 
-	if ( ! empty( $request['reject_url'] ) ) {
-		$scheme = wp_parse_url( $request['reject_url'], PHP_URL_SCHEME );
-
-		if ( 'http' === $scheme ) {
+	if ( isset( $request['reject_url'] ) ) {
+		$validated_reject_url = wp_is_authorize_application_redirect_url_valid( $request['reject_url'] );
+		if ( is_wp_error( $validated_reject_url ) ) {
 			$error->add(
-				'invalid_redirect_scheme',
-				__( 'The rejection URL must be served over a secure connection.' )
+				$validated_reject_url->get_error_code(),
+				$validated_reject_url->get_error_message()
 			);
 		}
 	}
@@ -662,6 +693,62 @@ function wp_is_authorize_application_password_request_valid( $request, $user ) {
 
 	if ( $error->has_errors() ) {
 		return $error;
+	}
+
+	return true;
+}
+
+/**
+ * Validates the redirect URL protocol scheme. The protocol can be anything except `http` and `javascript`.
+ *
+ * @since 6.3.2
+ *
+ * @param string $url The redirect URL to be validated.
+ * @return true|WP_Error True if the redirect URL is valid, a WP_Error object otherwise.
+ */
+function wp_is_authorize_application_redirect_url_valid( $url ) {
+	$bad_protocols = array( 'javascript', 'data' );
+	if ( empty( $url ) ) {
+		return true;
+	}
+
+	// Based on https://www.rfc-editor.org/rfc/rfc2396#section-3.1
+	$valid_scheme_regex = '/^[a-zA-Z][a-zA-Z0-9+.-]*:/';
+	if ( ! preg_match( $valid_scheme_regex, $url ) ) {
+		return new WP_Error(
+			'invalid_redirect_url_format',
+			__( 'Invalid URL format.' )
+		);
+	}
+
+	/**
+	 * Filters the list of invalid protocols used in applications redirect URLs.
+	 *
+	 * @since 6.3.2
+	 *
+	 * @param string[] $bad_protocols Array of invalid protocols.
+	 * @param string   $url The redirect URL to be validated.
+	 */
+	$invalid_protocols = apply_filters( 'wp_authorize_application_redirect_url_invalid_protocols', $bad_protocols, $url );
+	$invalid_protocols = array_map( 'strtolower', $invalid_protocols );
+
+	$scheme   = wp_parse_url( $url, PHP_URL_SCHEME );
+	$host     = wp_parse_url( $url, PHP_URL_HOST );
+	$is_local = 'local' === wp_get_environment_type();
+
+	// Validates if the proper URI format is applied to the URL.
+	if ( empty( $host ) || empty( $scheme ) || in_array( strtolower( $scheme ), $invalid_protocols, true ) ) {
+		return new WP_Error(
+			'invalid_redirect_url_format',
+			__( 'Invalid URL format.' )
+		);
+	}
+
+	if ( 'http' === $scheme && ! $is_local ) {
+		return new WP_Error(
+			'invalid_redirect_scheme',
+			__( 'The URL must be served over a secure connection.' )
+		);
 	}
 
 	return true;

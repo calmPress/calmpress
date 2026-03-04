@@ -14,6 +14,7 @@
  *
  * @property-read object $data Sanitized term data.
  */
+#[AllowDynamicProperties]
 class WP_Term {
 
 	/**

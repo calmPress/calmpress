@@ -7,14 +7,27 @@
  */
 class Tests_Theme_ThemeDir extends WP_UnitTestCase {
 
+	/**
+	 * Theme root directory.
+	 *
+	 * @var string
+	 */
+	const THEME_ROOT = DIR_TESTDATA . '/themedir1';
+
+	/**
+	 * Original theme directory.
+	 *
+	 * @var string
+	 */
+	private $orig_theme_dir;
+
 	public function set_up() {
 		parent::set_up();
-		$this->theme_root = DIR_TESTDATA . '/themedir1';
 
 		$this->orig_theme_dir = $GLOBALS['wp_theme_directories'];
 
 		// /themes is necessary as theme.php functions assume /themes is the root if there is only one root.
-		$GLOBALS['wp_theme_directories'] = array( WP_CONTENT_DIR . '/themes', $this->theme_root );
+		$GLOBALS['wp_theme_directories'] = array( WP_CONTENT_DIR . '/themes', self::THEME_ROOT );
 
 		add_filter( 'theme_root', array( $this, 'filter_theme_root' ) );
 		add_filter( 'stylesheet_root', array( $this, 'filter_theme_root' ) );
@@ -33,11 +46,11 @@ class Tests_Theme_ThemeDir extends WP_UnitTestCase {
 
 	// Replace the normal theme root directory with our premade test directory.
 	public function filter_theme_root( $dir ) {
-		return $this->theme_root;
+		return self::THEME_ROOT;
 	}
 
 	public function test_wp_get_theme_with_non_default_theme_root() {
-		$this->assertFalse( wp_get_theme( 'sandbox', $this->theme_root )->errors() );
+		$this->assertFalse( wp_get_theme( 'sandbox', self::THEME_ROOT )->errors() );
 		$this->assertFalse( wp_get_theme( 'sandbox' )->errors() );
 	}
 

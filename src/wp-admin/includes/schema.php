@@ -38,7 +38,7 @@ function wp_get_db_schema( $scope = 'all', $blog_id = null ) {
 
 	$charset_collate = $wpdb->get_charset_collate();
 
-	if ( $blog_id && $blog_id != $wpdb->blogid ) {
+	if ( $blog_id && (int) $blog_id !== $wpdb->blogid ) {
 		$old_blog_id = $wpdb->set_blog_id( $blog_id );
 	}
 
@@ -167,7 +167,8 @@ CREATE TABLE $wpdb->posts (
 	KEY post_name (post_name($max_index_length)),
 	KEY type_status_date (post_type,post_status,post_date,ID),
 	KEY post_parent (post_parent),
-	KEY post_author (post_author)
+	KEY post_author (post_author),
+	KEY type_status_author (post_type,post_status,post_author)
 ) $charset_collate;\n";
 
 	// Single site users table. The multisite flavor of the users table is handled below.
@@ -228,8 +229,8 @@ CREATE TABLE $wpdb->posts (
 
 	// Multisite global tables.
 	$ms_global_tables = "CREATE TABLE $wpdb->blogs (
-	blog_id bigint(20) NOT NULL auto_increment,
-	site_id bigint(20) NOT NULL default '0',
+	blog_id bigint(20) unsigned NOT NULL auto_increment,
+	site_id bigint(20) unsigned NOT NULL default '0',
 	domain varchar(200) NOT NULL default '',
 	path varchar(100) NOT NULL default '',
 	registered datetime NOT NULL default '0000-00-00 00:00:00',
@@ -246,7 +247,7 @@ CREATE TABLE $wpdb->posts (
 ) $charset_collate;
 CREATE TABLE $wpdb->blogmeta (
 	meta_id bigint(20) unsigned NOT NULL auto_increment,
-	blog_id bigint(20) NOT NULL default '0',
+	blog_id bigint(20) unsigned NOT NULL default '0',
 	meta_key varchar(255) default NULL,
 	meta_value longtext,
 	PRIMARY KEY  (meta_id),
@@ -254,24 +255,24 @@ CREATE TABLE $wpdb->blogmeta (
 	KEY blog_id (blog_id)
 ) $charset_collate;
 CREATE TABLE $wpdb->registration_log (
-	ID bigint(20) NOT NULL auto_increment,
+	ID bigint(20) unsigned NOT NULL auto_increment,
 	email varchar(255) NOT NULL default '',
 	IP varchar(30) NOT NULL default '',
-	blog_id bigint(20) NOT NULL default '0',
+	blog_id bigint(20) unsigned NOT NULL default '0',
 	date_registered datetime NOT NULL default '0000-00-00 00:00:00',
 	PRIMARY KEY  (ID),
 	KEY IP (IP)
 ) $charset_collate;
 CREATE TABLE $wpdb->site (
-	id bigint(20) NOT NULL auto_increment,
+	id bigint(20) unsigned NOT NULL auto_increment,
 	domain varchar(200) NOT NULL default '',
 	path varchar(100) NOT NULL default '',
 	PRIMARY KEY  (id),
 	KEY domain (domain(140),path(51))
 ) $charset_collate;
 CREATE TABLE $wpdb->sitemeta (
-	meta_id bigint(20) NOT NULL auto_increment,
-	site_id bigint(20) NOT NULL default '0',
+	meta_id bigint(20) unsigned NOT NULL auto_increment,
+	site_id bigint(20) unsigned NOT NULL default '0',
 	meta_key varchar(255) default NULL,
 	meta_value longtext,
 	PRIMARY KEY  (meta_id),
@@ -279,7 +280,7 @@ CREATE TABLE $wpdb->sitemeta (
 	KEY site_id (site_id)
 ) $charset_collate;
 CREATE TABLE $wpdb->signups (
-	signup_id bigint(20) NOT NULL auto_increment,
+	signup_id bigint(20) unsigned NOT NULL auto_increment,
 	domain varchar(200) NOT NULL default '',
 	path varchar(100) NOT NULL default '',
 	title longtext NOT NULL,
@@ -370,20 +371,29 @@ function populate_options( array $options = array() ) {
 	/*
 	 * translators: default GMT offset or timezone string. Must be either a valid offset (-12 to 14)
 	 * or a valid timezone string (America/New_York). See https://www.php.net/manual/en/timezones.php
-	 * for all timezone strings supported by PHP.
+	 * for all timezone strings currently supported by PHP.
+	 *
+	 * Important: When a previous timezone string, like `Europe/Kiev`, has been superseded by an
+	 * updated one, like `Europe/Kyiv`, as a rule of thumb, the **old** timezone name should be used
+	 * in the "translation" to allow for the default timezone setting to be PHP cross-version compatible,
+	 * as old timezone names will be recognized in new PHP versions, while new timezone names cannot
+	 * be recognized in old PHP versions.
+	 *
+	 * To verify which timezone strings are available in the _oldest_ PHP version supported, you can
+	 * use https://3v4l.org/6YQAt#v5.6.20 and replace the "BR" (Brazil) in the code line with the
+	 * country code for which you want to look up the supported timezone names.
 	 */
 	$offset_or_tz = _x( '0', 'default GMT offset or timezone string' );
 	if ( is_numeric( $offset_or_tz ) ) {
 		$gmt_offset = $offset_or_tz;
-	} elseif ( $offset_or_tz && in_array( $offset_or_tz, timezone_identifiers_list(), true ) ) {
-			$timezone_string = $offset_or_tz;
+	} elseif ( $offset_or_tz && in_array( $offset_or_tz, timezone_identifiers_list( DateTimeZone::ALL_WITH_BC ), true ) ) {
+		$timezone_string = $offset_or_tz;
 	}
 
 	$defaults = array(
 		'home'                            => $guessurl,
 		'blogname'                        => __( 'My Site' ),
-		/* translators: Site tagline. */
-		'blogdescription'                 => __( 'Just another calmPress site' ),
+		'blogdescription'                 => '',
 		'admin_email'                     => 'you@example.com',
 		/* translators: Default start of the week. 0 = Sunday, 1 = Monday. */
 		'start_of_week'                   => _x( '1', 'start of week' ),
@@ -489,8 +499,6 @@ function populate_options( array $options = array() ) {
 
 	// 3.0.0 multisite.
 	if ( is_multisite() ) {
-		/* translators: %s: Network title. */
-		$defaults['blogdescription']     = sprintf( __( 'Just another %s site' ), get_network()->site_name );
 		$defaults['permalink_structure'] = '/%year%/%monthnum%/%day%/%postname%/';
 	} else {
 		// Options relevant only to single sites.
@@ -524,18 +532,16 @@ function populate_options( array $options = array() ) {
 		}
 
 		if ( in_array( $option, $fat_options, true ) ) {
-			$autoload = 'no';
+			$autoload = 'off';
 		} else {
-			$autoload = 'yes';
-		}
-
-		if ( is_array( $value ) ) {
-			$value = serialize( $value );
+			$autoload = 'on';
 		}
 
 		if ( ! empty( $insert ) ) {
 			$insert .= ', ';
 		}
+
+		$value = maybe_serialize( sanitize_option( $option, $value ) );
 
 		$insert .= $wpdb->prepare( '(%s, %s, %s)', $option, $value, $autoload );
 	}
@@ -588,6 +594,13 @@ function populate_options( array $options = array() ) {
  * @since 2.0.0
  */
 function populate_roles() {
+	$wp_roles = wp_roles();
+
+	// Disable role updates to the database while populating roles.
+	$original_use_db  = $wp_roles->use_db;
+	$wp_roles->use_db = false;
+
+	// Populate roles
 	populate_roles_160();
 	populate_roles_210();
 	populate_roles_230();
@@ -597,6 +610,14 @@ function populate_roles() {
 	populate_roles_280();
 	populate_roles_300();
 	populate_roles_cp_100();
+
+	// Save the updated roles to the database.
+	if ( $original_use_db ) {
+		update_option( $wp_roles->role_key, $wp_roles->roles, true );
+	}
+
+	// Restore original value for writing to database.
+	$wp_roles->use_db = $original_use_db;
 }
 
 /**
@@ -863,11 +884,27 @@ endif;
  * @param string $path              Optional. The path to append to the network's domain name. Default '/'.
  * @param bool   $subdomain_install Optional. Whether the network is a subdomain installation or a subdirectory installation.
  *                                  Default false, meaning the network is a subdirectory installation.
- * @return bool|WP_Error True on success, or WP_Error on warning (with the installation otherwise successful,
+ * @return true|WP_Error True on success, or WP_Error on warning (with the installation otherwise successful,
  *                       so the error code must be checked) or failure.
  */
 function populate_network( $network_id = 1, $domain = '', $email = '', $site_name = '', $path = '/', $subdomain_install = false ) {
 	global $wpdb, $current_site, $wp_rewrite;
+
+	$network_id = (int) $network_id;
+
+	/**
+	 * Fires before a network is populated.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @param int    $network_id        ID of network to populate.
+	 * @param string $domain            The domain name for the network.
+	 * @param string $email             Email address for the network administrator.
+	 * @param string $site_name         The name of the network.
+	 * @param string $path              The path to append to the network's domain name.
+	 * @param bool   $subdomain_install Whether the network is a subdomain installation or a subdirectory installation.
+	 */
+	do_action( 'before_populate_network', $network_id, $domain, $email, $site_name, $path, $subdomain_install );
 
 	$errors = new WP_Error();
 	if ( '' === $domain ) {
@@ -880,11 +917,13 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 	// Check for network collision.
 	$network_exists = false;
 	if ( is_multisite() ) {
-		if ( get_network( (int) $network_id ) ) {
+		if ( get_network( $network_id ) ) {
 			$errors->add( 'siteid_exists', __( 'The network already exists.' ) );
 		}
 	} else {
-		if ( $network_id == $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $wpdb->site WHERE id = %d", $network_id ) ) ) {
+		if ( $network_id === (int) $wpdb->get_var(
+			$wpdb->prepare( "SELECT id FROM $wpdb->site WHERE id = %d", $network_id )
+		) ) {
 			$errors->add( 'siteid_exists', __( 'The network already exists.' ) );
 		}
 	}
@@ -897,7 +936,7 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 		return $errors;
 	}
 
-	if ( 1 == $network_id ) {
+	if ( 1 === $network_id ) {
 		$wpdb->insert(
 			$wpdb->site,
 			array(
@@ -926,7 +965,10 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 		)
 	);
 
-	$site_user = get_userdata( (int) $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM $wpdb->sitemeta WHERE meta_key = %s AND site_id = %d", 'admin_user_id', $network_id ) ) );
+	// Remove the cron event since Recovery Mode is not used in Multisite.
+	if ( wp_next_scheduled( 'recovery_mode_clean_expired_keys' ) ) {
+		wp_clear_scheduled_hook( 'recovery_mode_clean_expired_keys' );
+	}
 
 	/*
 	 * When upgrading from single to multisite, assume the current site will
@@ -936,7 +978,7 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 	 * created.
 	 */
 	if ( ! is_multisite() ) {
-		$current_site            = new stdClass;
+		$current_site            = new stdClass();
 		$current_site->domain    = $domain;
 		$current_site->path      = $path;
 		$current_site->site_name = ucfirst( $domain );
@@ -951,8 +993,29 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 			)
 		);
 		$current_site->blog_id = $wpdb->insert_id;
-		update_user_meta( $site_user->ID, 'source_domain', $domain );
-		update_user_meta( $site_user->ID, 'primary_blog', $current_site->blog_id );
+
+		$site_user_id = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT meta_value
+				FROM $wpdb->sitemeta
+				WHERE meta_key = %s AND site_id = %d",
+				'admin_user_id',
+				$network_id
+			)
+		);
+
+		update_user_meta( $site_user_id, 'source_domain', $domain );
+		update_user_meta( $site_user_id, 'primary_blog', $current_site->blog_id );
+
+		// Unable to use update_network_option() while populating the network.
+		$wpdb->insert(
+			$wpdb->sitemeta,
+			array(
+				'site_id'    => $network_id,
+				'meta_key'   => 'main_site',
+				'meta_value' => $current_site->blog_id,
+			)
+		);
 
 		if ( $subdomain_install ) {
 			$wp_rewrite->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
@@ -961,6 +1024,20 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 		}
 
 		flush_rewrite_rules();
+
+		/**
+		 * Fires after a network is created when converting a single site to multisite.
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param int    $network_id        ID of network created.
+		 * @param string $domain            The domain name for the network.
+		 * @param string $email             Email address for the network administrator.
+		 * @param string $site_name         The name of the network.
+		 * @param string $path              The path to append to the network's domain name.
+		 * @param bool   $subdomain_install Whether the network is a subdomain installation or a subdirectory installation.
+		 */
+		do_action( 'after_upgrade_to_multisite', $network_id, $domain, $email, $site_name, $path, $subdomain_install );
 
 		if ( ! $subdomain_install ) {
 			return true;
@@ -978,7 +1055,7 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 		);
 		if ( is_wp_error( $page ) ) {
 			$errstr = $page->get_error_message();
-		} elseif ( 200 == wp_remote_retrieve_response_code( $page ) ) {
+		} elseif ( 200 === wp_remote_retrieve_response_code( $page ) ) {
 				$vhost_ok = true;
 		}
 
@@ -1007,6 +1084,20 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 			return new WP_Error( 'no_wildcard_dns', $msg );
 		}
 	}
+
+	/**
+	 * Fires after a network is fully populated.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @param int    $network_id        ID of network created.
+	 * @param string $domain            The domain name for the network.
+	 * @param string $email             Email address for the network administrator.
+	 * @param string $site_name         The name of the network.
+	 * @param string $path              The path to append to the network's domain name.
+	 * @param bool   $subdomain_install Whether the network is a subdomain installation or a subdirectory installation.
+	 */
+	do_action( 'after_populate_network', $network_id, $domain, $email, $site_name, $path, $subdomain_install );
 
 	return true;
 }
@@ -1043,11 +1134,11 @@ function populate_network_meta( $network_id, array $meta = array() ) {
 	$stylesheet     = get_option( 'stylesheet' );
 	$allowed_themes = array( $stylesheet => true );
 
-	if ( $template != $stylesheet ) {
+	if ( $template !== $stylesheet ) {
 		$allowed_themes[ $template ] = true;
 	}
 
-	if ( WP_DEFAULT_THEME != $stylesheet && WP_DEFAULT_THEME != $template ) {
+	if ( WP_DEFAULT_THEME !== $stylesheet && WP_DEFAULT_THEME !== $template ) {
 		$allowed_themes[ WP_DEFAULT_THEME ] = true;
 	}
 
@@ -1064,8 +1155,6 @@ function populate_network_meta( $network_id, array $meta = array() ) {
 	} else {
 		wp_cache_delete( $network_id, 'networks' );
 	}
-
-	wp_cache_delete( 'networks_have_paths', 'site-options' );
 
 	if ( ! is_multisite() ) {
 		$site_admins = array( $site_user->user_login );
@@ -1104,38 +1193,13 @@ We hope you enjoy your new site. Thanks!
 --The Team @ SITE_NAME'
 	);
 
-	$misc_exts        = array(
-		// Images.
-		'jpg',
-		'jpeg',
-		'png',
-		'gif',
-		'webp',
-		// Video.
-		'mov',
-		'avi',
-		'mpg',
-		'3gp',
-		'3g2',
-		// "audio".
-		'midi',
-		'mid',
-		// Miscellaneous.
-		'pdf',
-		'doc',
-		'ppt',
-		'odt',
-		'pptx',
-		'docx',
-		'pps',
-		'ppsx',
-		'xls',
-		'xlsx',
-		'key',
-	);
-	$audio_exts       = wp_get_audio_extensions();
-	$video_exts       = wp_get_video_extensions();
-	$upload_filetypes = array_unique( array_merge( $misc_exts, $audio_exts, $video_exts ) );
+	$allowed_file_types = array();
+	$all_mime_types     = get_allowed_mime_types();
+
+	foreach ( $all_mime_types as $ext => $mime ) {
+		array_push( $allowed_file_types, ...explode( '|', $ext ) );
+	}
+	$upload_filetypes = array_unique( $allowed_file_types );
 
 	$sitemeta = array(
 		'site_name'                   => __( 'My Network' ),
@@ -1156,11 +1220,11 @@ We hope you enjoy your new site. Thanks!
 		'siteurl'                     => get_option( 'home' ) . '/',
 		'add_new_users'               => '0',
 		'upload_space_check_disabled' => is_multisite() ? get_site_option( 'upload_space_check_disabled' ) : '1',
-		'subdomain_install' => intval( $subdomain_install ),
-		'global_terms_enabled' => global_terms_enabled() ? '1' : '0',
-		'ms_files_rewriting' => is_multisite() ? get_site_option( 'ms_files_rewriting' ) : '0',
-		'active_sitewide_plugins' => array(),
-		'WPLANG' => get_locale(),
+		'subdomain_install'           => $subdomain_install,
+		'ms_files_rewriting'          => is_multisite() ? get_site_option( 'ms_files_rewriting' ) : '0',
+		'user_count'                  => get_site_option( 'user_count' ),
+		'active_sitewide_plugins'     => array(),
+		'WPLANG'                      => get_locale(),
 	);
 	if ( ! $subdomain_install ) {
 		$sitemeta['illegal_names'][] = 'blog';

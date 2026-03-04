@@ -78,7 +78,6 @@ if ( $_POST ) {
 		'welcome_email',
 		'welcome_user_email',
 		'fileupload_maxk',
-		'global_terms_enabled',
 		'illegal_names',
 		'limited_email_domains',
 		'banned_email_domains',
@@ -117,8 +116,14 @@ if ( $_POST ) {
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 if ( isset( $_GET['updated'] ) ) {
-	?><div id="message" class="updated notice is-dismissible"><p><?php _e( 'Settings saved.' ); ?></p></div>
-	<?php
+	wp_admin_notice(
+		__( 'Settings saved.' ),
+		array(
+			'type'        => 'success',
+			'dismissible' => true,
+			'id'          => 'message',
+		)
+	);
 }
 ?>
 
@@ -140,36 +145,41 @@ if ( isset( $_GET['updated'] ) ) {
 				<td>
 					<input name="new_admin_email" type="email" id="admin_email" aria-describedby="admin-email-desc" class="regular-text" value="<?php echo esc_attr( get_site_option( 'admin_email' ) ); ?>" />
 					<p class="description" id="admin-email-desc">
-						<?php _e( 'This address is used for admin purposes. If you change this, we will send you an email at your new address to confirm it. <strong>The new address will not become active until confirmed.</strong>' ); ?>
+						<?php _e( 'This address is used for admin purposes. If you change this, an email will be sent to your new address to confirm it. <strong>The new address will not become active until confirmed.</strong>' ); ?>
 					</p>
 					<?php
 					$new_admin_email = get_site_option( 'new_admin_email' );
 					if ( $new_admin_email && get_site_option( 'admin_email' ) !== $new_admin_email ) :
-						?>
-						<div class="updated inline">
-						<p>
-						<?php
-							printf(
-								/* translators: %s: New network admin email. */
-								__( 'There is a pending change of the network admin email to %s.' ),
-								'<code>' . esc_html( $new_admin_email ) . '</code>'
-							);
-							printf(
-								' <a href="%1$s">%2$s</a>',
-								esc_url( wp_nonce_url( network_admin_url( 'settings.php?dismiss=new_network_admin_email' ), 'dismiss_new_network_admin_email' ) ),
-								__( 'Cancel' )
-							);
-						?>
-						</p>
-						</div>
-					<?php endif; ?>
+						$notice_message = sprintf(
+							/* translators: %s: New network admin email. */
+							__( 'There is a pending change of the network admin email to %s.' ),
+							'<code>' . esc_html( $new_admin_email ) . '</code>'
+						);
+
+						$notice_message .= sprintf(
+							' <a href="%1$s">%2$s</a>',
+							esc_url( wp_nonce_url( network_admin_url( 'settings.php?dismiss=new_network_admin_email' ), 'dismiss_new_network_admin_email' ) ),
+							__( 'Cancel' )
+						);
+
+						wp_admin_notice(
+							$notice_message,
+							array(
+								'type'               => 'warning',
+								'dismissible'        => true,
+								'additional_classes' => array( 'inline' ),
+							)
+						);
+					endif;
+					?>
 				</td>
 			</tr>
 		</table>
 		<h2><?php _e( 'Registration Settings' ); ?></h2>
 		<table class="form-table" role="presentation">
+			<?php $new_registrations_settings_title = __( 'Allow new registrations' ); ?>
 			<tr>
-				<th scope="row"><?php _e( 'Allow new registrations' ); ?></th>
+				<th scope="row"><?php echo $new_registrations_settings_title; ?></th>
 				<?php
 				if ( ! get_site_option( 'registration' ) ) {
 					update_site_option( 'registration', 'none' );
@@ -178,7 +188,7 @@ if ( isset( $_GET['updated'] ) ) {
 				?>
 				<td>
 					<fieldset>
-					<legend class="screen-reader-text"><?php _e( 'New registrations settings' ); ?></legend>
+					<legend class="screen-reader-text"><?php echo $new_registrations_settings_title; ?></legend>
 					<label><input name="registration" type="radio" id="registration1" value="none"<?php checked( $reg, 'none' ); ?> /> <?php _e( 'Registration is disabled' ); ?></label><br />
 					<label><input name="registration" type="radio" id="registration2" value="user"<?php checked( $reg, 'user' ); ?> /> <?php _e( 'User accounts may be registered' ); ?></label><br />
 					<label><input name="registration" type="radio" id="registration3" value="blog"<?php checked( $reg, 'blog' ); ?> /> <?php _e( 'Logged in users may register new sites' ); ?></label><br />
@@ -212,9 +222,9 @@ if ( isset( $_GET['updated'] ) ) {
 			</tr>
 
 			<tr id="addnewusers">
-				<th scope="row"><?php _e( 'Add New Users' ); ?></th>
+				<th scope="row"><?php _e( 'Add Users' ); ?></th>
 				<td>
-					<label><input name="add_new_users" type="checkbox" id="add_new_users" value="1"<?php checked( get_site_option( 'add_new_users' ) ); ?> /> <?php _e( 'Allow site administrators to add new users to their site via the "Users &rarr; Add New" page' ); ?></label>
+					<label><input name="add_new_users" type="checkbox" id="add_new_users" value="1"<?php checked( get_site_option( 'add_new_users' ) ); ?> /> <?php _e( 'Allow site administrators to add new users to their site via the "Users &rarr; Add User" page' ); ?></label>
 				</td>
 			</tr>
 
@@ -369,7 +379,7 @@ if ( isset( $_GET['updated'] ) ) {
 			<tr>
 				<th scope="row"><?php _e( 'Site upload space' ); ?></th>
 				<td>
-					<label><input type="checkbox" id="upload_space_check_disabled" name="upload_space_check_disabled" value="0"<?php checked( (bool) get_site_option( 'upload_space_check_disabled' ), false ); ?>/>
+					<label><input type="checkbox" id="upload_space_check_disabled" name="upload_space_check_disabled" value="0"<?php checked( (bool) get_site_option( 'upload_space_check_disabled' ), false ); ?> />
 						<?php
 						printf(
 							/* translators: %s: Number of megabytes to limit uploads to. */
@@ -379,7 +389,10 @@ if ( isset( $_GET['updated'] ) ) {
 						?>
 					</label><br />
 					<p class="screen-reader-text" id="blog-upload-space-desc">
-						<?php _e( 'Size in megabytes' ); ?>
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( 'Size in megabytes' );
+						?>
 					</p>
 				</td>
 			</tr>
@@ -405,7 +418,10 @@ if ( isset( $_GET['updated'] ) ) {
 						);
 						?>
 					<p class="screen-reader-text" id="fileupload-maxk-desc">
-						<?php _e( 'Size in kilobytes' ); ?>
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( 'Size in kilobytes' );
+						?>
 					</p>
 				</td>
 			</tr>
@@ -468,11 +484,12 @@ if ( isset( $_GET['updated'] ) ) {
 			?>
 			<h2><?php _e( 'Menu Settings' ); ?></h2>
 			<table id="menu" class="form-table">
+				<?php $enable_administration_menus_title = __( 'Enable administration menus' ); ?>
 				<tr>
-					<th scope="row"><?php _e( 'Enable administration menus' ); ?></th>
+					<th scope="row"><?php echo $enable_administration_menus_title; ?></th>
 					<td>
 						<?php
-						echo '<fieldset><legend class="screen-reader-text">' . __( 'Enable menus' ) . '</legend>';
+						echo '<fieldset><legend class="screen-reader-text">' . $enable_administration_menus_title . '</legend>';
 
 						foreach ( (array) $menu_items as $key => $val ) {
 							echo "<label><input type='checkbox' name='menu_items[" . $key . "]' value='1'" . ( isset( $menu_perms[ $key ] ) ? checked( $menu_perms[ $key ], '1', false ) : '' ) . ' /> ' . esc_html( $val ) . '</label><br/>';

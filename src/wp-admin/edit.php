@@ -9,6 +9,11 @@
 /** WordPress Administration Bootstrap */
 require_once __DIR__ . '/admin.php';
 
+/**
+ * @global string $typenow The post type of the current screen.
+ */
+global $typenow;
+
 if ( ! $typenow ) {
 	wp_die( __( 'Invalid post type.' ) );
 }
@@ -24,8 +29,8 @@ if ( 'attachment' === $typenow ) {
 }
 
 /**
- * @global string       $post_type
- * @global WP_Post_Type $post_type_object
+ * @global string       $post_type        Global post type.
+ * @global WP_Post_Type $post_type_object Global post type object.
  */
 global $post_type, $post_type_object;
 
@@ -76,7 +81,7 @@ if ( $doaction ) {
 		$sendback = admin_url( $parent_file );
 	}
 	$sendback = add_query_arg( 'paged', $pagenum, $sendback );
-	if ( strpos( $sendback, 'post.php' ) !== false ) {
+	if ( str_contains( $sendback, 'post.php' ) ) {
 		$sendback = admin_url( $post_new_file );
 	}
 
@@ -87,6 +92,11 @@ if ( $doaction ) {
 		$post_status = preg_replace( '/[^a-z0-9_-]+/i', '', $_REQUEST['post_status'] );
 		// Validate the post status exists.
 		if ( get_post_status_object( $post_status ) ) {
+			/**
+			 * @global wpdb $wpdb WordPress database abstraction object.
+			 */
+			global $wpdb;
+
 			$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type=%s AND post_status = %s", $post_type, $post_status ) );
 		}
 		$doaction = 'delete';
@@ -114,7 +124,7 @@ if ( $doaction ) {
 				}
 
 				if ( wp_check_post_lock( $post_id ) ) {
-					$locked++;
+					++$locked;
 					continue;
 				}
 
@@ -122,7 +132,7 @@ if ( $doaction ) {
 					wp_die( __( 'Error in moving the item to Trash.' ) );
 				}
 
-				$trashed++;
+				++$trashed;
 			}
 
 			$sendback = add_query_arg(
@@ -150,7 +160,7 @@ if ( $doaction ) {
 					wp_die( __( 'Error in restoring the item from Trash.' ) );
 				}
 
-				$untrashed++;
+				++$untrashed;
 			}
 			$sendback = add_query_arg( 'untrashed', $untrashed, $sendback );
 
@@ -175,7 +185,7 @@ if ( $doaction ) {
 						wp_die( __( 'Error in deleting the item.' ) );
 					}
 				}
-				$deleted++;
+				++$deleted;
 			}
 			$sendback = add_query_arg( 'deleted', $deleted, $sendback );
 			break;
@@ -294,7 +304,7 @@ echo esc_html( $post_type_object->labels->name );
 
 <?php
 if ( current_user_can( $post_type_object->cap->create_posts ) ) {
-	echo ' <a href="' . esc_url( admin_url( $post_new_file ) ) . '" class="page-title-action">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
+	echo ' <a href="' . esc_url( admin_url( $post_new_file ) ) . '" class="page-title-action">' . esc_html( $post_type_object->labels->add_new_item ) . '</a>';
 }
 
 if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
@@ -321,8 +331,13 @@ foreach ( $bulk_counts as $message => $count ) {
 	}
 
 	if ( 'trashed' === $message && isset( $_REQUEST['ids'] ) ) {
-		$ids        = preg_replace( '/[^0-9,]/', '', $_REQUEST['ids'] );
-		$messages[] = '<a href="' . esc_url( wp_nonce_url( "edit.php?post_type=$post_type&doaction=undo&action=untrash&ids=$ids", 'bulk-posts' ) ) . '">' . __( 'Undo' ) . '</a>';
+		$ids = preg_replace( '/[^0-9,]/', '', $_REQUEST['ids'] );
+
+		$messages[] = sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( wp_nonce_url( "edit.php?post_type=$post_type&doaction=undo&action=untrash&ids=$ids", 'bulk-posts' ) ),
+			__( 'Undo' )
+		);
 	}
 
 	if ( 'untrashed' === $message && isset( $_REQUEST['ids'] ) ) {
@@ -339,7 +354,14 @@ foreach ( $bulk_counts as $message => $count ) {
 }
 
 if ( $messages ) {
-	echo '<div id="message" class="updated notice is-dismissible"><p>' . implode( ' ', $messages ) . '</p></div>';
+	wp_admin_notice(
+		implode( ' ', $messages ),
+		array(
+			'id'                 => 'message',
+			'additional_classes' => array( 'updated' ),
+			'dismissible'        => true,
+		)
+	);
 }
 unset( $messages );
 
@@ -353,7 +375,7 @@ $_SERVER['REQUEST_URI'] = remove_query_arg( array( 'locked', 'skipped', 'updated
 <?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
 
 <input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty( $_REQUEST['post_status'] ) ? esc_attr( $_REQUEST['post_status'] ) : 'all'; ?>" />
-<input type="hidden" name="post_type" class="post_type_page" value="<?php echo $post_type; ?>" />
+<input type="hidden" name="post_type" class="post_type_page" value="<?php echo esc_attr( $post_type ); ?>" />
 
 <?php if ( ! empty( $_REQUEST['author'] ) ) { ?>
 <input type="hidden" name="author" value="<?php echo esc_attr( $_REQUEST['author'] ); ?>" />

@@ -9,7 +9,7 @@
 /** WordPress Administration Bootstrap */
 require_once __DIR__ . '/admin.php';
 
-wp_reset_vars( array( 'action' ) );
+$action = ! empty( $_REQUEST['action'] ) ? sanitize_text_field( $_REQUEST['action'] ) : '';
 
 $tabs = array(
 	/* translators: Tab heading for Site Health Status page. */
@@ -19,7 +19,7 @@ $tabs = array(
 );
 
 /**
- * An associative array of extra tabs for the Site Health navigation bar.
+ * Filters the extra tabs for the Site Health navigation bar.
  *
  * Add a custom page to the Site Health screen, based on a tab slug and label.
  * The label you provide will also be used as part of the site title.
@@ -71,7 +71,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
 	<div class="health-check-title-section site-health-progress-wrapper loading hide-if-no-js">
 		<div class="site-health-progress">
-			<svg role="img" aria-hidden="true" focusable="false" width="100%" height="100%" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+			<svg aria-hidden="true" focusable="false" width="100%" height="100%" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
 				<circle r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
 				<circle id="bar" r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
 			</svg>
@@ -113,7 +113,12 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 		<?php if ( count( $tabs ) > 4 ) : ?>
 			<button type="button" class="health-check-tab health-check-offscreen-nav-wrapper" aria-haspopup="true">
 				<span class="dashicons dashicons-ellipsis"></span>
-				<span class="screen-reader-text"><?php _e( 'Toggle extra menu items' ); ?></span>
+				<span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( 'Toggle extra menu items' );
+					?>
+				</span>
 
 				<div class="health-check-offscreen-nav">
 					<?php
@@ -146,7 +151,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 <?php
 if ( isset( $_GET['tab'] ) && ! empty( $_GET['tab'] ) ) {
 	/**
-	 * Output content of a custom Site Health tab.
+	 * Fires when outputting the content of a custom Site Health tab.
 	 *
 	 * This action fires right after the Site Health header, and users are still subject to
 	 * the capability checks for the Site Health page to view any custom tabs and their contents.
@@ -160,11 +165,14 @@ if ( isset( $_GET['tab'] ) && ! empty( $_GET['tab'] ) ) {
 	require_once ABSPATH . 'wp-admin/admin-footer.php';
 	return;
 } else {
+	wp_admin_notice(
+		__( 'The Site Health check requires JavaScript.' ),
+		array(
+			'type'               => 'error',
+			'additional_classes' => array( 'hide-if-js' ),
+		)
+	);
 	?>
-
-<div class="notice notice-error hide-if-js">
-	<p><?php _e( 'The Site Health check requires JavaScript.' ); ?></p>
-</div>
 
 <div class="health-check-body health-check-status-tab hide-if-no-js">
 	<div class="site-status-all-clear hide">
@@ -182,9 +190,9 @@ if ( isset( $_GET['tab'] ) && ! empty( $_GET['tab'] ) ) {
 			<?php _e( 'Site Health Status' ); ?>
 		</h2>
 
-		<p><?php _e( 'The site health check shows critical information about your calmPress configuration and items that require your attention.' ); ?></p>
+		<p><?php _e( 'The site health check shows information about your WordPress configuration and items that may need your attention.' ); ?></p>
 
-		<div class="site-health-issues-wrapper" id="health-check-issues-critical">
+		<div class="site-health-issues-wrapper hidden" id="health-check-issues-critical">
 			<h3 class="site-health-issue-count-title">
 				<?php
 					/* translators: %s: Number of critical issues found. */
@@ -192,16 +200,20 @@ if ( isset( $_GET['tab'] ) && ! empty( $_GET['tab'] ) ) {
 				?>
 			</h3>
 
+			<p><?php _e( 'Critical issues are items that may have a high impact on your site&#8217;s performance or security. Resolving these issues should be prioritized.' ); ?></p>
+
 			<div id="health-check-site-status-critical" class="health-check-accordion issues"></div>
 		</div>
 
-		<div class="site-health-issues-wrapper" id="health-check-issues-recommended">
+		<div class="site-health-issues-wrapper hidden" id="health-check-issues-recommended">
 			<h3 class="site-health-issue-count-title">
 				<?php
 					/* translators: %s: Number of recommended improvements. */
 					printf( _n( '%s recommended improvement', '%s recommended improvements', 0 ), '<span class="issue-count">0</span>' );
 				?>
 			</h3>
+
+			<p><?php _e( 'Recommended items are considered beneficial to your site, although not as important to prioritize as a critical issue. They may include improvements in areas such as security, performance, and user experience.' ); ?></p>
 
 			<div id="health-check-site-status-recommended" class="health-check-accordion issues"></div>
 		</div>

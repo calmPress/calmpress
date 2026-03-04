@@ -27,10 +27,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 <form method="post" action="options.php">
 <?php settings_fields( 'discussion' ); ?>
 
-<table class="form-table" role="presentation">
+<table class="form-table indent-children" role="presentation">
+<?php $default_post_settings_title = __( 'Default post settings' ); ?>
 <tr>
-<th scope="row"><?php _e( 'Default article settings' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( 'Default article settings' ); ?></span></legend>
 <label for="default_comment_status">
 <input name="default_comment_status" type="checkbox" id="default_comment_status" value="open" <?php checked( 'open', get_option( 'default_comment_status' ) ); ?> />
 <?php _e( 'Allow people to submit comments on new posts' ); ?></label>
@@ -38,11 +37,14 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 <p class="description"><?php _e( 'Individual posts may override these settings. Changes here will only be applied to new posts.' ); ?></p>
 </fieldset></td>
 </tr>
+<?php $other_comment_settings_title = __( 'Other comment settings' ); ?>
 <tr>
-<th scope="row"><?php _e( 'Other comment settings' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( 'Other comment settings' ); ?></span></legend>
+<th scope="row"><?php echo $other_comment_settings_title; ?></th>
+<td><fieldset><legend class="screen-reader-text"><span><?php echo $other_comment_settings_title; ?></span></legend>
 <label for="thread_comments">
 <input name="thread_comments" type="checkbox" id="thread_comments" value="1" <?php checked( '1', get_option( 'thread_comments' ) ); ?> />
+<label for="thread_comments"><?php _e( 'Enable threaded (nested) comments' ); ?></label>
+
 <?php
 /**
  * Filters the maximum depth of threaded/nested comments.
@@ -53,7 +55,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
  */
 $maxdeep = (int) apply_filters( 'thread_comments_depth_max', 10 );
 
-$thread_comments_depth = '</label> <label for="thread_comments_depth"><select name="thread_comments_depth" id="thread_comments_depth">';
+$thread_comments_depth = '<select name="thread_comments_depth" id="thread_comments_depth">';
 for ( $i = 2; $i <= $maxdeep; $i++ ) {
 	$thread_comments_depth .= "<option value='" . esc_attr( $i ) . "'";
 	if ( (int) get_option( 'thread_comments_depth' ) === $i ) {
@@ -62,54 +64,28 @@ for ( $i = 2; $i <= $maxdeep; $i++ ) {
 	$thread_comments_depth .= ">$i</option>";
 }
 $thread_comments_depth .= '</select>';
-
-/* translators: %s: Number of levels. */
-printf( __( 'Enable threaded (nested) comments %s levels deep' ), $thread_comments_depth );
-
 ?>
-</label>
-<br />
-<label for="comment_order">
-<?php
-
-$comment_order = '<select name="comment_order" id="comment_order"><option value="asc"';
-if ( 'asc' === get_option( 'comment_order' ) ) {
-	$comment_order .= ' selected="selected"';
-}
-$comment_order .= '>' . __( 'older' ) . '</option><option value="desc"';
-if ( 'desc' === get_option( 'comment_order' ) ) {
-	$comment_order .= ' selected="selected"';
-}
-$comment_order .= '>' . __( 'newer' ) . '</option></select>';
-
-/* translators: %s: Form field control for 'older' or 'newer' comments. */
-printf( __( 'Comments should be displayed with the %s comments at the top of each page' ), $comment_order );
-
-?>
-</label>
+<ul>
+	<li>
+		<label for="thread_comments_depth"><?php _e( 'Number of levels for threaded (nested) comments' ); ?></label>
+		<?php echo $thread_comments_depth; ?>
+	</li>
+</ul>
 </fieldset></td>
 </tr>
+<?php $email_me_whenever_title = __( 'Email me whenever' ); ?>
 <tr>
-<th scope="row"><?php _e( 'Email me whenever' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( 'Email me whenever' ); ?></span></legend>
+<th scope="row"><?php echo $email_me_whenever_title; ?></th>
+<td><fieldset><legend class="screen-reader-text"><span><?php echo $email_me_whenever_title; ?></span></legend>
 <label for="comments_notify">
 <input name="comments_notify" type="checkbox" id="comments_notify" value="1" <?php checked( '1', get_option( 'comments_notify' ) ); ?> />
 <?php _e( 'Anyone posts a comment' ); ?> </label>
 </fieldset></td>
 </tr>
+<?php $comment_moderation_title = __( 'Comment Moderation' ); ?>
 <tr>
-<th scope="row"><?php _e( 'Before a comment appears' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( 'Before a comment appears' ); ?></span></legend>
-<label for="comment_moderation">
-<input name="comment_moderation" type="checkbox" id="comment_moderation" value="1" <?php checked( '1', get_option( 'comment_moderation' ) ); ?> />
-<?php _e( 'Comment must be manually approved' ); ?> </label>
-<br />
-<label for="comment_previously_approved"><input type="checkbox" name="comment_previously_approved" id="comment_previously_approved" value="1" <?php checked( '1', get_option( 'comment_previously_approved' ) ); ?> /> <?php _e( 'Comment author must have a previously approved comment on the post' ); ?></label>
-</fieldset></td>
-</tr>
-<tr>
-<th scope="row"><?php _e( 'Comment Moderation' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( 'Comment Moderation' ); ?></span></legend>
+<th scope="row"><?php echo $comment_moderation_title; ?></th>
+<td><fieldset><legend class="screen-reader-text"><span><?php echo $comment_moderation_title; ?></span></legend>
 <p><label for="comment_max_links">
 <?php
 printf(

@@ -18,11 +18,15 @@ if ( ! class_exists( 'WP_Site_Health' ) ) {
 }
 
 $health_check_site_status = WP_Site_Health::get_instance();
-?>
 
-<div class="notice notice-error hide-if-js">
-	<p><?php _e( 'The Site Health check requires JavaScript.' ); ?></p>
-</div>
+wp_admin_notice(
+	__( 'The Site Health check requires JavaScript.' ),
+	array(
+		'type'               => 'error',
+		'additional_classes' => array( 'hide-if-js' ),
+	)
+);
+?>
 
 <div class="health-check-body health-check-debug-tab hide-if-no-js">
 	<?php
@@ -91,7 +95,7 @@ $health_check_site_status = WP_Site_Health::get_instance();
 				}
 
 				?>
-				<table class="widefat striped health-check-table" role="presentation">
+				<table class="widefat striped health-check-table">
 					<tbody>
 					<?php
 

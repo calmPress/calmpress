@@ -66,7 +66,7 @@ class Tests_Widgets_wpWidgetCustomHtml extends WP_UnitTestCase {
 
 		$this->assertSame( 10, has_action( 'admin_print_scripts-widgets.php', array( $widget, 'enqueue_admin_scripts' ) ) );
 		$this->assertSame( 10, has_action( 'admin_footer-widgets.php', array( 'WP_Widget_Custom_HTML', 'render_control_template_scripts' ) ) );
-		$this->assertContains( 'wp.customHtmlWidgets.idBases.push( "custom_html" );', wp_scripts()->registered['custom-html-widgets']->extra['after'] );
+		$this->assertSame( 10, has_action( 'admin_head-widgets.php', array( 'WP_Widget_Custom_HTML', 'add_help_text' ) ) );
 	}
 
 	/**
@@ -164,7 +164,7 @@ class Tests_Widgets_wpWidgetCustomHtml extends WP_UnitTestCase {
 		);
 
 		wp_set_current_user(
-			$this->factory()->user->create(
+			self::factory()->user->create(
 				array(
 					'role' => 'administrator',
 				)
@@ -232,8 +232,8 @@ class Tests_Widgets_wpWidgetCustomHtml extends WP_UnitTestCase {
 	 *
 	 * @covers WP_Widget_Custom_HTML::enqueue_admin_scripts
 	 */
-	public function test_enqueue_admin_scripts_when_logged_in() {
-		$user = $this->factory()->user->create();
+	public function test_enqueue_admin_scripts_when_logged_in_and_syntax_highlighting_on() {
+		$user = self::factory()->user->create();
 		wp_set_current_user( $user );
 		set_current_screen( 'widgets.php' );
 		$widget = new WP_Widget_Custom_HTML();
@@ -245,6 +245,27 @@ class Tests_Widgets_wpWidgetCustomHtml extends WP_UnitTestCase {
 		$this->assertTrue( wp_script_is( 'csslint', 'enqueued' ) );
 		$this->assertTrue( wp_script_is( 'jshint', 'enqueued' ) );
 		$this->assertTrue( wp_script_is( 'htmlhint', 'enqueued' ) );
+	}
+
+	/**
+	 * Test enqueue_admin_scripts method. Condition: logged_in, syntax_highlighting is off.
+	 *
+	 * @covers WP_Widget_Custom_HTML::enqueue_admin_scripts
+	 */
+	public function test_enqueue_admin_scripts_when_logged_in_and_syntax_highlighting_off() {
+		$user = self::factory()->user->create();
+		wp_set_current_user( $user );
+		update_user_meta( $user, 'syntax_highlighting', 'false' );
+		set_current_screen( 'widgets.php' );
+		$widget = new WP_Widget_Custom_HTML();
+		$widget->enqueue_admin_scripts();
+
+		$this->assertTrue( wp_script_is( 'custom-html-widgets', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'code-editor', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'wp-codemirror', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'csslint', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jshint', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'htmlhint', 'enqueued' ) );
 	}
 
 	/**
@@ -285,5 +306,4 @@ class Tests_Widgets_wpWidgetCustomHtml extends WP_UnitTestCase {
 		$output = get_echo( array( $widget, 'widget' ), array( $args, $instance ) );
 		$this->assertStringNotContainsString( 'rel="noopener"', $output );
 	}
-
 }

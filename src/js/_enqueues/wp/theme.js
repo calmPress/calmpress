@@ -118,11 +118,13 @@ themes.view.Appearance = wp.Backbone.View.extend({
 		// Render and append after screen title.
 		view.render();
 		this.searchContainer
-			.append( $.parseHTML( '<label class="screen-reader-text" for="wp-filter-search-input">' + l10n.search + '</label>' ) )
-			.append( view.el )
-			.on( 'submit', function( event ) {
-				event.preventDefault();
-			});
+			.find( '.search-box' )
+			.append( $.parseHTML( '<label for="wp-filter-search-input">' + l10n.search + '</label>' ) )
+			.append( view.el );
+
+		this.searchContainer.on( 'submit', function( event ) {
+			event.preventDefault();
+		});
 	},
 
 	// Checks when the user gets close to the bottom
@@ -905,7 +907,7 @@ themes.view.Preview = themes.view.Details.extend({
 
 		currentPreviewDevice = this.$el.data( 'current-preview-device' );
 		if ( currentPreviewDevice ) {
-			self.tooglePreviewDeviceButtons( currentPreviewDevice );
+			self.togglePreviewDeviceButtons( currentPreviewDevice );
 		}
 
 		themes.router.navigate( themes.router.baseUrl( themes.router.themePath + this.model.get( 'id' ) ), { replace: false } );
@@ -967,10 +969,10 @@ themes.view.Preview = themes.view.Details.extend({
 			.addClass( 'preview-' + device )
 			.data( 'current-preview-device', device );
 
-		this.tooglePreviewDeviceButtons( device );
+		this.togglePreviewDeviceButtons( device );
 	},
 
-	tooglePreviewDeviceButtons: function( newDevice ) {
+	togglePreviewDeviceButtons: function( newDevice ) {
 		var $devices = $( '.wp-full-overlay-footer .devices' );
 
 		$devices.find( 'button' )
@@ -988,6 +990,12 @@ themes.view.Preview = themes.view.Details.extend({
 			this.undelegateEvents();
 			this.close();
 		}
+
+		// Return if Ctrl + Shift or Shift key pressed
+		if ( event.shiftKey || ( event.ctrlKey && event.shiftKey ) ) {
+			return;
+		}
+
 		// The right arrow key, next theme.
 		if ( event.keyCode === 39 ) {
 			_.once( this.nextTheme() );
@@ -1092,6 +1100,11 @@ themes.view.Themes = wp.Backbone.View.extend({
 				return;
 			}
 
+			// Return if Ctrl + Shift or Shift key pressed
+			if ( event.shiftKey || ( event.ctrlKey && event.shiftKey ) ) {
+				return;
+			}
+
 			// Pressing the right arrow key fires a theme:next event.
 			if ( event.keyCode === 39 ) {
 				self.overlay.nextTheme();
@@ -1187,7 +1200,7 @@ themes.view.Themes = wp.Backbone.View.extend({
 
 		// 'Add new theme' element shown at the end of the grid.
 		if ( ! themes.isInstall && themes.data.settings.canInstall ) {
-			this.$el.append( '<div class="theme add-new-theme"><a href="' + themes.data.settings.installURI + '"><div class="theme-screenshot"><span></span></div><h2 class="theme-name">' + l10n.addNew + '</h2></a></div>' );
+			this.$el.append( '<div class="theme add-new-theme"><a href="' + themes.data.settings.installURI + '"><div class="theme-screenshot"><span aria-hidden="true"></span></div><h2 class="theme-name">' + l10n.addNew + '</h2></a></div>' );
 		}
 
 		this.parent.page++;
@@ -1279,7 +1292,7 @@ themes.view.Themes = wp.Backbone.View.extend({
 		// Find the next model within the collection.
 		nextModel = self.collection.at( self.collection.indexOf( model ) + 1 );
 
-		// Sanity check which also serves as a boundary test.
+		// Confidence check which also serves as a boundary test.
 		if ( nextModel !== undefined ) {
 
 			// We have a new theme...
@@ -1338,7 +1351,6 @@ themes.view.Search = wp.Backbone.View.extend({
 	searching: false,
 
 	attributes: {
-		placeholder: l10n.searchPlaceholder,
 		type: 'search',
 		'aria-describedby': 'live-search-desc'
 	},
@@ -1643,7 +1655,7 @@ themes.view.Installer = themes.view.Appearance.extend({
 		this.listenTo( this.collection, 'query:fail', function() {
 			$( 'body' ).removeClass( 'loading-content' );
 			$( '.theme-browser' ).find( 'div.error' ).remove();
-			$( '.theme-browser' ).find( 'div.themes' ).before( '<div class="error"><p>' + l10n.error + '</p><p><button class="button try-again">' + l10n.tryAgain + '</button></p></div>' );
+			$( '.theme-browser' ).find( 'div.themes' ).before( '<div class="notice notice-error"><p>' + l10n.error + '</p><p><button class="button try-again">' + l10n.tryAgain + '</button></p></div>' );
 			$( '.theme-browser .error .try-again' ).on( 'click', function( e ) {
 				e.preventDefault();
 				$( 'input.wp-filter-search' ).trigger( 'input' );
@@ -1673,7 +1685,13 @@ themes.view.Installer = themes.view.Appearance.extend({
 	browse: function( section ) {
 		// Create a new collection with the proper theme data
 		// for each section.
-		this.collection.query( { browse: section } );
+		if ( 'block-themes' === section ) {
+			// Get the themes by sending Ajax POST request to api.wordpress.org/themes
+			// or searching the local cache.
+			this.collection.query( { tag: 'full-site-editing' } );
+		} else {
+			this.collection.query( { browse: section } );
+		}
 	},
 
 	// Sorting navigation.

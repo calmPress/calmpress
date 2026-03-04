@@ -13,13 +13,16 @@
 use calmpress\post_authors;
 
 /**
- * Retrieve the author of the current post.
+ * Retrieves the author of the current post.
  *
  * @since 1.5.0
+ * @since 6.3.0 Returns an empty string if the author's display name is unknown.
+ * @since calmPress 1.0.0 Returns the name of the author of the content instead of the 
+ *                        user which created the post.
  *
  * @global WP_User $authordata The current author's data.
  *
- * @return string The author's display name.
+ * @return string The author's display name, empty string if unknown.
  */
 function get_the_author() {
 	global $post;
@@ -48,13 +51,13 @@ function get_the_author() {
 	 *
 	 * @since 2.9.0
 	 *
-	 * @param string|null $display_name The author's display name.
+	 * @param string $display_name The author's display name.
 	 */
 	return apply_filters( 'the_author', $display_name );
 }
 
 /**
- * Display the name of the author of the current post.
+ * Displays the name of the author of the current post.
  *
  * The behavior of this function is based off of old functionality predating
  * get_the_author(). This function is not deprecated, but is designed to echo
@@ -69,7 +72,7 @@ function get_the_author() {
  * @see get_the_author()
  * @link https://developer.wordpress.org/reference/functions/the_author/
  *
- * @return string|null The author's display name, from get_the_author().
+ * @return string The author's display name, from get_the_author().
  */
 function the_author() {
 
@@ -107,7 +110,7 @@ function get_the_modified_editor() {
 }
 
 /**
- * Display the name of the editor who last edited the current post,
+ * Displays the name of the editor who last edited the current post,
  * if the editors's ID is available.
  *
  * In WordPress this function used to be called the_modified_author
@@ -153,7 +156,7 @@ function the_modified_editor() {
  * @global WP_User $authordata The current author's data.
  *
  * @param string    $field   Optional. The user field to retrieve. Default empty.
- * @param int|false $user_id Optional. User ID.
+ * @param int|false $user_id Optional. User ID. Defaults to the current post author.
  * @return string The author's field from the current author's DB object, otherwise an empty string.
  */
 function get_the_author_meta( $field = '', $user_id = false ) {
@@ -217,7 +220,7 @@ function get_the_author_meta( $field = '', $user_id = false ) {
  *
  * @param string    $field   Selects the field of the users record. See get_the_author_meta()
  *                           for the list of possible fields.
- * @param int|false $user_id Optional. User ID.
+ * @param int|false $user_id Optional. User ID. Defaults to the current post author.
  *
  * @see get_the_author_meta()
  */
@@ -225,7 +228,7 @@ function the_author_meta( $field = '', $user_id = false ) {
 	$author_meta = get_the_author_meta( $field, $user_id );
 
 	/**
-	 * The value of the requested user metadata.
+	 * Filters the value of the requested user metadata.
 	 *
 	 * The filter name is dynamic and depends on the $field parameter of the function.
 	 *
@@ -260,7 +263,7 @@ function the_author_link() {
 }
 
 /**
- * Retrieve the number of posts by the author of the current post.
+ * Retrieves the number of posts by the author of the current post.
  *
  * @since 1.5.0
  *
@@ -277,7 +280,7 @@ function get_the_author_posts() {
 }
 
 /**
- * Display the number of posts by the author of the current post.
+ * Displays the number of posts by the author of the current post.
  *
  * @link https://developer.wordpress.org/reference/functions/the_author_posts/
  * @since 0.71
@@ -298,15 +301,19 @@ function the_author_posts() {
  * @global WP_Post $post The current post's DB object.
  *
  * @param string $title_format A sprintf style format for the link's title, where the value
- *                             %s will be replaced with the author's display name.
- *                             Defaults to some text in english.
+ *                             %s will be replaced with the author's name.
+ *                             If empty defaults to some text in english.
  *
- * @return string An HTML with link(s) to the author post page(s).
+ * @return string An HTML with link(s) to the author post page(s), or empty string if there are none.
  */
-function get_the_author_posts_link( string $title_format = 'Posts by %s' ) {
+function get_the_author_posts_link( string $title_format ) {
 	global $post;
 	if ( ! is_object( $post ) ) {
 		return '';
+	}
+
+	if ( '' === $title_format ) {
+		$title_format = __( 'Posts by %s' );
 	}
 
 	$authors = post_authors\Post_Authors_As_Taxonomy::post_authors( $post );
@@ -314,10 +321,9 @@ function get_the_author_posts_link( string $title_format = 'Posts by %s' ) {
 		return '';
 	}
 
-	$links_array = array_map(function ( $author ) {
+	$links_array = array_map( function ( $author ) {
 	   return sprintf( '<a href="%1$s" title="%2$s" rel="author">%3$s</a>',
 	   		esc_url( $author->posts_url() ),
-	   		/* translators: %s: author's display name */
 	   		esc_attr( sprintf( $title_format, $author->name() ) ),
 	   		esc_html( $author->name() )
 	   	);
@@ -343,7 +349,7 @@ function the_author_posts_link( string $title_format = 'Posts by %s' ) {
 }
 
 /**
- * Retrieve the URL to the author page for the user with the ID provided.
+ * Retrieves the URL to the author page for the user with the ID provided.
  *
  * For calmPress, since there is no user posts page, but we do not want to break
  * themes, we are trying to detect when the function is being called from the loop
@@ -380,7 +386,7 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
 }
 
 /**
- * List all the authors of the site, with several options available.
+ * Lists all the authors of the site, with several options available.
  *
  * @link https://developer.wordpress.org/reference/functions/wp_list_authors/
  *
@@ -424,7 +430,7 @@ function wp_list_authors( $args = '' ) {
 		'title_format' => 'Posts by %s',
 	];
 
-	$args = wp_parse_args( $args, $defaults );
+	$parsed_args = wp_parse_args( $args, $defaults );
 
 	$return = '';
 
@@ -469,13 +475,13 @@ function wp_list_authors( $args = '' ) {
 
 		$name = $author->name();
 
-		if ( ! $args['html'] ) {
+		if ( ! $parsed_args['html'] ) {
 			$return .= $name . ', ';
 
 			continue; // No need to go further to process HTML.
 		}
 
-		if ( 'list' === $args['style'] ) {
+		if ( 'list' === $parsed_args['style'] ) {
 			$return .= '<li>';
 		}
 
@@ -491,12 +497,12 @@ function wp_list_authors( $args = '' ) {
 		}
 
 		$return .= $link;
-		$return .= ( 'list' === $args['style'] ) ? '</li>' : ', ';
+		$return .= ( 'list' === $parsed_args['style'] ) ? '</li>' : ', ';
 	}
 
 	$return = rtrim( $return, ', ' );
 
-	if ( $args['echo'] ) {
+	if ( $parsed_args['echo'] ) {
 		echo $return;
 	} else {
 		return $return;

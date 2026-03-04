@@ -69,7 +69,7 @@ if ( is_wp_error( $comment ) ) {
 $user = wp_get_current_user();
 
 /**
- * Perform other actions when comment cookies are set.
+ * Fires after comment cookies are set.
  *
  * @since 3.4.0
  * @since 4.9.6 The `$cookies_consent` parameter was added.

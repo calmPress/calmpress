@@ -3,7 +3,7 @@
  * The base configuration for WordPress
  *
  * The wp-config.php creation script uses this file during the installation.
- * You don't have to use the web site, you can copy this file to "wp-config.php"
+ * You don't have to use the website, you can copy this file to "wp-config.php"
  * and fill in the values.
  *
  * This file contains the following configurations:
@@ -13,7 +13,7 @@
  * * Database table prefix
  * * ABSPATH
  *
- * @link https://wordpress.org/support/article/editing-wp-config-php/
+ * @link https://developer.wordpress.org/advanced-administration/wordpress/wp-config/
  *
  * @package WordPress
  */
@@ -37,7 +37,7 @@ define( 'DB_PASSWORD', 'password_here' );
 define( 'DB_HOST', 'localhost' );
 
 /** Database charset to use in creating database tables. */
-define( 'DB_CHARSET', 'utf8' );
+define( 'DB_CHARSET', 'utf8mb4' );
 
 /** The database collate type. Don't change this if in doubt. */
 define( 'DB_COLLATE', '' );
@@ -66,6 +66,12 @@ define( 'NONCE_SALT',       'put your unique phrase here should be at least 32 c
  *
  * You can have multiple installations in one database if you give each
  * a unique prefix. Only numbers, letters, and underscores please!
+ *
+ * At the installation time, database tables are created with the specified prefix.
+ * Changing this value after WordPress is installed will make your site think
+ * it has not been installed.
+ *
+ * @link https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#table-prefix
  */
 $table_prefix = 'wp_';
 

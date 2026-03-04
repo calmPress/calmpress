@@ -30,78 +30,34 @@ class Tests_HTTPS_Detection extends WP_UnitTestCase {
 	 * @ticket 47577
 	 */
 	public function test_wp_is_https_supported() {
-		// The function works with cached errors, so only test that here.
-		$wp_error = new WP_Error();
+		// Simulate that HTTPS is supported by returning an empty error array.
+		add_filter(
+			'pre_wp_get_https_detection_errors',
+			function () {
+				return new WP_Error(); // No errors means HTTPS is supported.
+			}
+		);
 
 		// No errors, so HTTPS is supported.
-		update_option( 'https_detection_errors', $wp_error->errors );
 		$this->assertTrue( wp_is_https_supported() );
 
-		// Errors, so HTTPS is not supported.
-		$wp_error->add( 'ssl_verification_failed', 'SSL verification failed.' );
-		update_option( 'https_detection_errors', $wp_error->errors );
+		// Now we simulate that HTTPS is not supported by returning errors.
+		$support_errors = new WP_Error();
+		$support_errors->add( 'ssl_verification_failed', 'SSL verification failed.' );
+
+		// Short-circuit the detection logic to return our simulated errors.
+		add_filter(
+			'pre_wp_get_https_detection_errors',
+			function () use ( $support_errors ) {
+				return $support_errors;
+			}
+		);
+
+		// Test that HTTPS is not supported due to the simulated errors.
 		$this->assertFalse( wp_is_https_supported() );
-	}
 
-	/**
-	 * @ticket 47577
-	 * @ticket 52484
-	 */
-	public function test_pre_wp_update_https_detection_errors() {
-		// Override to enforce no errors being detected.
-		add_filter(
-			'pre_wp_update_https_detection_errors',
-			static function() {
-				return new WP_Error();
-			}
-		);
-		wp_update_https_detection_errors();
-		$this->assertSame( array(), get_option( 'https_detection_errors' ) );
-
-		// Override to enforce an error being detected.
-		add_filter(
-			'pre_wp_update_https_detection_errors',
-			static function() {
-				return new WP_Error(
-					'ssl_verification_failed',
-					'Bad SSL certificate.'
-				);
-			}
-		);
-		wp_update_https_detection_errors();
-		$this->assertSame(
-			array( 'ssl_verification_failed' => array( 'Bad SSL certificate.' ) ),
-			get_option( 'https_detection_errors' )
-		);
-	}
-
-	/**
-	 * @ticket 47577
-	 */
-	public function test_wp_schedule_https_detection() {
-		wp_schedule_https_detection();
-		$this->assertSame( 'twicedaily', wp_get_schedule( 'wp_https_detection' ) );
-	}
-
-	/**
-	 * @ticket 47577
-	 */
-	public function test_wp_cron_conditionally_prevent_sslverify() {
-		// If URL is not using HTTPS, don't set 'sslverify' to false.
-		$request = array(
-			'url'  => 'http://example.com/',
-			'args' => array( 'sslverify' => true ),
-		);
-		$this->assertSame( $request, wp_cron_conditionally_prevent_sslverify( $request ) );
-
-		// If URL is using HTTPS, set 'sslverify' to false.
-		$request                       = array(
-			'url'  => 'https://example.com/',
-			'args' => array( 'sslverify' => true ),
-		);
-		$expected                      = $request;
-		$expected['args']['sslverify'] = false;
-		$this->assertSame( $expected, wp_cron_conditionally_prevent_sslverify( $request ) );
+		// Remove the filter to avoid affecting other tests.
+		remove_filter( 'pre_wp_get_https_detection_errors', '__return_null' );
 	}
 
 	/**
@@ -141,37 +97,37 @@ class Tests_HTTPS_Detection extends WP_UnitTestCase {
 		$this->assertNull( wp_is_local_html_output( $html ) );
 	}
 
-	public function record_request_url( $preempt, $parsed_args, $url ) {
+	public function record_request_url( $response, $parsed_args, $url ) {
 		$this->last_request_url = $url;
-		return $preempt;
+		return $response;
 	}
 
-	public function mock_success_with_sslverify( $preempt, $parsed_args ) {
+	public function mock_success_with_sslverify( $response, $parsed_args ) {
 		if ( ! empty( $parsed_args['sslverify'] ) ) {
 			return $this->mock_success();
 		}
-		return $preempt;
+		return $response;
 	}
 
-	public function mock_error_with_sslverify( $preempt, $parsed_args ) {
+	public function mock_error_with_sslverify( $response, $parsed_args ) {
 		if ( ! empty( $parsed_args['sslverify'] ) ) {
 			return $this->mock_error();
 		}
-		return $preempt;
+		return $response;
 	}
 
-	public function mock_success_without_sslverify( $preempt, $parsed_args ) {
+	public function mock_success_without_sslverify( $response, $parsed_args ) {
 		if ( empty( $parsed_args['sslverify'] ) ) {
 			return $this->mock_success();
 		}
-		return $preempt;
+		return $response;
 	}
 
-	public function mock_error_without_sslverify( $preempt, $parsed_args ) {
+	public function mock_error_without_sslverify( $response, $parsed_args ) {
 		if ( empty( $parsed_args['sslverify'] ) ) {
 			return $this->mock_error();
 		}
-		return $preempt;
+		return $response;
 	}
 
 	public function mock_not_found() {
@@ -222,7 +178,7 @@ class Tests_HTTPS_Detection extends WP_UnitTestCase {
 	 * @return callable Filter callback.
 	 */
 	private function filter_set_url_scheme( $scheme ) {
-		return static function( $url ) use ( $scheme ) {
+		return static function ( $url ) use ( $scheme ) {
 			return set_url_scheme( $url, $scheme );
 		};
 	}

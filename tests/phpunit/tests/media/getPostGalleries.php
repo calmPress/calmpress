@@ -4,19 +4,16 @@
  *
  * @covers ::get_post_galleries
  */
-class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
+class Tests_Media_GetPostGalleries extends WP_UnitTestCase {
 
-	public function set_up() {
-		parent::set_up();
-		$this->img_meta = array(
-			'width'  => 100,
-			'height' => 100,
-			'sizes'  => '',
-		);
-	}
+	const IMG_META = array(
+		'width'  => 100,
+		'height' => 100,
+		'sizes'  => '',
+	);
 
 	/**
-	 * Test that an empty array is returned for a post that does not exist.
+	 * Tests that an empty array is returned for a post that does not exist.
 	 *
 	 * @ticket 43826
 	 */
@@ -26,12 +23,12 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that an empty array is returned for a post that has no gallery.
+	 * Tests that an empty array is returned for a post that has no gallery.
 	 *
 	 * @ticket 43826
 	 */
 	public function test_returns_empty_array_with_post_with_no_gallery() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => '<p>A post with no gallery</p>',
 			)
@@ -42,7 +39,7 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that only galleries are returned.
+	 * Tests that only galleries are returned.
 	 *
 	 * @dataProvider data_returns_only_galleries
 	 *
@@ -52,7 +49,7 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	 * @param string $needle  The content of a non-gallery block.
 	 */
 	public function test_returns_only_galleries( $content, $needle ) {
-		$image_id = $this->factory->attachment->create_object(
+		$image_id = self::factory()->attachment->create_object(
 			array(
 				'file'           => 'test.jpg',
 				'post_parent'    => 0,
@@ -69,7 +66,7 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 			$content
 		);
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => $content,
 			)
@@ -118,7 +115,7 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that no srcs are returned for a shortcode gallery
+	 * Tests that no srcs are returned for a shortcode gallery
 	 * in a post with no attached images.
 	 *
 	 * @ticket 39304
@@ -127,7 +124,7 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	 */
 	public function test_returns_no_srcs_with_shortcode_in_post_with_no_attached_images() {
 		// Set up an unattached image.
-		$this->factory->attachment->create_object(
+		self::factory()->attachment->create_object(
 			array(
 				'file'           => 'test.jpg',
 				'post_parent'    => 0,
@@ -136,7 +133,7 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 			)
 		);
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => '[gallery]',
 			)
@@ -150,8 +147,10 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 			'The galleries array is empty.'
 		);
 
-		// This prevents future changes from causing
-		// backwards compatibility breaks.
+		/*
+		 * This prevents future changes from causing
+		 * backwards compatibility breaks.
+		 */
 		$this->assertArrayHasKey(
 			'src',
 			$galleries[0],
@@ -172,19 +171,19 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	 * @group shortcode
 	 */
 	public function test_returns_html_with_shortcode_gallery() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => 'I have no gallery',
 			)
 		);
 
-		$post_id_two = $this->factory->post->create(
+		$post_id_two = self::factory()->post->create(
 			array(
 				'post_content' => "[gallery id='$post_id']",
 			)
 		);
 
-		$this->factory->attachment->create_object(
+		self::factory()->attachment->create_object(
 			array(
 				'file'           => 'test.jpg',
 				'post_parent'    => $post_id,
@@ -202,8 +201,10 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 			'The galleries array is empty.'
 		);
 
-		// The method can return an array of arrays
-		// instead of an array of strings.
+		/*
+		 * The method can return an array of arrays
+		 * instead of an array of strings.
+		 */
 		$this->assertIsString(
 			$galleries[0],
 			'Did not return the data as a string.'
@@ -225,17 +226,17 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	 * @group shortcode
 	 */
 	public function test_respects_post_id_with_shortcode_gallery() {
-		$global_post_id = $this->factory->post->create(
+		$global_post_id = self::factory()->post->create(
 			array(
 				'post_content' => 'Global Post',
 			)
 		);
-		$post_id        = $this->factory->post->create(
+		$post_id        = self::factory()->post->create(
 			array(
 				'post_content' => '[gallery]',
 			)
 		);
-		$this->factory->attachment->create_object(
+		self::factory()->attachment->create_object(
 			array(
 				'file'           => 'test.jpg',
 				'post_parent'    => $post_id,
@@ -258,8 +259,10 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 			'The galleries array is empty.'
 		);
 
-		// This prevents future changes from causing
-		// backwards compatibility breaks.
+		/*
+		 * This prevents future changes from causing
+		 * backwards compatibility breaks.
+		 */
 		$this->assertArrayHasKey(
 			'src',
 			$galleries[0],
@@ -282,17 +285,17 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	 * @group shortcode
 	 */
 	public function test_respects_shortcode_id_attribute() {
-		$post_id     = $this->factory->post->create(
+		$post_id     = self::factory()->post->create(
 			array(
 				'post_content' => 'No gallery defined',
 			)
 		);
-		$post_id_two = $this->factory->post->create(
+		$post_id_two = self::factory()->post->create(
 			array(
 				'post_content' => "[gallery id='$post_id']",
 			)
 		);
-		$this->factory->attachment->create_object(
+		self::factory()->attachment->create_object(
 			array(
 				'file'           => 'test.jpg',
 				'post_parent'    => $post_id,
@@ -323,15 +326,19 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 			'The galleries array is empty.'
 		);
 
-		// The method can return an array of strings
-		// instead of an array of arrays.
+		/*
+		 * The method can return an array of strings
+		 * instead of an array of arrays.
+		 */
 		$this->assertIsArray(
 			$galleries[0],
 			'The returned data does not contain an array.'
 		);
 
-		// This prevents future changes from causing
-		// backwards compatibility breaks.
+		/*
+		 * This prevents future changes from causing
+		 * backwards compatibility breaks.
+		 */
 		$this->assertArrayHasKey(
 			'src',
 			$galleries[0],
@@ -346,7 +353,7 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that galleries only contain images specified in the
+	 * Tests that galleries only contain images specified in the
 	 * id attribute of their respective shortcode and block.
 	 *
 	 * @ticket 43826
@@ -355,7 +362,10 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 	 * @group shortcode
 	 */
 	public function test_respects_shortcode_and_block_id_attributes() {
-		// Test the get_post_galleries() function in $html=false mode, with both shortcode and block galleries
+		/*
+		 * Test the get_post_galleries() function in `$html = false` mode,
+		 * with both shortcode and block galleries.
+		 */
 		$ids      = array();
 		$imgs     = array();
 		$ids_srcs = array();
@@ -368,7 +378,7 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 					'post_type'      => 'attachment',
 				)
 			);
-			$metadata      = array_merge( array( 'file' => "image$i.jpg" ), $this->img_meta );
+			$metadata      = array_merge( array( 'file' => "image$i.jpg" ), self::IMG_META );
 			wp_update_attachment_metadata( $attachment_id, $metadata );
 			$ids[]      = $attachment_id;
 			$url        = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/' . "image$i.jpg";
@@ -377,7 +387,7 @@ class Tests_Functions_getPostGalleries extends WP_UnitTestCase {
 
 		}
 
-		$ids1_joined = join( ',', array_slice( $ids, 0, 3 ) );
+		$ids1_joined = implode( ',', array_slice( $ids, 0, 3 ) );
 
 		$blob = <<<BLOB
 [gallery ids="$ids1_joined"]
@@ -395,11 +405,10 @@ BLOB;
 			),
 			$galleries
 		);
-
 	}
 
 	/**
-	 * Test that galleries contain the additional attributes
+	 * Tests that galleries contain the additional attributes
 	 * specified for their respective shortcode and block.
 	 *
 	 * @ticket 43826
@@ -408,7 +417,10 @@ BLOB;
 	 * @group shortcode
 	 */
 	public function test_respects_additional_shortcode_and_block_attributes() {
-		// Test attributes returned by get_post_galleries() function in $html=false mode, with both shortcode and block galleries
+		/*
+		 * Test attributes returned by get_post_galleries() function in `$html = false` mode,
+		 * with both shortcode and block galleries.
+		 */
 		$ids      = array();
 		$imgs     = array();
 		$ids_srcs = array();
@@ -421,7 +433,7 @@ BLOB;
 					'post_type'      => 'attachment',
 				)
 			);
-			$metadata      = array_merge( array( 'file' => "image$i.jpg" ), $this->img_meta );
+			$metadata      = array_merge( array( 'file' => "image$i.jpg" ), self::IMG_META );
 			wp_update_attachment_metadata( $attachment_id, $metadata );
 			$ids[]      = $attachment_id;
 			$url        = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/' . "image$i.jpg";
@@ -430,8 +442,8 @@ BLOB;
 
 		}
 
-		$ids1_joined = join( ',', array_slice( $ids, 0, 3 ) );
-		$ids2_joined = join( ',', array_slice( $ids, 3, 3 ) );
+		$ids1_joined = implode( ',', array_slice( $ids, 0, 3 ) );
+		$ids2_joined = implode( ',', array_slice( $ids, 3, 3 ) );
 		$blob        = <<<BLOB
 [gallery ids="$ids1_joined" type="type" foo="bar"]
 BLOB;
@@ -443,7 +455,7 @@ BLOB;
 			array(
 				array(
 					'ids'  => $ids1_joined,
-					// The shortcode code passes arbitrary attributes
+					// The shortcode code passes arbitrary attributes.
 					'type' => 'type',
 					'foo'  => 'bar',
 					'src'  => array_slice( $ids_srcs, 0, 3 ),
@@ -451,6 +463,5 @@ BLOB;
 			),
 			$galleries
 		);
-
 	}
 }

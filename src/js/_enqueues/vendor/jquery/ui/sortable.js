@@ -1,17 +1,17 @@
 /*!
- * jQuery UI Sortable 1.13.1
- * http://jqueryui.com
+ * jQuery UI Sortable 1.13.3
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jquery.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Sortable
 //>>group: Interactions
 //>>description: Enables items in a list to be sorted using the mouse.
-//>>docs: http://api.jqueryui.com/sortable/
-//>>demos: http://jqueryui.com/sortable/
+//>>docs: https://api.jqueryui.com/sortable/
+//>>demos: https://jqueryui.com/sortable/
 //>>css.structure: ../../themes/base/sortable.css
 
 ( function( factory ) {
@@ -23,7 +23,11 @@
 		define( [
 			"jquery",
 			"./mouse",
-			"./core"
+			"../data",
+			"../ie",
+			"../scroll-parent",
+			"../version",
+			"../widget"
 		], factory );
 	} else {
 
@@ -34,7 +38,7 @@
 "use strict";
 
 return $.widget( "ui.sortable", $.ui.mouse, {
-	version: "1.13.1",
+	version: "1.13.3",
 	widgetEventPrefix: "sort",
 	ready: false,
 	options: {
@@ -462,18 +466,18 @@ return $.widget( "ui.sortable", $.ui.mouse, {
 			// no action if the item moved is the parent of the item checked
 			if ( itemElement !== this.currentItem[ 0 ] &&
 				this.placeholder[ intersection === 1 ?
-					"next" : "prev" ]()[ 0 ] !== itemElement &&
+				"next" : "prev" ]()[ 0 ] !== itemElement &&
 				!$.contains( this.placeholder[ 0 ], itemElement ) &&
 				( this.options.type === "semi-dynamic" ?
-						!$.contains( this.element[ 0 ], itemElement ) :
-						true
+					!$.contains( this.element[ 0 ], itemElement ) :
+					true
 				)
 			) {
 
 				this.direction = intersection === 1 ? "down" : "up";
 
 				if ( this.options.tolerance === "pointer" ||
-					this._intersectsWithSides( item ) ) {
+						this._intersectsWithSides( item ) ) {
 					this._rearrange( event, item );
 				} else {
 					break;

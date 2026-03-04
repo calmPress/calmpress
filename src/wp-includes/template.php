@@ -7,7 +7,7 @@
  */
 
 /**
- * Retrieve path to a template
+ * Retrieves path to a template.
  *
  * Used to quickly retrieve the path of a template without including the file
  * extension. It will also check the parent theme, if the file exists, with
@@ -100,7 +100,7 @@ function get_query_template( $type, $templates = array() ) {
 }
 
 /**
- * Retrieve path of index template in current or parent template.
+ * Retrieves path of index template in current or parent template.
  *
  * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
  * and {@see '$type_template'} dynamic hooks, where `$type` is 'index'.
@@ -116,7 +116,7 @@ function get_index_template() {
 }
 
 /**
- * Retrieve path of 404 template in current or parent template.
+ * Retrieves path of 404 template in current or parent template.
  *
  * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
  * and {@see '$type_template'} dynamic hooks, where `$type` is '404'.
@@ -132,7 +132,7 @@ function get_404_template() {
 }
 
 /**
- * Retrieve path of archive template in current or parent template.
+ * Retrieves path of archive template in current or parent template.
  *
  * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
  * and {@see '$type_template'} dynamic hooks, where `$type` is 'archive'.
@@ -148,7 +148,7 @@ function get_archive_template() {
 
 	$templates = array();
 
-	if ( count( $post_types ) == 1 ) {
+	if ( count( $post_types ) === 1 ) {
 		$post_type   = reset( $post_types );
 		$templates[] = "archive-{$post_type}.php";
 	}
@@ -158,7 +158,7 @@ function get_archive_template() {
 }
 
 /**
- * Retrieve path of post type archive template in current or parent template.
+ * Retrieves path of post type archive template in current or parent template.
  *
  * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
  * and {@see '$type_template'} dynamic hooks, where `$type` is 'archive'.
@@ -184,7 +184,7 @@ function get_post_type_archive_template() {
 }
 
 /**
- * Retrieve path of author template in current or parent template.
+ * Retrieves path of author template in current or parent template.
  *
  * Exists only for backward compatibility since calmPress do not have author pages.
  *
@@ -198,7 +198,7 @@ function get_author_template() {
 }
 
 /**
- * Retrieve path of category template in current or parent template.
+ * Retrieves path of category template in current or parent template.
  *
  * The hierarchy for this template looks like:
  *
@@ -244,7 +244,7 @@ function get_category_template() {
 }
 
 /**
- * Retrieve path of tag template in current or parent template.
+ * Retrieves path of tag template in current or parent template.
  *
  * The hierarchy for this template looks like:
  *
@@ -290,19 +290,21 @@ function get_tag_template() {
 }
 
 /**
- * Retrieve path of custom taxonomy term template in current or parent template.
+ * Retrieves path of custom taxonomy term template in current or parent template.
  *
  * The hierarchy for this template looks like:
  *
  * 1. taxonomy-{taxonomy_slug}-{term_slug}.php
- * 2. taxonomy-{taxonomy_slug}.php
- * 3. taxonomy.php
+ * 2. taxonomy-{taxonomy_slug}-{term_id}.php
+ * 3. taxonomy-{taxonomy_slug}.php
+ * 4. taxonomy.php
  *
  * An example of this is:
  *
  * 1. taxonomy-location-texas.php
- * 2. taxonomy-location.php
- * 3. taxonomy.php
+ * 2. taxonomy-location-67.php
+ * 3. taxonomy-location.php
+ * 4. taxonomy.php
  *
  * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
  * and {@see '$type_template'} dynamic hooks, where `$type` is 'taxonomy'.
@@ -310,6 +312,7 @@ function get_tag_template() {
  * @since 2.5.0
  * @since 4.7.0 The decoded form of `taxonomy-{taxonomy_slug}-{term_slug}.php` was added to the top of the
  *              template hierarchy when the term slug contains multibyte characters.
+ * @since 6.9.0 Added `taxonomy-{taxonomy_slug}-{term_id}.php` to the hierarchy.
  *
  * @see get_query_template()
  *
@@ -329,6 +332,7 @@ function get_taxonomy_template() {
 		}
 
 		$templates[] = "taxonomy-$taxonomy-{$term->slug}.php";
+		$templates[] = "taxonomy-$taxonomy-{$term->term_id}.php";
 		$templates[] = "taxonomy-$taxonomy.php";
 	}
 	$templates[] = 'taxonomy.php';
@@ -337,7 +341,7 @@ function get_taxonomy_template() {
 }
 
 /**
- * Retrieve path of date template in current or parent template.
+ * Retrieves path of date template in current or parent template.
  *
  * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
  * and {@see '$type_template'} dynamic hooks, where `$type` is 'date'.
@@ -353,7 +357,7 @@ function get_date_template() {
 }
 
 /**
- * Retrieve path of home template in current or parent template.
+ * Retrieves path of home template in current or parent template.
  *
  * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
  * and {@see '$type_template'} dynamic hooks, where `$type` is 'home'.
@@ -371,7 +375,7 @@ function get_home_template() {
 }
 
 /**
- * Retrieve path of front page template in current or parent template.
+ * Retrieves path of front page template in current or parent template.
  *
  * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
  * and {@see '$type_template'} dynamic hooks, where `$type` is 'frontpage'.
@@ -389,7 +393,7 @@ function get_front_page_template() {
 }
 
 /**
- * Retrieve path of page template in current or parent template.
+ * Retrieves path of page template in current or parent template.
  *
  * The hierarchy for this template looks like:
  *
@@ -422,8 +426,10 @@ function get_page_template() {
 	$pagename = get_query_var( 'pagename' );
 
 	if ( ! $pagename && $id ) {
-		// If a static page is set as the front page, $pagename will not be set.
-		// Retrieve it from the queried object.
+		/*
+		 * If a static page is set as the front page, $pagename will not be set.
+		 * Retrieve it from the queried object.
+		 */
 		$post = get_queried_object();
 		if ( $post ) {
 			$pagename = $post->post_name;
@@ -450,7 +456,7 @@ function get_page_template() {
 }
 
 /**
- * Retrieve path of search template in current or parent template.
+ * Retrieves path of search template in current or parent template.
  *
  * The template hierarchy and template path are filterable via the {@see '$type_template_hierarchy'}
  * and {@see '$type_template'} dynamic hooks, where `$type` is 'search'.
@@ -466,7 +472,7 @@ function get_search_template() {
 }
 
 /**
- * Retrieve path of single template in current or parent template. Applies to single Posts,
+ * Retrieves path of single template in current or parent template. Applies to single Posts,
  * and single custom post types.
  *
  * The hierarchy for this template looks like:
@@ -568,40 +574,67 @@ function get_embed_template() {
  *
  * @see get_query_template()
  *
- * @return string Full path to singular template file
+ * @return string Full path to singular template file.
  */
 function get_singular_template() {
 	return get_query_template( 'singular' );
 }
 
 /**
- * Retrieve the name of the highest priority template file that exists.
+ * Set up the globals used for template loading.
  *
- * Searches in the STYLESHEETPATH before TEMPLATEPATH and wp-includes/theme-compat
- * so that themes which inherit from a parent theme can just overload one file.
+ * @since 6.5.0
+ *
+ * @global string $wp_stylesheet_path Path to current theme's stylesheet directory.
+ * @global string $wp_template_path   Path to current theme's template directory.
+ */
+function wp_set_template_globals() {
+	global $wp_stylesheet_path, $wp_template_path;
+
+	$wp_stylesheet_path = get_stylesheet_directory();
+	$wp_template_path   = get_template_directory();
+}
+
+/**
+ * Retrieves the name of the highest priority template file that exists.
+ *
+ * Searches in the stylesheet directory before the template directory and
+ * wp-includes/theme-compat so that themes which inherit from a parent theme
+ * can just overload one file.
  *
  * @since 2.7.0
  * @since 5.5.0 The `$args` parameter was added.
  *
+ * @global string $wp_stylesheet_path Path to current theme's stylesheet directory.
+ * @global string $wp_template_path   Path to current theme's template directory.
+ *
  * @param string|array $template_names Template file(s) to search for, in order.
  * @param bool         $load           If true the template file will be loaded if it is found.
- * @param bool         $require_once   Whether to require_once or require. Has no effect if `$load` is false.
+ * @param bool         $load_once      Whether to require_once or require. Has no effect if `$load` is false.
  *                                     Default true.
  * @param array        $args           Optional. Additional arguments passed to the template.
  *                                     Default empty array.
  * @return string The template filename if one is located.
  */
-function locate_template( $template_names, $load = false, $require_once = true, $args = array() ) {
+function locate_template( $template_names, $load = false, $load_once = true, $args = array() ) {
+	global $wp_stylesheet_path, $wp_template_path;
+
+	if ( ! isset( $wp_stylesheet_path ) || ! isset( $wp_template_path ) ) {
+		wp_set_template_globals();
+	}
+
+	$is_child_theme = is_child_theme();
+
 	$located = '';
 	foreach ( (array) $template_names as $template_name ) {
 		if ( ! $template_name ) {
 			continue;
 		}
-		if ( file_exists( STYLESHEETPATH . '/' . $template_name ) ) {
-			$located = STYLESHEETPATH . '/' . $template_name;
+		if ( file_exists( $wp_stylesheet_path . '/' . $template_name ) ) {
+			$located = $wp_stylesheet_path . '/' . $template_name;
 			break;
-		} elseif ( file_exists( TEMPLATEPATH . '/' . $template_name ) ) {
-			$located = TEMPLATEPATH . '/' . $template_name;
+		} elseif ( $is_child_theme && file_exists( $wp_template_path . '/' . $template_name ) ) {
+			$located = $wp_template_path . '/' . $template_name;
 			break;
 		} elseif ( file_exists( ABSPATH . WPINC . '/theme-compat/' . $template_name ) ) {
 			$located = ABSPATH . WPINC . '/theme-compat/' . $template_name;
@@ -610,14 +643,14 @@ function locate_template( $template_names, $load = false, $require_once = true, 
 	}
 
 	if ( $load && '' !== $located ) {
-		load_template( $located, $require_once, $args );
+		load_template( $located, $load_once, $args );
 	}
 
 	return $located;
 }
 
 /**
- * Require the template file with WordPress environment.
+ * Requires the template file with WordPress environment.
  *
  * The globals are set up for the template file to ensure that the WordPress
  * environment is available from within the function. The query variables are
@@ -638,7 +671,7 @@ function locate_template( $template_names, $load = false, $require_once = true, 
  * @global int        $user_ID
  *
  * @param string $_template_file Path to template file.
- * @param bool   $require_once   Whether to require_once or require. Default true.
+ * @param bool   $load_once      Whether to require_once or require. Default true.
  * @param array  $args           Optional. Additional arguments passed to the template.
  *                               Default empty array.
  */
@@ -662,9 +695,31 @@ function load_template( $_template_file, $require_once = true, $args = array() )
 		$s = esc_attr( $s );
 	}
 
-	if ( $require_once ) {
+	/**
+	 * Fires before a template file is loaded.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param string $_template_file The full path to the template file.
+	 * @param bool   $load_once      Whether to require_once or require.
+	 * @param array  $args           Additional arguments passed to the template.
+	 */
+	do_action( 'wp_before_load_template', $_template_file, $load_once, $args );
+
+	if ( $load_once ) {
 		require_once $_template_file;
 	} else {
 		require $_template_file;
 	}
+
+	/**
+	 * Fires after a template file is loaded.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param string $_template_file The full path to the template file.
+	 * @param bool   $load_once      Whether to require_once or require.
+	 * @param array  $args           Additional arguments passed to the template.
+	 */
+	do_action( 'wp_after_load_template', $_template_file, $load_once, $args );
 }

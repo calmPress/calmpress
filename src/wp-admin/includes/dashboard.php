@@ -20,10 +20,24 @@
 function wp_dashboard_setup() {
 	global $wp_registered_widgets, $wp_registered_widget_controls, $wp_dashboard_control_callbacks;
 
-	$wp_dashboard_control_callbacks = array();
-	$screen                         = get_current_screen();
+	$screen = get_current_screen();
 
 	/* Register Widgets and Controls */
+	$wp_dashboard_control_callbacks = array();
+
+	// Site Health.
+	if ( current_user_can( 'view_site_health_checks' ) && ! is_network_admin() ) {
+		if ( ! class_exists( 'WP_Site_Health' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-site-health.php';
+		}
+
+		WP_Site_Health::get_instance();
+
+		wp_enqueue_style( 'site-health' );
+		wp_enqueue_script( 'site-health' );
+
+		wp_add_dashboard_widget( 'dashboard_site_health', __( 'Site Health Status' ), 'wp_dashboard_site_health' );
+	}
 
 	// Right Now.
 	if ( is_blog_admin() && current_user_can( 'edit_posts' ) ) {
@@ -238,7 +252,6 @@ function wp_dashboard() {
 	<?php
 	wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
 	wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );
-
 }
 
 //
@@ -446,7 +459,12 @@ function wp_network_dashboard_right_now() {
 
 	<form action="<?php echo esc_url( network_admin_url( 'users.php' ) ); ?>" method="get">
 		<p>
-			<label class="screen-reader-text" for="search-users"><?php _e( 'Search Users' ); ?></label>
+			<label class="screen-reader-text" for="search-users">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( 'Search Users' );
+				?>
+			</label>
 			<input type="search" name="s" value="" size="30" autocomplete="off" id="search-users" />
 			<?php submit_button( __( 'Search Users' ), '', false, false, array( 'id' => 'submit_users' ) ); ?>
 		</p>
@@ -454,7 +472,12 @@ function wp_network_dashboard_right_now() {
 
 	<form action="<?php echo esc_url( network_admin_url( 'sites.php' ) ); ?>" method="get">
 		<p>
-			<label class="screen-reader-text" for="search-sites"><?php _e( 'Search Sites' ); ?></label>
+			<label class="screen-reader-text" for="search-sites">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( 'Search Sites' );
+				?>
+			</label>
 			<input type="search" name="s" value="" size="30" autocomplete="off" id="search-sites" />
 			<?php submit_button( __( 'Search Sites' ), '', false, false, array( 'id' => 'submit_sites' ) ); ?>
 		</p>
@@ -476,7 +499,7 @@ function wp_network_dashboard_right_now() {
 }
 
 /**
- * The Quick Draft widget display and creation of drafts.
+ * Displays the Quick Draft widget.
  *
  * @since 3.8.0
  *
@@ -518,9 +541,16 @@ function wp_dashboard_quick_press( $error_msg = false ) {
 
 	<form name="post" action="<?php echo esc_url( admin_url( 'post.php' ) ); ?>" method="post" id="quick-press" class="initial-form hide-if-no-js">
 
-		<?php if ( $error_msg ) : ?>
-		<div class="error"><?php echo $error_msg; ?></div>
-		<?php endif; ?>
+		<?php
+		if ( $error_msg ) {
+			wp_admin_notice(
+				$error_msg,
+				array(
+					'additional_classes' => array( 'error' ),
+				)
+			);
+		}
+		?>
 
 		<div class="input-text-wrap" id="title-wrap">
 			<label for="title">
@@ -645,7 +675,7 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 	if ( $comment->comment_post_ID > 0 ) {
 		$comment_post_title = _draft_or_post_title( $comment->comment_post_ID );
 		$comment_post_url   = get_the_permalink( $comment->comment_post_ID );
-		$comment_post_link  = "<a href='$comment_post_url'>$comment_post_title</a>";
+		$comment_post_link  = '<a href="' . esc_url( $comment_post_url ) . '">' . $comment_post_title . '</a>';
 	} else {
 		$comment_post_link = '';
 	}
@@ -664,18 +694,20 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 			'view'      => '',
 		);
 
-		$del_nonce     = esc_html( '_wpnonce=' . wp_create_nonce( "delete-comment_$comment->comment_ID" ) );
-		$approve_nonce = esc_html( '_wpnonce=' . wp_create_nonce( "approve-comment_$comment->comment_ID" ) );
+		$approve_nonce = esc_html( '_wpnonce=' . wp_create_nonce( 'approve-comment_' . $comment->comment_ID ) );
+		$del_nonce     = esc_html( '_wpnonce=' . wp_create_nonce( 'delete-comment_' . $comment->comment_ID ) );
 
-		$approve_url   = esc_url( "comment.php?action=approvecomment&p=$comment->comment_post_ID&c=$comment->comment_ID&$approve_nonce" );
-		$unapprove_url = esc_url( "comment.php?action=unapprovecomment&p=$comment->comment_post_ID&c=$comment->comment_ID&$approve_nonce" );
-		$spam_url      = esc_url( "comment.php?action=spamcomment&p=$comment->comment_post_ID&c=$comment->comment_ID&$del_nonce" );
-		$trash_url     = esc_url( "comment.php?action=trashcomment&p=$comment->comment_post_ID&c=$comment->comment_ID&$del_nonce" );
-		$delete_url    = esc_url( "comment.php?action=deletecomment&p=$comment->comment_post_ID&c=$comment->comment_ID&$del_nonce" );
+		$action_string = 'comment.php?action=%s&p=' . $comment->comment_post_ID . '&c=' . $comment->comment_ID . '&%s';
+
+		$approve_url   = sprintf( $action_string, 'approvecomment', $approve_nonce );
+		$unapprove_url = sprintf( $action_string, 'unapprovecomment', $approve_nonce );
+		$spam_url      = sprintf( $action_string, 'spamcomment', $del_nonce );
+		$trash_url     = sprintf( $action_string, 'trashcomment', $del_nonce );
+		$delete_url    = sprintf( $action_string, 'deletecomment', $del_nonce );
 
 		$actions['approve'] = sprintf(
 			'<a href="%s" data-wp-lists="%s" class="vim-a aria-button-if-js" aria-label="%s">%s</a>',
-			$approve_url,
+			esc_url( $approve_url ),
 			"dim:the-comment-list:comment-{$comment->comment_ID}:unapproved:e7e7d3:e7e7d3:new=approved",
 			esc_attr__( 'Approve this comment' ),
 			__( 'Approve' )
@@ -683,7 +715,7 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 
 		$actions['unapprove'] = sprintf(
 			'<a href="%s" data-wp-lists="%s" class="vim-u aria-button-if-js" aria-label="%s">%s</a>',
-			$unapprove_url,
+			esc_url( $unapprove_url ),
 			"dim:the-comment-list:comment-{$comment->comment_ID}:unapproved:e7e7d3:e7e7d3:new=unapproved",
 			esc_attr__( 'Unapprove this comment' ),
 			__( 'Unapprove' )
@@ -713,7 +745,7 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 
 		$actions['spam'] = sprintf(
 			'<a href="%s" data-wp-lists="%s" class="vim-s vim-destructive aria-button-if-js" aria-label="%s">%s</a>',
-			$spam_url,
+			esc_url( $spam_url ),
 			"delete:the-comment-list:comment-{$comment->comment_ID}::spam=1",
 			esc_attr__( 'Mark this comment as spam' ),
 			/* translators: "Mark as spam" link. */
@@ -723,7 +755,7 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 		if ( ! EMPTY_TRASH_DAYS ) {
 			$actions['delete'] = sprintf(
 				'<a href="%s" data-wp-lists="%s" class="delete vim-d vim-destructive aria-button-if-js" aria-label="%s">%s</a>',
-				$delete_url,
+				esc_url( $delete_url ),
 				"delete:the-comment-list:comment-{$comment->comment_ID}::trash=1",
 				esc_attr__( 'Delete this comment permanently' ),
 				__( 'Delete Permanently' )
@@ -731,7 +763,7 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 		} else {
 			$actions['trash'] = sprintf(
 				'<a href="%s" data-wp-lists="%s" class="delete vim-d vim-destructive aria-button-if-js" aria-label="%s">%s</a>',
-				$trash_url,
+				esc_url( $trash_url ),
 				"delete:the-comment-list:comment-{$comment->comment_ID}::trash=1",
 				esc_attr__( 'Move this comment to the Trash' ),
 				_x( 'Trash', 'verb' )
@@ -745,17 +777,7 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 			__( 'View' )
 		);
 
-		/**
-		 * Filters the action links displayed for each comment in the 'Recent Comments'
-		 * dashboard widget.
-		 *
-		 * @since 2.6.0
-		 *
-		 * @param string[]   $actions An array of comment actions. Default actions include:
-		 *                            'Approve', 'Unapprove', 'Edit', 'Reply', 'Spam',
-		 *                            'Delete', and 'Trash'.
-		 * @param WP_Comment $comment The comment object.
-		 */
+		/** This filter is documented in wp-admin/includes/class-wp-comments-list-table.php */
 		$actions = apply_filters( 'comment_row_actions', array_filter( $actions ), $comment );
 
 		$i = 0;
@@ -766,16 +788,16 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 			if ( ( ( 'approve' === $action || 'unapprove' === $action ) && 2 === $i )
 				|| 1 === $i
 			) {
-				$sep = '';
+				$separator = '';
 			} else {
-				$sep = ' | ';
+				$separator = ' | ';
 			}
 
 			if ( 'view' === $action && '1' !== $comment->comment_approved ) {
 				$action .= ' hidden';
 			}
 
-			$actions_string .= "<span class='$action'>$sep$link</span>";
+			$actions_string .= "<span class='$action'>{$separator}{$link}</span>";
 		}
 	}
 	?>
@@ -860,7 +882,9 @@ function _wp_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 }
 
 /**
- * Callback function for Activity widget.
+ * Outputs the Activity widget.
+ *
+ * Callback function for {@see 'dashboard_activity'}.
  *
  * @since 3.8.0
  */
@@ -922,7 +946,7 @@ function wp_dashboard_recent_posts( $args ) {
 		'order'          => $args['order'],
 		'posts_per_page' => (int) $args['max'],
 		'no_found_rows'  => true,
-		'cache_results'  => false,
+		'cache_results'  => true,
 		'perm'           => ( 'future' === $args['status'] ) ? 'editable' : 'readable',
 	);
 
@@ -1014,26 +1038,34 @@ function wp_dashboard_recent_comments( $total_items = 5 ) {
 		$comments_query['status'] = 'approve';
 	}
 
-	while ( count( $comments ) < $total_items && $possible = get_comments( $comments_query ) ) {
-		if ( ! is_array( $possible ) ) {
+	$comments_count = 0;
+	do {
+		$possible = get_comments( $comments_query );
+
+		if ( empty( $possible ) || ! is_array( $possible ) ) {
 			break;
 		}
 
 		foreach ( $possible as $comment ) {
-			if ( ! current_user_can( 'read_post', $comment->comment_post_ID ) ) {
+			if ( ! current_user_can( 'edit_post', $comment->comment_post_ID )
+				&& ( post_password_required( $comment->comment_post_ID )
+					|| ! current_user_can( 'read_post', $comment->comment_post_ID ) )
+			) {
+				// The user has no access to the post and thus cannot see the comments.
 				continue;
 			}
 
-			$comments[] = $comment;
+			$comments[]     = $comment;
+			$comments_count = count( $comments );
 
-			if ( count( $comments ) === $total_items ) {
+			if ( $comments_count === $total_items ) {
 				break 2;
 			}
 		}
 
 		$comments_query['offset'] += $comments_query['number'];
 		$comments_query['number']  = $total_items * 10;
-	}
+	} while ( $comments_count < $total_items );
 
 	if ( $comments ) {
 		echo '<div id="latest-comments" class="activity-block table-view-list">';
@@ -1046,7 +1078,10 @@ function wp_dashboard_recent_comments( $total_items = 5 ) {
 		echo '</ul>';
 
 		if ( current_user_can( 'edit_posts' ) ) {
-			echo '<h3 class="screen-reader-text">' . __( 'View more comments' ) . '</h3>';
+			echo '<h3 class="screen-reader-text">' .
+				/* translators: Hidden accessibility text. */
+				__( 'View more comments' ) .
+			'</h3>';
 			_get_list_table( 'WP_Comments_List_Table' )->views();
 		}
 
@@ -1131,9 +1166,10 @@ function wp_dashboard_quota() {
 				number_format_i18n( $quota )
 			);
 			printf(
-				'<a href="%1$s">%2$s <span class="screen-reader-text">(%3$s)</span></a>',
+				'<a href="%1$s">%2$s<span class="screen-reader-text"> (%3$s)</span></a>',
 				esc_url( admin_url( 'upload.php' ) ),
 				$text,
+				/* translators: Hidden accessibility text. */
 				__( 'Manage Uploads' )
 			);
 			?>
@@ -1146,9 +1182,10 @@ function wp_dashboard_quota() {
 				$percentused
 			);
 			printf(
-				'<a href="%1$s" class="musublink">%2$s <span class="screen-reader-text">(%3$s)</span></a>',
+				'<a href="%1$s" class="musublink">%2$s<span class="screen-reader-text"> (%3$s)</span></a>',
 				esc_url( admin_url( 'upload.php' ) ),
 				$text,
+				/* translators: Hidden accessibility text. */
 				__( 'Manage Uploads' )
 			);
 			?>
@@ -1185,7 +1222,7 @@ function wp_dashboard_site_health() {
 	<div class="health-check-widget">
 		<div class="health-check-widget-title-section site-health-progress-wrapper loading hide-if-no-js">
 			<div class="site-health-progress">
-				<svg role="img" aria-hidden="true" focusable="false" width="100%" height="100%" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+				<svg aria-hidden="true" focusable="false" width="100%" height="100%" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
 					<circle r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
 					<circle id="bar" r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
 				</svg>
@@ -1249,7 +1286,9 @@ function wp_dashboard_site_health() {
 }
 
 /**
- * Empty function usable by plugins to output empty dashboard widget (to be populated later by JS).
+ * Outputs empty dashboard widget to be populated by JS later.
+ *
+ * Usable by plugins.
  *
  * @since 2.5.0
  */

@@ -7,10 +7,10 @@
  */
 
 /**
- * Load header template.
+ * Loads header template.
  *
  * Includes the header template for a theme or if a name is specified then a
- * specialised header will be included.
+ * specialized header will be included.
  *
  * For the parameter, if the file is called "header-special.php" then specify
  * "special".
@@ -19,9 +19,9 @@
  * @since 5.5.0 A return value was added.
  * @since 5.5.0 The `$args` parameter was added.
  *
- * @param string $name The name of the specialised header.
- * @param array  $args Optional. Additional arguments passed to the header template.
- *                     Default empty array.
+ * @param string|null $name The name of the specialized header. Default null.
+ * @param array       $args Optional. Additional arguments passed to the header template.
+ *                          Default empty array.
  * @return void|false Void on success, false if the template does not exist.
  */
 function get_header( $name = null, $args = array() ) {
@@ -51,10 +51,10 @@ function get_header( $name = null, $args = array() ) {
 }
 
 /**
- * Load footer template.
+ * Loads footer template.
  *
  * Includes the footer template for a theme or if a name is specified then a
- * specialised footer will be included.
+ * specialized footer will be included.
  *
  * For the parameter, if the file is called "footer-special.php" then specify
  * "special".
@@ -63,9 +63,9 @@ function get_header( $name = null, $args = array() ) {
  * @since 5.5.0 A return value was added.
  * @since 5.5.0 The `$args` parameter was added.
  *
- * @param string $name The name of the specialised footer.
- * @param array  $args Optional. Additional arguments passed to the footer template.
- *                     Default empty array.
+ * @param string|null $name The name of the specialized footer. Default null.
+ * @param array       $args Optional. Additional arguments passed to the footer template.
+ *                          Default empty array.
  * @return void|false Void on success, false if the template does not exist.
  */
 function get_footer( $name = null, $args = array() ) {
@@ -95,10 +95,10 @@ function get_footer( $name = null, $args = array() ) {
 }
 
 /**
- * Load sidebar template.
+ * Loads sidebar template.
  *
  * Includes the sidebar template for a theme or if a name is specified then a
- * specialised sidebar will be included.
+ * specialized sidebar will be included.
  *
  * For the parameter, if the file is called "sidebar-special.php" then specify
  * "special".
@@ -107,9 +107,9 @@ function get_footer( $name = null, $args = array() ) {
  * @since 5.5.0 A return value was added.
  * @since 5.5.0 The `$args` parameter was added.
  *
- * @param string $name The name of the specialised sidebar.
- * @param array  $args Optional. Additional arguments passed to the sidebar template.
- *                     Default empty array.
+ * @param string|null $name The name of the specialized sidebar. Default null.
+ * @param array       $args Optional. Additional arguments passed to the sidebar template.
+ *                          Default empty array.
  * @return void|false Void on success, false if the template does not exist.
  */
 function get_sidebar( $name = null, $args = array() ) {
@@ -145,7 +145,7 @@ function get_sidebar( $name = null, $args = array() ) {
  * in the theme.
  *
  * Includes the named template part for a theme or if a name is specified then a
- * specialised part will be included. If the theme contains no {slug}.php file
+ * specialized part will be included. If the theme contains no {slug}.php file
  * then no template will be included.
  *
  * The template is included using require, not require_once, so you may include the
@@ -158,10 +158,10 @@ function get_sidebar( $name = null, $args = array() ) {
  * @since 5.5.0 A return value was added.
  * @since 5.5.0 The `$args` parameter was added.
  *
- * @param string $slug The slug name for the generic template.
- * @param string $name The name of the specialised template.
- * @param array  $args Optional. Additional arguments passed to the template.
- *                     Default empty array.
+ * @param string      $slug The slug name for the generic template.
+ * @param string|null $name Optional. The name of the specialized template. Default null.
+ * @param array       $args Optional. Additional arguments passed to the template.
+ *                          Default empty array.
  * @return void|false Void on success, false if the template does not exist.
  */
 function get_template_part( $slug, $name = null, $args = array() ) {
@@ -175,7 +175,8 @@ function get_template_part( $slug, $name = null, $args = array() ) {
 	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @param string      $slug The slug name for the generic template.
-	 * @param string|null $name The name of the specialized template.
+	 * @param string|null $name The name of the specialized template
+	 *                          or null if there is none.
 	 * @param array       $args Additional arguments passed to the template.
 	 */
 	do_action( "get_template_part_{$slug}", $slug, $name, $args );
@@ -195,7 +196,8 @@ function get_template_part( $slug, $name = null, $args = array() ) {
 	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @param string   $slug      The slug name for the generic template.
-	 * @param string   $name      The name of the specialized template.
+	 * @param string   $name      The name of the specialized template
+	 *                            or an empty string if there is none.
 	 * @param string[] $templates Array of template files to search for, in order.
 	 * @param array    $args      Additional arguments passed to the template.
 	 */
@@ -207,7 +209,7 @@ function get_template_part( $slug, $name = null, $args = array() ) {
 }
 
 /**
- * Display search form.
+ * Displays search form.
  *
  * Will first attempt to locate the searchform.php file in either the child or
  * the parent, then load it. If it doesn't exist, then the default search form
@@ -322,7 +324,10 @@ function get_search_form( $args = array() ) {
 		if ( 'html5' === $format ) {
 			$form = '<form role="search" ' . $aria_label . 'method="get" class="search-form" action="' . esc_url( home_url( '/' ) ) . '">
 				<label>
-					<span class="screen-reader-text">' . _x( 'Search for:', 'label' ) . '</span>
+					<span class="screen-reader-text">' .
+					/* translators: Hidden accessibility text. */
+					_x( 'Search for:', 'label' ) .
+					'</span>
 					<input type="search" class="search-field" placeholder="' . esc_attr_x( 'Search &hellip;', 'placeholder' ) . '" value="' . get_search_query() . '" name="s" />
 				</label>
 				<input type="submit" class="search-submit" value="' . esc_attr_x( 'Search', 'submit button' ) . '" />
@@ -330,7 +335,10 @@ function get_search_form( $args = array() ) {
 		} else {
 			$form = '<form role="search" ' . $aria_label . 'method="get" id="searchform" class="searchform" action="' . esc_url( home_url( '/' ) ) . '">
 				<div>
-					<label class="screen-reader-text" for="s">' . _x( 'Search for:', 'label' ) . '</label>
+					<label class="screen-reader-text" for="s">' .
+					/* translators: Hidden accessibility text. */
+					_x( 'Search for:', 'label' ) .
+					'</label>
 					<input type="text" value="' . get_search_query() . '" name="s" id="s" />
 					<input type="submit" id="searchsubmit" value="' . esc_attr_x( 'Search', 'submit button' ) . '" />
 				</div>
@@ -362,7 +370,7 @@ function get_search_form( $args = array() ) {
 }
 
 /**
- * Display the Log In/Out link.
+ * Displays the Log In/Out link.
  *
  * Displays a link, which allows users to navigate to the Log In page to log in
  * or log out depending on whether they are currently logged in.
@@ -370,17 +378,17 @@ function get_search_form( $args = array() ) {
  * @since 1.5.0
  *
  * @param string $redirect Optional path to redirect to on login/logout.
- * @param bool   $echo     Default to echo and not return the link.
- * @return void|string Void if `$echo` argument is true, log in/out link if `$echo` is false.
+ * @param bool   $display  Default to echo and not return the link.
+ * @return void|string Void if `$display` argument is true, log in/out link if `$display` is false.
  */
-function wp_loginout( $redirect = '', $echo = true ) {
+function wp_loginout( $redirect = '', $display = true ) {
 	if ( ! is_user_logged_in() ) {
 		$link = '<a href="' . esc_url( wp_login_url( $redirect ) ) . '">' . __( 'Log in' ) . '</a>';
 	} else {
 		$link = '<a href="' . esc_url( wp_logout_url( $redirect ) ) . '">' . __( 'Log out' ) . '</a>';
 	}
 
-	if ( $echo ) {
+	if ( $display ) {
 		/**
 		 * Filters the HTML output for the Log In/Log Out link.
 		 *
@@ -466,40 +474,50 @@ function wp_login_url( $redirect = '', $force_reauth = false ) {
  *
  * @since 3.0.0
  * 
- * @since calmpress 1.0.0 remember, id_remember, value_remember and label_remember has no impact.
+ * @since 6.6.0 Added `required_username` and `required_password` arguments.
+ * @since calmpress 1.0.0 remember, id_remember, value_remember and label_remember
+ *                        has no impact.
  *
  * @param array $args {
  *     Optional. Array of options to control the form output. Default empty array.
  *
- *     @type bool   $echo           Whether to display the login form or return the form HTML code.
- *                                  Default true (echo).
- *     @type string $redirect       URL to redirect to. Must be absolute, as in "https://example.com/mypage/".
- *                                  Default is to redirect back to the request URI.
- *     @type string $form_id        ID attribute value for the form. Default 'loginform'.
- *     @type string $label_username Label for the username or email address field. Default 'Email Address'.
- *     @type string $label_password Label for the password field. Default 'Password'.
- *     @type string $label_log_in   Label for the submit button. Default 'Log In'.
- *     @type string $id_username    ID attribute value for the username field. Default 'user_login'.
- *     @type string $id_password    ID attribute value for the password field. Default 'user_pass'.
- *     @type string $id_submit      ID attribute value for the submit button. Default 'wp-submit'.
- *     @type string $value_username Default value for the username field. Default empty.
+ *     @type bool   $echo              Whether to display the login form or return the form HTML code.
+ *                                     Default true (echo).
+ *     @type string $redirect          URL to redirect to. Must be absolute, as in "https://example.com/mypage/".
+ *                                     Default is to redirect back to the request URI.
+ *     @type string $form_id           ID attribute value for the form. Default 'loginform'.
+ *     @type string $label_username    Label for the username or email address field. Default 'Username or Email Address'.
+ *     @type string $label_password    Label for the password field. Default 'Password'.
+ *     @type string $label_log_in      Label for the submit button. Default 'Log In'.
+ *     @type string $id_username       ID attribute value for the username field. Default 'user_login'.
+ *     @type string $id_password       ID attribute value for the password field. Default 'user_pass'.
+ *     @type string $id_submit         ID attribute value for the submit button. Default 'wp-submit'.
+ *     @type string $value_username    Default value for the username field. Default empty.
+ *     @type bool   $required_username Whether the username field has the 'required' attribute.
+ *                                     Default false.
+ *     @type bool   $required_password Whether the password field has the 'required' attribute.
+ *                                     Default false.
  *
  * }
  * @return void|string Void if 'echo' argument is true, login form HTML if 'echo' is false.
  */
 function wp_login_form( $args = array() ) {
 	$defaults = array(
-		'echo'           => true,
+		'echo'              => true,
 		// Default 'redirect' value takes the user back to the request URI.
-		'redirect'       => ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-		'form_id'        => 'loginform',
-		'label_username' => __( 'Email Address' ),
-		'label_password' => __( 'Password' ),
-		'label_log_in'   => __( 'Log In' ),
-		'id_username'    => 'user_login',
-		'id_password'    => 'user_pass',
-		'id_submit'      => 'wp-submit',
-		'value_username' => '',
+		'redirect'          => ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+		'form_id'           => 'loginform',
+		'label_username'    => __( 'Email Address' ),
+		'label_password'    => __( 'Password' ),
+		'label_log_in'      => __( 'Log In' ),
+		'id_username'       => 'user_login',
+		'id_password'       => 'user_pass',
+		'id_submit'         => 'wp-submit',
+		'value_username'    => '',
+		// Set 'required_username' to true to add the required attribute to username field.
+		'required_username' => false,
+		// Set 'required_password' to true to add the required attribute to password field.
+		'required_password' => false,
 	);
 
 	/**
@@ -560,19 +578,21 @@ function wp_login_form( $args = array() ) {
 		sprintf(
 			'<p class="login-username">
 				<label for="%1$s">%2$s</label>
-				<input type="text" name="log" id="%1$s" class="input" value="%3$s" size="20" />
+				<input type="text" name="log" id="%1$s" autocomplete="username" class="input" value="%3$s" size="20"%4$s />
 			</p>',
 			esc_attr( $args['id_username'] ),
 			esc_html( $args['label_username'] ),
-			esc_attr( $args['value_username'] )
+			esc_attr( $args['value_username'] ),
+			( $args['required_username'] ? ' required="required"' : '' )
 		) .
 		sprintf(
 			'<p class="login-password">
 				<label for="%1$s">%2$s</label>
-				<input type="password" name="pwd" id="%1$s" class="input" value="" size="20" />
+				<input type="password" name="pwd" id="%1$s" autocomplete="current-password" spellcheck="false" class="input" value="" size="20"%3$s />
 			</p>',
 			esc_attr( $args['id_password'] ),
-			esc_html( $args['label_password'] )
+			esc_html( $args['label_password'] ),
+			( $args['required_password'] ? ' required="required"' : '' )
 		) .
 		$login_form_middle .
 		sprintf(
@@ -595,8 +615,8 @@ function wp_login_form( $args = array() ) {
 }
 
 /**
- * Returns the URL that allows the user to retrieve a lost password.
- * 
+ * Returns the URL that allows the user to reset the lost password.
+ *
  * @since 2.8.0
  *
  * @param string $redirect Path to redirect to on login.
@@ -612,7 +632,7 @@ function wp_lostpassword_url( $redirect = '' ) {
 	}
 
 	if ( is_multisite() ) {
-		$blog_details  = get_blog_details();
+		$blog_details  = get_site();
 		$wp_login_path = $blog_details->path . 'wp-login.php';
 	} else {
 		$wp_login_path = 'wp-login.php';
@@ -675,7 +695,7 @@ function bloginfo( $show = '' ) {
  * - 'admin_email' - Admin email (set in Settings > General)
  * - 'charset' - The "Encoding for pages and feeds"  (set in Settings > Reading)
  * - 'version' - The current WordPress version
- * - 'html_type' - The content-type (default: "text/html"). Themes and plugins
+ * - 'html_type' - The Content-Type (default: "text/html"). Themes and plugins
  *   can override the default value using the {@see 'pre_option_html_type'} filter
  * - 'text_direction' - The text direction determined by the site's language. is_rtl()
  *   should be used instead
@@ -765,15 +785,12 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			break;
 	}
 
-	$url = true;
-	if ( strpos( $show, 'url' ) === false &&
-		strpos( $show, 'directory' ) === false &&
-		strpos( $show, 'home' ) === false ) {
-		$url = false;
-	}
-
 	if ( 'display' === $filter ) {
-		if ( $url ) {
+		if (
+			str_contains( $show, 'url' )
+			|| str_contains( $show, 'directory' )
+			|| str_contains( $show, 'home' )
+		) {
 			/**
 			 * Filters the URL returned by get_bloginfo().
 			 *
@@ -817,7 +834,7 @@ function get_site_icon_url( $size = 512, $url = '', $blog_id = 0 ) {
 		$switched_blog = true;
 	}
 
-	$site_icon_id = get_option( 'site_icon' );
+	$site_icon_id = (int) get_option( 'site_icon' );
 
 	if ( $site_icon_id ) {
 		if ( $size >= 512 ) {
@@ -858,7 +875,7 @@ function site_icon_url( $size = 512, $url = '', $blog_id = 0 ) {
 }
 
 /**
- * Whether the site has a Site Icon.
+ * Determines whether the site has a Site Icon.
  *
  * @since 4.3.0
  *
@@ -886,12 +903,13 @@ function has_custom_logo( $blog_id = 0 ) {
 	}
 
 	$custom_logo_id = get_theme_mod( 'custom_logo' );
+	$is_image       = ( $custom_logo_id ) ? wp_attachment_is_image( $custom_logo_id ) : false;
 
 	if ( $switched_blog ) {
 		restore_current_blog();
 	}
 
-	return (bool) $custom_logo_id;
+	return $is_image;
 }
 
 /**
@@ -914,10 +932,9 @@ function get_custom_logo( $blog_id = 0 ) {
 		$switched_blog = true;
 	}
 
-	$custom_logo_id = get_theme_mod( 'custom_logo' );
-
 	// We have a logo. Logo is go.
-	if ( $custom_logo_id ) {
+	if ( has_custom_logo() ) {
+		$custom_logo_id   = get_theme_mod( 'custom_logo' );
 		$custom_logo_attr = array(
 			'class'   => 'custom-logo',
 			'loading' => false,
@@ -959,21 +976,25 @@ function get_custom_logo( $blog_id = 0 ) {
 		 */
 		$image = wp_get_attachment_image( $custom_logo_id, 'full', false, $custom_logo_attr );
 
-		if ( $unlink_homepage_logo && is_front_page() && ! is_paged() ) {
-			// If on the home page, don't link the logo to home.
-			$html = sprintf(
-				'<span class="custom-logo-link">%1$s</span>',
-				$image
-			);
-		} else {
-			$aria_current = is_front_page() && ! is_paged() ? ' aria-current="page"' : '';
+		// Check that we have a proper HTML img element.
+		if ( $image ) {
 
-			$html = sprintf(
-				'<a href="%1$s" class="custom-logo-link" rel="home"%2$s>%3$s</a>',
-				esc_url( home_url( '/' ) ),
-				$aria_current,
-				$image
-			);
+			if ( $unlink_homepage_logo && is_front_page() && ! is_paged() ) {
+				// If on the home page, don't link the logo to home.
+				$html = sprintf(
+					'<span class="custom-logo-link">%1$s</span>',
+					$image
+				);
+			} else {
+				$aria_current = ! is_paged() && ( is_front_page() || is_home() && ( (int) get_option( 'page_for_posts' ) !== get_queried_object_id() ) ) ? ' aria-current="page"' : '';
+
+				$html = sprintf(
+					'<a href="%1$s" class="custom-logo-link" rel="home"%2$s>%3$s</a>',
+					esc_url( home_url( '/' ) ),
+					$aria_current,
+					$image
+				);
+			}
 		}
 	} elseif ( is_customize_preview() ) {
 		// If no logo is set but we're in the Customizer, leave a placeholder (needed for the live preview).
@@ -1141,7 +1162,6 @@ function wp_get_document_title() {
 /**
  * Displays title tag with content.
  *
- * @ignore
  * @since 4.1.0
  * @since 4.4.0 Improved title output replaced `wp_title()`.
  * @access private
@@ -1155,7 +1175,7 @@ function _wp_render_title_tag() {
 }
 
 /**
- * Display or retrieve page title for all areas of blog.
+ * Displays or retrieves page title for all areas of blog.
  *
  * By default, the page title will display the separator before the page title,
  * so that the blog title will be before the page title. This is not good for
@@ -1176,8 +1196,8 @@ function _wp_render_title_tag() {
  * @param string $sep         Optional. How to separate the various items within the page title.
  *                            Default '&raquo;'.
  * @param bool   $display     Optional. Whether to display or retrieve title. Default true.
- * @param string $seplocation Optional. Location of the separator ('left' or 'right').
- * @return string|void String when `$display` is true, nothing otherwise.
+ * @param string $seplocation Optional. Location of the separator (either 'left' or 'right').
+ * @return string|void String when `$display` is false, nothing otherwise.
  */
 function wp_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 	global $wp_locale;
@@ -1259,9 +1279,15 @@ function wp_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 		$title = __( 'Page not found' );
 	}
 
-	$prefix = '';
-	if ( ! empty( $title ) ) {
-		$prefix = " $sep ";
+	if ( ! is_string( $title ) ) {
+		$title = '';
+	}
+
+	$prefix      = '';
+	$title_array = array();
+	if ( '' !== $title ) {
+		$prefix      = " $sep ";
+		$title_array = explode( $t_sep, $title );
 	}
 
 	/**
@@ -1271,7 +1297,7 @@ function wp_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 	 *
 	 * @param string[] $title_array Array of parts of the page title.
 	 */
-	$title_array = apply_filters( 'wp_title_parts', explode( $t_sep, $title ) );
+	$title_array = apply_filters( 'wp_title_parts', $title_array );
 
 	// Determines position of the separator and direction of the breadcrumb.
 	if ( 'right' === $seplocation ) { // Separator on right, so reverse the order.
@@ -1288,7 +1314,7 @@ function wp_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 	 *
 	 * @param string $title       Page title.
 	 * @param string $sep         Title separator.
-	 * @param string $seplocation Location of the separator ('left' or 'right').
+	 * @param string $seplocation Location of the separator (either 'left' or 'right').
 	 */
 	$title = apply_filters( 'wp_title', $title, $sep, $seplocation );
 
@@ -1301,7 +1327,7 @@ function wp_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 }
 
 /**
- * Display or retrieve page title for post.
+ * Displays or retrieves page title for post.
  *
  * This is optimized for single.php template file for displaying the post title.
  *
@@ -1340,7 +1366,7 @@ function single_post_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve title for a post type archive.
+ * Displays or retrieves title for a post type archive.
  *
  * This is optimized for archive.php and archive-{$post_type}.php template files
  * for displaying the title of the post type.
@@ -1381,7 +1407,7 @@ function post_type_archive_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve page title for category archive.
+ * Displays or retrieves page title for category archive.
  *
  * Useful for category template files for displaying the category page title.
  * The prefix does not automatically place a space between the prefix, so if
@@ -1398,7 +1424,7 @@ function single_cat_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve page title for tag post archive.
+ * Displays or retrieves page title for tag post archive.
  *
  * Useful for tag template files for displaying the tag page title. The prefix
  * does not automatically place a space between the prefix, so if there should
@@ -1415,7 +1441,7 @@ function single_tag_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve page title for taxonomy term archive.
+ * Displays or retrieves page title for taxonomy term archive.
  *
  * Useful for taxonomy term template files for displaying the taxonomy term page title.
  * The prefix does not automatically place a space between the prefix, so if there should
@@ -1477,7 +1503,7 @@ function single_term_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve page title for post archive based on date.
+ * Displays or retrieves page title for post archive based on date.
  *
  * Useful for when the template only needs to display the month and year,
  * if either are available. The prefix does not automatically place a space
@@ -1490,7 +1516,7 @@ function single_term_title( $prefix = '', $display = true ) {
  *
  * @param string $prefix  Optional. What to display before the title.
  * @param bool   $display Optional. Whether to display or retrieve title. Default true.
- * @return string|void Title when retrieving.
+ * @return string|false|void False if there's no valid title for the month. Title when retrieving.
  */
 function single_month_title( $prefix = '', $display = true ) {
 	global $wp_locale;
@@ -1520,7 +1546,7 @@ function single_month_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display the archive title based on the queried object.
+ * Displays the archive title based on the queried object.
  *
  * @since 4.1.0
  *
@@ -1538,7 +1564,7 @@ function the_archive_title( $before = '', $after = '' ) {
 }
 
 /**
- * Retrieve the archive title based on the queried object.
+ * Retrieves the archive title based on the queried object.
  *
  * @since 4.1.0
  * @since 5.5.0 The title part is wrapped in a `<span>` element.
@@ -1556,12 +1582,15 @@ function get_the_archive_title() {
 		$title  = single_tag_title( '', false );
 		$prefix = _x( 'Tag:', 'tag archive title prefix' );
 	} elseif ( is_year() ) {
+		/* translators: See https://www.php.net/manual/datetime.format.php */
 		$title  = get_the_date( _x( 'Y', 'yearly archives date format' ) );
 		$prefix = _x( 'Year:', 'date archive title prefix' );
 	} elseif ( is_month() ) {
+		/* translators: See https://www.php.net/manual/datetime.format.php */
 		$title  = get_the_date( _x( 'F Y', 'monthly archives date format' ) );
 		$prefix = _x( 'Month:', 'date archive title prefix' );
 	} elseif ( is_day() ) {
+		/* translators: See https://www.php.net/manual/datetime.format.php */
 		$title  = get_the_date( _x( 'F j, Y', 'daily archives date format' ) );
 		$prefix = _x( 'Day:', 'date archive title prefix' );
 	} elseif ( is_post_type_archive() ) {
@@ -1613,7 +1642,7 @@ function get_the_archive_title() {
 }
 
 /**
- * Display category, tag, term, or author description.
+ * Displays category, tag, term, or author description.
  *
  * @since 4.1.0
  *
@@ -1692,7 +1721,7 @@ function get_the_post_type_description() {
 }
 
 /**
- * Retrieve archive link content based on predefined or custom code.
+ * Retrieves archive link content based on predefined or custom code.
  *
  * The format can be one of four styles. The 'link' for head element, 'option'
  * for use in the select element, 'html' for use in list (either ol or ul HTML
@@ -1723,7 +1752,7 @@ function get_the_post_type_description() {
  * @param string $format   Optional. Can be 'link', 'option', 'html', or custom. Default 'html'.
  * @param string $before   Optional. Content to prepend to the description. Default empty.
  * @param string $after    Optional. Content to append to the description. Default empty.
- * @param bool   $selected Optional. Set to true if the current page is the selected archive page.
+ * @param bool   $selected Optional. Set to true if the current page is the selected archive page. Default false.
  * @return string HTML link content for archive.
  */
 function get_archives_link( $url, $text, $format = 'html', $before = '', $after = '', $selected = false ) {
@@ -1761,7 +1790,7 @@ function get_archives_link( $url, $text, $format = 'html', $before = '', $after 
 }
 
 /**
- * Display archive links based on type and format.
+ * Displays archive links based on type and format.
  *
  * @since 1.2.0
  * @since 4.4.0 The `$post_type` argument was added.
@@ -1876,11 +1905,11 @@ function wp_get_archives( $args = '' ) {
 	if ( 'monthly' === $parsed_args['type'] ) {
 		$query   = "SELECT YEAR(post_date) AS `year`, MONTH(post_date) AS `month`, count(ID) as posts FROM $wpdb->posts $join $where GROUP BY YEAR(post_date), MONTH(post_date) ORDER BY post_date $order $limit";
 		$key     = md5( $query );
-		$key     = "wp_get_archives:$key:$last_changed";
-		$results = wp_cache_get( $key, 'posts' );
+		$key     = "wp_get_archives:$key";
+		$results = wp_cache_get_salted( $key, 'post-queries', $last_changed );
 		if ( ! $results ) {
 			$results = $wpdb->get_results( $query );
-			wp_cache_set( $key, $results, 'posts' );
+			wp_cache_set_salted( $key, $results, 'post-queries', $last_changed );
 		}
 		if ( $results ) {
 			$after = $parsed_args['after'];
@@ -1901,11 +1930,11 @@ function wp_get_archives( $args = '' ) {
 	} elseif ( 'yearly' === $parsed_args['type'] ) {
 		$query   = "SELECT YEAR(post_date) AS `year`, count(ID) as posts FROM $wpdb->posts $join $where GROUP BY YEAR(post_date) ORDER BY post_date $order $limit";
 		$key     = md5( $query );
-		$key     = "wp_get_archives:$key:$last_changed";
-		$results = wp_cache_get( $key, 'posts' );
+		$key     = "wp_get_archives:$key";
+		$results = wp_cache_get_salted( $key, 'post-queries', $last_changed );
 		if ( ! $results ) {
 			$results = $wpdb->get_results( $query );
-			wp_cache_set( $key, $results, 'posts' );
+			wp_cache_set_salted( $key, $results, 'post-queries', $last_changed );
 		}
 		if ( $results ) {
 			$after = $parsed_args['after'];
@@ -1925,11 +1954,11 @@ function wp_get_archives( $args = '' ) {
 	} elseif ( 'daily' === $parsed_args['type'] ) {
 		$query   = "SELECT YEAR(post_date) AS `year`, MONTH(post_date) AS `month`, DAYOFMONTH(post_date) AS `dayofmonth`, count(ID) as posts FROM $wpdb->posts $join $where GROUP BY YEAR(post_date), MONTH(post_date), DAYOFMONTH(post_date) ORDER BY post_date $order $limit";
 		$key     = md5( $query );
-		$key     = "wp_get_archives:$key:$last_changed";
-		$results = wp_cache_get( $key, 'posts' );
+		$key     = "wp_get_archives:$key";
+		$results = wp_cache_get_salted( $key, 'post-queries', $last_changed );
 		if ( ! $results ) {
 			$results = $wpdb->get_results( $query );
-			wp_cache_set( $key, $results, 'posts' );
+			wp_cache_set_salted( $key, $results, 'post-queries', $last_changed );
 		}
 		if ( $results ) {
 			$after = $parsed_args['after'];
@@ -1951,17 +1980,17 @@ function wp_get_archives( $args = '' ) {
 		$week    = _wp_mysql_week( '`post_date`' );
 		$query   = "SELECT DISTINCT $week AS `week`, YEAR( `post_date` ) AS `yr`, DATE_FORMAT( `post_date`, '%Y-%m-%d' ) AS `yyyymmdd`, count( `ID` ) AS `posts` FROM `$wpdb->posts` $join $where GROUP BY $week, YEAR( `post_date` ) ORDER BY `post_date` $order $limit";
 		$key     = md5( $query );
-		$key     = "wp_get_archives:$key:$last_changed";
-		$results = wp_cache_get( $key, 'posts' );
+		$key     = "wp_get_archives:$key";
+		$results = wp_cache_get_salted( $key, 'post-queries', $last_changed );
 		if ( ! $results ) {
 			$results = $wpdb->get_results( $query );
-			wp_cache_set( $key, $results, 'posts' );
+			wp_cache_set_salted( $key, $results, 'post-queries', $last_changed );
 		}
 		$arc_w_last = '';
 		if ( $results ) {
 			$after = $parsed_args['after'];
 			foreach ( (array) $results as $result ) {
-				if ( $result->week != $arc_w_last ) {
+				if ( $result->week !== $arc_w_last ) {
 					$arc_year       = $result->yr;
 					$arc_w_last     = $result->week;
 					$arc_week       = get_weekstartend( $result->yyyymmdd, get_option( 'start_of_week' ) );
@@ -1990,11 +2019,11 @@ function wp_get_archives( $args = '' ) {
 		$orderby = ( 'alpha' === $parsed_args['type'] ) ? 'post_title ASC ' : 'post_date DESC, ID DESC ';
 		$query   = "SELECT * FROM $wpdb->posts $join $where ORDER BY $orderby $limit";
 		$key     = md5( $query );
-		$key     = "wp_get_archives:$key:$last_changed";
-		$results = wp_cache_get( $key, 'posts' );
+		$key     = "wp_get_archives:$key";
+		$results = wp_cache_get_salted( $key, 'post-queries', $last_changed );
 		if ( ! $results ) {
 			$results = $wpdb->get_results( $query );
-			wp_cache_set( $key, $results, 'posts' );
+			wp_cache_set_salted( $key, $results, 'post-queries', $last_changed );
 		}
 		if ( $results ) {
 			foreach ( (array) $results as $result ) {
@@ -2021,12 +2050,13 @@ function wp_get_archives( $args = '' ) {
 }
 
 /**
- * Display all of the allowed tags in HTML format with attributes.
+ * Displays all of the allowed tags in HTML format with attributes.
  *
  * This is useful for displaying in the comment area, which elements and
  * attributes are supported. As well as any plugins which want to display it.
  *
  * @since 1.0.1
+ * @since 4.4.0 No longer used in core.
  *
  * @global array $allowedtags
  *
@@ -2059,7 +2089,7 @@ function the_date_xml() {
 }
 
 /**
- * Display or Retrieve the date the current post was written (once per date)
+ * Displays or retrieves the date of the post (once per date).
  *
  * Will only output the date if the current post's date is different from the
  * previous one output.
@@ -2067,21 +2097,21 @@ function the_date_xml() {
  * i.e. Only one date listing will show per day worth of posts shown in the loop, even if the
  * function is called several times for each post.
  *
- * HTML output can be filtered with 'the_date'.
- * Date string output can be filtered with 'get_the_date'.
+ * HTML output can be filtered with {@see 'the_date'}.
+ * Date string output can be filtered with {@see 'get_the_date'}.
  *
  * @since 0.71
  *
  * @global string $currentday  The day of the current post in the loop.
  * @global string $previousday The day of the previous post in the loop.
  *
- * @param string $format Optional. PHP date format. Defaults to the 'date_format' option.
- * @param string $before Optional. Output before the date. Default empty.
- * @param string $after  Optional. Output after the date. Default empty.
- * @param bool   $echo   Optional. Whether to echo the date or return it. Default true.
+ * @param string $format  Optional. PHP date format. Defaults to the 'date_format' option.
+ * @param string $before  Optional. Output before the date. Default empty.
+ * @param string $after   Optional. Output after the date. Default empty.
+ * @param bool   $display Optional. Whether to echo the date or return it. Default true.
  * @return string|void String if retrieving.
  */
-function the_date( $format = '', $before = '', $after = '', $echo = true ) {
+function the_date( $format = '', $before = '', $after = '', $display = true ) {
 	global $currentday, $previousday;
 
 	$the_date = '';
@@ -2092,7 +2122,7 @@ function the_date( $format = '', $before = '', $after = '', $echo = true ) {
 	}
 
 	/**
-	 * Filters the date a post was published for display.
+	 * Filters the date of the post, for display.
 	 *
 	 * @since 0.71
 	 *
@@ -2103,7 +2133,7 @@ function the_date( $format = '', $before = '', $after = '', $echo = true ) {
 	 */
 	$the_date = apply_filters( 'the_date', $the_date, $format, $before, $after );
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $the_date;
 	} else {
 		return $the_date;
@@ -2111,7 +2141,7 @@ function the_date( $format = '', $before = '', $after = '', $echo = true ) {
 }
 
 /**
- * Retrieve the date on which the post was written.
+ * Retrieves the date of the post.
  *
  * Unlike the_date() this function will always return the date.
  * Modify output with the {@see 'get_the_date'} filter.
@@ -2120,7 +2150,7 @@ function the_date( $format = '', $before = '', $after = '', $echo = true ) {
  *
  * @param string      $format Optional. PHP date format. Defaults to the 'date_format' option.
  * @param int|WP_Post $post   Optional. Post ID or WP_Post object. Default current post.
- * @return string|false Date the current post was written. False on failure.
+ * @return string|int|false Date the current post was written. False on failure.
  */
 function get_the_date( $format = '', $post = null ) {
 	$post = get_post( $post );
@@ -2134,53 +2164,52 @@ function get_the_date( $format = '', $post = null ) {
 	$the_date = get_post_time( $_format, false, $post, true );
 
 	/**
-	 * Filters the date a post was published.
+	 * Filters the date of the post.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string      $the_date The formatted date.
-	 * @param string      $format   PHP date format.
-	 * @param int|WP_Post $post     The post object or ID.
+	 * @param string|int $the_date Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
+	 * @param string     $format   PHP date format.
+	 * @param WP_Post    $post     The post object.
 	 */
 	return apply_filters( 'get_the_date', $the_date, $format, $post );
 }
 
 /**
- * Display the date on which the post was last modified.
+ * Displays the date on which the post was last modified.
  *
  * @since 2.1.0
  *
- * @param string $format Optional. PHP date format. Defaults to the 'date_format' option.
- * @param string $before Optional. Output before the date. Default empty.
- * @param string $after  Optional. Output after the date. Default empty.
- * @param bool   $echo   Optional. Whether to echo the date or return it. Default true.
+ * @param string $format  Optional. PHP date format. Defaults to the 'date_format' option.
+ * @param string $before  Optional. Output before the date. Default empty.
+ * @param string $after   Optional. Output after the date. Default empty.
+ * @param bool   $display Optional. Whether to echo the date or return it. Default true.
  * @return string|void String if retrieving.
  */
-function the_modified_date( $format = '', $before = '', $after = '', $echo = true ) {
+function the_modified_date( $format = '', $before = '', $after = '', $display = true ) {
 	$the_modified_date = $before . get_the_modified_date( $format ) . $after;
 
 	/**
-	 * Filters the date a post was last modified for display.
+	 * Filters the date a post was last modified, for display.
 	 *
 	 * @since 2.1.0
 	 *
-	 * @param string|false $the_modified_date The last modified date or false if no post is found.
-	 * @param string       $format            PHP date format.
-	 * @param string       $before            HTML output before the date.
-	 * @param string       $after             HTML output after the date.
+	 * @param string $the_modified_date The last modified date.
+	 * @param string $format            PHP date format.
+	 * @param string $before            HTML output before the date.
+	 * @param string $after             HTML output after the date.
 	 */
 	$the_modified_date = apply_filters( 'the_modified_date', $the_modified_date, $format, $before, $after );
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $the_modified_date;
 	} else {
 		return $the_modified_date;
 	}
-
 }
 
 /**
- * Retrieve the date on which the post was last modified.
+ * Retrieves the date on which the post was last modified.
  *
  * @since 2.1.0
  * @since 4.6.0 Added the `$post` parameter.
@@ -2215,7 +2244,7 @@ function get_the_modified_date( $format = '', $post = null ) {
 }
 
 /**
- * Display the time at which the post was written.
+ * Displays the time of the post.
  *
  * @since 0.71
  *
@@ -2225,7 +2254,7 @@ function get_the_modified_date( $format = '', $post = null ) {
  */
 function the_time( $format = '' ) {
 	/**
-	 * Filters the time a post was written for display.
+	 * Filters the time of the post, for display.
 	 *
 	 * @since 0.71
 	 *
@@ -2237,14 +2266,14 @@ function the_time( $format = '' ) {
 }
 
 /**
- * Retrieve the time at which the post was written.
+ * Retrieves the time of the post.
  *
  * @since 1.5.0
  *
  * @param string      $format Optional. Format to use for retrieving the time the post
  *                            was written. Accepts 'G', 'U', or PHP date format.
  *                            Defaults to the 'time_format' option.
- * @param int|WP_Post $post   WP_Post object or ID. Default is global `$post` object.
+ * @param int|WP_Post $post   Post ID or post object. Default is global `$post` object.
  * @return string|int|false Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
  *                          False on failure.
  */
@@ -2260,27 +2289,27 @@ function get_the_time( $format = '', $post = null ) {
 	$the_time = get_post_time( $_format, false, $post, true );
 
 	/**
-	 * Filters the time a post was written.
+	 * Filters the time of the post.
 	 *
 	 * @since 1.5.0
 	 *
-	 * @param string      $the_time The formatted time.
-	 * @param string      $format   Format to use for retrieving the time the post
-	 *                              was written. Accepts 'G', 'U', or PHP date format.
-	 * @param int|WP_Post $post     WP_Post object or ID.
+	 * @param string|int $the_time Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
+	 * @param string     $format   Format to use for retrieving the time the post
+	 *                             was written. Accepts 'G', 'U', or PHP date format.
+	 * @param WP_Post    $post     Post object.
 	 */
 	return apply_filters( 'get_the_time', $the_time, $format, $post );
 }
 
 /**
- * Retrieve the time at which the post was written.
+ * Retrieves the localized time of the post.
  *
  * @since 2.0.0
  *
  * @param string      $format    Optional. Format to use for retrieving the time the post
  *                               was written. Accepts 'G', 'U', or PHP date format. Default 'U'.
  * @param bool        $gmt       Optional. Whether to retrieve the GMT time. Default false.
- * @param int|WP_Post $post      WP_Post object or ID. Default is global `$post` object.
+ * @param int|WP_Post $post      Post ID or post object. Default is global `$post` object.
  * @param bool        $translate Whether to translate the time string. Default false.
  * @return string|int|false Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
  *                          False on failure.
@@ -2317,20 +2346,20 @@ function get_post_time( $format = 'U', $gmt = false, $post = null, $translate = 
 	}
 
 	/**
-	 * Filters the localized time a post was written.
+	 * Filters the localized time of the post.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param string $time   The formatted time.
-	 * @param string $format Format to use for retrieving the time the post was written.
-	 *                       Accepts 'G', 'U', or PHP date format. Default 'U'.
-	 * @param bool   $gmt    Whether to retrieve the GMT time. Default false.
+	 * @param string|int $time   Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
+	 * @param string     $format Format to use for retrieving the date of the post.
+	 *                           Accepts 'G', 'U', or PHP date format.
+	 * @param bool       $gmt    Whether to retrieve the GMT time.
 	 */
 	return apply_filters( 'get_post_time', $time, $format, $gmt );
 }
 
 /**
- * Retrieve post published or modified time as a `DateTimeImmutable` object instance.
+ * Retrieves post published or modified time as a `DateTimeImmutable` object instance.
  *
  * The object will be set to the timezone from WordPress settings.
  *
@@ -2341,7 +2370,7 @@ function get_post_time( $format = 'U', $gmt = false, $post = null, $translate = 
  *
  * @since 5.3.0
  *
- * @param int|WP_Post $post   Optional. WP_Post object or ID. Default is global `$post` object.
+ * @param int|WP_Post $post   Optional. Post ID or post object. Default is global `$post` object.
  * @param string      $field  Optional. Published or modified time to use from database. Accepts 'date' or 'modified'.
  *                            Default 'date'.
  * @param string      $source Optional. Local or UTC time to use from database. Accepts 'local' or 'gmt'.
@@ -2379,14 +2408,14 @@ function get_post_datetime( $post = null, $field = 'date', $source = 'local' ) {
 }
 
 /**
- * Retrieve post published or modified time as a Unix timestamp.
+ * Retrieves post published or modified time as a Unix timestamp.
  *
  * Note that this function returns a true Unix timestamp, not summed with timezone offset
  * like older WP functions.
  *
  * @since 5.3.0
  *
- * @param int|WP_Post $post  Optional. WP_Post object or ID. Default is global `$post` object.
+ * @param int|WP_Post $post  Optional. Post ID or post object. Default is global `$post` object.
  * @param string      $field Optional. Published or modified time to use from database. Accepts 'date' or 'modified'.
  *                           Default 'date'.
  * @return int|false Unix timestamp on success, false on failure.
@@ -2402,7 +2431,7 @@ function get_post_timestamp( $post = null, $field = 'date' ) {
 }
 
 /**
- * Display the time at which the post was last modified.
+ * Displays the time at which the post was last modified.
  *
  * @since 2.0.0
  *
@@ -2424,7 +2453,7 @@ function the_modified_time( $format = '' ) {
 }
 
 /**
- * Retrieve the time at which the post was last modified.
+ * Retrieves the time at which the post was last modified.
  *
  * @since 2.0.0
  * @since 4.6.0 Added the `$post` parameter.
@@ -2462,14 +2491,14 @@ function get_the_modified_time( $format = '', $post = null ) {
 }
 
 /**
- * Retrieve the time at which the post was last modified.
+ * Retrieves the time at which the post was last modified.
  *
  * @since 2.0.0
  *
  * @param string      $format    Optional. Format to use for retrieving the time the post
  *                               was modified. Accepts 'G', 'U', or PHP date format. Default 'U'.
  * @param bool        $gmt       Optional. Whether to retrieve the GMT time. Default false.
- * @param int|WP_Post $post      WP_Post object or ID. Default is global `$post` object.
+ * @param int|WP_Post $post      Post ID or post object. Default is global `$post` object.
  * @param bool        $translate Whether to translate the time string. Default false.
  * @return string|int|false Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
  *                          False on failure.
@@ -2519,7 +2548,7 @@ function get_post_modified_time( $format = 'U', $gmt = false, $post = null, $tra
 }
 
 /**
- * Display the weekday on which the post was written.
+ * Displays the localized weekday for the post.
  *
  * @since 0.71
  *
@@ -2537,7 +2566,7 @@ function the_weekday() {
 	$the_weekday = $wp_locale->get_weekday( get_post_time( 'w', false, $post ) );
 
 	/**
-	 * Filters the weekday on which the post was written, for display.
+	 * Filters the localized weekday of the post, for display.
 	 *
 	 * @since 0.71
 	 *
@@ -2547,7 +2576,7 @@ function the_weekday() {
 }
 
 /**
- * Display the weekday on which the post was written.
+ * Displays the localized weekday for the post.
  *
  * Will only output the weekday if the current post's weekday is different from
  * the previous one output.
@@ -2580,7 +2609,7 @@ function the_weekday_date( $before = '', $after = '' ) {
 	}
 
 	/**
-	 * Filters the localized date on which the post was written, for display.
+	 * Filters the localized weekday of the post, for display.
 	 *
 	 * @since 0.71
 	 *
@@ -2592,7 +2621,7 @@ function the_weekday_date( $before = '', $after = '' ) {
 }
 
 /**
- * Fire the wp_head action.
+ * Fires the wp_head action.
  *
  * See {@see 'wp_head'}.
  *
@@ -2608,7 +2637,7 @@ function wp_head() {
 }
 
 /**
- * Fire the wp_footer action.
+ * Fires the wp_footer action.
  *
  * See {@see 'wp_footer'}.
  *
@@ -2624,7 +2653,7 @@ function wp_footer() {
 }
 
 /**
- * Fire the wp_body_open action.
+ * Fires the wp_body_open action.
  *
  * See {@see 'wp_body_open'}.
  *
@@ -2640,7 +2669,7 @@ function wp_body_open() {
 }
 
 /**
- * Display the links to the general feeds.
+ * Displays the links to the general feeds.
  *
  * @since 2.8.0
  *
@@ -2652,17 +2681,25 @@ function feed_links( $args = array() ) {
 	}
 
 	$defaults = array(
-		/* translators: Separator between blog name and feed type in feed links. */
+		/* translators: Separator between site name and feed type in feed links. */
 		'separator' => _x( '&raquo;', 'feed link' ),
-		/* translators: 1: Blog title, 2: Separator (raquo). */
+		/* translators: 1: Site title, 2: Separator (raquo). */
 		'feedtitle' => __( '%1$s %2$s Feed' ),
 	);
 
 	$args = wp_parse_args( $args, $defaults );
 
+	/**
+	 * Filters the feed links arguments.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @param array $args An array of feed links arguments.
+	 */
+	$args = apply_filters( 'feed_links_args', $args );
+
 	// In case feeds are off (number of items is 0), do not generate feed links.
 	if ( 0 != get_option( 'posts_per_rss' ) ) {
-
 		/**
 		 * Filters whether to display the posts feed link.
 		 *
@@ -2671,13 +2708,18 @@ function feed_links( $args = array() ) {
 		 * @param bool $show Whether to display the posts feed link. Default true.
 		 */
 		if ( apply_filters( 'feed_links_show_posts_feed', true ) ) {
-			echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( sprintf( $args['feedtitle'], get_bloginfo( 'name' ), $args['separator'] ) ) . '" href="' . esc_url( get_feed_link() ) . "\" />\n";
+			printf(
+				'<link rel="alternate" type="%s" title="%s" href="%s" />' . "\n",
+				feed_content_type(),
+				esc_attr( sprintf( $args['feedtitle'], get_bloginfo( 'name' ), $args['separator'] ) ),
+				esc_url( get_feed_link() )
+			);
 		}
 	}
 }
 
 /**
- * Display the links to the extra feeds such as category feeds.
+ * Displays the links to the extra feeds such as category feeds.
  *
  * @since 2.8.0
  *
@@ -2685,80 +2727,190 @@ function feed_links( $args = array() ) {
  */
 function feed_links_extra( $args = array() ) {
 	$defaults = array(
-		/* translators: Separator between blog name and feed type in feed links. */
+		/* translators: Separator between site name and feed type in feed links. */
 		'separator'     => _x( '&raquo;', 'feed link' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Post title. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Post title. */
 		'singletitle'   => __( '%1$s %2$s %3$s Comments Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Category name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Category name. */
 		'cattitle'      => __( '%1$s %2$s %3$s Category Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Tag name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Tag name. */
 		'tagtitle'      => __( '%1$s %2$s %3$s Tag Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Term name, 4: Taxonomy singular name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Term name, 4: Taxonomy singular name. */
 		'taxtitle'      => __( '%1$s %2$s %3$s %4$s Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Author name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Author name. */
 		'authortitle'   => __( '%1$s %2$s Posts by %3$s Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Search query. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Search query. */
 		'searchtitle'   => __( '%1$s %2$s Search Results for &#8220;%3$s&#8221; Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Post type name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Post type name. */
 		'posttypetitle' => __( '%1$s %2$s %3$s Feed' ),
 	);
 
 	$args = wp_parse_args( $args, $defaults );
 
-	if ( is_singular() ) {
-		$id   = 0;
-		$post = get_post( $id );
+	/**
+	 * Filters the extra feed links arguments.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @param array $args An array of extra feed links arguments.
+	 */
+	$args = apply_filters( 'feed_links_extra_args', $args );
+
+	/*
+	 * The template conditionals are referring to the global query, so the queried object is used rather than
+	 * depending on a global $post being set.
+	 */
+	$queried_object = get_queried_object();
+	if ( is_singular() && $queried_object instanceof WP_Post ) {
+		$post = $queried_object;
+
 	} elseif ( is_post_type_archive() ) {
-		$post_type = get_query_var( 'post_type' );
-		if ( is_array( $post_type ) ) {
-			$post_type = reset( $post_type );
+		/**
+		 * Filters whether to display the post type archive feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the post type archive feed link. Default true.
+		 */
+		$show_post_type_archive_feed = apply_filters( 'feed_links_extra_show_post_type_archive_feed', true );
+
+		if ( $show_post_type_archive_feed ) {
+			$post_type = get_query_var( 'post_type' );
+
+			if ( is_array( $post_type ) ) {
+				$post_type = reset( $post_type );
+			}
+
+			$post_type_obj = get_post_type_object( $post_type );
+
+			$title = sprintf(
+				$args['posttypetitle'],
+				get_bloginfo( 'name' ),
+				$args['separator'],
+				$post_type_obj->labels->name
+			);
+
+			$href = get_post_type_archive_feed_link( $post_type_obj->name );
 		}
-
-		$post_type_obj = get_post_type_object( $post_type );
-		$title         = sprintf( $args['posttypetitle'], get_bloginfo( 'name' ), $args['separator'], $post_type_obj->labels->name );
-		$href          = get_post_type_archive_feed_link( $post_type_obj->name );
 	} elseif ( is_category() ) {
-		$term = get_queried_object();
+		/**
+		 * Filters whether to display the category feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the category feed link. Default true.
+		 */
+		$show_category_feed = apply_filters( 'feed_links_extra_show_category_feed', true );
 
-		if ( $term ) {
-			$title = sprintf( $args['cattitle'], get_bloginfo( 'name' ), $args['separator'], $term->name );
-			$href  = get_category_feed_link( $term->term_id );
+		if ( $show_category_feed ) {
+			$term = get_queried_object();
+
+			if ( $term ) {
+				$title = sprintf(
+					$args['cattitle'],
+					get_bloginfo( 'name' ),
+					$args['separator'],
+					$term->name
+				);
+
+				$href = get_category_feed_link( $term->term_id );
+			}
 		}
 	} elseif ( is_tag() ) {
-		$term = get_queried_object();
+		/**
+		 * Filters whether to display the tag feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the tag feed link. Default true.
+		 */
+		$show_tag_feed = apply_filters( 'feed_links_extra_show_tag_feed', true );
 
-		if ( $term ) {
-			$title = sprintf( $args['tagtitle'], get_bloginfo( 'name' ), $args['separator'], $term->name );
-			$href  = get_tag_feed_link( $term->term_id );
+		if ( $show_tag_feed ) {
+			$term = get_queried_object();
+
+			if ( $term ) {
+				$title = sprintf(
+					$args['tagtitle'],
+					get_bloginfo( 'name' ),
+					$args['separator'],
+					$term->name
+				);
+
+				$href = get_tag_feed_link( $term->term_id );
+			}
 		}
 	} elseif ( is_tax() ) {
-		$term = get_queried_object();
+		/**
+		 * Filters whether to display the custom taxonomy feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the custom taxonomy feed link. Default true.
+		 */
+		$show_tax_feed = apply_filters( 'feed_links_extra_show_tax_feed', true );
 
-		if ( $term ) {
-			$tax   = get_taxonomy( $term->taxonomy );
-			$title = sprintf( $args['taxtitle'], get_bloginfo( 'name' ), $args['separator'], $term->name, $tax->labels->singular_name );
-			$href  = get_term_feed_link( $term->term_id, $term->taxonomy );
+		if ( $show_tax_feed ) {
+			$term = get_queried_object();
+
+			if ( $term ) {
+				$tax = get_taxonomy( $term->taxonomy );
+
+				$title = sprintf(
+					$args['taxtitle'],
+					get_bloginfo( 'name' ),
+					$args['separator'],
+					$term->name,
+					$tax->labels->singular_name
+				);
+
+				$href = get_term_feed_link( $term->term_id, $term->taxonomy );
+			}
 		}
 	} elseif ( is_search() ) {
-		$title = sprintf( $args['searchtitle'], get_bloginfo( 'name' ), $args['separator'], get_search_query( false ) );
-		$href  = get_search_feed_link();
+		/**
+		 * Filters whether to display the search results feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the search results feed link. Default true.
+		 */
+		$show_search_feed = apply_filters( 'feed_links_extra_show_search_feed', true );
+
+		if ( $show_search_feed ) {
+			$title = sprintf(
+				$args['searchtitle'],
+				get_bloginfo( 'name' ),
+				$args['separator'],
+				get_search_query( false )
+			);
+
+			$href = get_search_feed_link();
+		}
 	}
 
 	// In case feeds are off (number of items is 0), do not generate feed rules.
 	if ( 0 != get_option( 'posts_per_rss' ) ) {
 		if ( isset( $title ) && isset( $href ) ) {
-			echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( $title ) . '" href="' . esc_url( $href ) . '" />' . "\n";
+			printf(
+				'<link rel="alternate" type="%s" title="%s" href="%s" />' . "\n",
+				feed_content_type(),
+				esc_attr( $title ),
+				esc_url( $href )
+			);
 		}
 	}
 }
 
 /**
- * Displays a referrer strict-origin-when-cross-origin meta tag.
+ * Displays a referrer `strict-origin-when-cross-origin` meta tag.
  *
- * Outputs a referrer origin-when-cross-origin meta tag that tells the browser not to send the full
- * url as a referrer to other sites when cross-origin assets are loaded.
+ * Outputs a referrer `strict-origin-when-cross-origin` meta tag that tells the browser not to send
+ * the full URL as a referrer to other sites when cross-origin assets are loaded.
  *
- * Typical usage is as a wp_head callback. add_action( 'wp_head', 'wp_strict_cross_origin_referrer' );
+ * Typical usage is as a {@see 'wp_head'} callback:
+ *
+ *     add_action( 'wp_head', 'wp_strict_cross_origin_referrer' );
  *
  * @since 5.7.0
  */
@@ -2769,7 +2921,7 @@ function wp_strict_cross_origin_referrer() {
 }
 
 /**
- * Display site icon meta tags.
+ * Displays site icon meta tags.
  *
  * @since 4.3.0
  *
@@ -2818,7 +2970,7 @@ function wp_site_icon() {
 
 /**
  * Prints resource hints to browsers for pre-fetching, pre-rendering
- * and pre-connecting to web sites.
+ * and pre-connecting to websites.
  *
  * Gives hints to browsers to prefetch specific pages or render them
  * in the background, to perform DNS lookups or to begin the connection
@@ -2840,7 +2992,7 @@ function wp_resource_hints() {
 		$unique_urls = array();
 
 		/**
-		 * Filters domains and URLs for resource hints of relation type.
+		 * Filters domains and URLs for resource hints of the given relation type.
 		 *
 		 * @since 4.6.0
 		 * @since 4.7.0 The `$urls` parameter accepts arrays of specific HTML attributes
@@ -2860,8 +3012,8 @@ function wp_resource_hints() {
 		 *         @type string $type        Type of the resource (`text/html`, `text/css`, etc).
 		 *     }
 		 * }
-		 * @param string $relation_type The relation type the URLs are printed for,
-		 *                              e.g. 'preconnect' or 'prerender'.
+		 * @param string $relation_type The relation type the URLs are printed for. One of
+		 *                              'dns-prefetch', 'preconnect', 'prefetch', or 'prerender'.
 		 */
 		$urls = apply_filters( 'wp_resource_hints', $urls, $relation_type );
 
@@ -2936,9 +3088,128 @@ function wp_resource_hints() {
 }
 
 /**
+ * Prints resource preloads directives to browsers.
+ *
+ * Gives directive to browsers to preload specific resources that website will
+ * need very soon, this ensures that they are available earlier and are less
+ * likely to block the page's render. Preload directives should not be used for
+ * non-render-blocking elements, as then they would compete with the
+ * render-blocking ones, slowing down the render.
+ *
+ * These performance improving indicators work by using `<link rel="preload">`.
+ *
+ * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload
+ * @link https://web.dev/preload-responsive-images/
+ *
+ * @since 6.1.0
+ */
+function wp_preload_resources() {
+	/**
+	 * Filters domains and URLs for resource preloads.
+	 *
+	 * @since 6.1.0
+	 * @since 6.6.0 Added the `$fetchpriority` attribute.
+	 *
+	 * @param array  $preload_resources {
+	 *     Array of resources and their attributes, or URLs to print for resource preloads.
+	 *
+	 *     @type array ...$0 {
+	 *         Array of resource attributes.
+	 *
+	 *         @type string $href          URL to include in resource preloads. Required.
+	 *         @type string $as            How the browser should treat the resource
+	 *                                     (`script`, `style`, `image`, `document`, etc).
+	 *         @type string $crossorigin   Indicates the CORS policy of the specified resource.
+	 *         @type string $type          Type of the resource (`text/html`, `text/css`, etc).
+	 *         @type string $media         Accepts media types or media queries. Allows responsive preloading.
+	 *         @type string $imagesizes    Responsive source size to the source Set.
+	 *         @type string $imagesrcset   Responsive image sources to the source set.
+	 *         @type string $fetchpriority Fetchpriority value for the resource.
+	 *     }
+	 * }
+	 */
+	$preload_resources = apply_filters( 'wp_preload_resources', array() );
+
+	if ( ! is_array( $preload_resources ) ) {
+		return;
+	}
+
+	$unique_resources = array();
+
+	// Parse the complete resource list and extract unique resources.
+	foreach ( $preload_resources as $resource ) {
+		if ( ! is_array( $resource ) ) {
+			continue;
+		}
+
+		$attributes = $resource;
+		if ( isset( $resource['href'] ) ) {
+			$href = $resource['href'];
+			if ( isset( $unique_resources[ $href ] ) ) {
+				continue;
+			}
+			$unique_resources[ $href ] = $attributes;
+			// Media can use imagesrcset and not href.
+		} elseif ( ( 'image' === $resource['as'] ) &&
+			( isset( $resource['imagesrcset'] ) || isset( $resource['imagesizes'] ) )
+		) {
+			if ( isset( $unique_resources[ $resource['imagesrcset'] ] ) ) {
+				continue;
+			}
+			$unique_resources[ $resource['imagesrcset'] ] = $attributes;
+		} else {
+			continue;
+		}
+	}
+
+	// Build and output the HTML for each unique resource.
+	foreach ( $unique_resources as $unique_resource ) {
+		$html = '';
+
+		foreach ( $unique_resource as $resource_key => $resource_value ) {
+			if ( ! is_scalar( $resource_value ) ) {
+				continue;
+			}
+
+			// Ignore non-supported attributes.
+			$non_supported_attributes = array( 'as', 'crossorigin', 'href', 'imagesrcset', 'imagesizes', 'type', 'media', 'fetchpriority' );
+			if ( ! in_array( $resource_key, $non_supported_attributes, true ) && ! is_numeric( $resource_key ) ) {
+				continue;
+			}
+
+			// imagesrcset only usable when preloading image, ignore otherwise.
+			if ( ( 'imagesrcset' === $resource_key ) && ( ! isset( $unique_resource['as'] ) || ( 'image' !== $unique_resource['as'] ) ) ) {
+				continue;
+			}
+
+			// imagesizes only usable when preloading image and imagesrcset present, ignore otherwise.
+			if ( ( 'imagesizes' === $resource_key ) &&
+				( ! isset( $unique_resource['as'] ) || ( 'image' !== $unique_resource['as'] ) || ! isset( $unique_resource['imagesrcset'] ) )
+			) {
+				continue;
+			}
+
+			$resource_value = ( 'href' === $resource_key ) ? esc_url( $resource_value, array( 'http', 'https' ) ) : esc_attr( $resource_value );
+
+			if ( ! is_string( $resource_key ) ) {
+				$html .= " $resource_value";
+			} else {
+				$html .= " $resource_key='$resource_value'";
+			}
+		}
+		$html = trim( $html );
+
+		printf( "<link rel='preload' %s />\n", $html );
+	}
+}
+
+/**
  * Retrieves a list of unique hosts of all enqueued scripts and styles.
  *
  * @since 4.6.0
+ *
+ * @global WP_Scripts $wp_scripts The WP_Scripts object for printing scripts.
+ * @global WP_Styles  $wp_styles  The WP_Styles object for printing styles.
  *
  * @return string[] A list of unique hosts of enqueued scripts and styles.
  */
@@ -2971,7 +3242,7 @@ function wp_dependencies_unique_hosts() {
 }
 
 /**
- * Whether the user can access the visual editor.
+ * Determines whether the user can access the visual editor.
  *
  * Exists in calmPress for backward compatibility.
  *
@@ -2983,14 +3254,14 @@ function user_can_richedit() {
 }
 
 /**
- * Find out which editor should be displayed by default.
+ * Finds out which editor should be displayed by default.
  *
- * Works out which of the two editors to display as the current editor for a
- * user. The 'html' setting is for the "Text" editor tab.
+ * Works out which of the editors to display as the current editor for a
+ * user. The 'html' setting is for the "Code" editor tab.
  *
  * @since 2.5.0
  *
- * @return string Either 'tinymce', or 'html', or 'test'
+ * @return string Either 'tinymce', 'html', or 'test'
  */
 function wp_default_editor() {
 	$r = 'tinymce';
@@ -3055,7 +3326,7 @@ function wp_enqueue_editor() {
 }
 
 /**
- * Enqueue assets needed by the code editor for the given settings.
+ * Enqueues assets needed by the code editor for the given settings.
  *
  * @since 4.9.0
  *
@@ -3130,7 +3401,7 @@ function wp_enqueue_code_editor( $args ) {
 		}
 	}
 
-	wp_add_inline_script( 'code-editor', sprintf( 'jQuery.extend( wp.codeEditor.defaultSettings, %s );', wp_json_encode( $settings ) ) );
+	wp_add_inline_script( 'code-editor', sprintf( 'jQuery.extend( wp.codeEditor.defaultSettings, %s );', wp_json_encode( $settings, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ) ) );
 
 	/**
 	 * Fires when scripts and styles are enqueued for the code editor.
@@ -3145,7 +3416,7 @@ function wp_enqueue_code_editor( $args ) {
 }
 
 /**
- * Generate and return code editor settings.
+ * Generates and returns code editor settings.
  *
  * @since 5.0.0
  *
@@ -3245,7 +3516,7 @@ function wp_get_code_editor_settings( $args ) {
 		if ( 'application/x-patch' === $type || 'text/x-patch' === $type ) {
 			$type = 'text/x-diff';
 		}
-	} elseif ( isset( $args['file'] ) && false !== strpos( basename( $args['file'] ), '.' ) ) {
+	} elseif ( isset( $args['file'] ) && str_contains( basename( $args['file'] ), '.' ) ) {
 		$extension = strtolower( pathinfo( $args['file'], PATHINFO_EXTENSION ) );
 		foreach ( wp_get_mime_types() as $exts => $mime ) {
 			if ( preg_match( '!^(' . $exts . ')$!i', $extension ) ) {
@@ -3381,7 +3652,7 @@ function wp_get_code_editor_settings( $args ) {
 				'matchBrackets'     => true,
 			)
 		);
-	} elseif ( false !== strpos( $type, 'json' ) ) {
+	} elseif ( str_contains( $type, 'json' ) ) {
 		$settings['codemirror'] = array_merge(
 			$settings['codemirror'],
 			array(
@@ -3398,7 +3669,7 @@ function wp_get_code_editor_settings( $args ) {
 		} else {
 			$settings['codemirror']['mode']['json'] = true;
 		}
-	} elseif ( false !== strpos( $type, 'jsx' ) ) {
+	} elseif ( str_contains( $type, 'jsx' ) ) {
 		$settings['codemirror'] = array_merge(
 			$settings['codemirror'],
 			array(
@@ -3444,7 +3715,7 @@ function wp_get_code_editor_settings( $args ) {
 				'matchBrackets'     => true,
 			)
 		);
-	} elseif ( false !== strpos( $type, 'xml' ) ) {
+	} elseif ( str_contains( $type, 'xml' ) ) {
 		$settings['codemirror'] = array_merge(
 			$settings['codemirror'],
 			array(
@@ -3542,7 +3813,7 @@ function get_search_query( $escaped = true ) {
  */
 function the_search_query() {
 	/**
-	 * Filters the contents of the search query variable for display.
+	 * Filters the contents of the search query variable, for display.
 	 *
 	 * @since 2.3.0
 	 *
@@ -3560,6 +3831,7 @@ function the_search_query() {
  * @since 4.3.0
  *
  * @param string $doctype Optional. The type of HTML document. Accepts 'xhtml' or 'html'. Default 'html'.
+ * @return string A space-separated list of language attributes.
  */
 function get_language_attributes( $doctype = 'html' ) {
 	$attributes = array();
@@ -3675,8 +3947,8 @@ function language_attributes( $doctype = 'html' ) {
  *                                      Default 1.
  *     @type int    $mid_size           How many numbers to either side of the current pages. Default 2.
  *     @type bool   $prev_next          Whether to include the previous and next links in the list. Default true.
- *     @type bool   $prev_text          The previous page text. Default '&laquo; Previous'.
- *     @type bool   $next_text          The next page text. Default 'Next &raquo;'.
+ *     @type string $prev_text          The previous page text. Default '&laquo; Previous'.
+ *     @type string $next_text          The next page text. Default 'Next &raquo;'.
  *     @type string $type               Controls format of the returned value. Possible values are 'plain',
  *                                      'array' and 'list'. Default is 'plain'.
  *     @type array  $add_args           An array of query args to add. Default false.
@@ -3684,8 +3956,8 @@ function language_attributes( $doctype = 'html' ) {
  *     @type string $before_page_number A string to appear before the page number. Default empty.
  *     @type string $after_page_number  A string to append after the page number. Default empty.
  * }
- * @return string|array|void String of page links or array of page links, depending on 'type' argument.
- *                           Void if total number of pages is less than 2.
+ * @return string|string[]|void String of page links or array of page links, depending on 'type' argument.
+ *                              Void if total number of pages is less than 2.
  */
 function paginate_links( $args = '' ) {
 	global $wp_query, $wp_rewrite;
@@ -3768,7 +4040,7 @@ function paginate_links( $args = '' ) {
 	$dots       = false;
 
 	if ( $args['prev_next'] && $current && 1 < $current ) :
-		$link = str_replace( '%_%', 2 == $current ? '' : $args['format'], $args['base'] );
+		$link = str_replace( '%_%', 2 === $current ? '' : $args['format'], $args['base'] );
 		$link = str_replace( '%#%', $current - 1, $link );
 		if ( $add_args ) {
 			$link = add_query_arg( $add_args, $link );
@@ -3790,7 +4062,7 @@ function paginate_links( $args = '' ) {
 	endif;
 
 	for ( $n = 1; $n <= $total; $n++ ) :
-		if ( $n == $current ) :
+		if ( $n === $current ) :
 			$page_links[] = sprintf(
 				'<span aria-current="%s" class="page-numbers current">%s</span>',
 				esc_attr( $args['aria_current'] ),
@@ -3800,7 +4072,7 @@ function paginate_links( $args = '' ) {
 			$dots = true;
 		else :
 			if ( $args['show_all'] || ( $n <= $end_size || ( $current && $n >= $current - $mid_size && $n <= $current + $mid_size ) || $n > $total - $end_size ) ) :
-				$link = str_replace( '%_%', 1 == $n ? '' : $args['format'], $args['base'] );
+				$link = str_replace( '%_%', 1 === $n ? '' : $args['format'], $args['base'] );
 				$link = str_replace( '%#%', $n, $link );
 				if ( $add_args ) {
 					$link = add_query_arg( $add_args, $link );
@@ -3920,8 +4192,6 @@ function wp_admin_css_color( $key, $name, $url, $colors = array(), $icons = arra
  * @since 3.0.0
  */
 function register_admin_color_schemes() {
-	$suffix  = is_rtl() ? '-rtl' : '';
-	$suffix .= SCRIPT_DEBUG ? '' : '.min';
 
 	wp_admin_css_color(
 		'fresh',
@@ -3939,7 +4209,7 @@ function register_admin_color_schemes() {
 /**
  * Displays the URL of a WordPress admin CSS file.
  *
- * @see WP_Styles::_css_href and its {@see 'style_loader_src'} filter.
+ * @see WP_Styles::_css_href() and its {@see 'style_loader_src'} filter.
  *
  * @since 2.3.0
  *
@@ -3987,7 +4257,7 @@ function wp_admin_css_uri( $file = 'wp-admin' ) {
  */
 function wp_admin_css( $file = 'wp-admin', $force_echo = false ) {
 	// For backward compatibility.
-	$handle = 0 === strpos( $file, 'css/' ) ? substr( $file, 4 ) : $file;
+	$handle = str_starts_with( $file, 'css/' ) ? substr( $file, 4 ) : $file;
 
 	if ( wp_styles()->query( $handle ) ) {
 		if ( $force_echo || did_action( 'wp_print_styles' ) ) {
@@ -4048,7 +4318,7 @@ function add_thickbox() {
 }
 
 /**
- * Display the generator XML or Comment for RSS, etc.
+ * Displays the generator XML or Comment for RSS, etc.
  *
  * Returns the correct generator type for the requested output format. Allows
  * for a plugin to filter generators overall the {@see 'the_generator'} filter.
@@ -4059,7 +4329,7 @@ function add_thickbox() {
  */
 function the_generator( $type ) {
 	/**
-	 * Filters the output of the XHTML generator tag for display.
+	 * Filters the output of the XHTML generator tag, for display.
 	 *
 	 * @since 2.5.0
 	 *
@@ -4124,12 +4394,12 @@ function get_the_generator( $type = '' ) {
  * @param mixed $checked One of the values to compare.
  * @param mixed $current Optional. The other value to compare if not just true.
  *                       Default true.
- * @param bool  $echo    Optional. Whether to echo or just return the string.
+ * @param bool  $display Optional. Whether to echo or just return the string.
  *                       Default true.
  * @return string HTML attribute or empty string.
  */
-function checked( $checked, $current = true, $echo = true ) {
-	return __checked_selected_helper( $checked, $current, $echo, 'checked' );
+function checked( $checked, $current = true, $display = true ) {
+	return __checked_selected_helper( $checked, $current, $display, 'checked' );
 }
 
 /**
@@ -4142,12 +4412,12 @@ function checked( $checked, $current = true, $echo = true ) {
  * @param mixed $selected One of the values to compare.
  * @param mixed $current  Optional. The other value to compare if not just true.
  *                        Default true.
- * @param bool  $echo     Optional. Whether to echo or just return the string.
+ * @param bool  $display  Optional. Whether to echo or just return the string.
  *                        Default true.
  * @return string HTML attribute or empty string.
  */
-function selected( $selected, $current = true, $echo = true ) {
-	return __checked_selected_helper( $selected, $current, $echo, 'selected' );
+function selected( $selected, $current = true, $display = true ) {
+	return __checked_selected_helper( $selected, $current, $display, 'selected' );
 }
 
 /**
@@ -4160,12 +4430,12 @@ function selected( $selected, $current = true, $echo = true ) {
  * @param mixed $disabled One of the values to compare.
  * @param mixed $current  Optional. The other value to compare if not just true.
  *                        Default true.
- * @param bool  $echo     Optional. Whether to echo or just return the string.
+ * @param bool  $display  Optional. Whether to echo or just return the string.
  *                        Default true.
  * @return string HTML attribute or empty string.
  */
-function disabled( $disabled, $current = true, $echo = true ) {
-	return __checked_selected_helper( $disabled, $current, $echo, 'disabled' );
+function disabled( $disabled, $current = true, $display = true ) {
+	return __checked_selected_helper( $disabled, $current, $display, 'disabled' );
 }
 
 /**
@@ -4175,15 +4445,15 @@ function disabled( $disabled, $current = true, $echo = true ) {
  *
  * @since 5.9.0
  *
- * @param mixed $readonly One of the values to compare.
- * @param mixed $current  Optional. The other value to compare if not just true.
- *                        Default true.
- * @param bool  $echo     Optional. Whether to echo or just return the string.
- *                        Default true.
+ * @param mixed $readonly_value One of the values to compare.
+ * @param mixed $current        Optional. The other value to compare if not just true.
+ *                              Default true.
+ * @param bool  $display        Optional. Whether to echo or just return the string.
+ *                              Default true.
  * @return string HTML attribute or empty string.
  */
-function wp_readonly( $readonly, $current = true, $echo = true ) {
-	return __checked_selected_helper( $readonly, $current, $echo, 'readonly' );
+function wp_readonly( $readonly_value, $current = true, $display = true ) {
+	return __checked_selected_helper( $readonly_value, $current, $display, 'readonly' );
 }
 
 /*
@@ -4206,18 +4476,18 @@ if ( PHP_VERSION_ID < 80100 ) {
  *
  * @param mixed  $helper  One of the values to compare.
  * @param mixed  $current The other value to compare if not just true.
- * @param bool   $echo    Whether to echo or just return the string.
+ * @param bool   $display Whether to echo or just return the string.
  * @param string $type    The type of checked|selected|disabled|readonly we are doing.
  * @return string HTML attribute or empty string.
  */
-function __checked_selected_helper( $helper, $current, $echo, $type ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore,PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.FunctionDoubleUnderscore
+function __checked_selected_helper( $helper, $current, $display, $type ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore,PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.FunctionDoubleUnderscore
 	if ( (string) $helper === (string) $current ) {
 		$result = " $type='$type'";
 	} else {
 		$result = '';
 	}
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $result;
 	}
 
@@ -4225,9 +4495,55 @@ function __checked_selected_helper( $helper, $current, $echo, $type ) { // phpcs
 }
 
 /**
- * Default settings for heartbeat
+ * Assigns a visual indicator for required form fields.
  *
- * Outputs the nonce used in the heartbeat XHR
+ * @since 6.1.0
+ *
+ * @return string Indicator glyph wrapped in a `span` tag.
+ */
+function wp_required_field_indicator() {
+	/* translators: Character to identify required form fields. */
+	$glyph     = __( '*' );
+	$indicator = '<span class="required">' . esc_html( $glyph ) . '</span>';
+
+	/**
+	 * Filters the markup for a visual indicator of required form fields.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param string $indicator Markup for the indicator element.
+	 */
+	return apply_filters( 'wp_required_field_indicator', $indicator );
+}
+
+/**
+ * Creates a message to explain required form fields.
+ *
+ * @since 6.1.0
+ *
+ * @return string Message text and glyph wrapped in a `span` tag.
+ */
+function wp_required_field_message() {
+	$message = sprintf(
+		'<span class="required-field-message">%s</span>',
+		/* translators: %s: Asterisk symbol (*). */
+		sprintf( __( 'Required fields are marked %s' ), wp_required_field_indicator() )
+	);
+
+	/**
+	 * Filters the message to explain required form fields.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param string $message Message text and glyph wrapped in a `span` tag.
+	 */
+	return apply_filters( 'wp_required_field_message', $message );
+}
+
+/**
+ * Default settings for heartbeat.
+ *
+ * Outputs the nonce used in the heartbeat XHR.
  *
  * @since 3.6.0
  *

@@ -1,16 +1,3 @@
-/**
- * Creates a dialog containing posts that can have a particular media attached
- * to it.
- *
- * @since 2.7.0
- * @output wp-admin/js/media.js
- *
- * @namespace findPosts
- *
- * @requires jQuery
- */
-
-/* global ajaxurl, _wpMediaGridSettings, showNotice */
 
 ( function( $ ){
 	/**
@@ -20,7 +7,11 @@
 	 * @return {void}
 	 */
 	$( function() {
-		var settings, $mediaGridWrap = $( '#wp-media-grid' );
+		var settings,
+			$mediaGridWrap             = $( '#wp-media-grid' ),
+			copyAttachmentURLClipboard = new ClipboardJS( '.copy-attachment-url.media-library' ),
+			copyAttachmentURLSuccessTimeout,
+			previousSuccessElement = null;
 
 		// Opens a manage media frame into the grid.
 		if ( $mediaGridWrap.length && window.wp && window.wp.media ) {
@@ -52,5 +43,42 @@
 				}
 			});
 		});
+
+		/**
+		 * Handles media list copy media URL button.
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param {MouseEvent} event A click event.
+		 * @return {void}
+		 */
+		copyAttachmentURLClipboard.on( 'success', function( event ) {
+			var triggerElement = $( event.trigger ),
+				successElement = $( '.success', triggerElement.closest( '.copy-to-clipboard-container' ) );
+
+			// Clear the selection and move focus back to the trigger.
+			event.clearSelection();
+
+			// Checking if the previousSuccessElement is present, adding the hidden class to it.
+			if ( previousSuccessElement ) {
+				previousSuccessElement.addClass( 'hidden' );
+			}
+
+			// Show success visual feedback.
+			clearTimeout( copyAttachmentURLSuccessTimeout );
+			successElement.removeClass( 'hidden' );
+
+			// Hide success visual feedback after 3 seconds since last success and unfocus the trigger.
+			copyAttachmentURLSuccessTimeout = setTimeout( function() {
+				successElement.addClass( 'hidden' );
+				// No need to store the previous success element further.
+				previousSuccessElement = null;
+			}, 3000 );
+
+			previousSuccessElement = successElement;
+
+			// Handle success audible feedback.
+			wp.a11y.speak( wp.i18n.__( 'The file URL has been copied to your clipboard' ) );
+		} );
 	});
 })( jQuery );
