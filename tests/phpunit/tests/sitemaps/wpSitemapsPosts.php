@@ -99,8 +99,10 @@ class Tests_Sitemaps_wpSitemapsPosts extends WP_UnitTestCase {
 		$expected = array();
 
 		foreach ( $post_ids as $post_id ) {
+			$url = get_permalink( $post_id );
+
 			$expected[] = array(
-				'loc'     => home_url( "?p={$post_id}" ),
+				'loc'     => $url,
 				'lastmod' => get_post_modified_time( DATE_W3C, true, $post_id ),
 			);
 		}

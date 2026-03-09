@@ -220,7 +220,7 @@ $customize_url = add_query_arg( 'return', urlencode( remove_query_arg( wp_remova
 
 // Hide Customize link on block themes unless a plugin or theme
 // is using 'customize_register' to add a setting.
-if ( ! wp_is_block_theme() || has_action( 'customize_register' ) ) {
+if ( has_action( 'customize_register' ) ) {
 	$submenu['themes.php'][7] = array( __( 'Customize' ), 'customize', esc_url( $customize_url ), '', 'hide-if-no-customize' );
 }
 

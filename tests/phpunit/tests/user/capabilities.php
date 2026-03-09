@@ -2435,54 +2435,6 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test `edit_block_binding` meta capability is properly mapped.
-	 *
-	 * @ticket 61945
-	 */
-	public function test_edit_block_binding_caps_are_mapped_correctly() {
-		$author = self::$users['administrator'];
-		$post   = self::factory()->post->create_and_get(
-			array(
-				'post_author' => $author->ID,
-				'post_type'   => 'post',
-			)
-		);
-
-		foreach ( self::$users as $role => $user ) {
-			// It should map to `edit_{post_type}` if editing a post.
-			$this->assertSame(
-				user_can( $user->ID, 'edit_post', $post->ID ),
-				user_can(
-					$user->ID,
-					'edit_block_binding',
-					new WP_Block_Editor_Context(
-						array(
-							'post' => $post,
-							'name' => 'core/edit-post',
-						)
-					)
-				),
-				"Role: {$role} in post editing"
-			);
-			// It should map to `edit_theme_options` if editing a template.
-			$this->assertSame(
-				user_can( $user->ID, 'edit_theme_options' ),
-				user_can(
-					$user->ID,
-					'edit_block_binding',
-					new WP_Block_Editor_Context(
-						array(
-							'post' => null,
-							'name' => 'core/edit-site',
-						)
-					)
-				),
-				"Role: {$role} in template editing"
-			);
-		}
-	}
-
-	/**
 	 * Ensure that caps are updated correctly when using `update_option()` to save roles.
 	 *
 	 * Compares the efficiency and accuracy of updating role capabilities when `WP_Roles`

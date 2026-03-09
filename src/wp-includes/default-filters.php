@@ -592,13 +592,11 @@ add_action( 'wp_head', 'wp_oembed_add_host_js' ); // Back-compat for sites disab
 add_filter( 'embed_oembed_html', 'wp_maybe_enqueue_oembed_host_js' );
 
 add_action( 'embed_head', 'enqueue_embed_scripts', 1 );
-add_action( 'embed_head', 'print_embed_styles', 9 );
 add_action( 'embed_head', 'wp_print_head_scripts', 20 );
 add_action( 'embed_head', 'wp_print_styles', 20 );
 add_action( 'embed_head', 'wp_robots' );
 add_action( 'embed_head', 'rel_canonical' );
 add_action( 'embed_head', 'locale_stylesheet', 30 );
-add_action( 'enqueue_embed_scripts', 'wp_enqueue_emoji_styles' );
 
 add_action( 'embed_content_meta', 'print_embed_comments_button' );
 add_action( 'embed_content_meta', 'print_embed_sharing_button' );
@@ -624,9 +622,6 @@ add_filter( 'user_has_cap', 'wp_maybe_grant_install_languages_cap', 1 );
 
 // Check session freshness for sensative capabilities.
 add_filter( 'user_has_cap', 'wp_maybe_cap_requires_fresh_session', 1, 4 );
-
-// wp_navigation post type.
-add_filter( 'rest_wp_navigation_item_schema', array( 'WP_Navigation_Fallback', 'update_wp_navigation_post_schema' ) );
 
 // Fluid typography.
 add_filter( 'render_block', 'wp_render_typography_support', 10, 2 );

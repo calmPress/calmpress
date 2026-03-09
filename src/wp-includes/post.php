@@ -4962,26 +4962,6 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 		wp_set_post_tags( $post_id, $postarr['tags_input'] );
 	}
 
-	// Add default term for all associated custom taxonomies.
-	if ( 'auto-draft' !== $post_status ) {
-		foreach ( get_object_taxonomies( $post_type, 'object' ) as $taxonomy => $tax_object ) {
-
-			if ( ! empty( $tax_object->default_term ) ) {
-
-				// Filter out empty terms.
-				if ( isset( $postarr['tax_input'][ $taxonomy ] ) && is_array( $postarr['tax_input'][ $taxonomy ] ) ) {
-					$postarr['tax_input'][ $taxonomy ] = array_filter( $postarr['tax_input'][ $taxonomy ] );
-				}
-
-				// Passed custom taxonomy list overwrites the existing list if not empty.
-				$terms = wp_get_object_terms( $post_id, $taxonomy, array( 'fields' => 'ids' ) );
-				if ( ! empty( $terms ) && empty( $postarr['tax_input'][ $taxonomy ] ) ) {
-					$postarr['tax_input'][ $taxonomy ] = $terms;
-				}
-			}
-		}
-	}
-
 	// New-style support for all custom taxonomies.
 	if ( ! empty( $postarr['tax_input'] ) ) {
 		foreach ( $postarr['tax_input'] as $taxonomy => $tags ) {
@@ -8350,34 +8330,13 @@ function wp_untrash_post_set_previous_status( $new_status, $post_id, $previous_s
  *
  * @since 5.0.0
  * @since 6.1.0 Moved to wp-includes from wp-admin.
+ * @since calmPress 1.0.0 always returns false
  *
  * @param int|WP_Post $post Post ID or WP_Post object.
  * @return bool Whether the post can be edited in the block editor.
  */
 function use_block_editor_for_post( $post ) {
-	$post = get_post( $post );
-
-	if ( ! $post ) {
-		return false;
-	}
-
-	// We're in the meta box loader, so don't use the block editor.
-	if ( is_admin() && isset( $_GET['meta-box-loader'] ) ) {
-		check_admin_referer( 'meta-box-loader', 'meta-box-loader-nonce' );
-		return false;
-	}
-
-	$use_block_editor = use_block_editor_for_post_type( $post->post_type );
-
-	/**
-	 * Filters whether a post is able to be edited in the block editor.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param bool    $use_block_editor Whether the post can be edited or not.
-	 * @param WP_Post $post             The post being checked.
-	 */
-	return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
+	return false;
 }
 
 /**
@@ -8388,33 +8347,13 @@ function use_block_editor_for_post( $post ) {
  *
  * @since 5.0.0
  * @since 6.1.0 Moved to wp-includes from wp-admin.
- *
+ * @since calmPress 1.0.0 always returns false
+ * 
  * @param string $post_type The post type.
  * @return bool Whether the post type can be edited with the block editor.
  */
 function use_block_editor_for_post_type( $post_type ) {
-	if ( ! post_type_exists( $post_type ) ) {
-		return false;
-	}
-
-	if ( ! post_type_supports( $post_type, 'editor' ) ) {
-		return false;
-	}
-
-	$post_type_object = get_post_type_object( $post_type );
-	if ( $post_type_object && ! $post_type_object->show_in_rest ) {
-		return false;
-	}
-
-	/**
-	 * Filters whether a post is able to be edited in the block editor.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param bool   $use_block_editor  Whether the post type can be edited or not. Default true.
-	 * @param string $post_type         The post type being checked.
-	 */
-	return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+	return false;
 }
 
 /**

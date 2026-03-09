@@ -217,14 +217,6 @@ class WP_Media_List_Table extends WP_List_Table {
 	 * @return string
 	 */
 	public function current_action() {
-		if ( isset( $_REQUEST['found_post_id'] ) && isset( $_REQUEST['media'] ) ) {
-			return 'attach';
-		}
-
-		if ( isset( $_REQUEST['parent_post_id'] ) && isset( $_REQUEST['media'] ) ) {
-			return 'detach';
-		}
-
 		if ( isset( $_REQUEST['delete_all'] ) || isset( $_REQUEST['delete_all2'] ) ) {
 			return 'delete_all';
 		}
@@ -725,12 +717,10 @@ class WP_Media_List_Table extends WP_List_Table {
 		$attachment_url = wp_get_attachment_url( $post->ID );
 
 		if ( ! $this->is_trash ) {
-			$permalink = get_permalink( $post->ID );
-
-			if ( $permalink ) {
+			if ( $attachment_url ) {
 				$actions['view'] = sprintf(
 					'<a href="%s" aria-label="%s" rel="bookmark">%s</a>',
-					esc_url( $permalink ),
+					esc_url( $attachment_url ),
 					/* translators: %s: Attachment title. */
 					esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $att_title ) ),
 					__( 'View' )
@@ -758,24 +748,6 @@ class WP_Media_List_Table extends WP_List_Table {
 				__( 'Download file' )
 			);
 		}
-
-		if ( $this->detached && current_user_can( 'edit_post', $post->ID ) ) {
-			$actions['attach'] = sprintf(
-				'<a href="#the-list" onclick="findPosts.open( \'media[]\', \'%s\' ); return false;" class="hide-if-no-js aria-button-if-js" aria-label="%s">%s</a>',
-				$post->ID,
-				/* translators: %s: Attachment title. */
-				esc_attr( sprintf( __( 'Attach &#8220;%s&#8221; to existing content' ), $att_title ) ),
-				__( 'Attach' )
-			);
-		}
-
-		$actions['view'] = sprintf(
-			'<a href="%s" aria-label="%s" rel="bookmark">%s</a>',
-			get_permalink( $post->ID ),
-			/* translators: %s: Attachment title. */
-			esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $att_title ) ),
-			__( 'View' )
-		);
 
 		/**
 		 * Filters the action links for each attachment in the Media list table.

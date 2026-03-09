@@ -36,6 +36,8 @@ class Mock_Text_Mutator implements Text_Based_Avatar_Attributes_Mutator {
 class Text_Based_Avatar_Test extends WP_UnitTestCase {
 	use Html_Generation_Helper_Test;
 
+	private Text_Based_Avatar $avatar;
+
 	/**
 	 * Set up the avatar attribute to the object being tested as required by the
 	 * Html_Generation_Helper_Test trait.
@@ -43,7 +45,7 @@ class Text_Based_Avatar_Test extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function setUp(): void {
-		$this->avatar = new \calmpress\avatar\Text_Based_Avatar( 'test for best', 't@test.com' );
+		$this->avatar = new Text_Based_Avatar( 'test for best', 't@test.com' );
 	}
 
 	/**

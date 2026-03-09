@@ -44,8 +44,13 @@ class Tests_Cache extends WP_UnitTestCase {
 			$this->assertTrue( $this->cache->add( $key, $val ), 'WP_Object_Cache:add() should return true for valid keys.' );
 			$this->assertSame( $val, $this->cache->get( $key ), 'The retrieved value should match the added value.' );
 		} else {
-			$this->setExpectedIncorrectUsage( 'WP_Object_Cache::add' );
-			$this->assertFalse( $this->cache->add( $key, $val ), 'WP_Object_Cache:add() should return false for invalid keys.' );
+			$thrown = false;
+			try {
+				$this->cache->add( $key, $val );
+			} catch ( \Exception $e ) {
+				$thrown = true;
+			}
+			$this->assertTrue( $thrown );
 		}
 	}
 

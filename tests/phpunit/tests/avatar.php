@@ -28,7 +28,7 @@ class Tests_Avatar extends WP_UnitTestCase {
 		$this->assertSame( $url, $url2 );
 
 		$file = DIR_TESTDATA . '/images/canola.jpg';
-		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
+		$attachment_id = $this::factory()->attachment->create_upload_object( $file, 0 );
 		$user->set_avatar( get_post( $attachment_id ) );
 		$url2 = get_avatar_url( $user, [ 'size' => 50 ] );
 		$avatar_url = wp_get_attachment_image_url( $attachment_id, [50, 50] );

@@ -70,15 +70,9 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 		$list_table = _get_list_table( $list_class );
 
 		$column_headers = new ReflectionProperty( $list_table, '_column_headers' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$column_headers->setAccessible( true );
-		}
 		$column_headers->setValue( $list_table, $headers );
 
 		$column_info = new ReflectionMethod( $list_table, 'get_column_info' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$column_info->setAccessible( true );
-		}
 
 		$this->assertSame( $expected, $column_info->invoke( $list_table ), 'The actual columns did not match the expected columns' );
 		$this->assertSame( $expected_hook_count, $hook->get_call_count(), 'The hook was not called the expected number of times' );
@@ -98,7 +92,6 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 		$list_primary_columns = array(
 			'WP_Application_Passwords_List_Table'         => 'name',
 			'WP_Comments_List_Table'                      => 'author',
-			'WP_Links_List_Table'                         => 'name',
 			'WP_Media_List_Table'                         => 'title',
 			'WP_MS_Sites_List_Table'                      => 'blogname',
 			'WP_MS_Themes_List_Table'                     => 'name',
@@ -390,21 +383,6 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 58896
-	 *
-	 * @covers WP_List_Table::__get()
-	 */
-	public function test_should_throw_deprecation_when_getting_dynamic_property() {
-		$this->expectDeprecation();
-		$this->expectDeprecationMessage(
-			'WP_List_Table::__get(): ' .
-			'The property `undeclared_property` is not declared. Getting a dynamic property is ' .
-			'deprecated since version 6.4.0! Instead, declare the property on the class.'
-		);
-		$this->assertNull( $this->list_table->undeclared_property, 'Getting a dynamic property should return null from WP_List_Table::__get()' );
-	}
-
-	/**
 	 * @dataProvider data_compat_fields
 	 * @ticket 58896
 	 *
@@ -417,21 +395,6 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 		$this->list_table->$property_name = $value;
 
 		$this->assertSame( $value, $this->list_table->$property_name );
-	}
-
-	/**
-	 * @ticket 58896
-	 *
-	 * @covers WP_List_Table::__set()
-	 */
-	public function test_should_throw_deprecation_when_setting_dynamic_property() {
-		$this->expectDeprecation();
-		$this->expectDeprecationMessage(
-			'WP_List_Table::__set(): ' .
-			'The property `undeclared_property` is not declared. Setting a dynamic property is ' .
-			'deprecated since version 6.4.0! Instead, declare the property on the class.'
-		);
-		$this->list_table->undeclared_property = 'some value';
 	}
 
 	/**
@@ -453,21 +416,6 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 58896
-	 *
-	 * @covers WP_List_Table::__isset()
-	 */
-	public function test_should_throw_deprecation_when_isset_of_dynamic_property() {
-		$this->expectDeprecation();
-		$this->expectDeprecationMessage(
-			'WP_List_Table::__isset(): ' .
-			'The property `undeclared_property` is not declared. Checking `isset()` on a dynamic property ' .
-			'is deprecated since version 6.4.0! Instead, declare the property on the class.'
-		);
-		$this->assertFalse( isset( $this->list_table->undeclared_property ), 'Checking a dynamic property should return false from WP_List_Table::__isset()' );
-	}
-
-	/**
 	 * @dataProvider data_compat_fields
 	 * @ticket 58896
 	 *
@@ -478,21 +426,6 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 	public function test_should_unset_compat_fields_defined_property( $property_name ) {
 		unset( $this->list_table->$property_name );
 		$this->assertFalse( isset( $this->list_table->$property_name ) );
-	}
-
-	/**
-	 * @ticket 58896
-	 *
-	 * @covers WP_List_Table::__unset()
-	 */
-	public function test_should_throw_deprecation_when_unset_of_dynamic_property() {
-		$this->expectDeprecation();
-		$this->expectDeprecationMessage(
-			'WP_List_Table::__unset(): ' .
-			'A property `undeclared_property` is not declared. Unsetting a dynamic property is ' .
-			'deprecated since version 6.4.0! Instead, declare the property on the class.'
-		);
-		unset( $this->list_table->undeclared_property );
 	}
 
 	/**

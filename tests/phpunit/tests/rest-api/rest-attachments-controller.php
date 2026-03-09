@@ -452,6 +452,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
+		$this->assertCount( 1, $data, 'Response count for single media type is not 1' );
 		$this->assertSame( $id1, $data[0]['id'] );
 		// 'media_type' => 'video'.
 		$request->set_param( 'media_type', 'video' );
@@ -702,6 +703,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
+		$this->assertCount( 1, $data, 'Response count for single media type is not 1' );
 		$this->assertSame( $id1, $data[0]['id'] );
 		// 'mime_type' => 'image/png'.
 		$request->set_param( 'mime_type', 'image/png' );

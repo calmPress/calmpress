@@ -10,10 +10,6 @@ class Tests_Admin_IncludesTemplate extends WP_UnitTestCase {
 	 */
 	public static $editor_id;
 
-	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
-		self::$editor_id = $factory->user->create( array( 'role' => 'editor' ) );
-	}
-
 	protected static $cat_id;
 
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
@@ -21,6 +17,8 @@ class Tests_Admin_IncludesTemplate extends WP_UnitTestCase {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/post.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		self::$editor_id = $factory->user->create( array( 'role' => 'editor' ) );
 
 		self::$cat_id = $factory->category->create();
 	}

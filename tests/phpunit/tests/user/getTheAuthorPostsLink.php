@@ -33,59 +33,47 @@ class Tests_User_GetTheAuthorPostsLink extends WP_UnitTestCase {
 	}
 
 	public function set_up() {
+		global $post;
+
 		parent::set_up();
 
+		$post = get_post( self::$post_id );
 		setup_postdata( get_post( self::$post_id ) );
 	}
 
 	/**
 	 * @ticket 30355
 	 */
-	public function test_get_the_author_posts_link_no_permalinks() {
-		$author = get_userdata( self::$author_id );
-
-		$GLOBALS['authordata'] = $author->data;
-
-		$link = get_the_author_posts_link();
-
-		$url = sprintf( 'http://%1$s/?author=%2$s', WP_TESTS_DOMAIN, $author->ID );
-
-		$this->assertStringContainsString( $url, $link );
-		$this->assertStringContainsString( 'Posts by Test Author', $link );
-		$this->assertStringContainsString( '>Test Author</a>', $link );
-
-		unset( $GLOBALS['authordata'] );
-	}
-
-	/**
-	 * @ticket 30355
-	 */
 	public function test_get_the_author_posts_link_with_permalinks() {
-		$this->set_permalink_structure( '/%postname%/' );
 
-		$author = get_userdata( self::$author_id );
+		// No authors
+		$this->assertSame( '', get_the_author_posts_link() );
 
-		$GLOBALS['authordata'] = $author;
+		// One author.
+		$author1 = wp_insert_term( 'author1', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( self::$post_id, $author1, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
+		$author = \calmpress\post_authors\Post_Authors_As_Taxonomy::post_authors( get_post( self::$post_id ) );
+		$url = $author[0]->posts_url();
 
 		$link = get_the_author_posts_link();
-
-		$url = sprintf( 'http://%1$s/author/%2$s/', WP_TESTS_DOMAIN, $author->user_nicename );
-
-		$this->set_permalink_structure( '' );
-
 		$this->assertStringContainsString( $url, $link );
-		$this->assertStringContainsString( 'Posts by Test Author', $link );
-		$this->assertStringContainsString( '>Test Author</a>', $link );
+		$this->assertStringContainsString( 'Posts by author1', $link );
+		$this->assertStringContainsString( '>author1</a>', $link );
 
-		unset( $GLOBALS['authordata'] );
-	}
+		// Two authors.
+		$author2_term = wp_insert_term( 'author2', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		wp_set_object_terms( self::$post_id, $author2_term, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
+		$author2 = \calmpress\post_authors\Post_Authors_As_Taxonomy::post_authors( get_post( self::$post_id ) );
+		$url = $author2[0]->posts_url();
+		$url2 = $author2[1]->posts_url();
 
-	/**
-	 * @ticket 58157
-	 */
-	public function test_get_the_author_posts_link_should_return_empty_string_if_authordata_is_not_set() {
-		unset( $GLOBALS['authordata'] );
+		$link = get_the_author_posts_link('the name %s');
+		$this->assertStringContainsString( $url, $link );
+		$this->assertStringContainsString( 'the name author1', $link );
+		$this->assertStringContainsString( '>author1</a>', $link );
 
-		$this->assertSame( '', get_the_author_posts_link() );
+		$this->assertStringContainsString( $url2, $link );
+		$this->assertStringContainsString( 'the name author2', $link );
+		$this->assertStringContainsString( '>author2</a>', $link );
 	}
 }

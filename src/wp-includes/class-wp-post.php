@@ -19,7 +19,7 @@
  * @property-read string[] $tags_input
  */
 #[AllowDynamicProperties]
-class WP_Post {
+class WP_Post implements \calmpress\avatar\Has_Avatar {
 
 	/**
 	 * Post ID.

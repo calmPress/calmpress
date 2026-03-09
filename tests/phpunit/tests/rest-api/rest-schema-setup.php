@@ -260,7 +260,7 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			)
 		);
 
-		$cat_id = self::factory->category->create(
+		$cat_id = self::factory()->category->create(
 			array(
 				'name'        => 'REST API Client Fixture: Category',
 				'slug'        => 'restapi-client-fixture-cat',
@@ -268,7 +268,7 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			)
 		);
 
-		$tag_id = self::factory->tag->create(
+		$tag_id = self::factory()->tag->create(
 			array(
 				'name'        => 'REST API Client Fixture: Tag',
 				'slug'        => 'restapi-client-fixture-tag',

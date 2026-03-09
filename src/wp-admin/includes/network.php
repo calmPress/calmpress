@@ -213,7 +213,7 @@ function network_step1( $errors = false ) {
 			) . '</p>';
 		}
 
-		if ( $got_mod_rewrite || $is_apache() ) { // Protect against mod_rewrite mimicry (but ! Apache).
+		if ( $got_mod_rewrite || is_apache() ) { // Protect against mod_rewrite mimicry (but ! Apache).
 			$message .= '<p>' . sprintf(
 				/* translators: 1: mod_rewrite, 2: mod_rewrite documentation URL, 3: Google search for mod_rewrite. */
 				__( 'If %1$s is disabled, ask your administrator to enable that module, or look at the <a href="%2$s">Apache documentation</a> or <a href="%3$s">elsewhere</a> for help setting it up.' ),

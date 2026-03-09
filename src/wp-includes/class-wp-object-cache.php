@@ -320,14 +320,7 @@ class WP_Object_Cache {
 	 * @return true Always returns true.
 	 */
 	public function flush_group( $group ) {
-		if ( ! is_array( $group ) ) {
-			// must be a global group cache.
-			$group->clear();
-		} else {
-			foreach ( $group as $cache ) {
-				$cache->clear();
-			}
-		}
+		$this->group_cache( $group )->clear();
 
 		return true;
 	}
@@ -641,7 +634,7 @@ class WP_Object_Cache {
 		}
 
 		$id = $key;
-		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
+		if ( is_multisite() && ! isset( $this->global_groups[ $group ] ) ) {
 			$id = $this->blog_prefix . $key;
 		}
 
@@ -683,26 +676,6 @@ class WP_Object_Cache {
 		$cache = $this->group_cache( $group );
 
 		return $cache->set( $key, $data );
-	}
-
-	/**
-	 * Deletes multiple values from the cache in one call.
-	 *
-	 * @since 6.0.0
-	 *
-	 * @param array  $keys  Array of keys to be deleted.
-	 * @param string $group Optional. Where the cache contents are grouped. Default empty.
-	 * @return bool[] Array of return values, grouped by key. Each value is either
-	 *                true on success, or false if the contents were not deleted.
-	 */
-	public function delete_multiple( array $keys, $group = '' ) {
-		$values = array();
-
-		foreach ( $keys as $key ) {
-			$values[ $key ] = $this->delete( $key, $group );
-		}
-
-		return $values;
 	}
 
 	/**

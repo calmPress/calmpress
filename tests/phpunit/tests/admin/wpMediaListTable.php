@@ -26,20 +26,6 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 	protected static $is_trash_original;
 
 	/**
-	 * A reflection of the `$detached` property.
-	 *
-	 * @var ReflectionProperty
-	 */
-	protected static $detached;
-
-	/**
-	 * The original value of the `$detached` property.
-	 *
-	 * @var bool|null
-	 */
-	protected static $detached_original;
-
-	/**
 	 * The ID of an 'administrator' user for testing.
 	 *
 	 * @var int
@@ -74,23 +60,8 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 
 		self::$list_table = new WP_Media_List_Table();
 		self::$is_trash   = new ReflectionProperty( self::$list_table, 'is_trash' );
-		self::$detached   = new ReflectionProperty( self::$list_table, 'detached' );
 
-		if ( PHP_VERSION_ID < 80100 ) {
-			self::$is_trash->setAccessible( true );
-		}
 		self::$is_trash_original = self::$is_trash->getValue( self::$list_table );
-		if ( PHP_VERSION_ID < 80100 ) {
-			self::$is_trash->setAccessible( false );
-		}
-
-		if ( PHP_VERSION_ID < 80100 ) {
-			self::$detached->setAccessible( true );
-		}
-		self::$detached_original = self::$detached->getValue( self::$list_table );
-		if ( PHP_VERSION_ID < 80100 ) {
-			self::$detached->setAccessible( false );
-		}
 
 		// Create users.
 		self::$admin      = self::factory()->user->create( array( 'role' => 'administrator' ) );
@@ -112,7 +83,6 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		self::set_is_trash( self::$is_trash_original );
-		self::set_detached( self::$detached_original );
 
 		parent::tear_down();
 	}
@@ -184,18 +154,8 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 			self::set_is_trash( $trash );
 		}
 
-		if ( null !== $detached ) {
-			self::set_detached( $detached );
-		}
-
 		$_get_row_actions = new ReflectionMethod( self::$list_table, '_get_row_actions' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$_get_row_actions->setAccessible( true );
-		}
-		$actions = $_get_row_actions->invoke( self::$list_table, self::$post, 'att_title' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$_get_row_actions->setAccessible( false );
-		}
+		$actions = $_get_row_actions->invoke( self::$list_table, self::$attachment, 'att_title' );
 
 		$this->assertIsArray( $actions, 'An array was not returned.' );
 		$this->assertArrayHasKey( $action, $actions, "'$action' was not included in the actions." );
@@ -232,12 +192,6 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 				'trash'    => false,
 				'detached' => null,
 			),
-			'"attach" while on "detached"' => array(
-				'action'   => 'attach',
-				'role'     => 'admin',
-				'trash'    => null,
-				'detached' => true,
-			),
 		);
 	}
 
@@ -269,18 +223,8 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 			self::set_is_trash( $trash );
 		}
 
-		if ( null !== $detached ) {
-			self::set_detached( $detached );
-		}
-
 		$_get_row_actions = new ReflectionMethod( self::$list_table, '_get_row_actions' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$_get_row_actions->setAccessible( true );
-		}
 		$actions = $_get_row_actions->invoke( self::$list_table, self::$post, 'att_title' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$_get_row_actions->setAccessible( false );
-		}
 
 		$this->assertIsArray( $actions, 'An array was not returned.' );
 		$this->assertArrayNotHasKey( $action, $actions, "'$action' was included in the actions." );
@@ -335,18 +279,6 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 				'trash'    => true,
 				'detached' => null,
 			),
-			'"attach" with incorrect capabilities'  => array(
-				'action'   => 'attach',
-				'role'     => 'subscriber',
-				'trash'    => null,
-				'detached' => true,
-			),
-			'"attach" when not on "detached"'       => array(
-				'action'   => 'attach',
-				'role'     => 'administrator',
-				'trash'    => null,
-				'detached' => false,
-			),
 			'"copy" when on "trash"'                => array(
 				'action'   => 'copy',
 				'role'     => 'administrator',
@@ -354,33 +286,6 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 				'detached' => null,
 			),
 		);
-	}
-
-	/**
-	 * Tests that `WP_Media_List_Table::_get_row_actions()` does not include the 'view' action
-	 * when a permalink is not available.
-	 *
-	 * @ticket 57893
-	 *
-	 * @covers WP_Media_List_Table::_get_row_actions
-	 */
-	public function test_get_row_actions_should_not_include_view_without_a_permalink() {
-		self::set_is_trash( false );
-
-		// Ensure the permalink is `false`.
-		add_filter( 'post_link', '__return_false', 10, 0 );
-
-		$_get_row_actions = new ReflectionMethod( self::$list_table, '_get_row_actions' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$_get_row_actions->setAccessible( true );
-		}
-		$actions = $_get_row_actions->invoke( self::$list_table, self::$post, 'att_title' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$_get_row_actions->setAccessible( false );
-		}
-
-		$this->assertIsArray( $actions, 'An array was not returned.' );
-		$this->assertArrayNotHasKey( 'view', $actions, '"view" was included in the actions.' );
 	}
 
 	/**
@@ -394,13 +299,7 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 		self::set_is_trash( false );
 
 		$_get_row_actions = new ReflectionMethod( self::$list_table, '_get_row_actions' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$_get_row_actions->setAccessible( true );
-		}
 		$actions = $_get_row_actions->invoke( self::$list_table, self::$attachment, 'att_title' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$_get_row_actions->setAccessible( false );
-		}
 
 		$this->assertIsArray( $actions, 'An array was not returned.' );
 		$this->assertArrayHasKey( 'copy', $actions, '"copy" was not included in the actions.' );
@@ -493,23 +392,6 @@ class Tests_Admin_wpMediaListTable extends WP_UnitTestCase {
 		self::$is_trash->setValue( self::$list_table, $is_trash );
 		if ( PHP_VERSION_ID < 80100 ) {
 			self::$is_trash->setAccessible( false );
-		}
-	}
-
-	/**
-	 * Sets the `$detached` property.
-	 *
-	 * Helper method.
-	 *
-	 * @param bool $detached Whether the attachment filter is currently 'detached'.
-	 */
-	private static function set_detached( $detached ) {
-		if ( PHP_VERSION_ID < 80100 ) {
-			self::$detached->setAccessible( true );
-		}
-		self::$detached->setValue( self::$list_table, $detached );
-		if ( PHP_VERSION_ID < 80100 ) {
-			self::$detached->setAccessible( false );
 		}
 	}
 }

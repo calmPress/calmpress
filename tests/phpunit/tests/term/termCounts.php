@@ -252,7 +252,7 @@ class Tests_Term_termCount extends WP_UnitTestCase {
 
 		add_filter( 'update_post_term_count_statuses', array( $this, 'add_custom_status_to_counted_statuses' ) );
 
-		$post_id = $self::factory()->post->create( array( 'post_status' => $post_status, 'post_category' => array( self::$cat_id ) ) );
+		$post_id = self::factory()->post->create( array( 'post_status' => $post_status, 'post_category' => array( self::$cat_id ) ) );
 		wp_add_object_terms( $post_id, self::$attachment_term, 'wp_test_tax_counts' );
 		$attachment_id = self::factory()->attachment->create_object(
 			array(

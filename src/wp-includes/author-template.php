@@ -120,7 +120,7 @@ function get_the_modified_editor() {
  * @see get_the_editor()
  */
 function the_modified_editor() {
-	echo get_the_modified_author();
+	echo get_the_modified_editor();
 }
 
 /**
@@ -306,8 +306,10 @@ function the_author_posts() {
  *
  * @return string An HTML with link(s) to the author post page(s), or empty string if there are none.
  */
-function get_the_author_posts_link( string $title_format ) {
+function get_the_author_posts_link( string $title_format = '' ) {
 	global $post;
+
+	// Make sure in loop.
 	if ( ! is_object( $post ) ) {
 		return '';
 	}
@@ -321,7 +323,7 @@ function get_the_author_posts_link( string $title_format ) {
 		return '';
 	}
 
-	$links_array = array_map( function ( $author ) {
+	$links_array = array_map( function ( $author ) use ( $title_format ) {
 	   return sprintf( '<a href="%1$s" title="%2$s" rel="author">%3$s</a>',
 	   		esc_url( $author->posts_url() ),
 	   		esc_attr( sprintf( $title_format, $author->name() ) ),
@@ -436,14 +438,14 @@ function wp_list_authors( $args = '' ) {
 
 	// Set the sort parameter.
 	$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NONE;
-	if ( 'name' === $args['orderby'] || 'display_name' === $args['orderby'] ) {
-		if ( 'DESC' === $args['order'] ) {
+	if ( 'name' === $parsed_args['orderby'] || 'display_name' === $parsed_args['orderby'] ) {
+		if ( 'DESC' === $parsed_args['order'] ) {
 			$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_DESC;
 		} else {
 			$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_ASC;
 		}
-	} elseif ( 'post_count' === $args['orderby'] ) {
-		if ( 'DESC' === $args['order'] ) {
+	} elseif ( 'post_count' === $parsed_args['orderby'] ) {
+		if ( 'DESC' === $parsed_args['order'] ) {
 			$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_DESC;
 		} else {
 			$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_ASC;
@@ -452,20 +454,20 @@ function wp_list_authors( $args = '' ) {
 
 	// Convert the exclude parameter to array of authors.
 	$exclude_arr = [];
-	if ( ! empty( $args['exclude'] ) ) {
+	if ( ! empty( $parsed_args['exclude'] ) ) {
 		$exclude_arr = array_map(
 			function ( $term_id ) {
 				$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 				return new post_authors\Taxonomy_Based_Post_Author( $term );
 				},
-			wp_parse_id_list( $args['exclude'] )
+			wp_parse_id_list( $parsed_args['exclude'] )
 		);
 	}
 
 	$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
-		(int) $args['number'],
+		(int) $parsed_args['number'],
 		$order,
-		! $args['hide_empty'],
+		! $parsed_args['hide_empty'],
 		$exclude_arr
 	);
 
@@ -488,11 +490,11 @@ function wp_list_authors( $args = '' ) {
 		$link = sprintf(
 			'<a href="%1$s" title="%2$s">%3$s</a>',
 			esc_url( $author->posts_url() ),
-			esc_attr( sprintf( $args['title_format'], $name ) ),
+			esc_attr( sprintf( $parsed_args['title_format'], $name ) ),
 			$name
 		);
 
-		if ( $args['optioncount'] ) {
+		if ( $parsed_args['optioncount'] ) {
 			$link .= ' (' . $posts . ')';
 		}
 

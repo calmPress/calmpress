@@ -19,8 +19,6 @@ class Tests_Link_GetPreviousCommentsLink extends WP_UnitTestCase {
 		set_query_var( 'cpage', $old_cpage );
 
 		$this->assertStringContainsString( '-page-2', $link );
-
-		set_query_var( 'cpage', $cpage );
 	}
 
 	public function test_page_should_default_to_1_when_no_cpage_query_var_is_found() {

@@ -559,8 +559,6 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 
 		$wp_widget_factory->widgets['WP_Widget_RSS']->widget_options['show_instance_in_rest'] = false;
 
-		$block_content = '<!-- wp:paragraph --><p>Block test</p><!-- /wp:paragraph -->';
-
 		$this->setup_widget(
 			'rss',
 			1,
@@ -569,19 +567,12 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 				'url'   => 'https://wordpress.org/news/feed',
 			)
 		);
-		$this->setup_widget(
-			'block',
-			1,
-			array(
-				'content' => $block_content,
-			)
-		);
 		$this->setup_sidebar(
 			'sidebar-1',
 			array(
 				'name' => 'Test sidebar',
 			),
-			array( 'block-1', 'rss-1', 'testwidget' )
+			array( 'rss-1', 'testwidget' )
 		);
 
 		$request = new WP_REST_Request( 'HEAD', $path );
@@ -603,7 +594,7 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 	 */
 	public static function data_head_request_with_specified_fields_returns_success_response() {
 		return array(
-			'get_item request'  => array( '/wp/v2/widgets/block-1' ),
+			'get_item request'  => array( '/wp/v2/widgets/rss-1' ),
 			'get_items request' => array( '/wp/v2/widgets' ),
 		);
 	}

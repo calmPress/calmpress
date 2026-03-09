@@ -140,6 +140,8 @@ class Tests_Comment_CheckComment extends WP_UnitTestCase {
 	 * @ticket 28603
 	 */
 	public function test_should_return_true_when_comment_previously_approved_is_enabled_and_user_has_previously_approved_comments_with_different_email() {
+		$post_id         = self::factory()->post->create();
+
 		$subscriber_id = self::factory()->user->create(
 			array(
 				'role'  => 'subscriber',
@@ -180,7 +182,7 @@ class Tests_Comment_CheckComment extends WP_UnitTestCase {
 		);
 
 		// Make sure comment author has an approved comment.
-		$this->factory->comment->create(
+		$this->factory()->comment->create(
 			array(
 				'user_id'              => $subscriber_id,
 				'comment_approved'     => '1',

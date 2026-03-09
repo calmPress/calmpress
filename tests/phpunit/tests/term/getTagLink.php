@@ -54,7 +54,7 @@ class Tests_Term_GetTagLink extends WP_UnitTestCase {
 		$tag_id = self::$tag_id;
 
 		$found    = get_tag_link( $tag_id );
-		$expected = home_url( '?tag=test-tag' );
+		$expected = home_url( '/tag/test-tag/' );
 
 		$this->assertSame( $expected, $found );
 	}

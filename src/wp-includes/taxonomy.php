@@ -391,7 +391,8 @@ function is_taxonomy_hierarchical( $taxonomy ) {
  * @since 5.4.0 Added the registered taxonomy object as a return value.
  * @since 5.5.0 Introduced `default_term` argument.
  * @since 5.9.0 Introduced `rest_namespace` argument.
- *
+ * @since calmpress 1.0.0 `default_term` is ignored.
+ * 
  * @global WP_Taxonomy[] $wp_taxonomies Registered taxonomies.
  *
  * @param string       $taxonomy    Taxonomy key. Must not exceed 32 characters and may only contain
@@ -462,13 +463,6 @@ function is_taxonomy_hierarchical( $taxonomy ) {
  *                                                to post types, which confirms that the objects are published before
  *                                                counting them. Default _update_generic_term_count() for taxonomies
  *                                                attached to other object types, such as users.
- *     @type string|array  $default_term {
- *         Default term to be used for the taxonomy.
- *
- *         @type string $name         Name of default term.
- *         @type string $slug         Slug for default term. Default empty.
- *         @type string $description  Description for default term. Default empty.
- *     }
  *     @type bool          $sort                  Whether terms in this taxonomy should be sorted in the order they are
  *                                                provided to `wp_set_object_terms()`. Default null which equates to false.
  *     @type array         $args                  Array of arguments to automatically use inside `wp_get_object_terms()`

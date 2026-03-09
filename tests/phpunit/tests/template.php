@@ -124,11 +124,6 @@ class Tests_Template extends WP_UnitTestCase {
 		unregister_taxonomy( 'taxo' );
 		$this->set_permalink_structure( '' );
 
-		$registry = WP_Block_Type_Registry::get_instance();
-		if ( $registry->is_registered( 'third-party/test' ) ) {
-			$registry->unregister( 'third-party/test' );
-		}
-
 		parent::tear_down();
 	}
 

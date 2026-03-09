@@ -360,12 +360,6 @@ class Tests_Post_WP_Post_Type extends WP_UnitTestCase {
 				stdClass::class,
 				null,
 			),
-			'correct rest revisions controller'   => array(
-				true,
-				true,
-				WP_REST_Template_Revisions_Controller::class,
-				WP_REST_Template_Revisions_Controller::class,
-			),
 		);
 	}
 
@@ -429,12 +423,6 @@ class Tests_Post_WP_Post_Type extends WP_UnitTestCase {
 				'test_post_type',
 				stdClass::class,
 				null,
-			),
-			'correct rest autosave controller'   => array(
-				true,
-				'test_post_type',
-				WP_REST_Template_Autosaves_Controller::class,
-				WP_REST_Template_Autosaves_Controller::class,
 			),
 		);
 	}

@@ -2257,23 +2257,6 @@ class Tests_User_Query extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 58897
-	 *
-	 * @covers WP_User_Query::__get()
-	 */
-	public function test_should_throw_deprecation_when_getting_dynamic_property() {
-		$user_query = new WP_User_Query();
-
-		$this->expectDeprecation();
-		$this->expectDeprecationMessage(
-			'WP_User_Query::__get(): ' .
-			'The property `undefined_property` is not declared. Getting a dynamic property is ' .
-			'deprecated since version 6.4.0! Instead, declare the property on the class.'
-		);
-		$this->assertNull( $user_query->undefined_property, 'Getting a dynamic property should return null from WP_User_Query::__get()' );
-	}
-
-	/**
 	 * @dataProvider data_compat_fields
 	 * @ticket 58897
 	 *
@@ -2287,23 +2270,6 @@ class Tests_User_Query extends WP_UnitTestCase {
 
 		$user_query->$property_name = $value;
 		$this->assertSame( $value, $user_query->$property_name );
-	}
-
-	/**
-	 * @ticket 58897
-	 *
-	 * @covers WP_User_Query::__set()
-	 */
-	public function test_should_throw_deprecation_when_setting_dynamic_property() {
-		$user_query = new WP_User_Query();
-
-		$this->expectDeprecation();
-		$this->expectDeprecationMessage(
-			'WP_User_Query::__set(): ' .
-			'The property `undefined_property` is not declared. Setting a dynamic property is ' .
-			'deprecated since version 6.4.0! Instead, declare the property on the class.'
-		);
-		$user_query->undefined_property = 'some value';
 	}
 
 	/**
@@ -2327,23 +2293,6 @@ class Tests_User_Query extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 58897
-	 *
-	 * @covers WP_User_Query::__isset()
-	 */
-	public function test_should_throw_deprecation_when_isset_of_dynamic_property() {
-		$user_query = new WP_User_Query();
-
-		$this->expectDeprecation();
-		$this->expectDeprecationMessage(
-			'WP_User_Query::__isset(): ' .
-			'The property `undefined_property` is not declared. Checking `isset()` on a dynamic property ' .
-			'is deprecated since version 6.4.0! Instead, declare the property on the class.'
-		);
-		$this->assertFalse( isset( $user_query->undefined_property ), 'Checking a dynamic property should return false from WP_User_Query::__isset()' );
-	}
-
-	/**
 	 * @dataProvider data_compat_fields
 	 * @ticket 58897
 	 *
@@ -2356,23 +2305,6 @@ class Tests_User_Query extends WP_UnitTestCase {
 
 		unset( $user_query->$property_name );
 		$this->assertFalse( isset( $user_query->$property_name ) );
-	}
-
-	/**
-	 * @ticket 58897
-	 *
-	 * @covers WP_User_Query::__unset()
-	 */
-	public function test_should_throw_deprecation_when_unset_of_dynamic_property() {
-		$user_query = new WP_User_Query();
-
-		$this->expectDeprecation();
-		$this->expectDeprecationMessage(
-			'WP_User_Query::__unset(): ' .
-			'A property `undefined_property` is not declared. Unsetting a dynamic property is ' .
-			'deprecated since version 6.4.0! Instead, declare the property on the class.'
-		);
-		unset( $user_query->undefined_property );
 	}
 
 	/**

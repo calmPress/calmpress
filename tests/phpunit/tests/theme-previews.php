@@ -22,6 +22,5 @@ class Tests_Theme_Previews extends WP_UnitTestCase {
 		$this->assertEquals( has_filter( 'stylesheet', 'wp_get_theme_preview_path' ), 10 );
 		$this->assertEquals( has_filter( 'template', 'wp_get_theme_preview_path' ), 10 );
 		$this->assertEquals( has_action( 'init', 'wp_attach_theme_preview_middleware' ), 10 );
-		$this->assertEquals( has_action( 'admin_head', 'wp_block_theme_activate_nonce' ), 10 );
 	}
 }

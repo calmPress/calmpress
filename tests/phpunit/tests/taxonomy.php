@@ -23,10 +23,6 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 		$this->assertSame( array( 'category', 'post_tag', 'post_format', 'calm_authors' ), get_object_taxonomies( 'post' ), \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 	}
 
-	public function test_get_block_taxonomies() {
-		$this->assertSame( array( 'wp_pattern_category' ), get_object_taxonomies( 'wp_block' ) );
-	}
-
 	/**
 	 * @ticket 5417
 	 */
@@ -1006,89 +1002,5 @@ class Tests_Taxonomy extends WP_UnitTestCase {
 		$problematic_term = current( wp_list_pluck( $terms_obj, 'name' ) );
 
 		$this->assertSame( $problematic_term, $term_name );
-	}
-
-	/**
-	 * Test default term for custom taxonomy.
-	 *
-	 * @ticket 43517
-	 */
-	public function test_default_term_for_custom_taxonomy() {
-
-		wp_set_current_user( self::$editor_id );
-
-		$tax = 'custom-tax';
-
-		// Create custom taxonomy to test with.
-		register_taxonomy(
-			$tax,
-			'post',
-			array(
-				'hierarchical' => true,
-				'public'       => true,
-				'default_term' => array(
-					'name' => 'Default category',
-					'slug' => 'default-category',
-				),
-			)
-		);
-
-		// Add post.
-		$post_id = self::factory()->post->create(
-			array(
-				'post_title' => 'Foo',
-				'post_type'  => 'post',
-			)
-		);
-
-		// Test default term.
-		$term = wp_get_post_terms( $post_id, $tax );
-		$this->assertSame( get_option( 'default_term_' . $tax ), $term[0]->term_id );
-
-		// Test default term deletion.
-		$this->assertSame( wp_delete_term( $term[0]->term_id, $tax ), 0 );
-
-		// Add custom post type.
-		register_post_type(
-			'post-custom-tax',
-			array(
-				'taxonomies' => array( $tax ),
-			)
-		);
-		$post_id = self::factory()->post->create(
-			array(
-				'post_title' => 'Foo',
-				'post_type'  => 'post-custom-tax',
-			)
-		);
-
-		// Test default term.
-		$term = wp_get_post_terms( $post_id, $tax );
-		$this->assertSame( get_option( 'default_term_' . $tax ), $term[0]->term_id );
-
-		// wp_set_object_terms() should not assign default term.
-		wp_set_object_terms( $post_id, array(), $tax );
-		$term = wp_get_post_terms( $post_id, $tax );
-		$this->assertSame( array(), $term );
-	}
-
-	/**
-	 * @ticket 51320
-	 */
-	public function test_default_term_for_post_in_multiple_taxonomies() {
-		$post_type = 'test_post_type';
-		$tax1      = 'test_tax1';
-		$tax2      = 'test_tax2';
-
-		register_post_type( $post_type, array( 'taxonomies' => array( $tax1, $tax2 ) ) );
-		register_taxonomy( $tax1, $post_type, array( 'default_term' => 'term_1' ) );
-		register_taxonomy( $tax2, $post_type, array( 'default_term' => 'term_2' ) );
-
-		$post_id = self::factory()->post->create( array( 'post_type' => $post_type ) );
-
-		$taxonomies = get_post_taxonomies( $post_id );
-
-		$this->assertContains( $tax1, $taxonomies );
-		$this->assertContains( $tax2, $taxonomies );
 	}
 }

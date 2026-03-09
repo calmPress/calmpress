@@ -34,15 +34,11 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 	}
 
 	public static function tear_down_after_class() {
+		wp_delete_post( self::$icon_id, true );
 		wp_delete_attachment( self::$icon_id, true );
 		self::delete_user( self::$admin_id );
 		wp_delete_post( self::$post_id );
 
-		parent::tear_down_after_class();
-	}
-
-	public static function tear_down_after_class() {
-		wp_delete_post( self::$icon_id, true );
 		parent::tear_down_after_class();
 	}
 

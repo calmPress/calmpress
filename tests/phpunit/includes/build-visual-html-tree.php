@@ -220,62 +220,6 @@ function build_visual_html_tree( string $html, ?string $fragment_context ): stri
 			case '#comment':
 				// Comments must be "<" then "!--" then the data then "-->".
 				$comment = "<!--{$processor->get_full_comment_text()}-->";
-
-				// Maybe the comment is a block delimiter.
-				$parser           = new WP_Block_Parser();
-				$parser->document = $comment;
-				$parser->offset   = 0;
-				list( $delimiter_type, $block_name, $block_attrs, $start_offset, $token_length ) = $parser->next_token();
-
-				switch ( $delimiter_type ) {
-					case 'block-opener':
-					case 'void-block':
-						$output .= str_repeat( $tree_indent, $indent_level ) . "BLOCK[\"{$block_name}\"]\n";
-
-						if ( 'block-opener' === $delimiter_type ) {
-							$block_context[] = $block_name;
-							++$indent_level;
-						}
-
-						// When no attributes are present, there’s nothing left to do.
-						if ( empty( $block_attrs ) ) {
-							break;
-						}
-
-						// Normalize attribute order.
-						ksort( $block_attrs, SORT_STRING );
-
-						if ( isset( $block_attrs['className'] ) ) {
-							// Normalize class name order (and de-duplicate), as we need to be tolerant of different orders.
-							// (Style attributes don't need this treatment, as they are parsed into a nested array.)
-							$block_class_processor = new WP_HTML_Tag_Processor( '<div>' );
-							$block_class_processor->next_token();
-							$block_class_processor->set_attribute( 'class', $block_attrs['className'] );
-							$class_names = iterator_to_array( $block_class_processor->class_list() );
-							sort( $class_names, SORT_STRING );
-							$block_attrs['className'] = implode( ' ', $class_names );
-						}
-
-						$block_attrs = json_encode( $block_attrs, JSON_PRETTY_PRINT );
-						// Fix indentation by "halving" it (2 spaces instead of 4).
-						// Additionally, we need to indent each line by the current indentation level.
-						$block_attrs = preg_replace( '/^( +)\1/m', str_repeat( $tree_indent, $indent_level ) . '$1', $block_attrs );
-						// Finally, indent the first line, and the last line (with the closing curly brace).
-						$output .= str_repeat( $tree_indent, $indent_level ) . substr( $block_attrs, 0, -1 ) . str_repeat( $tree_indent, $indent_level ) . "}\n";
-						break;
-					case 'block-closer':
-						// Is this a closer for the currently open block?
-						if ( ! empty( $block_context ) && end( $block_context ) === $block_name ) {
-							// If it's a closer, we don't add it to the output.
-							// Instead, we decrease indentation and remove the block from block context stack.
-							--$indent_level;
-							array_pop( $block_context );
-						}
-						break;
-					default: // Not a block delimiter.
-						$output .= str_repeat( $tree_indent, $indent_level ) . $comment . "\n";
-						break;
-				}
 				break;
 			default:
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export

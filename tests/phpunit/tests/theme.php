@@ -28,7 +28,6 @@ class Tests_Theme extends WP_UnitTestCase {
 		$this->orig_theme_dir = $wp_theme_directories;
 		$wp_theme_directories = array( WP_CONTENT_DIR . '/themes', realpath( DIR_TESTDATA . '/themedir1' ) );
 
-		add_filter( 'extra_theme_headers', array( $this, 'theme_data_extra_headers' ) );
 		wp_clean_themes_cache();
 		unset( $GLOBALS['wp_themes'] );
 	}
@@ -38,7 +37,6 @@ class Tests_Theme extends WP_UnitTestCase {
 
 		$wp_theme_directories = $this->orig_theme_dir;
 
-		remove_filter( 'extra_theme_headers', array( $this, 'theme_data_extra_headers' ) );
 		wp_clean_themes_cache();
 		unset( $GLOBALS['wp_themes'] );
 
@@ -149,52 +147,6 @@ class Tests_Theme extends WP_UnitTestCase {
 		$wp_default_theme_constant = $matches[1];
 
 		$this->assertSame( $wp_default_theme_constant, $latest_default_theme->get_stylesheet(), 'WP_DEFAULT_THEME should match the latest default theme.' );
-	}
-
-	/**
-	 * Ensure that the default themes are included in the new bundled files.
-	 *
-	 * @ticket 62103
-	 *
-	 * @coversNothing
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function test_default_themes_are_included_in_new_files() {
-		require_once ABSPATH . 'wp-admin/includes/update-core.php';
-		global $_new_bundled_files;
-		// Limit new bundled files to the default themes.
-		$new_theme_files = array_keys( $_new_bundled_files );
-		$new_theme_files = array_filter(
-			$new_theme_files,
-			static function ( $file ) {
-				return str_starts_with( $file, 'themes/' );
-			}
-		);
-
-		$tested_themes = $this->default_themes;
-		// Convert the tested themes to directory names.
-		$tested_themes = array_map(
-			static function ( $theme ) {
-				return "themes/{$theme}/";
-			},
-			$tested_themes
-		);
-
-		$this->assertSameSets( $tested_themes, $new_theme_files, 'New bundled files should include the default themes.' );
-	}
-
-	public function test_default_themes_have_textdomain() {
-		foreach ( $this->default_themes as $theme ) {
-			if ( wp_get_theme( $theme )->exists() ) {
-				$this->assertSame( $theme, wp_get_theme( $theme )->get( 'TextDomain' ) );
-			}
-		}
-	}
-
-	public function theme_data_extra_headers() {
-		return array( 'License' );
 	}
 
 	public function test_switch_theme_bogus() {

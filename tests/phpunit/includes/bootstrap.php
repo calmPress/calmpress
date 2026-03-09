@@ -254,7 +254,7 @@ if ( file_exists( DIR_TESTDATA . '/themedir1' ) ) {
 	$wp_theme_directories[] = DIR_TESTDATA . '/themedir1';
 }
 
-define( 'WP_PLUGIN_DIR', DIR_TESTDATA . '/plugins' );
+// define( 'WP_PLUGIN_DIR', DIR_TESTDATA . '/plugins' );
 
 if ( '1' !== getenv( 'WP_TESTS_SKIP_INSTALL' ) ) {
 	$core_tests = ( defined( 'WP_RUN_CORE_TESTS' ) && WP_RUN_CORE_TESTS ) ? 'run_core_tests' : 'no_core_tests';

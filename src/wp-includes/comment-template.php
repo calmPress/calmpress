@@ -1720,9 +1720,13 @@ function post_reply_link( $args = array(), $post = null ) {
 
 /**
  * Retrieves HTML content for cancel comment reply link.
+ * 
+ * In calmpress it exists for compatibility withwordpress, but returns empty string
+ * as canceling a comment is not a supported functionality.
  *
  * @since 2.7.0
  * @since 6.2.0 Added the `$post` parameter.
+ * @since calmpress 1.0.0 returns empty string.
  *
  * @param string           $link_text Optional. Text to display for cancel reply link. If empty,
  *                                    defaults to 'Click here to cancel reply'. Default empty.
@@ -1731,32 +1735,7 @@ function post_reply_link( $args = array(), $post = null ) {
  * @return string
  */
 function get_cancel_comment_reply_link( $link_text = '', $post = null ) {
-	if ( empty( $link_text ) ) {
-		$link_text = __( 'Click here to cancel reply.' );
-	}
-
-	$post        = get_post( $post );
-	$reply_to_id = $post ? _get_comment_reply_id( $post->ID ) : 0;
-	$link_style  = 0 !== $reply_to_id ? '' : ' style="display:none;"';
-	$link_url    = esc_url( get_permalink( $post ) ) . '#respond';
-
-	$cancel_comment_reply_link = sprintf(
-		'<a rel="nofollow" id="cancel-comment-reply-link" href="%1$s"%2$s>%3$s</a>',
-		$link_url,
-		$link_style,
-		$link_text
-	);
-
-	/**
-	 * Filters the cancel comment reply link HTML.
-	 *
-	 * @since 2.7.0
-	 *
-	 * @param string $cancel_comment_reply_link The HTML-formatted cancel comment reply link.
-	 * @param string $link_url                  Cancel comment reply link URL.
-	 * @param string $link_text                 Cancel comment reply link text.
-	 */
-	return apply_filters( 'cancel_comment_reply_link', $cancel_comment_reply_link, $link_url, $link_text );
+	return '';
 }
 
 /**
@@ -1788,7 +1767,9 @@ function get_comment_id_fields( $post = null ) {
 	}
 
 	$post_id     = $post->ID;
-	$reply_to_id = _get_comment_reply_id( $post_id );
+	$reply_to_id = 0; // for backward compatibility with wordpress. As we do not support
+	                  // a stand alone "reply to" page, the value is meaningless, just need to have
+					  // it there for the JS handling of threaded comments.
 
 	$comment_id_fields  = "<input type='hidden' name='comment_post_ID' value='$post_id' id='comment_post_ID' />\n";
 	$comment_id_fields .= "<input type='hidden' name='comment_parent' id='comment_parent' value='$reply_to_id' />\n";
@@ -2211,7 +2192,7 @@ function comment_form( $args = array(), $post = null ) {
 				__( '(optional)' )
 			),
 			sprintf(
-				'<input id="email" name="email" %s value="%s" size="30" maxlength="100" aria-describedby="email-notes" autocomplete="email"%s />',
+				'<input id="email" name="email" %s value="%s" size="30" maxlength="100" aria-describedby="email-notes" autocomplete="email" />',
 				( $html5 ? 'type="email"' : 'type="text"' ),
 				esc_attr( $comment_author_email )
 			),
@@ -2272,7 +2253,7 @@ function comment_form( $args = array(), $post = null ) {
 </script>
 JS;
 		}
-	}
+	);
 
 	$original_fields = $fields;
 

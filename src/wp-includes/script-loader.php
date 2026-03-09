@@ -2554,16 +2554,6 @@ function _wp_normalize_relative_css_links( $css, $stylesheet_url ) {
 				return $matches[0];
 			}
 
-			// Skip if the URL is an HTML ID.
-			if ( str_starts_with( $src_result, '#' ) ) {
-				continue;
-			}
-
-			// Skip if the URL is a data URI.
-			if ( str_starts_with( $src_result, 'data:' ) ) {
-				continue;
-			}
-
 			// Build the absolute URL.
 			$absolute_url = dirname( $stylesheet_url ) . '/' . $url;
 			$absolute_url = str_replace( '/./', '/', $absolute_url );
@@ -2575,17 +2565,6 @@ function _wp_normalize_relative_css_links( $css, $stylesheet_url ) {
 		},
 		$css
 	);
-}
-
-/**
- * Function that enqueues the CSS Custom Properties coming from theme.json.
- *
- * @since 5.9.0
- */
-function wp_enqueue_global_styles_css_custom_properties() {
-	wp_register_style( 'global-styles-css-custom-properties', false );
-	wp_add_inline_style( 'global-styles-css-custom-properties', wp_get_global_stylesheet( array( 'variables' ) ) );
-	wp_enqueue_style( 'global-styles-css-custom-properties' );
 }
 
 /**
@@ -2641,21 +2620,6 @@ function wp_enqueue_stored_styles( $options = array() ) {
 		wp_register_style( $style_tag_id, false );
 		wp_add_inline_style( $style_tag_id, $compiled_core_stylesheet );
 		wp_enqueue_style( $style_tag_id );
-	}
-
-	// Prints out any other stores registered by themes or otherwise.
-	$additional_stores = WP_Style_Engine_CSS_Rules_Store::get_stores();
-	foreach ( array_keys( $additional_stores ) as $store_name ) {
-		if ( in_array( $store_name, $core_styles_keys, true ) ) {
-			continue;
-		}
-		$styles = wp_style_engine_get_stylesheet_from_context( $store_name, $options );
-		if ( ! empty( $styles ) ) {
-			$key = "wp-style-engine-$store_name";
-			wp_register_style( $key, false );
-			wp_add_inline_style( $key, $styles );
-			wp_enqueue_style( $key );
-		}
 	}
 }
 

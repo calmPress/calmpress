@@ -675,7 +675,7 @@ function locate_template( $template_names, $load = false, $load_once = true, $ar
  * @param array  $args           Optional. Additional arguments passed to the template.
  *                               Default empty array.
  */
-function load_template( $_template_file, $require_once = true, $args = array() ) {
+function load_template( $_template_file, $load_once = true, $args = array() ) {
 	global $posts, $post, $wp_did_header, $wp_query, $wp_rewrite, $wpdb, $wp, $id, $comment, $user_ID;
 
 	if ( is_array( $wp_query->query_vars ) ) {

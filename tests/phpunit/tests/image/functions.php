@@ -13,6 +13,8 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+		require_once ABSPATH . 'wp-admin/includes/image-edit.php';
 		require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
 		require_once ABSPATH . WPINC . '/class-wp-image-editor-gd.php';
 		require_once ABSPATH . WPINC . '/class-wp-image-editor-imagick.php';
@@ -277,7 +279,6 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 	 * @param string $mime_type  The mime type to test.
 	 */
 	public function test_wp_save_image_file( $class_name, $mime_type ) {
-		require_once ABSPATH . 'wp-admin/includes/image-edit.php';
 
 		$img    = new $class_name( DIR_TESTDATA . '/images/canola.jpg' );
 		$loaded = $img->load();
@@ -351,7 +352,6 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 	 * @covers ::wp_image_editor
 	 */
 	public function test_wp_image_editor_should_apply_image_edit_thumbnails_separately_filters() {
-		require_once ABSPATH . 'wp-admin/includes/image-edit.php';
 
 		$filename = DIR_TESTDATA . '/images/canola.jpg';
 		$contents = file_get_contents( $filename );
@@ -382,7 +382,6 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 	 * @param bool   $expected Whether the markup should be output.
 	 */
 	public function test_wp_image_editor_should_respect_image_edit_thumbnails_separately_filters( $callback, $expected ) {
-		require_once ABSPATH . 'wp-admin/includes/image-edit.php';
 
 		$filename = DIR_TESTDATA . '/images/canola.jpg';
 		$contents = file_get_contents( $filename );

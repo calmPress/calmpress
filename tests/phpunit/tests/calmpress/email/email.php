@@ -72,16 +72,12 @@ class Email_Test extends WP_UnitTestCase {
 	 */
 	public function test_constructor() {
 		$subject_property = new ReflectionProperty( 'calmpress\email\Email', 'subject' );
-        $subject_property->setAccessible(true);
 
 		$content_property = new ReflectionProperty( 'calmpress\email\Email', 'content' );
-        $content_property->setAccessible(true);
 
 		$content_is_html_property = new ReflectionProperty( 'calmpress\email\Email', 'content_is_html' );
-        $content_is_html_property->setAccessible(true);
 
 		$to_property = new ReflectionProperty( 'calmpress\email\Email', 'to' );
-        $to_property->setAccessible(true);
 
 		// common use.
 		$address = new Email_Address( 'a@b.com' );
@@ -642,8 +638,10 @@ class Email_Test extends WP_UnitTestCase {
 		$rt = $phpmailer->getReplyToAddresses();
 		// Internal PHPMailer addresses are different here (in actually good way).
 		$this->assertSame( 2, count( $rt ) );
+		$this->assertTrue( array_key_exists( 'rt1@test.com', $rt ) );
 		$this->assertSame( 'rt1@test.com', $rt['rt1@test.com'][0] );
 		$this->assertSame( 'rt name', $rt['rt1@test.com'][1] );
+		$this->assertTrue( array_key_exists( 'rt2@test.com', $rt ) );
 		$this->assertSame( 'rt2@test.com', $rt['rt2@test.com'][0] );
 		$this->assertSame( 'name', $rt['rt2@test.com'][1] );	
 

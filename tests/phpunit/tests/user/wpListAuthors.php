@@ -26,12 +26,6 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		self::$author_ids[] = $factory->term->create( array( 'taxonomy' => \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, 'name' => 'paul' ) );
 		self::$fred_id = $factory->term->create( array( 'taxonomy' => \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, 'name' => 'fred' ) );
 
-		/*
-		 * Re-initialize WP_Rewrite, so that get_author_posts_url() uses
-		 * the default permalink structure, not affected by other tests.
-		 */
-		$wp_rewrite->init();
-
 		$count = 0;
 		foreach ( self::$author_ids as $authorid ) {
 			$count = $count + 1;

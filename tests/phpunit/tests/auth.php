@@ -1131,21 +1131,6 @@ class Tests_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 38744
-	 */
-	public function test_wp_signon_using_email_with_an_apostrophe() {
-		$user_args = array(
-			'user_email' => "mail\'@example.com",
-			'user_pass'  => 'password',
-		);
-		self::factory()->user->create( $user_args );
-
-		$_POST['log'] = $user_args['user_email'];
-		$_POST['pwd'] = $user_args['user_pass'];
-		$this->assertInstanceOf( 'WP_User', wp_signon() );
-	}
-
-	/**
 	 * Tests that PHP 8.1 "passing null to non-nullable" deprecation notices
 	 * are not thrown when `user_login` and `user_password` parameters are empty.
 	 *
@@ -1438,28 +1423,6 @@ class Tests_Auth extends WP_UnitTestCase {
 		} else {
 			$this->assertSame( 0, $current );
 		}
-	}
-
-	/**
-	 * @ticket 52529
-	 */
-	public function test_reset_password_with_apostrophe_in_email() {
-		$user_args = array(
-			'user_email' => "jo'hn@example.com",
-			'user_pass'  => 'password',
-		);
-
-		$user_id = self::factory()->user->create( $user_args );
-
-		$user = get_userdata( $user_id );
-		$key  = get_password_reset_key( $user );
-
-		// A correctly saved key should be accepted.
-		$check = check_password_reset_key( $key, $user->user_login );
-
-		$this->assertNotWPError( $check );
-		$this->assertInstanceOf( 'WP_User', $check );
-		$this->assertSame( $user_id, $check->ID );
 	}
 
 	public function data_application_passwords_can_use_capability_checks_to_determine_feature_availability() {

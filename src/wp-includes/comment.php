@@ -1047,7 +1047,8 @@ function wp_check_comment_data( $comment_data ) {
 			$comment_data['comment_content'],
 			$comment_data['comment_author_IP'],
 			$comment_data['comment_agent'],
-			$comment_data['comment_type']
+			$comment_data['comment_type'],
+			$comment_data['comment_post_ID']
 		) ) {
 			$approved = 1;
 		} else {

@@ -246,6 +246,8 @@ class WP_Taxonomy {
 	 * to set 'name' and optionally 'slug' and 'description'.
 	 *
 	 * @since 5.5.0
+	 * @since calmpress 1.0.0 exists for compatibility with wordpress but ignored.
+	 *
 	 * @var array|string
 	 */
 	public $default_term;
@@ -362,7 +364,7 @@ class WP_Taxonomy {
 			'rest_base'             => false,
 			'rest_namespace'        => false,
 			'rest_controller_class' => false,
-			'default_term'          => null,
+			'default_term'          => '',
 			'sort'                  => null,
 			'args'                  => null,
 			'_builtin'              => false,
@@ -458,21 +460,6 @@ class WP_Taxonomy {
 					$args['meta_box_sanitize_cb'] = 'taxonomy_meta_box_sanitize_cb_input';
 					break;
 			}
-		}
-
-		// Default taxonomy term.
-		if ( ! empty( $args['default_term'] ) ) {
-			if ( ! is_array( $args['default_term'] ) ) {
-				$args['default_term'] = array( 'name' => $args['default_term'] );
-			}
-			$args['default_term'] = wp_parse_args(
-				$args['default_term'],
-				array(
-					'name'        => '',
-					'slug'        => '',
-					'description' => '',
-				)
-			);
 		}
 
 		foreach ( $args as $property_name => $property_value ) {

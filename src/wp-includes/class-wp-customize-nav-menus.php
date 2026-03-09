@@ -180,7 +180,7 @@ class WP_Customize_Nav_Menus {
 					$suppress_page_ids[] = $posts_page_obj->ID;
 				}
 
-			} elseif ( 'post' !== $object && 0 === $page && $post_type->has_archive ) {
+			} elseif ( 'post' !== $object_name && 0 === $page && $post_type->has_archive ) {
 				// Add a post type archive link.
 				$title   = $post_type->labels->archives;
 				$items[] = array(

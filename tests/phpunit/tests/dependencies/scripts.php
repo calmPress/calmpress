@@ -2402,9 +2402,6 @@ HTML;
 		$this->assertEqualHTML( $expected_tail, $tail );
 	}
 
-		$this->assertEqualHTML( $expected, get_echo( 'wp_print_scripts' ) );
-	}
-
 	/**
 	 * Data provider to test get_inline_script_data and get_inline_script_tag.
 	 *

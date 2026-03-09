@@ -1114,7 +1114,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_prepare_item_limit_fields() {
-		$id = self::factory->category->create( array( 'name' => 'Season 5' ) );
+		$id = self::factory()->category->create( array( 'name' => 'Season 5' ) );
 		$request  = new WP_REST_Request();
 		$endpoint = new WP_REST_Terms_Controller( 'category' );
 		$request->set_param( '_fields', 'id,name' );
@@ -1130,7 +1130,7 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	public function test_prepare_taxonomy_term_child() {
-		$id = self::factory->category->create( array( 'name' => 'Season 5' ) );
+		$id = self::factory()->category->create( array( 'name' => 'Season 5' ) );
 		$child = self::factory()->category->create(
 			array(
 				'parent' => $id,

@@ -816,51 +816,50 @@ function do_meta_boxes( $screen, $context, $data_object ) {
 
 					$widget_title = $box['title'];
 
-						if ( is_array( $box['args'] ) && isset( $box['args']['__widget_basename'] ) ) {
-							$widget_title = $box['args']['__widget_basename'];
-							// Do not pass this parameter to the user callback function.
-							unset( $box['args']['__widget_basename'] );
-						}
-
-						echo '<div class="handle-actions hide-if-no-js">';
-
-						echo '<button type="button" class="handle-order-higher" aria-disabled="false" aria-describedby="' . $box['id'] . '-handle-order-higher-description">';
-						echo '<span class="screen-reader-text">' .
-							/* translators: Hidden accessibility text. */
-							__( 'Move up' ) .
-						'</span>';
-						echo '<span class="order-higher-indicator" aria-hidden="true"></span>';
-						echo '</button>';
-						echo '<span class="hidden" id="' . $box['id'] . '-handle-order-higher-description">' . sprintf(
-							/* translators: %s: Meta box title. */
-							__( 'Move %s box up' ),
-							$widget_title
-						) . '</span>';
-
-						echo '<button type="button" class="handle-order-lower" aria-disabled="false" aria-describedby="' . $box['id'] . '-handle-order-lower-description">';
-						echo '<span class="screen-reader-text">' .
-							/* translators: Hidden accessibility text. */
-							__( 'Move down' ) .
-						'</span>';
-						echo '<span class="order-lower-indicator" aria-hidden="true"></span>';
-						echo '</button>';
-						echo '<span class="hidden" id="' . $box['id'] . '-handle-order-lower-description">' . sprintf(
-							/* translators: %s: Meta box title. */
-							__( 'Move %s box down' ),
-							$widget_title
-						) . '</span>';
-
-						echo '<button type="button" class="handlediv" aria-expanded="true">';
-						echo '<span class="screen-reader-text">' . sprintf(
-							/* translators: %s: Hidden accessibility text. Meta box title. */
-							__( 'Toggle panel: %s' ),
-							$widget_title
-						) . '</span>';
-						echo '<span class="toggle-indicator" aria-hidden="true"></span>';
-						echo '</button>';
-
-						echo '</div>';
+					if ( is_array( $box['args'] ) && isset( $box['args']['__widget_basename'] ) ) {
+						$widget_title = $box['args']['__widget_basename'];
+						// Do not pass this parameter to the user callback function.
+						unset( $box['args']['__widget_basename'] );
 					}
+
+					echo '<div class="handle-actions hide-if-no-js">';
+
+					echo '<button type="button" class="handle-order-higher" aria-disabled="false" aria-describedby="' . $box['id'] . '-handle-order-higher-description">';
+					echo '<span class="screen-reader-text">' .
+						/* translators: Hidden accessibility text. */
+						__( 'Move up' ) .
+					'</span>';
+					echo '<span class="order-higher-indicator" aria-hidden="true"></span>';
+					echo '</button>';
+					echo '<span class="hidden" id="' . $box['id'] . '-handle-order-higher-description">' . sprintf(
+						/* translators: %s: Meta box title. */
+						__( 'Move %s box up' ),
+						$widget_title
+					) . '</span>';
+
+					echo '<button type="button" class="handle-order-lower" aria-disabled="false" aria-describedby="' . $box['id'] . '-handle-order-lower-description">';
+					echo '<span class="screen-reader-text">' .
+						/* translators: Hidden accessibility text. */
+						__( 'Move down' ) .
+					'</span>';
+					echo '<span class="order-lower-indicator" aria-hidden="true"></span>';
+					echo '</button>';
+					echo '<span class="hidden" id="' . $box['id'] . '-handle-order-lower-description">' . sprintf(
+						/* translators: %s: Meta box title. */
+						__( 'Move %s box down' ),
+						$widget_title
+					) . '</span>';
+
+					echo '<button type="button" class="handlediv" aria-expanded="true">';
+					echo '<span class="screen-reader-text">' . sprintf(
+						/* translators: %s: Hidden accessibility text. Meta box title. */
+						__( 'Toggle panel: %s' ),
+						$widget_title
+					) . '</span>';
+					echo '<span class="toggle-indicator" aria-hidden="true"></span>';
+					echo '</button>';
+
+					echo '</div>';
 
 					echo '<div class="handle-actions hide-if-no-js">';
 

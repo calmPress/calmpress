@@ -484,22 +484,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 	}
 
 	/**
-	 * @ticket 62574
-	 */
-	public function test_theme_default_template_types() {
-		$response = self::perform_active_theme_request();
-		$result   = $response->get_data();
-		$expected = array();
-		foreach ( get_default_block_template_types() as $slug => $template_type ) {
-			$template_type['slug'] = (string) $slug;
-			$expected[]            = $template_type;
-		}
-
-		$this->assertArrayHasKey( 'default_template_types', $result[0] );
-		$this->assertSame( $expected, $result[0]['default_template_types'] );
-	}
-
-	/**
 	 * @ticket 49906
 	 */
 	public function test_theme_requires_php() {
@@ -517,27 +501,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 		$result   = $response->get_data();
 		$this->assertArrayHasKey( 'requires_wp', $result[0] );
 		$this->assertSame( '5.3', $result[0]['requires_wp'] );
-	}
-
-	/**
-	 * @ticket 58123
-	 * @covers WP_REST_Themes_Controller::prepare_item_for_response
-	 */
-	public function test_theme_is_block_theme() {
-		// Test classic theme, activated in test setup.
-		$response = self::perform_active_theme_request();
-		$result   = $response->get_data();
-
-		$this->assertArrayHasKey( 'is_block_theme', $result[0] );
-		$this->assertFalse( $result[0]['is_block_theme'] );
-
-		// Test block theme.
-		switch_theme( 'block-theme' );
-		$response = self::perform_active_theme_request();
-		$result   = $response->get_data();
-
-		$this->assertArrayHasKey( 'is_block_theme', $result[0] );
-		$this->assertTrue( $result[0]['is_block_theme'] );
 	}
 
 	/**

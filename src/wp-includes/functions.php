@@ -5796,7 +5796,7 @@ function is_lighttpd_before_150() {
  */
 function apache_mod_loaded( $mod, $default_value = false ) {
 
-	if ( ! $is_apache() ) {
+	if ( ! is_apache() ) {
 		return false;
 	}
 

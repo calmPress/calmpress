@@ -350,15 +350,7 @@ class WP_REST_Themes_Controller extends WP_REST_Controller {
 
 		if ( rest_is_field_included( 'default_template_types', $fields ) && $this->is_same_theme( $theme, $current_theme ) ) {
 			$default_template_types = array();
-			foreach ( get_default_block_template_types() as $slug => $template_type ) {
-				$template_type['slug']    = (string) $slug;
-				$default_template_types[] = $template_type;
-			}
 			$data['default_template_types'] = $default_template_types;
-		}
-
-		if ( rest_is_field_included( 'default_template_part_areas', $fields ) && $this->is_same_theme( $theme, $current_theme ) ) {
-			$data['default_template_part_areas'] = get_allowed_block_template_part_areas();
 		}
 
 		$data = $this->add_additional_fields_to_object( $data, $request );
@@ -399,29 +391,6 @@ class WP_REST_Themes_Controller extends WP_REST_Controller {
 				'href' => rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) ),
 			),
 		);
-
-		if ( $this->is_same_theme( $theme, wp_get_theme() ) ) {
-			// This creates a record for the active theme if not existent.
-			$id = WP_Theme_JSON_Resolver::get_user_global_styles_post_id();
-		} else {
-			$user_cpt = WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( $theme );
-			$id       = isset( $user_cpt['ID'] ) ? $user_cpt['ID'] : null;
-		}
-
-		if ( $id ) {
-			$links['https://api.w.org/user-global-styles'] = array(
-				'href' => rest_url( 'wp/v2/global-styles/' . $id ),
-			);
-		}
-
-		if ( $theme->is_block_theme() && $this->is_same_theme( $theme, wp_get_theme() ) ) {
-			$links['https://api.w.org/export-theme'] = array(
-				'href'        => rest_url( 'wp-block-editor/v1/export' ),
-				'targetHints' => array(
-					'allow' => current_user_can( 'export' ) ? array( 'GET' ) : array(),
-				),
-			);
-		}
 
 		return $links;
 	}
