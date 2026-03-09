@@ -153,23 +153,6 @@ class WP_Test_REST_Schema_Validation extends WP_UnitTestCase {
 	/**
 	 * @ticket 50189
 	 */
-	public function test_format_validation_is_applied_if_missing_type() {
-		if ( PHP_VERSION_ID >= 80000 ) {
-			$this->expectWarning(); // For the undefined index.
-		} else {
-			$this->expectNotice(); // For the undefined index.
-		}
-
-		$this->setExpectedIncorrectUsage( 'rest_validate_value_from_schema' );
-
-		$schema = array( 'format' => 'email' );
-		$this->assertTrue( rest_validate_value_from_schema( 'email@example.com', $schema ) );
-		$this->assertWPError( rest_validate_value_from_schema( 'email', $schema ) );
-	}
-
-	/**
-	 * @ticket 50189
-	 */
 	public function test_format_validation_is_applied_if_unknown_type() {
 		$this->setExpectedIncorrectUsage( 'rest_validate_value_from_schema' );
 

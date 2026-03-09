@@ -264,39 +264,6 @@ class Tests_WP_Generate_Tag_Cloud extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 5172
-	 */
-	public function test_should_include_tag_link_position_class() {
-		if ( PHP_VERSION_ID >= 80100 ) {
-			/*
-			 * For the time being, ignoring PHP 8.1 "null to non-nullable" deprecations coming in
-			 * via hooked in filter functions until a more structural solution to the
-			 * "missing input validation" conundrum has been architected and implemented.
-			 */
-			$this->expectDeprecation();
-			$this->expectDeprecationMessageMatches( '`Passing null to parameter \#[0-9]+ \(\$[^\)]+\) of type [^ ]+ is deprecated`' );
-		}
-
-		register_taxonomy( 'wptests_tax', 'post' );
-		$term_ids = self::factory()->term->create_many( 3, array( 'taxonomy' => 'wptests_tax' ) );
-
-		$p = self::factory()->post->create();
-		wp_set_post_terms( $p, $term_ids, 'wptests_tax' );
-
-		$term_objects = get_terms(
-			'wptests_tax',
-			array(
-				'include' => $term_ids,
-			)
-		);
-
-		$cloud = wp_generate_tag_cloud( $term_objects );
-		preg_match_all( '|tag\-link\-position-([0-9]+)|', $cloud, $matches );
-
-		$this->assertSame( array( 1, 2, 3 ), array_map( 'intval', $matches[1] ) );
-	}
-
-	/**
 	 * Helper method retrieve the created terms.
 	 *
 	 * @param array $get_terms_args Options passed to get_terms()

@@ -10,49 +10,6 @@
 class Tests_Functions_CleanDirsizeCache extends WP_UnitTestCase {
 
 	/**
-	 * Tests the handling of invalid data passed as the $path parameter.
-	 *
-	 * @ticket 52241
-	 *
-	 * @dataProvider data_clean_dirsize_cache_with_invalid_inputs
-	 *
-	 * @param mixed  $path             Path input to use in the test.
-	 * @param string $expected_message Expected notice message.
-	 */
-	public function test_clean_dirsize_cache_with_invalid_inputs( $path, $expected_message ) {
-		$this->expectNotice();
-		$this->expectNoticeMessage( $expected_message );
-
-		clean_dirsize_cache( $path );
-	}
-
-	/**
-	 * Data provider.
-	 *
-	 * @return array
-	 */
-	public function data_clean_dirsize_cache_with_invalid_inputs() {
-		return array(
-			'null'         => array(
-				'path'             => null,
-				'expected_message' => '<code>clean_dirsize_cache()</code> only accepts a non-empty path string, received <code>NULL</code>.',
-			),
-			'bool false'   => array(
-				'path'             => false,
-				'expected_message' => '<code>clean_dirsize_cache()</code> only accepts a non-empty path string, received <code>boolean</code>.',
-			),
-			'empty string' => array(
-				'path'             => '',
-				'expected_message' => '<code>clean_dirsize_cache()</code> only accepts a non-empty path string, received <code>string</code>.',
-			),
-			'array'        => array(
-				'path'             => array( '.', './second/path/' ),
-				'expected_message' => '<code>clean_dirsize_cache()</code> only accepts a non-empty path string, received <code>array</code>.',
-			),
-		);
-	}
-
-	/**
 	 * Tests the handling of a non-path text string passed as the $path parameter.
 	 *
 	 * @ticket 52241

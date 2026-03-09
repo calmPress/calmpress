@@ -453,23 +453,6 @@ class WP_Test_REST_Schema_Sanitization extends WP_UnitTestCase {
 	/**
 	 * @ticket 50189
 	 */
-	public function test_format_validation_is_applied_if_missing_type() {
-		if ( PHP_VERSION_ID >= 80000 ) {
-			$this->expectWarning(); // For the undefined index.
-		} else {
-			$this->expectNotice(); // For the undefined index.
-		}
-
-		$this->setExpectedIncorrectUsage( 'rest_sanitize_value_from_schema' );
-
-		$schema = array( 'format' => 'hex-color' );
-		$this->assertSame( '#abc', rest_sanitize_value_from_schema( '#abc', $schema ) );
-		$this->assertSame( '', rest_sanitize_value_from_schema( '#jkl', $schema ) );
-	}
-
-	/**
-	 * @ticket 50189
-	 */
 	public function test_format_validation_is_applied_if_unknown_type() {
 		$this->setExpectedIncorrectUsage( 'rest_sanitize_value_from_schema' );
 

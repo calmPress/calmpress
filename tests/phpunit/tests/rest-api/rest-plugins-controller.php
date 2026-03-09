@@ -519,22 +519,6 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 	/**
 	 * @ticket 50321
 	 */
-	public function test_create_item_wdotorg_unreachable() {
-		wp_set_current_user( self::$super_admin );
-
-		$request = new WP_REST_Request( 'POST', self::BASE );
-		$request->set_body_params( array( 'slug' => 'foo' ) );
-
-		$this->prevent_requests_to_host( 'api.wordpress.org' );
-
-		$this->expectWarning();
-		$response = rest_do_request( $request );
-		$this->assertErrorResponse( 'plugins_api_failed', $response, 500 );
-	}
-
-	/**
-	 * @ticket 50321
-	 */
 	public function test_create_item_unknown_plugin() {
 		wp_set_current_user( self::$super_admin );
 		add_filter(

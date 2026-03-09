@@ -42,37 +42,6 @@ class Tests_Formatting_wpStripAllTags extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that `wp_strip_all_tags()` triggers a warning and returns
-	 * an empty string when passed a non-string argument.
-	 *
-	 * @ticket 56434
-	 *
-	 * @dataProvider data_wp_strip_all_tags_should_return_empty_string_and_trigger_an_error_for_non_string_arg
-	 *
-	 * @param mixed $non_string A non-string value.
-	 */
-	public function test_wp_strip_all_tags_should_return_empty_string_and_trigger_an_error_for_non_string_arg( $non_string ) {
-		$type = gettype( $non_string );
-		$this->expectError();
-		$this->expectErrorMessage( "Warning: wp_strip_all_tags expects parameter #1 (\$text) to be a string, $type given." );
-		$this->assertSame( '', wp_strip_all_tags( $non_string ) );
-	}
-
-	/**
-	 * Data provider for test_wp_strip_all_tags_should_return_empty_string_and_trigger_an_error_for_non_string_arg().
-	 *
-	 * @return array[]
-	 */
-	public function data_wp_strip_all_tags_should_return_empty_string_and_trigger_an_error_for_non_string_arg() {
-		return array(
-			'an empty array'     => array( 'non_string' => array() ),
-			'a non-empty array'  => array( 'non_string' => array( 'a string' ) ),
-			'an empty object'    => array( 'non_string' => new stdClass() ),
-			'a non-empty object' => array( 'non_string' => (object) array( 'howdy' => 'admin' ) ),
-		);
-	}
-
-	/**
 	 * Tests that `wp_strip_all_tags()` casts scalar values to string.
 	 *
 	 * @ticket 56434

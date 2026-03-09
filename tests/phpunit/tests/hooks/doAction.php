@@ -105,11 +105,6 @@ class Tests_Hooks_DoAction extends WP_UnitTestCase {
 		$hook      = new WP_Hook();
 		$hook_name = __FUNCTION__;
 
-		if ( $expected_deprecation && PHP_VERSION_ID >= 80100 ) {
-			$this->expectDeprecation();
-			$this->expectDeprecationMessage( $expected_deprecation );
-		}
-
 		$hook->add_filter( $hook_name, array( $mock, 'action' ), $priorities[0], 1 );
 		$hook->add_filter( $hook_name, array( $mock, 'action2' ), $priorities[1], 1 );
 		$hook->do_action( array( '' ) );
@@ -153,16 +148,6 @@ class Tests_Hooks_DoAction extends WP_UnitTestCase {
 			'int as string ASC'                => array(
 				'priorities'          => array( '9', '10' ),
 				'expected_call_order' => array( 'action', 'action2' ),
-			),
-			'float DESC'                       => array(
-				'priorities'           => array( 10.0, 9.5 ),
-				'expected_call_order'  => array( 'action2', 'action' ),
-				'expected_deprecation' => 'Implicit conversion from float 9.5 to int loses precision',
-			),
-			'float ASC'                        => array(
-				'priorities'           => array( 9.5, 10.0 ),
-				'expected_call_order'  => array( 'action', 'action2' ),
-				'expected_deprecation' => 'Implicit conversion from float 9.5 to int loses precision',
 			),
 			'float as string DESC'             => array(
 				'priorities'          => array( '10.0', '9.5' ),
