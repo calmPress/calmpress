@@ -339,7 +339,6 @@ add_action( 'wp_head', 'wp_enqueue_scripts', 1 );
 add_action( 'wp_head', 'wp_resource_hints', 2 );
 add_action( 'wp_head', 'wp_preload_resources', 1 );
 add_action( 'wp_head', 'feed_links', 2 );
-add_action( 'wp_head', 'feed_links_extra', 3 );
 add_action( 'wp_head', 'locale_stylesheet' );
 add_action( 'publish_future_post', 'check_and_publish_future_post', 10, 1 );
 add_action( 'wp_head', 'wp_robots', 1 );
@@ -586,7 +585,7 @@ add_filter( 'media_send_to_editor', 'image_media_send_to_editor', 10, 3 );
 add_action( 'rest_api_init', 'wp_oembed_register_route' );
 add_filter( 'rest_pre_serve_request', '_oembed_rest_pre_serve_request', 10, 4 );
 
-add_action( 'wp_head', 'wp_oembed_add_discovery_links', 4 ); // Printed after feed_links() and feed_links_extra().
+add_action( 'wp_head', 'wp_oembed_add_discovery_links', 4 ); // Printed after feed_links().
 add_action( 'wp_head', 'wp_oembed_add_discovery_links' ); // Unhooked the first time that wp_oembed_add_discovery_links() runs for back-compat.
 add_action( 'wp_head', 'wp_oembed_add_host_js' ); // Back-compat for sites disabling oEmbed host JS by removing action.
 add_filter( 'embed_oembed_html', 'wp_maybe_enqueue_oembed_host_js' );
