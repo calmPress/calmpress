@@ -4733,7 +4733,7 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 	$to_ping = '';
 	$pinged = '';
 	$import_id = isset( $postarr['import_id'] ) ? $postarr['import_id'] : 0;
-	$post_password = '';
+	$post_password = $postarr['post_password'] ?? '';
 
 	/*
 	 * The 'wp_insert_post_parent' filter expects all variables to be present.
