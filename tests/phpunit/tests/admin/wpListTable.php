@@ -95,7 +95,7 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 			'WP_Media_List_Table'                         => 'title',
 			'WP_MS_Sites_List_Table'                      => 'blogname',
 			'WP_MS_Themes_List_Table'                     => 'name',
-			'WP_MS_Users_List_Table'                      => 'username',
+			'WP_MS_Users_List_Table'                      => 'name',
 			'WP_Plugin_Install_List_Table'                => '',
 			'WP_Plugins_List_Table'                       => 'name',
 			'WP_Posts_List_Table'                         => 'title',
@@ -104,7 +104,7 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 			'WP_Terms_List_Table'                         => 'name',
 			'WP_Theme_Install_List_Table'                 => '',
 			'WP_Themes_List_Table'                        => '',
-			'WP_Users_List_Table'                         => 'username',
+			'WP_Users_List_Table'                         => 'name',
 		);
 
 		$datasets = array();
