@@ -375,6 +375,9 @@ class Tests_Admin_IncludesFile extends WP_UnitTestCase {
 	 * @param string $ext The expected file extension to match.
 	 */
 	public function test_download_url_should_use_the_content_type_header_to_set_extension_of_a_file_if_extension_was_not_determined( $filter, $extension ) {
+		if ( PHP_OS_FAMILY === 'Windows' ) {
+			$this->markTestSkipped( 'temporary windows directory deemed unsecure so skip this for windows.' );
+		}
 		add_filter( 'pre_http_request', $filter );
 
 		$filename = download_url( 'url_with_content_type_header' );
