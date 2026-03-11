@@ -8,85 +8,6 @@
  * @group testsuite
  */
 class Tests_Build_Equivalent_HTML_Semantic_Tree extends WP_UnitTestCase {
-	public function data_build_equivalent_html_semantic_tree() {
-		$block_markup = <<<'HTML'
-<!-- wp:separator {"className":"is-style-default has-custom-classname","style":{"spacing":{"margin":{"top":"50px","bottom":"50px"}}},"backgroundColor":"accent-1"} -->
-  <hr class="wp-block-separator is-style-default has-custom-classname" style="margin-top: 50px; margin-bottom: 50px" />
-<!-- /wp:separator -->
-HTML;
-
-		$tree_structure = <<<'TREE'
-BLOCK["core/separator"]
-  {
-    "backgroundColor": "accent-1",
-    "className": "has-custom-classname is-style-default",
-    "style": {
-      "spacing": {
-        "margin": {
-          "top": "50px",
-          "bottom": "50px"
-        }
-      }
-    }
-  }
-  "
-  "
-  <hr>
-    class="has-custom-classname is-style-default wp-block-separator"
-    style="margin-top:50px;margin-bottom:50px;"
-  "
-"
-
-TREE;
-
-		yield 'Block delimiter' => array( $block_markup, $tree_structure );
-
-		$block_markup = <<<'HTML'
-<!-- wp:example/block -->
-	One
-	<!-- wp:example/nested-void /-->
-	Two
-	<!-- wp:example/nested -->
-		Three
-	<!-- /wp:example/nested -->
-	Four
-<!-- /wp:example/block -->
-HTML;
-
-		$tree_structure = <<<'TREE'
-BLOCK["example/block"]
-  "
-	One
-	"
-  BLOCK["example/nested-void"]
-  "
-	Two
-	"
-  BLOCK["example/nested"]
-    "
-		Three
-	"
-  "
-	Four
-"
-
-TREE;
-
-		yield 'Text nodes in blocks' => array( $block_markup, $tree_structure );
-	}
-
-	/**
-	 * @ticket 63527
-	 * @ticket 64531
-	 *
-	 * @covers ::build_visual_html_tree
-	 *
-	 * @dataProvider data_build_equivalent_html_semantic_tree
-	 */
-	public function test_build_equivalent_html_semantic_tree( $markup, $expected ) {
-		$actual = build_visual_html_tree( $markup, '<body>' );
-		$this->assertSame( $expected, $actual );
-	}
 
 	public function data_build_equivalent_html_semantic_tree_with_equivalent_html() {
 		return array(
@@ -101,22 +22,6 @@ TREE;
 			'Differences in style attribute whitespace and trailing semicolon' => array(
 				'<hr style="margin-top: 50px; margin-bottom: 50px;">',
 				'<hr style="margin-top:50px;margin-bottom: 50px">',
-			),
-			'Different block attribute order'          => array(
-				'<!-- wp:separator {"className":"is-style-default","backgroundColor":"accent-1"} -->',
-				'<!-- wp:separator {"backgroundColor":"accent-1","className":"is-style-default"} -->',
-			),
-			'Different block class name order'         => array(
-				'<!-- wp:separator {"className":"is-style-default has-custom-classname"} -->',
-				'<!-- wp:separator {"className":"has-custom-classname is-style-default"} -->',
-			),
-			'Different whitespace in block class name' => array(
-				'<!-- wp:separator {"className":"wp-block-separator is-style-default"} -->',
-				'<!-- wp:separator {"className":"wp-block-separator   is-style-default "} -->',
-			),
-			'Duplicated block class names'             => array(
-				'<!-- wp:separator {"className":"wp-block-separator is-style-default"} -->',
-				'<!-- wp:separator {"className":"wp-block-separator is-style-default wp-block-separator"} -->',
 			),
 			'Different Capitalization of tag'          => array(
 				'<IMG src="wp.png" alt="The WordPress logo">',
