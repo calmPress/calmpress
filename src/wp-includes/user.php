@@ -2829,7 +2829,7 @@ function check_password_reset_key(
 	 *
 	 * @param int $expiration The expiration time in seconds.
 	 */
-	$expiration_duration = apply_filters( 'password_reset_expiration', HOUR_IN_SECONDS );
+	$expiration_duration = apply_filters( 'password_reset_expiration', DAY_IN_SECONDS );
 
 	if ( str_contains( $user->user_activation_key, ':' ) ) {
 		list( $pass_request_time, $pass_key ) = explode( ':', $user->user_activation_key, 2 );
