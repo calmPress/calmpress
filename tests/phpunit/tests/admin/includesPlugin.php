@@ -65,14 +65,14 @@ class Tests_Admin_IncludesPlugin extends WP_UnitTestCase {
 		add_theme_page( 'With Spaces', 'With Spaces', 'manage_options', 'With Spaces', 'mt_tools_page' );
 		add_pages_page( 'Appending Query Arg', 'Test Pages', 'edit_pages', 'testpages', 'mt_pages_page' );
 
-		$expected['testsettings']        = 'http://example.org/wp-admin/options-general.php?page=testsettings';
-		$expected['testtools']           = 'http://example.org/wp-admin/tools.php?page=testtools';
-		$expected['mt-top-level-handle'] = 'http://example.org/wp-admin/admin.php?page=mt-top-level-handle';
-		$expected['sub-page']            = 'http://example.org/wp-admin/admin.php?page=sub-page';
-		$expected['sub-page2']           = 'http://example.org/wp-admin/admin.php?page=sub-page2';
+		$expected['testsettings']        = 'http://example.com/wp-admin/options-general.php?page=testsettings';
+		$expected['testtools']           = 'http://example.com/wp-admin/tools.php?page=testtools';
+		$expected['mt-top-level-handle'] = 'http://example.com/wp-admin/admin.php?page=mt-top-level-handle';
+		$expected['sub-page']            = 'http://example.com/wp-admin/admin.php?page=sub-page';
+		$expected['sub-page2']           = 'http://example.com/wp-admin/admin.php?page=sub-page2';
 		$expected['not_registered']      = '';
-		$expected['With Spaces']         = 'http://example.org/wp-admin/themes.php?page=With%20Spaces';
-		$expected['testpages']           = 'http://example.org/wp-admin/edit.php?post_type=page&#038;page=testpages';
+		$expected['With Spaces']         = 'http://example.com/wp-admin/themes.php?page=With%20Spaces';
+		$expected['testpages']           = 'http://example.com/wp-admin/edit.php?post_type=page&#038;page=testpages';
 
 		foreach ( $expected as $name => $value ) {
 			$this->assertSame( $value, menu_page_url( $name, false ) );
