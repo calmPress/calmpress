@@ -370,8 +370,8 @@ class WP_Object_Cache {
 			$group = 'default';
 		}
 
-		if ( is_int( $key ) ) {
-			$key = (string) $key;
+		if ( ! $this->_exists( $key, $group ) ) {
+			return false;
 		}
 		
 		$cache = $this->group_cache( $group );
@@ -389,6 +389,11 @@ class WP_Object_Cache {
 		$offset = (int) $offset;
 
 		$current -= $offset;
+
+		// wordpress does not let decr value to be negative.
+		if ( $current < 0 ) {
+			$current = 0;
+		}
 
 		if ( false === $cache->set( $key, $current ) ) {
 			return false;
