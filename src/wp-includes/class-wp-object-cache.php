@@ -675,6 +675,10 @@ class WP_Object_Cache {
 		
 		$cache = $this->group_cache( $group );
 
+		if ( is_object( $data ) ) {
+			$data = clone $data;
+		}
+
 		return $cache->set( $key, $data );
 	}
 
