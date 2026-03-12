@@ -220,6 +220,7 @@ function build_visual_html_tree( string $html, ?string $fragment_context ): stri
 			case '#comment':
 				// Comments must be "<" then "!--" then the data then "-->".
 				$comment = "<!--{$processor->get_full_comment_text()}-->";
+				$output .= str_repeat( $tree_indent, $indent_level ) . $comment . "\n";
 				break;
 			default:
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
