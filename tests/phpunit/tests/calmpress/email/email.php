@@ -636,14 +636,13 @@ class Email_Test extends WP_UnitTestCase {
 
 		$t->send();
 		$rt = $phpmailer->getReplyToAddresses();
+
 		// Internal PHPMailer addresses are different here (in actually good way).
 		$this->assertSame( 2, count( $rt ) );
-		$this->assertTrue( array_key_exists( 'rt1@test.com', $rt ) );
-		$this->assertSame( 'rt1@test.com', $rt['rt1@test.com'][0] );
-		$this->assertSame( 'rt name', $rt['rt1@test.com'][1] );
-		$this->assertTrue( array_key_exists( 'rt2@test.com', $rt ) );
-		$this->assertSame( 'rt2@test.com', $rt['rt2@test.com'][0] );
-		$this->assertSame( 'name', $rt['rt2@test.com'][1] );	
+		$this->assertSame( 'rt1@test.com', $rt[0][0] );
+		$this->assertSame( 'rt name', $rt[0][1] );
+		$this->assertSame( 'rt2@test.com', $rt[1][0] );
+		$this->assertSame( 'name', $rt[1][1] );	
 
 		// Test Return-Path/bounce address.
 		$this->assertSame( '', $phpmailer->Sender );
