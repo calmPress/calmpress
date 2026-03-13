@@ -1898,23 +1898,6 @@ function upgrade_550() {
 		delete_option( 'comment_whitelist' );
 	}
 
-	if ( $wp_current_db_version < 48575 ) {
-		// Use more clear and inclusive language.
-		$disallowed_list = get_option( 'blacklist_keys' );
-
-		/*
-		 * This option key was briefly renamed `blocklist_keys`.
-		 * Account for sites that have this key present when the original key does not exist.
-		 */
-		if ( false === $disallowed_list ) {
-			$disallowed_list = get_option( 'blocklist_keys' );
-		}
-
-		update_option( 'disallowed_keys', $disallowed_list );
-		delete_option( 'blacklist_keys' );
-		delete_option( 'blocklist_keys' );
-	}
-
 	if ( $wp_current_db_version < 48748 ) {
 		update_option( 'finished_updating_comment_type', 0 );
 		wp_schedule_single_event( time() + ( 1 * MINUTE_IN_SECONDS ), 'wp_update_comment_type_batch' );
