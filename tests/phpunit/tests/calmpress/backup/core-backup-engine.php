@@ -344,7 +344,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_site_options() {
 
         $method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Site_Options' );
-        $method->setAccessible(true);
 
         // for multisite testing we want to test the blog switch functionality of the function
         if ( is_multisite() ) {
@@ -388,11 +387,11 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 
         $this->AssertTrue( array_key_exists( 'test1', $ar ) );
         $this->AssertSame( 'value1', $ar['test1']['v'] );
-        $this->AssertSame( 'no', $ar['test1']['a'] );
+        $this->AssertSame( 'off', $ar['test1']['a'] );
 
         $this->AssertTrue( array_key_exists( 'test2', $ar ) );
         $this->AssertSame( 'value2', $ar['test2']['v'] );
-        $this->AssertSame( 'yes', $ar['test2']['a'] );
+        $this->AssertSame( 'on', $ar['test2']['a'] );
 
         $this->AssertFalse( array_key_exists( '_transient_trantest', $ar ) );
     }
@@ -407,7 +406,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_options() {
 
         $method = new ReflectionMethod( 'mock_backup_options', 'Backup_Options' );
-        $method->setAccessible(true);
 
         $expected_blogs[] = get_current_blog_id();
         // for multisite testing we want to test that all sites are used in the call
@@ -624,8 +622,8 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
             $this->AssertSame( 4, count( $meta[ $plugin ] ) );
         }
 
-        $this->AssertSame( '1.5.1', $meta['hello.php']['version'] );
-        $this->AssertSame( 'plugins/hello.php/1.5.1', $meta['hello.php']['directory'] );
+        $this->AssertSame( '1.7.2', $meta['hello.php']['version'] );
+        $this->AssertSame( 'plugins/hello.php/1.7.2', $meta['hello.php']['directory'] );
         $this->AssertSame( 'root_file', $meta['hello.php']['type'] );
         $this->AssertIsArray( $meta['hello.php']['data'] );
     
