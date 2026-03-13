@@ -475,7 +475,6 @@ function populate_options( array $options = array() ) {
 		'medium_large_size_h'             => 0,
 
 		// 5.5.0
-		'disallowed_keys'                 => '',
 		'comment_previously_approved'     => 1,
 		'auto_plugin_theme_update_emails' => array(),
 
