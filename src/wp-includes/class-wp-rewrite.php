@@ -1252,9 +1252,9 @@ class WP_Rewrite {
 
 		// Put them together.
 		if ( $this->use_verbose_page_rules ) {
-			$this->rules = array_merge( $this->extra_rules_top, $robots_rewrite, $favicon_rewrite, $registration_pages, $root_rewrite, $comments_rewrite, $search_rewrite, $date_rewrite, $page_rewrite, $post_rewrite, $this->extra_rules );
+			$this->rules = array_merge( $this->extra_rules_top, $robots_rewrite, $favicon_rewrite, $sitemap_rewrite, $registration_pages, $root_rewrite, $comments_rewrite, $search_rewrite, $date_rewrite, $page_rewrite, $post_rewrite, $this->extra_rules );
 		} else {
-			$this->rules = array_merge( $this->extra_rules_top, $robots_rewrite, $favicon_rewrite, $registration_pages, $root_rewrite, $comments_rewrite, $search_rewrite, $date_rewrite, $post_rewrite, $page_rewrite, $this->extra_rules );
+			$this->rules = array_merge( $this->extra_rules_top, $robots_rewrite, $favicon_rewrite, $sitemap_rewrite, $registration_pages, $root_rewrite, $comments_rewrite, $search_rewrite, $date_rewrite, $post_rewrite, $page_rewrite, $this->extra_rules );
 		}
 
 		/**
