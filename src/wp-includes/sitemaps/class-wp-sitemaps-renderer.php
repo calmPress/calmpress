@@ -67,10 +67,6 @@ class WP_Sitemaps_Renderer {
 
 		$sitemap_url = home_url( '/wp-sitemap.xsl' );
 
-		if ( ! $wp_rewrite->using_permalinks() ) {
-			$sitemap_url = home_url( '/?sitemap-stylesheet=sitemap' );
-		}
-
 		/**
 		 * Filters the URL for the sitemap stylesheet.
 		 *
@@ -97,10 +93,6 @@ class WP_Sitemaps_Renderer {
 		global $wp_rewrite;
 
 		$sitemap_url = home_url( '/wp-sitemap-index.xsl' );
-
-		if ( ! $wp_rewrite->using_permalinks() ) {
-			$sitemap_url = home_url( '/?sitemap-stylesheet=index' );
-		}
 
 		/**
 		 * Filters the URL for the sitemap index stylesheet.

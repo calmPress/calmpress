@@ -85,12 +85,6 @@ class WP_Sitemaps_Index {
 	 * @return string The sitemap index URL.
 	 */
 	public function get_index_url() {
-		global $wp_rewrite;
-
-		if ( ! $wp_rewrite->using_permalinks() ) {
-			return home_url( '/?sitemap=index' );
-		}
-
 		return home_url( '/wp-sitemap.xml' );
 	}
 }

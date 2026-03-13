@@ -162,10 +162,6 @@ abstract class WP_Sitemaps_Provider {
 			implode( '-', $params )
 		);
 
-		if ( ! $wp_rewrite->using_permalinks() ) {
-			$basename = '/?' . http_build_query( $params, '', '&' );
-		}
-
 		return home_url( $basename );
 	}
 
