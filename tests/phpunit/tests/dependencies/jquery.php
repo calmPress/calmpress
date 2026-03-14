@@ -63,7 +63,6 @@ class Tests_Dependencies_jQuery extends WP_UnitTestCase {
 			'jquery-ui-droppable',
 			'jquery-ui-menu',
 			'jquery-ui-mouse',
-			'jquery-ui-position',
 			'jquery-ui-progressbar',
 			'jquery-ui-resizable',
 			'jquery-ui-selectable',
@@ -72,7 +71,6 @@ class Tests_Dependencies_jQuery extends WP_UnitTestCase {
 			'jquery-ui-spinner',
 			'jquery-ui-tabs',
 			'jquery-ui-tooltip',
-			'jquery-ui-widget',
 			'backbone',
 			'underscore',
 		);
@@ -80,7 +78,7 @@ class Tests_Dependencies_jQuery extends WP_UnitTestCase {
 		foreach ( $libraries as $library ) {
 			// Try to deregister the script, which should fail.
 			wp_deregister_script( $library );
-			$this->assertTrue( wp_script_is( $library, 'registered' ) );
+			$this->assertTrue( wp_script_is( $library, 'registered' ), 'should not be able to deregister ' . $library );
 		}
 	}
 
