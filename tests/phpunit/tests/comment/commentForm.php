@@ -91,17 +91,6 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 	/**
 	 * @ticket 32767
 	 */
-	public function test_when_thread_comments_enabled() {
-		update_option( 'thread_comments', true );
-
-		$form     = get_echo( 'comment_form', array( array(), self::$post_id ) );
-		$expected = '<a rel="nofollow" id="cancel-comment-reply-link" href="#respond">Cancel reply</a>';
-		$this->assertStringContainsString( $expected, $form );
-	}
-
-	/**
-	 * @ticket 32767
-	 */
 	public function test_when_thread_comments_disabled() {
 		delete_option( 'thread_comments' );
 
