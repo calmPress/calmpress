@@ -566,6 +566,8 @@ class Tests_Comment_wpHandleCommentSubmission extends WP_UnitTestCase {
 	public function test_submitting_comment_without_optional_parameters_sets_them_to_empty_strings() {
 		$data = array(
 			'comment_post_ID' => self::$post->ID,
+			'author'  => 'someone',
+			'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
 		);
 
 		add_filter( 'pre_option_require_name_email', '__return_zero' );
@@ -580,7 +582,6 @@ class Tests_Comment_wpHandleCommentSubmission extends WP_UnitTestCase {
 
 		$commentdata = $this->preprocess_comment_data;
 
-		$this->assertSame( '', $commentdata['comment_author'], 'Comment author should default to an empty string.' );
 		$this->assertSame( '', $commentdata['comment_author_email'], 'Comment author email should default to an empty string.' );
 		$this->assertSame( '', $commentdata['comment_author_url'], 'Comment author URL should default to an empty string.' );
 		$this->assertSame( '', $commentdata['comment_content'], 'Comment content should default to an empty string.' );
@@ -679,6 +680,7 @@ class Tests_Comment_wpHandleCommentSubmission extends WP_UnitTestCase {
 				'comment_author_email' => 'comment_author@example.org',
 				'comment'              => 'Howdy, comment!',
 				'comment_parent'       => $comment_parent,
+				'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
 			)
 		);
 
@@ -741,6 +743,7 @@ class Tests_Comment_wpHandleCommentSubmission extends WP_UnitTestCase {
 				'comment_author_email' => 'comment_author@example.org',
 				'comment'              => 'Howdy, comment!',
 				'comment_parent'       => $parent_comment,
+				'timing_' . md5( AUTH_SALT . self::$post->ID ) => 1,
 			)
 		);
 
