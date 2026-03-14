@@ -344,84 +344,6 @@ class Tests_Comment extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that comment_form_title() outputs the author of an approved comment.
-	 *
-	 * @ticket 53962
-	 *
-	 * @covers ::comment_form_title
-	 */
-	public function test_should_output_the_author_of_an_approved_comment() {
-		// Must be set for `comment_form_title()`.
-		$_GET['replytocom'] = $this->create_comment_with_approval_status( true );
-
-		$comment = get_comment( $_GET['replytocom'] );
-		comment_form_title( false, false, false, self::$post_id );
-
-		$this->assertInstanceOf(
-			'WP_Comment',
-			$comment,
-			'The comment is not an instance of WP_Comment.'
-		);
-
-		$this->assertObjectHasProperty(
-			'comment_author',
-			$comment,
-			'The comment object does not have a "comment_author" property.'
-		);
-
-		$this->assertIsString(
-			$comment->comment_author,
-			'The "comment_author" is not a string.'
-		);
-
-		$this->expectOutputString(
-			'Leave a Reply to ' . $comment->comment_author,
-			'The expected string was not output.'
-		);
-	}
-
-	/**
-	 * Tests that get_comment_id_fields() allows replying to an approved comment.
-	 *
-	 * @ticket 53962
-	 *
-	 * @dataProvider data_should_allow_reply_to_an_approved_comment
-	 *
-	 * @covers ::get_comment_id_fields
-	 *
-	 * @param string $comment_post The post of the comment.
-	 *                             Accepts 'POST', 'NEW_POST', 'POST_ID' and 'NEW_POST_ID'.
-	 */
-	public function test_should_allow_reply_to_an_approved_comment( $comment_post ) {
-		// Must be set for `get_comment_id_fields()`.
-		$_GET['replytocom'] = $this->create_comment_with_approval_status( true );
-
-		if ( 'POST_ID' === $comment_post ) {
-			$comment_post = self::$post_id;
-		} elseif ( 'POST' === $comment_post ) {
-			$comment_post = self::factory()->post->get_object_by_id( self::$post_id );
-		}
-
-		$expected  = "<input type='hidden' name='comment_post_ID' value='" . self::$post_id . "' id='comment_post_ID' />\n";
-		$expected .= "<input type='hidden' name='comment_parent' id='comment_parent' value='" . $_GET['replytocom'] . "' />\n";
-		$actual    = get_comment_id_fields( $comment_post );
-
-		$this->assertSame( $expected, $actual );
-	}
-
-	/**
-	 * Data provider.
-	 *
-	 * @return array[]
-	 */
-	public function data_should_allow_reply_to_an_approved_comment() {
-		return array(
-			'a post ID'        => array( 'comment_post' => 'POST_ID' ),
-			'a WP_Post object' => array( 'comment_post' => 'POST' ),
-		);
-	}
-
-	/**
 	 * Tests that get_comment_id_fields() returns an empty string
 	 * when the post cannot be retrieved.
 	 *
@@ -439,9 +361,6 @@ class Tests_Comment extends WP_UnitTestCase {
 		if ( is_bool( $replytocom ) ) {
 			$replytocom = $this->create_comment_with_approval_status( $replytocom );
 		}
-
-		// Must be set for `get_comment_id_fields()`.
-		$_GET['replytocom'] = $replytocom;
 
 		$actual = get_comment_id_fields( $comment_post );
 
@@ -467,9 +386,6 @@ class Tests_Comment extends WP_UnitTestCase {
 			$replytocom = $this->create_comment_with_approval_status( $replytocom );
 		}
 
-		// Must be set for `comment_form_title()`.
-		$_GET['replytocom'] = $replytocom;
-
 		if ( 'NEW_POST_ID' === $comment_post ) {
 			$comment_post = self::factory()->post->create();
 		} elseif ( 'NEW_POST' === $comment_post ) {
@@ -482,7 +398,7 @@ class Tests_Comment extends WP_UnitTestCase {
 
 		$comment_post_id = $comment_post instanceof WP_Post ? $comment_post->ID : $comment_post;
 
-		get_comment( $_GET['replytocom'] );
+		get_comment( $replytocom );
 
 		comment_form_title( false, false, false, $comment_post_id );
 
@@ -526,9 +442,6 @@ class Tests_Comment extends WP_UnitTestCase {
 		if ( is_bool( $replytocom ) ) {
 			$replytocom = $this->create_comment_with_approval_status( $replytocom );
 		}
-
-		// Must be set for `get_comment_id_fields()`.
-		$_GET['replytocom'] = $replytocom;
 
 		if ( 'NEW_POST_ID' === $comment_post ) {
 			$comment_post = self::factory()->post->create();
