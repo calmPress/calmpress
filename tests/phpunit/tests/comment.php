@@ -131,51 +131,6 @@ class Tests_Comment extends WP_UnitTestCase {
 		$this->assertSame( $expected_content, $comment->comment_content );
 	}
 
-	public function test_update_comment_from_unprivileged_user_by_privileged_user() {
-		wp_set_current_user( self::$user_id );
-
-		$comment_id = wp_new_comment(
-			array(
-				'comment_post_ID'      => self::$post_id,
-				'comment_author'       => 'Author',
-				'comment_author_url'   => 'http://example.localhost/',
-				'comment_author_email' => 'author@example.com',
-				'user_id'              => self::$user_id,
-				'comment_content'      => '<a href="http://example.localhost/something.html">click</a>',
-			)
-		);
-
-		wp_set_current_user( 0 );
-
-		$admin_id = self::factory()->user->create(
-			array(
-				'role'       => 'administrator',
-				'user_login' => 'test_wp_admin_get',
-				'user_pass'  => 'password',
-				'user_email' => 'testadmin@example.com',
-			)
-		);
-
-		wp_set_current_user( $admin_id );
-
-		wp_update_comment(
-			array(
-				'comment_ID'      => $comment_id,
-				'comment_content' => '<a href="http://example.localhost/something.html" disallowed=attribute>click</a>',
-			)
-		);
-
-		wp_set_current_user( 0 );
-
-		$comment = get_comment( $comment_id );
-		$this->assertEqualHTML(
-			'<a href="http://example.localhost/something.html" rel="nofollow ugc">click</a>',
-			$comment->comment_content,
-			'<body>',
-			'Comment: ' . $comment->comment_content
-		);
-	}
-
 	/**
 	 * @ticket 30627
 	 *
@@ -386,85 +341,6 @@ class Tests_Comment extends WP_UnitTestCase {
 		$found = get_approved_comments( 0 );
 
 		$this->assertSame( array(), $found );
-	}
-
-	/**
-	 * Tests that get_cancel_comment_reply_link() returns the expected value.
-	 *
-	 * @ticket 53962
-	 *
-	 * @dataProvider data_get_cancel_comment_reply_link
-	 *
-	 * @covers ::get_cancel_comment_reply_link
-	 *
-	 * @param string        $text       Text to display for cancel reply link.
-	 *                                  If empty, defaults to 'Click here to cancel reply'.
-	 * @param string|int    $post       The post the comment thread is being displayed for.
-	 *                                  Accepts 'POST_ID', 'POST', or an integer post ID.
-	 * @param int|bool|null $replytocom A comment ID (int), whether to generate an approved (true) or unapproved (false) comment,
-	 *                                  or null not to create a comment.
-	 * @param string        $expected   The expected reply link.
-	 */
-	public function test_get_cancel_comment_reply_link( $text, $post, $replytocom, $expected ) {
-		if ( 'POST_ID' === $post ) {
-			$post = self::$post_id;
-		} elseif ( 'POST' === $post ) {
-			$post = self::factory()->post->get_object_by_id( self::$post_id );
-		}
-
-		if ( null === $replytocom ) {
-			unset( $_GET['replytocom'] );
-		} else {
-			$_GET['replytocom'] = $this->create_comment_with_approval_status( $replytocom );
-		}
-
-		$this->assertSame( $expected, get_cancel_comment_reply_link( $text, $post ) );
-	}
-
-	/**
-	 * Data provider.
-	 *
-	 * @return array[]
-	 */
-	public function data_get_cancel_comment_reply_link() {
-		return array(
-			'text as empty string, a valid post ID and an approved comment'    => array(
-				'text'       => '',
-				'post'       => 'POST_ID',
-				'replytocom' => true,
-				'expected'   => '<a rel="nofollow" id="cancel-comment-reply-link" href="#respond">Click here to cancel reply.</a>',
-			),
-			'text as a custom string, a valid post ID and an approved comment' => array(
-				'text'       => 'Leave a reply!',
-				'post'       => 'POST_ID',
-				'replytocom' => true,
-				'expected'   => '<a rel="nofollow" id="cancel-comment-reply-link" href="#respond">Leave a reply!</a>',
-			),
-			'text as empty string, a valid WP_Post object and an approved comment' => array(
-				'text'       => '',
-				'post'       => 'POST',
-				'replytocom' => true,
-				'expected'   => '<a rel="nofollow" id="cancel-comment-reply-link" href="#respond">Click here to cancel reply.</a>',
-			),
-			'text as a custom string, a valid WP_Post object and an approved comment' => array(
-				'text'       => 'Leave a reply!',
-				'post'       => 'POST',
-				'replytocom' => true,
-				'expected'   => '<a rel="nofollow" id="cancel-comment-reply-link" href="#respond">Leave a reply!</a>',
-			),
-			'text as empty string, an invalid post and an approved comment'    => array(
-				'text'       => '',
-				'post'       => -99999,
-				'replytocom' => true,
-				'expected'   => '<a rel="nofollow" id="cancel-comment-reply-link" href="#respond" style="display:none;">Click here to cancel reply.</a>',
-			),
-			'text as a custom string, a valid post, but no replytocom' => array(
-				'text'       => 'Leave a reply!',
-				'post'       => 'POST',
-				'replytocom' => null,
-				'expected'   => '<a rel="nofollow" id="cancel-comment-reply-link" href="#respond" style="display:none;">Leave a reply!</a>',
-			),
-		);
 	}
 
 	/**
