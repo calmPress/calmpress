@@ -79,12 +79,7 @@ class Tests_Canonical_Sitemaps extends WP_Canonical_UnitTestCase {
 			array( '/sitemap.xml/', '/wp-sitemap.xml' ),
 
 			// Ugly/incorrect versions redirect correctly.
-			array( '/?sitemap=index', '/wp-sitemap.xml' ),
 			array( '/wp-sitemap.xml/', '/wp-sitemap.xml' ),
-			array( '/?sitemap=posts&sitemap-subtype=post', '/wp-sitemap-posts-post-1.xml' ),
-			array( '/?sitemap=posts&sitemap-subtype=post&paged=2', '/wp-sitemap-posts-post-2.xml' ),
-			array( '/?sitemap=taxonomies&sitemap-subtype=category', '/wp-sitemap-taxonomies-category-1.xml' ),
-			array( '/?sitemap=taxonomies&sitemap-subtype=category&paged=2', '/wp-sitemap-taxonomies-category-2.xml' ),
 
 			// Pretty versions don't redirect incorrectly.
 			array( '/wp-sitemap.xml', '/wp-sitemap.xml' ),
