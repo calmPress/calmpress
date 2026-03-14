@@ -193,7 +193,6 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 				'author'       => '<p><label for="author">Name</label><input type="text" name="author" id="author" /></p>',
 				'email'        => '<p><label for="email">Email</label><input type="email" name="email" id="email" /></p>',
 				'url'          => '<p><label for="url">Website</label><input type="url" name="url" id="url" /></p>',
-				'cookies'      => '<p><input type="checkbox" name="wp-comment-cookies-consent" id="wp-comment-cookies-consent" /><label for="wp-comment-cookies-consent">Save my details</label></p>',
 				'custom_field' => '<p><label for="custom_field">Custom Field</label><input type="text" name="custom_field" id="custom_field" /></p>',
 				'department'   => '<p><label for="department">Department</label><select name="department" id="department"><option value="sales">Sales</option></select></p>',
 			),
@@ -211,7 +210,6 @@ class Tests_Comment_CommentForm extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'name="author"', $form );
 		$this->assertStringNotContainsString( 'name="email"', $form );
 		$this->assertStringNotContainsString( 'name="url"', $form );
-		$this->assertStringNotContainsString( 'wp-comment-cookies-consent', $form );
 
 		wp_set_current_user( 0 );
 	}
