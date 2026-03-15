@@ -60,8 +60,8 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 		$ver       = calm_version_hash( calmpress_version() );
 		$expected  = "<link rel='stylesheet'  href='http://example.com?ver=$ver' type='text/css' media='all' />\n";
 		$expected .= "<link rel='stylesheet'  href='http://example.com?ver=1.2' type='text/css' media='all' />\n";
-		$expected .= "<link rel='stylesheet'  href='http://example.com?ver=$ver' type='text/css' media='all' />\n";
-		$expected .= "<link rel='stylesheet'  href='http://example.com?ver=$ver' type='text/css' media='print' />\n";
+		$expected .= "<link rel='stylesheet'  href='http://example.com' type='text/css' media='all' />\n";
+		$expected .= "<link rel='stylesheet'  href='http://example.com' type='text/css' media='print' />\n";
 
 		$this->assertSame( $expected, get_echo( 'wp_print_styles' ) );
 
@@ -96,7 +96,7 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 	public function test_awkward_handles_are_supported_consistently( $handle ) {
 		wp_enqueue_style( $handle, 'example.com', array(), null );
 
-		$expected = "<link rel='stylesheet' id='$handle-css' href='http://example.com' type='text/css' media='all' />\n";
+		$expected = "<link rel='stylesheet'  href='http://example.com' type='text/css' media='all' />\n";
 
 		$this->assertSame( $expected, get_echo( 'wp_print_styles' ) );
 	}
@@ -294,7 +294,7 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 		$style .= "\tbackground: red;\n";
 		$style .= '}';
 
-		$expected  = "<link rel='stylesheet' href='http://example.com?ver=1' type='text/css' media='all' />\n";
+		$expected  = "<link rel='stylesheet'  href='http://example.com?ver=1' type='text/css' media='all' />\n";
 		$expected .= "<style type='text/css'>\n";
 		$expected .= "$style\n";
 		$expected .= "/*# sourceURL=handle-inline-css */\n";
@@ -354,7 +354,7 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 
 		$expected  = "<link rel='stylesheet'  href='http://example.com?ver=1' type='text/css' media='all' />\n";
 		$expected .= "<link rel='stylesheet'  href='http://example.com?ver=1' type='text/css' media='all' />\n";
-		$expected .= "<style  type='text/css'>\n";
+		$expected .= "<style type='text/css'>\n";
 		$expected .= "$style\n";
 		$expected .= "/*# sourceURL=handle-three-inline-css */\n";
 		$expected .= "</style>\n";
@@ -421,7 +421,7 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 	 * @dataProvider data_provider_test_wp_maybe_inline_styles
 	 */
 	public function test_wp_maybe_inline_styles( ?string $additional_inline_style, ?int $styles_inline_size_limit ) {
-		$rel_path = 'css/classic-themes.css';
+		$rel_path = 'css/cp-notice.css';
 		$src_url  = includes_url( $rel_path );
 		$src_path = ABSPATH . WPINC . '/' . $rel_path;
 		$css      = file_get_contents( $src_path );
@@ -477,7 +477,6 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 		if ( count( $expected_after ) > 0 ) {
 			$this->assertTrue( $processor->next_tag() );
 			$this->assertSame( 'STYLE', $processor->get_tag() );
-			$this->assertSame( $handle . '-inline-css', $processor->get_attribute( 'id' ) );
 			$this->assertSame( 'text/css', $processor->get_attribute( 'type' ) );
 
 			$expected_inline_styles = $expected_after;
@@ -553,8 +552,8 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 	public function test_wp_maybe_inline_styles_multiple_runs() {
 		$filter = new MockAction();
 		add_filter( 'pre_wp_filesize', array( $filter, 'filter' ) );
-		wp_register_style( 'test-handle', '/' . WPINC . '/css/classic-themes.css' );
-		wp_style_add_data( 'test-handle', 'path', ABSPATH . WPINC . '/css/classic-themes.css' );
+		wp_register_style( 'test-handle', '/' . WPINC . '/css/cp-notice.css' );
+		wp_style_add_data( 'test-handle', 'path', ABSPATH . WPINC . '/css/cp-notice.css' );
 
 		wp_enqueue_style( 'test-handle' );
 
@@ -627,8 +626,8 @@ class Tests_Dependencies_Styles extends WP_UnitTestCase {
 		wp_add_inline_style( $handle, 'custom-el { content: "ok"; }' );
 
 		$expected = <<<HTML
-<link rel='stylesheet' href="/example.css?ver=0.0" id="# test/</style> #-css" media="all" type="text/css">
-<style id="# test/</style> #-inline-css" type="text/css">
+<link rel='stylesheet'  href="/example.css?ver=0.0" media="all" type="text/css">
+<style type="text/css">
 custom-el { content: "ok"; }
 /*# sourceURL=%23%20test%2F%3C%2Fstyle%3E%20%23-inline-css */
 </style>
