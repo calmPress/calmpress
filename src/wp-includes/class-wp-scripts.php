@@ -240,7 +240,7 @@ class WP_Scripts extends WP_Dependencies {
 			return $output;
 		}
 
-		wp_print_inline_script_tag( $output, array( 'id' => "{$handle}-js-extra" ) );
+		wp_print_inline_script_tag( $output, array() );
 
 		return true;
 	}
@@ -359,7 +359,7 @@ class WP_Scripts extends WP_Dependencies {
 			 */
 			$source_url    = rawurlencode( "{$handle}-js-translations" );
 			$translations .= "\n//# sourceURL={$source_url}";
-			$translations  = wp_get_inline_script_tag( $translations, array( 'id' => "{$handle}-js-translations" ) );
+			$translations  = wp_get_inline_script_tag( $translations, array() );
 		}
 
 		if ( $this->do_concat ) {
@@ -412,10 +412,33 @@ class WP_Scripts extends WP_Dependencies {
 			$src = $this->base_url . $src;
 		}
 
-		if ( ! empty( $ver ) ) {
-			$src = add_query_arg( 'ver', $ver, $src );
+	$ver_to_add = '';
+		if ( empty( $obj->ver ) && null !== $obj->ver && is_string( $this->default_version ) ) {
+			$ver_to_add = $this->default_version;
+		} elseif ( is_scalar( $obj->ver ) ) {
+			$ver_to_add = (string) $obj->ver;
 		}
 
+		$added_args = (string) ( $this->args[ $handle ] ?? '' );
+
+		if ( '' !== $ver_to_add || '' !== $added_args ) {
+			$fragment = strstr( $src, '#' );
+			if ( false !== $fragment ) {
+				$src = substr( $src, 0, -strlen( $fragment ) );
+			}
+
+			if ( '' !== $ver_to_add ) {
+				$src .= ( str_contains( $src, '?' ) ? '&' : '?' ) . 'ver=' . rawurlencode( $ver_to_add );
+			}
+			if ( '' !== $added_args ) {
+				$src .= ( str_contains( $src, '?' ) ? '&' : '?' ) . $added_args;
+			}
+
+			if ( false !== $fragment ) {
+				$src .= $fragment;
+			}
+		}
+	
 		/** This filter is documented in wp-includes/class-wp-scripts.php */
 		$src = esc_url_raw( apply_filters( 'script_loader_src', $src, $handle ) );
 
@@ -425,7 +448,6 @@ class WP_Scripts extends WP_Dependencies {
 
 		$attr = array(
 			'src' => $src,
-			'id'  => "{$handle}-js",
 		);
 		if ( $strategy ) {
 			$attr[ $strategy ] = true;
@@ -579,9 +601,7 @@ class WP_Scripts extends WP_Dependencies {
 			return '';
 		}
 
-		$id = "{$handle}-js-{$position}";
-
-		return wp_get_inline_script_tag( $js, compact( 'id' ) );
+		return wp_get_inline_script_tag( $js );
 	}
 
 	/**
@@ -742,7 +762,7 @@ JS;
 		if ( $display ) {
 			$source_url = rawurlencode( "{$handle}-js-translations" );
 			$output    .= "\n//# sourceURL={$source_url}";
-			wp_print_inline_script_tag( $output, array( 'id' => "{$handle}-js-translations" ) );
+			wp_print_inline_script_tag( $output, array() );
 		}
 
 		return $output;

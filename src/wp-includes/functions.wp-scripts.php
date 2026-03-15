@@ -299,7 +299,6 @@ function wp_deregister_script( $handle ) {
 			'jquery-ui-droppable',
 			'jquery-ui-menu',
 			'jquery-ui-mouse',
-			'jquery-ui-position',
 			'jquery-ui-progressbar',
 			'jquery-ui-resizable',
 			'jquery-ui-selectable',
@@ -308,11 +307,9 @@ function wp_deregister_script( $handle ) {
 			'jquery-ui-spinner',
 			'jquery-ui-tabs',
 			'jquery-ui-tooltip',
-			'jquery-ui-widget',
 			'underscore',
 			'backbone',
 		);
-
 		if ( in_array( $handle, $not_allowed, true ) ) {
 			_doing_it_wrong(
 				__FUNCTION__,

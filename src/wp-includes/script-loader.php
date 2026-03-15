@@ -2005,8 +2005,6 @@ function print_footer_scripts() {
 function _print_scripts() {
 	global $wp_scripts;
 
-	$type_attr = current_theme_supports( 'html5', 'script' ) ? '' : " type='text/javascript'";
-
 	if ( ! empty( $wp_scripts->print_html ) ) {
 		echo $wp_scripts->print_html;
 	}
@@ -2149,8 +2147,6 @@ function print_late_styles() {
 function _print_styles() {
 
 	$wp_styles = wp_styles();
-
-	$type_attr = current_theme_supports( 'html5', 'style' ) ? '' : ' type="text/css"';
 
 	if ( ! empty( $wp_styles->print_html ) ) {
 		echo $wp_styles->print_html;
