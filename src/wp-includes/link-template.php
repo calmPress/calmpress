@@ -2806,24 +2806,16 @@ function _navigation_markup( $links, $css_class = 'posts-navigation', $screen_re
  * Retrieves the comments page number link.
  *
  * @since 2.7.0
- *
- * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
+ * @since calmPress 1.0.0 Do not support comment pages, just return the permalink
+ *                        of current url with comment section fragment.
  *
  * @param int $pagenum  Optional. Page number. Default 1.
  * @param int $max_page Optional. The maximum number of comment pages. Default 0.
  * @return string The comments page number link URL.
  */
 function get_comments_pagenum_link( $pagenum = 1, $max_page = 0 ) {
-	global $wp_rewrite;
-
-	$pagenum  = (int) $pagenum;
-	$max_page = (int) $max_page;
 
 	$result = get_permalink();
-
-	if ( $pagenum != $max_page ) {
-		$result = user_trailingslashit( trailingslashit($result) . $wp_rewrite->comments_pagination_base . '-' . $pagenum, 'commentpaged');
-	}
 
 	$result .= '#comments';
 
@@ -2842,6 +2834,7 @@ function get_comments_pagenum_link( $pagenum = 1, $max_page = 0 ) {
  *
  * @since 2.7.1
  * @since 6.7.0 Added the `page` parameter.
+ * @since calmPress 1.0.0 Does nothing.
  *
  * @global WP_Query $wp_query WordPress Query object.
  *
@@ -2851,65 +2844,18 @@ function get_comments_pagenum_link( $pagenum = 1, $max_page = 0 ) {
  * @return string|void HTML-formatted link for the next page of comments.
  */
 function get_next_comments_link( $label = '', $max_page = 0, $page = null ) {
-	global $wp_query;
-
-	if ( ! is_singular() ) {
-		return;
-	}
-
-	if ( is_null( $page ) ) {
-		$page = get_query_var( 'cpage' );
-	}
-
-	if ( ! $page ) {
-		$page = 1;
-	}
-
-	$next_page = (int) $page + 1;
-
-	if ( empty( $max_page ) ) {
-		$max_page = $wp_query->max_num_comment_pages;
-	}
-
-	if ( empty( $max_page ) ) {
-		$max_page = get_comment_pages_count();
-	}
-
-	if ( $next_page > $max_page ) {
-		return;
-	}
-
-	if ( empty( $label ) ) {
-		$label = __( 'Newer Comments &raquo;' );
-	}
-
-	/**
-	 * Filters the anchor tag attributes for the next comments page link.
-	 *
-	 * @since 2.7.0
-	 *
-	 * @param string $attributes Attributes for the anchor tag.
-	 */
-	$attr = apply_filters( 'next_comments_link_attributes', '' );
-
-	return sprintf(
-		'<a href="%1$s" %2$s>%3$s</a>',
-		esc_url( get_comments_pagenum_link( $next_page, $max_page ) ),
-		$attr,
-		preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label )
-	);
 }
 
 /**
  * Displays the link to the next comments page.
  *
  * @since 2.7.0
+ * @since calmPress 1.0.0 Does nothing.
  *
  * @param string $label    Optional. Label for link text. Default empty.
  * @param int    $max_page Optional. Max page. Default 0.
  */
 function next_comments_link( $label = '', $max_page = 0 ) {
-	echo get_next_comments_link( $label, $max_page );
 }
 
 /**
@@ -2917,56 +2863,24 @@ function next_comments_link( $label = '', $max_page = 0 ) {
  *
  * @since 2.7.1
  * @since 6.7.0 Added the `page` parameter.
+ * @since calmPress 1.0.0 Does nothing.
  *
  * @param string   $label Optional. Label for comments link text. Default empty.
  * @param int|null $page  Optional. Page number. Default null.
  * @return string|void HTML-formatted link for the previous page of comments.
  */
 function get_previous_comments_link( $label = '', $page = null ) {
-	if ( ! is_singular() ) {
-		return;
-	}
-
-	if ( is_null( $page ) ) {
-		$page = get_query_var( 'cpage' );
-	}
-
-	if ( (int) $page <= 1 ) {
-		return;
-	}
-
-	$previous_page = (int) $page - 1;
-
-	if ( empty( $label ) ) {
-		$label = __( '&laquo; Older Comments' );
-	}
-
-	/**
-	 * Filters the anchor tag attributes for the previous comments page link.
-	 *
-	 * @since 2.7.0
-	 *
-	 * @param string $attributes Attributes for the anchor tag.
-	 */
-	$attr = apply_filters( 'previous_comments_link_attributes', '' );
-
-	return sprintf(
-		'<a href="%1$s" %2$s>%3$s</a>',
-		esc_url( get_comments_pagenum_link( $previous_page ) ),
-		$attr,
-		preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label )
-	);
 }
 
 /**
  * Displays the link to the previous comments page.
  *
  * @since 2.7.0
+ * @since calmPress 1.0.0 Does nothing.
  *
  * @param string $label Optional. Label for comments link text. Default empty.
  */
 function previous_comments_link( $label = '' ) {
-	echo get_previous_comments_link( $label );
 }
 
 /**
