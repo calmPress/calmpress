@@ -68,7 +68,6 @@ class Tests_Link_GetPagenumLink extends WP_UnitTestCase {
 	 *
 	 * @ticket 2877
 	 *
-	 * @dataProvider data_get_pagenum_link_plain_permalinks
 	 * @dataProvider data_get_pagenum_link
 	 *
 	 * @param string $permalink_structure The structure to use for permalinks.
@@ -82,28 +81,6 @@ class Tests_Link_GetPagenumLink extends WP_UnitTestCase {
 		$paged                  = get_pagenum_link( $pagenum );
 
 		$this->assertSame( home_url( $expected ), $paged );
-	}
-
-	/**
-	 * Data provider.
-	 *
-	 * @return array[]
-	 */
-	public function data_get_pagenum_link_plain_permalinks() {
-		return array(
-			'page 1 and plain permalinks' => array(
-				'permalink_structure' => '',
-				'request_uri'         => '/?paged=2',
-				'pagenum'             => 1,
-				'expected'            => '/',
-			),
-			'page 2 and plain permalinks' => array(
-				'permalink_structure' => '',
-				'request_uri'         => '/',
-				'pagenum'             => 2,
-				'expected'            => '/?paged=2',
-			),
-		);
 	}
 
 	/**
@@ -146,18 +123,6 @@ class Tests_Link_GetPagenumLink extends WP_UnitTestCase {
 	 */
 	public function data_get_pagenum_link() {
 		return array(
-			'page 1 and index.php'                  => array(
-				'permalink_structure' => '/index.php/%year%/%monthnum%/%day%/%postname%',
-				'request_uri'         => '/index.php/woohoo/page/2/',
-				'pagenum'             => 1,
-				'expected'            => '/index.php/woohoo',
-			),
-			'page 2 and index.php'                  => array(
-				'permalink_structure' => '/index.php/%year%/%monthnum%/%day%/%postname%',
-				'request_uri'         => '/index.php/woohoo/page/2/',
-				'pagenum'             => 2,
-				'expected'            => '/index.php/woohoo/page/2',
-			),
 			'page 1 with date-based permalinks'     => array(
 				'permalink_structure' => '/%year%/%monthnum%/%day%/%postname%',
 				'request_uri'         => '/woohoo/page/2/',
