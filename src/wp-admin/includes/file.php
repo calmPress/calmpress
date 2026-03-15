@@ -971,7 +971,7 @@ function wp_trusted_keys() {
 function wp_zip_file_is_valid( $file ) {
 
 	$archive          = new ZipArchive();
-	$archive_is_valid = $archive->open( $file, ZipArchive::CHECKCONS );
+	$archive_is_valid = $archive->open( $file );
 	if ( true === $archive_is_valid ) {
 		$archive->close();
 		return true;
