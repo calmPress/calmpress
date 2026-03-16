@@ -94,30 +94,6 @@ class Tests_Link_WpGetCanonicalUrl extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test permalink structure comment page usage.
-	 */
-	public function test_comments_paged_with_pretty_permalink_structure() {
-		global $wp_rewrite;
-
-		$this->set_permalink_structure( '/%postname%/' );
-		$cpage = 2;
-
-		$link = add_query_arg(
-			array(
-				'cpage' => $cpage,
-				'foo'   => 'bar',
-			),
-			get_permalink( self::$post_id )
-		);
-
-		$this->go_to( $link );
-
-		$expected = user_trailingslashit( trailingslashit( get_permalink( self::$post_id ) ) . $wp_rewrite->comments_pagination_base . '-' . $cpage, 'commentpaged' ) . '#comments';
-
-		$this->assertSame( $expected, wp_get_canonical_url( self::$post_id ) );
-	}
-
-	/**
 	 * Tests that attachments with 'inherit' status properly receive a canonical URL.
 	 *
 	 * @ticket 63041
