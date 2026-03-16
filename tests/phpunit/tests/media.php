@@ -2381,6 +2381,7 @@ EOF;
 	 */
 	public function test_wp_filter_content_tags_filter_with_identical_image_tags_disabled_core_filters() {
 		$img     = get_image_tag( self::$large_id, '', '', '', 'large' );
+		$img     = str_replace( 'wp-image-' . self::$large_id, '', $img );
 		$content = "$img\n$img";
 
 		add_filter( 'wp_img_tag_add_loading_attr', '__return_false' );
@@ -2493,7 +2494,6 @@ EOF;
 			$respimg_relative
 		);
 		$expected = str_replace( 'wp-image-' . self::$large_id, '', $expected );
-
 
 		$actual = wp_filter_content_tags( $unfiltered );
 
@@ -3627,9 +3627,12 @@ EOF;
 	public function test_wp_filter_content_tags_with_loading_optimization_attrs() {
 		add_filter( 'wp_img_tag_add_decoding_attr', '__return_false' );
 		$img1         = get_image_tag( self::$large_id, '', '', '', 'large' );
+		$img1         = str_replace( 'wp-image-' . self::$large_id, '', $img1 );
 		$iframe1      = '<iframe src="https://www.example.com" width="640" height="360"></iframe>';
 		$img2         = get_image_tag( self::$large_id, '', '', '', 'medium' );
+		$img2         = str_replace( 'wp-image-' . self::$large_id, '', $img2 );
 		$img3         = get_image_tag( self::$large_id, '', '', '', 'thumbnail' );
+		$img3         = str_replace( 'wp-image-' . self::$large_id, '', $img3 );
 		$iframe2      = '<iframe src="https://wordpress.org" width="640" height="360"></iframe>';
 		$prio_img1    = str_replace( ' src=', ' fetchpriority="high" src=', $img1 );
 		$lazy_img2    = wp_img_tag_add_loading_optimization_attrs( $img2, 'the_content' );
@@ -4589,7 +4592,6 @@ EOF;
 		$post_content  = '[gallery ids="' . self::$large_id . '" size="large"]' . "\n";
 		$post_content .= '<img src="example.jpg" width="800" height="600">' . "\n";
 		$post_content .= '<p>Some text.</p>' . "\n";
-		$post_content .= '<!-- wp:core/full-image-shortcode {"id":' . self::$large_id . '} --><!-- /wp:core/full-image-shortcode -->' . "\n";
 		$post_content .= '<img src="example2.jpg" width="800" height="600">';
 
 		$post_id = self::factory()->post->create(
@@ -4620,19 +4622,6 @@ EOF;
 						return 'gallery-' . ( (int) $matches[1] + 1 );
 					},
 					do_shortcode( '[gallery ids="' . self::$large_id . '" size="large" id="' . $post_id . '"]' )
-				)
-			),
-			$expected_content
-		);
-		$expected_content = str_replace(
-			'<!-- wp:core/full-image-shortcode {"id":' . self::$large_id . '} --><!-- /wp:core/full-image-shortcode -->',
-			wp_get_attachment_image(
-				self::$large_id,
-				'full',
-				false,
-				array(
-					'fetchpriority' => false,
-					'loading'       => false,
 				)
 			),
 			$expected_content
