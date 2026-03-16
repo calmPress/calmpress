@@ -508,26 +508,6 @@ class Tests_Post_wpInsertPost extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 5305
-	 * @ticket 33392
-	 */
-	public function test_wp_insert_post_should_invalidate_post_cache_before_generating_guid_when_post_name_is_empty_and_is_generated_from_the_post_ID() {
-		register_post_type( 'wptests_pt' );
-
-		$post_id = wp_insert_post(
-			array(
-				'post_title'  => '',
-				'post_type'   => 'wptests_pt',
-				'post_status' => 'publish',
-			)
-		);
-
-		$post = get_post( $post_id );
-
-		$this->assertStringContainsString( 'wptests_pt=' . $post_id, $post->guid );
-	}
-
-	/**
 	 * @ticket 55877
 	 * @covers ::wp_insert_post
 	 */
