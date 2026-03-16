@@ -2780,11 +2780,12 @@ if ( ! function_exists( 'wp_rand' ) ) :
 			$max = $max_random_number;
 		}
 
-		// We only handle ints, floats are truncated to their integer value.
-		$min = (int) $min;
-		$max = (int) $max;
+		// We only handle positive ints, floats are truncated to their integer value.
+		$min = max( (int) $min, 0 );
+		$max = max( (int) $max, 0 );
 
-		$_max = ( 0 != $max ) ? $max : PHP_INT_MAX;
+		$_max = min( $max, $max_random_number );
+
 		// wp_rand() can accept arguments in either order, PHP cannot.
 		$_max = max( $min, $_max );
 		$_min = min( $min, $_max );
