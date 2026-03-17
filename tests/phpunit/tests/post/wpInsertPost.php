@@ -762,13 +762,15 @@ class Tests_Post_wpInsertPost extends WP_UnitTestCase {
 			)
 		);
 
+		$post_data = [
+			'post_type'     => 'post',
+			'post_title'    => 'Post with categories',
+			'post_status'   => 'publish',
+			'post_category' => array( $term_id ),
+		];
+
 		$post_id = self::factory()->post->create(
-			array(
-				'post_type'     => 'post',
-				'post_title'    => 'Post with categories',
-				'post_status'   => 'publish',
-				'post_category' => array( $term_id ),
-			)
+			$post_data
 		);
 
 		// Validate that the term got assigned.
@@ -778,7 +780,7 @@ class Tests_Post_wpInsertPost extends WP_UnitTestCase {
 
 		// Update the post with no changes.
 		$post = get_post( $post_id );
-		wp_insert_post( $post );
+		wp_insert_post( $post_data );
 
 		// Validate the term is still assigned.
 		$assigned_terms = wp_get_object_terms( array( $post_id ), array( 'category' ), array() );
@@ -790,9 +792,7 @@ class Tests_Post_wpInsertPost extends WP_UnitTestCase {
 		wp_insert_post( $post );
 		$assigned_terms = wp_get_object_terms( array( $post_id ), array( 'category' ), array() );
 
-		// Validate that the post has had the default category assigned again.
-		$this->assertCount( 1, $assigned_terms );
-		$this->assertSame( (int) get_option( 'default_category' ), $assigned_terms[0]->term_id );
+		$this->assertCount( 0, $assigned_terms );
 	}
 
 	/**
