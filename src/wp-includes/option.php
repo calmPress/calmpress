@@ -2690,24 +2690,6 @@ function register_initial_settings() {
 		)
 	);
 
-	if ( ! is_multisite() ) {
-		register_setting(
-			'general',
-			'siteurl',
-			array(
-				'show_in_rest' => array(
-					'name'   => 'url',
-					'schema' => array(
-						'format' => 'uri',
-					),
-				),
-				'type'         => 'string',
-				'description'  => __( 'Site URL.' ),
-			)
-		);
-	}
-
-
 	register_setting(
 		'general',
 		'timezone_string',

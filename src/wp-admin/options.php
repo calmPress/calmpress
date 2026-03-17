@@ -307,7 +307,7 @@ foreach ( (array) $options as $option ) :
 		$disabled = true;
 	}
 
-	if ( 'siteurl' === $option->option_name && defined( 'WP_SITEURL' ) ) {
+	if ( 'siteurl' === $option->option_name ) {
 		$disabled = true;
 	}
 
