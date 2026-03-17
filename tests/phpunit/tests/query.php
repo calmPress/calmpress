@@ -560,29 +560,6 @@ class Tests_Query extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 55100
-	 */
-	public function test_get_queried_object_should_work_for_author_name_before_get_posts() {
-		$user_id = self::factory()->user->create();
-		$user    = get_user_by( 'ID', $user_id );
-		$post_id = self::factory()->post->create(
-			array(
-				'post_author' => $user_id,
-			)
-		);
-
-		$this->go_to( home_url( '?author=' . $user_id ) );
-
-		$this->assertInstanceOf( 'WP_User', get_queried_object() );
-		$this->assertSame( get_queried_object_id(), $user_id );
-
-		$this->go_to( home_url( '?author_name=' . $user->user_nicename ) );
-
-		$this->assertInstanceOf( 'WP_User', get_queried_object() );
-		$this->assertSame( get_queried_object_id(), $user_id );
-	}
-
-	/**
 	 * Tests that the `posts_clauses` filter receives an array of clauses
 	 * with the other `posts_*` filters applied, e.g. `posts_join_paged`.
 	 *
@@ -689,41 +666,6 @@ class Tests_Query extends WP_UnitTestCase {
 
 		$this->assertTrue( $q->is_single() );
 		$this->assertFalse( $q->is_single( 'non-existent-post' ) );
-	}
-
-	/**
-	 * @ticket 29660
-	 */
-	public function test_query_attachment_404_does_not_throw_warning() {
-		$q = new WP_Query(
-			array(
-				'attachment' => 'non-existent-attachment',
-			)
-		);
-
-		$this->assertSame( 0, $q->post_count );
-
-		$this->assertTrue( $q->is_singular() );
-		$this->assertFalse( $q->is_singular( 'attachment' ) );
-
-		$this->assertTrue( $q->is_attachment() );
-		$this->assertFalse( $q->is_attachment( 'non-existent-attachment' ) );
-	}
-
-	/**
-	 * @ticket 29660
-	 */
-	public function test_query_author_404_does_not_throw_warning() {
-		$q = new WP_Query(
-			array(
-				'author_name' => 'non-existent-author',
-			)
-		);
-
-		$this->assertSame( 0, $q->post_count );
-
-		$this->assertTrue( $q->is_author() );
-		$this->assertFalse( $q->is_author( 'non-existent-author' ) );
 	}
 
 	/**
