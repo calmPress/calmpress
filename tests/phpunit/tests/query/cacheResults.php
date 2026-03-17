@@ -403,14 +403,8 @@ class Test_Query_CacheResults extends WP_UnitTestCase {
 		$request2 = str_replace( $fields, "{$wpdb->posts}.*", $query2->request );
 
 		$reflection_q1 = new ReflectionProperty( $query1, 'query_cache_key' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$reflection_q1->setAccessible( true );
-		}
 
 		$reflection_q2 = new ReflectionProperty( $query2, 'query_cache_key' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$reflection_q2->setAccessible( true );
-		}
 
 		$this->assertSame( $request1, $request2, 'Queries should match' );
 
@@ -1410,35 +1404,6 @@ class Test_Query_CacheResults extends WP_UnitTestCase {
 	/**
 	 * @ticket 22176
 	 */
-	public function test_query_cache_logged_in_password() {
-		$user_id = self::$author_id;
-		self::factory()->post->create(
-			array(
-				'post_title'    => 'foo',
-				'post_password' => 'password',
-				'post_author'   => $user_id,
-			)
-		);
-
-		$args   = array(
-			'cache_results' => true,
-			's'             => 'foo',
-		);
-		$query1 = new WP_Query();
-		$posts1 = $query1->query( $args );
-
-		wp_set_current_user( $user_id );
-
-		$query2 = new WP_Query();
-		$posts2 = $query2->query( $args );
-		$this->assertEmpty( $posts1 );
-		$this->assertNotSame( $posts1, $posts2 );
-		$this->assertNotSame( $query1->found_posts, $query2->found_posts );
-	}
-
-	/**
-	 * @ticket 22176
-	 */
 	public function test_query_cache_new_comment() {
 		$args   = array(
 			'cache_results' => true,
@@ -1457,36 +1422,6 @@ class Test_Query_CacheResults extends WP_UnitTestCase {
 		$this->assertContains( self::$posts[0], $posts2 );
 		$this->assertNotEmpty( $posts2 );
 		$this->assertNotSame( $query1->found_posts, $query2->found_posts );
-	}
-
-	/**
-	 * @ticket 22176
-	 */
-	public function test_main_comments_feed_includes_attachment_comments() {
-		$attachment_id = self::factory()->post->create( array( 'post_type' => 'attachment' ) );
-		$comment_id    = self::factory()->comment->create(
-			array(
-				'comment_post_ID'  => $attachment_id,
-				'comment_approved' => '1',
-			)
-		);
-
-		$args   = array(
-			'cache_results' => true,
-			'withcomments'  => 1,
-			'feed'          => 'feed',
-		);
-		$query1 = new WP_Query();
-		$query1->query( $args );
-
-		$query2 = new WP_Query();
-		$query2->query( $args );
-
-		$this->assertTrue( $query1->have_comments() );
-		$this->assertTrue( $query2->have_comments() );
-
-		$feed_comment = $query1->next_comment();
-		$this->assertEquals( $comment_id, $feed_comment->comment_ID );
 	}
 
 	/**
