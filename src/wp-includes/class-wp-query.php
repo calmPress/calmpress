@@ -1872,16 +1872,6 @@ class WP_Query {
 		$this->allow_query_attachment_by_filename = apply_filters( 'wp_allow_query_attachment_by_filename', false );
 		remove_all_filters( 'wp_allow_query_attachment_by_filename' );
 
-		/**
-		 * Filters whether an attachment query should include filenames or not.
-		 *
-		 * @since 6.0.3
-		 *
-		 * @param bool $allow_query_attachment_by_filename Whether or not to include filenames.
-		 */
-		$this->allow_query_attachment_by_filename = apply_filters( 'wp_allow_query_attachment_by_filename', false );
-		remove_all_filters( 'wp_allow_query_attachment_by_filename' );
-
 		// Parse meta query.
 		$this->meta_query = new WP_Meta_Query();
 		$this->meta_query->parse_query_vars( $query_vars );
