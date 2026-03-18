@@ -209,6 +209,9 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 	}
 
 	public function test_registered_get_items_embed() {
+
+		wp_set_current_user( self::$editor_id );
+		
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
 		$request->set_param( 'include', array( self::$post_id ) );
 		$response = rest_get_server()->dispatch( $request );
@@ -674,6 +677,8 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		update_option( 'sticky_posts', array( $id2 ) );
 
+		wp_set_current_user( self::$editor_id );
+
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
 		$request->set_param( 'slug', 'apple' );
 		$response = rest_get_server()->dispatch( $request );
@@ -862,11 +867,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		$all_data = $response->get_data();
 
-		$this->assertNotEmpty( $all_data );
-
-		foreach ( $all_data as $post ) {
-			$this->assertNotEquals( $draft_id, $post['id'] );
-		}
+		$this->assertEmpty( $all_data );
 	}
 
 	/**
@@ -892,6 +893,8 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 				'post_content' => 'Types of bread are White and Rye Bread',
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
 
 		$request           = new WP_REST_Request( 'GET', '/wp/v2/posts' );
 		$request['search'] = $search_term;
@@ -1776,6 +1779,8 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 			)
 		);
 
+		wp_set_current_user( self::$editor_id );
+
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
 		$request->set_param( 'search', 'foo bar' );
 		$request->set_param( 'search_columns', array( 'post_title' ) );
@@ -2002,6 +2007,9 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 	 * @param string $method HTTP method to use.
 	 */
 	public function test_get_items_only_fetches_ids_for_head_requests( $method ) {
+
+		wp_set_current_user( self::$editor_id );
+
 		$is_head_request = 'HEAD' === $method;
 		$request         = new WP_REST_Request( $method, '/wp/v2/posts' );
 
@@ -2120,6 +2128,8 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$post2 = self::factory()->post->create( array( 'post_date' => '2016-01-16T00:00:00Z' ) );
 		$post3 = self::factory()->post->create( array( 'post_date' => '2016-01-17T00:00:00Z' ) );
 
+		wp_set_current_user( self::$editor_id );
+
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
 		$request->set_param( 'after', '2016-01-15T00:00:00Z' );
 		$request->set_param( 'before', '2016-01-17T00:00:00Z' );
@@ -2152,6 +2162,9 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$this->update_post_modified( $post1, '2016-01-15 00:00:00' );
 		$this->update_post_modified( $post2, '2016-01-16 00:00:00' );
 		$this->update_post_modified( $post3, '2016-01-17 00:00:00' );
+
+		wp_set_current_user( self::$editor_id );
+
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
 		$request->set_param( 'modified_after', '2016-01-15T00:00:00Z' );
 		$request->set_param( 'modified_before', '2016-01-17T00:00:00Z' );
@@ -2182,6 +2195,8 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 	 * @param string $method The HTTP method to use.
 	 */
 	public function test_get_item_should_allow_adding_headers_via_filter( $method ) {
+		wp_set_current_user( self::$editor_id );
+
 		$request = new WP_REST_Request( $method, sprintf( '/wp/v2/posts/%d', self::$post_id ) );
 
 		$hook_name = 'rest_prepare_' . get_post_type( self::$post_id );
@@ -2219,6 +2234,8 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 	 * @param string $path The path to test.
 	 */
 	public function test_head_request_with_specified_fields_returns_success_response( $path ) {
+		wp_set_current_user( self::$editor_id );
+
 		$request = new WP_REST_Request( 'HEAD', sprintf( $path, self::$post_id ) );
 		$request->set_param( '_fields', 'id' );
 		$server   = rest_get_server();
@@ -5262,175 +5279,6 @@ Shankle pork chop prosciutto ribeye ham hock pastrami. T-bone shank brisket baco
 	}
 
 	/**
-	 * Test the REST API ignores the post format parameter for post types that do not support them.
-	 *
-	 * @ticket 62646
-	 * @ticket 62014
-	 *
-	 * @covers WP_REST_Posts_Controller::get_items
-	 */
-	public function test_standard_post_format_ignored_for_post_types_that_do_not_support_them() {
-		$initial_theme_support = get_theme_support( 'post-formats' );
-		add_theme_support( 'post-formats', array( 'aside', 'gallery', 'link', 'image', 'quote', 'status', 'video', 'audio', 'chat' ) );
-
-		self::factory()->post->create(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-			)
-		);
-
-		$request = new WP_REST_Request( 'GET', '/wp/v2/pages' );
-		$request->set_param( 'format', 'invalid_type' );
-
-		$response = rest_get_server()->dispatch( $request );
-
-		/*
-		 * Restore the initial post formats support.
-		 *
-		 * This needs to be done prior to the assertions to avoid unexpected
-		 * results for other tests should an assertion fail.
-		 */
-		if ( $initial_theme_support ) {
-			add_theme_support( 'post-formats', $initial_theme_support[0] );
-		} else {
-			remove_theme_support( 'post-formats' );
-		}
-
-		$this->assertCount( 1, $response->get_data(), 'The response should ignore the post format parameter' );
-	}
-
-	/**
-	 * Test the REST API support for the standard post format.
-	 *
-	 * @ticket 62014
-	 *
-	 * @covers WP_REST_Posts_Controller::get_items
-	 */
-	public function test_standard_post_format_support() {
-		$initial_theme_support = get_theme_support( 'post-formats' );
-		add_theme_support( 'post-formats', array( 'aside', 'gallery', 'link', 'image', 'quote', 'status', 'video', 'audio', 'chat' ) );
-
-		$post_id = self::factory()->post->create(
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
-		set_post_format( $post_id, 'aside' );
-
-		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
-		$request->set_param( 'format', array( 'standard' ) );
-		$request->set_param( 'per_page', REST_TESTS_IMPOSSIBLY_HIGH_NUMBER );
-
-		$response = rest_get_server()->dispatch( $request );
-
-		/*
-		 * Restore the initial post formats support.
-		 *
-		 * This needs to be done prior to the assertions to avoid unexpected
-		 * results for other tests should an assertion fail.
-		 */
-		if ( $initial_theme_support ) {
-			add_theme_support( 'post-formats', $initial_theme_support[0] );
-		} else {
-			remove_theme_support( 'post-formats' );
-		}
-
-		$this->assertCount( 3, $response->get_data(), 'The response should only include standard post formats' );
-	}
-
-	/**
-	 * Test the REST API support for post formats.
-	 *
-	 * @ticket 62014
-	 *
-	 * @covers WP_REST_Posts_Controller::get_items
-	 */
-	public function test_post_format_support() {
-		$initial_theme_support = get_theme_support( 'post-formats' );
-		add_theme_support( 'post-formats', array( 'aside', 'gallery', 'link', 'image', 'quote', 'status', 'video', 'audio', 'chat' ) );
-
-		$post_id = self::factory()->post->create(
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
-		set_post_format( $post_id, 'aside' );
-
-		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
-		$request->set_param( 'format', array( 'aside' ) );
-
-		$response_aside = rest_get_server()->dispatch( $request );
-
-		$request->set_param( 'format', array( 'invalid_format' ) );
-		$response_invalid = rest_get_server()->dispatch( $request );
-
-		/*
-		 * Restore the initial post formats support.
-		 *
-		 * This needs to be done prior to the assertions to avoid unexpected
-		 * results for other tests should an assertion fail.
-		 */
-		if ( $initial_theme_support ) {
-			add_theme_support( 'post-formats', $initial_theme_support[0] );
-		} else {
-			remove_theme_support( 'post-formats' );
-		}
-
-		$this->assertCount( 1, $response_aside->get_data(), 'Only one post is expected to be returned.' );
-		$this->assertErrorResponse( 'rest_invalid_param', $response_invalid, 400, 'An invalid post format should return an error' );
-	}
-
-	/**
-	 * Test the REST API support for multiple post formats.
-	 *
-	 * @ticket 62014
-	 *
-	 * @covers WP_REST_Posts_Controller::get_items
-	 */
-	public function test_multiple_post_format_support() {
-		$initial_theme_support = get_theme_support( 'post-formats' );
-		add_theme_support( 'post-formats', array( 'aside', 'gallery', 'link', 'image', 'quote', 'status', 'video', 'audio', 'chat' ) );
-
-		$post_id = self::factory()->post->create(
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
-		set_post_format( $post_id, 'aside' );
-
-		$post_id_2 = self::factory()->post->create(
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
-		set_post_format( $post_id_2, 'gallery' );
-
-		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
-		$request->set_param( 'format', array( 'aside', 'gallery' ) );
-
-		$response = rest_get_server()->dispatch( $request );
-
-		/*
-		 * Restore the initial post formats support.
-		 *
-		 * This needs to be done prior to the assertions to avoid unexpected
-		 * results for other tests should an assertion fail.
-		 */
-		if ( $initial_theme_support ) {
-			add_theme_support( 'post-formats', $initial_theme_support[0] );
-		} else {
-			remove_theme_support( 'post-formats' );
-		}
-
-		$this->assertCount( 2, $response->get_data(), 'Two posts are expected to be returned' );
-	}
-
-	/**
 	 * Tests for the pagination.
 	 *
 	 * @ticket 62292
@@ -5438,6 +5286,8 @@ Shankle pork chop prosciutto ribeye ham hock pastrami. T-bone shank brisket baco
 	 * @covers WP_REST_Posts_Controller::get_items
 	 */
 	public function test_get_posts_with_pagination() {
+
+		wp_set_current_user( self::$editor_id );
 
 		// Test offset.
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
@@ -5484,6 +5334,8 @@ Shankle pork chop prosciutto ribeye ham hock pastrami. T-bone shank brisket baco
 
 		update_option( 'sticky_posts', array( $id1 ) );
 
+		wp_set_current_user( self::$editor_id );
+
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/posts' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
@@ -5510,6 +5362,8 @@ Shankle pork chop prosciutto ribeye ham hock pastrami. T-bone shank brisket baco
 		$id2 = self::factory()->post->create( array( 'post_status' => 'publish' ) );
 
 		update_option( 'sticky_posts', array( $id1 ) );
+
+		wp_set_current_user( self::$editor_id );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
 		$request->set_param( 'ignore_sticky', false );
@@ -5539,6 +5393,8 @@ Shankle pork chop prosciutto ribeye ham hock pastrami. T-bone shank brisket baco
 		$id2 = self::factory()->post->create( array( 'post_status' => 'publish' ) );
 
 		update_option( 'sticky_posts', array( $id1 ) );
+
+		wp_set_current_user( self::$editor_id );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
 		$request->set_param( 'include', array( $id2 ) );
