@@ -704,7 +704,7 @@ class WP_Test_REST_Pages_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		$response   = rest_get_server()->dispatch( $request );
 		$data       = $response->get_data();
 		$properties = $data['schema']['properties'];
-		$this->assertCount( 25, $properties );
+		$this->assertCount( 26, $properties );
 		$this->assertArrayHasKey( 'author', $properties );
 		$this->assertArrayHasKey( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, $properties );
 		$this->assertArrayHasKey( 'comment_status', $properties );
