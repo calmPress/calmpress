@@ -679,8 +679,7 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 		// Set author data if the user's logged in.
 		$missing_author = empty( $prepared_comment['user_id'] )
 			&& empty( $prepared_comment['comment_author'] )
-			&& empty( $prepared_comment['comment_author_email'] )
-			&& empty( $prepared_comment['comment_author_url'] );
+			&& empty( $prepared_comment['comment_author_email'] );
 
 		if ( is_user_logged_in() && $missing_author ) {
 			$user = wp_get_current_user();
@@ -688,7 +687,6 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			$prepared_comment['user_id']              = $user->ID;
 			$prepared_comment['comment_author']       = $user->display_name;
 			$prepared_comment['comment_author_email'] = $user->user_email;
-			$prepared_comment['comment_author_url']   = site_url();
 		}
 
 		// Honor the discussion setting that requires a name and email address of the comment author.
@@ -702,10 +700,6 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 
 		if ( ! isset( $prepared_comment['comment_author_email'] ) ) {
 			$prepared_comment['comment_author_email'] = '';
-		}
-
-		if ( ! isset( $prepared_comment['comment_author_url'] ) ) {
-			$prepared_comment['comment_author_url'] = '';
 		}
 
 		if ( ! isset( $prepared_comment['comment_agent'] ) ) {
@@ -1143,10 +1137,6 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 			$data['author_email'] = $comment->comment_author_email;
 		}
 
-		if ( in_array( 'author_url', $fields, true ) ) {
-			$data['author_url'] = $comment->comment_author_url;
-		}
-
 		if ( in_array( 'author_ip', $fields, true ) ) {
 			$data['author_ip'] = $comment->comment_author_IP;
 		}
@@ -1401,7 +1391,6 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 				$prepared_comment['user_id']              = $user->ID;
 				$prepared_comment['comment_author']       = $user->display_name;
 				$prepared_comment['comment_author_email'] = $user->user_email;
-				$prepared_comment['comment_author_url']   = site_url();
 			} else {
 				return new WP_Error(
 					'rest_comment_author_invalid',
@@ -1417,10 +1406,6 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 
 		if ( isset( $request['author_email'] ) ) {
 			$prepared_comment['comment_author_email'] = $request['author_email'];
-		}
-
-		if ( isset( $request['author_url'] ) ) {
-			$prepared_comment['comment_author_url'] = $request['author_url'];
 		}
 
 		if ( isset( $request['author_ip'] ) && current_user_can( 'moderate_comments' ) ) {
@@ -1515,12 +1500,6 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 					'arg_options' => array(
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-				),
-				'author_url'        => array(
-					'description' => 'URL for the comment author.',
-					'type'        => 'string',
-					'format'      => 'uri',
-					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'author_user_agent' => array(
 					'description' => 'User agent for the comment author.',
@@ -1979,7 +1958,6 @@ class WP_REST_Comments_Controller extends WP_REST_Controller {
 				'comment_post_ID'      => 0,
 				'comment_author'       => null,
 				'comment_author_email' => null,
-				'comment_author_url'   => null,
 				'comment_parent'       => 0,
 				'user_id'              => 0,
 			)

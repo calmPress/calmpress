@@ -18,7 +18,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	protected static $user_ids = array();
 
 	protected static $post_id;
-	protected static $password_id;
 	protected static $private_id;
 	protected static $draft_id;
 	protected static $trash_id;
@@ -85,12 +84,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		self::$post_id     = $factory->post->create( ['comment_status' => 'open'] );
 		self::$private_id  = $factory->post->create(
 			array(
-				'post_status' => 'private',
-			)
-		);
-		self::$password_id = $factory->post->create(
-			array(
-				'post_password' => 'toomanysecrets',
+				'post_status'    => 'private',
 				'comment_status' => 'open',
 			)
 		);
@@ -1101,7 +1095,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'content'      => 'Worst Comment Ever!',
 			'date'         => '2014-11-07T10:14:25',
 		);
@@ -1206,7 +1199,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Reverend Lovejoy',
 			'author_email' => 'lovejoy@example.com',
-			'author_url'   => 'http://timothylovejoy.jr',
 			'content'      => array(
 				'raw' => 'Once something has been approved by the government, it\'s no longer immoral.',
 			),
@@ -1350,7 +1342,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Reverend Lovejoy',
 			'author_email' => 'lovejoy@example.com',
-			'author_url'   => 'http://timothylovejoy.jr',
 		);
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/comments' );
@@ -1376,7 +1367,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Reverend Lovejoy',
 			'author_email' => 'lovejoy@example.com',
-			'author_url'   => 'http://timothylovejoy.jr',
 			'content'      => '   ',
 		);
 
@@ -1398,7 +1388,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Reverend Lovejoy',
 			'author_email' => 'lovejoy@example.com',
-			'author_url'   => 'http://timothylovejoy.jr',
 			'content'      => '0',
 		);
 
@@ -1423,7 +1412,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Reverend Lovejoy',
 			'author_email' => 'lovejoy@example.com',
-			'author_url'   => 'http://timothylovejoy.jr',
 			'content'      => '',
 		);
 
@@ -1443,7 +1431,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Reverend Lovejoy',
 			'author_email' => 'lovejoy@example.com',
-			'author_url'   => 'http://timothylovejoy.jr',
 			'content'      => 'It\'s all over\, people! We don\'t have a prayer!',
 			'date'         => 'foo-bar',
 		);
@@ -1471,7 +1458,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'author'       => $subscriber_id,
 			'content'      => 'Worst Comment Ever!',
 			'date'         => '2014-11-07T10:14:25',
@@ -1497,7 +1483,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'author'       => self::$admin_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'content'      => 'Worst Comment Ever!',
 			'date'         => '2014-11-07T10:14:25',
 		);
@@ -1534,7 +1519,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'author'       => self::$admin_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'content'      => 'Worst Comment Ever!',
 			'date'         => '2014-11-07T10:14:25',
 			'type'         => 'foo',
@@ -1557,7 +1541,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'author'       => self::$admin_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'hello:)',
-			'author_url'   => 'http://androidsdungeon.com',
 			'content'      => 'Worst Comment Ever!',
 			'date'         => '2014-11-07T10:14:25',
 		);
@@ -1603,7 +1586,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$comment = get_comment( $data['id'] );
 		$this->assertSame( $author->display_name, $comment->comment_author );
 		$this->assertSame( $author->user_email, $comment->comment_author_email );
-		$this->assertSame( site_url(), $comment->comment_author_url );
 	}
 
 	public function test_create_comment_other_user() {
@@ -1613,7 +1595,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Homer Jay Simpson',
 			'author_email' => 'chunkylover53@aol.com',
-			'author_url'   => 'http://compuglobalhypermeganet.com',
 			'content'      => 'Here\’s to alcohol: the cause of, and solution to, all of life\’s problems.',
 			'author'       => self::$subscriber_id,
 		);
@@ -1628,7 +1609,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->assertSame( self::$subscriber_id, $data['author'] );
 		$this->assertSame( 'Homer Jay Simpson', $data['author_name'] );
 		$this->assertSame( 'chunkylover53@aol.com', $data['author_email'] );
-		$this->assertSame( 'http://compuglobalhypermeganet.com', $data['author_url'] );
 	}
 
 	public function test_create_comment_other_user_without_permission() {
@@ -1638,7 +1618,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Homer Jay Simpson',
 			'author_email' => 'chunkylover53@aol.com',
-			'author_url'   => 'http://compuglobalhypermeganet.com',
 			'content'      => 'Here\’s to alcohol: the cause of, and solution to, all of life\’s problems.',
 			'author'       => self::$admin_id,
 		);
@@ -1658,7 +1637,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => 'some-slug',
 			'author_name'  => 'Homer Jay Simpson',
 			'author_email' => 'chunkylover53@aol.com',
-			'author_url'   => 'http://compuglobalhypermeganet.com',
 			'content'      => 'Here\’s to alcohol: the cause of, and solution to, all of life\’s problems.',
 			'author'       => self::$subscriber_id,
 		);
@@ -1678,7 +1656,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Homer Jay Simpson',
 			'author_email' => 'chunkylover53@aol.com',
-			'author_url'   => 'http://compuglobalhypermeganet.com',
 			'content'      => 'Here\’s to alcohol: the cause of, and solution to, all of life\’s problems.',
 			'author'       => self::$subscriber_id,
 			'status'       => 'approved',
@@ -1701,7 +1678,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'author_name'       => 'Comic Book Guy',
 			'author_email'      => 'cbg@androidsdungeon.com',
 			'author_ip'         => '139.130.4.5',
-			'author_url'        => 'http://androidsdungeon.com',
 			'author_user_agent' => 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
 			'content'           => 'Worst Comment Ever!',
 			'status'            => 'approved',
@@ -1727,7 +1703,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Homer Jay Simpson',
 			'author_email' => 'chunkylover53@aol.com',
-			'author_url'   => 'http://compuglobalhypermeganet.com',
 			'content'      => 'Here\’s to alcohol: the cause of, and solution to, all of life\’s problems.',
 		);
 
@@ -1752,7 +1727,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'author_ip'    => '127.0.0.3',
 			'content'      => 'Worst Comment Ever!',
 			'status'       => 'approved',
@@ -1773,7 +1747,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'author_ip'    => '867.5309',
 			'content'      => 'Worst Comment Ever!',
 			'status'       => 'approved',
@@ -1792,7 +1765,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$params = array(
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'author_ip'    => '10.0.10.1',
 			'content'      => 'Worst Comment Ever!',
 			'status'       => 'approved',
@@ -1814,7 +1786,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'content'      => 'Worst Comment Ever!',
 		);
 
@@ -1833,7 +1804,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$params = array(
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'content'      => 'Worst Comment Ever!',
 			'status'       => 'approved',
 		);
@@ -1853,7 +1823,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$params = array(
 			'author_name'  => 'Homer Jay Simpson',
 			'author_email' => 'chunkylover53@aol.com',
-			'author_url'   => 'http://compuglobalhypermeganet.com',
 			'content'      => 'Here\’s to alcohol: the cause of, and solution to, all of life\’s problems.',
 			'author'       => self::$subscriber_id,
 		);
@@ -1872,7 +1841,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$params = array(
 			'author_name'  => 'Homer Jay Simpson',
 			'author_email' => 'chunkylover53@aol.com',
-			'author_url'   => 'http://compuglobalhypermeganet.com',
 			'content'      => 'Here\’s to alcohol: the cause of, and solution to, all of life\’s problems.',
 			'status'       => 'approved',
 			'post'         => REST_TESTS_IMPOSSIBLY_HIGH_NUMBER,
@@ -1893,7 +1861,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$draft_id,
 			'author_name'  => 'Ishmael',
 			'author_email' => 'herman-melville@earthlink.net',
-			'author_url'   => 'https://en.wikipedia.org/wiki/Herman_Melville',
 			'content'      => 'Call me Ishmael.',
 			'author'       => self::$subscriber_id,
 		);
@@ -1913,7 +1880,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$trash_id,
 			'author_name'  => 'Ishmael',
 			'author_email' => 'herman-melville@earthlink.net',
-			'author_url'   => 'https://en.wikipedia.org/wiki/Herman_Melville',
 			'content'      => 'Call me Ishmael.',
 			'author'       => self::$subscriber_id,
 		);
@@ -1934,7 +1900,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$private_id,
 			'author_name'  => 'Homer Jay Simpson',
 			'author_email' => 'chunkylover53@aol.com',
-			'author_url'   => 'http://compuglobalhypermeganet.com',
 			'content'      => 'I\’d be a vegetarian if bacon grew on trees.',
 			'author'       => self::$subscriber_id,
 		);
@@ -2032,7 +1997,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->assertSame( self::$author_id, $result['author'] );
 		$this->assertSame( 'Sea Captain', $result['author_name'] );
 		$this->assertSame( 'captain@thefryingdutchman.com', $result['author_email'] );
-		$this->assertSame( site_url(), $result['author_url'] );
 	}
 
 	public function test_create_comment_two_times() {
@@ -2042,7 +2006,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'content'      => 'Worst Comment Ever!',
 		);
 
@@ -2057,7 +2020,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'content'      => 'Shakes fist at sky',
 		);
 
@@ -2081,7 +2043,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Comic Book Guy',
 			'author_email' => 'cbg@androidsdungeon.com',
-			'author_url'   => 'http://androidsdungeon.com',
 			'content'      => 'Worst Comment Ever!',
 		);
 
@@ -2106,7 +2067,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => rand_long_str( 246 ),
 			'author_email' => 'murphy@gingivitis.com',
-			'author_url'   => 'http://jazz.gingivitis.com',
 			'content'      => 'This isn\'t a saxophone. It\'s an umbrella.',
 			'date'         => '1995-04-30T10:22:00',
 		);
@@ -2129,8 +2089,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$params = array(
 			'post'         => self::$post_id,
 			'author_name'  => 'Bleeding Gums Murphy',
-			'author_email' => 'murphy@' . rand_long_str( 190 ) . '.com',
-			'author_url'   => 'http://jazz.gingivitis.com',
+			'author_email' => str_repeat( 'b', 190 ) . '@example.com',
 			'content'      => 'This isn\'t a saxophone. It\'s an umbrella.',
 			'date'         => '1995-04-30T10:22:00',
 		);
@@ -2147,30 +2106,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	/**
 	 * @ticket 38477
 	 */
-	public function test_create_comment_author_url_too_long() {
-		wp_set_current_user( self::$subscriber_id );
-
-		$params = array(
-			'post'         => self::$post_id,
-			'author_name'  => 'Bleeding Gums Murphy',
-			'author_email' => 'murphy@gingivitis.com',
-			'author_url'   => 'http://jazz.' . rand_long_str( 185 ) . '.com',
-			'content'      => 'This isn\'t a saxophone. It\'s an umbrella.',
-			'date'         => '1995-04-30T10:22:00',
-		);
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/comments' );
-
-		$request->add_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( $params ) );
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertErrorResponse( 'comment_author_url_column_length', $response, 400 );
-	}
-
-	/**
-	 * @ticket 38477
-	 */
 	public function test_create_comment_content_too_long() {
 		wp_set_current_user( self::$subscriber_id );
 
@@ -2178,7 +2113,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'post'         => self::$post_id,
 			'author_name'  => 'Bleeding Gums Murphy',
 			'author_email' => 'murphy@gingivitis.com',
-			'author_url'   => 'http://jazz.gingivitis.com',
 			'content'      => rand_long_str( 66525 ),
 			'date'         => '1995-04-30T10:22:00',
 		);
@@ -2192,46 +2126,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->assertErrorResponse( 'comment_content_column_length', $response, 400 );
 	}
 
-	public function test_create_comment_without_password() {
-		wp_set_current_user( self::$subscriber_id );
-
-		$params = array(
-			'post'         => self::$password_id,
-			'author_name'  => 'Bleeding Gums Murphy',
-			'author_email' => 'murphy@gingivitis.com',
-			'author_url'   => 'http://jazz.gingivitis.com',
-			'content'      => 'This isn\'t a saxophone. It\'s an umbrella.',
-		);
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/comments' );
-
-		$request->add_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( $params ) );
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertErrorResponse( 'rest_cannot_read_post', $response, 403 );
-	}
-
-	public function test_create_comment_with_password() {
-		add_filter( 'rest_allow_anonymous_comments', '__return_true' );
-
-		$params = array(
-			'post'         => self::$password_id,
-			'author_name'  => 'Bleeding Gums Murphy',
-			'author_email' => 'murphy@gingivitis.com',
-			'author_url'   => 'http://jazz.gingivitis.com',
-			'content'      => 'This isn\'t a saxophone. It\'s an umbrella.',
-			'password'     => 'toomanysecrets',
-		);
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/comments' );
-
-		$request->add_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( $params ) );
-		$response = rest_get_server()->dispatch( $request );
-		$this->assertSame( 201, $response->get_status() );
-	}
-
 	public function test_update_item() {
 		$post_id = self::factory()->post->create( ['comment_status' => 'open'] );
 
@@ -2240,7 +2134,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$params = array(
 			'author'       => self::$subscriber_id,
 			'author_name'  => 'Disco Stu',
-			'author_url'   => 'http://stusdisco.com',
 			'author_email' => 'stu@stusdisco.com',
 			'author_ip'    => '4.4.4.4',
 			'content'      => 'Testing.',
@@ -2260,7 +2153,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->assertSame( $params['content'], $comment['content']['raw'] );
 		$this->assertSame( $params['author'], $comment['author'] );
 		$this->assertSame( $params['author_name'], $comment['author_name'] );
-		$this->assertSame( $params['author_url'], $comment['author_url'] );
 		$this->assertSame( $params['author_email'], $comment['author_email'] );
 		$this->assertSame( $params['author_ip'], $comment['author_ip'] );
 		$this->assertSame( $params['post'], $comment['post'] );
@@ -2754,7 +2646,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		wp_set_current_user( self::$admin_id );
 
 		$params = array(
-			'author_email' => 'murphy@' . rand_long_str( 190 ) . '.com',
+			'author_email' => 'murphy@' . str_repeat( 'a', 190 ) . '.com',
 			'content'      => 'This isn\'t a saxophone. It\'s an umbrella.',
 		);
 
@@ -2765,26 +2657,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertErrorResponse( 'comment_author_email_column_length', $response, 400 );
-	}
-
-	/**
-	 * @ticket 38477
-	 */
-	public function test_update_comment_author_url_too_long() {
-		wp_set_current_user( self::$admin_id );
-
-		$params = array(
-			'author_url' => 'http://jazz.' . rand_long_str( 185 ) . '.com',
-			'content'    => 'This isn\'t a saxophone. It\'s an umbrella.',
-		);
-
-		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/comments/%d', self::$approved_id ) );
-
-		$request->add_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( $params ) );
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertErrorResponse( 'comment_author_url_column_length', $response, 400 );
 	}
 
 	/**
@@ -3020,14 +2892,13 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$response   = rest_get_server()->dispatch( $request );
 		$data       = $response->get_data();
 		$properties = $data['schema']['properties'];
-		$this->assertCount( 17, $properties );
+		$this->assertCount( 16, $properties );
 		$this->assertArrayHasKey( 'id', $properties );
 		$this->assertArrayHasKey( 'author', $properties );
 		$this->assertArrayHasKey( 'author_avatar_urls', $properties );
 		$this->assertArrayHasKey( 'author_email', $properties );
 		$this->assertArrayHasKey( 'author_ip', $properties );
 		$this->assertArrayHasKey( 'author_name', $properties );
-		$this->assertArrayHasKey( 'author_url', $properties );
 		$this->assertArrayHasKey( 'author_user_agent', $properties );
 		$this->assertArrayHasKey( 'content', $properties );
 		$this->assertArrayHasKey( 'date', $properties );
@@ -3173,7 +3044,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 		$this->assertEquals( $comment->comment_parent, $data['parent'] );
 		$this->assertEquals( $comment->user_id, $data['author'] );
 		$this->assertSame( $comment->comment_author, $data['author_name'] );
-		$this->assertSame( $comment->comment_author_url, $data['author_url'] );
 		$this->assertSame( calmpress\markdown\Utils::comment_markdown_to_html( $comment->comment_content ), $data['content']['rendered'] );
 		$this->assertSame( mysql_to_rfc3339( $comment->comment_date ), $data['date'] );
 		$this->assertSame( mysql_to_rfc3339( $comment->comment_date_gmt ), $data['date_gmt'] );
@@ -3358,13 +3228,11 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	 */
 	public function test_cannot_create_with_non_valid_comment_type() {
 		wp_set_current_user( self::$admin_id );
-		$post_id = self::factory()->post->create();
 
 		$params = array(
-			'post'         => $post_id,
+			'post'         => self::$post_id,
 			'author_name'  => 'Ishmael',
 			'author_email' => 'herman-melville@earthlink.net',
-			'author_url'   => 'https://en.wikipedia.org/wiki/Herman_Melville',
 			'content'      => 'Comic Book Guy',
 			'author'       => self::$admin_id,
 			'type'         => 'review',
@@ -3383,15 +3251,18 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	 */
 	public function test_create_assigns_default_type() {
 		wp_set_current_user( self::$editor_id );
-		$post_id = self::factory()->post->create();
+		$post_id = self::factory()->post->create(
+			[
+				'comment_status' => 'open',
+			]
+		);
 
 		$params = array(
-			'post'         => $post_id,
-			'author_name'  => 'Ishmael',
-			'author_email' => 'herman-melville@earthlink.net',
-			'author_url'   => 'https://en.wikipedia.org/wiki/Herman_Melville',
-			'content'      => 'Comic Book Guy',
-			'author'       => self::$editor_id,
+			'post'           => $post_id,
+			'author_name'    => 'Ishmael',
+			'author_email'   => 'herman-melville@earthlink.net',
+			'content'        => 'Comic Book Guy',
+			'author'         => self::$editor_id,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/comments' );
@@ -3400,6 +3271,7 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 
 		$response    = rest_get_server()->dispatch( $request );
 		$data        = $response->get_data();
+
 		$new_comment = get_comment( $data['id'] );
 
 		$this->assertSame( 'comment', $new_comment->comment_type );
