@@ -972,7 +972,7 @@ class WP_REST_Plugins_Controller_Test extends WP_Test_REST_Controller_Testcase {
 		$this->assertSame( 'My &#8216;Cool&#8217; Plugin <cite>By <a href="https://wordpress.org/">WordPress.org</a>.</cite>', $data['description']['rendered'] );
 		$this->assertSame( $network_only, $data['network_only'] );
 		$this->assertSame( '5.6.0', $data['requires_php'] );
-		$this->assertSame( '5.4', $data['requires_wp'] );
+		$this->assertSame( '5.4.0', $data['requires_wp'] );
 		$this->assertSame( 'test-plugin', $data['textdomain'] );
 	}
 
