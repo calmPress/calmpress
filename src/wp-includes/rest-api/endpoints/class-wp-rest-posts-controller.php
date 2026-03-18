@@ -1630,53 +1630,27 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Checks if a post can be read.
+	 * Checks if a post can be read. A post can be read if the user can edit it.
 	 *
-	 * Correctly handles posts with the inherit status.
+	 * This is a separate function so sub classes can overide this behaviour.
 	 *
 	 * @since 4.7.0
+	 * @since calmPress 1.0.0 Basically same as check for permission to edit the post.
 	 *
 	 * @param WP_Post $post Post object.
 	 * @return bool Whether the post can be read.
 	 */
 	public function check_read_permission( $post ) {
 
-		if ( ! current_user_can( 'edit_post', $post ) ) {
-			return false;
-		}
-
-		$post_type = get_post_type_object( $post->post_type );
-		if ( ! $this->check_is_post_type_allowed( $post_type ) ) {
-			return false;
-		}
-
-		// Is the post readable?
-		if ( 'publish' === $post->post_status || current_user_can( 'read_post', $post->ID ) ) {
-			return true;
-		}
-
-		$post_status_obj = get_post_status_object( $post->post_status );
-		if ( $post_status_obj && $post_status_obj->public ) {
-			return true;
-		}
-
-		// Can we read the parent if we're inheriting?
+		// Can we edit the parent if we're inheriting?
 		if ( 'inherit' === $post->post_status && $post->post_parent > 0 ) {
 			$parent = get_post( $post->post_parent );
 			if ( $parent ) {
-				return $this->check_read_permission( $parent );
+				return $this->check_update_permission( $parent );
 			}
 		}
-
-		/*
-		 * If there isn't a parent, but the status is set to inherit, assume
-		 * it's published (as per get_post_status()).
-		 */
-		if ( 'inherit' === $post->post_status ) {
-			return true;
-		}
-
-		return false;
+		
+		return $this->check_update_permission( $post );
 	}
 
 	/**

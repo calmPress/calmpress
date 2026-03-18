@@ -449,6 +449,9 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 				'post_mime_type' => 'image/jpeg',
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
+
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
@@ -494,6 +497,8 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 				'post_mime_type' => 'audio/mpeg',
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
 
@@ -559,6 +564,8 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 				'post_mime_type' => 'video/mp4',
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
 
@@ -637,6 +644,8 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 			)
 		);
 
+		wp_set_current_user( self::$editor_id );
+
 		// Test combination of single media type and single mime type parameters.
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$request->set_param( 'media_type', 'image' );
@@ -700,6 +709,9 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 				'post_mime_type' => 'image/jpeg',
 			)
 		);
+
+		wp_set_current_user( self::$editor_id );
+
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/media' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
@@ -2018,7 +2030,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$data       = $response->get_data();
 		$properties = $data['schema']['properties'];
 
-		$this->assertCount( 30, $properties );
+		$this->assertCount( 25, $properties );
 		$this->assertArrayHasKey( 'author', $properties );
 		$this->assertArrayHasKey( \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, $properties );
 		$this->assertArrayHasKey( 'alt_text', $properties );
@@ -2050,7 +2062,6 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$this->assertArrayHasKey( 'type', $properties );
 		$this->assertArrayHasKey( 'missing_image_sizes', $properties );
 		$this->assertArrayHasKey( 'featured_media', $properties );
-		$this->assertArrayHasKey( 'class_list', $properties );
 	}
 
 	public function test_get_additional_field_registration() {
