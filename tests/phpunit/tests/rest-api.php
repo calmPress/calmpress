@@ -2460,6 +2460,8 @@ class Tests_REST_API extends WP_UnitTestCase {
 		wp_set_current_user( 1 );
 		$post_id = self::factory()->post->create();
 		self::factory()->comment->create_post_comments( $post_id );
+		$cat = self::factory()->category->create();
+		wp_set_post_categories( $post_id, [ $cat ] );
 
 		$url           = sprintf( '/wp/v2/posts/%d?%s', $post_id, $embed );
 		$preload_paths = array( $url );
