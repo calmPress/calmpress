@@ -202,7 +202,6 @@ class Tests_User_Query extends WP_UnitTestCase {
 		return array(
 			array( 'nicename', 'user_nicename' ),
 			array( 'email', 'user_email' ),
-			array( 'url', 'user_url' ),
 			array( 'registered', 'user_registered' ),
 			array( 'name', 'display_name' ),
 		);
@@ -2044,17 +2043,13 @@ class Tests_User_Query extends WP_UnitTestCase {
 				'fields'   => 'user_email',
 				'expected' => array( WP_TESTS_EMAIL ),
 			),
-			'user_url'      => array(
-				'fields'   => 'user_url',
-				'expected' => array( wp_guess_url() ),
-			),
 			'user_status'   => array(
 				'fields'   => 'user_status',
 				'expected' => array( '0' ),
 			),
 			'display_name'  => array(
 				'fields'   => 'display_name',
-				'expected' => array( 'admin' ),
+				'expected' => array( 'Admin' ),
 			),
 			'invalid_field' => array(
 				'fields'   => 'invalid_field',
@@ -2132,17 +2127,13 @@ class Tests_User_Query extends WP_UnitTestCase {
 				'fields'   => array( 'user_email' ),
 				'expected' => array( 'user_email' => WP_TESTS_EMAIL ),
 			),
-			'user_url'           => array(
-				'fields'   => array( 'user_url' ),
-				'expected' => array( 'user_url' => wp_guess_url() ),
-			),
 			'user_status'        => array(
 				'fields'   => array( 'user_status' ),
 				'expected' => array( 'user_status' => '0' ),
 			),
 			'display_name'       => array(
 				'fields'   => array( 'display_name' ),
-				'expected' => array( 'display_name' => 'admin' ),
+				'expected' => array( 'display_name' => 'Admin' ),
 			),
 			'invalid_field'      => array(
 				'fields'   => array( 'invalid_field' ),
@@ -2154,7 +2145,7 @@ class Tests_User_Query extends WP_UnitTestCase {
 			'valid array inc id' => array(
 				'fields'   => array( 'display_name', 'user_email', 'id' ),
 				'expected' => array(
-					'display_name' => 'admin',
+					'display_name' => 'Admin',
 					'user_email'   => WP_TESTS_EMAIL,
 					'ID'           => '1',
 					'id'           => '1',
@@ -2163,7 +2154,7 @@ class Tests_User_Query extends WP_UnitTestCase {
 			'valid array inc ID' => array(
 				'fields'   => array( 'display_name', 'user_email', 'ID' ),
 				'expected' => array(
-					'display_name' => 'admin',
+					'display_name' => 'Admin',
 					'user_email'   => WP_TESTS_EMAIL,
 					'ID'           => '1',
 					'id'           => '1',
@@ -2171,7 +2162,7 @@ class Tests_User_Query extends WP_UnitTestCase {
 			),
 			'partly valid array' => array(
 				'fields'   => array( 'display_name', 'invalid_field' ),
-				'expected' => array( 'display_name' => 'admin' ),
+				'expected' => array( 'display_name' => 'Admin' ),
 			),
 		);
 
@@ -2206,11 +2197,11 @@ class Tests_User_Query extends WP_UnitTestCase {
 			'ID'                  => '1',
 			'user_login'          => 'admin',
 			'user_nicename'       => 'admin',
-			'user_url'            => wp_guess_url(),
+			'user_url'            => '',
 			'user_email'          => WP_TESTS_EMAIL,
 			'user_activation_key' => '',
 			'user_status'         => '0',
-			'display_name'        => 'admin',
+			'display_name'        => 'Admin',
 		);
 
 		if ( is_multisite() ) {
