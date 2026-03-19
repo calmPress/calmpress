@@ -101,7 +101,7 @@ class Tests_User_wpListUsers extends WP_UnitTestCase {
 		return array(
 			'defaults when no args are supplied' => array(
 				'args'     => '',
-				'expected' => '<li>jane</li><li>michelle</li><li>paul</li><li>zack</li>',
+				'expected' => '<li>Admin</li><li>jane</li><li>michelle</li><li>paul</li><li>zack</li>',
 			),
 			'the admin account included'         => array(
 				'args'     => array(
@@ -113,25 +113,25 @@ class Tests_User_wpListUsers extends WP_UnitTestCase {
 				'args'     => array(
 					'show_fullname' => true,
 				),
-				'expected' => '<li>jane reno</li><li>michelle jones</li><li>paul norris</li><li>zack moon</li>',
+				'expected' => '<li>Admin</li><li>jane reno</li><li>michelle jones</li><li>paul norris</li><li>zack moon</li>',
 			),
 			'no output via echo'                 => array(
 				'args'     => array(
 					'echo' => false,
 				),
-				'expected' => '<li>jane</li><li>michelle</li><li>paul</li><li>zack</li>',
+				'expected' => '<li>Admin</li><li>jane</li><li>michelle</li><li>paul</li><li>zack</li>',
 			),
 			'commas separating each user'        => array(
 				'args'     => array(
 					'style' => '',
 				),
-				'expected' => 'jane, michelle, paul, zack',
+				'expected' => 'Admin, jane, michelle, paul, zack',
 			),
 			'plain text format'                  => array(
 				'args'     => array(
 					'html' => false,
 				),
-				'expected' => 'jane, michelle, paul, zack',
+				'expected' => 'Admin, jane, michelle, paul, zack',
 			),
 		);
 	}
