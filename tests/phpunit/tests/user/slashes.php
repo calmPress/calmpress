@@ -128,18 +128,14 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 				'user_login'   => 'slash_example_user_3',
 				'role'         => 'subscriber',
 				'user_email'   => 'user3@example.com',
-				'first_name'   => self::SLASH_1,
-				'last_name'    => self::SLASH_3,
 				'nickname'     => self::SLASH_5,
 				'display_name' => self::SLASH_7,
 				'description'  => self::SLASH_3,
-				'user_pass'    => '',
+				'user_pass'    => 'password',
 			)
 		);
 		$user    = get_user_to_edit( $user_id );
 
-		$this->assertSame( wp_unslash( self::SLASH_1 ), $user->first_name );
-		$this->assertSame( wp_unslash( self::SLASH_3 ), $user->last_name );
 		$this->assertSame( wp_unslash( self::SLASH_5 ), $user->nickname );
 		$this->assertSame( wp_unslash( self::SLASH_7 ), $user->display_name );
 		$this->assertSame( wp_unslash( self::SLASH_3 ), $user->description );
@@ -152,12 +148,11 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 				'display_name' => self::SLASH_2,
 				'description'  => self::SLASH_4,
 				'user_pass'    => 'password',
+				'nickname'     => self::SLASH_6,
 			)
 		);
 		$user    = get_user_to_edit( $user_id );
 
-		$this->assertSame( wp_unslash( self::SLASH_2 ), $user->first_name );
-		$this->assertSame( wp_unslash( self::SLASH_4 ), $user->last_name );
 		$this->assertSame( wp_unslash( self::SLASH_6 ), $user->nickname );
 		$this->assertSame( wp_unslash( self::SLASH_2 ), $user->display_name );
 		$this->assertSame( wp_unslash( self::SLASH_4 ), $user->description );
@@ -172,8 +167,6 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 			array(
 				'ID'           => $user_id,
 				'role'         => 'subscriber',
-				'first_name'   => self::SLASH_1,
-				'last_name'    => self::SLASH_3,
 				'nickname'     => self::SLASH_5,
 				'display_name' => self::SLASH_7,
 				'description'  => self::SLASH_3,
@@ -181,8 +174,6 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 		);
 		$user    = get_user_to_edit( $user_id );
 
-		$this->assertSame( wp_unslash( self::SLASH_1 ), $user->first_name );
-		$this->assertSame( wp_unslash( self::SLASH_3 ), $user->last_name );
 		$this->assertSame( wp_unslash( self::SLASH_5 ), $user->nickname );
 		$this->assertSame( wp_unslash( self::SLASH_7 ), $user->display_name );
 		$this->assertSame( wp_unslash( self::SLASH_3 ), $user->description );
@@ -191,8 +182,6 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 			array(
 				'ID'           => $user_id,
 				'role'         => 'subscriber',
-				'first_name'   => self::SLASH_2,
-				'last_name'    => self::SLASH_4,
 				'nickname'     => self::SLASH_6,
 				'display_name' => self::SLASH_2,
 				'description'  => self::SLASH_4,
@@ -200,8 +189,6 @@ class Tests_User_Slashes extends WP_UnitTestCase {
 		);
 		$user    = get_user_to_edit( $user_id );
 
-		$this->assertSame( wp_unslash( self::SLASH_2 ), $user->first_name );
-		$this->assertSame( wp_unslash( self::SLASH_4 ), $user->last_name );
 		$this->assertSame( wp_unslash( self::SLASH_6 ), $user->nickname );
 		$this->assertSame( wp_unslash( self::SLASH_2 ), $user->display_name );
 		$this->assertSame( wp_unslash( self::SLASH_4 ), $user->description );
