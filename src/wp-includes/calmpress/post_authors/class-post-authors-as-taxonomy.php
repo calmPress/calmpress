@@ -173,7 +173,7 @@ class Post_Authors_As_Taxonomy {
 	}
 
 	/**
-	 * Get the number of post published by the authors of a post.
+	 * Get the number of post published by the authors of a post for the post type of the post.
 	 *
 	 * For multiple author a heuristic is being used which can produce slightly
 	 * inaccurate number if the authors publish together many posts.
@@ -187,17 +187,14 @@ class Post_Authors_As_Taxonomy {
 	public static function authors_post_count( \WP_Post $post ) : int {
 		$authors = self::post_authors( $post );
 
-		if ( empty( $authors ) ) {
-			return 0;
-		}
+		$count = 0;
 
 		// For the sake of avoiding DB queries a heuristic is being used that
 		// if there are more than one authors, they are not sharing other posts and
 		// therefor it is good enough to just avoid counting this post multiple
 		// times.
-		$count = 1 - count( $authors );
 		foreach ( $authors as $author ) {
-			$count += $author->posts_count();
+			$count += $author->posts_count( $post->post_type );
 		}
 
 		return $count;

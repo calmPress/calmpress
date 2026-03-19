@@ -149,14 +149,36 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	}
 
 	/**
-	 * The number of posts the author published.
+	 * The number of posts the author published, for specific post type.
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param string $post_type The post type to look for.
+	 * 
 	 * @return int The number of posts.
 	 */
-	public function posts_count() : int {
-		return (int) $this->term->count;
+	public function posts_count( string $post_type ) : int {
+		// For posts the cache count should be enough
+		if ( 'post' === $post_type ) {
+			return (int) $this->term->count;
+		}
+
+		// For other post types need to query the db.
+		$query = new \WP_Query(
+			[
+				'post_type'      => $post_type,
+				'tax_query'      => [
+					[
+						'taxonomy' => Post_Authors_As_Taxonomy::TAXONOMY_NAME,
+						'terms'    => $this->term->term_id,
+					],
+				],
+				'fields'         => 'ids',
+				'posts_per_page' => 1, // Limit the information the DB actually fetches.
+			]
+		);
+
+		return (int) $query->found_posts;
 	}
 
 	/**

@@ -7,8 +7,9 @@
  * @covers ::get_the_author_posts
  */
 class Tests_User_GetTheAuthorPosts extends WP_UnitTestCase {
-	protected static $author_id = 0;
-	protected static $post_id   = 0;
+	protected static $author_id      = 0;
+	protected static $author_term_id = 0;
+	protected static $post_id        = 0;
 
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		self::$author_id = $factory->user->create(
@@ -30,6 +31,8 @@ class Tests_User_GetTheAuthorPosts extends WP_UnitTestCase {
 				'post_type'    => 'post',
 			)
 		);
+		self::$author_term_id = $factory->term->create( array( 'taxonomy' => \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, 'name' => 'zack' ) );
+		wp_set_object_terms( self::$post_id, self::$author_term_id, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 	}
 
 	public function set_up() {
@@ -58,6 +61,11 @@ class Tests_User_GetTheAuthorPosts extends WP_UnitTestCase {
 				'post_type'   => 'wptests_pt',
 			)
 		);
+
+		foreach( $cpt_ids as $id ) {
+			wp_set_object_terms( $id, self::$author_term_id, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		}
+
 		$GLOBALS['post'] = $cpt_ids[0];
 
 		$this->assertSame( 2, get_the_author_posts() );
