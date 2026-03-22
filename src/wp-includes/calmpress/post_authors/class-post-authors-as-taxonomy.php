@@ -25,9 +25,8 @@ class Post_Authors_As_Taxonomy {
 	// Constants used to indicate the required sorting in get_authors.
 	const SORT_TYPE_NUMBER_POSTS_ASC  = 1;
 	const SORT_TYPE_NUMBER_POSTS_DESC = 2;
-	const SORT_TYPE_NONE              = 3;
-	const SORT_TYPE_NAME_ASC          = 4;
-	const SORT_TYPE_NAME_DESC         = 5;
+	const SORT_TYPE_NAME_ASC          = 3;
+	const SORT_TYPE_NAME_DESC         = 4;
 
 	/**
 	 * Perform required initializations in boot time.
@@ -173,7 +172,7 @@ class Post_Authors_As_Taxonomy {
 	}
 
 	/**
-	 * Get the number of post published by the authors of a post for the post type of the post.
+	 * Get the number of public posts published by the authors of a post for the post type of the post.
 	 *
 	 * For multiple author a heuristic is being used which can produce slightly
 	 * inaccurate number if the authors publish together many posts.
@@ -240,11 +239,15 @@ class Post_Authors_As_Taxonomy {
 	}
 
 	/**
-	 * Get all of the authors that match a criteria.
+	 * Get all of the authors that match a criteria, where authors have a public post in a specific
+	 * CPT(s).
 	 *
-	 * Returns an array of authors
+	 * Returns an array of authors.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param string|string[] $post_types The post type(s) for which authors have to have posts
+	 *                                    in.
 	 *
 	 * @param int $number The maximal number of authors to return. A special
 	 *                    value of 0 indicates that all authors should be returned.
@@ -255,66 +258,94 @@ class Post_Authors_As_Taxonomy {
 	 *                       to be returned if the are more authors then the
 	 *                       limit specified in the number parameter.
 	 *                       possible values:
-	 *                       SORT_TYPE_NONE : no explicit sort order.
 	 *                       SORT_TYPE_NUMBER_POSTS_ASC : Ascending by number of posts.
 	 *                       SORT_TYPE_NUMBER_POSTS_DESC : Descending by number of posts.
 	 *                       SORT_TYPE_NAME_ASC : Ascending by author name.
 	 *                       SORT_TYPE_NAME_DESC : Descending by author name.
 	 *
-	 * @param bool $include_empty Indicates if authors with no posts should be returned.
 	 * @param calmpress\post_authors\Post_Author[] $exclude Authors to always exclude.
 	 *
 	 * @return calmpress\post_authors\Post_Author[] The authors.
 	 */
-	public static function get_authors( int $number,
-									int $sort_type,
-									bool $include_empty,
-									array $exclude ) {
+	public static function get_authors(
+		string|array $post_types,
+		int $number,
+		int $sort_type,
+		array $exclude
+	): array {
+		global $wpdb;
 
+		if ( is_string( $post_types ) ) {
+			$post_types = array( $post_types );
+		}
 		$args['number'] = $number;
 
 		switch ( $sort_type ) {
 			case ( self::SORT_TYPE_NAME_ASC ):
-				$args['orderby'] = 'name';
-				$args['order']   = 'ASC';
+				$order_by_sql = 't.name';
+				$order_sql    = 'ASC';
 				break;
 			case ( self::SORT_TYPE_NAME_DESC ):
-				$args['orderby'] = 'name';
-				$args['order']   = 'DESC';
+				$order_by_sql = 't.name';
+				$order_sql    = 'DESC';
 				break;
 			case ( self::SORT_TYPE_NUMBER_POSTS_ASC ):
-				$args['orderby'] = 'count';
-				$args['order']   = 'ASC';
+				$order_by_sql = 'post_count';
+				$order_sql    = 'ASC';
 				break;
 			case ( self::SORT_TYPE_NUMBER_POSTS_DESC ):
-				$args['orderby'] = 'count';
-				$args['order']   = 'DESC';
-				break;
-			case ( self::SORT_TYPE_NONE ):
-				// This case is here just to be able to issue an error for illegal values.
+				$order_by_sql = 'post_count';
+				$order_sql    = 'DESC';
 				break;
 			default:
+				// Sort criteria must be valid.
 				trigger_error( 'Unknown sort type: ' . $sort_type );
-				break;
+				return [];
 		}
 
-		if ( $include_empty ) {
-			$args['hide_empty'] = false;
-		} else {
-			$args['hide_empty'] = true;
-		}
+		$post_types_placeholders = implode( ',', array_fill( 0, count( $post_types ), '%s' ) );
 
-		$args['exclude'] = [];
+		$excludes = [0]; // Filler to avoid error when nothing is excluded.
 		foreach ( $exclude as $author ) {
-			$args['exclude'][] = $author->term_id();
+			$excludes[] = $author->term_id();
+		}
+		$exclude_placeholders = implode( ',', array_fill( 0, count( $excludes ), '%d' ) );
+
+		$sql = $wpdb->prepare("
+			SELECT 
+				t.term_id,
+				COUNT(DISTINCT tr.object_id) AS post_count
+			FROM {$wpdb->terms} t
+			INNER JOIN {$wpdb->term_taxonomy} tt 
+				ON t.term_id = tt.term_id
+			INNER JOIN {$wpdb->term_relationships} tr 
+				ON tt.term_taxonomy_id = tr.term_taxonomy_id
+			INNER JOIN {$wpdb->posts} p 
+				ON tr.object_id = p.ID
+			WHERE tt.taxonomy = %s
+			AND p.post_type IN ($post_types_placeholders)
+			AND p.post_status = 'publish'
+			AND t.term_id NOT IN ($exclude_placeholders)
+			GROUP BY t.term_id
+			ORDER BY {$order_by_sql} {$order_sql}
+			",
+			array_merge(
+				[ self::TAXONOMY_NAME ], $post_types, $excludes
+			)
+		);
+
+		if ( $number > 0 ) {
+			$sql .= $wpdb->prepare(" LIMIT %d", $number );
 		}
 
-		$authors = get_terms( self::TAXONOMY_NAME, $args );
+		$results = $wpdb->get_results( $sql );
 
+		$term_ids = wp_list_pluck( $results, 'term_id' );
 		return array_map(
-			function ( $term ) {
-					return new Taxonomy_Based_Post_Author( $term );
-			}, $authors
+			function ( $term_id ) {
+					return new Taxonomy_Based_Post_Author( get_term( $term_id, self::TAXONOMY_NAME ) );
+			},
+			$term_ids
 		);
 	}
 }

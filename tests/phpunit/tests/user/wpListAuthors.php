@@ -14,8 +14,6 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		'orderby'       => 'name',
 		'order'         => 'ASC',
 		'number'        => null,
-		'optioncount'   => false,
-		'hide_empty'    => true,
 		'echo'          => true,
 		'style'         => 'list',
 		'html'          => true );
@@ -37,7 +35,7 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 
 			$author_term = get_term( $authorid, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 			$post_author = new calmpress\post_authors\Taxonomy_Based_Post_Author( $author_term );
-			self::$user_urls[] = $post_author->posts_url();
+			self::$user_urls[] = $post_author->posts_url( 'post' );
 		}
 
 		$author_term = get_term( self::$fred_id, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
@@ -71,48 +69,6 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_wp_list_authors_optioncount() {
-		$expected['optioncount'] =
-			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a> (2)</li>' .
-			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a> (3)</li>' .
-			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a> (1)</li>';
-
-		$this->assertSame(
-			$expected['optioncount'],
-			wp_list_authors(
-				array(
-					'echo'        => false,
-					'optioncount' => 1,
-				)
-			)
-		);
-	}
-
-	/**
-	 * Ensures the 'optioncount' parameter does not throw an error when there are authors without posts.
-	 *
-	 * @ticket 57011
-	 */
-	public function test_wp_list_authors_optioncount_should_not_error_for_empty_authors() {
-		/*
-		 * The main purpose of this test is to ensure that the error below is not thrown:
-		 *
-		 * Error: Object of class stdClass could not be converted to string
-		 *
-		 * In place of direct testing we ensure `wp_list_authors()` returns a list of authors
-		 * at least one of which is empty.
-		 */
-		$actual = wp_list_authors(
-			array(
-				'optioncount'   => true,
-				'hide_empty'    => false,
-				'exclude_admin' => false,
-				'echo'          => false,
-			)
-		);
-		$this->assertStringContainsString( '(0)', $actual );
-	}
-
 	public function test_wp_list_authors_show_fullname() {
 		$expected['show_fullname'] =
 			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
@@ -125,29 +81,6 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 				array(
 					'echo'          => false,
 					'show_fullname' => 1,
-				)
-			)
-		);
-	}
-
-	public function test_wp_list_authors_hide_empty() {
-		$fred_id = self::$fred_id;
-		$fred_term = get_term( $fred_id, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
-		$fred_author = new calmpress\post_authors\Taxonomy_Based_Post_Author( $fred_term );
-		$fred_url = $fred_author->posts_url();
-
-		$expected['hide_empty'] =
-			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
-			'<li><a href="' . $fred_url . '" title="Posts by fred">fred</a></li>' .
-			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
-			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
-
-		$this->assertSame(
-			$expected['hide_empty'],
-			wp_list_authors(
-				array(
-					'echo'       => false,
-					'hide_empty' => 0,
 				)
 			)
 		);

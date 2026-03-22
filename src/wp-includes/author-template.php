@@ -30,7 +30,7 @@ function get_the_author() {
 	$display_name = '';
 
 	// make sure we are in the post loop context.
-	if ( isset( $post ) ) {
+	if ( ! empty( $post ) ) {
 		 $authors = post_authors\Post_Authors_As_Taxonomy::post_authors( $post );
 
 		 // For backward compatibility reasons, prefer to return a null over empty string
@@ -45,7 +45,7 @@ function get_the_author() {
 			$display_name = '';
 		}
 	}
-
+	
 	/**
 	 * Filters the display name of the current post's author.
 	 *
@@ -394,16 +394,17 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
  *
  * @since 1.2.0
  * @since calmPress 1.0.0 Added $title_format option
+ *                        Added post_types option.
+ *                        Removed optioncount.
+ *                        Removed hide_empty.
  *
  * @param string|array $args {
  *     Optional. Array or string of default arguments.
  *
  *     @type string       $orderby       How to sort the authors. Accepts 'name',
- *                                       'display_name', 'post_count'. Default 'name'.
+ *                                       'post_count'. Default 'name'.
  *     @type string       $order         Sorting direction for $orderby. Accepts 'ASC', 'DESC'. Default 'ASC'.
  *     @type int          $number        Maximum authors to return or display. Default empty (all authors).
- *     @type bool         $optioncount   Show the count in parenthesis next to the author's name. Default false.
- *     @type bool         $hide_empty    Whether to hide any authors with no posts. Default true.
  *     @type bool         $echo          Whether to output the result or instead return it. Default true.
  *     @type string       $style         If 'list', each author is wrapped in an `<li>` element, otherwise the authors
  *                                       will be separated by commas.
@@ -413,6 +414,9 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
  *     @type string       $title_format  A sprintf style format for the link's title, where the value
  *                                       %s will be replaced with the author's display name.
  *                                       Defaults to some text in english.
+ *     @type string|string[] $post_types    The post type(s) which to use as context, displaying only authors
+ *                                       with published posts for those CPTs.
+ *                                       Defaults to ['post'].
  * }
  * @return void|string Void if 'echo' argument is true, list of authors if 'echo' is false.
  */
@@ -422,14 +426,13 @@ function wp_list_authors( $args = '' ) {
 		'orderby'      => 'name',
 		'order'        => 'ASC',
 		'number'       => '',
-		'optioncount'  => false,
-		'hide_empty'   => true,
 		'echo'         => true,
 		'style'        => 'list',
 		'html'         => true,
 		'exclude'      => '',
 		'include'      => '',
 		'title_format' => 'Posts by %s',
+		'post_types'   => 'post',
 	];
 
 	$parsed_args = wp_parse_args( $args, $defaults );
@@ -437,7 +440,6 @@ function wp_list_authors( $args = '' ) {
 	$return = '';
 
 	// Set the sort parameter.
-	$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NONE;
 	if ( 'name' === $parsed_args['orderby'] || 'display_name' === $parsed_args['orderby'] ) {
 		if ( 'DESC' === $parsed_args['order'] ) {
 			$order = post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_DESC;
@@ -455,25 +457,33 @@ function wp_list_authors( $args = '' ) {
 	// Convert the exclude parameter to array of authors.
 	$exclude_arr = [];
 	if ( ! empty( $parsed_args['exclude'] ) ) {
-		$exclude_arr = array_map(
-			function ( $term_id ) {
-				$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
-				return new post_authors\Taxonomy_Based_Post_Author( $term );
+		$exclude_arr = array_filter(
+			array_map(
+				function ( $term_id ) {
+					$term = get_term( $term_id, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+					if ( $term instanceof WP_Term ) {
+						try {
+							return new post_authors\Taxonomy_Based_Post_Author( $term );
+						} catch ( \Exception $e ) {
+							;
+						}
+					}
+					trigger_error( 'term is not an author ' . $term_id );
+					return null;
 				},
-			wp_parse_id_list( $parsed_args['exclude'] )
+				wp_parse_id_list( $parsed_args['exclude'] )
+			)
 		);
 	}
 
 	$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+		$parsed_args[ 'post_types' ],
 		(int) $parsed_args['number'],
 		$order,
-		! $parsed_args['hide_empty'],
 		$exclude_arr
 	);
 
 	foreach ( $authors as $author ) {
-
-		$posts = $author->posts_count();
 
 		$name = $author->name();
 
@@ -489,14 +499,10 @@ function wp_list_authors( $args = '' ) {
 
 		$link = sprintf(
 			'<a href="%1$s" title="%2$s">%3$s</a>',
-			esc_url( $author->posts_url() ),
+			esc_url( $author->posts_url( $parsed_args[ 'post_types' ] ) ),
 			esc_attr( sprintf( $parsed_args['title_format'], $name ) ),
 			$name
 		);
-
-		if ( $parsed_args['optioncount'] ) {
-			$link .= ' (' . $posts . ')';
-		}
 
 		$return .= $link;
 		$return .= ( 'list' === $parsed_args['style'] ) ? '</li>' : ', ';

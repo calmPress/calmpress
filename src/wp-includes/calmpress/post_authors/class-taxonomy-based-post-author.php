@@ -43,11 +43,13 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	 * @since 1.0.0
 	 *
 	 * @param \WP_Term $term The term.
+	 * 
+	 * @throws RuntimeException If $temp do not belong to the authors taxonomy.
 	 */
 	public function __construct( \WP_Term $term ) {
 
 		if ( Post_Authors_As_Taxonomy::TAXONOMY_NAME !== $term->taxonomy ) {
-			trigger_error( 'The term do not belong to the authors taxonomy, but to ' . $term->taxonomy );
+			throw \RuntimeException( 'The term do not belong to the authors taxonomy, but to ' . $term->taxonomy );
 		}
 
 		$this->term = $term;
@@ -142,14 +144,31 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param string|string[] $post_types The posts type of the posts linked from the
+	 *                                    archeive page.
+	 *                                    Empty string or array indicates all post types.
+	 * 
 	 * @return string The URL of the page, or empty string if none exists.
 	 */
-	public function posts_url() : string {
-		return get_term_link( $this->term, Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+	public function posts_url( string|array $post_types = '' ) : string {
+		$url = get_term_link( $this->term, Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		if ( empty( $url ) || empty( $post_types ) ) {
+			return $url;
+		}
+
+		if ( is_string( $post_types ) ) {
+			return add_query_arg( 'post_type', $post_types, $url );
+		}
+
+		if ( count( $post_types ) === 1 ) {
+			return add_query_arg( 'post_type', $post_types[0], $url );
+		}
+
+		return add_query_arg( 'post_type', (array) $post_types, $url );
 	}
 
 	/**
-	 * The number of posts the author published, for specific post type.
+	 * The number of public posts the author published, for specific post type.
 	 *
 	 * @since 1.0.0
 	 *
@@ -158,15 +177,12 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	 * @return int The number of posts.
 	 */
 	public function posts_count( string $post_type ) : int {
-		// For posts the cache count should be enough
-		if ( 'post' === $post_type ) {
-			return (int) $this->term->count;
-		}
 
 		// For other post types need to query the db.
 		$query = new \WP_Query(
 			[
 				'post_type'      => $post_type,
+				'post_status'    => 'publish',
 				'tax_query'      => [
 					[
 						'taxonomy' => Post_Authors_As_Taxonomy::TAXONOMY_NAME,
