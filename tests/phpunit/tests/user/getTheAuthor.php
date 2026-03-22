@@ -33,17 +33,24 @@ class Tests_User_GetTheAuthor extends WP_UnitTestCase {
 	}
 
 	public function set_up() {
+		global $post;
 		parent::set_up();
 
-		setup_postdata( get_post( self::$post_id ) );
+		$post = get_post( self::$post_id );
+		setup_postdata( $post );
 	}
 
 	public function test_get_the_author() {
 		$author_name = get_the_author();
-		$user        = new WP_User( self::$author_id );
 
-		$this->assertSame( $user->display_name, $author_name );
-		$this->assertSame( 'Test Author', $author_name );
+		// No author term associated.
+		$this->assertSame( '', $author_name );
+
+		// Associate an author
+		$author_term_id = self::factory()->term->create( array( 'taxonomy' => \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, 'name' => 'zack' ) );
+		wp_set_object_terms( self::$post_id, $author_term_id, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
+		$author_name = get_the_author();
+		$this->assertSame( 'zack', $author_name );
 	}
 
 	/**
