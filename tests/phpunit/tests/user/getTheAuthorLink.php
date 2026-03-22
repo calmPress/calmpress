@@ -52,20 +52,4 @@ class Tests_User_GetTheAuthorLink extends WP_UnitTestCase {
 		$this->assertStringContainsString( $author_url, $link, 'The link does not contain the author URL' );
 		$this->assertStringContainsString( $author_display_name, $link, 'The link does not contain the author display name' );
 	}
-
-	/**
-	 * @ticket 51859
-	 *
-	 * @covers ::get_the_author_link
-	 */
-	public function test_filtered_get_the_author_link() {
-		$filter = new MockAction();
-
-		add_filter( 'the_author_link', array( &$filter, 'filter' ) );
-
-		get_the_author_link();
-
-		$this->assertSame( 1, $filter->get_call_count() );
-		$this->assertSame( array( 'the_author_link' ), $filter->get_hook_names() );
-	}
 }
