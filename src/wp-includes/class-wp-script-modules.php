@@ -788,7 +788,7 @@ class WP_Script_Modules {
 
 		if ( '' !== $src ) {
 			if ( false === $script_module['version'] ) {
-				$src = add_query_arg( 'ver', get_bloginfo( 'version' ), $src );
+				$src = add_query_arg( 'ver', calm_version_hash( calmpress_version() ), $src );
 			} elseif ( null !== $script_module['version'] ) {
 				$src = add_query_arg( 'ver', $script_module['version'], $src );
 			}

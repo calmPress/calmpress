@@ -212,8 +212,8 @@ class Tests_Script_Modules_WpScriptModules extends WP_UnitTestCase {
 	 * @covers WP_Script_Modules::print_script_module_preloads()
 	 */
 	public function test_comprehensive_methods( bool $use_global_function, bool $only_enqueue ) {
-		global $wp_version;
-		$wp_version = '99.9.9';
+
+		$def_ver = calm_version_hash( calmpress_version() );
 
 		$register = static function ( ...$args ) use ( $use_global_function ) {
 			if ( $use_global_function ) {
@@ -226,10 +226,6 @@ class Tests_Script_Modules_WpScriptModules extends WP_UnitTestCase {
 		$reflection_class       = new ReflectionClass( wp_script_modules() );
 		$get_marked_for_enqueue = $reflection_class->getMethod( 'get_marked_for_enqueue' );
 		$get_dependencies       = $reflection_class->getMethod( 'get_dependencies' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$get_marked_for_enqueue->setAccessible( true );
-			$get_dependencies->setAccessible( true );
-		}
 
 		$register_and_enqueue = static function ( ...$args ) use ( $use_global_function, $only_enqueue ) {
 			if ( $use_global_function ) {
@@ -402,37 +398,37 @@ class Tests_Script_Modules_WpScriptModules extends WP_UnitTestCase {
 			array(
 				'preload_links' => array(
 					'b-dep'        => array(
-						'url'           => '/b-dep.js?ver=99.9.9',
+						'url'           => '/b-dep.js?ver=' . $def_ver,
 						'fetchpriority' => 'low', // Propagates from 'b'.
 					),
 					'c-dep'        => array(
-						'url'                   => '/c-static.js?ver=99.9.9',
+						'url'                   => '/c-static.js?ve' . $def_ver,
 						'fetchpriority'         => 'auto', // Not 'low' because the dependent script 'c' has a fetchpriority of 'auto'.
 						'data-wp-fetchpriority' => 'low',
 					),
 					'c-static-dep' => array(
-						'url'                   => '/c-static-dep.js?ver=99.9.9',
+						'url'                   => '/c-static-dep.js?ver=' . $def_ver,
 						'fetchpriority'         => 'auto', // Propagated from 'c'.
 						'data-wp-fetchpriority' => 'high',
 					),
 					'd-static-dep' => array(
-						'url'           => '/d-static-dep.js?ver=99.9.9',
+						'url'           => '/d-static-dep.js?ver=' . $def_ver,
 						'fetchpriority' => 'auto',
 					),
 				),
 				'script_tags'   => array(
 					'a' => array(
-						'url'           => '/a.js?ver=99.9.9',
+						'url'           => '/a.js?ver=' . $def_ver,
 						'fetchpriority' => 'auto',
 						'in_footer'     => false,
 					),
 					'b' => array(
-						'url'           => '/b.js?ver=99.9.9',
+						'url'           => '/b.js?ver=' . $def_ver,
 						'fetchpriority' => 'low',
 						'in_footer'     => false,
 					),
 					'c' => array(
-						'url'           => '/c.js?ver=99.9.9',
+						'url'           => '/c.js?ver=' . $def_ver,
 						'fetchpriority' => 'auto',
 						'in_footer'     => false,
 					),
@@ -463,11 +459,11 @@ class Tests_Script_Modules_WpScriptModules extends WP_UnitTestCase {
 					),
 				),
 				'import_map'    => array(
-					'b-dep'         => '/b-dep.js?ver=99.9.9',
-					'c-dep'         => '/c-static.js?ver=99.9.9',
-					'c-static-dep'  => '/c-static-dep.js?ver=99.9.9',
-					'd-static-dep'  => '/d-static-dep.js?ver=99.9.9',
-					'd-dynamic-dep' => '/d-dynamic-dep.js?ver=99.9.9',
+					'b-dep'         => '/b-dep.js?ver=' . $def_ver,
+					'c-dep'         => '/c-static.js?ver=' . $def_ver,
+					'c-static-dep'  => '/c-static-dep.js?ver=' . $def_ver,
+					'd-static-dep'  => '/d-static-dep.js?ver=' . $def_ver,
+					'd-dynamic-dep' => '/d-dynamic-dep.js?ver=' . $def_ver,
 				),
 			),
 			$actual,
@@ -2009,8 +2005,6 @@ HTML;
 	 * @covers WP_Script_Modules::print_script_module_preloads()
 	 */
 	public function test_script_module_printing_and_dependency_ordering( bool $use_global_function, bool $only_enqueue ) {
-		global $wp_version;
-		$wp_version = '99.9.9';
 
 		$register = static function ( ...$args ) use ( $use_global_function ) {
 			if ( $use_global_function ) {
