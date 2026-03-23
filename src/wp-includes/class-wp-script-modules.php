@@ -458,7 +458,6 @@ class WP_Script_Modules {
 		$attributes = array(
 			'type' => 'module',
 			'src'  => $src,
-			'id'   => $id . '-js-module',
 		);
 
 		$script_module     = $this->registered[ $id ];
@@ -466,9 +465,6 @@ class WP_Script_Modules {
 		$fetchpriority     = $this->get_highest_fetchpriority( array_merge( array( $id ), $queued_dependents ) );
 		if ( 'auto' !== $fetchpriority ) {
 			$attributes['fetchpriority'] = $fetchpriority;
-		}
-		if ( $fetchpriority !== $script_module['fetchpriority'] ) {
-			$attributes['data-wp-fetchpriority'] = $script_module['fetchpriority'];
 		}
 		wp_print_script_tag( $attributes );
 	}
@@ -497,15 +493,11 @@ class WP_Script_Modules {
 			$enqueued_dependents   = array_intersect( $this->get_recursive_dependents( $id ), $this->queue );
 			$highest_fetchpriority = $this->get_highest_fetchpriority( $enqueued_dependents );
 			printf(
-				'<link rel="modulepreload" href="%s" id="%s"',
+				'<link rel="modulepreload" href="%s"',
 				esc_url( $src ),
-				esc_attr( $id . '-js-modulepreload' )
 			);
 			if ( 'auto' !== $highest_fetchpriority ) {
 				printf( ' fetchpriority="%s"', esc_attr( $highest_fetchpriority ) );
-			}
-			if ( $highest_fetchpriority !== $this->registered[ $id ]['fetchpriority'] && 'auto' !== $this->registered[ $id ]['fetchpriority'] ) {
-				printf( ' data-wp-fetchpriority="%s"', esc_attr( $this->registered[ $id ]['fetchpriority'] ) );
 			}
 			echo ">\n";
 		}
@@ -927,7 +919,6 @@ class WP_Script_Modules {
 					),
 					array(
 						'type' => 'application/json',
-						'id'   => "wp-script-module-data-{$module_id}",
 					)
 				);
 			}
