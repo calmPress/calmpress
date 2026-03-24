@@ -200,21 +200,43 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_get_authors() {
-		$user = $this->factory->user->create( [ 'name' => 'test', 'display_name' => 'display name', 'description' => 'test description' ] );
+		register_post_type(
+			'with_author',
+			[
+				'label' => 'with author',
+				'supports' => [ 'title', 'editor', 'author' ],
+			]
+		);
+		
+		$user = self::factory()->user->create( [ 'name' => 'test', 'display_name' => 'display name', 'description' => 'test description' ] );
 
-		$post1 = $this->factory->post->create( [
+		$post1 = self::factory()->post->create( [
 			'post_title' => 'test1',
 			'post_author' => $user,
 			'post_status' => 'publish',
 		] );
 
-		$post2 = $this->factory->post->create( [
+		$post2 = self::factory()->post->create( [
 			'post_title' => 'test2',
 			'post_author' => $user,
 			'post_status' => 'publish',
 		] );
 
-		$post3 = $this->factory->post->create( [
+		$post3 = self::factory()->post->create( [
+			'post_title' => 'test3',
+			'post_author' => $user,
+			'post_status' => 'publish',
+		] );
+
+		$post4 = self::factory()->post->create( [
+			'post_type'  => 'with_author',
+			'post_title' => 'test3',
+			'post_author' => $user,
+			'post_status' => 'publish',
+		] );
+
+		$post5 = self::factory()->post->create( [
+			'post_type'  => 'with_author',
 			'post_title' => 'test3',
 			'post_author' => $user,
 			'post_status' => 'publish',
@@ -222,11 +244,10 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 
 		// Test no authors.
 		$this->assertCount( 0, post_authors\Post_Authors_As_Taxonomy::get_authors(
+			'post',
 			10,
-			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NONE,
-			true,
+			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_ASC,
 			[],
-			[]
 			) );
 
 		// Create authors and associate with posts.
@@ -245,32 +266,32 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 
 		$author3 = wp_insert_term( 'author3', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author3 = $author3['term_id'];
+		wp_set_object_terms( $post4, $author3, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 
 		$author4 = wp_insert_term( 'author4', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		$author4 = $author4['term_id'];
 
 		wp_set_object_terms( $post3, $author4, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
+		wp_set_object_terms( $post4, $author4, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
+		wp_set_object_terms( $post5, $author4, \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 
-		// Get all, no specific order.
 		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			'post',
 			10,
-			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NONE,
-			true,
+			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_ASC,
 			[],
-			[]
 			);
 
 		$this->assertEquals(
-			[ $author1, $author2, $author3, $author4 ],
+			[ $author1, $author2, $author4 ],
 			array_map( function ( $author ) { return $author->term_id(); }, $authors )
 			);
 
 		// Get all except for empty, no specific order.
 		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			'post',
 			10,
-			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NONE,
-			false,
-			[],
+			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_ASC,
 			[]
 			);
 
@@ -281,10 +302,9 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 
 		// Test limited number, no order.
 		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			'post',
 			2,
-			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NONE,
-			true,
-			[],
+			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_ASC,
 			[]
 			);
 
@@ -295,10 +315,9 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 
 		// Test limited number, and sort by name asc.
 		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			'post',
 			2,
 			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_ASC,
-			true,
-			[],
 			[]
 			);
 
@@ -309,38 +328,35 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 
 		// Test limited number, and sort by name desc.
 		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			'post',
 			2,
 			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_DESC,
-			true,
-			[],
 			[]
 			);
 
 		$this->assertEquals(
-			[ $author4, $author3 ],
+			[ $author4, $author2 ],
 			array_map( function ( $author ) { return $author->term_id(); }, $authors )
 			);
 
 		// Test limited number, and sort by post count asc.
 		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			'post',
 			2,
 			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_ASC,
-			true,
-			[],
 			[]
 			);
 
 		$this->assertEquals(
-			[ $author3, $author4 ],
+			[ $author4, $author1 ],
 			array_map( function ( $author ) { return $author->term_id(); }, $authors )
 			);
 
 		// Test limited number, and sort by post count desc.
 		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			'post',
 			2,
 			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_DESC,
-			true,
-			[],
 			[]
 			);
 
@@ -351,16 +367,83 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 
 		// Test exclude.
 		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			'post',
 			2,
 			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_DESC,
-			true,
-			[new post_authors\Taxonomy_Based_Post_Author( get_term( $author2 ) ) ],
-			[]
+			[ new post_authors\Taxonomy_Based_Post_Author( get_term( $author2 ) ) ],
 			);
 
 		$this->assertEquals(
 			[ $author1, $author4 ],
 			array_map( function ( $author ) { return $author->term_id(); }, $authors )
 			);
+
+		// Multiple CPTs by name asc
+		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			[ 'post', 'with_author' ],
+			10,
+			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_ASC,
+			[]
+		);
+
+		$this->assertEquals(
+			[ $author1, $author2, $author3, $author4 ],
+			array_map( function ( $author ) { return $author->term_id(); }, $authors )
+		);
+
+		// Multiple CPTs by name asc with exclude
+		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			[ 'post', 'with_author' ],
+			10,
+			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_ASC,
+			[
+				new post_authors\Taxonomy_Based_Post_Author( get_term( $author2 ) ),
+				new post_authors\Taxonomy_Based_Post_Author( get_term( $author3 ) ),
+			],
+		);
+
+		$this->assertEquals(
+			[ $author1, $author4 ],
+			array_map( function ( $author ) { return $author->term_id(); }, $authors )
+		);
+
+		// Multiple CPTs by name desc
+		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			[ 'post', 'with_author' ],
+			10,
+			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NAME_DESC,
+			[]
+		);
+
+		$this->assertEquals(
+			[ $author4, $author3, $author2, $author1 ],
+			array_map( function ( $author ) { return $author->term_id(); }, $authors )
+		);
+
+		// Multiple CPTs by count asc with limit
+		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			[ 'post', 'with_author' ],
+			2,
+			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_ASC,
+			[]
+		);
+
+		$this->assertEquals(
+			[ $author3, $author1 ],
+			array_map( function ( $author ) { return $author->term_id(); }, $authors )
+		);
+
+		// Multiple CPTs by count desc with limit
+		$authors = post_authors\Post_Authors_As_Taxonomy::get_authors(
+			[ 'post', 'with_author' ],
+			2,
+			post_authors\Post_Authors_As_Taxonomy::SORT_TYPE_NUMBER_POSTS_DESC,
+			[]
+		);
+
+		$this->assertEquals(
+			[ $author2, $author4 ],
+			array_map( function ( $author ) { return $author->term_id(); }, $authors )
+		);
 	}
 }
