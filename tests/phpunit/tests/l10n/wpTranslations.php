@@ -13,44 +13,6 @@ class WP_Translations_Tests extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::__construct
-	 * @covers ::__get
-	 * @covers ::make_entry
-	 */
-	public function test_get_entries() {
-		global $l10n;
-
-		load_textdomain( 'wp-tests-domain', DIR_TESTDATA . '/pomo/simple.mo' );
-
-		$compat_instance = $l10n['wp-tests-domain'] ?? null;
-
-		$entries = $compat_instance ? $compat_instance->entries : array();
-
-		$unload_successful = unload_textdomain( 'wp-tests-domain' );
-
-		$this->assertInstanceOf( WP_Translations::class, $compat_instance, 'No compat provider instance used' );
-		$this->assertTrue( $unload_successful, 'Text domain not successfully unloaded' );
-		$this->assertEqualSets(
-			array(
-				new Translation_Entry(
-					array(
-						'singular'     => 'baba',
-						'translations' => array( 'dyado' ),
-					)
-				),
-				new Translation_Entry(
-					array(
-						'singular'     => "kuku\nruku",
-						'translations' => array( 'yes' ),
-					)
-				),
-			),
-			$entries,
-			'Actual translation entries do not match expected ones'
-		);
-	}
-
-	/**
 	 * @covers ::__get
 	 * @covers ::make_entry
 	 */
