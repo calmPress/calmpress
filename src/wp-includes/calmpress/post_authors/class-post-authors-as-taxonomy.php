@@ -196,6 +196,11 @@ class Post_Authors_As_Taxonomy {
 			$count += $author->posts_count( $post->post_type );
 		}
 
+		if ( $count !== 0 ) {
+			// Count this post only once.
+			$count = $count - count( $authors ) + 1;
+		}
+
 		return $count;
 	}
 

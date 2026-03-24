@@ -151,7 +151,7 @@ class WP_Test_Post_Authors_As_Taxonomy extends WP_UnitTestCase {
 		wp_set_object_terms( $post1, $author1['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$this->assertEquals( 1, post_authors\Post_Authors_As_Taxonomy::authors_post_count( $post ) );
 
-		// Two authors, one post. Make sure the overlap is taken into account.
+		// Two authors, one post. Make sure the overlap of the post in question is taken into account.
 		$author2 = wp_insert_term( 'author2', \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME );
 		wp_set_object_terms( $post1, $author2['term_id'], \calmpress\post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 		$this->assertEquals( 1, post_authors\Post_Authors_As_Taxonomy::authors_post_count( $post ) );
