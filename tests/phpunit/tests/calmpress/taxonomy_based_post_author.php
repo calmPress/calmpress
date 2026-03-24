@@ -25,14 +25,16 @@ class WP_Test_Taxonomy_Based_Post_Author extends WP_UnitTestCase {
 		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
 		$this->assertEquals( $author1, $author->term_id() );
 
-		// Construct with wrong taxonomy generate error.
+		// Construct with wrong taxonomy generate exception.
 		$author1 = wp_insert_term( 'author1', 'category' );
 		$author1 = $author1['term_id'];
-		$this->setExpectedException('PHPUnit_Framework_Error_Notice');
-		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
-
-		// An error is generated but the term is still used as if it was legit.
-		$this->assertEquals( $author1, $author->term_id() );
+		$thown = false;
+		try {
+			$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
+		} catch ( \Exception $e ) {
+			$thown = true;
+		}
+		$this->assertTrue( $thown );
 	}
 
 	/**
@@ -65,15 +67,15 @@ class WP_Test_Taxonomy_Based_Post_Author extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_posts_count() {
-		$user = $this->factory->user->create( [ 'name' => 'test', 'display_name' => 'display name', 'description' => 'test description' ] );
+		$user = self::factory()->user->create( [ 'name' => 'test', 'display_name' => 'display name', 'description' => 'test description' ] );
 
-		$post1 = $this->factory->post->create( [
+		$post1 = self::factory()->post->create( [
 			'post_title' => 'test1',
 			'post_author' => $user,
 			'post_status' => 'publish',
 		] );
 
-		$post2 = $this->factory->post->create( [
+		$post2 = self::factory()->post->create( [
 			'post_title' => 'test2',
 			'post_author' => $user,
 			'post_status' => 'publish',
@@ -86,7 +88,7 @@ class WP_Test_Taxonomy_Based_Post_Author extends WP_UnitTestCase {
 		wp_set_object_terms( $post2, $author1, post_authors\Post_Authors_As_Taxonomy::TAXONOMY_NAME, true );
 
 		$author = new post_authors\Taxonomy_Based_Post_Author( get_term( $author1 ) );
-		$this->assertEquals( 2, $author->posts_count() );
+		$this->assertEquals( 2, $author->posts_count( 'post' ) );
 	}
 
 	/**

@@ -49,7 +49,7 @@ class Taxonomy_Based_Post_Author implements Post_Author {
 	public function __construct( \WP_Term $term ) {
 
 		if ( Post_Authors_As_Taxonomy::TAXONOMY_NAME !== $term->taxonomy ) {
-			throw \RuntimeException( 'The term do not belong to the authors taxonomy, but to ' . $term->taxonomy );
+			throw new \RuntimeException( 'The term do not belong to the authors taxonomy, but to ' . $term->taxonomy );
 		}
 
 		$this->term = $term;
