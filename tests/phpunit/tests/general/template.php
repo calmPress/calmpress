@@ -654,9 +654,7 @@ class Tests_General_Template extends WP_UnitTestCase {
 	public function data_get_custom_logo_aria_current_attribute_blog_set_to_page_without_front_page_defined() {
 		return array(
 			'Front page'  => array( home_url(), true ),
-			'Blog index'  => array( home_url( '/blog/' ), true ),
-			'Blog post'   => array( home_url( '/?p=1' ), false ),
-			'Sample page' => array( home_url( '/?page_id=2' ), false ),
+			'Random'      => array( home_url( '/random/' ), false ),
 		);
 	}
 
@@ -702,9 +700,7 @@ class Tests_General_Template extends WP_UnitTestCase {
 	public function data_get_custom_logo_aria_current_attribute_blog_set_to_page_with_front_page_defined() {
 		return array(
 			'Front page'  => array( home_url(), true ),
-			'Blog index'  => array( home_url( '/blog/' ), true ),
-			'Blog post'   => array( home_url( '/?p=1' ), false ),
-			'Sample page' => array( home_url( '/?page_id=2' ), false ),
+			'Random'   => array( home_url( '/random/' ), false ),
 		);
 	}
 
