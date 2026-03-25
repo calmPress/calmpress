@@ -110,12 +110,10 @@ class WP_Test_REST_Settings_Controller extends WP_Test_REST_Controller_Testcase 
 			'language',
 			'posts_per_page',
 			'default_comment_status',
-			// 'site_icon', // Registered in wp-includes/blocks/site-logo.php
+			'page_for_posts',
+			'page_on_front',
+			'show_on_front',
 		);
-
-		if ( ! is_multisite() ) {
-			$expected[] = 'url';
-		}
 
 		sort( $expected );
 		sort( $actual );
