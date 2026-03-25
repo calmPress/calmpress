@@ -543,6 +543,10 @@ class Tests_Link_GetAdjacentPost extends WP_UnitTestCase {
 			)
 		);
 
+		// Set default category.
+		wp_set_object_terms( $post_two->ID, 'default', 'category', false );
+		wp_set_object_terms( $post_four->ID, 'default', 'category', false );
+
 		// Assign some terms.
 		wp_set_object_terms( $post_one->ID, 'WordPress', 'category', false );
 		wp_set_object_terms( $post_three->ID, 'WordPress', 'category', false );
