@@ -199,7 +199,7 @@ class WP_Test_REST_Widget_Types_Controller extends WP_Test_REST_Controller_Testc
 	 * @param string $method The HTTP method to use.
 	 */
 	public function test_get_item_should_allow_adding_headers_via_filter( $method ) {
-		$widget_name = 'calendar';
+		$widget_name = 'pages';
 		wp_set_current_user( self::$admin_id );
 		$request = new WP_REST_Request( $method, '/wp/v2/widget-types/' . $widget_name );
 
@@ -268,7 +268,7 @@ class WP_Test_REST_Widget_Types_Controller extends WP_Test_REST_Controller_Testc
 	 */
 	public static function data_head_request_with_specified_fields_returns_success_response() {
 		return array(
-			'get_item request'  => array( '/wp/v2/widget-types/calendar' ),
+			'get_item request'  => array( '/wp/v2/widget-types/pages' ),
 			'get_items request' => array( '/wp/v2/widget-types' ),
 		);
 	}
