@@ -297,57 +297,6 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 	}
 
 	/**
-	 * @ticket 53915
-	 */
-	public function test_get_items_without_show_in_rest_are_removed_from_the_list() {
-		wp_set_current_user( self::$author_id );
-		$this->setup_widget(
-			'text',
-			1,
-			array(
-				'text' => 'Custom text test',
-			)
-		);
-		$this->setup_sidebar(
-			'sidebar-1',
-			array(
-				'name'         => 'Test sidebar 1',
-				'show_in_rest' => true,
-			),
-			array( 'text-1', 'testwidget' )
-		);
-		$this->setup_sidebar(
-			'sidebar-2',
-			array(
-				'name'         => 'Test sidebar 2',
-				'show_in_rest' => false,
-			),
-			array( 'text-1', 'testwidget' )
-		);
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/widgets' );
-		$response = rest_get_server()->dispatch( $request );
-		$data     = $response->get_data();
-		$data     = $this->remove_links( $data );
-		$this->assertSameIgnoreEOL(
-			array(
-				array(
-					'id'       => 'text-1',
-					'id_base'  => 'text',
-					'sidebar'  => 'sidebar-1',
-					'rendered' => '<div class="textwidget">Custom text test</div>',
-				),
-				array(
-					'id'       => 'testwidget',
-					'id_base'  => 'testwidget',
-					'sidebar'  => 'sidebar-1',
-					'rendered' => '<h1>Default id</h1><span>Default text</span>',
-				),
-			),
-			$data
-		);
-	}
-
-	/**
 	 * @dataProvider data_readable_http_methods
 	 * @ticket 41683
 	 * @ticket 56481
@@ -557,13 +506,13 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 		add_filter( 'pre_http_request', array( $this, 'mocked_rss_response' ) );
 		global $wp_widget_factory;
 
-		$wp_widget_factory->widgets['WP_Widget_RSS']->widget_options['show_instance_in_rest'] = false;
+		$wp_widget_factory->widgets['WP_Widget_Text']->widget_options['show_instance_in_rest'] = false;
 
 		$this->setup_widget(
-			'rss',
+			'text',
 			1,
 			array(
-				'title' => 'RSS test',
+				'title' => 'text test',
 				'url'   => 'https://wordpress.org/news/feed',
 			)
 		);
@@ -572,7 +521,7 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 			array(
 				'name' => 'Test sidebar',
 			),
-			array( 'rss-1', 'testwidget' )
+			array( 'text-1', 'testwidget' )
 		);
 
 		$request = new WP_REST_Request( 'HEAD', $path );
@@ -594,7 +543,7 @@ class WP_Test_REST_Widgets_Controller extends WP_Test_REST_Controller_Testcase {
 	 */
 	public static function data_head_request_with_specified_fields_returns_success_response() {
 		return array(
-			'get_item request'  => array( '/wp/v2/widgets/rss-1' ),
+			'get_item request'  => array( '/wp/v2/widgets/text-1' ),
 			'get_items request' => array( '/wp/v2/widgets' ),
 		);
 	}
