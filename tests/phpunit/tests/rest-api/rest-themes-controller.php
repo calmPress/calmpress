@@ -176,10 +176,8 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 			'_links',
 			'author',
 			'author_uri',
-			'default_template_part_areas',
 			'default_template_types',
 			'description',
-			'is_block_theme',
 			'name',
 			'requires_php',
 			'requires_wp',
@@ -221,7 +219,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 			'author',
 			'author_uri',
 			'description',
-			'is_block_theme',
 			'name',
 			'requires_php',
 			'requires_wp',
@@ -363,7 +360,7 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 		$response   = self::perform_active_theme_request( 'OPTIONS' );
 		$data       = $response->get_data();
 		$properties = $data['schema']['properties'];
-		$this->assertCount( 20, $properties );
+		$this->assertCount( 19, $properties );
 
 		$this->assertArrayHasKey( 'author', $properties );
 		$this->assertArrayHasKey( 'raw', $properties['author']['properties'] );
@@ -379,8 +376,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 
 		$this->assertArrayHasKey( 'default_template_part_areas', $properties );
 		$this->assertArrayHasKey( 'default_template_types', $properties );
-
-		$this->assertArrayHasKey( 'is_block_theme', $properties );
 
 		$this->assertArrayHasKey( 'name', $properties );
 		$this->assertArrayHasKey( 'raw', $properties['name']['properties'] );
@@ -412,8 +407,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 		$theme_supports = $properties['theme_supports']['properties'];
 		$this->assertArrayHasKey( 'align-wide', $theme_supports );
 		$this->assertArrayHasKey( 'automatic-feed-links', $theme_supports );
-		$this->assertArrayHasKey( 'block-templates', $theme_supports );
-		$this->assertArrayHasKey( 'block-template-parts', $theme_supports, "Theme supports should have 'block-template-parts' key" );
 		$this->assertArrayHasKey( 'custom-header', $theme_supports );
 		$this->assertArrayHasKey( 'custom-background', $theme_supports );
 		$this->assertArrayHasKey( 'custom-logo', $theme_supports );
@@ -423,12 +416,11 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertArrayHasKey( 'disable-custom-font-sizes', $theme_supports );
 		$this->assertArrayHasKey( 'disable-custom-gradients', $theme_supports );
 		$this->assertArrayHasKey( 'disable-layout-styles', $theme_supports );
-		$this->assertArrayHasKey( 'formats', $theme_supports );
 		$this->assertArrayHasKey( 'html5', $theme_supports );
 		$this->assertArrayHasKey( 'post-thumbnails', $theme_supports );
 		$this->assertArrayHasKey( 'responsive-embeds', $theme_supports );
 		$this->assertArrayHasKey( 'title-tag', $theme_supports );
-		$this->assertCount( 19, $theme_supports );
+		$this->assertCount( 20, $theme_supports );
 	}
 
 	/**
@@ -471,16 +463,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 			'The 9&#8242; foot tall theme.',
 			$result[0]['description']['rendered']
 		);
-	}
-
-	/**
-	 * @ticket 62574
-	 */
-	public function test_theme_default_template_part_areas() {
-		$response = self::perform_active_theme_request();
-		$result   = $response->get_data();
-		$this->assertArrayHasKey( 'default_template_part_areas', $result[0] );
-		$this->assertSame( get_allowed_block_template_part_areas(), $result[0]['default_template_part_areas'] );
 	}
 
 	/**
@@ -1095,34 +1077,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 	}
 
 	/**
-	 * Should include relevant data in the 'theme_supports' key.
-	 *
-	 * @ticket 45016
-	 */
-	public function test_theme_supports_formats() {
-		remove_theme_support( 'post-formats' );
-		$response = self::perform_active_theme_request();
-		$result   = $response->get_data();
-		$this->assertArrayHasKey( 'theme_supports', $result[0] );
-		$this->assertArrayHasKey( 'formats', $result[0]['theme_supports'] );
-		$this->assertSame( array( 'standard' ), $result[0]['theme_supports']['formats'] );
-	}
-
-	/**
-	 * Test when a theme only supports some post formats.
-	 *
-	 * @ticket 45016
-	 */
-	public function test_theme_supports_formats_non_default() {
-		add_theme_support( 'post-formats', array( 'aside', 'video' ) );
-		$response = self::perform_active_theme_request();
-		$result   = $response->get_data();
-		$this->assertArrayHasKey( 'theme_supports', $result[0] );
-		$this->assertArrayHasKey( 'formats', $result[0]['theme_supports'] );
-		$this->assertSame( array( 'standard', 'aside', 'video' ), $result[0]['theme_supports']['formats'] );
-	}
-
-	/**
 	 * Test when a theme does not support responsive embeds.
 	 *
 	 * @ticket 45016
@@ -1304,7 +1258,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 			'author',
 			'author_uri',
 			'description',
-			'is_block_theme',
 			'name',
 			'requires_php',
 			'requires_wp',
