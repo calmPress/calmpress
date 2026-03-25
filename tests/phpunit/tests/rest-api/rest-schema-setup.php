@@ -165,6 +165,8 @@ class WP_Test_REST_Schema_Initialization extends WP_Test_REST_TestCase {
 			'/wp-abilities/v1/abilities/(?P<name>[a-zA-Z0-9\-\/]+?)/run',
 			'/wp-abilities/v1/abilities/(?P<name>[a-zA-Z0-9\-\/]+)',
 			'/wp-abilities/v1/abilities',
+			'/wp/v2/wp_pattern_category',
+			'/wp/v2/wp_pattern_category/(?P<id>[\d]+)',
 		);
 
 		$this->assertSameSets( $expected_routes, $routes );
