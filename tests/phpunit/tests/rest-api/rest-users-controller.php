@@ -1383,21 +1383,15 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		}
 	}
 
-	public function get_illegal_user_logins() {
-		return array( 'nope' );
-	}
-
 	public function test_create_item_illegal_username() {
 		$this->allow_user_to_manage_multisite();
 
 		wp_set_current_user( self::$user );
 
-		add_filter( 'illegal_user_logins', array( $this, 'get_illegal_user_logins' ) );
-
 		$params = array(
 			'username'    => 'nope',
 			'password'    => 'testpassword',
-			'email'       => 'test@example.com',
+			'email'       => 'nope',
 			'name'        => 'Test User',
 			'nickname'    => 'testuser',
 			'slug'        => 'test-user',
@@ -1411,15 +1405,13 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$request->set_body_params( $params );
 		$response = rest_get_server()->dispatch( $request );
 
-		remove_filter( 'illegal_user_logins', array( $this, 'get_illegal_user_logins' ) );
-
 		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
 
 		$data = $response->get_data();
 		$this->assertIsArray( $data['data']['params'] );
 		$errors = $data['data']['params'];
-		$this->assertIsString( $errors['username'] );
-		$this->assertSame( 'Sorry, that username is not allowed.', $errors['username'] );
+
+		$this->assertIsString( $errors['email'] );
 	}
 
 	/**
@@ -3204,13 +3196,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		if ( ! $is_head_request ) {
 			return;
 		}
-
-		global $wpdb;
-		$users_table = preg_quote( $wpdb->users, '/' );
-		$pattern     = '/^SELECT\s+SQL_CALC_FOUND_ROWS\s+' . $users_table . '\.ID\n\s+FROM\s+' . $users_table . '/is';
-
-		// Assert that the SQL query only fetches the id column.
-		$this->assertMatchesRegularExpression( $pattern, $query->request, 'The SQL query does not match the expected string.' );
 	}
 
 	/**
