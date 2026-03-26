@@ -1016,10 +1016,10 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 		// Set up the test.
 		wp_widgets_init();
 		$this->setup_widget(
-			'widget_rss',
+			'widget_pages',
 			1,
 			array(
-				'title' => 'RSS test',
+				'title' => 'Pages test',
 			)
 		);
 		$this->setup_widget(
@@ -1034,7 +1034,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 			array(
 				'name' => 'Sidebar 1',
 			),
-			array( 'text-1', 'rss-1' )
+			array( 'text-1', 'pages-1' )
 		);
 
 		// Validate the state before a theme switch.
@@ -1062,7 +1062,7 @@ class WP_Test_REST_Sidebars_Controller extends WP_Test_REST_Controller_Testcase 
 			'Sidebar status should have changed to inactive'
 		);
 		$this->assertSame(
-			array( 'text-1', 'rss-1' ),
+			array( 'text-1', 'pages-1' ),
 			$data['widgets'],
 			'The text and rss widgets should still in sidebar-1'
 		);
