@@ -577,6 +577,8 @@ class WP_Query {
 			'm',
 			'p',
 			'post_parent',
+			'attachment',
+			'attachment_id',
 			'name',
 			'pagename',
 			'page_id',
@@ -865,7 +867,12 @@ class WP_Query {
 			$query_vars['s'] = '';
 		}
 
-		if ( '' !== $query_vars['name'] ) {
+		$query_vars['attachment_id'] = is_scalar( $query_vars['attachment_id'] ) ? absint( $query_vars['attachment_id'] ) : 0;
+
+		if ( ( '' !== $query_vars['attachment'] ) || ! empty( $query_vars['attachment_id'] ) ) {
+			$this->is_single     = true;
+			$this->is_attachment = true;
+		} elseif ( '' !== $query_vars['name'] ) {
 			$this->is_single = true;
 		} elseif ( $query_vars['p'] ) {
 			$this->is_single = true;
@@ -997,7 +1004,7 @@ class WP_Query {
 			$this->is_admin = true;
 		}
 
-		$this->is_singular = $this->is_single || $this->is_page;
+		$this->is_singular = $this->is_single || $this->is_page || $this->is_attachment;
 
 		if ( ! ( $this->is_singular || $this->is_archive || $this->is_search || $this->is_feed
 				|| ( defined( 'REST_REQUEST' ) && REST_REQUEST && $this->is_main_query() )
@@ -1082,7 +1089,7 @@ class WP_Query {
 			}
 		}
 
-		$this->is_singular = $this->is_single || $this->is_page;
+		$this->is_singular = $this->is_single || $this->is_page || $this->is_attachment;
 		// Done correcting `is_*` for 'page_on_front' and 'page_for_posts'.
 
 		if ( '404' == $query_vars['error'] ) {
@@ -2136,7 +2143,18 @@ class WP_Query {
 				$query_vars['name']     = $query_vars['pagename'];
 				$where                 .= " AND ({$wpdb->posts}.ID = '$reqpage')";
 				$reqpage_obj            = get_post( $reqpage );
+				if ( is_object( $reqpage_obj ) && 'attachment' === $reqpage_obj->post_type ) {
+					$this->is_attachment         = true;
+					$post_type                   = 'attachment';
+					$query_vars['post_type']     = 'attachment';
+					$this->is_page               = true;
+					$query_vars['attachment_id'] = $reqpage;
+				}
 			}
+		} elseif ( '' !== $query_vars['attachment'] ) {
+			$query_vars['attachment'] = sanitize_title_for_query( wp_basename( $query_vars['attachment'] ) );
+			$query_vars['name']       = $query_vars['attachment'];
+			$where                   .= " AND {$wpdb->posts}.post_name = '" . $query_vars['attachment'] . "'";
 		}  elseif ( is_array( $query_vars['post_name__in'] ) && ! empty( $query_vars['post_name__in'] ) ) {
 			$query_vars['post_name__in'] = array_map( 'sanitize_title_for_query', $query_vars['post_name__in'] );
 			// Duplicate array before sorting to allow for the orderby clause.
@@ -2144,6 +2162,11 @@ class WP_Query {
 			sort( $post_name__in_for_where );
 			$post_name__in = "'" . implode( "','", $post_name__in_for_where ) . "'";
 			$where        .= " AND {$wpdb->posts}.post_name IN ($post_name__in)";
+		}
+
+		// If an attachment is requested by number, let it supersede any post number.
+		if ( $query_vars['attachment_id'] ) {
+			$query_vars['p'] = absint( $query_vars['attachment_id'] );
 		}
 
 		// If a post number is specified, load that post.
@@ -2217,7 +2240,7 @@ class WP_Query {
 				$post_type  = array();
 				$taxonomies = array_keys( $this->tax_query->queried_terms );
 				foreach ( get_post_types( array( 'exclude_from_search' => false ) ) as $pt ) {
-					$object_taxonomies = get_object_taxonomies( $pt );
+					$object_taxonomies = 'attachment' === $pt ? get_taxonomies_for_attachments() : get_object_taxonomies( $pt );
 					if ( array_intersect( $taxonomies, $object_taxonomies ) ) {
 						$post_type[] = $pt;
 					}
@@ -2513,6 +2536,9 @@ class WP_Query {
 		} elseif ( ! empty( $post_type ) ) {
 			$post_type_where  = $wpdb->prepare( " AND {$wpdb->posts}.post_type = %s", $post_type );
 			$post_type_object = get_post_type_object( $post_type );
+		} elseif ( $this->is_attachment ) {
+			$post_type_where  = " AND {$wpdb->posts}.post_type = 'attachment'";
+			$post_type_object = get_post_type_object( 'attachment' );
 		} elseif ( $this->is_page ) {
 			$post_type_where  = " AND {$wpdb->posts}.post_type = 'page'";
 			$post_type_object = get_post_type_object( 'page' );
@@ -3270,6 +3296,12 @@ class WP_Query {
 		if ( ! empty( $this->posts ) && ( $this->is_single || $this->is_page ) ) {
 			$status = get_post_status( $this->posts[0] );
 
+			if ( 'attachment' === $this->posts[0]->post_type && 0 === (int) $this->posts[0]->post_parent ) {
+				$this->is_page       = false;
+				$this->is_single     = true;
+				$this->is_attachment = true;
+			}
+			
 			// If the post_status was specifically requested, let it pass through.
 			if ( ! in_array( $status, $q_status, true ) ) {
 				$post_status_obj = get_post_status_object( $status );
@@ -3925,14 +3957,34 @@ class WP_Query {
 	 * Determines whether the query is for an existing attachment page.
 	 *
 	 * @since 3.1.0
-	 * 
-	 * @since calmpress 1.0.0 always false
 	 *
 	 * @param int|string|int[]|string[] $attachment Optional. Attachment ID, title, slug, or array of such
 	 *                                              to check against. Default empty.
 	 * @return bool Whether the query is for an existing attachment page.
 	 */
 	public function is_attachment( $attachment = '' ) {
+		if ( ! $this->is_attachment ) {
+			return false;
+		}
+
+		if ( empty( $attachment ) ) {
+			return true;
+		}
+
+		$attachment = array_map( 'strval', (array) $attachment );
+
+		$post_obj = $this->get_queried_object();
+		if ( ! $post_obj ) {
+			return false;
+		}
+
+		if ( in_array( (string) $post_obj->ID, $attachment, true ) ) {
+			return true;
+		} elseif ( in_array( $post_obj->post_title, $attachment, true ) ) {
+			return true;
+		} elseif ( in_array( $post_obj->post_name, $attachment, true ) ) {
+			return true;
+		}
 		return false;
 	}
 
