@@ -56,7 +56,7 @@ class WP_Translation_Controller_Tests extends WP_UnitTestCase {
 		$this->assertEqualSetsWithIndex(
 			array(
 				'baba'       => 'dyado',
-				"kuku\nruku" => 'yes',
+				"kuku" . PHP_EOL . "ruku" => 'yes',
 			),
 			$entries,
 			'Actual translation entries do not match expected ones'
