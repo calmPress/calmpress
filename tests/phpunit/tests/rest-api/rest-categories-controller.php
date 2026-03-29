@@ -1371,32 +1371,25 @@ class WP_Test_REST_Categories_Controller extends WP_Test_REST_Controller_Testcas
 	}
 
 	/**
-	 * @dataProvider data_head_request_with_specified_fields_returns_success_response
 	 * @ticket 56481
 	 *
 	 * @param string $path The path to test.
 	 */
-	public function test_head_request_with_specified_fields_returns_success_response( $path ) {
-		$request = new WP_REST_Request( 'HEAD', $path );
-		$request->set_param( '_fields', 'id' );
-		$server   = rest_get_server();
-		$response = $server->dispatch( $request );
-		add_filter( 'rest_post_dispatch', 'rest_filter_response_fields', 10, 3 );
-		$response = apply_filters( 'rest_post_dispatch', $response, $server, $request );
-		remove_filter( 'rest_post_dispatch', 'rest_filter_response_fields', 10 );
+	public function test_head_request_with_specified_fields_returns_success_response() {
+		foreach (
+			[
+				'get_item request'  => '/wp/v2/categories/' . self::$def_cat,
+				'get_items request' => '/wp/v2/categories',
+			] as $path ) {
+			$request = new WP_REST_Request( 'HEAD', $path );
+			$request->set_param( '_fields', 'id' );
+			$server   = rest_get_server();
+			$response = $server->dispatch( $request );
+			add_filter( 'rest_post_dispatch', 'rest_filter_response_fields', 10, 3 );
+			$response = apply_filters( 'rest_post_dispatch', $response, $server, $request );
+			remove_filter( 'rest_post_dispatch', 'rest_filter_response_fields', 10 );
 
-		$this->assertSame( 200, $response->get_status(), 'The response status should be 200.' );
-	}
-
-	/**
-	 * Data provider intended to provide paths for testing HEAD requests.
-	 *
-	 * @return array
-	 */
-	public static function data_head_request_with_specified_fields_returns_success_response() {
-		return array(
-			'get_item request'  => array( '/wp/v2/categories/1' ),
-			'get_items request' => array( '/wp/v2/categories' ),
-		);
+			$this->assertSame( 200, $response->get_status(), 'The response status should be 200.' );
+		}
 	}
 }
