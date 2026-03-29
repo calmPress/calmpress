@@ -267,8 +267,8 @@ class Tests_Query_ThePost extends WP_UnitTestCase {
 		return array(
 			'all fields'                => array( 'all', 2 ),
 			'all fields (empty fields)' => array( '', 2 ),
-			'post IDs'                  => array( 'ids', 4 ),
-			'post ids and parent'       => array( 'id=>parent', 4 ),
+			'post IDs'                  => array( 'ids', 5 ),
+			'post ids and parent'       => array( 'id=>parent', 5 ),
 		);
 	}
 
