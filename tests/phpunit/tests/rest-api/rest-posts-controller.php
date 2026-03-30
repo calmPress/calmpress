@@ -5343,7 +5343,15 @@ Shankle pork chop prosciutto ribeye ham hock pastrami. T-bone shank brisket baco
 
 		$this->assertSame( $data[0]['id'], $id2, 'Response has no sticky post at the top.' );
 
-		$posts_query = new WP_Query( array( 'ignore_sticky_posts' => true ) );
+		$posts_query = new WP_Query( 
+			array(
+				'ignore_sticky_posts' => true,
+				'order' => "desc",
+  				'orderby' => 'date',
+				'paged' => 1,
+				'post_status' => "publish",
+			)
+		);
 		$post_ids    = wp_list_pluck( $posts_query->get_posts(), 'ID' );
 		$this->assertSame( $rest_ids, $post_ids, 'Response is same as WP_Query with ignore_sticky_posts=true.' );
 	}
@@ -5374,7 +5382,16 @@ Shankle pork chop prosciutto ribeye ham hock pastrami. T-bone shank brisket baco
 		$this->assertSame( $data[0]['id'], $id1, 'Response has sticky post at the top.' );
 		$this->assertSame( $data[1]['id'], $id2, 'It is followed by most recent post.' );
 
-		$posts_query = new WP_Query();
+		$posts_query = new WP_Query(
+			array(
+				'ignore_sticky_posts' => false,
+				'order' => "desc",
+  				'orderby' => 'date',
+				'paged' => 1,
+				'post_status' => "publish",
+			)
+
+		);
 		$post_ids    = wp_list_pluck( $posts_query->get_posts(), 'ID' );
 		$this->assertSame( $rest_ids, $post_ids, 'Response is same as WP_Query with ignore_sticky_posts=false.' );
 	}
