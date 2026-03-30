@@ -1680,21 +1680,6 @@ class WP_Site_Health {
 			);
 		}
 
-		// Only check for caches in production environments.
-		if ( 'production' === wp_get_environment_type() ) {
-			$tests['async']['page_cache'] = array(
-				'label'             => __( 'Page cache' ),
-				'test'              => rest_url( 'wp-site-health/v1/tests/page-cache' ),
-				'has_rest'          => true,
-				'async_direct_test' => array( WP_Site_Health::get_instance(), 'get_test_page_cache' ),
-			);
-
-			$tests['direct']['persistent_object_cache'] = array(
-				'label' => __( 'Persistent object cache' ),
-				'test'  => 'persistent_object_cache',
-			);
-		}
-
 		/**
 		 * Filters which site status tests are run on a site.
 		 *

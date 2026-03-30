@@ -44,6 +44,7 @@ class WP_REST_Site_Health_Controller extends WP_REST_Controller {
 	 *
 	 * @since 5.6.0
 	 * @since 6.1.0 Adds page-cache async test.
+	 * @since calmPress 1.0.0 removed page-cache test.
 	 *
 	 * @see register_rest_route()
 	 */
