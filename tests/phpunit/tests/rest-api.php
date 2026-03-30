@@ -2506,6 +2506,8 @@ class Tests_REST_API extends WP_UnitTestCase {
 	 * @ticket 55213
 	 */
 	public function test_rest_preload_api_request_fields() {
+		wp_set_current_user( 1 );
+		
 		$preload_paths = array(
 			'/',
 			'/?_fields=description',
