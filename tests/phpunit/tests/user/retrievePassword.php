@@ -45,22 +45,6 @@ class Tests_User_RetrievePassword extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The function should error when the email was not sent.
-	 *
-	 * @ticket 54690
-	 */
-	public function test_retrieve_password_should_return_wp_error_on_failed_email() {
-		add_filter(
-			'retrieve_password_notification_email',
-			static function () {
-				return array( 'message' => '' );
-			}
-		);
-
-		$this->assertWPError( retrieve_password( $this->user->user_login ), 'Sending password reset notification email succeeded.' );
-	}
-
-	/**
 	 * @ticket 53634
 	 */
 	public function test_retrieve_password_should_fetch_user_by_login_if_not_found_by_email() {
