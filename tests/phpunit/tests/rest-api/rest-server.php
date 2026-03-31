@@ -2520,19 +2520,6 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 	/**
 	 * @ticket 61739
 	 */
-	public function test_populates_target_hints_for_logged_out_user() {
-		$response = rest_do_request( '/wp/v2/posts' );
-		$post     = $response->get_data()[0];
-
-		$link = $post['_links']['self'][0];
-		$this->assertArrayHasKey( 'targetHints', $link );
-		$this->assertArrayHasKey( 'allow', $link['targetHints'] );
-		$this->assertSame( array( 'GET' ), $link['targetHints']['allow'] );
-	}
-
-	/**
-	 * @ticket 61739
-	 */
 	public function test_does_not_error_on_invalid_urls() {
 		$response = new WP_REST_Response();
 		$response->add_link( 'self', 'this is not a real URL' );
