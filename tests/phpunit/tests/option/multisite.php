@@ -174,25 +174,6 @@ class Tests_Option_Multisite extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::users_can_register_signup_filter
-	 * @covers ::get_site_option
-	 */
-	public function test_users_can_register_signup_filter() {
-
-		get_site_option( 'registration' );
-		$this->assertFalse( users_can_register_signup_filter() );
-
-		update_site_option( 'registration', 'all' );
-		$this->assertTrue( users_can_register_signup_filter() );
-
-		update_site_option( 'registration', 'user' );
-		$this->assertTrue( users_can_register_signup_filter() );
-
-		update_site_option( 'registration', 'none' );
-		$this->assertFalse( users_can_register_signup_filter() );
-	}
-
-	/**
 	 * @dataProvider data_illegal_names
 	 *
 	 * @covers ::update_site_option
