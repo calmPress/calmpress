@@ -28,41 +28,33 @@ class Tests_Cache extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 56198
+	 * Test detection of invalid keys in full_key.
 	 *
-	 * @covers WP_Object_Cache::is_valid_key
-	 * @dataProvider data_is_valid_key
+	 * @covers WP_Object_Cache::full_key
+	 * @dataProvider data_full_key_validity
 	 */
-	public function test_is_valid_key( $key, $valid ) {
-		if ( wp_using_ext_object_cache() ) {
-			$this->markTestSkipped( 'This test requires that an external object cache is not in use.' );
-		}
+	public function test_full_key_validity( $key, $valid ) {
 
-		$val = 'val';
+		$full_key_method = new ReflectionMethod( $this->cache, 'full_key' );
 
-		if ( $valid ) {
-			$this->assertTrue( $this->cache->add( $key, $val ), 'WP_Object_Cache:add() should return true for valid keys.' );
-			$this->assertSame( $val, $this->cache->get( $key ), 'The retrieved value should match the added value.' );
-		} else {
-			$thrown = false;
-			try {
-				$this->cache->add( $key, $val );
-			} catch ( \Exception $e ) {
-				$thrown = true;
-			}
-			$this->assertTrue( $thrown );
+		$not_thrown = true;
+		try {
+			$full_key_method->invoke( $this->cache, $key, 'default' );
+		} catch ( \Exception $e ) {
+			$not_thrown = false;
 		}
+		$this->assertSame( $valid, $not_thrown );
 	}
 
 	/**
-	 * Data provider for test_is_valid_key().
+	 * Data provider for test_full_key().
 	 *
 	 * @return array[] Test parameters {
 	 *     @type mixed $key   Cache key value.
 	 *     @type bool  $valid Whether the key should be considered valid.
 	 * }
 	 */
-	public function data_is_valid_key() {
+	public function data_full_key_validity() {
 		return array(
 			'false'          => array( false, false ),
 			'null'           => array( null, false ),
@@ -77,6 +69,28 @@ class Tests_Cache extends WP_UnitTestCase {
 			'string 0'       => array( '0', true ),
 			'string'         => array( 'key', true ),
 		);
+	}
+
+	/**
+	 * Test the full key generation in full_key
+	 * 
+	 * @covers WP_Object_Cache::full_key
+	 */
+	public function test_full_key() {
+
+		$full_key_method = new ReflectionMethod( $this->cache, 'full_key' );
+
+		if ( ! is_multisite() ) {
+			// For single site key is the same as parameter passed for both global and per site
+			// groups.
+			$this->assertSame( 'key', $full_key_method->invoke( $this->cache, 'key', 'default' ) );
+			$this->assertSame( 'key', $full_key_method->invoke( $this->cache, 'key', 'global-cache-test' ) );
+		} else {
+			// For multisite a prefix is added for the per site groups.
+			$this->cache->switch_to_blog( 999 );
+			$this->assertSame( '999:key', $full_key_method->invoke( $this->cache, 'key', 'default' ) );
+			$this->assertSame( 'key', $full_key_method->invoke( $this->cache, 'key', 'global-cache-test' ) );
+		}
 	}
 
 	public function test_miss() {

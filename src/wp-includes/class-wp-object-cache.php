@@ -239,23 +239,30 @@ class WP_Object_Cache {
 	}
 
 	/**
-	 * Serves as a utility function to throw an exception if key is invalid.
+	 * Serves as a utility function to generate a full key for the cache taking into account if we are in multisite
+	 * enviroment.
 	 * 
-	 * Invalid keys are non string nor int, and empty strings.
+	 * Invalid keys which are non string nor int, nor empty strings throw.
 	 *
 	 * @since 6.1.0
 	 *
-	 * @param mixed $key Cache key to check for validity.
+	 * @param mixed  $key   Cache key to check for validity.
+	 * @param string $group The name of the group for which the key will be used.
 	 * 
 	 * @throw InvalidArgumentException if $key is not a non empty string nor int.
 	 */
-	protected function is_valid_key( $key ) {
+	protected function full_key( $key, $group ): string {
 		if ( is_int( $key ) ) {
-			return;
+			$key = (string) $key;
 		}
 
 		if ( is_string( $key ) && trim( $key ) !== '' ) {
-			return;
+			// If in multisite add a prefix if not in context of global group.
+			if ( is_multisite() && ! isset( $this->global_groups[ $group ] ) ) {
+				$key = $this->blog_id . ':' . $key;
+			}
+
+			return $key;
 		}
 
 		throw new \InvalidArgumentException( 'Key must be an non empty string' );
@@ -296,15 +303,13 @@ class WP_Object_Cache {
 			return false;
 		}
 
-		$this->is_valid_key( $key );
-
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
 
-		$cache = $this->group_cache( $group );
+		$full_key = $this->full_key( $key, $group );
 
-		if ( $this->_exists( $key, $group ) ) {
+		if ( $this->_exists( $full_key, $group ) ) {
 			return false;
 		}
 
@@ -364,11 +369,12 @@ class WP_Object_Cache {
 	 * @return int|false The item's new value on success, false on failure.
 	 */
 	public function decr( $key, $offset = 1, $group = 'default' ) {
-		$this->is_valid_key( $key );
 
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
+
+		$key = $this->full_key( $key, $group );
 
 		if ( ! $this->_exists( $key, $group ) ) {
 			return false;
@@ -415,7 +421,7 @@ class WP_Object_Cache {
 	 * @return bool False if the contents weren't deleted and true on success.
 	 */
 	public function delete( $key, $group = 'default', $deprecated = false ) {
-		$this->is_valid_key( $key );
+		$key = $this->full_key( $key, $group );
 
 		if ( empty( $group ) ) {
 			$group = 'default';
@@ -466,11 +472,12 @@ class WP_Object_Cache {
 	 * @return mixed The cache contents on success, false on failure to retrieve contents.
 	 */
 	public function get( $key, $group = 'default', $force = false, &$found = null ) {
-		$this->is_valid_key( $key );
 
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
+
+		$key = $this->full_key( $key, $group );
 
 		$cache = $this->group_cache( $group );
 
@@ -501,17 +508,31 @@ class WP_Object_Cache {
 	 */
 	public function get_multiple( $keys, $group = 'default', $force = false ) {
 
+		if ( empty( $group ) ) {
+			$group = 'default';
+		}
+
+		$full_keys       = [];
+		$full_key_to_key = [];
 		foreach ( $keys as $key ) {
-			$this->is_valid_key( $key );
+			$full_key                     = $this->full_key( $key, $group );
+			$full_keys[]                  = $full_key;
+			$full_key_to_key[ $full_key ] = $key;
 		}
 	
 		$cache  = $this->group_cache( $group );
 
 		// Sucks if you want to store false value and need to be able to know when they don't exist
 		// but that what tests expect.
-		$values = $cache->getMultiple( $keys, false );
+		$values = $cache->getMultiple( $full_keys, false );
+		
+		// replace the key index to its original.
+		$converted_values = [];
+		foreach ( $values as $key => $v ) {
+			$converted_values[ $full_key_to_key[ $key ] ] = $v;
+		}
 
-		return $values;
+		return $converted_values;
 	}
 
 	/**
@@ -589,11 +610,11 @@ class WP_Object_Cache {
 	 * @return int|false The item's new value on success, false on failure.
 	 */
 	public function incr( $key, $offset = 1, $group = 'default' ) {
-		$this->is_valid_key( $key );
-
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
+
+		$key = $this->full_key( $key, $group );
 
 		$cache   = $this->group_cache( $group );
 		$current = $cache->get( $key, '__NULL' );
@@ -632,18 +653,12 @@ class WP_Object_Cache {
 	 * @return bool True if contents were replaced, false if original value does not exist.
 	 */
 	public function replace( $key, $data, $group = 'default', $expire = 0 ) {
-		$this->is_valid_key( $key );
 
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
 
-		$id = $key;
-		if ( is_multisite() && ! isset( $this->global_groups[ $group ] ) ) {
-			$id = $this->blog_prefix . $key;
-		}
-
-		if ( ! $this->_exists( $id, $group ) ) {
+		if ( ! $this->_exists( $this->full_key( $key, $group ), $group ) ) {
 			return false;
 		}
 
@@ -672,11 +687,11 @@ class WP_Object_Cache {
 	 * @return bool True if contents were set, false if key is invalid.
 	 */
 	public function set( $key, $data, $group = 'default', $expire = 0 ) {
-		$this->is_valid_key( $key );
-
 		if ( empty( $group ) ) {
 			$group = 'default';
 		}
+
+		$key = $this->full_key( $key, $group );
 		
 		$cache = $this->group_cache( $group );
 
