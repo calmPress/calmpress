@@ -4542,7 +4542,11 @@ function _config_wp_home( $url = '' ) {
  * @return string The WordPress site URL.
  */
 function _config_wp_siteurl( $url = '' ) {
-	return untrailingslashit( WP_SITEURL );
+	if ( is_multisite() ) {
+		return get_option( 'home' );
+	} else {
+		return untrailingslashit( WP_SITEURL );
+	}
 }
 
 /**
