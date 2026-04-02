@@ -291,7 +291,6 @@ class wpdb {
 	public $tables = array(
 		'posts',
 		'comments',
-		'links',
 		'options',
 		'postmeta',
 		'terms',
