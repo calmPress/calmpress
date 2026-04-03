@@ -108,7 +108,6 @@ class Tests_Multisite_SiteDetails extends WP_UnitTestCase {
 		return array(
 			array( 'blogname', 'Custom Site' ),
 			array( 'home', 'http://custom-site-url.org' ),
-			array( 'siteurl', 'http://custom-site-url.org' ),
 			array( 'post_count', '4' ),
 		);
 	}
