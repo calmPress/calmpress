@@ -103,8 +103,6 @@ class Tests_Multisite_wpMsThemesListTable extends WP_UnitTestCase {
 			'disabled'             => 2,
 			'upgrade'              => 3,
 			'broken'               => 4,
-			'auto-update-enabled'  => 5,
-			'auto-update-disabled' => 6,
 		);
 
 		$expected = array(
@@ -113,8 +111,6 @@ class Tests_Multisite_wpMsThemesListTable extends WP_UnitTestCase {
 			'disabled'             => '<a href="themes.php?theme_status=disabled">Disabled <span class="count">(2)</span></a>',
 			'upgrade'              => '<a href="themes.php?theme_status=upgrade">Update Available <span class="count">(3)</span></a>',
 			'broken'               => '<a href="themes.php?theme_status=broken">Broken <span class="count">(4)</span></a>',
-			'auto-update-enabled'  => '<a href="themes.php?theme_status=auto-update-enabled">Auto-updates Enabled <span class="count">(5)</span></a>',
-			'auto-update-disabled' => '<a href="themes.php?theme_status=auto-update-disabled">Auto-updates Disabled <span class="count">(6)</span></a>',
 		);
 
 		$actual = $this->table->get_views();
