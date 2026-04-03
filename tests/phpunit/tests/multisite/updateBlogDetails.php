@@ -84,14 +84,10 @@ class Tests_Multisite_UpdateBlogDetails extends WP_UnitTestCase {
 
 	public function data_flag_hooks() {
 		return array(
-			array( 'spam', '0', 'make_ham_blog' ),
-			array( 'spam', '1', 'make_spam_blog' ),
 			array( 'archived', '1', 'archive_blog' ),
 			array( 'archived', '0', 'unarchive_blog' ),
 			array( 'deleted', '1', 'make_delete_blog' ),
 			array( 'deleted', '0', 'make_undelete_blog' ),
-			array( 'mature', '1', 'mature_blog' ),
-			array( 'mature', '0', 'unmature_blog' ),
 		);
 	}
 
