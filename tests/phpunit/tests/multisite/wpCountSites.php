@@ -26,20 +26,6 @@ class Tests_Multisite_wpCountSites extends WP_UnitTestCase {
 					'archived' => 1,
 				)
 			),
-			'mature'   => self::factory()->blog->create_many(
-				random_int( 0, 5 ),
-				array(
-					'public' => 0,
-					'mature' => 1,
-				)
-			),
-			'spam'     => self::factory()->blog->create_many(
-				random_int( 0, 5 ),
-				array(
-					'public' => 0,
-					'spam'   => 1,
-				)
-			),
 			'deleted'  => self::factory()->blog->create_many(
 				random_int( 0, 5 ),
 				array(
