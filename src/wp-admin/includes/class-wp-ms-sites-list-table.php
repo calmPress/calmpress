@@ -242,13 +242,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 			),
 
 			/* translators: %s: Number of sites. */
-			'spam'     => _nx_noop(
-				'Spam <span class="count">(%s)</span>',
-				'Spam <span class="count">(%s)</span>',
-				'sites'
-			),
-
-			/* translators: %s: Number of sites. */
 			'deleted'  => _n_noop(
 				'Flagged for Deletion <span class="count">(%s)</span>',
 				'Flagged for Deletion <span class="count">(%s)</span>'
