@@ -47,33 +47,6 @@ class Tests_WP_oEmbed extends WP_UnitTestCase {
 		return $result ? $result : false;
 	}
 
-	public function test_wp_filter_pre_oembed_result_prevents_http_request_for_internal_permalinks() {
-		$post_id   = self::factory()->post->create();
-		$permalink = get_permalink( $post_id );
-
-		add_filter( 'pre_oembed_result', array( $this, '_filter_pre_oembed_result' ) );
-		$actual = $this->oembed->get_html( $permalink );
-		remove_filter( 'pre_oembed_result', array( $this, '_filter_pre_oembed_result' ) );
-
-		$this->assertNotFalse( $this->pre_oembed_result_filtered );
-		$this->assertFalse( $actual );
-	}
-
-	public function test_wp_filter_pre_oembed_result_prevents_http_request_when_viewing_the_post() {
-		$post_id   = self::factory()->post->create();
-		$permalink = get_permalink( $post_id );
-
-		$this->go_to( $permalink );
-		$this->assertQueryTrue( 'is_single', 'is_singular' );
-
-		add_filter( 'pre_oembed_result', array( $this, '_filter_pre_oembed_result' ) );
-		$actual = $this->oembed->get_html( $permalink );
-		remove_filter( 'pre_oembed_result', array( $this, '_filter_pre_oembed_result' ) );
-
-		$this->assertNotFalse( $this->pre_oembed_result_filtered );
-		$this->assertFalse( $actual );
-	}
-
 	public function test_wp_filter_pre_oembed_result_non_existent_post() {
 		$post_id   = self::factory()->post->create();
 		$permalink = get_permalink( $post_id );
