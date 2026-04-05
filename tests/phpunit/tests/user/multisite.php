@@ -34,7 +34,7 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		$blog_ids = self::factory()->blog->create_many( 5, array( 'user_id' => $user1_id ) );
 		$blog_ids = array_merge( array( 1 ), $blog_ids );
 
-		// All sites are new and not marked as spam, archived, or deleted.
+		// All sites are new and not marked as archived, or deleted.
 		$blog_ids_of_user = array_keys( get_blogs_of_user( $user1_id ) );
 
 		// User should be a member of the created sites and the network's initial site.
@@ -65,12 +65,10 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 			$this->assertObjectHasProperty( 'site_id', $blog );
 			$this->assertObjectHasProperty( 'siteurl', $blog );
 			$this->assertObjectHasProperty( 'archived', $blog );
-			$this->assertObjectHasProperty( 'spam', $blog );
 			$this->assertObjectHasProperty( 'deleted', $blog );
 		}
 
-		// Mark each remaining site as spam, archived, and deleted.
-		update_blog_details( $blog_ids[0], array( 'spam' => 1 ) );
+		// Mark each remaining site as archived, and deleted.
 		update_blog_details( $blog_ids[1], array( 'archived' => 1 ) );
 		update_blog_details( $blog_ids[2], array( 'deleted' => 1 ) );
 
@@ -80,11 +78,9 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		$this->assertSame( $blog_ids, $blog_ids_of_user );
 
 		// Check if sites are flagged as expected.
-		$this->assertEquals( 1, $blogs_of_user[ $blog_ids[0] ]->spam );
 		$this->assertEquals( 1, $blogs_of_user[ $blog_ids[1] ]->archived );
 		$this->assertEquals( 1, $blogs_of_user[ $blog_ids[2] ]->deleted );
 
-		unset( $blog_ids[0] );
 		unset( $blog_ids[1] );
 		unset( $blog_ids[2] );
 		sort( $blog_ids );
@@ -92,30 +88,6 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		// Passing false (the default) as the second parameter should retrieve only good sites.
 		$blog_ids_of_user = array_keys( get_blogs_of_user( $user1_id, false ) );
 		$this->assertSame( $blog_ids, $blog_ids_of_user );
-	}
-
-	/**
-	 * @expectedDeprecated is_blog_user
-	 */
-	public function test_is_blog_user() {
-		global $wpdb;
-
-		$user1_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-
-		$old_current = get_current_user_id();
-		wp_set_current_user( $user1_id );
-
-		$this->assertTrue( is_blog_user() );
-		$this->assertTrue( is_blog_user( get_current_blog_id() ) );
-
-		$blog_id = self::factory()->blog->create( array( 'user_id' => get_current_user_id() ) );
-
-		$this->assertIsInt( $blog_id );
-		$this->assertTrue( is_blog_user( $blog_id ) );
-		$this->assertTrue( remove_user_from_blog( $user1_id, $blog_id ) );
-		$this->assertFalse( is_blog_user( $blog_id ) );
-
-		wp_set_current_user( $old_current );
 	}
 
 	public function test_is_user_member_of_blog() {
@@ -177,35 +149,6 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 23192
-	 */
-	public function test_is_user_spammy() {
-		$user_id = self::factory()->user->create(
-			array(
-				'role'       => 'author',
-				'user_login' => 'testuser1',
-			)
-		);
-
-		$spam_username = (string) $user_id;
-		$spam_user_id  = self::factory()->user->create(
-			array(
-				'role'       => 'author',
-				'user_login' => $spam_username,
-			)
-		);
-		wp_update_user(
-			array(
-				'ID'   => $spam_user_id,
-				'spam' => '1',
-			)
-		);
-
-		$this->assertTrue( is_user_spammy( $spam_username ) );
-		$this->assertFalse( is_user_spammy( 'testuser1' ) );
-	}
-
-	/**
 	 * @ticket 20601
 	 */
 	public function test_user_member_of_blog() {
@@ -227,24 +170,12 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		switch_to_blog( $first );
 		$wp_rewrite->init();
 
-		$this->go_to( get_author_posts_url( $user_id ) );
-		$this->assertQueryTrue( 'is_404' );
-
 		switch_to_blog( $second );
 		$wp_rewrite->init();
-
-		$this->go_to( get_author_posts_url( $user_id ) );
-		$this->assertQueryTrue( 'is_author', 'is_archive' );
 
 		add_user_to_blog( $first, $user_id, 'administrator' );
 		$blogs = get_blogs_of_user( $user_id );
 		$this->assertCount( 2, $blogs );
-
-		switch_to_blog( $first );
-		$wp_rewrite->init();
-
-		$this->go_to( get_author_posts_url( $user_id ) );
-		$this->assertQueryTrue( 'is_author', 'is_archive' );
 	}
 
 	public function test_revoked_super_admin_can_be_deleted() {

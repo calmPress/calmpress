@@ -101,24 +101,6 @@ function wp_insert_site( array $data ) {
 	 */
 	do_action( 'wp_initialize_site', $new_site, $args );
 
-	// Only compute extra hook parameters if the deprecated hook is actually in use.
-	if ( has_action( 'wpmu_new_blog' ) ) {
-		$user_id = ! empty( $args['user_id'] ) ? $args['user_id'] : 0;
-		$meta    = ! empty( $args['options'] ) ? $args['options'] : array();
-
-		// WPLANG was passed with `$meta` to the `wpmu_new_blog` hook prior to 5.1.0.
-		if ( ! array_key_exists( 'WPLANG', $meta ) ) {
-			$meta['WPLANG'] = get_network_option( $new_site->network_id, 'WPLANG' );
-		}
-
-		/*
-		 * Rebuild the data expected by the `wpmu_new_blog` hook prior to 5.1.0 using allowed keys.
-		 * The `$allowed_data_fields` matches the one used in `wpmu_create_blog()`.
-		 */
-		$allowed_data_fields = array( 'public', 'archived', 'mature', 'spam', 'deleted', 'lang_id' );
-		$meta                = array_merge( array_intersect_key( $data, array_flip( $allowed_data_fields ) ), $meta );
-	}
-
 	return (int) $new_site->id;
 }
 
