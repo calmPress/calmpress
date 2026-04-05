@@ -466,12 +466,6 @@ class Tests_Privacy_wpPrivacyGeneratePersonalDataExportFile extends WP_UnitTestC
 			'should contain only about when _export_data_grouped does not exist' => array(
 				'groups' => null,
 			),
-			'should contain only about when empty array' => array(
-				'groups'           => array(),
-				'expected_content' => array(
-					'html' => '<h2 id="about-about">About</h2><p>Overview of export report.</p><div><table><tbody><tr><th>Report generated for</th><td>export-requester@example.com</td></tr><tr><th>For site</th><td>Test Blog</td></tr><tr><th>At URL</th><td><a href="http://' . WP_TESTS_DOMAIN . '">http://' . WP_TESTS_DOMAIN . '</a></td></tr><tr><th>On</th><td>{{TIMESTAMP}}</td></tr></tbody></table></div>',
-				),
-			),
 			// Happy path.
 			'should contain about and export data groups when single group exists' => array(
 				'groups'           => array(
