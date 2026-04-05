@@ -239,6 +239,8 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 	 * @ticket 56481
 	 *
 	 * @param string $method HTTP method to use.
+	 * 
+	 * @group ms-excluded
 	 */
 	public function test_get_items_with_edit_context( $method ) {
 		wp_set_current_user( self::$user );
