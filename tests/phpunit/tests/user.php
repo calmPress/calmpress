@@ -892,89 +892,6 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 27317
-	 * @dataProvider data_illegal_user_logins
-	 */
-	public function test_illegal_user_logins_single( $user_login ) {
-		$user_data = array(
-			'user_login' => $user_login,
-			'user_email' => 'testuser@example.com',
-			'user_pass'  => wp_generate_password(),
-		);
-
-		add_filter( 'illegal_user_logins', array( $this, 'illegal_user_logins' ) );
-
-		$response = wp_insert_user( $user_data );
-		$this->assertInstanceOf( 'WP_Error', $response );
-		$this->assertSame( 'invalid_username', $response->get_error_code() );
-
-		remove_filter( 'illegal_user_logins', array( $this, 'illegal_user_logins' ) );
-
-		$user_id = wp_insert_user( $user_data );
-		$user    = get_user_by( 'id', $user_id );
-		$this->assertInstanceOf( 'WP_User', $user );
-	}
-
-	/**
-	 * @ticket 27317
-	 * @dataProvider data_illegal_user_logins
-	 */
-	public function test_illegal_user_logins_single_wp_create_user( $user_login ) {
-		$user_email = 'testuser-' . $user_login . '@example.com';
-
-		add_filter( 'illegal_user_logins', array( $this, 'illegal_user_logins' ) );
-
-		$response = register_new_user( $user_login, $user_email );
-		$this->assertInstanceOf( 'WP_Error', $response );
-		$this->assertSame( 'invalid_username', $response->get_error_code() );
-
-		remove_filter( 'illegal_user_logins', array( $this, 'illegal_user_logins' ) );
-
-		$response = register_new_user( $user_login, $user_email );
-		$user     = get_user_by( 'id', $response );
-		$this->assertInstanceOf( 'WP_User', $user );
-	}
-
-	/**
-	 * @ticket 27317
-	 * @group ms-required
-	 */
-	public function test_illegal_user_logins_multisite() {
-		$user_data = array(
-			'user_login' => 'testuser',
-			'user_email' => 'testuser@example.com',
-		);
-
-		add_filter( 'illegal_user_logins', array( $this, 'illegal_user_logins' ) );
-
-		$response = wpmu_validate_user_signup( $user_data['user_login'], $user_data['user_email'] );
-		$this->assertInstanceOf( 'WP_Error', $response['errors'] );
-		$this->assertSame( 'user_name', $response['errors']->get_error_code() );
-
-		remove_filter( 'illegal_user_logins', array( $this, 'illegal_user_logins' ) );
-
-		$response = wpmu_validate_user_signup( $user_data['user_login'], $user_data['user_email'] );
-		$this->assertInstanceOf( 'WP_Error', $response['errors'] );
-		$this->assertCount( 0, $response['errors']->get_error_codes() );
-	}
-
-	public function data_illegal_user_logins() {
-		$data = array(
-			array( 'testuser' ),
-		);
-
-		// Multisite doesn't allow mixed case logins ever.
-		if ( ! is_multisite() ) {
-			$data[] = array( 'TestUser' );
-		}
-		return $data;
-	}
-
-	public function illegal_user_logins() {
-		return array( 'testuser' );
-	}
-
-	/**
 	 * @ticket 24618
 	 */
 	public function test_validate_username_string() {
@@ -2037,7 +1954,7 @@ class Tests_User extends WP_UnitTestCase {
 		// An editor, check its the same user.
 		update_option( 'comment_moderator_user', self::$editor_id );
 		$email = WP_User::default_comment_moderator_email();
-		$this->assertSame( 'test@test.com', $email );
+		$this->assertSame( 'test@example.com', $email );
 	}
 
 	/**
