@@ -2605,10 +2605,19 @@ function wp_update_user( $userdata ) {
 	$current_user = wp_get_current_user();
 	if ( $current_user->ID === $user_id ) {
 		if ( isset( $plaintext_pass ) ) {
+			// keep same session when password changes.
+
+			$logged_in_cookie = wp_parse_auth_cookie( '', 'logged_in' );
+
 			wp_clear_auth_cookie();
 
-			wp_set_auth_cookie( $user_id );
-		}
+			$token    = '';
+
+			if ( false !== $logged_in_cookie ) {
+				$token = $logged_in_cookie['token'];
+
+				wp_set_auth_cookie( $user_id, false, '', $token );		}
+			}
 	}
 
 	/**
