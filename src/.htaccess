@@ -1,8 +1,7 @@
 # BEGIN WordPress
-<files wp-config.php>
-order allow,deny
-deny from all
-</files>
+<Files wp-config.php>
+    Require all denied
+</Files>
 
 <IfModule mod_rewrite.c>
 RewriteEngine On

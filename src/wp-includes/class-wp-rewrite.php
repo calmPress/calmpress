@@ -1365,10 +1365,9 @@ class WP_Rewrite {
 		 */
 
 		// Add rules to prevent access to wp-config.php.
-		$rules .= "<files wp-config.php>\n";
-		$rules .= "order allow,deny\n";
-		$rules .= "deny from all\n";
-		$rules .= "</files>\n";
+		$rules .= "<Files wp-config.php>\n";
+		$rules .= "Require all denied\n";
+		$rules .= "</Files>\n";
 
 		// rewrite rules.
 		$rules .= "\n<IfModule mod_rewrite.c>\n";
