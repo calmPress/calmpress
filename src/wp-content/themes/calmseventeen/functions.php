@@ -397,8 +397,8 @@ add_action( 'wp_head', 'calmseventeen_colors_css_wrap' );
  */
 function calmseventeen_scripts() {
 	// Add custom fonts, used in the main stylesheet.
-	$font_version = ( 0 === strpos( (string) twentyseventeen_fonts_url(), get_template_directory_uri() . '/' ) ) ? '20230328' : null;
-	wp_enqueue_style( 'calmseventeen-fonts', twentyseventeen_fonts_url(), array(), $font_version );
+	$font_version = ( 0 === strpos( (string) calmseventeen_fonts_url(), get_template_directory_uri() . '/' ) ) ? '20230328' : null;
+	wp_enqueue_style( 'calmseventeen-fonts', calmseventeen_fonts_url(), array(), $font_version );
 
 	// Theme stylesheet.
 	wp_enqueue_style( 'calmseventeen-style', get_stylesheet_uri(), array(), '20251202' );
@@ -437,9 +437,9 @@ function calmseventeen_scripts() {
 				'strategy'  => 'defer',
 			)
 		);
-		$twentyseventeen_l10n['expand']   = __( 'Expand child menu', 'twentyseventeen' );
-		$twentyseventeen_l10n['collapse'] = __( 'Collapse child menu', 'twentyseventeen' );
-		$twentyseventeen_l10n['icon']     = twentyseventeen_get_svg(
+		$calmseventeen_l10n['expand']   = __( 'Expand child menu', 'calmseventeen' );
+		$calmseventeen_l10n['collapse'] = __( 'Collapse child menu', 'calmseventeen' );
+		$calmseventeen_l10n['icon']     = calmseventeen_get_svg(
 			array(
 				'icon'     => 'angle-down',
 				'fallback' => true,
@@ -584,7 +584,7 @@ add_filter( 'widget_tag_cloud_args', 'calmseventeen_widget_tag_cloud_args' );
  * @param string $prefix Prefix for the returned ID.
  * @return string Unique ID.
  */
-function twentyseventeen_unique_id( $prefix = '' ) {
+function calmseventeen_unique_id( $prefix = '' ) {
 	static $id_counter = 0;
 	if ( function_exists( 'wp_unique_id' ) ) {
 		return wp_unique_id( $prefix );
@@ -610,12 +610,12 @@ endif;
  * Shows the featured image below the header on single posts and pages, unless
  * the page is the front page.
  *
- * Uses the filter `twentyseventeen_should_show_featured_image` in a child theme or
+ * Uses the filter `calmseventeen_should_show_featured_image` in a child theme or
  * plugin to change when the image is shown. This example prevents the image
  * from showing:
  *
  *     add_filter(
- *         'twentyseventeen_should_show_featured_image',
+ *         'calmseventeen_should_show_featured_image',
  *         '__return_false'
  *     );
  *
@@ -623,8 +623,8 @@ endif;
  *
  * @return bool Whether the post thumbnail should be shown.
  */
-function twentyseventeen_should_show_featured_image() {
-	$show_featured_image = ( is_single() || ( is_page() && ! twentyseventeen_is_frontpage() ) ) && has_post_thumbnail( get_queried_object_id() );
+function calmseventeen_should_show_featured_image() {
+	$show_featured_image = ( is_single() || ( is_page() && ! calmseventeen_is_frontpage() ) ) && has_post_thumbnail( get_queried_object_id() );
 
 	/**
 	 * Filters whether to show the Twenty Seventeen featured image below the header.
@@ -635,7 +635,7 @@ function twentyseventeen_should_show_featured_image() {
 	 *
 	 * @param bool $show_featured_image Whether to display the featured image below the header.
 	 */
-	return apply_filters( 'twentyseventeen_should_show_featured_image', $show_featured_image );
+	return apply_filters( 'calmseventeen_should_show_featured_image', $show_featured_image );
 }
 
 /**

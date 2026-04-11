@@ -48,7 +48,7 @@ get_header(); ?>
 					/* translators: Hidden accessibility text. */
 					'prev_text'          => calmseventeen_get_svg( array( 'icon' => 'arrow-left' ) ) . '<span class="screen-reader-text">' . __( 'Previous page', 'calmseventeen' ) . '</span>',
 					/* translators: Hidden accessibility text. */
-					'next_text'          => '<span class="screen-reader-text">' . __( 'Next page', 'calmseventeen' ) . '</span>' . twentyseventeen_get_svg( array( 'icon' => 'arrow-right' ) ),
+					'next_text'          => '<span class="screen-reader-text">' . __( 'Next page', 'calmseventeen' ) . '</span>' . calmseventeen_get_svg( array( 'icon' => 'arrow-right' ) ),
 					/* translators: Hidden accessibility text. */
 					'before_page_number' => '<span class="meta-nav screen-reader-text">' . __( 'Page', 'calmseventeen' ) . ' </span>',
 				)
