@@ -115,6 +115,20 @@
 	margin: 0 20px 8px 0;
 }
 
+#dashboard_right_now li a:before,
+#dashboard_right_now li span:before,
+#dashboard_right_now .search-engines-info:before {
+	color: #646970;
+	font: normal 20px/1 dashicons;
+	display: inline-block;
+	padding: 0 10px 0 0;
+	position: relative;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-decoration: none !important;
+	vertical-align: top;
+}
+
 /* Right Now specific Icons styles */
 
 #dashboard_right_now .search-engines-info:before,
