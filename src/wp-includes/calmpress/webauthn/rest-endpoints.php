@@ -30,6 +30,35 @@ function invalid_request_response(): \WP_REST_Response {
 }
 
 /**
+ * Add a rest API endpoint to handle the register device requests
+ * 
+ * @since 1.0
+ */
+function add_register_device_endpoint():void {
+
+	$args = [
+		'name' => [
+			'type'     => 'string',
+			'required' => true,
+		],
+		'payload' => [
+			'required' => true,
+		]
+	];
+
+	register_rest_route(
+		'calmpress',
+		'/webauthn/register_device',
+		[
+			'methods'  => 'POST',
+			'callback' => __NAMESPACE__ . '\\register_device',
+			'args' => $args,			  
+			'permission_callback' => 'is_user_logged_in',
+		]
+	);
+}
+
+/**
  * Handle the request to get a challenge when a user tries to register
  * a new authenticator.
  * 
@@ -405,12 +434,7 @@ add_action(
 			[]
 		);
 
-		\calmpress\utils\add_current_user_post_endpoint(
-			'calmpress',
-			'webauthn/register_device',
-			__NAMESPACE__ . '\\register_device',
-			[ 'name', 'payload' ]
-		);
+		add_register_device_endpoint();
 
 		\calmpress\utils\add_current_user_post_endpoint(
 			'calmpress',
