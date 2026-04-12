@@ -1163,7 +1163,7 @@ switch ( $action ) {
 
 			<?php if ( ! $interim_login ) { ?>
 				<div id="qrdescription" aria-hidden="true">
-					<?php esc_html_e( ' ℹ️ If you are signed in on another device, you can log in here using a QR code. Check your profile page.' );?>
+					<?php esc_html_e( ' ℹ️ If you are logged in on another device, you can log in here using a QR code. Check your profile page.' );?>
 				</div>
 			<?php } ?>
 
@@ -1172,11 +1172,11 @@ switch ( $action ) {
 			</div>
 			<?php calmpress\utils\notice_area( 'webauthn_message', 10 );?>
 			<?php
-				$button_label = __( 'Log in with this device' );
+				$button_label = __( 'Use this device to log in' );
 				$show_webauthn = true;
 				if ( $interim_login ) {
 					$show_webauthn = count( $user->webauthn_registered_devices()->devices() ) > 0;
-					$button_label = __( 'Verify with this device' );
+					$button_label = __( 'Use this device to verify' );
 				}
 				if ( $show_webauthn ) {
 			?>
