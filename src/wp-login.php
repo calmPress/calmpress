@@ -282,20 +282,7 @@ function login_header( $title = null, $message = '', $wp_error = null ) {
 				)
 			);
 		}
-
-		if ( ! empty( $errors ) ) {
-			/**
-			 * Filters the error messages displayed above the login form.
-			 *
-			 * @since 2.1.0
-			 *
-			 * @param string $errors Login error message.
-			 */
-			echo '<div id="login_error" aria-live="polite">' . apply_filters( 'login_errors', $errors ) . "</div>\n";
-		}
-	} 
-	
-
+	}
 } // End of login_header().
 
 /**
