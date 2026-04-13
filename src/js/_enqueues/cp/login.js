@@ -88,6 +88,20 @@ document.addEventListener( 'DOMContentLoaded', function () {
     });
 
     cp_$( '#webauthn_button' ).on( 'click', async function ( event ) {
+        // Keep an indication that webauthn had been attempted in a cookie.
+        const webauthn_intent_cookie_name = 'webauthn_attempted';
+
+        // Set a relatively short-lived (30 minutes) with hopefully giving enough
+        // time for the user to use some other authentication metod
+        const maxAge = 1800; // 30 minutes
+
+        document.cookie = [
+            webauthn_intent_cookie_name + '=1',
+            'path=/',
+            `max-age=${maxAge}`,
+            'SameSite=Lax'
+        ].join( '; ' );
+        
         try {
             const response_data = await calm_fetch.post_no_nonce( 'calmpress/webauthn/login_challenge', {} );
             const options = {
@@ -115,6 +129,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
             if ( isReauthDialog ) {
                 window.parent.jQuery( window.parent.document ).trigger( 'heartbeat-tick', [ { 'wp-auth-check':true }, 'heartbeat' ] );
             } else {
+                document.cookie = [
+                    webauthn_intent_cookie_name + '=',
+                    'path=/',
+                    'max-age=0',
+                    'SameSite=Lax'
+                ].join( '; ' );
+
                 window.location.href = login_response.redirect_to;
             }
         } catch ( error ) {

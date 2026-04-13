@@ -212,7 +212,7 @@ class Admin_Notices {
 	}
 
 	/**
-	 * Notifט installer when his email address requires verification.
+	 * Notify installer when his email address requires verification.
 	 *
 	 * @since 1.0.0
 	 */
@@ -226,13 +226,39 @@ class Admin_Notices {
 			if ( $pagenow !== 'user-edit.php' ) {
 				$msg = sprintf(
 					/* translators: 1: Openning link to user's profile page, 2: Closing </a> */
-					esc_html__( 'You need to verify the email address you used when installing calmPress.
-	You can do this from your %1$sprofile page%2$s.' ),
+					esc_html__( 'You need to verify the email address you used when installing calmPress. You can do this from your %1$sprofile page%2$s.' ),
 					'<a href="' . esc_url( admin_url( 'user-edit.php' ) ) . '">',
 					'</a>'
 				);
 				echo "<div class='notice notice-info'><p>$msg</p></div>";
 			}
 		}
+	}
+
+	/**
+	 * Suggest the webauthn management page when it seem like user had tried to use it to login
+	 * and failed.
+	 * 
+	 * webauthn_attempted cookie is supposed to be set at the login page when wbeauthn authentication
+	 * had started but the user aborted or fail authenticating with it.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function suggest_webauthn_management(): void {
+
+		if ( empty( $_COOKIE['webauthn_attempted'] ) ) {
+			return;
+		}
+
+		setcookie( 'webauthn_attempted', '', time() - 3600, '/' );
+
+		$msg = sprintf(
+					/* translators: 1: Openning link to user's webauthn management page, 2: Closing </a> */
+					esc_html__( 'Looking to log in with this device? You can set it up in your %1$sDevice Login page%2$s.' ),
+					'<a href="' . esc_url( admin_url( 'webauthn.php' ) ) . '">',
+					'</a>'
+				);
+
+		echo '<div class="notice notice-info is-dismissible"><p>' . $msg . '</p></div>';
 	}
 }

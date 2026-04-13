@@ -153,6 +153,9 @@ add_action(
 
 		// Installer email verification nag.
 		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::notify_installer_email_verification' );		
+
+		// Webauthn management discovery after webauthn based authentication failed or aborted.
+		add_action( 'admin_notices', '\calmpress\admin\Admin_Notices::suggest_webauthn_management' );		
 	}
 );
 
