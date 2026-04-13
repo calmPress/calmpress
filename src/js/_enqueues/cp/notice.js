@@ -3,9 +3,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
   notices.forEach( notice => {
     const btn = notice.querySelector( '.notice-dismiss' );
-    btn.addEventListener( 'click', () => {
-      notice_manager.hide( notice.id );
-    });
+
+    // not all nortices are dismissable.
+    if ( btn ) {
+      btn.addEventListener( 'click', () => {
+        notice_manager.hide( notice.id );
+      });
+    }
 
     // Handle auto-dismiss if data-dismiss is set (seonds) and not zero
     // and notice not hidden.
