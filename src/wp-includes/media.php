@@ -5083,6 +5083,7 @@ function wp_enqueue_media( $args = array() ) {
 	wp_enqueue_style( 'media-views' );
 	if ( is_admin() ) {
 		wp_enqueue_script( 'mce-view' );
+		wp_enqueue_script( 'imgareaselect' );
 	}
 	wp_enqueue_style( 'imgareaselect' );
 	wp_plupload_default_settings();
