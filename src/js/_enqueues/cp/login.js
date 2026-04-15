@@ -11,6 +11,16 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	const heading = document.querySelector( '.login h1' );
 	const headingLink = heading?.querySelector( 'a' );
 
+    // Remove the logout=true from the address bar after logging out.
+    if (new URLSearchParams(window.location.search).has('loggedout')) {
+        const url = new URL(window.location);
+
+        url.searchParams.delete('loggedout');
+
+        // clean URL without page reload
+        window.history.replaceState({}, document.title, url.toString());
+    }
+
     // Disable webauthn if browser do not support it.
 	if ( window.PublicKeyCredential ) {
 		PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
