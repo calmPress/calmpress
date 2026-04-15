@@ -1,6 +1,6 @@
 # BEGIN WordPress
 <Files wp-config.php>
-    Require all denied
+Require all denied
 </Files>
 
 <IfModule mod_rewrite.c>

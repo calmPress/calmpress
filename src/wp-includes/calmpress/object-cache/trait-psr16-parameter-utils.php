@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace calmpress\object_cache;
 
 /**
- * Implemantation of APCU based object cache per a caching group.
+ * Implemantation of APSR16 compatible object cache per a caching group.
  * 
  * There are no type hinting to be compatible with the interface defined in PSR-16,
  * instead there are type checks.

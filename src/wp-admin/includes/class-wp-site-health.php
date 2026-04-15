@@ -620,10 +620,6 @@ class WP_Site_Health {
 				'required'     => false,
 				'fallback_for' => 'mod_xml',
 			),
-			'apcu'       => array(
-				'extension' => 'apcu',
-				'required'  => false,
-			),
 		);
 
 		/**
@@ -906,40 +902,22 @@ class WP_Site_Health {
 			}
 		}
 
-		// Check if APCu is used.
-		if ( function_exists( 'apcu_enabled' ) && apcu_enabled() ) {
-			if ( defined( 'APCU_DISABLED' ) && APCU_DISABLED ) {
-				$additional_messages[] = sprintf(
-					/* translators: 1: APCU_DISABLED define, 2: wp-config.php */
-					esc_html__(	'The APCu php extension is intalled and enabled but it is not used as %1$s is defined, probably in your  %2$s. APCu is the prefered solution for object caching.' ),
-					'<code>APCU_DISABLED</code>',
-					'<code>wp-config.php</code>'
-				);
-			} else {
-				$can_cache = true;
-				$result['label'] = esc_html__( 'The APCu php extension is used for persistant object caching' );
-			}
-		}
-
-		// If not, check if file caching is possible
-		if ( ! $can_cache ) {
-			if ( wp_is_writable( \calmpress\object_cache\File::CACHE_ROOT_DIR ) ) {
-				$can_cache = true;
-				$result['label'] = esc_html__( 'Files are used for persistant object caching' );
-				if ( $opcode_cache_usable && ! wp_is_writable( \calmpress\object_cache\PHP_File::CACHE_ROOT_DIR ) ) {
-					$additional_messages[] = sprintf(
-						/* translators: 1: directory path */
-						esc_html__(	'Speed can be improved by making %s writable which will enable the usage of the PHP opcode caching for storing values in high demand.' ),
-						'<code>' . \calmpress\object_cache\PHP_File::PHP_File . '</code>'
-					);	
-				}
-			} else {
+		if ( wp_is_writable( \calmpress\object_cache\File::CACHE_ROOT_DIR ) ) {
+			$can_cache = true;
+			$result['label'] = esc_html__( 'Files are used for persistant object caching' );
+			if ( $opcode_cache_usable && ! wp_is_writable( \calmpress\object_cache\PHP_File::CACHE_ROOT_DIR ) ) {
 				$additional_messages[] = sprintf(
 					/* translators: 1: directory path */
-					esc_html__(	'File based object caching can not be done because the %s directory is not writable.' ),
-					'<code>' . \calmpress\object_cache\File::CACHE_ROOT_DIR . '</code>'
-				);
+					esc_html__(	'Speed can be improved by making %s writable which will enable the usage of the PHP opcode caching for storing values in high demand.' ),
+					'<code>' . \calmpress\object_cache\PHP_File::PHP_File . '</code>'
+				);	
 			}
+		} else {
+			$additional_messages[] = sprintf(
+				/* translators: 1: directory path */
+				esc_html__(	'File based object caching can not be done because the %s directory is not writable.' ),
+				'<code>' . \calmpress\object_cache\File::CACHE_ROOT_DIR . '</code>'
+			);
 		}
 
 		if ( ! $can_cache ) {
@@ -2363,7 +2341,6 @@ class WP_Site_Health {
 		$extensions = array_map(
 			'extension_loaded',
 			array(
-				'APCu'      => 'apcu',
 				'Redis'     => 'redis',
 				'Relay'     => 'relay',
 				'Memcache'  => 'memcache',

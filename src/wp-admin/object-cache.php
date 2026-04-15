@@ -7,8 +7,6 @@
 
 declare(strict_types=1);
 
-namespace calmpress\apcu;
-
 /** WordPress Administration Bootstrap */
 require_once dirname( __FILE__ ) . '/admin.php';
 

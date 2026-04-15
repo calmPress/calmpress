@@ -39,7 +39,7 @@ class Utils {
 	}
 
 	/**
-	 * Handles the form post regarding APCu reset, tries to reset the APCu cache if the request is valid.
+	 * Handles the form post regarding object cache reset, tries to reset the caches.
 	 *
 	 * Used as a hook on admin-post.
 	 *

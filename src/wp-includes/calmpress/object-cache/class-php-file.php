@@ -25,8 +25,7 @@ namespace calmpress\object_cache;
  * its interpreted content before "running". After the first time the content is already parsed
  * and it is just run.
  *
- * The advantage of this cache is that it is always there in modern PHP. APCu which provides similar
- * functionality is an extension that needs to be installed.
+ * The advantage of this cache is that it is always there in modern PHP.
  * The disadvantage is that it is a hack which might have adverse impact on the general PHP performance
  * if the memory that PHP reserve for its interpreter cache runs out which will require that part of the
  * actual code will be purged from the cache and reread later which will make things slower. It should be

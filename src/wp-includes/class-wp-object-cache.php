@@ -62,8 +62,8 @@ class WP_Object_Cache {
 	private int $blog_id;
 
 	/**
-	 * Create a cache for groups that have keys that are hit a lot of times. For them prefer APCu caching
-	 * after it PHP file caching and file caching as last resort.
+	 * Create a cache for groups that have keys that are hit a lot of times. For them prefer PHP file caching
+	 * and file caching as last resort.
 	 *
 	 * Session memory caching is used as the "front" for the selected cache to reduce the
 	 * amount of locking or other overhead when accessing the other caches.
@@ -85,13 +85,6 @@ class WP_Object_Cache {
 
 		$caches[] = $session_memory;
 		
-		// If APCu enabled use it.
-		if ( \calmpress\apcu\APCu::APCu_is_avaialable() ) {
-			$connector  = new \calmpress\apcu\APCu();
-			$apcu_cache = $connector->create_cache( $namespace );
-			return new \calmpress\object_cache\Chained_Caches( $session_memory, $apcu_cache );
-		}
-
 		// If PHP file caching available, use it, otherwise try to use file caching
 		try {
 			$caches[] = new \calmpress\object_cache\PHP_File( $namespace );
@@ -113,7 +106,7 @@ class WP_Object_Cache {
 	/**
 	 * Create a cache for transient type of groups for which the entries need to be persistant.
 	 *
-	 * For persistance only APCu and file caching can be used as PHP file caching should be used
+	 * For persistance only file caching can be used as PHP file caching should be used
 	 * only sparingly.
 	 *
 	 * @since calmPress 1.0.0
@@ -124,18 +117,11 @@ class WP_Object_Cache {
 	 */
 	private static function create_cache_for_transient_groups( string $namespace ): \Psr\SimpleCache\CacheInterface {
 
-		// If APCu enabled use it.
-		if ( \calmpress\apcu\APCu::APCu_is_avaialable() ) {
-			$connector  = new \calmpress\apcu\APCu();
-			return $connector->create_cache( $namespace );
-		}
-
-		// ... Otherwise use file caching.
 		return new \calmpress\object_cache\File( $namespace );
 	}
 
 	/**
-	 * Create a chained cache for groups in the default setup with session memory and apcu if exists.
+	 * Create a chained cache for groups in the default setup.
 	 *
 	 * @since calmPress 1.0.0
 	 *
@@ -144,21 +130,19 @@ class WP_Object_Cache {
 	 * @return \Psr\SimpleCache\CacheInterface The cache object
 	 */
 	private static function create_default_cache( string $namespace ) {
+
+		$session_memory = new \calmpress\object_cache\Session_Memory();
+
 		// Don't bother with persistant cache when unit testing.
 		if ( defined( 'WP_TESTS_DOMAIN' ) ) {
-			return new \calmpress\object_cache\Session_Memory();
+			return $session_memory;
 		}
 
-		$caches = [];
-		if ( \calmpress\apcu\APCu::APCu_is_avaialable() ) {
-			$connector = new \calmpress\apcu\APCu();
-			$caches[]  = $connector->create_cache( $namespace );
-		} else {
-			try {
-				$caches[] = new \calmpress\object_cache\File( $namespace );
-			} catch ( \RuntimeException $e ) {
-				$caches[] = new \calmpress\object_cache\Null_Cache();
-			}
+		$caches[] = $session_memory;
+
+		try {
+			$caches[] = new \calmpress\object_cache\File( $namespace );
+		} catch ( \RuntimeException $e ) {
 		}
 
 		if ( 1 === count( $caches ) ) {
@@ -703,15 +687,14 @@ class WP_Object_Cache {
 	}
 
 	/**
-	 * Detects if there is an enabled persistant cache between the options of
-	 * APCu and file cache.
+	 * Detects if there is an enabled persistant cache like file cache.
 	 * 
 	 * PHP file cache is not relevant here as its use should be only for caching high impact
 	 * values as it is a limited resource.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * @return bool true if either APCu or file cache are enabled and tests are not running,
+	 * @return bool true if file cache are is and tests are not running,
 	 *              otherwise false.
 	 */
 	public static function has_persistant_cache() {
@@ -719,8 +702,7 @@ class WP_Object_Cache {
 			return false;
 		}
 
-		return ( \calmpress\apcu\APCu::APCu_is_avaialable() ||
-				\calmpress\object_cache\File::is_available() );
+		return ( \calmpress\object_cache\File::is_available() );
 	}
 
 	/**
