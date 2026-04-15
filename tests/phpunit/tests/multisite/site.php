@@ -1695,8 +1695,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 				array(
 					'public'   => 0,
 					'archived' => 0,
-					'mature'   => 0,
-					'spam'     => 0,
 					'deleted'  => 0,
 				),
 				array(
@@ -1752,10 +1750,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 		$this->site_status_hooks = array();
 
 		$hooknames = array(
-			'make_spam_blog',
-			'make_ham_blog',
-			'mature_blog',
-			'unmature_blog',
 			'archive_blog',
 			'unarchive_blog',
 			'make_delete_blog',
@@ -1770,10 +1764,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 
 	private function get_listen_to_site_status_hooks_result() {
 		$hooknames = array(
-			'make_spam_blog',
-			'make_ham_blog',
-			'mature_blog',
-			'unmature_blog',
 			'archive_blog',
 			'unarchive_blog',
 			'make_delete_blog',

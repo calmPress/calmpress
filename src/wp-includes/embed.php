@@ -675,7 +675,7 @@ function get_oembed_response_data_for_url( $url, $args ) {
 		$site  = reset( $sites );
 
 		// Do not allow embeds for deleted/archived/spam sites.
-		if ( ! empty( $site->deleted ) || ! empty( $site->spam ) || ! empty( $site->archived ) ) {
+		if ( ! empty( $site->deleted ) || ! empty( $site->archived ) ) {
 			return false;
 		}
 

@@ -355,7 +355,6 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		$expected = get_sites(
 			array(
 				'network_id' => get_current_network_id(),
-				'spam'       => 0,
 				'deleted'    => 0,
 				'archived'   => 0,
 				'count'      => true,

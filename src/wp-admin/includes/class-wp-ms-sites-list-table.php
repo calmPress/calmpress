@@ -36,7 +36,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 	public function __construct( $args = array() ) {
 		$this->status_list = array(
 			'archived' => array( 'site-archived', __( 'Archived' ) ),
-			'spam'     => array( 'site-spammed', _x( 'Spam', 'site' ) ),
 			'deleted'  => array( 'site-deleted', __( 'Flagged for Deletion' ) ),
 		);
 
@@ -165,7 +164,7 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 
 		// Take into account the role the user has selected.
 		$status = isset( $_REQUEST['status'] ) ? wp_unslash( trim( $_REQUEST['status'] ) ) : '';
-		if ( in_array( $status, array( 'public', 'archived', 'spam', 'deleted' ), true ) ) {
+		if ( in_array( $status, array( 'public', 'archived', 'deleted' ), true ) ) {
 			$args[ $status ] = 1;
 		}
 
@@ -279,8 +278,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 		if ( current_user_can( 'delete_sites' ) ) {
 			$actions['delete'] = __( 'Delete' );
 		}
-		$actions['spam']    = _x( 'Mark as spam', 'site' );
-		$actions['notspam'] = _x( 'Not spam', 'site' );
 
 		return $actions;
 	}
@@ -653,7 +650,7 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 		 * @since 5.3.0
 		 *
 		 * @param string[] $site_states An array of site states. Default 'Main',
-		 *                              'Archived', 'Spam', 'Flagged for Deletion'.
+		 *                              'Archived', 'Flagged for Deletion'.
 		 * @param WP_Site  $site        The current site object.
 		 */
 		$site_states = apply_filters( 'display_site_states', $site_states, $_site );
@@ -716,8 +713,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 			'deactivate' => '',
 			'archive'    => '',
 			'unarchive'  => '',
-			'spam'       => '',
-			'unspam'     => '',
 			'delete'     => '',
 			'visit'      => '',
 		);
@@ -783,30 +778,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 				);
 			}
 
-			if ( '1' === $blog['spam'] ) {
-				$actions['unspam'] = sprintf(
-					'<a href="%1$s">%2$s</a>',
-					esc_url(
-						wp_nonce_url(
-							network_admin_url( 'sites.php?action=confirm&amp;action2=unspamblog&amp;id=' . $blog['blog_id'] ),
-							'unspamblog_' . $blog['blog_id']
-						)
-					),
-					_x( 'Not Spam', 'site' )
-				);
-			} else {
-				$actions['spam'] = sprintf(
-					'<a href="%1$s">%2$s</a>',
-					esc_url(
-						wp_nonce_url(
-							network_admin_url( 'sites.php?action=confirm&amp;action2=spamblog&amp;id=' . $blog['blog_id'] ),
-							'spamblog_' . $blog['blog_id']
-						)
-					),
-					_x( 'Spam', 'site' )
-				);
-			}
-
 			if ( current_user_can( 'delete_site', $blog['blog_id'] ) ) {
 				$actions['delete'] = sprintf(
 					'<a href="%1$s">%2$s</a>',
@@ -832,8 +803,7 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 		 *
 		 * The 'Edit', 'Dashboard', 'Delete Permanently', and 'Visit' links are displayed by
 		 * default for each site. The site's status determines whether to show the
-		 * 'Remove Deletion Flag' or 'Flag for Deletion' link, 'Unarchive' or 'Archive' links, and
-		 * 'Not Spam' or 'Spam' link for each site.
+		 * 'Remove Deletion Flag' or 'Flag for Deletion' link, 'Unarchive' or 'Archive' links for each site.
 		 *
 		 * @since 3.1.0
 		 *

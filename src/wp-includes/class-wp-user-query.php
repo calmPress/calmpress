@@ -236,7 +236,6 @@ class WP_User_Query {
 	 *                                                - 'user_pass'
 	 *                                                - 'user_activation_key'
 	 *                                                - 'user_status'
-	 *                                                - 'spam' (only available on multisite installs)
 	 *                                                - 'deleted' (only available on multisite installs)
 	 *                                                - 'all' for all fields and loads user meta.
 	 *                                                - 'all_with_meta' Deprecated. Use 'all'.
@@ -297,7 +296,6 @@ class WP_User_Query {
 			'display_name',
 		);
 		if ( is_multisite() ) {
-			$allowed_fields[] = 'spam';
 			$allowed_fields[] = 'deleted';
 		}
 

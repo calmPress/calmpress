@@ -72,7 +72,7 @@ function get_active_blog_for_user( $user_id ) {
 	}
 
 	if ( ( ! is_object( $primary ) )
-		|| ( '1' === $primary->archived || '1' === $primary->spam || '1' === $primary->deleted )
+		|| ( '1' === $primary->archived || '1' === $primary->deleted )
 	) {
 		$blogs = get_blogs_of_user( $user_id, true ); // If a user's primary blog is shut down, check their other blogs.
 		$ret   = false;
@@ -87,7 +87,7 @@ function get_active_blog_for_user( $user_id ) {
 
 				$details = get_site( $blog_id );
 				if ( is_object( $details )
-					&& '0' === $details->archived && '0' === $details->spam && '0' === $details->deleted
+					&& '0' === $details->archived && '0' === $details->deleted
 				) {
 					$ret = $details;
 					if ( (int) get_user_meta( $user_id, 'primary_blog', true ) !== $blog_id ) {

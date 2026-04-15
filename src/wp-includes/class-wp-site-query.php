@@ -141,7 +141,6 @@ class WP_Site_Query {
 	 *                                                   - 'site__in'
 	 *                                                   - 'network__in'
 	 *                                                   - 'deleted'
-	 *                                                   - 'spam'
 	 *                                                   - 'archived'
 	 *                                                   - 'public'
 	 *                                                   - false, an empty array, or 'none' to disable `ORDER BY` clause.
@@ -794,7 +793,6 @@ class WP_Site_Query {
 			case 'path':
 			case 'registered':
 			case 'deleted':
-			case 'spam':
 			case 'archived':
 			case 'public':
 				$parsed = $orderby;

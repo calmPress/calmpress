@@ -1101,7 +1101,7 @@ function is_user_member_of_blog( $user_id = 0, $blog_id = 0 ) {
 
 	$blog = get_site( $blog_id );
 
-	if ( ! $blog || ! isset( $blog->domain ) || $blog->archived || $blog->spam || $blog->deleted ) {
+	if ( ! $blog || ! isset( $blog->domain ) || $blog->archived || $blog->deleted ) {
 		return false;
 	}
 

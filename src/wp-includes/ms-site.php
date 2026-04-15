@@ -1093,30 +1093,6 @@ function wp_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 		$old_site = new WP_Site( new stdClass() );
 	}
 
-	if ( $new_site->spam !== $old_site->spam ) {
-		if ( '1' === $new_site->spam ) {
-
-			/**
-			 * Fires when the 'spam' status is added to a site.
-			 *
-			 * @since MU (3.0.0)
-			 *
-			 * @param int $site_id Site ID.
-			 */
-			do_action( 'make_spam_blog', $site_id );
-		} else {
-
-			/**
-			 * Fires when the 'spam' status is removed from a site.
-			 *
-			 * @since MU (3.0.0)
-			 *
-			 * @param int $site_id Site ID.
-			 */
-			do_action( 'make_ham_blog', $site_id );
-		}
-	}
-
 	if ( $new_site->archived !== $old_site->archived ) {
 		if ( '1' === $new_site->archived ) {
 

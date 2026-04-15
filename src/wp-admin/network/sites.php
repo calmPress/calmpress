@@ -204,12 +204,6 @@ if ( isset( $_GET['action'] ) ) {
 								require_once ABSPATH . 'wp-admin/admin-footer.php';
 								exit;
 							break;
-
-							case 'spam':
-							case 'notspam':
-								$updated_action = ( 'spam' === $doaction ) ? 'all_spam' : 'all_notspam';
-								update_blog_status( $site_id, 'spam', ( 'spam' === $doaction ) ? '1' : '0' );
-								break;
 						}
 					} else {
 						wp_die( __( 'Sorry, you are not allowed to change the current site.' ) );
@@ -286,12 +280,6 @@ if ( isset( $_GET['updated'] ) ) {
 	$action = $_GET['updated'];
 
 	switch ( $action ) {
-		case 'all_notspam':
-			$msg = __( 'Sites removed from spam.' );
-			break;
-		case 'all_spam':
-			$msg = __( 'Sites marked as spam.' );
-			break;
 		case 'all_delete':
 			$msg = __( 'Sites permanently deleted.' );
 			break;

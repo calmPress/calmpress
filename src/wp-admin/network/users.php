@@ -77,49 +77,6 @@ if ( isset( $_GET['action'] ) ) {
 
 								require_once ABSPATH . 'wp-admin/admin-footer.php';
 								exit;
-
-							case 'spam':
-								$user = get_userdata( $user_id );
-								if ( is_super_admin( $user->ID ) ) {
-									wp_die(
-										sprintf(
-											/* translators: %s: User login. */
-											__( 'Warning! User cannot be modified. The user %s is a network administrator.' ),
-											esc_html( $user->user_login )
-										)
-									);
-								}
-
-								$userfunction = 'all_spam';
-								$blogs        = get_blogs_of_user( $user_id, true );
-
-								foreach ( (array) $blogs as $details ) {
-									if ( ! is_main_site( $details->userblog_id ) ) { // Main site is not a spam!
-										update_blog_status( $details->userblog_id, 'spam', '1' );
-									}
-								}
-
-								$user_data         = $user->to_array();
-								$user_data['spam'] = '1';
-
-								wp_update_user( $user_data );
-								break;
-
-							case 'notspam':
-								$user = get_userdata( $user_id );
-
-								$userfunction = 'all_notspam';
-								$blogs        = get_blogs_of_user( $user_id, true );
-
-								foreach ( (array) $blogs as $details ) {
-									update_blog_status( $details->userblog_id, 'spam', '0' );
-								}
-
-								$user_data         = $user->to_array();
-								$user_data['spam'] = '0';
-
-								wp_update_user( $user_data );
-								break;
 						}
 					}
 				}
@@ -238,12 +195,6 @@ if ( isset( $_REQUEST['updated'] ) && 'true' === $_REQUEST['updated'] && ! empty
 	switch ( $_REQUEST['action'] ) {
 		case 'delete':
 			$message = __( 'User deleted.' );
-			break;
-		case 'all_spam':
-			$message = __( 'Users marked as spam.' );
-			break;
-		case 'all_notspam':
-			$message = __( 'Users removed from spam.' );
 			break;
 		case 'all_delete':
 			$message = __( 'Users deleted.' );

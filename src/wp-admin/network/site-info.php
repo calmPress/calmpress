@@ -193,7 +193,6 @@ if ( ! empty( $messages ) ) {
 		$attribute_fields = array( 'public' => _x( 'Public', 'site' ) );
 		if ( ! $is_main_site ) {
 			$attribute_fields['archived'] = __( 'Archived' );
-			$attribute_fields['spam']     = _x( 'Spam', 'site' );
 			$attribute_fields['deleted']  = __( 'Flagged for Deletion' );
 		}
 		?>

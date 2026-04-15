@@ -8,14 +8,6 @@
 class Tests_Multisite_UpdateBlogStatus extends WP_UnitTestCase {
 
 	/**
-	 * Updating a field returns the same value that was passed.
-	 */
-	public function test_update_blog_status() {
-		$result = update_blog_status( 1, 'spam', 0 );
-		$this->assertSame( 0, $result );
-	}
-
-	/**
 	 * Updating an invalid field returns the same value that was passed.
 	 */
 	public function test_update_blog_status_invalid_status() {

@@ -113,8 +113,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 		if ( current_user_can( 'delete_users' ) ) {
 			$actions['delete'] = __( 'Delete' );
 		}
-		$actions['spam']    = _x( 'Mark as spam', 'user' );
-		$actions['notspam'] = _x( 'Not spam', 'user' );
 
 		return $actions;
 	}
@@ -388,10 +386,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 			$actions         = array();
 			$actions['edit'] = '<a href="' . esc_url( network_admin_url( 'site-info.php?id=' . $site->userblog_id ) ) . '">' . __( 'Edit' ) . '</a>';
 
-			$class = '';
-			if ( 1 === (int) $site->spam ) {
-				$class .= 'site-spammed ';
-			}
 			if ( 1 === (int) $site->deleted ) {
 				$class .= 'site-deleted ';
 			}
@@ -466,7 +460,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 			$class = '';
 
 			$status_list = array(
-				'spam'    => 'site-spammed',
 				'deleted' => 'site-deleted',
 			);
 
