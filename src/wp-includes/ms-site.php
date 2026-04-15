@@ -1117,30 +1117,6 @@ function wp_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 		}
 	}
 
-	if ( $new_site->mature !== $old_site->mature ) {
-		if ( '1' === $new_site->mature ) {
-
-			/**
-			 * Fires when the 'mature' status is added to a site.
-			 *
-			 * @since 3.1.0
-			 *
-			 * @param int $site_id Site ID.
-			 */
-			do_action( 'mature_blog', $site_id );
-		} else {
-
-			/**
-			 * Fires when the 'mature' status is removed from a site.
-			 *
-			 * @since 3.1.0
-			 *
-			 * @param int $site_id Site ID.
-			 */
-			do_action( 'unmature_blog', $site_id );
-		}
-	}
-
 	if ( $new_site->archived !== $old_site->archived ) {
 		if ( '1' === $new_site->archived ) {
 

@@ -141,7 +141,6 @@ class WP_Site_Query {
 	 *                                                   - 'site__in'
 	 *                                                   - 'network__in'
 	 *                                                   - 'deleted'
-	 *                                                   - 'mature'
 	 *                                                   - 'spam'
 	 *                                                   - 'archived'
 	 *                                                   - 'public'
@@ -796,7 +795,6 @@ class WP_Site_Query {
 			case 'registered':
 			case 'deleted':
 			case 'spam':
-			case 'mature':
 			case 'archived':
 			case 'public':
 				$parsed = $orderby;
