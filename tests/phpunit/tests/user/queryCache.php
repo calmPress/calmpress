@@ -299,9 +299,6 @@ class Tests_User_Query_Cache extends WP_UnitTestCase {
 		);
 
 		if ( is_multisite() ) {
-			$data['spam']    = array(
-				'args' => array( 'fields' => array( 'spam' ) ),
-			);
 			$data['deleted'] = array(
 				'args' => array( 'fields' => array( 'deleted' ) ),
 			);

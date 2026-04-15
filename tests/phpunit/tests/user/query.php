@@ -2058,10 +2058,6 @@ class Tests_User_Query extends WP_UnitTestCase {
 		);
 
 		if ( is_multisite() ) {
-			$data['spam']    = array(
-				'fields'   => 'spam',
-				'expected' => array( '0' ),
-			);
 			$data['deleted'] = array(
 				'fields'   => 'deleted',
 				'expected' => array( '0' ),
@@ -2167,10 +2163,6 @@ class Tests_User_Query extends WP_UnitTestCase {
 		);
 
 		if ( is_multisite() ) {
-			$data['spam']    = array(
-				'fields'   => array( 'spam' ),
-				'expected' => array( 'spam' => '0' ),
-			);
 			$data['deleted'] = array(
 				'fields'   => array( 'deleted' ),
 				'expected' => array( 'deleted' => '0' ),
@@ -2202,10 +2194,10 @@ class Tests_User_Query extends WP_UnitTestCase {
 			'user_activation_key' => '',
 			'user_status'         => '0',
 			'display_name'        => 'Admin',
+			'spam'                => '0', // Getting it because we didn't change DB structrure from wordpress one.
 		);
 
 		if ( is_multisite() ) {
-			$expected_results['spam']    = '0';
 			$expected_results['deleted'] = '0';
 		}
 
