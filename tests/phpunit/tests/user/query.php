@@ -2194,11 +2194,11 @@ class Tests_User_Query extends WP_UnitTestCase {
 			'user_activation_key' => '',
 			'user_status'         => '0',
 			'display_name'        => 'Admin',
-			'spam'                => '0', // Getting it because we didn't change DB structrure from wordpress one.
 		);
 
 		if ( is_multisite() ) {
 			$expected_results['deleted'] = '0';
+			$expected_results['spam']    = '0'; // Getting it because we didn't change DB structrure from wordpress one.
 		}
 
 		// These change for each run.
