@@ -242,10 +242,8 @@ function install_dashboard() {
  *
  * @since 2.7.0
  * @since 4.6.0 The `$type_selector` parameter was deprecated.
- *
- * @param bool $deprecated Not used.
  */
-function install_search_form( $deprecated = true ) {
+function install_search_form() {
 	$type = isset( $_REQUEST['type'] ) ? wp_unslash( $_REQUEST['type'] ) : 'term';
 	$term = isset( $_REQUEST['s'] ) ? urldecode( wp_unslash( $_REQUEST['s'] ) ) : '';
 	?>

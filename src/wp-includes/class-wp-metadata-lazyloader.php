@@ -129,41 +129,6 @@ class WP_Metadata_Lazyloader {
 	}
 
 	/**
-	 * Lazy-loads term meta for queued terms.
-	 *
-	 * This method is public so that it can be used as a filter callback. As a rule, there
-	 * is no need to invoke it directly.
-	 *
-	 * @since 4.5.0
-	 * @deprecated 6.3.0 Use WP_Metadata_Lazyloader::lazyload_meta_callback() instead.
-	 *
-	 * @param mixed $check The `$check` param passed from the 'get_term_metadata' hook.
-	 * @return mixed In order not to short-circuit `get_metadata()`. Generally, this is `null`, but it could be
-	 *               another value if filtered by a plugin.
-	 */
-	public function lazyload_term_meta( $check ) {
-		_deprecated_function( __METHOD__, '6.3.0', 'WP_Metadata_Lazyloader::lazyload_meta_callback' );
-		return $this->lazyload_meta_callback( $check, 0, '', false, 'term' );
-	}
-
-	/**
-	 * Lazy-loads comment meta for queued comments.
-	 *
-	 * This method is public so that it can be used as a filter callback. As a rule, there is no need to invoke it
-	 * directly, from either inside or outside the `WP_Query` object.
-	 *
-	 * @since 4.5.0
-	 * @deprecated 6.3.0 Use WP_Metadata_Lazyloader::lazyload_meta_callback() instead.
-	 *
-	 * @param mixed $check The `$check` param passed from the {@see 'get_comment_metadata'} hook.
-	 * @return mixed The original value of `$check`, so as not to short-circuit `get_comment_metadata()`.
-	 */
-	public function lazyload_comment_meta( $check ) {
-		_deprecated_function( __METHOD__, '6.3.0', 'WP_Metadata_Lazyloader::lazyload_meta_callback' );
-		return $this->lazyload_meta_callback( $check, 0, '', false, 'comment' );
-	}
-
-	/**
 	 * Lazy-loads meta for queued objects.
 	 *
 	 * This method is public so that it can be used as a filter callback. As a rule, there

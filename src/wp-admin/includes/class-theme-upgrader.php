@@ -588,13 +588,10 @@ class Theme_Upgrader extends WP_Upgrader {
 		/*
 		 * Parent themes must contain an index file:
 		 * - classic themes require /index.php
-		 * - block themes require /templates/index.html or block-templates/index.html (deprecated 5.9.0).
 		 */
 		if (
 			empty( $new_theme_data['Template'] ) &&
-			! file_exists( $working_directory . 'index.php' ) &&
-			! file_exists( $working_directory . 'templates/index.html' ) &&
-			! file_exists( $working_directory . 'block-templates/index.html' )
+			! file_exists( $working_directory . 'index.php' )
 		) {
 			return new WP_Error(
 				'incompatible_archive_theme_no_index',

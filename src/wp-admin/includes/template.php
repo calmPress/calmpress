@@ -1455,9 +1455,8 @@ function _admin_search_query() {
  * @global WP_Locale $wp_locale        WordPress date and time locale object.
  *
  * @param string $title      Optional. Title of the Iframe page. Default empty.
- * @param bool   $deprecated Not used.
  */
-function iframe_header( $title = '', $deprecated = false ) {
+function iframe_header( $title = '' ) {
 	global $hook_suffix, $admin_body_class, $body_id, $wp_locale;
 
 	show_admin_bar( false );

@@ -81,9 +81,6 @@ require_once ABSPATH . 'wp-admin/includes/class-wp-site-icon.php';
 /** WordPress Update Administration API */
 require_once ABSPATH . 'wp-admin/includes/update.php';
 
-/** WordPress Deprecated Administration API */
-require_once ABSPATH . 'wp-admin/includes/deprecated.php';
-
 // calmPress admin_post handlers.
 require ABSPATH . WPINC . '/calmpress/admin-post-handlers.php';
 

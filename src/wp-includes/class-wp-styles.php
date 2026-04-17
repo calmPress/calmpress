@@ -59,15 +59,6 @@ class WP_Styles extends WP_Dependencies {
 	public $concat = '';
 
 	/**
-	 * Holds a string which contains style handles and their version.
-	 *
-	 * @since 2.8.0
-	 * @deprecated 3.4.0
-	 * @var string
-	 */
-	public $concat_version = '';
-
-	/**
 	 * Whether to perform concatenation.
 	 *
 	 * @since 2.8.0
@@ -184,7 +175,6 @@ class WP_Styles extends WP_Dependencies {
 		if ( $this->do_concat ) {
 			if ( $this->in_default_dir( $src ) && ! isset( $obj->extra['alt'] ) ) {
 				$this->concat         .= "$handle,";
-				$this->concat_version .= "$handle$ver";
 
 				$this->print_code .= $inline_style;
 
@@ -486,7 +476,6 @@ class WP_Styles extends WP_Dependencies {
 	public function reset() {
 		$this->do_concat      = false;
 		$this->concat         = '';
-		$this->concat_version = '';
 		$this->print_html     = '';
 	}
 

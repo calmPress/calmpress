@@ -532,95 +532,6 @@ class WP_Http {
 	}
 
 	/**
-	 * Tests which transports are capable of supporting the request.
-	 *
-	 * @since 3.2.0
-	 * @deprecated 6.4.0 Use WpOrg\Requests\Requests::get_transport_class()
-	 * @see WpOrg\Requests\Requests::get_transport_class()
-	 *
-	 * @param array  $args Request arguments.
-	 * @param string $url  URL to request.
-	 * @return string|false Class name for the first transport that claims to support the request.
-	 *                      False if no transport claims to support the request.
-	 */
-	public function _get_first_available_transport( $args, $url = null ) {
-		$transports = array( 'curl', 'streams' );
-
-		/**
-		 * Filters which HTTP transports are available and in what order.
-		 *
-		 * @since 3.7.0
-		 * @deprecated 6.4.0 Use WpOrg\Requests\Requests::get_transport_class()
-		 *
-		 * @param string[] $transports Array of HTTP transports to check. Default array contains
-		 *                             'curl' and 'streams', in that order.
-		 * @param array    $args       HTTP request arguments.
-		 * @param string   $url        The URL to request.
-		 */
-		$request_order = apply_filters_deprecated( 'http_api_transports', array( $transports, $args, $url ), '6.4.0' );
-
-		// Loop over each transport on each HTTP request looking for one which will serve this request's needs.
-		foreach ( $request_order as $transport ) {
-			if ( in_array( $transport, $transports, true ) ) {
-				$transport = ucfirst( $transport );
-			}
-			$class = 'WP_Http_' . $transport;
-
-			// Check to see if this transport is a possibility, calls the transport statically.
-			if ( ! call_user_func( array( $class, 'test' ), $args, $url ) ) {
-				continue;
-			}
-
-			return $class;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Dispatches a HTTP request to a supporting transport.
-	 *
-	 * Tests each transport in order to find a transport which matches the request arguments.
-	 * Also caches the transport instance to be used later.
-	 *
-	 * The order for requests is cURL, and then PHP Streams.
-	 *
-	 * @since 3.2.0
-	 * @deprecated 5.1.0 Use WP_Http::request()
-	 * @see WP_Http::request()
-	 *
-	 * @param string $url  URL to request.
-	 * @param array  $args Request arguments.
-	 * @return array|WP_Error Array containing 'headers', 'body', 'response', 'cookies', 'filename'.
-	 *                        A WP_Error instance upon error.
-	 */
-	private function _dispatch_request( $url, $args ) {
-		static $transports = array();
-
-		$class = $this->_get_first_available_transport( $args, $url );
-		if ( ! $class ) {
-			return new WP_Error( 'http_failure', 'There are no HTTP transports available which can complete the requested request.' );
-		}
-
-		// Transport claims to support request, instantiate it and give it a whirl.
-		if ( empty( $transports[ $class ] ) ) {
-			$transports[ $class ] = new $class();
-		}
-
-		$response = $transports[ $class ]->request( $url, $args );
-
-		/** This action is documented in wp-includes/class-wp-http.php */
-		do_action( 'http_api_debug', $response, 'response', $class, $args, $url );
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		/** This filter is documented in wp-includes/class-wp-http.php */
-		return apply_filters( 'http_response', $response, $args, $url );
-	}
-
-	/**
 	 * Uses the POST HTTP method.
 	 *
 	 * Used for sending data that is expected to be in the body.
@@ -941,21 +852,6 @@ class WP_Http {
 		} else {
 			return ! in_array( $check['host'], $accessible_hosts, true ); // Inverse logic, if it's in the array, then don't block it.
 		}
-	}
-
-	/**
-	 * Used as a wrapper for PHP's parse_url() function that handles edgecases in < PHP 5.4.7.
-	 *
-	 * @deprecated 4.4.0 Use wp_parse_url()
-	 * @see wp_parse_url()
-	 *
-	 * @param string $url The URL to parse.
-	 * @return bool|array False on failure; Array of URL components on success;
-	 *                    See parse_url()'s return values.
-	 */
-	protected static function parse_url( $url ) {
-		_deprecated_function( __METHOD__, '4.4.0', 'wp_parse_url()' );
-		return wp_parse_url( $url );
 	}
 
 	/**

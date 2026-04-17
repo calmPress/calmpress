@@ -258,7 +258,11 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 */
 	public function test_filter_button_should_not_be_shown_if_there_are_no_posts() {
 		// Set post type to a non-existent one.
-		$this->table->screen->post_type = 'foo';
+		$reflection = new ReflectionClass( $this->table );
+		$property   = $reflection->getProperty( 'screen' );
+		$screen     = $property->getValue( $this->table );
+		
+		$screen->post_type = 'foo';
 
 		ob_start();
 		$this->table->extra_tablenav( 'top' );
@@ -274,7 +278,11 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 */
 	public function test_months_dropdown_should_not_be_shown_if_there_are_no_posts() {
 		// Set post type to a non-existent one.
-		$this->table->screen->post_type = 'foo';
+		$reflection = new ReflectionClass( $this->table );
+		$property   = $reflection->getProperty( 'screen' );
+		$screen     = $property->getValue( $this->table );
+		
+		$screen->post_type = 'foo';
 
 		ob_start();
 		$this->table->extra_tablenav( 'top' );
@@ -290,7 +298,11 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 */
 	public function test_category_dropdown_should_not_be_shown_if_there_are_no_posts() {
 		// Set post type to a non-existent one.
-		$this->table->screen->post_type = 'foo';
+		$reflection = new ReflectionClass( $this->table );
+		$property   = $reflection->getProperty( 'screen' );
+		$screen     = $property->getValue( $this->table );
+		
+		$screen->post_type = 'foo';
 
 		ob_start();
 		$this->table->extra_tablenav( 'top' );
@@ -306,7 +318,11 @@ class Tests_Admin_wpPostsListTable extends WP_UnitTestCase {
 	 */
 	public function test_empty_trash_button_should_not_be_shown_if_there_are_no_posts() {
 		// Set post type to a non-existent one.
-		$this->table->screen->post_type = 'foo';
+		$reflection = new ReflectionClass( $this->table );
+		$property   = $reflection->getProperty( 'screen' );
+		$screen     = $property->getValue( $this->table );
+		
+		$screen->post_type = 'foo';
 
 		ob_start();
 		$this->table->extra_tablenav( 'top' );

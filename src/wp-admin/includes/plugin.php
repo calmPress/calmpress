@@ -882,11 +882,10 @@ function activate_plugins( $plugins, $redirect = '', $network_wide = false, $sil
  * @global WP_Filesystem_Base $wp_filesystem WordPress filesystem subclass.
  *
  * @param string[] $plugins    List of plugin paths to delete, relative to the plugins directory.
- * @param string   $deprecated Not used.
  * @return bool|null|WP_Error True on success, false if `$plugins` is empty, `WP_Error` on failure.
  *                            `null` if filesystem credentials are required to proceed.
  */
-function delete_plugins( $plugins, $deprecated = '' ) {
+function delete_plugins( $plugins ) {
 	global $wp_filesystem;
 
 	if ( empty( $plugins ) ) {

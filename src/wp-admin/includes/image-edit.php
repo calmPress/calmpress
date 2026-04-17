@@ -362,43 +362,7 @@ function wp_stream_image( $image, $mime_type, $attachment_id ) {
 	} else {
 		/* translators: 1: $image, 2: WP_Image_Editor */
 		_deprecated_argument( __FUNCTION__, '3.5.0', sprintf( __( '%1$s needs to be a %2$s object.' ), '$image', 'WP_Image_Editor' ) );
-
-		/**
-		 * Filters the GD image resource to be streamed to the browser.
-		 *
-		 * @since 2.9.0
-		 * @deprecated 3.5.0 Use {@see 'image_editor_save_pre'} instead.
-		 *
-		 * @param resource|GdImage $image         Image resource to be streamed.
-		 * @param int              $attachment_id The attachment post ID.
-		 */
-		$image = apply_filters_deprecated( 'image_save_pre', array( $image, $attachment_id ), '3.5.0', 'image_editor_save_pre' );
-
-		switch ( $mime_type ) {
-			case 'image/jpeg':
-				header( 'Content-Type: image/jpeg' );
-				return imagejpeg( $image, null, 90 );
-			case 'image/png':
-				header( 'Content-Type: image/png' );
-				return imagepng( $image );
-			case 'image/gif':
-				header( 'Content-Type: image/gif' );
-				return imagegif( $image );
-			case 'image/webp':
-				if ( function_exists( 'imagewebp' ) ) {
-					header( 'Content-Type: image/webp' );
-					return imagewebp( $image, null, 90 );
-				}
-				return false;
-			case 'image/avif':
-				if ( function_exists( 'imageavif' ) ) {
-					header( 'Content-Type: image/avif' );
-					return imageavif( $image, null, 90 );
-				}
-				return false;
-			default:
-				return false;
-		}
+		return false;
 	}
 }
 
@@ -457,57 +421,7 @@ function wp_save_image_file( $filename, $image, $mime_type, $post_id ) {
 	} else {
 		/* translators: 1: $image, 2: WP_Image_Editor */
 		_deprecated_argument( __FUNCTION__, '3.5.0', sprintf( __( '%1$s needs to be a %2$s object.' ), '$image', 'WP_Image_Editor' ) );
-
-		/** This filter is documented in wp-admin/includes/image-edit.php */
-		$image = apply_filters_deprecated( 'image_save_pre', array( $image, $post_id ), '3.5.0', 'image_editor_save_pre' );
-
-		/**
-		 * Filters whether to skip saving the image file.
-		 *
-		 * Returning a non-null value will short-circuit the save method,
-		 * returning that value instead.
-		 *
-		 * @since 2.9.0
-		 * @deprecated 3.5.0 Use {@see 'wp_save_image_editor_file'} instead.
-		 *
-		 * @param bool|null        $override  Value to return instead of saving. Default null.
-		 * @param string           $filename  Name of the file to be saved.
-		 * @param resource|GdImage $image     Image resource or GdImage instance.
-		 * @param string           $mime_type The mime type of the image.
-		 * @param int              $post_id   Attachment post ID.
-		 */
-		$saved = apply_filters_deprecated(
-			'wp_save_image_file',
-			array( null, $filename, $image, $mime_type, $post_id ),
-			'3.5.0',
-			'wp_save_image_editor_file'
-		);
-
-		if ( null !== $saved ) {
-			return $saved;
-		}
-
-		switch ( $mime_type ) {
-			case 'image/jpeg':
-				/** This filter is documented in wp-includes/class-wp-image-editor.php */
-				return imagejpeg( $image, $filename, apply_filters( 'jpeg_quality', 90, 'edit_image' ) );
-			case 'image/png':
-				return imagepng( $image, $filename );
-			case 'image/gif':
-				return imagegif( $image, $filename );
-			case 'image/webp':
-				if ( function_exists( 'imagewebp' ) ) {
-					return imagewebp( $image, $filename );
-				}
-				return false;
-			case 'image/avif':
-				if ( function_exists( 'imageavif' ) ) {
-					return imageavif( $image, $filename );
-				}
-				return false;
-			default:
-				return false;
-		}
+		return false;
 	}
 }
 
@@ -524,74 +438,6 @@ function wp_save_image_file( $filename, $image, $mime_type, $post_id ) {
 function _image_get_preview_ratio( $w, $h ) {
 	$max = max( $w, $h );
 	return $max > 600 ? ( 600 / $max ) : 1;
-}
-
-/**
- * Returns an image resource. Internal use only.
- *
- * @since 2.9.0
- * @deprecated 3.5.0 Use WP_Image_Editor::rotate()
- * @see WP_Image_Editor::rotate()
- *
- * @ignore
- * @param resource|GdImage $img   Image resource.
- * @param float|int        $angle Image rotation angle, in degrees.
- * @return resource|GdImage|false GD image resource or GdImage instance, false otherwise.
- */
-function _rotate_image_resource( $img, $angle ) {
-	_deprecated_function( __FUNCTION__, '3.5.0', 'WP_Image_Editor::rotate()' );
-
-	if ( function_exists( 'imagerotate' ) ) {
-		$rotated = imagerotate( $img, $angle, 0 );
-
-		if ( is_gd_image( $rotated ) ) {
-			if ( PHP_VERSION_ID < 80000 ) { // imagedestroy() has no effect as of PHP 8.0.
-				imagedestroy( $img );
-			}
-
-			$img = $rotated;
-		}
-	}
-
-	return $img;
-}
-
-/**
- * Flips an image resource. Internal use only.
- *
- * @since 2.9.0
- * @deprecated 3.5.0 Use WP_Image_Editor::flip()
- * @see WP_Image_Editor::flip()
- *
- * @ignore
- * @param resource|GdImage $img  Image resource or GdImage instance.
- * @param bool             $horz Whether to flip horizontally.
- * @param bool             $vert Whether to flip vertically.
- * @return resource|GdImage (maybe) flipped image resource or GdImage instance.
- */
-function _flip_image_resource( $img, $horz, $vert ) {
-	_deprecated_function( __FUNCTION__, '3.5.0', 'WP_Image_Editor::flip()' );
-
-	$w   = imagesx( $img );
-	$h   = imagesy( $img );
-	$dst = wp_imagecreatetruecolor( $w, $h );
-
-	if ( is_gd_image( $dst ) ) {
-		$sx = $vert ? ( $w - 1 ) : 0;
-		$sy = $horz ? ( $h - 1 ) : 0;
-		$sw = $vert ? -$w : $w;
-		$sh = $horz ? -$h : $h;
-
-		if ( imagecopyresampled( $dst, $img, 0, 0, $sx, $sy, $w, $h, $sw, $sh ) ) {
-			if ( PHP_VERSION_ID < 80000 ) { // imagedestroy() has no effect as of PHP 8.0.
-				imagedestroy( $img );
-			}
-
-			$img = $dst;
-		}
-	}
-
-	return $img;
 }
 
 /**
@@ -703,17 +549,6 @@ function image_edit_apply_changes( $image, $changes ) {
 		 */
 		$image = apply_filters( 'wp_image_editor_before_change', $image, $changes );
 	} elseif ( is_gd_image( $image ) ) {
-
-		/**
-		 * Filters the GD image resource before applying changes to the image.
-		 *
-		 * @since 2.9.0
-		 * @deprecated 3.5.0 Use {@see 'wp_image_editor_before_change'} instead.
-		 *
-		 * @param resource|GdImage $image   GD image resource or GdImage instance.
-		 * @param array            $changes Array of change operations.
-		 */
-		$image = apply_filters_deprecated( 'image_edit_before_change', array( $image, $changes ), '3.5.0', 'wp_image_editor_before_change' );
 	}
 
 	foreach ( $changes as $operation ) {

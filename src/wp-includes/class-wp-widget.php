@@ -384,10 +384,8 @@ class WP_Widget {
 	 * @since 2.8.0
 	 *
 	 * @global array $wp_registered_widgets
-	 *
-	 * @param int $deprecated Not used.
 	 */
-	public function update_callback( $deprecated = 1 ) {
+	public function update_callback() {
 		global $wp_registered_widgets;
 
 		$all_instances = $this->get_settings();

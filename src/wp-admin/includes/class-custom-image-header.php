@@ -1268,37 +1268,6 @@ endif;
 	}
 
 	/**
-	 * Creates an attachment 'object'.
-	 *
-	 * @since 3.9.0
-	 * @deprecated 6.5.0
-	 *
-	 * @param string $cropped              Cropped image URL.
-	 * @param int    $parent_attachment_id Attachment ID of parent image.
-	 * @return array An array with attachment object data.
-	 */
-	final public function create_attachment_object( $cropped, $parent_attachment_id ) {
-		_deprecated_function( __METHOD__, '6.5.0', 'wp_copy_parent_attachment_properties()' );
-		$parent     = get_post( $parent_attachment_id );
-		$parent_url = wp_get_attachment_url( $parent->ID );
-		$url        = str_replace( wp_basename( $parent_url ), wp_basename( $cropped ), $parent_url );
-
-		$size       = wp_getimagesize( $cropped );
-		$image_type = ( $size ) ? $size['mime'] : 'image/jpeg';
-
-		$attachment = array(
-			'ID'             => $parent_attachment_id,
-			'post_title'     => wp_basename( $cropped ),
-			'post_mime_type' => $image_type,
-			'guid'           => $url,
-			'context'        => 'custom-header',
-			'post_parent'    => $parent_attachment_id,
-		);
-
-		return $attachment;
-	}
-
-	/**
 	 * Inserts an attachment and its metadata.
 	 *
 	 * @since 3.9.0

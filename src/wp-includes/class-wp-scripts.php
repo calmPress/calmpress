@@ -59,15 +59,6 @@ class WP_Scripts extends WP_Dependencies {
 	public $concat = '';
 
 	/**
-	 * Holds a string which contains script handles and their version.
-	 *
-	 * @since 2.8.0
-	 * @deprecated 3.4.0
-	 * @var string
-	 */
-	public $concat_version = '';
-
-	/**
 	 * Whether to perform concatenation.
 	 *
 	 * @since 2.8.0
@@ -183,26 +174,6 @@ class WP_Scripts extends WP_Dependencies {
 	 */
 	public function print_scripts( $handles = false, $group = false ) {
 		return $this->do_items( $handles, $group );
-	}
-
-	/**
-	 * Prints extra scripts of a registered script.
-	 *
-	 * @since 2.1.0
-	 * @since 2.8.0 Added the `$display` parameter.
-	 * @deprecated 3.3.0
-	 *
-	 * @see print_extra_script()
-	 *
-	 * @param string $handle  The script's registered handle.
-	 * @param bool   $display Optional. Whether to print the extra script
-	 *                        instead of just returning it. Default true.
-	 * @return bool|string|void Void if no data exists, extra scripts if `$display` is true,
-	 *                          true otherwise.
-	 */
-	public function print_scripts_l10n( $handle, $display = true ) {
-		_deprecated_function( __FUNCTION__, '3.3.0', 'WP_Scripts::print_extra_script()' );
-		return $this->print_extra_script( $handle, $display );
 	}
 
 	/**
@@ -385,7 +356,6 @@ class WP_Scripts extends WP_Dependencies {
 			} elseif ( $this->in_default_dir( $filtered_src ) ) {
 				$this->print_code     .= $this->print_extra_script( $handle, false );
 				$this->concat         .= "$handle,";
-				$this->concat_version .= "$handle$ver";
 				return true;
 			} else {
 				$this->ext_handles .= "$handle,";
@@ -523,34 +493,6 @@ class WP_Scripts extends WP_Dependencies {
 		$script[] = $data;
 
 		return $this->add_data( $handle, $position, $script );
-	}
-
-	/**
-	 * Prints inline scripts registered for a specific handle.
-	 *
-	 * @since 4.5.0
-	 * @deprecated 6.3.0 Use methods get_inline_script_tag() or get_inline_script_data() instead.
-	 *
-	 * @param string $handle   Name of the script to print inline scripts for.
-	 *                         Must be lowercase.
-	 * @param string $position Optional. Whether to add the inline script
-	 *                         before the handle or after. Default 'after'.
-	 * @param bool   $display  Optional. Whether to print the script tag
-	 *                         instead of just returning the script data. Default true.
-	 * @return string|false Script data on success, false otherwise.
-	 */
-	public function print_inline_script( $handle, $position = 'after', $display = true ) {
-		_deprecated_function( __METHOD__, '6.3.0', 'WP_Scripts::get_inline_script_data() or WP_Scripts::get_inline_script_tag()' );
-
-		$output = $this->get_inline_script_data( $handle, $position );
-		if ( empty( $output ) ) {
-			return false;
-		}
-
-		if ( $display ) {
-			echo $this->get_inline_script_tag( $handle, $position );
-		}
-		return $output;
 	}
 
 	/**
@@ -1179,7 +1121,6 @@ JS;
 		$this->do_concat      = false;
 		$this->print_code     = '';
 		$this->concat         = '';
-		$this->concat_version = '';
 		$this->print_html     = '';
 		$this->ext_version    = '';
 		$this->ext_handles    = '';

@@ -29,7 +29,6 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 <table class="form-table" role="presentation">
 <?php
 do_settings_fields( 'writing', 'default' );
-do_settings_fields( 'writing', 'remote_publishing' ); // A deprecated section.
 ?>
 </table>
 

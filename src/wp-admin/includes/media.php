@@ -541,13 +541,6 @@ function wp_iframe( $content_func, ...$args ) {
 	<?php
 
 	wp_enqueue_style( 'colors' );
-	// Check callback name for 'media'.
-	if (
-		( is_array( $content_func ) && ! empty( $content_func[1] ) && str_starts_with( (string) $content_func[1], 'media' ) ) ||
-		( ! is_array( $content_func ) && str_starts_with( $content_func, 'media' ) )
-	) {
-		wp_enqueue_style( 'deprecated-media' );
-	}
 
 	?>
 	<script type="text/javascript">

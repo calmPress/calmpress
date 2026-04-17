@@ -129,7 +129,6 @@ class WP_Locale {
 	 */
 	public function __construct() {
 		$this->init();
-		$this->register_globals();
 	}
 
 	/**
@@ -372,28 +371,6 @@ class WP_Locale {
 	 */
 	public function get_meridiem( $meridiem ) {
 		return $this->meridiem[ $meridiem ];
-	}
-
-	/**
-	 * Global variables are deprecated.
-	 *
-	 * For backward compatibility only.
-	 *
-	 * @since 2.1.0
-	 * @deprecated For backward compatibility only.
-	 *
-	 * @global array $weekday
-	 * @global array $weekday_initial
-	 * @global array $weekday_abbrev
-	 * @global array $month
-	 * @global array $month_abbrev
-	 */
-	public function register_globals() {
-		$GLOBALS['weekday']         = $this->weekday;
-		$GLOBALS['weekday_initial'] = $this->weekday_initial;
-		$GLOBALS['weekday_abbrev']  = $this->weekday_abbrev;
-		$GLOBALS['month']           = $this->month;
-		$GLOBALS['month_abbrev']    = $this->month_abbrev;
 	}
 
 	/**

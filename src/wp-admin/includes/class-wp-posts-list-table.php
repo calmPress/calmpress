@@ -274,18 +274,13 @@ class WP_Posts_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * @global array $locked_post_status This seems to be deprecated.
 	 * @global array $avail_post_stati
 	 * @return array
 	 */
 	protected function get_views() {
-		global $locked_post_status, $avail_post_stati;
+		global $avail_post_stati;
 
 		$post_type = $this->screen->post_type;
-
-		if ( ! empty( $locked_post_status ) ) {
-			return array();
-		}
 
 		$status_links = array();
 		$num_posts    = wp_count_posts( $post_type, 'readable' );
