@@ -532,6 +532,10 @@ add_filter( 'print_scripts_array', 'wp_prototype_before_jquery' );
 add_action( 'customize_controls_print_styles', 'wp_resource_hints', 1 );
 add_action( 'admin_head', 'wp_check_widget_editor_deps' );
 
+// Block supports, and other styles parsed and stored in the Style Engine.
+add_action( 'wp_enqueue_scripts', 'wp_enqueue_stored_styles' );
+add_action( 'wp_footer', 'wp_enqueue_stored_styles', 1 );
+
 add_action( 'wp_default_styles', 'wp_default_styles' );
 add_filter( 'style_loader_src', 'wp_style_loader_src', 10, 2 );
 
