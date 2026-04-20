@@ -114,6 +114,30 @@ class Test_WP_Application_Passwords extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test if create_new_application_password generates error on creation of passwords with
+	 * same name.
+	 * 
+	 * Doing only a simple case testing.
+	 * @covers WP_Application_Passwords::create_new_application_password
+	 */
+	public function test_create_new_application_password_no_duplicates() {
+		// Create a passwords.
+		WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'test' ) );
+
+		// Test same case.
+		$actual = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'test' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $actual );
+		$this->assertSame( 'application_password_duplicate_name', $actual->get_error_code() );
+
+		// Test upper case.
+		$actual = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'TEST' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $actual );
+		$this->assertSame( 'application_password_duplicate_name', $actual->get_error_code() );
+	}
+
+	/**
 	 * @covers       WP_Application_Passwords::application_name_exists_for_user
 	 * @ticket       51941
 	 * @dataProvider data_application_name_exists_for_user
