@@ -102,6 +102,13 @@ class WP_Application_Passwords {
 			);
 		}
 
+		// Limit to 5 passwords to prevent users from bombing the DB
+		if ( count( static::get_user_application_passwords( $user_id ) ) >= 5 ) {
+			return new WP_Error(
+				'application_password_reached_per_user_limit',
+				__( 'Only 5 application passwords are allowed per user.' )
+			);
+		}
 		$new_password    = wp_generate_password( static::PW_LENGTH, false );
 		$hashed_password = self::hash_password( $new_password );
 

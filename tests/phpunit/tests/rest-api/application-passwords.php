@@ -138,6 +138,29 @@ class Test_WP_Application_Passwords extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test if create_new_application_password generates error if trying to have more than  vf 
+	 * 
+	 * Doing only a simple case testing.
+	 * @covers WP_Application_Passwords::create_new_application_password
+	 */
+	public function test_create_new_application_password_limit_enforcement() {
+		// Create a passwords.
+		WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'test' ) );
+		WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'test2' ) );
+		WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'test3' ) );
+		WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'test4' ) );
+
+		// 5 should pass.
+		$actual = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'test5' ) );
+		$this->assertFalse( $actual instanceof WP_Error );
+
+		// 6 fail.
+		$actual = WP_Application_Passwords::create_new_application_password( self::$user_id, array( 'name' => 'test6' ) );
+		$this->assertInstanceOf( WP_Error::class, $actual );
+		$this->assertSame( 'application_password_reached_per_user_limit', $actual->get_error_code() );
+	}
+
+	/**
 	 * @covers       WP_Application_Passwords::application_name_exists_for_user
 	 * @ticket       51941
 	 * @dataProvider data_application_name_exists_for_user
