@@ -989,17 +989,6 @@ table.form-table td .updated p {
 	cursor: pointer;
 }
 
-#application-passwords-section .notice {
-	margin-top: 20px;
-	margin-bottom: 0;
-	word-wrap: break-word;
-}
-
-.application-password-display input.code {
-	margin-bottom: 6px;
-	width: 19em;
-}
-
 .auth-app-card.card {
 	max-width: 768px;
 }

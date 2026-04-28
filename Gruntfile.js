@@ -321,7 +321,6 @@ module.exports = function(grunt) {
 			'admin-js': {
 				files: {
 					[ WORKING_DIR + 'wp-admin/js/accordion.js' ]: [ './src/js/_enqueues/lib/accordion.js' ],
-					[ WORKING_DIR + 'wp-admin/js/application-passwords.js' ]: [ './src/js/_enqueues/admin/application-passwords.js' ],
 					[ WORKING_DIR + 'wp-admin/js/auth-app.js' ]: [ './src/js/_enqueues/admin/auth-app.js' ],
 					[ WORKING_DIR + 'wp-admin/js/author.js' ]: [ './src/js/_enqueues/admin/author.js' ],
 					[ WORKING_DIR + 'wp-admin/js/backup.js' ]: [ './src/js/_enqueues/admin/backup.js' ],
@@ -879,7 +878,6 @@ module.exports = function(grunt) {
 			options: {
 				file_mappings: {
 					'src/wp-admin/js/accordion.js': 'src/js/_enqueues/lib/accordion.js',
-					'src/wp-admin/js/application-passwords.js': 'src/js/_enqueues/admin/application-passwords.js',
 					'src/wp-admin/js/auth-app.js': 'src/js/_enqueues/admin/auth-app.js',
 					'src/wp-admin/js/code-editor.js': 'src/js/_enqueues/wp/code-editor.js',
 					'src/wp-admin/js/color-picker.js': 'src/js/_enqueues/lib/color-picker.js',

@@ -32,7 +32,6 @@ function _get_list_table( $class_name, $args = array() ) {
 		'WP_Themes_List_Table'                        => 'themes',
 		'WP_Theme_Install_List_Table'                 => array( 'themes', 'theme-install' ),
 		'WP_Plugins_List_Table'                       => 'plugins',
-		'WP_Application_Passwords_List_Table'         => 'application-passwords',
 
 		// Network Admin.
 		'WP_MS_Sites_List_Table'                      => 'ms-sites',

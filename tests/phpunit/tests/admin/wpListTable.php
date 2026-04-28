@@ -90,7 +90,6 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 		 * untested.
 		 */
 		$list_primary_columns = array(
-			'WP_Application_Passwords_List_Table'         => 'name',
 			'WP_Comments_List_Table'                      => 'author',
 			'WP_Media_List_Table'                         => 'title',
 			'WP_MS_Sites_List_Table'                      => 'blogname',
