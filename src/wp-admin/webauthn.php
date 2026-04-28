@@ -41,7 +41,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 <p><?php esc_html_e( 'Any changes you make here are saved automatically.' ); ?></p>
 
 <?php // the section is enabled in JS ?>
-<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'webauthn_register_device_message' );?>
+<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'webauthn_register_device_message', true );?>
 <table id="register_device_webauthn" class="form-table" role="presentation" style="display:none">
 	<tr>
 		<th>
@@ -52,16 +52,16 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 		<td>
 			<input class="regular-text" id="new_webautn_device_name" name="new_webautn_device_name" value="" autocomplete="off" />
 			<p>
-				<button id="register_button" class="button"  type="button" disabled="disabled">
+				<button id="register_button" class="button" type="button" disabled="disabled">
 					<?php esc_html_e( 'Add Device' )?>
 				</button>
 			</p>
-			<p id="webauthn_new_device_button_desc" class="description"><?php esc_html_e( 'This text identifies the device in your account (for example, Office Laptop). It must be unique and not empty.' ); ?></p>
+			<p id="webauthn_new_device_button_desc" class="description"><?php esc_html_e( 'This will be the name identifying the device in your account (for example, Office Laptop). It must be unique and not empty.' ); ?></p>
 		</td>
 	</tr>
 </table>
 
-<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'webauthn_devices_table_message' );?>
+<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'webauthn_devices_table_message', true );?>
 <table id="webauthn_devices_table" class="form-table" role="presentation">
 	<tr>
 		<th>
@@ -121,7 +121,7 @@ var webauthn_can_add_device = <?php echo $current_user->webauthn_registered_devi
 					. '<button class="button edit" type="button" aria-expanded="false" aria-controls="webauthn_device_change___ROW__">'
 						. esc_html__( 'Edit' )
 					. '</button>'
-					. '<button class="button revoke" type="button" aria-describedby="webauthn_description_text___ROW__">'
+					. '<button class="button revoke" type="button" aria-describedby="webauthn_description_text__ROW__">'
 						. esc_html__( 'Revoke' )
 					. '</button>'
 				. '</td>'
