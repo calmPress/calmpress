@@ -1185,6 +1185,16 @@ function wp_default_scripts( $scripts ) {
 
 	$scripts->add( 'calm-webauthn', "/wp-admin/js/cp-webauthn$suffix.js", [ 'calm-utils' ], false, 1 );
 
+	$scripts->add( 'calm-application-passwords', "/wp-admin/js/cp-application-passwords$suffix.js", [ 'calm-utils' ], false, 1 );
+	did_action( 'init' ) && $scripts->localize(
+		'calm-application-passwords',
+		'application_passwordsL10n',
+		array(
+			'deleted' => __( 'Password deleted' ),
+			'can_add' => __( 'You can now create a new password' ),
+		)
+	);
+
 	$scripts->add( 'language-chooser', "/wp-admin/js/language-chooser$suffix.js", array( 'jquery' ), false, 1 );
 
 	$scripts->add( 'user-suggest', "/wp-admin/js/user-suggest$suffix.js", array( 'jquery-ui-autocomplete' ), false, 1 );
@@ -1566,6 +1576,7 @@ function wp_default_styles( $styles ) {
 	$styles->add( 'site-health', "/wp-admin/css/site-health$suffix.css" );
 	$styles->add( 'maintenance-mode', "/wp-admin/css/maintenance-mode$suffix.css" );
 	$styles->add( 'calm-webauthn', "/wp-admin/css/cp-webauthn$suffix.css" );
+	$styles->add( 'calm-application-passwords', "/wp-admin/css/cp-application-passwords$suffix.css" );
 
 	$styles->add( 'wp-admin', false, array( 'dashicons', 'common', 'forms', 'admin-menu', 'dashboard', 'list-tables', 'edit', 'revisions', 'media', 'themes', 'nav-menus', 'widgets', 'site-icon', 'l10n' ) );
 

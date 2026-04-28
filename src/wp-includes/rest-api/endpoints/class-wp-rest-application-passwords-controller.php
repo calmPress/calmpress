@@ -618,8 +618,11 @@ class WP_REST_Application_Passwords_Controller extends WP_REST_Controller {
 			'name'      => $item['name'],
 			'login'     => WP_Application_Passwords::get_user_application_login( $user->ID ),
 			'created'   => gmdate( 'Y-m-d\TH:i:s', $item['created'] ),
+			'created_human' => date_i18n( __( 'F j, Y' ), $item['created'] ),
 			'last_used' => $item['last_used'] ? gmdate( 'Y-m-d\TH:i:s', $item['last_used'] ) : null,
+			'last_used_human' => $item['last_used'] ? date_i18n( __( 'F j, Y' ), $item['last_used'] ) : null,
 			'last_ip'   => $item['last_ip'] ? $item['last_ip'] : null,
+			'can_add'   => WP_Application_Passwords::error_if_can_not_add_to_user( $user->ID ) === null,
 		);
 
 		if ( isset( $item['new_password'] ) ) {

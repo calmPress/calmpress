@@ -56,6 +56,27 @@ class WP_Application_Passwords {
 	}
 
 	/**
+	 * Check if the maximum number of password is already configured.
+	 * 
+	 * @since calmpress 1.0.0
+	 * 
+	 * @param int $user_id The user ID of the user to check for.
+	 * 
+	 * @return null|WP_Error An error is maximum number already used, null otherwise.
+	 */
+	public static function error_if_can_not_add_to_user( int $user_id ): null|WP_Error {
+		// Limit to 5 passwords to prevent users from bombing the DB
+		if ( count( static::get_user_application_passwords( $user_id ) ) >= 5 ) {
+			return new WP_Error(
+				'application_password_reached_per_user_limit',
+				__( 'Only 5 application passwords are allowed per user.' )
+			);
+		}
+
+		return null;
+	}
+
+	/**
 	 * Creates a new application password.
 	 *
 	 * @since 5.6.0
@@ -102,13 +123,11 @@ class WP_Application_Passwords {
 			);
 		}
 
-		// Limit to 5 passwords to prevent users from bombing the DB
-		if ( count( static::get_user_application_passwords( $user_id ) ) >= 5 ) {
-			return new WP_Error(
-				'application_password_reached_per_user_limit',
-				__( 'Only 5 application passwords are allowed per user.' )
-			);
+		$can_not_add = static::error_if_can_not_add_to_user( $user_id );
+		if ( $can_not_add !== null ) {
+			return $can_not_add;
 		}
+
 		$new_password    = wp_generate_password( static::PW_LENGTH, false );
 		$hashed_password = self::hash_password( $new_password );
 
@@ -329,6 +348,13 @@ class WP_Application_Passwords {
 
 			if ( ! empty( $update['name'] ) && $item['name'] !== $update['name'] ) {
 				$item['name'] = $update['name'];
+
+				if ( self::application_name_exists_for_user( $user_id, $item['name'] ) ) {
+					return new WP_Error(
+						'application_password_duplicate_name',
+						__( 'An application password with this name already exists.' )
+					);
+				}
 				$save         = true;
 			}
 

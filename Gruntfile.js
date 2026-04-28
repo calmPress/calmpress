@@ -379,6 +379,7 @@ module.exports = function(grunt) {
 					[ WORKING_DIR + 'wp-admin/js/wp-fullscreen-stub.js' ]: [ './src/js/_enqueues/deprecated/fullscreen-stub.js' ],
 					[ WORKING_DIR + 'wp-admin/js/xfn.js' ]: [ './src/js/_enqueues/admin/xfn.js' ],
 					[ WORKING_DIR + 'wp-admin/js/cp-webauthn.js' ]: [ './src/js/_enqueues/cp/webauthn.js' ],
+					[ WORKING_DIR + 'wp-admin/js/cp-application-passwords.js' ]: [ './src/js/_enqueues/cp/application-passwords.js' ],
 				}
 			},
 			'includes-js': {
@@ -1061,6 +1062,7 @@ module.exports = function(grunt) {
 					'src/wp-includes/js/cp-utils.js': 'src/js/_enqueues/cp/utils.js',
 					'src/wp-includes/js/cp-notice.js': 'src/js/_enqueues/cp/notice.js',
 					'src/wp-admin/js/cp-webauthn.js': 'src/js/_enqueues/cp/webauthn.js',
+					'src/wp-admin/js/cp-application-passwords.js': 'src/js/_enqueues/cp/application-passwords.js',
 				}
 			}
 		},
