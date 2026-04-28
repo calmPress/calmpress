@@ -34,10 +34,6 @@ if ( ! defined( 'IS_PROFILE_PAGE' ) ) {
 wp_enqueue_media();
 wp_enqueue_script( 'user-profile' );
 
-if ( wp_is_application_passwords_available_for_user( $user_id ) ) {
-	wp_enqueue_script( 'application-passwords' );
-}
-
 if ( IS_PROFILE_PAGE ) {
 	// Used in the HTML title tag.
 	$title = __( 'My account' );
@@ -272,7 +268,7 @@ switch ( $action ) {
 										?>
 									</p>
 								</div>
-								<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'verify-installer-notice' );?>
+								<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'verify-installer-notice', true );?>
 								<div>
 									<button id="verify-installer" class="button" type="button">
 										<?php esc_html_e( 'Send verification email' );?>
@@ -303,7 +299,7 @@ switch ( $action ) {
 											}
 										?>
 									</p>
-									<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'cancel-email-change-notice' );?>
+									<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'cancel-email-change-notice', true );?>
 									<p>
 										<button type="button" class="button button-secondary" id="cancel-email-change">
 											<?php esc_html_e( 'Cancle email change' ); ?>
@@ -419,7 +415,7 @@ switch ( $action ) {
 					<tr id="qrlink">
 						<th><?php esc_html_e( 'Direct Login' ); ?></th>
 						<td>
-							<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'qr_message' );?>
+							<?php \calmpress\utils\html_for_dissmissable_admin_notice( 'qr_message', true );?>
 							<p><button type="button" class="button" id="show-qrlink"><?php esc_html_e( 'Generate QR Code' ); ?></button></p>
 							<p id="qrdesription" class="description">
 								<?php
@@ -704,107 +700,9 @@ switch ( $action ) {
 					echo '</table>';
 				}
 
-				if ( wp_is_application_passwords_available_for_user( $user_id ) || ! wp_is_application_passwords_supported() ) : ?>
-					<div class="application-passwords hide-if-no-js" id="application-passwords-section">
-						<h2><?php _e( 'Application Passwords' ); ?></h2>
-						<p><?php _e( 'Application passwords allow authentication via non-interactive systems via REST API, without providing your actual password. Application passwords can be easily revoked. They cannot be used for traditional logins to your website.' ); ?></p>
-						<?php if ( wp_is_application_passwords_available_for_user( $user_id ) ) : ?>
-							<?php
-							if ( is_multisite() ) :
-								$blogs       = get_blogs_of_user( $user_id, true );
-								$blogs_count = count( $blogs );
-
-								if ( $blogs_count > 1 ) :
-									?>
-									<p>
-										<?php
-										/* translators: 1: URL to my-sites.php, 2: Number of sites the user has. */
-										$message = _n(
-											'Application passwords grant access to <a href="%1$s">the %2$s site in this installation that you have permissions on</a>.',
-											'Application passwords grant access to <a href="%1$s">all %2$s sites in this installation that you have permissions on</a>.',
-											$blogs_count
-										);
-
-										if ( is_super_admin( $user_id ) ) {
-											/* translators: 1: URL to my-sites.php, 2: Number of sites the user has. */
-											$message = _n(
-												'Application passwords grant access to <a href="%1$s">the %2$s site on the network as you have Super Admin rights</a>.',
-												'Application passwords grant access to <a href="%1$s">all %2$s sites on the network as you have Super Admin rights</a>.',
-												$blogs_count
-											);
-										}
-
-										printf(
-											$message,
-											admin_url( 'my-sites.php' ),
-											number_format_i18n( $blogs_count )
-										);
-										?>
-									</p>
-									<?php
-								endif;
-							endif;
-							?>
-
-							<?php if ( ! wp_is_site_protected_by_basic_auth( 'front' ) ) : ?>
-								<div class="create-application-password form-wrap">
-									<div class="form-field">
-										<label for="new_application_password_name"><?php _e( 'New Application Password Name' ); ?></label>
-										<input type="text" size="30" id="new_application_password_name" name="new_application_password_name" class="input" aria-required="true" aria-describedby="new_application_password_name_desc" spellcheck="false" />
-										<p class="description" id="new_application_password_name_desc"><?php _e( 'Required to create an Application Password, but not to update the user.' ); ?></p>
-									</div>
-
-									<?php
-									/**
-									 * Fires in the create Application Passwords form.
-									 *
-									 * @since 5.6.0
-									 *
-									 * @param WP_User $profile_user The current WP_User object.
-									 */
-									do_action( 'wp_create_application_password_form', $profile_user );
-									?>
-
-									<button type="button" name="do_new_application_password" id="do_new_application_password" class="button button-secondary"><?php _e( 'Add Application Password' ); ?></button>
-								</div>
-								<?php
-							else :
-								wp_admin_notice(
-									__( 'Your website appears to use Basic Authentication, which is not currently compatible with Application Passwords.' ),
-									array(
-										'type' => 'error',
-										'additional_classes' => array( 'inline' ),
-									)
-								);
-							endif;
-							?>
-
-							<div class="application-passwords-list-table-wrapper">
-								<?php
-								$application_passwords_list_table = _get_list_table( 'WP_Application_Passwords_List_Table', array( 'screen' => 'application-passwords-user' ) );
-								$application_passwords_list_table->prepare_items();
-								$application_passwords_list_table->display();
-								?>
-							</div>
-						<?php elseif ( ! wp_is_application_passwords_supported() ) : ?>
-							<p><?php _e( 'The application password feature requires HTTPS, which is not enabled on this site.' ); ?></p>
-							<p>
-								<?php
-								printf(
-									/* translators: %s: Documentation URL. */
-									__( 'If this is a development website, you can <a href="%s">set the environment type accordingly</a> to enable application passwords.' ),
-									__( 'https://developer.wordpress.org/apis/wp-config-php/#wp-environment-type' )
-								);
-								?>
-							</p>
-						<?php endif; ?>
-					</div>
-				<?php endif; // End Application Passwords. ?>
-
-				<?php
 				if ( IS_PROFILE_PAGE ) {
 					/**
-					 * Fires after the 'Application Passwords' section is loaded on the 'Profile' editing screen.
+					 * Fires after the last section is loaded on the 'Profile' editing screen.
 					 *
 					 * The action only fires if the current user is editing their own profile.
 					 *
@@ -815,7 +713,7 @@ switch ( $action ) {
 					do_action( 'show_user_profile', $profile_user );
 				} else {
 					/**
-					 * Fires after the 'Application Passwords' section is loaded on 'Edit User' screen.
+					 * Fires after the last section is loaded on 'Edit User' screen.
 					 *
 					 * The action only fires if the current user is editing another user's profile.
 					 *
@@ -904,52 +802,6 @@ switch ( $action ) {
 		});
 	} );
 </script>
-
-<?php if ( isset( $application_passwords_list_table ) ) : ?>
-	<script type="text/html" id="tmpl-new-application-password">
-		<div class="notice notice-success is-dismissible new-application-password-notice" role="alert" tabindex="-1">
-			<p class="application-login-display">
-				<label for="new-application-login-value">
-					<?php
-					printf(
-						/* translators: %s: Application name. */
-						__( 'Your user name for %s is:' ),
-						'<strong>{{ data.name }}</strong>'
-					);
-					?>
-				</label>
-				<input id="new-application-login-value" type="text" class="code" readonly="readonly" value="{{ data.login }}" />
-			</p>
-			<p class="application-password-display">
-				<label for="new-application-password-value">
-					<?php
-					printf(
-						/* translators: %s: Application name. */
-						__( 'Your new password for %s is:' ),
-						'<strong>{{ data.name }}</strong>'
-					);
-					?>
-				</label>
-				<input id="new-application-password-value" type="text" class="code" readonly="readonly" value="{{ data.password }}" />
-				<button type="button" class="button copy-button" data-clipboard-text="{{ data.password }}"><?php _e( 'Copy' ); ?></button>
-				<span class="success hidden" aria-hidden="true"><?php _e( 'Copied!' ); ?></span>
-			</p>
-			<p><?php _e( 'Be sure to save this in a safe location. You will not be able to retrieve it.' ); ?></p>
-			<button type="button" class="notice-dismiss">
-				<span class="screen-reader-text">
-					<?php
-					/* translators: Hidden accessibility text. */
-					_e( 'Dismiss this notice.' );
-					?>
-				</span>
-			</button>
-		</div>
-	</script>
-
-	<script type="text/html" id="tmpl-application-password-row">
-		<?php $application_passwords_list_table->print_js_template_row(); ?>
-	</script>
-<?php endif; ?>
 
 <?php
 require_once ABSPATH . 'wp-admin/admin-footer.php';
