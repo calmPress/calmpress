@@ -107,9 +107,10 @@ const calm_fetch = {
      * An helper function for post and posst_no_nonce methods which does the
      * "heavy lifting".
      * 
-     * @param {string} route The route of the endpoint relative to rest apy root url.
-     * @param {object} data  An object containing the data that will be jsonified when
-     *                       sent to the endpoint.
+     * @param {string} route   The route of the endpoint relative to rest api root url.
+     * @param {object} data    An object containing the data that will be jsonified when
+     *                         sent to the endpoint.
+     * @param {object} headers Additional headers to be sent.
      * @param {string|undefined} nonce The nonce to use in the message if not empty,
      *                                 if empty no noce is sent.
      * 
@@ -121,7 +122,7 @@ const calm_fetch = {
      *                            or if the body of a 2xx response is not a json,
      *                            in which case status will be set to 1.
      */
-    send_post: async ( route, data, nonce = undefined ) => {
+    send_post: async ( route, data, headers, nonce = undefined ) => {
         if ( ! route || typeof route !== 'string' ) {
             throw new Error( 'Invalid route: must be a non-empty string' );
         }
@@ -130,20 +131,18 @@ const calm_fetch = {
             throw new Error( 'Invalid data: must be an object' );
         }
 
+        if ( typeof headers !== 'object' ) {
+            throw new Error( 'Invalid headers: must be an object' );
+        }
+
         if ( ! calm_fetch.rest_root ) {
             throw new Error( 'calm_fetch was not initialized with rest_root' );
         }
 
         try {
+            headers['Content-Type'] = 'application/json';
             if ( nonce ) {
-                headers = {
-                        'X-WP-Nonce': nonce,
-                        'Content-Type': 'application/json',
-                };
-            } else {
-                headers = {
-                        'Content-Type': 'application/json',
-                };
+                headers['X-WP-Nonce']   = nonce;
             }
 
             const response = await fetch( calm_fetch.rest_root + route, {
@@ -190,7 +189,7 @@ const calm_fetch = {
                 throw new calm_fetch_error( 0, 'Could not connet', {} );
             }
 
-            // re throw calm_fetch_error errors from 4xx responses, and
+            // Throw calm_fetch_error errors from 4xx responses, and
             // syntax errors probably related to parsing a 2xx response.
             throw error;
         }
@@ -200,7 +199,7 @@ const calm_fetch = {
      * POST JSON data to a REST endpoint with the preconfigured nonce with structured 
      * error handling.
      * 
-     * @param {string} route The route of the endpoint relative to rest apy root url.
+     * @param {string} route The route of the endpoint relative to rest api root url.
      * @param {object} data  An object containing the data that will be jsonified when
      *                       sent to the endpoint.
      * 
@@ -217,13 +216,13 @@ const calm_fetch = {
             throw new Error( 'calm_fetch was not initialized with a nonce');
         }
 
-        return await calm_fetch.send_post( route, data, calm_fetch.nonce );
+        return await calm_fetch.send_post( route, data, {}, calm_fetch.nonce );
     },
 
     /**
      * POST JSON data to a REST endpoint without a nonce with structured error handling.
      * 
-     * @param {string} route The route of the endpoint relative to rest apy root url.
+     * @param {string} route The route of the endpoint relative to rest api root url.
      * @param {object} data  An object containing the data that will be jsonified when
      *                       sent to the endpoint.
      * 
@@ -236,8 +235,30 @@ const calm_fetch = {
      *                            in which case status will be set to 1.
      */
     post_no_nonce: async ( route, data ) => {
-        return await calm_fetch.send_post( route, data );
-    }
+        return await calm_fetch.send_post( route, data, {} );
+    },
+
+    /**
+     * POST JSON data to a REST endpoint indicating the POST should be treated like a DELETE with the
+     * preconfigured nonce with structured error handling.
+     * 
+     * @param {string} route The route of the endpoint relative to rest api root url.
+     * 
+     * @returns {object} A structure of the content of the response if the
+     *          response has 2xx code and it inludes valid json.
+     * 
+     * @throws {calm_fetch_error} If there was a connectivity issue at which case staus field will be 0
+     *                            or response had a 4xx or 5xx code
+     *                            or if the body of a 2xx response is not a json,
+     *                            in which case status will be set to 1.
+     */
+    delete: async ( route, data ) => {
+        if ( ! calm_fetch.nonce ) {
+            throw new Error( 'calm_fetch was not initialized with a nonce');
+        }
+
+        return await calm_fetch.send_post( route, {}, { 'X-HTTP-Method-Override': 'DELETE' }, calm_fetch.nonce );
+    },
 };
 
 /**
@@ -315,7 +336,11 @@ class jquery_like_element_wrapper {
      */
     hide() {
         this.el.hidden = true;
-        this.el.dataset.display = getComputedStyle( this.el ).display;
+        const style = getComputedStyle( this.el ).display;
+        // Prevent double hide from making show to fail.
+        if ( style !== 'none' ) {
+            this.el.dataset.display = style;
+        }
         this.el.style.display = 'none';
         return this;
     }
