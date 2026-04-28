@@ -426,6 +426,52 @@ enum notice_type: string {
  *                                  automatically hidden.
  * @param string $class   The class string that can be added to the class attribute of 
  *                        the element.
+ * @param string $html    The HTML to display at the notice, if empty the notice will
+ *                        be hidden.
+ */
+function notice_area_with_html(
+	string $id,
+	int $auto_dismiss_time,
+	string $html,
+	string $class = '',
+	notice_type $type = notice_type::HIDDEN,
+): void {
+	$id          = esc_attr( $id );
+	$class       = esc_attr( $class );
+	$type        = $type->name;
+	$dismiss_msg = esc_attr__( 'Dismiss this notice.' );
+	$hidden      = '';
+
+	if ( empty( $html ) ) {
+		$type = notice_type::HIDDEN->name;
+	}
+
+	if ( $type === notice_type::HIDDEN->name ) {
+		$hidden = 'hidden';
+	}
+
+	$type = strtolower( $type );
+echo <<<EOT
+<div id="$id" class="notice notice-$type $class" $hidden data-dismiss="$auto_dismiss_time" role="alert">
+  $html
+  <button type="button" class="notice-dismiss" aria-label="$dismiss_msg"></button>
+</div>
+EOT;
+}
+
+/**
+ * Output the HTML, CSS and JS for a notice container with a text message and the JS
+ * enabling the manual and auto dismissle.
+ * 
+ * @since 1.0.0
+ * 
+ * @param string $id      The id of the generated div.
+ * @param int    $auto_dismiss_time The time in seconds after which the notice will be
+ *                                  automatically hidden.
+ *                                  A value of 0 indicates that the notie should not be
+ *                                  automatically hidden.
+ * @param string $class   The class string that can be added to the class attribute of 
+ *                        the element.
  * @param string $message The message to display at the notice, if empty the notice will
  *                        be hidden.
  *                        It should be a properly escaped HTML.
@@ -437,27 +483,7 @@ function notice_area_with_message(
 	notice_type $type = notice_type::HIDDEN,
 	string $message = '',
 ): void {
-	$id          = esc_attr( $id );
-	$class       = esc_attr( $class );
-	$type        = $type->name;
-	$dismiss_msg = esc_attr__( 'Dismiss this notice.' );
-	$hidden      = '';
-
-	if ( empty( $message ) ) {
-		$type = notice_type::HIDDEN->name;
-	}
-
-	if ( $type === notice_type::HIDDEN->name ) {
-		$hidden = 'hidden';
-	}
-
-	$type = strtolower( $type );
-echo <<<EOT
-<div id="$id" class="notice notice-$type $class" $hidden data-dismiss="$auto_dismiss_time" role="alert">
-  <p>$message</p>
-  <button type="button" class="notice-dismiss" aria-label="$dismiss_msg"></button>
-</div>
-EOT;
+	notice_area_with_html( $id, $auto_dismiss_time, "<p>$message</p>", $class, $type);
 }
 
 /**
@@ -492,16 +518,23 @@ function notice_area(
  * 
  * @since 1.0.0
  * 
- * @param string $id The id of the generated div.
+ * @param string $id                The id of the generated div.
+ * @param string $html_template     The html for the content of the notice
+ * @param bool   $auto_dissmissable If true the notice will be automatically dismissed.
  */
-function html_for_dissmissable_admin_notice( string $id ): void {
+function html_for_dissmissable_admin_notice_with_html_content(
+	string $id,
+	string $html,
+	bool $auto_dissmissable
+	): void {
 	static $css_js_done = false; // Indicate if the JS and CSS was already enqueued.
-	$id  = esc_attr( $id );
-	$msg = esc_html__( 'Dismiss this notice.' );
+	$id            = esc_attr( $id );
+	$msg           = esc_html__( 'Dismiss this notice.' );
+	$auto_dismmiss = $auto_dissmissable ? 'data-auto_dismiss="1"' : "";
  
 	echo <<<EOT
-<div id="$id" class="dynamic-notice notice is-dismissible inline" role="status" aria-live="polite">
-  <p></p>
+<div id="$id" class="dynamic-notice notice is-dismissible inline" role="status" $auto_dismmiss aria-live="polite">
+  $html
   <button type="button" class="notice-dismiss">
     <span class="screen-reader-text">$msg</span>
   </button>
@@ -540,18 +573,23 @@ const inline_notice_manager = {
 	 * 
 	 * @param {string} id The id of the div in which the notice should be displayed.
 	 * @param {string} type The type of the notice - 'error', 'success', 'info'
-	 * @param {string} message The message to display.
+	 * @param {string|null} message The message to display, null if no change should be make in the current
+	 *                              message. null is useful when the message is a per designed HTML.
 	 */
-	show( id, type, message ) {
+	show( id, type, message = null) {
 		const notice = document.getElementById( id );
-		const text_el = notice.querySelector( 'p' );
-		text_el.textContent = message;
+		if ( message !== null ) {
+			const text_el = notice.querySelector( 'p' );
+			text_el.textContent = message;
+		}
 		notice.classList.remove( 'notice-success', 'notice-error', 'notice-info', 'notice-warning' );
 		notice.classList.add( 'notice-' + type );
 		notice.style.display = 'block';
 		this._clear_timer( id );
-		const timer = setTimeout( () => this.hide( id ), this.AUTO_HIDE_DELAY );
-        this._timers.set( id, timer );
+		if ( notice.dataset.auto_dismiss ) {
+			const timer = setTimeout( () => this.hide( id ), this.AUTO_HIDE_DELAY );
+			this._timers.set( id, timer );
+		}
 		const dismiss_btn = notice.querySelector(' .notice-dismiss' );
         if (dismiss_btn) {
             dismiss_btn.onclick = () => this.hide( id );
@@ -597,6 +635,21 @@ JS;
 		);
 	}
 	$css_js_done = true;
+}
+
+/**
+ * Output the HTML, CSS and JS for a dismissable notice container and the JS enabling the
+ * dismissle. Notice is assumed to be a simple text or escaped HTML.
+ * 
+ * To be used in admin pages.
+ * 
+ * @since 1.0.0
+ * 
+ * @param string $id                The id of the generated div.
+ * @param bool   $auto_dissmissable If true the notice will be automatically dismissed.
+ */
+function html_for_dissmissable_admin_notice( string $id, bool $auto_dissmissable ): void {
+	html_for_dissmissable_admin_notice_with_html_content( $id, '<p></p>', $auto_dissmissable );
 }
 
 /**
