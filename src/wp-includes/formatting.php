@@ -3279,6 +3279,22 @@ function wp_rel_ugc( $text ) {
 	return wp_slash( $text );
 }
 
+/**
+ * Converts text equivalent of smilies to images.
+ *
+ * Will only convert smilies if the option 'use_smilies' is true and the global
+ * used in the function isn't empty.
+ *
+ * @since 0.71
+ * @since calmpress 1.0.0 does nothing, just kept around to prevent php errors in plugins.
+ *
+ * @param string $text Content to convert smilies from text.
+ * @return string the value of $text.
+ */
+function convert_smilies( $text ) {
+	return $text;
+}
+
 /*
  * Verifies that an email is valid.
  *
@@ -5329,6 +5345,19 @@ function _sanitize_text_fields( $str, $keep_newlines = false ) {
  */
 function wp_basename( $path, $suffix = '' ) {
 	return urldecode( basename( str_replace( array( '%2F', '%5C' ), '/', urlencode( $path ) ), $suffix ) );
+}
+
+/**
+ * Forever eliminate "Wordpress" from the planet (or at least the little bit we can influence).
+ *
+ * @since 3.0.0
+ * @since calmpress 1.0.0 Does nothing, here to prevent errors at plugins that call it.
+ *
+ * @param string $text The text to be modified.
+ * @return string the value of $text.
+ */
+function capital_P_dangit( $text ) {
+	return $text;
 }
 
 /**
