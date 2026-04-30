@@ -1901,7 +1901,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 			$notify_message .= get_permalink( $comment->comment_post_ID ) . "#comments\r\n\r\n";
 			$notify_message .= sprintf( __( 'Permalink: %s' ), get_comment_link( $comment ) ) . "\r\n";
 
-			if ( 'note' !== $comment->comment_type && user_can( $post->post_author, 'edit_comment', $comment->comment_ID ) ) {
+			if ( user_can( $post->post_author, 'edit_comment', $comment->comment_ID ) ) {
 				if ( EMPTY_TRASH_DAYS ) {
 					/* translators: Comment moderation. %s: Comment action URL. */
 					$notify_message .= sprintf( __( 'Trash it: %s' ), admin_url( "comment.php?action=trash&c={$comment->comment_ID}#wpbody-content" ) ) . "\r\n";

@@ -534,6 +534,7 @@ class WP_Comment_Query {
 	 *
 	 * @since 4.4.0
 	 * @since 6.9.0 Excludes the 'note' comment type, unless 'all' or the 'note' types are requested.
+	 * @since calmpress 1.0.0 'note' do not exist in core.
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
@@ -754,15 +755,6 @@ class WP_Comment_Query {
 			'IN'     => array_merge( (array) $this->query_vars['type'], (array) $this->query_vars['type__in'] ),
 			'NOT IN' => (array) $this->query_vars['type__not_in'],
 		);
-
-		// Exclude the 'note' comment type, unless 'all' types or the 'note' type explicitly are requested.
-		if (
-			! in_array( 'all', $raw_types['IN'], true ) &&
-			! in_array( 'note', $raw_types['IN'], true ) &&
-			! in_array( 'note', $raw_types['NOT IN'], true )
-		) {
-			$raw_types['NOT IN'][] = 'note';
-		}
 
 		$comment_types = array();
 		foreach ( $raw_types as $operator => $_raw_types ) {

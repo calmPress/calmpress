@@ -150,7 +150,6 @@ add_action( 'deleted_term_meta', 'wp_cache_set_terms_last_changed' );
 add_action( 'added_comment_meta', 'wp_cache_set_comments_last_changed' );
 add_action( 'updated_comment_meta', 'wp_cache_set_comments_last_changed' );
 add_action( 'deleted_comment_meta', 'wp_cache_set_comments_last_changed' );
-add_action( 'init', 'wp_create_initial_comment_meta' );
 
 // Convert invalid entities on input.
 foreach ( array( 'content_save_pre', 'excerpt_save_pre', 'comment_save_pre', 'pre_comment_content' ) as $filter ) {
@@ -474,7 +473,6 @@ add_action( 'wp_update_comment_type_batch', '_wp_batch_update_comment_type' );
 // Email notifications.
 add_action( 'comment_post', 'wp_new_comment_notify_moderator' );
 add_action( 'comment_post', 'wp_new_comment_notify_postauthor' );
-add_action( 'rest_insert_comment', 'wp_new_comment_via_rest_notify_postauthor' );
 add_action( 'register_new_user', 'wp_send_new_user_notifications' );
 add_action( 'edit_user_created_user', 'wp_send_new_user_notifications', 10, 2 );
 

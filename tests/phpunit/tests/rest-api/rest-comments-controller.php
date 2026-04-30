@@ -162,7 +162,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 	public function set_up() {
 		parent::set_up();
 		$this->endpoint = new WP_REST_Comments_Controller();
-		wp_create_initial_comment_meta();
 
 		if ( is_multisite() ) {
 			update_site_option( 'site_admins', array( 'superadmin' ) );
@@ -3328,9 +3327,9 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			$response = rest_get_server()->dispatch( $request );
 
 			// Individual comments using the /comments/<id> endpoint can be retrieved by
-			// unauthenticated users - except for the 'note' type which is restricted.
+			// unauthenticated users.
 			// See https://core.trac.wordpress.org/ticket/44157.
-			$this->assertSame( 'note' === $comment_type ? 401 : 200, $response->get_status(), 'Individual comment endpoint did not return the expected status' );
+			$this->assertSame( 200, $response->get_status(), 'Individual comment endpoint did not return the expected status' );
 		}
 	}
 
@@ -3344,7 +3343,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			'comment type'    => array( 'comment', 5 ),
 			'annotation type' => array( 'annotation', 5 ),
 			'discussion type' => array( 'discussion', 9 ),
-			'note type'       => array( 'note', 3 ),
 		);
 	}
 }
