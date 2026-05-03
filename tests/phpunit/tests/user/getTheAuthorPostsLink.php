@@ -17,7 +17,6 @@ class Tests_User_GetTheAuthorPostsLink extends WP_UnitTestCase {
 				'user_login'   => 'test_author',
 				'display_name' => 'Test Author',
 				'description'  => 'test_author',
-				'user_url'     => 'http://example.com',
 			)
 		);
 

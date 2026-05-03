@@ -1077,10 +1077,6 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			$data['email'] = $user->user_email;
 		}
 
-		if ( in_array( 'url', $fields, true ) ) {
-			$data['url'] = $user->user_url;
-		}
-
 		if ( in_array( 'description', $fields, true ) ) {
 			$data['description'] = $user->description;
 		}

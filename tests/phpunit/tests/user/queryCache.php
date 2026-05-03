@@ -199,9 +199,6 @@ class Tests_User_Query_Cache extends WP_UnitTestCase {
 			'user_email'            => array(
 				'args' => array( 'fields' => array( 'user_email' ) ),
 			),
-			'user_url'              => array(
-				'args' => array( 'fields' => array( 'user_url' ) ),
-			),
 			'user_status'           => array(
 				'args' => array( 'fields' => array( 'user_status' ) ),
 			),
@@ -409,7 +406,6 @@ class Tests_User_Query_Cache extends WP_UnitTestCase {
 				'user_login',
 				'user_nicename',
 				'user_email',
-				'user_url',
 				'user_status',
 				'display_name',
 			),

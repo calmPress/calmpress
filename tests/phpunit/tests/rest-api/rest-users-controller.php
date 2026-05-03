@@ -318,8 +318,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			// Ensure we don't expose non-public data.
 			$this->assertArrayNotHasKey( 'capabilities', $user );
 			$this->assertArrayNotHasKey( 'registered_date', $user );
-			$this->assertArrayNotHasKey( 'first_name', $user );
-			$this->assertArrayNotHasKey( 'last_name', $user );
 			$this->assertArrayNotHasKey( 'nickname', $user );
 			$this->assertArrayNotHasKey( 'extra_capabilities', $user );
 			$this->assertArrayNotHasKey( 'username', $user );
@@ -1327,7 +1325,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			'slug'        => 'test-user',
 			'roles'       => array( 'editor' ),
 			'description' => 'New API User',
-			'url'         => 'http://example.com',
 		);
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/users' );
@@ -1336,7 +1333,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$response = rest_get_server()->dispatch( $request );
 
 		$data = $response->get_data();
-		$this->assertSame( 'http://example.com', $data['url'] );
 		$this->assertSame( array( 'editor' ), $data['roles'] );
 		$this->check_add_edit_user_response( $response );
 	}
@@ -1652,8 +1648,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 				'user_email' => 'test@example.com',
 				'user_pass'  => 'sjflsfls',
 				'user_login' => 'test_update',
-				'first_name' => 'Old Name',
-				'user_url'   => 'http://apple.com',
 				'locale'     => 'en_US',
 			)
 		);
@@ -1667,7 +1661,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 
 		$_POST['email']      = $userdata->user_email;
 		$_POST['username']   = $userdata->user_login;
-		$_POST['first_name'] = 'New Name';
 		$_POST['url']        = 'http://google.com';
 		$_POST['locale']     = 'de_DE';
 
@@ -1678,14 +1671,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 
 		$this->check_add_edit_user_response( $response, true );
 
-		// Check that the name has been updated correctly.
-		$new_data = $response->get_data();
-		$this->assertSame( 'New Name', $new_data['first_name'] );
 		$user = get_userdata( $user_id );
-		$this->assertSame( 'New Name', $user->first_name );
-
-		$this->assertSame( 'http://google.com', $new_data['url'] );
-		$this->assertSame( 'http://google.com', $user->user_url );
 		$this->assertSame( 'de_DE', $user->locale );
 
 		// Check that we haven't inadvertently changed the user's password,
@@ -1899,8 +1885,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 				'user_email' => 'testjson2@example.com',
 				'user_pass'  => 'sjflsfl3sdjls',
 				'user_login' => 'test_json_update',
-				'first_name' => 'Old Name',
-				'last_name'  => 'Original Last',
 			)
 		);
 
@@ -1911,8 +1895,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$params = array(
 			'username'   => 'test_json_update',
 			'email'      => 'testjson2@example.com',
-			'first_name' => 'JSON Name',
-			'last_name'  => 'New Last',
 		);
 
 		$userdata  = get_userdata( $user_id );
@@ -1925,16 +1907,9 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$response = rest_get_server()->dispatch( $request );
 		$this->check_add_edit_user_response( $response, true );
 
-		// Check that the name has been updated correctly.
-		$new_data = $response->get_data();
-		$this->assertSame( 'JSON Name', $new_data['first_name'] );
-		$this->assertSame( 'New Last', $new_data['last_name'] );
-		$user = get_userdata( $user_id );
-		$this->assertSame( 'JSON Name', $user->first_name );
-		$this->assertSame( 'New Last', $user->last_name );
-
 		// Check that we haven't inadvertently changed the user's password,
 		// as per https://core.trac.wordpress.org/ticket/21429
+		$user = get_userdata( $user_id );
 		$this->assertSame( $pw_before, $user->user_pass );
 	}
 
@@ -2725,9 +2700,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertArrayHasKey( 'description', $properties );
 		$this->assertArrayHasKey( 'email', $properties );
 		$this->assertArrayHasKey( 'extra_capabilities', $properties );
-		$this->assertArrayHasKey( 'first_name', $properties );
 		$this->assertArrayHasKey( 'id', $properties );
-		$this->assertArrayHasKey( 'last_name', $properties );
 		$this->assertArrayHasKey( 'link', $properties );
 		$this->assertArrayHasKey( 'locale', $properties );
 		$this->assertArrayHasKey( 'meta', $properties );
@@ -2927,7 +2900,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 
 		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/users/%d', $user_id ) );
 		$request->add_header( 'Content-Type', 'application/x-www-form-urlencoded' );
-		$request->set_body_params( array( 'first_name' => 'New Name' ) );
+		$request->set_body_params( array( 'display_name' => 'New Name' ) );
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_cannot_edit', $response, 403 );
 	}
@@ -2949,7 +2922,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 
 		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/users/%d', $user_id ) );
 		$request->add_header( 'Content-Type', 'application/x-www-form-urlencoded' );
-		$request->set_body_params( array( 'first_name' => 'New Name' ) );
+		$request->set_body_params( array( 'display_name' => 'New Name' ) );
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertErrorResponse( 'rest_user_invalid_id', $response, 404 );
 	}
@@ -3240,8 +3213,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertArrayHasKey( 'avatar_urls', $data );
 
 		if ( 'edit' === $context ) {
-			$this->assertSame( $user->first_name, $data['first_name'] );
-			$this->assertSame( $user->last_name, $data['last_name'] );
 			$this->assertSame( $user->user_email, $data['email'] );
 			$this->assertEquals( (object) $user->allcaps, $data['capabilities'] );
 			$this->assertEquals( (object) $user->caps, $data['extra_capabilities'] );
@@ -3253,8 +3224,6 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 			$this->assertArrayNotHasKey( 'roles', $data );
 			$this->assertArrayNotHasKey( 'capabilities', $data );
 			$this->assertArrayNotHasKey( 'registered_date', $data );
-			$this->assertArrayNotHasKey( 'first_name', $data );
-			$this->assertArrayNotHasKey( 'last_name', $data );
 			$this->assertArrayNotHasKey( 'email', $data );
 			$this->assertArrayNotHasKey( 'extra_capabilities', $data );
 			$this->assertArrayNotHasKey( 'username', $data );

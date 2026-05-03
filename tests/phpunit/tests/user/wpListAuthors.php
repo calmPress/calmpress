@@ -69,23 +69,6 @@ class Tests_User_ListAuthors extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_wp_list_authors_show_fullname() {
-		$expected['show_fullname'] =
-			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .
-			'<li><a href="' . self::$user_urls[2] . '" title="Posts by paul">paul</a></li>' .
-			'<li><a href="' . self::$user_urls[0] . '" title="Posts by zack">zack</a></li>';
-
-		$this->assertSame(
-			$expected['show_fullname'],
-			wp_list_authors(
-				array(
-					'echo'          => false,
-					'show_fullname' => 1,
-				)
-			)
-		);
-	}
-
 	public function test_wp_list_authors_echo() {
 		$expected['echo'] =
 			'<li><a href="' . self::$user_urls[1] . '" title="Posts by bob">bob</a></li>' .

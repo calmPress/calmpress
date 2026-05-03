@@ -28,11 +28,8 @@ class Tests_User extends WP_UnitTestCase {
 				'user_login'    => 'user1',
 				'user_nicename' => 'userone',
 				'user_pass'     => 'password',
-				'first_name'    => 'John',
-				'last_name'     => 'Doe',
 				'display_name'  => 'John Doe',
 				'user_email'    => 'blackburn@battlefield3.com',
-				'user_url'      => 'http://tacos.com',
 				'role'          => 'contributor',
 				'nickname'      => 'Johnny',
 				'description'   => 'I am a WordPress user that cares about privacy.',
@@ -403,7 +400,6 @@ class Tests_User extends WP_UnitTestCase {
 		// Test update of fields in _get_additional_user_keys().
 		$user_data = array(
 			'ID' => self::$author_id, 'show_admin_bar_front' => 1,
-			'first_name' => 'first', 'last_name' => 'last',
 			'admin_color' => 'classic',
 			'description' => 'describe'
 		);
@@ -1104,24 +1100,6 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 44107
-	 */
-	public function test_wp_insert_user_should_reject_user_url_over_100_characters() {
-		$user_url = str_repeat( 'a', 101 );
-		$u        = wp_insert_user(
-			array(
-				'user_login' => 'test',
-				'user_email' => 'urltest@example.com',
-				'user_pass'  => 'password',
-				'user_url'   => $user_url,
-			)
-		);
-
-		$this->assertWPError( $u );
-		$this->assertSame( 'user_url_too_long', $u->get_error_code() );
-	}
-
-	/**
 	 * @ticket 28004
 	 */
 	public function test_wp_insert_user_with_invalid_user_id() {
@@ -1468,7 +1446,7 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertCount( 1, $actual['data'] );
 
 		// Number of exported user properties.
-		$this->assertCount( 11, $actual['data'][0]['data'] );
+		$this->assertCount( 8, $actual['data'][0]['data'] );
 	}
 
 	/**
@@ -1735,7 +1713,7 @@ class Tests_User extends WP_UnitTestCase {
 
 		// Number of exported user properties (the 11 core properties,
 		// plus 1 additional from the filter).
-		$this->assertCount( 12, $actual['data'][0]['data'] );
+		$this->assertCount( 9, $actual['data'][0]['data'] );
 
 		// Check that the item added by the filter was retained.
 		$this->assertCount(
@@ -1764,8 +1742,8 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertCount( 1, $actual['data'] );
 
 		// Number of exported user properties
-		// (the 11 core properties, plus 1 additional from the filter).
-		$this->assertCount( 12, $actual['data'][0]['data'] );
+		// (the 8 core properties, plus 1 additional from the filter).
+		$this->assertCount( 9, $actual['data'][0]['data'] );
 
 		// Check that the duplicate 'name' => 'User ID' was stripped.
 		$this->assertCount(

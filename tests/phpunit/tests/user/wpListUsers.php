@@ -13,10 +13,7 @@ class Tests_User_wpListUsers extends WP_UnitTestCase {
 				'user_login'   => 'zack',
 				'display_name' => 'zack',
 				'role'         => 'subscriber',
-				'first_name'   => 'zack',
-				'last_name'    => 'moon',
 				'user_email'   => 'm.zack@example.com',
-				'user_url'     => 'http://moonzack.fake',
 			)
 		);
 
@@ -25,10 +22,7 @@ class Tests_User_wpListUsers extends WP_UnitTestCase {
 				'user_login'   => 'jane',
 				'display_name' => 'jane',
 				'role'         => 'contributor',
-				'first_name'   => 'jane',
-				'last_name'    => 'reno',
 				'user_email'   => 'r.jane@example.com',
-				'user_url'     => 'http://janereno.fake',
 			)
 		);
 
@@ -37,10 +31,7 @@ class Tests_User_wpListUsers extends WP_UnitTestCase {
 				'user_login'   => 'michelle',
 				'display_name' => 'michelle',
 				'role'         => 'subscriber',
-				'first_name'   => 'michelle',
-				'last_name'    => 'jones',
 				'user_email'   => 'j.michelle@example.com',
-				'user_url'     => 'http://lemichellejones.fake',
 			)
 		);
 
@@ -49,10 +40,7 @@ class Tests_User_wpListUsers extends WP_UnitTestCase {
 				'user_login'   => 'paul',
 				'display_name' => 'paul',
 				'role'         => 'subscriber',
-				'first_name'   => 'paul',
-				'last_name'    => 'norris',
 				'user_email'   => 'n.paul@example.com',
-				'user_url'     => 'http://awildpaulappeared.fake',
 			)
 		);
 
@@ -108,12 +96,6 @@ class Tests_User_wpListUsers extends WP_UnitTestCase {
 					'exclude_admin' => false,
 				),
 				'expected' => '<li>Admin</li><li>jane</li><li>michelle</li><li>paul</li><li>zack</li>',
-			),
-			'the full name of each user'         => array(
-				'args'     => array(
-					'show_fullname' => true,
-				),
-				'expected' => '<li>Admin</li><li>jane reno</li><li>michelle jones</li><li>paul norris</li><li>zack moon</li>',
 			),
 			'no output via echo'                 => array(
 				'args'     => array(

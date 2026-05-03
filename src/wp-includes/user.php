@@ -841,16 +841,17 @@ function get_users( $args = array() ) {
  * @since 5.9.0
  * @since calmPress 1.0.0 Users do not have feeds.
  *                        $exclude_admin is ignored
+ *                        $show_fulname is ignored
+ *                        $user_url is ignored
  *
  * @param string|array $args {
  *     Optional. Array or string of default arguments.
  *
  *     @type string $orderby       How to sort the users. Accepts 'nicename', 'email', 'url', 'registered',
- *                                 'user_nicename', 'user_email', 'user_url', 'user_registered', 'name',
+ *                                 'user_nicename', 'user_email', 'user_registered', 'name',
  *                                 'display_name', 'post_count', 'ID', 'meta_value', 'user_login'. Default 'name'.
  *     @type string $order         Sorting direction for $orderby. Accepts 'ASC', 'DESC'. Default 'ASC'.
  *     @type int    $number        Maximum users to return or display. Default empty (all users).
- *     @type bool   $show_fullname Whether to show the user's full name. Default false.
  *     @type bool   $echo          Whether to output the result or instead return it. Default true.
  *     @type string $style         If 'list', each user is wrapped in an `<li>` element, otherwise the users
  *                                 will be separated by commas.
@@ -865,7 +866,6 @@ function wp_list_users( $args = array() ) {
 		'orderby'       => 'name',
 		'order'         => 'ASC',
 		'number'        => '',
-		'show_fullname' => false,
 		'echo'          => true,
 		'style'         => 'list',
 		'html'          => true,
@@ -895,16 +895,7 @@ function wp_list_users( $args = array() ) {
 	foreach ( $users as $user_id ) {
 		$user = get_userdata( $user_id );
 
-		if ( $parsed_args['show_fullname'] && '' !== $user->first_name && '' !== $user->last_name ) {
-			$name = sprintf(
-				/* translators: 1: User's first name, 2: Last name. */
-				_x( '%1$s %2$s', 'Display name based on first name and last name' ),
-				$user->first_name,
-				$user->last_name
-			);
-		} else {
-			$name = $user->display_name;
-		}
+		$name = $user->display_name;
 
 		if ( ! $parsed_args['html'] ) {
 			$return .= $name . ', ';

@@ -2189,11 +2189,11 @@ class Tests_User_Query extends WP_UnitTestCase {
 			'ID'                  => '1',
 			'user_login'          => 'admin',
 			'user_nicename'       => 'admin',
-			'user_url'            => '',
 			'user_email'          => WP_TESTS_EMAIL,
 			'user_activation_key' => '',
 			'user_status'         => '0',
 			'display_name'        => 'Admin',
+			'user_url'            => '', // Getting it because we didn't change DB structrure from wordpress one.
 		);
 
 		if ( is_multisite() ) {

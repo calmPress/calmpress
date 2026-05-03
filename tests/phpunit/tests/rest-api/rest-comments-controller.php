@@ -74,8 +74,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			array(
 				'role'         => 'author',
 				'display_name' => 'Sea Captain',
-				'first_name'   => 'Horatio',
-				'last_name'    => 'McCallister',
 				'user_email'   => 'captain@thefryingdutchman.com',
 				'user_url'     => 'http://thefryingdutchman.com',
 			)
@@ -1557,8 +1555,6 @@ class WP_Test_REST_Comments_Controller extends WP_Test_REST_Controller_Testcase 
 			array(
 				'role'         => 'subscriber',
 				'user_email'   => 'lylelanley@example.com',
-				'first_name'   => 'Lyle',
-				'last_name'    => 'Lanley',
 				'display_name' => 'Lyle Lanley',
 				'user_url'     => 'http://simpsons.wikia.com/wiki/Lyle_Lanley',
 			)
