@@ -309,7 +309,7 @@ if ( ! file_exists( WP_CONTENT_DIR . '/db.php' ) ) {
 
 // Check installed as https unless it is local.
 if ( ! is_ssl() && ! is_local_install() ) {
-	$errors[] = esc_html__( 'You do not use https: to access the site.' );
+	$errors[] = esc_html__( 'This site is not currently being accessed over HTTPS. HTTPS is required for non-local installations.' );
 }
 
 // Check for require php extensions.
