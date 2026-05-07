@@ -72,6 +72,136 @@ if ( @file_exists( ABSPATH . '../wp-config.php' ) && ! @file_exists( ABSPATH . '
 $step = isset( $_GET['step'] ) ? (int) $_GET['step'] : 0;
 
 /**
+ * Detect whether the current DB user has broad (global) privileges.
+ *
+ * Heuristic: looks for grants on *.* which typically indicates
+ * a shared or administrative DB user (e.g. root).
+ * 
+ * @since calmPress 1.0.0
+ *
+ * @param wpdb $wpdb
+ * @return bool True if user appears to have global privileges, false otherwise.
+ */
+function is_broad_db_user( $wpdb ): bool {
+    $grants = $wpdb->get_col( 'SHOW GRANTS FOR CURRENT_USER' );
+
+    if ( empty( $grants ) ) {
+        // Unknown environment — do not flag
+        return false;
+    }
+
+    foreach ( $grants as $grant ) {
+        if ( strpos( $grant, 'ON *.*' ) !== false ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Detect whether the database is non-empty.
+ *
+ * This is a lightweight heuristic used during installation to determine
+ * whether the selected database already contains any tables.
+ * 
+ * @since calmPress 1.0.0
+ *
+ * @param wpdb $wpdb WordPress database abstraction object.
+ *
+ * @return bool True if the database contains at least one table, false if empty.
+ */
+function db_has_tables( wpdb $wpdb ): bool {
+    $tables = $wpdb->get_col( 'SHOW TABLES' );
+
+    return ! empty( $tables );
+}
+
+/**
+ * Display a notice asking the user to confirm selection of DB credentials that either of a non empty DB
+ * nor of a user which have access to other DBs
+ * 
+ * @since calmPress 1.0.0
+ * 
+ * @param string $message The specific message to display HTML escaped.
+ * @param wpdb   $wpdb    The wpdb object which seems problematic.
+ */
+function problematic_db_screen( string $message, $wpdb ) {
+	setup_config_display_header();
+    ?>
+    <h1>
+		<?php esc_html_e( 'Confirm database setup' ); ?>
+	</h1>
+
+	<p>
+		<?php esc_html_e( 'The current database setup reduces isolation between applications.' ); ?>
+	</p>
+	<p>
+		<?php esc_html_e( 'To limit the impact of security breaches, it is recommended to use a dedicated database and database user for each installation.' );?>
+	</p>
+    <p>
+        <?php echo $message; ?>
+    </p>
+
+	<h3>
+		<?php esc_html_e( 'Selected database settings' );?>
+	</h3>
+
+	<table>
+		<tr>
+			<th>
+				<?php esc_html_e( 'Database host' );?>
+			</th>
+			<td>
+				<?php echo esc_html( $wpdb->dbhost );?>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				<?php esc_html_e( 'Database name' );?>
+			</th>
+			<td>
+				<?php echo esc_html( $wpdb->dbname );?>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				<?php esc_html_e( 'Database username' );?>
+			</th>
+			<td>
+				<?php echo esc_html( $wpdb->dbuser );?>
+			</td>
+		</tr>
+	</table>
+
+    <form method="post" action="setup-config.php?step=2">
+        <?php
+        // preserve original POST fields
+        foreach ( $_POST as $key => $value ) {
+            if ( $key === 'db_verification' ) {
+                continue;
+            }
+
+            printf(
+                '<input type="hidden" name="%s" value="%s">',
+                esc_attr($key),
+                esc_attr($value)
+            );
+        }
+        ?>
+
+        <p>
+            <button class="button button-large" type="submit"><?php esc_html_e( 'Continue anyway' );?></button>
+        </p>
+		<p>
+			<button class="button button-large" formaction="setup-config.php?step=1"><?php esc_html_e( 'Try again' );?></button>
+		</p>
+    </form>
+
+    <?php
+}
+
+/**
  * Display setup wp-config.php file header.
  *
  * @ignore
@@ -200,7 +330,7 @@ switch ( $step ) {
 		<tr  class="hide-if-js">
 			<th scope="row"><label for="prefix"><?php _e( 'Table Prefix' ); ?></label></th>
 			<td><input name="prefix" id="prefix" type="text" aria-describedby="prefix-desc" value="cp_<?php echo esc_attr( uniqid() ); ?>_" size="25" /></td>
-			<td id="prefix-desc"><?php _e( 'if you want to customize table name, or run multiple calmPress installations in a single database, change this.' ); ?></td>
+			<td id="prefix-desc"><?php _e( 'if you want to customize table name, or run multiple calmPress installations in a single database (not recommended), change this.' ); ?></td>
 		</tr>
 		<tr class="hide-if-no-js">
 			<th></th>
@@ -213,6 +343,7 @@ switch ( $step ) {
 		</tr>
 	</table>
 	<p class="step"><input name="submit" type="submit" value="<?php echo htmlspecialchars( __( 'Submit' ), ENT_QUOTES ); ?>" class="button button-large" /></p>
+	<input type="hidden" name="db_verification" value="1">
 </form>
 		<?php
 		wp_print_scripts( 'password-toggle' );
@@ -278,144 +409,158 @@ switch ( $step ) {
 			wp_die( __( '<strong>Error:</strong> "Table Prefix" is invalid.' ) );
 		}
 
-		// Generate keys and salts using secure CSPRNG.
-		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_ []{}<>~`+=,.;:/?|';
-		$max   = strlen( $chars ) - 1;
-		for ( $i = 0; $i < 8; $i++ ) {
-			$key = '';
-			for ( $j = 0; $j < 64; $j++ ) {
-				$key .= substr( $chars, random_int( 0, $max ), 1 );
-			}
-			$secret_keys[] = $key;
-		}
-
-		$key = 0;
-		foreach ( $config_file as $line_num => $line ) {
-			if ( str_starts_with( $line, '$table_prefix =' ) ) {
-				$config_file[ $line_num ] = '$table_prefix = \'' . addcslashes( $prefix, "\\'" ) . "';\r\n";
-				continue;
-			}
-
-			if ( ! preg_match( '/^define\(\s*\'([A-Z_]+)\',([ ]+)/', $line, $match ) ) {
-				continue;
-			}
-
-			$constant = $match[1];
-			$padding  = $match[2];
-
-			switch ( $constant ) {
-				case 'DB_NAME':
-				case 'DB_USER':
-				case 'DB_PASSWORD':
-				case 'DB_HOST':
-					$config_file[ $line_num ] = "define( '" . $constant . "'," . $padding . "'" . addcslashes( constant( $constant ), "\\'" ) . "' );\r\n";
-					break;
-				case 'DB_CHARSET':
-					if ( 'utf8mb4' === $wpdb->charset || ( ! $wpdb->charset ) ) {
-						$config_file[ $line_num ] = "define( '" . $constant . "'," . $padding . "'utf8mb4' );\r\n";
-					}
-					break;
-				case 'AUTH_KEY':
-					// A cookie is set with the value generated for the AUTH_KEY
-					// constant. It is going to be used in the install phase to
-					// make sure the install is being done by whoever created the
-					// wp-config.php file.
-					setcookie( 'calmpress_install_auth_key', $secret_keys[ $key ], time() + MONTH_IN_SECONDS );
-
-					// Intentional full through to actually set the value to be
-					// stored in wp-config.php.
-				case 'SECURE_AUTH_KEY':
-				case 'LOGGED_IN_KEY':
-				case 'NONCE_KEY':
-				case 'AUTH_SALT':
-				case 'SECURE_AUTH_SALT':
-				case 'LOGGED_IN_SALT':
-				case 'NONCE_SALT':
-					$config_file[ $line_num ] = "define( '" . $constant . "'," . $padding . "'" . $secret_keys[ $key++ ] . "' );\r\n";
-					break;
+		$create_file = true;
+		// Check if user has access to more than one DB.
+		if ( isset( $_POST['db_verification'] ) ) {
+			if ( db_has_tables( $wpdb ) ) {
+				problematic_db_screen( esc_html__( 'The selected database already contains tables. This suggests it may be used by another application.'), $wpdb );
+				$create_file = false;
+			} elseif ( is_broad_db_user( $wpdb ) ) {
+				problematic_db_screen( esc_html__( 'The database user has access to multiple databases. This indicates the same credentials may be used across applications.'), $wpdb );
+				$create_file = false;
 			}
 		}
-		unset( $line );
 
-		if ( ! is_writable( ABSPATH ) ) :
-			setup_config_display_header();
-			?>
-<p>
-			<?php
-			/* translators: %s: wp-config.php */
-			printf( __( 'Unable to write to %s file.' ), '<code>wp-config.php</code>' );
-			?>
-</p>
-<p id="wp-config-description">
-			<?php
-			/* translators: %s: wp-config.php */
-			printf( __( 'You can create the %s file manually and paste the following text into it.' ), '<code>wp-config.php</code>' );
-
-			$config_text = '';
-
-			foreach ( $config_file as $line ) {
-				$config_text .= htmlentities( $line, ENT_COMPAT, 'UTF-8' );
+		if ( $create_file ) {
+			// Generate keys and salts using secure CSPRNG.
+			$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_ []{}<>~`+=,.;:/?|';
+			$max   = strlen( $chars ) - 1;
+			for ( $i = 0; $i < 8; $i++ ) {
+				$key = '';
+				for ( $j = 0; $j < 64; $j++ ) {
+					$key .= substr( $chars, random_int( 0, $max ), 1 );
+				}
+				$secret_keys[] = $key;
 			}
-			?>
-</p>
-<p class="configuration-rules-label"><label for="wp-config">
-			<?php
-			/* translators: %s: wp-config.php */
-			printf( __( 'Configuration rules for %s:' ), '<code>wp-config.php</code>' );
-			?>
-	</label></p>
-<textarea id="wp-config" cols="98" rows="15" class="code" readonly="readonly" aria-describedby="wp-config-description"><?php echo $config_text; ?></textarea>
-<p><?php _e( 'After you&#8217;ve done that, click &#8220;Run the installation&#8221;.' ); ?></p>
-<p class="step"><a href="<?php echo $install; ?>" class="button button-large"><?php _e( 'Run the installation' ); ?></a></p>
-<script>
-(function(){
-if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
-	var el = document.getElementById('wp-config');
-	el.focus();
-	el.select();
-}
-})();
-</script>
-			<?php
-		else :
-			$path_to_wp_config = ABSPATH . 'wp-config.php';
 
-			$error_message = '';
-			$handle        = fopen( $path_to_wp_config, 'w' );
-			/*
-			 * Why check for the absence of false instead of checking for resource with is_resource()?
-			 * To future-proof the check for when fopen returns object instead of resource, i.e. a known
-			 * change coming in PHP.
-			 */
-			if ( false !== $handle ) {
+			$key = 0;
+			foreach ( $config_file as $line_num => $line ) {
+				if ( str_starts_with( $line, '$table_prefix =' ) ) {
+					$config_file[ $line_num ] = '$table_prefix = \'' . addcslashes( $prefix, "\\'" ) . "';\r\n";
+					continue;
+				}
+
+				if ( ! preg_match( '/^define\(\s*\'([A-Z_]+)\',([ ]+)/', $line, $match ) ) {
+					continue;
+				}
+
+				$constant = $match[1];
+				$padding  = $match[2];
+
+				switch ( $constant ) {
+					case 'DB_NAME':
+					case 'DB_USER':
+					case 'DB_PASSWORD':
+					case 'DB_HOST':
+						$config_file[ $line_num ] = "define( '" . $constant . "'," . $padding . "'" . addcslashes( constant( $constant ), "\\'" ) . "' );\r\n";
+						break;
+					case 'DB_CHARSET':
+						if ( 'utf8mb4' === $wpdb->charset || ( ! $wpdb->charset ) ) {
+							$config_file[ $line_num ] = "define( '" . $constant . "'," . $padding . "'utf8mb4' );\r\n";
+						}
+						break;
+					case 'AUTH_KEY':
+						// A cookie is set with the value generated for the AUTH_KEY
+						// constant. It is going to be used in the install phase to
+						// make sure the install is being done by whoever created the
+						// wp-config.php file.
+						setcookie( 'calmpress_install_auth_key', $secret_keys[ $key ], time() + MONTH_IN_SECONDS );
+
+						// Intentional full through to actually set the value to be
+						// stored in wp-config.php.
+					case 'SECURE_AUTH_KEY':
+					case 'LOGGED_IN_KEY':
+					case 'NONCE_KEY':
+					case 'AUTH_SALT':
+					case 'SECURE_AUTH_SALT':
+					case 'LOGGED_IN_SALT':
+					case 'NONCE_SALT':
+						$config_file[ $line_num ] = "define( '" . $constant . "'," . $padding . "'" . $secret_keys[ $key++ ] . "' );\r\n";
+						break;
+				}
+			}
+			unset( $line );
+
+			if ( ! is_writable( ABSPATH ) ) :
+				setup_config_display_header();
+				?>
+	<p>
+				<?php
+				/* translators: %s: wp-config.php */
+				printf( __( 'Unable to write to %s file.' ), '<code>wp-config.php</code>' );
+				?>
+	</p>
+	<p id="wp-config-description">
+				<?php
+				/* translators: %s: wp-config.php */
+				printf( __( 'You can create the %s file manually and paste the following text into it.' ), '<code>wp-config.php</code>' );
+
+				$config_text = '';
+
 				foreach ( $config_file as $line ) {
-					fwrite( $handle, $line );
+					$config_text .= htmlentities( $line, ENT_COMPAT, 'UTF-8' );
 				}
-				fclose( $handle );
-				chmod( $path_to_wp_config, 0666 );
-				wp_redirect( $install );
-				die();
-			} else {
-				$wp_config_perms = fileperms( $path_to_wp_config );
-				if ( ! empty( $wp_config_perms ) && ! is_writable( $path_to_wp_config ) ) {
-					$error_message = sprintf(
-						/* translators: 1: wp-config.php, 2: Documentation URL. */
-						__( 'You need to make the file %1$s writable before you can save your changes. See <a href="%2$s">Changing File Permissions</a> for more information.' ),
-						'<code>wp-config.php</code>',
-						__( 'https://developer.wordpress.org/advanced-administration/server/file-permissions/' )
-					);
-				} else {
-					$error_message = sprintf(
-						/* translators: %s: wp-config.php */
-						__( 'Unable to write to %s file.' ),
-						'<code>wp-config.php</code>'
-					);
-				}
-			}
+				?>
+	</p>
+	<p class="configuration-rules-label"><label for="wp-config">
+				<?php
+				/* translators: %s: wp-config.php */
+				printf( __( 'Configuration rules for %s:' ), '<code>wp-config.php</code>' );
+				?>
+		</label></p>
+	<textarea id="wp-config" cols="98" rows="15" class="code" readonly="readonly" aria-describedby="wp-config-description"><?php echo $config_text; ?></textarea>
+	<p><?php _e( 'After you&#8217;ve done that, click &#8220;Run the installation&#8221;.' ); ?></p>
+	<p class="step"><a href="<?php echo $install; ?>" class="button button-large"><?php _e( 'Run the installation' ); ?></a></p>
+	<script>
+	(function(){
+	if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
+		var el = document.getElementById('wp-config');
+		el.focus();
+		el.select();
+	}
+	})();
+	</script>
+				<?php
+			else :
+				$path_to_wp_config = ABSPATH . 'wp-config.php';
 
-			setup_config_display_header();
-			printf( '<p>%s</p>', $error_message );
-		endif;
+				$error_message = '';
+				$handle        = fopen( $path_to_wp_config, 'w' );
+				/*
+				* Why check for the absence of false instead of checking for resource with is_resource()?
+				* To future-proof the check for when fopen returns object instead of resource, i.e. a known
+				* change coming in PHP.
+				*/
+				if ( false !== $handle ) {
+					foreach ( $config_file as $line ) {
+						fwrite( $handle, $line );
+					}
+					fclose( $handle );
+					chmod( $path_to_wp_config, 0666 );
+					wp_redirect( $install );
+					die();
+				} else {
+					$wp_config_perms = fileperms( $path_to_wp_config );
+					if ( ! empty( $wp_config_perms ) && ! is_writable( $path_to_wp_config ) ) {
+						$error_message = sprintf(
+							/* translators: 1: wp-config.php, 2: Documentation URL. */
+							__( 'You need to make the file %1$s writable before you can save your changes. See <a href="%2$s">Changing File Permissions</a> for more information.' ),
+							'<code>wp-config.php</code>',
+							__( 'https://developer.wordpress.org/advanced-administration/server/file-permissions/' )
+						);
+					} else {
+						$error_message = sprintf(
+							/* translators: %s: wp-config.php */
+							__( 'Unable to write to %s file.' ),
+							'<code>wp-config.php</code>'
+						);
+					}
+				}
+
+				setup_config_display_header();
+				printf( '<p>%s</p>', $error_message );
+			endif;
+		}
 		break;
 } // End of the steps switch.
 ?>
