@@ -131,7 +131,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
             const data = {
                 credential_id: credential.id,
                 clientDataJSON: arrayBufferToBase64Url( credential.response.clientDataJSON ),
-                redirect_to: cp_$( '#redirect_to' ).getValue(),
+                redirect_to: cp_$( '#redirect_to' ).value(),
             };
 
             const login_response = await calm_fetch.post_no_nonce( 'calmpress/webauthn/login', data );
@@ -165,7 +165,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
     cp_$( '#get_otp' ).on( 'click', async function ( event ) {
         try {
-            const email = cp_$( '#user_login' ).getValue();
+            const email = cp_$( '#user_login' ).value();
             const data = {
                 email: email
             }

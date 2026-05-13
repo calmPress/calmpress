@@ -67,7 +67,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 * on whether there is non empty string at the device name input.
 	 */
 	cp_$( '#new_application_password_name' ).on( 'input', function () {
-		val = cp_$( this ).getValue();
+		val = cp_$( this ).value();
 		if ( val.trim() != '' ) {
 			cp_$( '#register_button' ).enable();
 		} else {
@@ -147,7 +147,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 			try {
 				remove_application_passwords_notices();
-				let name = cp_$( '#new_application_password_name' ).getValue();
+				let name = cp_$( '#new_application_password_name' ).value();
 
 				// Send the create request.
 				const response = await calm_fetch.post( 'wp/v2/users/me/application-passwords',
@@ -261,7 +261,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const $input = $box.find( 'input' );
 
 		const data = {
-			'name'   : $input.getValue(),
+			'name'   : $input.value(),
 		};
 
 		// Send the update request.
@@ -300,7 +300,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	cp_$( '#passwords-grid' ).on( 'keypress', 'input', function ( event ) {
 
 		if ( event.key === 'Enter' ) {
-			val = cp_$( this ).getValue();
+			val = cp_$( this ).value();
 			if ( val.trim() != '' ) {
 				update_description( event.target );
 			}
@@ -314,7 +314,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 */
 	cp_$( '#passwords-grid' ).on( 'input', 'input', function ( event ) {
 
-		val = cp_$( this ).getValue();
+		val = cp_$( this ).value();
 		const $row = cp_$( this ).closest( 'tr' );
 		const $but = $row.find( '.update_description' );
 		if ( val.trim() != '' ) {

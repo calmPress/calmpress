@@ -289,11 +289,11 @@ class jquery_like_element_wrapper {
     }
 
     /**
-     * Set an event handler. It is possible to specify a selector for the handler to be alled
+     * Set an event handler. It is possible to specify a selector for the handler to be called
      * only for elements matching it.
      * 
      * @param {string}   eventType The name of the event to which the handler is associated.
-     * @param @param {string|Function} selectorOrHandler
+     * @param @param {string|function} selectorOrHandler
      *                             Either a CSS selector string for delegated event handling,
      *                             or a direct event handler function.
      * @param {function} handler   The handler for the event.
@@ -315,6 +315,7 @@ class jquery_like_element_wrapper {
 
         return this;
     }
+
     /**
      * Visualy show an element by manipulating its hidden attribute and display
      * style, fetching the style from a data attribute where it should be
@@ -414,6 +415,26 @@ class jquery_like_element_wrapper {
     }
 
     /**
+     * Toggle a CSS class on the element.
+     *
+     * When the force parameter is omitted, the class will be added if it does not
+     * exist and removed if it already exists.
+     *
+     * When force is true, the class will always be added.
+     * When force is false, the class will always be removed.
+     *
+     * @param {string} className Class name to toggle.
+     * @param {bool}   [force]   Optional state to force.
+     *
+     * @return {this} Current instance for chaining.
+     */
+    toggleClass( className, force ) {
+        this.el.classList.toggle( className, force );
+
+        return this;
+    }
+
+    /**
      * Checks if an element has a specific class.
      * 
      * @param {string} return this.el.classList.contains(className); The name of the class to check for.
@@ -431,7 +452,7 @@ class jquery_like_element_wrapper {
      *  
      * @throws if the element is not an input (do not support value property).
      */
-    getValue() {
+    value() {
         if ( ! ('value' in this.el ) ) {
             throw new Error( 'Element does not support value' );
         }
@@ -442,6 +463,8 @@ class jquery_like_element_wrapper {
      * Set the value of an input element.
      * 
      * @param {string} value The value to be set in the input.
+     * 
+     * @returns {jquery_like_element_wrapper} The element for easy chaining.
      *  
      * @throws if the element is not an input (do not support value property).
      */
@@ -450,6 +473,8 @@ class jquery_like_element_wrapper {
             throw new Error( 'Element does not support value' );
         }
         this.el.value = value;
+        
+        return this;
     }
 
     /**
@@ -519,7 +544,7 @@ class jquery_like_element_wrapper {
      * @returns {string|object} The value of the specified data-* attribute if attr is provided;
      *                          otherwise, an object mapping all data-* attributes to their values.
      * 
-     *  @throws {Error} If the specified attribute does not exist.
+     * @throws {Error} If the specified attribute does not exist.
      */
     data( attr ) {
         if ( attr === undefined ) {
@@ -527,11 +552,57 @@ class jquery_like_element_wrapper {
             return { ...this.el.dataset };
         }
 
+        // Need to replace kebab case to camel case as that is what DOM does when storing the data.
+        attr = attr.replace( /-([a-z])/g, ( _, c ) => c.toUpperCase() );
+
         if ( ! ( attr in this.el.dataset )) {
             throw new Error(` Attribute data-"${attr}" does not exist on element.`);
         }
 
         return this.el.dataset[attr];
+    }
+
+    /**
+     * Set the value of a data- attribute of the element.
+     * 
+     * It is a sweetener over setAttribue serving as a counterpart to data().
+     *
+     * @param {string} [attr] The name of the attribute, the actual attribute being modified is
+     *                        data-${attr}.
+     *    
+     * @param {string} [value] The value to set the data attribute to.
+     * 
+     * @returns {jquery_like_element_wrapper} The element for easy chaining.
+     */
+    setData( attr, value ) {
+
+        this.setAttribute( 'data-' + attr, value );
+    
+        return this;
+    }
+
+
+    /**
+     * Get the value of the textContent of the element.
+     *    
+     * @returns {string} The value of the textContent of the element.
+     */
+    text( attr ) {
+        return this.el.textContent;
+    }
+
+    /**
+     * Set the value of the textContent of the element.
+     *
+     * @param {string} [value] The value to set the textContent to.
+     * 
+     * @returns {jquery_like_element_wrapper} The element for easy chaining.
+     */
+    setText( value ) {
+
+        this.el.textContent = value;
+
+        return this;
     }
 
     /**
@@ -552,7 +623,7 @@ class jquery_like_element_wrapper {
      *                          otherwise an object mapping attribute names to values.
      * @throws {Error} If `attr` is specified but the element does not have that attribute.
      */
-    getAttribute( attr ) {
+    attribute( attr ) {
         if ( attr === undefined ) {
             const result = {};
             for (const a of this.el.attributes) {
@@ -573,9 +644,13 @@ class jquery_like_element_wrapper {
      * 
      * @param {*} attr  The name of the attribute.
      * @param {*} value The value to set.
+     * 
+     * @returns {jquery_like_element_wrapper} The element for easy chaining.
      */
     setAttribute( attr, value ) {
         this.el.setAttribute( attr, value );
+
+        return this;
     }
 }
 

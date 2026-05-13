@@ -64,7 +64,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 * on whether there is non empty string at the device name input.
 	 */
 	cp_$( '#new_webautn_device_name' ).on( 'input', function () {
-		val = cp_$( this ).getValue();
+		val = cp_$( this ).value();
 		if ( val.trim() != '' ) {
 			cp_$( '#register_button' ).enable();
 		} else {
@@ -164,7 +164,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				};
 
 				const data = {
-					'name'      : cp_$( '#new_webautn_device_name' ).getValue(),
+					'name'      : cp_$( '#new_webautn_device_name' ).value(),
 					'payload'   : payload,
 				}
 
@@ -280,7 +280,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		const data = {
 			'credential_id' : cred,
-			'description'   : $input.getValue(),
+			'description'   : $input.value(),
 		};
 
 		// Send the update request.
@@ -318,7 +318,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	cp_$( '#devices-grid' ).on( 'keypress', 'input', function ( event ) {
 
 		if ( event.key === 'Enter' ) {
-			val = cp_$( this ).getValue();
+			val = cp_$( this ).value();
 			if ( val.trim() != '' ) {
 				update_description( event.target );
 			}
@@ -332,7 +332,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 */
 	cp_$( '#devices-grid' ).on( 'input', 'input', function ( event ) {
 
-		val = cp_$( this ).getValue();
+		val = cp_$( this ).value();
 		const $row = cp_$( this ).closest( 'tr' );
 		const $but = $row.find( '.update_description' );
 		if ( val.trim() != '' ) {
