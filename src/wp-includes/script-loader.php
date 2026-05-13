@@ -1192,6 +1192,7 @@ function wp_default_scripts( $scripts ) {
 		)
 	);
 
+	$scripts->add( 'calm-logo-selection', "/wp-admin/js/cp-logo-selection$suffix.js", [ 'calm-utils' ], false, 1 );
 	$scripts->add( 'language-chooser', "/wp-admin/js/language-chooser$suffix.js", array( 'jquery' ), false, 1 );
 
 	$scripts->add( 'user-suggest', "/wp-admin/js/user-suggest$suffix.js", array( 'jquery-ui-autocomplete' ), false, 1 );

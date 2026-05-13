@@ -25,6 +25,9 @@ $timezone_format = _x( 'Y-m-d H:i:s', 'timezone date format' );
 add_action( 'admin_head', 'options_general_add_js' );
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
+wp_enqueue_media();
+wp_enqueue_script( 'site-icon' );
+wp_enqueue_script( 'calm-logo-selection' );
 ?>
 
 <div class="wrap">
@@ -60,15 +63,79 @@ $tagline_description = sprintf(
 <p class="description" id="tagline-description"><?php echo $tagline_description; ?></p></td>
 </tr>
 
-<?php if ( current_user_can( 'upload_files' ) ) : ?>
-<tr class="hide-if-no-js site-icon-section">
+<tr class="logo-section">
+<th scope="row"><?php _e( 'Logo' ); ?></th>
+<td>
+	<?php
+	$classes_for_upload_button = 'upload-button button';
+	$classes_for_update_button = 'button';
+	$classes_for_wrapper       = '';
+
+	if ( has_custom_logo() ) {
+		$classes_for_wrapper         .= ' has-logo';
+		$classes_for_button           = $classes_for_update_button;
+		$classes_for_button_on_change = $classes_for_upload_button;
+	} else {
+		$classes_for_wrapper         .= ' hidden';
+		$classes_for_button           = $classes_for_upload_button;
+		$classes_for_button_on_change = $classes_for_update_button;
+	}
+
+	$logo_image_id = (int) get_theme_mod( 'custom_logo' );
+	$logo_url =    '';
+	if ( $logo_image_id ) {
+		$logo_url =  wp_get_attachment_image_url( $logo_image_id, 'full' );
+	}
+	?>
+
+	<div id="logo-preview-container" class="settings <?php echo esc_attr( $classes_for_wrapper ); ?>">
+		<img id="logo-preview" style="display:block;max-width:100%;height:auto;max-height:150px; margin-bottom:16px;" src="<?php echo esc_url( $logo_url ); ?>" alt="" />
+	</div>
+
+	<input type="hidden" name="site_logo" id="logo_hidden_field" value="<?php form_option( 'site_logo' ); ?>" />
+	<div class="logo-action-buttons">
+		<button type="button"
+			id="choose-logo-from-library-button"
+			class="<?php echo esc_attr( $classes_for_button ); ?>"
+			data-alt-classes="<?php echo esc_attr( $classes_for_button_on_change ); ?>"
+			data-choose-text="<?php esc_attr_e( 'Choose a Logo' ); ?>"
+			data-update-text="<?php esc_attr_e( 'Change Logo' ); ?>"
+			data-update="<?php esc_attr_e( 'Set as Logo' ); ?>"
+			data-state="<?php echo esc_attr( has_custom_logo() ); ?>"
+
+		>
+			<?php if ( has_custom_logo() ) { ?>
+				<?php esc_html_e( 'Change Logo' ); ?>
+			<?php } else { ?>
+				<?php esc_html_e( 'Choose a Logo' ); ?>
+			<?php } ?>
+		</button>
+		<button
+			id="js-remove-logo"
+			type="button"
+			<?php echo has_custom_logo() ? 'class="button button-secondary reset remove-logo"' : 'class="button button-secondary reset hidden"'; ?>
+		>
+			<?php _e( 'Remove Logo' ); ?>
+		</button>
+	</div>
+
+	<p class="description">
+		<?php
+			esc_html_e( 'The logo image is used to represent your site for branding purposes. It may be displayed by your theme, often in the header and linked to your homepage.' );
+			if ( ! current_theme_supports( 'custom-logo' ) ) {
+				esc_html_e( 'Your current theme does not support displaying a custom logo uploaded here.' );
+			}
+		?>
+	</p>
+
+</td>
+</tr>
+
+<tr class="site-icon-section">
 <th scope="row"><?php _e( 'Site Icon' ); ?></th>
 <td>
 	<?php
-	wp_enqueue_media();
-	wp_enqueue_script( 'site-icon' );
-
-	$classes_for_upload_button = 'upload-button button-hero button';
+	$classes_for_upload_button = 'upload-button button';
 	$classes_for_update_button = 'button';
 	$classes_for_wrapper       = '';
 
@@ -185,9 +252,7 @@ $tagline_description = sprintf(
 </td>
 </tr>
 
-	<?php
-endif;
-	/* End Site Icon */
+<?php
 
 if ( ! is_multisite() ) {
 	$wp_site_url_class = '';
