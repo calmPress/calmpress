@@ -645,4 +645,20 @@ add_action( 'wp_creating_autosave', 'wp_autosave_post_revisioned_meta_fields' );
 // When restoring revisions, also restore revisioned meta.
 add_action( 'wp_restore_post_revision', 'wp_restore_post_revision_meta', 10, 2 );
 
+// Match logo theme setting to global option.
+add_filter(
+	'theme_mod_custom_logo',
+	function ( $value ) {
+		$logo = get_option( 'custom_logo' );
+
+		return $logo ? (int) $logo : false;}
+);
+
+add_action(
+	'set_theme_mod_custom_logo',
+	function ( $value ) {
+		update_option( 'custom_logo', (int) $value );
+	}
+);
+
 unset( $filter, $action );

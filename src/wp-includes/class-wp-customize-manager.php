@@ -5086,6 +5086,7 @@ class WP_Customize_Manager {
 		$this->add_setting(
 			'custom_logo',
 			array(
+				'type'           => 'option',
 				'theme_supports' => array( 'custom-logo' ),
 				'transport'      => 'postMessage',
 			)
@@ -5093,17 +5094,14 @@ class WP_Customize_Manager {
 
 		$custom_logo_args = get_theme_support( 'custom-logo' );
 		$this->add_control(
-			new WP_Customize_Cropped_Image_Control(
+			new WP_Customize_Media_Control(
 				$this,
 				'custom_logo',
 				array(
 					'label'         => __( 'Logo' ),
 					'section'       => 'title_tagline',
 					'priority'      => 8,
-					'height'        => isset( $custom_logo_args[0]['height'] ) ? $custom_logo_args[0]['height'] : null,
-					'width'         => isset( $custom_logo_args[0]['width'] ) ? $custom_logo_args[0]['width'] : null,
-					'flex_height'   => isset( $custom_logo_args[0]['flex-height'] ) ? $custom_logo_args[0]['flex-height'] : null,
-					'flex_width'    => isset( $custom_logo_args[0]['flex-width'] ) ? $custom_logo_args[0]['flex-width'] : null,
+					'mime_type'     => 'image',
 					'button_labels' => array(
 						'select'       => __( 'Select logo' ),
 						'change'       => __( 'Change logo' ),

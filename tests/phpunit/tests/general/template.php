@@ -487,7 +487,7 @@ class Tests_General_Template extends WP_UnitTestCase {
 			$this->insert_custom_logo();
 		}
 
-		set_theme_mod( 'custom_logo', $this->custom_logo_id );
+		update_option( 'custom_logo', $this->custom_logo_id );
 	}
 
 	/**
@@ -496,7 +496,7 @@ class Tests_General_Template extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	private function remove_custom_logo() {
-		remove_theme_mod( 'custom_logo' );
+		update_option( 'custom_logo', 0 );
 	}
 
 	/**

@@ -66,6 +66,7 @@ $allowed_options            = array(
 	'general'    => array(
 		'blogname',
 		'blogdescription',
+		'custom_logo',
 		'site_icon',
 		'gmt_offset',
 		'date_format',

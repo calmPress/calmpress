@@ -902,7 +902,7 @@ function has_custom_logo( $blog_id = 0 ) {
 		$switched_blog = true;
 	}
 
-	$custom_logo_id = get_theme_mod( 'custom_logo' );
+	$custom_logo_id = get_option( 'custom_logo' );
 	$is_image       = ( $custom_logo_id ) ? wp_attachment_is_image( $custom_logo_id ) : false;
 
 	if ( $switched_blog ) {
@@ -934,7 +934,7 @@ function get_custom_logo( $blog_id = 0 ) {
 
 	// We have a logo. Logo is go.
 	if ( has_custom_logo() ) {
-		$custom_logo_id   = get_theme_mod( 'custom_logo' );
+		$custom_logo_id   = get_option( 'custom_logo' );
 		$custom_logo_attr = array(
 			'class'   => 'custom-logo',
 			'loading' => false,

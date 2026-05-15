@@ -81,7 +81,7 @@ $tagline_description = sprintf(
 		$classes_for_button_on_change = $classes_for_update_button;
 	}
 
-	$logo_image_id = (int) get_theme_mod( 'custom_logo' );
+	$logo_image_id = (int) get_option( 'custom_logo' );
 	$logo_url =    '';
 	if ( $logo_image_id ) {
 		$logo_url =  wp_get_attachment_image_url( $logo_image_id, 'full' );
@@ -92,7 +92,7 @@ $tagline_description = sprintf(
 		<img id="logo-preview" style="display:block;max-width:100%;height:auto;max-height:150px; margin-bottom:16px;" src="<?php echo esc_url( $logo_url ); ?>" alt="" />
 	</div>
 
-	<input type="hidden" name="site_logo" id="logo_hidden_field" value="<?php form_option( 'site_logo' ); ?>" />
+	<input type="hidden" name="custom_logo" id="logo_hidden_field" value="<?php form_option( 'custom_logo' ); ?>" />
 	<div class="logo-action-buttons">
 		<button type="button"
 			id="choose-logo-from-library-button"

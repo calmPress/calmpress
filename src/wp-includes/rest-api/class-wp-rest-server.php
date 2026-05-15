@@ -1436,7 +1436,7 @@ class WP_REST_Server {
 	 * @param WP_REST_Response $response REST API response.
 	 */
 	protected function add_site_logo_to_index( WP_REST_Response $response ) {
-		$site_logo_id = get_theme_mod( 'custom_logo', 0 );
+		$site_logo_id = get_option( 'custom_logo', 0 );
 
 		$this->add_image_to_index( $response, $site_logo_id, 'site_logo' );
 	}

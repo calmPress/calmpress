@@ -3212,11 +3212,11 @@ function _delete_attachment_theme_mod( $id ) {
 	$attachment_image = wp_get_attachment_url( $id );
 	$header_image     = get_header_image();
 	$background_image = get_background_image();
-	$custom_logo_id   = (int) get_theme_mod( 'custom_logo' );
+	$custom_logo_id   = (int) get_option( 'custom_logo' );
 	$site_logo_id     = (int) get_option( 'site_logo' );
 
 	if ( $custom_logo_id && $custom_logo_id === $id ) {
-		remove_theme_mod( 'custom_logo' );
+		update_option( 'custom_logo', 0 );
 		remove_theme_mod( 'header_text' );
 	}
 

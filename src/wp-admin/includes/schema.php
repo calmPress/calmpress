@@ -494,6 +494,7 @@ function populate_options( array $options = array() ) {
 			'from_email' => '', // domain is unknown at this point.
 			'verbosity'  => 'no',
 		],
+		'custom_logo'                     => 0,
 	);
 
 	// 3.0.0 multisite.
