@@ -122,7 +122,7 @@ if ( ! function_exists( 'calmpress_db_version_compatibility' ) ) {
 	 * @return string
 	 */
 	function calmpress_db_version_compatibility() {
-		return '1.0.0-alpha9';
+		return '1.0.0-alpha26';
 	}
 }
 

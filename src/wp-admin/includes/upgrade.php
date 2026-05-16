@@ -626,7 +626,6 @@ function upgrade_all() {
 			upgrade_100();
 			upgrade_101();
 			upgrade_110();
-			upgrade_130();
 		}
 
 		if ( $wp_current_db_version < 3308 ) {
@@ -748,6 +747,22 @@ function upgrade_all() {
 	if ( version_compare( $calmpress_db_version, '1.0.0-alpha19', '<' ) ) {
 		add_option( 'robots_txt', 'User-agent: *', '', 'no' );
 		add_option( 'calm_maintenance_mode_type', '', '', 'yes' );
+	}
+
+	if ( version_compare( $calmpress_db_version, '1.0.0-alpha26', '<' ) ) {
+		// Move the custom logo setting from the theme mods to an option.
+		$theme_mods = get_option( 'theme_mods_' . get_stylesheet() );
+
+		if (
+			is_array( $theme_mods )
+			&& ! empty( $theme_mods['custom_logo'] )
+			&& ! get_option( 'custom_logo' )
+		) {
+			update_option(
+				'custom_logo',
+				(int) $theme_mods['custom_logo']
+			);
+		}
 	}
 
 	delete_option( 'db_version' );
