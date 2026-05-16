@@ -122,8 +122,22 @@ $tagline_description = sprintf(
 	<p class="description">
 		<?php
 			esc_html_e( 'The logo image is used to represent your site for branding purposes. It may be displayed by your theme, often in the header and linked to your homepage.' );
-			if ( ! current_theme_supports( 'custom-logo' ) ) {
-				esc_html_e( 'Your current theme does not support displaying a custom logo uploaded here.' );
+			echo '<br />';
+			if ( current_theme_supports( 'custom-logo' ) ) {
+				$customizer_url = add_query_arg(
+					array(
+						'autofocus[control]' => 'custom_logo',
+					),
+					admin_url( 'customize.php' )
+				);
+				printf(
+					/* translators: 1: start of <a> element pointing to Customizer URL, 2: </a> */
+					esc_html__( 'You can preview logo changes in the %1$sCustomizer%2$s.' ),
+					'<a href="' . esc_url( $customizer_url ) . '">',
+					'</a>'
+				);
+			} else {
+				esc_html_e( 'Your current theme may not display the site logo, but the logo will still be available to themes and features that support it.' );
 			}
 		?>
 	</p>
