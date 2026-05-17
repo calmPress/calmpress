@@ -542,12 +542,6 @@ define( 'BLOG_ID_CURRENT_SITE', 1 );
 
 	} else { // End is_nginx(). Construct an .htaccess file instead:
 
-		$ms_files_rewriting = '';
-		if ( is_multisite() && get_site_option( 'ms_files_rewriting' ) ) {
-			$ms_files_rewriting  = "\n# uploaded files\nRewriteRule ^";
-			$ms_files_rewriting .= $subdir_match . "files/(.+) {$rewrite_base}" . WPINC . "/ms-files.php?file={$subdir_replacement_12} [L]" . "\n";
-		}
-
 		$htaccess_file = <<<EOF
 <files wp-config.php>
 order allow,deny
@@ -560,7 +554,6 @@ RewriteRule ^index\.php$ - [L]
 RewriteRule (^|/)\. - [F]
 RewriteRule ^wp-includes/(.*)\.php$ - [F]
 RewriteRule ^wp-content/(.*)\.php$ - [F]
-{$ms_files_rewriting}
 # add a trailing slash to /wp-admin
 RewriteRule ^{$subdir_match}wp-admin$ {$subdir_replacement_01}wp-admin/ [R=301,L]
 

@@ -2060,11 +2060,6 @@ function upgrade_network() {
 		}
 	}
 
-	// 3.5.0
-	if ( $wp_current_db_version < 21823 ) {
-		update_site_option( 'ms_files_rewriting', '1' );
-	}
-
 	// 3.5.2
 	if ( $wp_current_db_version < 24448 ) {
 		$illegal_names = get_site_option( 'illegal_names' );

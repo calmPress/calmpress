@@ -1221,7 +1221,6 @@ We hope you enjoy your new site. Thanks!
 		'add_new_users'               => '0',
 		'upload_space_check_disabled' => is_multisite() ? get_site_option( 'upload_space_check_disabled' ) : '1',
 		'subdomain_install'           => $subdomain_install,
-		'ms_files_rewriting'          => is_multisite() ? get_site_option( 'ms_files_rewriting' ) : '0',
 		'user_count'                  => get_site_option( 'user_count' ),
 		'active_sitewide_plugins'     => array(),
 		'WPLANG'                      => get_locale(),

@@ -85,11 +85,6 @@ function wpmu_delete_blog( $blog_id, $drop = false ) {
 
 	$upload_path = trim( get_option( 'upload_path' ) );
 
-	// If ms_files_rewriting is enabled and upload_path is empty, wp_upload_dir is not reliable.
-	if ( $drop && get_site_option( 'ms_files_rewriting' ) && empty( $upload_path ) ) {
-		$drop = false;
-	}
-
 	if ( $drop ) {
 		wp_delete_site( $blog_id );
 	} else {
