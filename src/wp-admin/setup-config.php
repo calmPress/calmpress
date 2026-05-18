@@ -72,31 +72,63 @@ if ( @file_exists( ABSPATH . '../wp-config.php' ) && ! @file_exists( ABSPATH . '
 $step = isset( $_GET['step'] ) ? (int) $_GET['step'] : 0;
 
 /**
- * Detect whether the current DB user has broad (global) privileges.
+ * Detect whether the DB user has access beyond the current WordPress database.
  *
- * Heuristic: looks for grants on *.* which typically indicates
- * a shared or administrative DB user (e.g. root).
- * 
  * @since calmPress 1.0.0
  *
  * @param wpdb $wpdb
- * @return bool True if user appears to have global privileges, false otherwise.
+ * @return bool True if the user appears to have access to other databases.
  */
 function is_broad_db_user( $wpdb ): bool {
-    $grants = $wpdb->get_col( 'SHOW GRANTS FOR CURRENT_USER' );
+	$grants = $wpdb->get_col( 'SHOW GRANTS FOR CURRENT_USER' );
 
-    if ( empty( $grants ) ) {
-        // Unknown environment — do not flag
-        return false;
-    }
+	// Could not reliably determine privileges.
+	if ( ! is_array( $grants ) || empty( $grants ) ) {
+		return true;
+	}
 
-    foreach ( $grants as $grant ) {
-        if ( strpos( $grant, 'ON *.*' ) !== false ) {
-            return true;
-        }
-    }
+	$current_db = strtolower( $wpdb->dbname );
+	$databases  = array();
 
-    return false;
+	foreach ( $grants as $grant ) {
+
+		/*
+		 * Detect actual global privileges.
+		 *
+		 * Ignore:
+		 * GRANT USAGE ON *.* ...
+		 *
+		 * because USAGE grants no privileges.
+		 */
+		if (
+			preg_match( '/^GRANT\s+(.+?)\s+ON\s+\*\.\*/i', $grant, $matches )
+		) {
+			$privileges = strtoupper( trim( $matches[1] ) );
+
+			if ( $privileges !== 'USAGE' ) {
+				return true;
+			}
+		}
+
+		/*
+		 * Detect database-specific grants:
+		 * ON `database`.*
+		 * ON `database`.`table`
+		 */
+		if (
+			preg_match(
+				'/ON\s+`([^`]+)`\.(?:\*|`[^`]+`)/i',
+				$grant,
+				$matches
+			)
+		) {
+			$databases[ strtolower( $matches[1] ) ] = true;
+		}
+	}
+
+	unset( $databases[ $current_db ] );
+
+	return ! empty( $databases );
 }
 
 /**
