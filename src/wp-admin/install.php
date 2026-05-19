@@ -155,6 +155,7 @@ function display_setup_form( $error = null ) {
 				</label>
 			</td>
 		</tr>
+		<?php $blog_privacy_selector_title = has_action( 'blog_privacy_selector' ) ? __( 'Site visibility' ) : __( 'Search engine visibility' ); ?>
 		<tr>
 			<th scope="row"><?php echo $blog_privacy_selector_title; ?></th>
 			<td>
