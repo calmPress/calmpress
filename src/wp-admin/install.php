@@ -155,6 +155,46 @@ function display_setup_form( $error = null ) {
 				</label>
 			</td>
 		</tr>
+		<tr>
+			<?php
+				$parts = wp_parse_url( wp_guess_url() );
+
+				$host = $parts['host'];
+				$path = trim( $parts['path'] ?? '', '/' );
+				
+				$subdirectory_text = sprintf(
+					/* translators: %s: example for url */
+					esc_html__( 'Multiple sites using subdirectories (%s)' ),
+					$host . '/' . $path . '/site1/'
+				);
+				$subdomain_text = sprintf(
+					/* translators: %s: example for url */
+					esc_html__( 'Multiple sites using subdomains (%s)' ),
+					'site1.' . $host
+				);
+			?>
+			<th>
+				<label><?php esc_html_e( 'Installed site type' );?>
+			</th>
+			<td>
+				<select name="instal_type" id="install_type">
+					<option value="standalone"><?php esc_html_e( 'Standalone' );?></option>
+					<option value="network_subdirectory"><?php echo $subdirectory_text;?></option>
+					<?php if ( empty( $path ) ) { // If path not empty subdomain technically possible but weird. ?>
+					<option value="network_subdomain"><?php echo $subdomain_text;?></option>
+					<?php } ?>
+				</select>
+				<p class="description install_type" id="description-standalone">
+					<?php esc_html_e( 'Create a standard single-site setup.' ); ?>
+				</p>
+				<p class="description install_type" id="description-network_subdirectory">
+					<?php esc_html_e( 'Allow centrally managing semi-independent sites with independent settings and user access. Subdirectories of the main site URL can be managed as separate sites. Useful for related sites that should share a common identity while still being managed separately.' ); ?>
+				</p>
+				<p class="description install_type" id="description-network_subdomain">
+					<?php esc_html_e( 'Allow centrally managing semi-independent sites with independent settings and user access. Each subdomain under the main domain can be managed as a separate site. Useful for related sites that should maintain distinct identities while still being managed together.' ); ?>
+				</p>
+			</td>
+		</tr>
 		<?php $blog_privacy_selector_title = has_action( 'blog_privacy_selector' ) ? __( 'Site visibility' ) : __( 'Search engine visibility' ); ?>
 		<tr>
 			<th scope="row"><?php echo $blog_privacy_selector_title; ?></th>
@@ -537,6 +577,17 @@ wp_print_scripts( $scripts_to_print );
 <script type="text/javascript">
 jQuery( function( $ ) {
 	$( '.hide-if-no-js' ).removeClass( 'hide-if-no-js' );
+
+	function show_description_for_install_type() {
+		$( '.install_type' ).hide();
+		const v = $( '#install_type' ).val();
+		$( '#description-' + v ).show();
+	}
+
+	show_description_for_install_type();
+
+	$( '#install_type' ).on( 'change', show_description_for_install_type );
+
 } );
 </script>
 </body>
