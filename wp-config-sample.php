@@ -75,6 +75,9 @@ define( 'NONCE_SALT',       'put your unique phrase here should be at least 32 c
  */
 $table_prefix = 'wp_';
 
+/* Network settings */
+// NETWORK_SETTINGS_PLACEHOLDER
+
 /*
  * Custom values configured via the admin. Do not modify manually.
  */

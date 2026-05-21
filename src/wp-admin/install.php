@@ -177,7 +177,7 @@ function display_setup_form( $error = null ) {
 				<label><?php esc_html_e( 'Installed site type' );?>
 			</th>
 			<td>
-				<select name="instal_type" id="install_type">
+				<select name="install_type" id="install_type">
 					<option value="standalone"><?php esc_html_e( 'Standalone' );?></option>
 					<option value="network_subdirectory"><?php echo $subdirectory_text;?></option>
 					<?php if ( empty( $path ) ) { // If path not empty subdomain technically possible but weird. ?>
@@ -529,6 +529,45 @@ switch ( $step ) {
 		}
 
 		if ( false === $error ) {
+			$parts = wp_parse_url( wp_guess_url() );
+
+			$domain = $parts['host'];
+			$path   = trim( $parts['path'] ?? '', '/' );
+
+			// Update wp-config.php with network related settings based on value selected by the user.
+			$config_file = ABSPATH . 'wp-config.php';
+			$config = file_get_contents( $config_file );
+			$multisite_constants = match ( $_POST[ 'install_type'] ) {
+				'network_subdirectory' => sprintf(
+					"define( 'MULTISITE', true );\n" .
+					"define( 'SUBDOMAIN_INSTALL', false );\n" .
+					"define( 'DOMAIN_CURRENT_SITE', '%s' );\n" .
+					"define( 'PATH_CURRENT_SITE', '%s' );\n" .
+					"define( 'SITE_ID_CURRENT_SITE', 1 );\n" .
+					"define( 'BLOG_ID_CURRENT_SITE', 1 );\n",
+					$domain,
+					$path
+				),
+				'network_subdomain'    => sprintf(
+					"define( 'MULTISITE', true );\n" .
+					"define( 'SUBDOMAIN_INSTALL', true );\n" .
+					"define( 'DOMAIN_CURRENT_SITE', '%s' );\n" .
+					"define( 'PATH_CURRENT_SITE', '/' );\n" .
+					"define( 'SITE_ID_CURRENT_SITE', 1 );\n" .
+					"define( 'BLOG_ID_CURRENT_SITE', 1 );\n",
+					$domain,
+					$path
+				),
+				default                => "// None.\n",
+			};
+
+			$config = str_replace(
+				'// NETWORK_SETTINGS_PLACEHOLDER',
+				$multisite_constants,
+				$config
+			);
+
+			$result = file_put_contents( $config_file, $config );
 			$wpdb->show_errors();
 			$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
 
