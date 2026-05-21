@@ -534,46 +534,55 @@ switch ( $step ) {
 			$domain = $parts['host'];
 			$path   = trim( $parts['path'] ?? '', '/' );
 
-			// Update wp-config.php with network related settings based on value selected by the user.
-			$config_file = ABSPATH . 'wp-config.php';
-			$config = file_get_contents( $config_file );
-			$multisite_constants = match ( $_POST[ 'install_type'] ) {
-				'network_subdirectory' => sprintf(
-					"define( 'MULTISITE', true );\n" .
-					"define( 'SUBDOMAIN_INSTALL', false );\n" .
-					"define( 'DOMAIN_CURRENT_SITE', '%s' );\n" .
-					"define( 'PATH_CURRENT_SITE', '%s' );\n" .
-					"define( 'SITE_ID_CURRENT_SITE', 1 );\n" .
-					"define( 'BLOG_ID_CURRENT_SITE', 1 );\n",
-					$domain,
-					$path
-				),
-				'network_subdomain'    => sprintf(
-					"define( 'MULTISITE', true );\n" .
-					"define( 'SUBDOMAIN_INSTALL', true );\n" .
-					"define( 'DOMAIN_CURRENT_SITE', '%s' );\n" .
-					"define( 'PATH_CURRENT_SITE', '/' );\n" .
-					"define( 'SITE_ID_CURRENT_SITE', 1 );\n" .
-					"define( 'BLOG_ID_CURRENT_SITE', 1 );\n",
-					$domain,
-					$path
-				),
-				default                => "// None.\n",
-			};
+			$install_type = $_POST[ 'install_type'];
+			if ( ! in_array( $install_type, array( 'network_subdirectory', 'network_subdomain' ), true ) ) {
+				$install_type = 'standalone';
+			}
 
-			$config = str_replace(
-				'// NETWORK_SETTINGS_PLACEHOLDER',
-				$multisite_constants,
-				$config
-			);
+			if ( $install_type === 'network_subdomain' && ! empty( $path ) ) {
+				display_setup_form( __( 'Sorry, Subdomain-based sites can only be used when the installation is located at the root of a domain.' ) );
+				$error = true;
+			} else {
+				// Update wp-config.php with network related settings based on value selected by the user.
+				$config_file = ABSPATH . 'wp-config.php';
+				$config = file_get_contents( $config_file );
+				$multisite_constants = match ( $install_type ) {
+					'network_subdirectory' => sprintf(
+						"define( 'MULTISITE', true );\n" .
+						"define( 'SUBDOMAIN_INSTALL', false );\n" .
+						"define( 'DOMAIN_CURRENT_SITE', '%s' );\n" .
+						"define( 'PATH_CURRENT_SITE', '%s' );\n" .
+						"define( 'SITE_ID_CURRENT_SITE', 1 );\n" .
+						"define( 'BLOG_ID_CURRENT_SITE', 1 );\n",
+						$domain,
+						$path
+					),
+					'network_subdomain'    => sprintf(
+						"define( 'MULTISITE', true );\n" .
+						"define( 'SUBDOMAIN_INSTALL', true );\n" .
+						"define( 'DOMAIN_CURRENT_SITE', '%s' );\n" .
+						"define( 'PATH_CURRENT_SITE', '/' );\n" .
+						"define( 'SITE_ID_CURRENT_SITE', 1 );\n" .
+						"define( 'BLOG_ID_CURRENT_SITE', 1 );\n",
+						$domain
+					),
+					default                => "// None.\n",
+				};
 
-			$result = file_put_contents( $config_file, $config );
-			$wpdb->show_errors();
-			$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
+				$config = str_replace(
+					'// NETWORK_SETTINGS_PLACEHOLDER',
+					$multisite_constants,
+					$config
+				);
 
-			if ( $result['password'] === wp_slash( $admin_password ) ) {
-				wp_redirect( wp_login_url() );
-				die();
+				$result = file_put_contents( $config_file, $config );
+				$wpdb->show_errors();
+				$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
+
+				if ( $result['password'] === wp_slash( $admin_password ) ) {
+					wp_redirect( wp_login_url() );
+					die();
+				}
 			}
 			?>
 
