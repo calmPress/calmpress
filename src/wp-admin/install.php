@@ -532,7 +532,11 @@ switch ( $step ) {
 			$parts = wp_parse_url( wp_guess_url() );
 
 			$domain = $parts['host'];
-			$path   = trim( $parts['path'] ?? '', '/' );
+			$path = '/' . trim( $parts['path'] ?? '', '/' ) . '/';
+
+			if ( '//' === $path ) {
+				$path = '/';
+			}
 
 			$install_type = $_POST[ 'install_type'];
 			if ( ! in_array( $install_type, array( 'network_subdirectory', 'network_subdomain' ), true ) ) {
@@ -579,6 +583,23 @@ switch ( $step ) {
 				$wpdb->show_errors();
 				$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
 
+				if ( $install_type !== 'standalone' ) {
+					// We need to create references to ms global tables to enable Network.
+					foreach ( $wpdb->tables( 'ms_global' ) as $table => $prefixed_table ) {
+						$wpdb->$table = $prefixed_table;
+					}
+
+					install_network();
+
+					populate_network(
+						1,
+						$domain,
+						$admin_email,
+						$weblog_title,
+						$path,
+						$install_type === 'network_subdomain'
+					);
+				}
 				if ( $result['password'] === wp_slash( $admin_password ) ) {
 					wp_redirect( wp_login_url() );
 					die();
