@@ -51,7 +51,6 @@ if ( $_POST ) {
 
 	$checked_options = array(
 		'menu_items'                  => array(),
-		'registrationnotification'    => 'no',
 		'upload_space_check_disabled' => 1,
 		'add_new_users'               => 0,
 	);
@@ -62,7 +61,6 @@ if ( $_POST ) {
 	}
 
 	$options = array(
-		'registrationnotification',
 		'add_new_users',
 		'menu_items',
 		'upload_space_check_disabled',
@@ -176,50 +174,6 @@ if ( isset( $_GET['updated'] ) ) {
 		</table>
 		<h2><?php _e( 'Registration Settings' ); ?></h2>
 		<table class="form-table" role="presentation">
-			<?php $new_registrations_settings_title = __( 'Allow new registrations' ); ?>
-			<tr>
-				<th scope="row"><?php echo $new_registrations_settings_title; ?></th>
-				<?php
-				if ( ! get_site_option( 'registration' ) ) {
-					update_site_option( 'registration', 'none' );
-				}
-				$reg = get_site_option( 'registration' );
-				?>
-				<td>
-					<fieldset>
-					<legend class="screen-reader-text"><?php echo $new_registrations_settings_title; ?></legend>
-					<label><input name="registration" type="radio" id="registration1" value="none"<?php checked( $reg, 'none' ); ?> /> <?php _e( 'Registration is disabled' ); ?></label><br />
-					<label><input name="registration" type="radio" id="registration2" value="user"<?php checked( $reg, 'user' ); ?> /> <?php _e( 'User accounts may be registered' ); ?></label><br />
-					<label><input name="registration" type="radio" id="registration3" value="blog"<?php checked( $reg, 'blog' ); ?> /> <?php _e( 'Logged in users may register new sites' ); ?></label><br />
-					<label><input name="registration" type="radio" id="registration4" value="all"<?php checked( $reg, 'all' ); ?> /> <?php _e( 'Both sites and user accounts can be registered' ); ?></label>
-					<?php
-					if ( is_subdomain_install() ) {
-						echo '<p class="description">';
-						printf(
-							/* translators: 1: NOBLOGREDIRECT, 2: wp-config.php */
-							__( 'If registration is disabled, please set %1$s in %2$s to a URL you will redirect visitors to if they visit a non-existent site.' ),
-							'<code>NOBLOGREDIRECT</code>',
-							'<code>wp-config.php</code>'
-						);
-						echo '</p>';
-					}
-					?>
-					</fieldset>
-				</td>
-			</tr>
-
-			<tr>
-				<th scope="row"><?php _e( 'Registration notification' ); ?></th>
-				<?php
-				if ( ! get_site_option( 'registrationnotification' ) ) {
-					update_site_option( 'registrationnotification', 'yes' );
-				}
-				?>
-				<td>
-					<label><input name="registrationnotification" type="checkbox" id="registrationnotification" value="yes"<?php checked( get_site_option( 'registrationnotification' ), 'yes' ); ?> /> <?php _e( 'Send the network admin an email notification every time someone registers a site or user account' ); ?></label>
-				</td>
-			</tr>
-
 			<tr id="addnewusers">
 				<th scope="row"><?php _e( 'Add Users' ); ?></th>
 				<td>
