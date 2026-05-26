@@ -75,7 +75,6 @@ if ( $_POST ) {
 		'welcome_email',
 		'welcome_user_email',
 		'fileupload_maxk',
-		'illegal_names',
 		'limited_email_domains',
 		'banned_email_domains',
 		'WPLANG',
@@ -178,25 +177,6 @@ if ( isset( $_GET['updated'] ) ) {
 				<th scope="row"><?php _e( 'Add Users' ); ?></th>
 				<td>
 					<label><input name="add_new_users" type="checkbox" id="add_new_users" value="1"<?php checked( get_site_option( 'add_new_users' ) ); ?> /> <?php _e( 'Allow site administrators to add new users to their site via the "Users &rarr; Add User" page' ); ?></label>
-				</td>
-			</tr>
-
-			<tr>
-				<th scope="row"><label for="illegal_names"><?php _e( 'Banned Names' ); ?></label></th>
-				<td>
-					<?php
-					$illegal_names = get_site_option( 'illegal_names' );
-
-					if ( empty( $illegal_names ) ) {
-						$illegal_names = '';
-					} elseif ( is_array( $illegal_names ) ) {
-						$illegal_names = implode( ' ', $illegal_names );
-					}
-					?>
-					<input name="illegal_names" type="text" id="illegal_names" aria-describedby="illegal-names-desc" class="large-text" value="<?php echo esc_attr( $illegal_names ); ?>" size="45" />
-					<p class="description" id="illegal-names-desc">
-						<?php _e( 'Users are not allowed to register these sites. Separate names by spaces.' ); ?>
-					</p>
 				</td>
 			</tr>
 

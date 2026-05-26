@@ -71,13 +71,6 @@ class Tests_Multisite_wpmuValidateBlogSignup extends WP_UnitTestCase {
 			array( 'foo', 'Site names must at least contain 4 characters.' ),
 		);
 
-		$illegal_names = get_site_option( 'illegal_names' );
-		if ( ! empty( $illegal_names ) ) {
-			$data[] = array( array_shift( $illegal_names ), 'Illegal site names are not allowed.' );
-		} else {
-			$data[] = array( 'www', 'Illegal site names are not allowed.' );
-		}
-
 		return $data;
 	}
 

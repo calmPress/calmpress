@@ -30,16 +30,6 @@ class Tests_Multisite_wpmuValidateUserSignup extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_should_fail_for_illegal_names() {
-		$illegal = array( 'foo123', 'bar123' );
-		update_site_option( 'illegal_names', $illegal );
-
-		foreach ( $illegal as $i ) {
-			$v = wpmu_validate_user_signup( $i, 'foo@example.com' );
-			$this->assertContains( 'user_name', $v['errors']->get_error_codes() );
-		}
-	}
-
 	public function test_should_fail_for_unsafe_email_address() {
 		add_filter( 'is_email_address_unsafe', '__return_true' );
 		$v = wpmu_validate_user_signup( 'foo123', 'foo@example.com' );

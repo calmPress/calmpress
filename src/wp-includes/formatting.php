@@ -4671,23 +4671,6 @@ function sanitize_option( $option, $value ) {
 			}
 			break;
 
-		case 'illegal_names':
-			$value = $wpdb->strip_invalid_text_for_column( $wpdb->options, 'option_value', $value );
-			if ( is_wp_error( $value ) ) {
-				$error = $value->get_error_message();
-			} else {
-				if ( ! is_array( $value ) ) {
-					$value = explode( ' ', $value );
-				}
-
-				$value = array_values( array_filter( array_map( 'trim', $value ) ) );
-
-				if ( ! $value ) {
-					$value = '';
-				}
-			}
-			break;
-
 		case 'limited_email_domains':
 		case 'banned_email_domains':
 			$value = $wpdb->strip_invalid_text_for_column( $wpdb->options, 'option_value', $value );

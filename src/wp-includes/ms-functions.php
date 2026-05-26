@@ -478,17 +478,6 @@ function wpmu_validate_user_signup( $user_name, $user_email ) {
 		$errors->add( 'user_name', __( 'Please enter a username.' ) );
 	}
 
-	$illegal_names = get_site_option( 'illegal_names' );
-
-	if ( ! is_array( $illegal_names ) ) {
-		$illegal_names = array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator' );
-		add_site_option( 'illegal_names', $illegal_names );
-	}
-
-	if ( in_array( $user_name, $illegal_names, true ) ) {
-		$errors->add( 'user_name', __( 'Sorry, that username is not allowed.' ) );
-	}
-
 	if ( ! is_email( $user_email ) ) {
 		$errors->add( 'user_email', __( 'Please enter a valid email address.' ) );
 	} elseif ( is_email_address_unsafe( $user_email ) ) {
@@ -631,20 +620,6 @@ function wpmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 	$blog_title = strip_tags( $blog_title );
 
 	$errors        = new WP_Error();
-	$illegal_names = get_site_option( 'illegal_names' );
-
-	if ( ! is_array( $illegal_names ) ) {
-		$illegal_names = array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator' );
-		add_site_option( 'illegal_names', $illegal_names );
-	}
-
-	/*
-	 * On sub dir installations, some names are so illegal, only a filter can
-	 * spring them from jail.
-	 */
-	if ( ! is_subdomain_install() ) {
-		$illegal_names = array_merge( $illegal_names, get_subdirectory_reserved_names() );
-	}
 
 	if ( empty( $blogname ) ) {
 		$errors->add( 'blogname', __( 'Please enter a site name.' ) );
@@ -652,10 +627,6 @@ function wpmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 
 	if ( preg_match( '/[^a-z0-9]+/', $blogname ) ) {
 		$errors->add( 'blogname', __( 'Site names can only contain lowercase letters (a-z) and numbers.' ) );
-	}
-
-	if ( in_array( $blogname, $illegal_names, true ) ) {
-		$errors->add( 'blogname', __( 'That name is not allowed.' ) );
 	}
 
 	/**

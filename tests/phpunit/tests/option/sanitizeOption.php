@@ -49,16 +49,6 @@ class Tests_Option_SanitizeOption extends WP_UnitTestCase {
 			array( 'WPLANG', 0, 0 ),
 			array( 'WPLANG', '', '' ),
 			array(
-				'illegal_names',
-				array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
-				array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
-			),
-			array(
-				'illegal_names',
-				array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
-				'www     web root admin main invite administrator files',
-			),
-			array(
 				'banned_email_domains',
 				array( 'mail.com', 'gmail.com' ),
 				array( 'mail.com', 'gmail.com' ),

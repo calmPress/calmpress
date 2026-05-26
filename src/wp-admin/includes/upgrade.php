@@ -2060,16 +2060,6 @@ function upgrade_network() {
 		}
 	}
 
-	// 3.5.2
-	if ( $wp_current_db_version < 24448 ) {
-		$illegal_names = get_site_option( 'illegal_names' );
-		if ( is_array( $illegal_names ) && count( $illegal_names ) === 1 ) {
-			$illegal_name  = reset( $illegal_names );
-			$illegal_names = explode( ' ', $illegal_name );
-			update_site_option( 'illegal_names', $illegal_names );
-		}
-	}
-
 	// 4.2.0
 	if ( $wp_current_db_version < 31351 && 'utf8mb4' === $wpdb->charset ) {
 		if ( wp_should_upgrade_global_tables() ) {

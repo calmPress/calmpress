@@ -174,25 +174,6 @@ class Tests_Option_Multisite extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider data_illegal_names
-	 *
-	 * @covers ::update_site_option
-	 * @covers ::get_site_option
-	 */
-	public function test_sanitize_network_option_illegal_names( $option_value, $sanitized_option_value ) {
-		update_site_option( 'illegal_names', $option_value );
-		$this->assertSame( $sanitized_option_value, get_site_option( 'illegal_names' ) );
-	}
-
-	public function data_illegal_names() {
-		return array(
-			array( array( '', 'Woo', '' ), array( 'Woo' ) ),
-			array( 'foo bar', array( 'foo', 'bar' ) ),
-			array( array(), '' ),
-		);
-	}
-
-	/**
 	 * @dataProvider data_email_domains
 	 *
 	 * @param $option_value

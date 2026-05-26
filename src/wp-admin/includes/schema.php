@@ -1210,7 +1210,6 @@ We hope you enjoy your new site. Thanks!
 		'fileupload_maxk'             => 1500,
 		'site_admins'                 => $site_admins,
 		'allowedthemes'               => $allowed_themes,
-		'illegal_names'               => array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
 		'calmpress_wpmu_upgrade_site' => calmpress_version(),
 		'welcome_email'               => $welcome_email,
 		/* translators: %s: Site link. */
@@ -1224,9 +1223,6 @@ We hope you enjoy your new site. Thanks!
 		'active_sitewide_plugins'     => array(),
 		'WPLANG'                      => get_locale(),
 	);
-	if ( ! $subdomain_install ) {
-		$sitemeta['illegal_names'][] = 'blog';
-	}
 
 	$sitemeta = wp_parse_args( $meta, $sitemeta );
 
