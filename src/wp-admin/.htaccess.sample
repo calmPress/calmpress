@@ -4,16 +4,7 @@ Require all denied
 </Files>
 
 <IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-RewriteBase /
-RewriteRule ^index\.php$ - [L]
-RewriteRule (^|/)\. - [F]
-RewriteRule ^wp-includes/(.*)\.php$ - [F]
-RewriteRule ^wp-content/(.*)\.php$ - [F]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /index.php [L]
+# REWRITE_PLACE_HOLDER
 </IfModule>
 
 <IfModule mod_deflate.c>

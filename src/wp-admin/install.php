@@ -543,7 +543,7 @@ switch ( $step ) {
 				$install_type = 'standalone';
 			}
 
-			if ( $install_type === 'network_subdomain' && ! empty( $path ) ) {
+			if ( $install_type === 'network_subdomain' && $path !== '/' ) {
 				display_setup_form( __( 'Sorry, Subdomain-based sites can only be used when the installation is located at the root of a domain.' ) );
 				$error = true;
 			} else {
@@ -579,9 +579,15 @@ switch ( $step ) {
 					$config
 				);
 
-				$result = file_put_contents( $config_file, $config );
+				$put_result = file_put_contents( $config_file, $config );
+
 				$wpdb->show_errors();
 				$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
+
+				// Generate the relevant internal rewrite rules.
+				global $wp_rewrite;
+				$wp_rewrite->init(); // on install bootstrap $wp_rewrite is garbage, need to reinitialize.
+				flush_rewrite_rules( false );
 
 				if ( $install_type !== 'standalone' ) {
 					// We need to create references to ms global tables to enable Network.
@@ -600,6 +606,62 @@ switch ( $step ) {
 						$install_type === 'network_subdomain'
 					);
 				}
+
+				// Update .htaccess base on install type
+				$htaccess_file        = ABSPATH . '.htaccess';
+				$htaccess_sample_file = ABSPATH . 'wp-admin/.htaccess.sample';
+				$htaccess_rewrite     = match ( $install_type ) {
+					'network_subdirectory' => <<<HTACCESS
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase {$path}
+RewriteRule ^index\.php$ - [L]
+RewriteRule (^|/)\. - [F]
+RewriteRule ^wp-includes/(.*)\.php$ - [F]
+RewriteRule ^wp-content/(.*)\.php$ - [F]
+RewriteRule ^([_0-9a-zA-Z-]+/)?wp-admin$ \$1wp-admin/ [R=301,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) {$path}\$2 [L]
+RewriteRule ^([_0-9a-zA-Z-]+/)?(.*\.php)$ {$path}\$2 [L]
+RewriteRule . {$path}index.php [L]
+HTACCESS,
+					'network_subdomain'    => <<<HTACCESS
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteRule (^|/)\. - [F]
+RewriteRule ^wp-includes/(.*)\.php$ - [F]
+RewriteRule ^wp-content/(.*)\.php$ - [F]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.php [L]
+HTACCESS,
+					default                => <<<HTACCESS
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase {$path}
+RewriteRule ^index\.php$ - [L]
+RewriteRule (^|/)\. - [F]
+RewriteRule ^wp-includes/(.*)\.php$ - [F]
+RewriteRule ^wp-content/(.*)\.php$ - [F]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . {$path}index.php [L]
+HTACCESS
+				};
+
+				$htaccess = file_get_contents( $htaccess_sample_file );
+
+				$htaccess = str_replace(
+					'# REWRITE_PLACE_HOLDER',
+					$htaccess_rewrite,
+					$htaccess,
+				);
+
+				$put_result = file_put_contents( $htaccess_file, $htaccess );
+
 				if ( $result['password'] === wp_slash( $admin_password ) ) {
 					wp_redirect( wp_login_url() );
 					die();
