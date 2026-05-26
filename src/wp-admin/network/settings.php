@@ -75,7 +75,6 @@ if ( $_POST ) {
 		'welcome_email',
 		'welcome_user_email',
 		'fileupload_maxk',
-		'limited_email_domains',
 		'banned_email_domains',
 		'WPLANG',
 		'new_admin_email',
@@ -177,31 +176,6 @@ if ( isset( $_GET['updated'] ) ) {
 				<th scope="row"><?php _e( 'Add Users' ); ?></th>
 				<td>
 					<label><input name="add_new_users" type="checkbox" id="add_new_users" value="1"<?php checked( get_site_option( 'add_new_users' ) ); ?> /> <?php _e( 'Allow site administrators to add new users to their site via the "Users &rarr; Add User" page' ); ?></label>
-				</td>
-			</tr>
-
-			<tr>
-				<th scope="row"><label for="limited_email_domains"><?php _e( 'Limited Email Registrations' ); ?></label></th>
-				<td>
-					<?php
-					$limited_email_domains = get_site_option( 'limited_email_domains' );
-
-					if ( empty( $limited_email_domains ) ) {
-						$limited_email_domains = '';
-					} else {
-						// Convert from an input field. Back-compat for WPMU < 1.0.
-						$limited_email_domains = str_replace( ' ', "\n", $limited_email_domains );
-
-						if ( is_array( $limited_email_domains ) ) {
-							$limited_email_domains = implode( "\n", $limited_email_domains );
-						}
-					}
-					?>
-					<textarea name="limited_email_domains" id="limited_email_domains" aria-describedby="limited-email-domains-desc" cols="45" rows="5">
-<?php echo esc_textarea( $limited_email_domains ); ?></textarea>
-					<p class="description" id="limited-email-domains-desc">
-						<?php _e( 'If you want to limit site registrations to certain domains. One domain per line.' ); ?>
-					</p>
 				</td>
 			</tr>
 

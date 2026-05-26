@@ -44,22 +44,6 @@ class Tests_Multisite_wpmuValidateUserSignup extends WP_UnitTestCase {
 		remove_filter( 'is_email', '__return_false' );
 	}
 
-	public function test_should_fail_for_emails_from_disallowed_domains() {
-		$domains = array( 'foo.com', 'bar.org' );
-		update_site_option( 'limited_email_domains', $domains );
-
-		$v = wpmu_validate_user_signup( 'foo123', 'foo@example.com' );
-		$this->assertContains( 'user_email', $v['errors']->get_error_codes() );
-	}
-
-	public function test_should_not_fail_for_emails_from_allowed_domains_with_mixed_case() {
-		$domains = array( 'foo.com', 'bar.org' );
-		update_site_option( 'limited_email_domains', $domains );
-
-		$v = wpmu_validate_user_signup( 'foo123', 'foo@BAR.org' );
-		$this->assertNotContains( 'user_email', $v['errors']->get_error_codes() );
-	}
-
 	public function test_should_fail_for_existing_user_name() {
 		$u = self::factory()->user->create( array( 'user_login' => 'foo123' ) );
 		$v = wpmu_validate_user_signup( 'foo123', 'foo@example.com' );

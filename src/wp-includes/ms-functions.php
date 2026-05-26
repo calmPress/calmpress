@@ -497,17 +497,6 @@ function wpmu_validate_user_signup( $user_name, $user_email ) {
 		$errors->add( 'user_name', __( 'Sorry, usernames must have letters too!' ) );
 	}
 
-	$limited_email_domains = get_site_option( 'limited_email_domains' );
-
-	if ( is_array( $limited_email_domains ) && ! empty( $limited_email_domains ) ) {
-		$limited_email_domains = array_map( 'strtolower', $limited_email_domains );
-		$email_domain          = strtolower( substr( $user_email, 1 + strpos( $user_email, '@' ) ) );
-
-		if ( ! in_array( $email_domain, $limited_email_domains, true ) ) {
-			$errors->add( 'user_email', __( 'Sorry, that email address is not allowed!' ) );
-		}
-	}
-
 	// Check if the username has been used already.
 	if ( username_exists( $user_name ) ) {
 		$errors->add( 'user_name', __( 'Sorry, that username already exists!' ) );

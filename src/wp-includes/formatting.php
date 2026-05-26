@@ -4671,7 +4671,6 @@ function sanitize_option( $option, $value ) {
 			}
 			break;
 
-		case 'limited_email_domains':
 		case 'banned_email_domains':
 			$value = $wpdb->strip_invalid_text_for_column( $wpdb->options, 'option_value', $value );
 			if ( is_wp_error( $value ) ) {

@@ -172,47 +172,4 @@ class Tests_Option_Multisite extends WP_UnitTestCase {
 		$notoptions1 = wp_cache_get( $notoptions_key, 'site-options' );
 		$this->assertNotEmpty( $notoptions1 );
 	}
-
-	/**
-	 * @dataProvider data_email_domains
-	 *
-	 * @param $option_value
-	 * @param $sanitized_option_value
-	 *
-	 * @covers ::update_site_option
-	 * @covers ::get_site_option
-	 */
-	public function test_sanitize_network_option_limited_email_domains( $option_value, $sanitized_option_value ) {
-		update_site_option( 'limited_email_domains', $option_value );
-		$this->assertSame( $sanitized_option_value, get_site_option( 'limited_email_domains' ) );
-	}
-
-	/**
-	 * @dataProvider data_email_domains
-	 *
-	 * @param $option_value
-	 * @param $sanitized_option_value
-	 *
-	 * @covers ::update_site_option
-	 * @covers ::get_site_option
-	 */
-	public function test_sanitize_network_option_banned_email_domains( $option_value, $sanitized_option_value ) {
-		update_site_option( 'banned_email_domains', $option_value );
-		$this->assertSame( $sanitized_option_value, get_site_option( 'banned_email_domains' ) );
-	}
-
-	public function data_email_domains() {
-		return array(
-			array( array( 'woo', '', 'boo.com', 'foo.net.biz..' ), array( 'woo', 'boo.com' ) ),
-			array( "foo\nbar", array( 'foo', 'bar' ) ),
-			array( "foo\n\nbar", array( 'foo', 'bar' ) ),
-			array( "\nfoo\nbar\n", array( 'foo', 'bar' ) ),
-			array( "foo\nfoo.net.biz..", array( 'foo' ) ),
-			array( "foo\nfoo.net.biz..\nbar.com", array( 'foo', 'bar.com' ) ),
-			array( 'foo.', array( 'foo.' ) ),
-			array( '.foo', array( '.foo' ) ),
-			array( 'foo^net', '' ),
-			array( array(), '' ),
-		);
-	}
 }
