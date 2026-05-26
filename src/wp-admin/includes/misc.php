@@ -53,7 +53,7 @@ function extract_from_markers( $filename, $marker, $line_prefix = '#' ) {
 				continue;
 			}
 
-			$result[] = $markerline;
+			$result[] = rtrim( $markerline, "\r" );
 		}
 
 		if ( str_contains( $markerline, $line_prefix . ' BEGIN ' . $marker ) ) {
