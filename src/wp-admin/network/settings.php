@@ -63,7 +63,6 @@ if ( $_POST ) {
 
 	$options = array(
 		'registrationnotification',
-		'registration',
 		'add_new_users',
 		'menu_items',
 		'upload_space_check_disabled',

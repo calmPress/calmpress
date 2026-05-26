@@ -124,7 +124,6 @@ class Paths {
 			'wp-load.php',
 			'wp-login.php',
 			'wp-settings.php',
-			'wp-signup.php',
 		];
 	}
 

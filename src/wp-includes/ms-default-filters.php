@@ -20,7 +20,6 @@ add_action( 'update_option_blog_public', 'update_blog_public', 10, 2 );
 add_filter( 'site_option_welcome_user_email', 'welcome_user_msg_filter' );
 
 // Users.
-add_filter( 'wpmu_validate_user_signup', 'signup_nonce_check' );
 add_action( 'init', 'maybe_add_existing_user_to_blog' );
 add_action( 'wpmu_new_user', 'newuser_notify_siteadmin' );
 add_action( 'wpmu_activate_user', 'add_new_user_to_blog', 10, 3 );
@@ -33,7 +32,6 @@ add_action( 'deleted_user', 'wp_delete_signup_on_user_delete', 10, 3 );
 add_action( 'switch_blog', 'wp_switch_roles_and_user', 1, 2 );
 
 // Blogs.
-add_filter( 'wpmu_validate_blog_signup', 'signup_nonce_check' );
 add_action( 'wpmu_activate_blog', 'wpmu_welcome_notification', 10, 5 );
 add_action( 'after_signup_site', 'wpmu_signup_blog_notification', 10, 7 );
 add_filter( 'wp_normalize_site_data', 'wp_normalize_site_data', 10, 1 );

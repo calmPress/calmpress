@@ -190,34 +190,4 @@ class Tests_Multisite_wpmuValidateUserSignup extends WP_UnitTestCase {
 
 		$this->assertNotContains( 'user_email', $valid['errors']->get_error_codes() );
 	}
-
-	/**
-	 * @ticket 43667
-	 */
-	public function test_signup_nonce_check() {
-		$original_php_self       = $_SERVER['PHP_SELF'];
-		$_SERVER['PHP_SELF']     = '/wp-signup.php';
-		$_POST['signup_form_id'] = 'user-signup-form';
-		$_POST['_signup_form']   = wp_create_nonce( 'signup_form_' . $_POST['signup_form_id'] );
-
-		$valid               = wpmu_validate_user_signup( 'validusername', 'email@example.com' );
-		$_SERVER['PHP_SELF'] = $original_php_self;
-
-		$this->assertNotContains( 'invalid_nonce', $valid['errors']->get_error_codes() );
-	}
-
-	/**
-	 * @ticket 43667
-	 */
-	public function test_signup_nonce_check_invalid() {
-		$original_php_self       = $_SERVER['PHP_SELF'];
-		$_SERVER['PHP_SELF']     = '/wp-signup.php';
-		$_POST['signup_form_id'] = 'user-signup-form';
-		$_POST['_signup_form']   = wp_create_nonce( 'invalid' );
-
-		$valid               = wpmu_validate_user_signup( 'validusername', 'email@example.com' );
-		$_SERVER['PHP_SELF'] = $original_php_self;
-
-		$this->assertContains( 'invalid_nonce', $valid['errors']->get_error_codes() );
-	}
 }

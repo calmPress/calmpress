@@ -1205,7 +1205,6 @@ We hope you enjoy your new site. Thanks!
 		'site_name'                   => __( 'My Network' ),
 		'admin_email'                 => $email,
 		'admin_user_id'               => $site_user->ID,
-		'registration'                => 'none',
 		'upload_filetypes'            => implode( ' ', $upload_filetypes ),
 		'blog_upload_space'           => 100,
 		'fileupload_maxk'             => 1500,

@@ -289,7 +289,6 @@ class Tests_Admin_IncludesSchema extends WP_UnitTestCase {
 				array(),
 				array(
 					// Random meta to check.
-					'registration'      => 'none',
 					'blog_upload_space' => '100',
 					'fileupload_maxk'   => '1500',
 				),
@@ -302,7 +301,6 @@ class Tests_Admin_IncludesSchema extends WP_UnitTestCase {
 				array(
 					// Random meta to check.
 					'site_name'         => 'My Great Network',
-					'registration'      => 'none',
 					'blog_upload_space' => '100',
 					'fileupload_maxk'   => '1500',
 					'WPLANG'            => 'fr_FR',
@@ -315,7 +313,6 @@ class Tests_Admin_IncludesSchema extends WP_UnitTestCase {
 				array(
 					// Random meta to check.
 					'custom_meta'       => '1',
-					'registration'      => 'none',
 					'blog_upload_space' => '100',
 					'fileupload_maxk'   => '1500',
 				),

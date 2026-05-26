@@ -2149,26 +2149,6 @@ function signup_nonce_fields() {
 }
 
 /**
- * Processes the signup nonce created in signup_nonce_fields().
- *
- * @since MU (3.0.0)
- *
- * @param array $result
- * @return array
- */
-function signup_nonce_check( $result ) {
-	if ( ! strpos( $_SERVER['PHP_SELF'], 'wp-signup.php' ) ) {
-		return $result;
-	}
-
-	if ( ! wp_verify_nonce( $_POST['_signup_form'], 'signup_form_' . $_POST['signup_form_id'] ) ) {
-		$result['errors']->add( 'invalid_nonce', __( 'Unable to submit this form, please try again.' ) );
-	}
-
-	return $result;
-}
-
-/**
  * Corrects 404 redirects when NOBLOGREDIRECT is defined.
  *
  * @since MU (3.0.0)
