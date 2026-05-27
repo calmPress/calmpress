@@ -4671,29 +4671,6 @@ function sanitize_option( $option, $value ) {
 			}
 			break;
 
-		case 'banned_email_domains':
-			$value = $wpdb->strip_invalid_text_for_column( $wpdb->options, 'option_value', $value );
-			if ( is_wp_error( $value ) ) {
-				$error = $value->get_error_message();
-			} else {
-				if ( ! is_array( $value ) ) {
-					$value = explode( "\n", $value );
-				}
-
-				$domains = array_values( array_filter( array_map( 'trim', $value ) ) );
-				$value   = array();
-
-				foreach ( $domains as $domain ) {
-					if ( ! preg_match( '/(--|\.\.)/', $domain ) && preg_match( '|^([a-zA-Z0-9-\.])+$|', $domain ) ) {
-						$value[] = $domain;
-					}
-				}
-				if ( ! $value ) {
-					$value = '';
-				}
-			}
-			break;
-
 		case 'timezone_string':
 			$allowed_zones = timezone_identifiers_list( DateTimeZone::ALL_WITH_BC );
 			if ( ! in_array( $value, $allowed_zones, true ) && ! empty( $value ) ) {

@@ -30,12 +30,6 @@ class Tests_Multisite_wpmuValidateUserSignup extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_should_fail_for_unsafe_email_address() {
-		add_filter( 'is_email_address_unsafe', '__return_true' );
-		$v = wpmu_validate_user_signup( 'foo123', 'foo@example.com' );
-		$this->assertContains( 'user_email', $v['errors']->get_error_codes() );
-		remove_filter( 'is_email_address_unsafe', '__return_true' );
-	}
 
 	public function test_should_fail_for_invalid_email_address() {
 		add_filter( 'is_email', '__return_false' );
@@ -135,33 +129,9 @@ class Tests_Multisite_wpmuValidateUserSignup extends WP_UnitTestCase {
 		$this->assertContains( 'user_email', $valid['errors']->get_error_codes() );
 	}
 
-	public function test_invalid_email_address_with_banned_domains_results_in_error() {
-		update_site_option( 'banned_email_domains', 'bar.com' );
-		$valid = wpmu_validate_user_signup( 'validusername', 'invalid-email' );
-		delete_site_option( 'banned_email_domains' );
-
-		$this->assertContains( 'user_email', $valid['errors']->get_error_codes() );
-	}
-
 	public function test_incomplete_email_address_with_no_banned_domains_results_in_error() {
 		$valid = wpmu_validate_user_signup( 'validusername', 'incomplete@email' );
 
 		$this->assertContains( 'user_email', $valid['errors']->get_error_codes() );
-	}
-
-	public function test_valid_email_address_matching_banned_domain_results_in_error() {
-		update_site_option( 'banned_email_domains', 'bar.com' );
-		$valid = wpmu_validate_user_signup( 'validusername', 'email@bar.com' );
-		delete_site_option( 'banned_email_domains' );
-
-		$this->assertContains( 'user_email', $valid['errors']->get_error_codes() );
-	}
-
-	public function test_valid_email_address_not_matching_banned_domain_returns_in_success() {
-		update_site_option( 'banned_email_domains', 'bar.com' );
-		$valid = wpmu_validate_user_signup( 'validusername', 'email@example.com' );
-		delete_site_option( 'banned_email_domains' );
-
-		$this->assertNotContains( 'user_email', $valid['errors']->get_error_codes() );
 	}
 }

@@ -75,7 +75,6 @@ if ( $_POST ) {
 		'welcome_email',
 		'welcome_user_email',
 		'fileupload_maxk',
-		'banned_email_domains',
 		'WPLANG',
 		'new_admin_email',
 		'first_comment_email',
@@ -179,25 +178,6 @@ if ( isset( $_GET['updated'] ) ) {
 				</td>
 			</tr>
 
-			<tr>
-				<th scope="row"><label for="banned_email_domains"><?php _e( 'Banned Email Domains' ); ?></label></th>
-				<td>
-					<?php
-					$banned_email_domains = get_site_option( 'banned_email_domains' );
-
-					if ( empty( $banned_email_domains ) ) {
-						$banned_email_domains = '';
-					} elseif ( is_array( $banned_email_domains ) ) {
-						$banned_email_domains = implode( "\n", $banned_email_domains );
-					}
-					?>
-					<textarea name="banned_email_domains" id="banned_email_domains" aria-describedby="banned-email-domains-desc" cols="45" rows="5">
-<?php echo esc_textarea( $banned_email_domains ); ?></textarea>
-					<p class="description" id="banned-email-domains-desc">
-						<?php _e( 'If you want to ban domains from site registrations. One domain per line.' ); ?>
-					</p>
-				</td>
-			</tr>
 
 		</table>
 		<h2><?php _e( 'New Site Settings' ); ?></h2>

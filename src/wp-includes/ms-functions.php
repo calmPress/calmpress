@@ -377,61 +377,6 @@ function get_blog_id_from_url( $domain, $path = '/' ) {
 //
 
 /**
- * Checks an email address against a list of banned domains.
- *
- * This function checks against the Banned Email Domains list
- * at wp-admin/network/settings.php. The check is only run on
- * self-registrations; user creation at wp-admin/network/users.php
- * bypasses this check.
- *
- * @since MU (3.0.0)
- *
- * @param string $user_email The email provided by the user at registration.
- * @return bool True when the email address is banned, false otherwise.
- */
-function is_email_address_unsafe( $user_email ) {
-	$banned_names = get_site_option( 'banned_email_domains' );
-	if ( $banned_names && ! is_array( $banned_names ) ) {
-		$banned_names = explode( "\n", $banned_names );
-	}
-
-	$is_email_address_unsafe = false;
-
-	if ( $banned_names && is_array( $banned_names ) && false !== strpos( $user_email, '@', 1 ) ) {
-		$banned_names     = array_map( 'strtolower', $banned_names );
-		$normalized_email = strtolower( $user_email );
-
-		list( $email_local_part, $email_domain ) = explode( '@', $normalized_email );
-
-		foreach ( $banned_names as $banned_domain ) {
-			if ( ! $banned_domain ) {
-				continue;
-			}
-
-			if ( $email_domain === $banned_domain ) {
-				$is_email_address_unsafe = true;
-				break;
-			}
-
-			if ( str_ends_with( $normalized_email, ".$banned_domain" ) ) {
-				$is_email_address_unsafe = true;
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Filters whether an email address is unsafe.
-	 *
-	 * @since 3.5.0
-	 *
-	 * @param bool   $is_email_address_unsafe Whether the email address is "unsafe". Default false.
-	 * @param string $user_email              User email address.
-	 */
-	return apply_filters( 'is_email_address_unsafe', $is_email_address_unsafe, $user_email );
-}
-
-/**
  * Sanitizes and validates data required for a user sign-up.
  *
  * Verifies the validity and uniqueness of user names and user email addresses,
@@ -480,8 +425,6 @@ function wpmu_validate_user_signup( $user_name, $user_email ) {
 
 	if ( ! is_email( $user_email ) ) {
 		$errors->add( 'user_email', __( 'Please enter a valid email address.' ) );
-	} elseif ( is_email_address_unsafe( $user_email ) ) {
-		$errors->add( 'user_email', __( 'You cannot use that email address to signup. There are problems with them blocking some emails from WordPress. Please use another email provider.' ) );
 	}
 
 	if ( strlen( $user_name ) < 4 ) {

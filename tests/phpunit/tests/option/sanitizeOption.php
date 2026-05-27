@@ -48,16 +48,6 @@ class Tests_Option_SanitizeOption extends WP_UnitTestCase {
 			array( 'home', get_option( 'home' ), '' ),
 			array( 'WPLANG', 0, 0 ),
 			array( 'WPLANG', '', '' ),
-			array(
-				'banned_email_domains',
-				array( 'mail.com', 'gmail.com' ),
-				array( 'mail.com', 'gmail.com' ),
-			),
-			array(
-				'banned_email_domains',
-				array( 'mail.com' ),
-				"mail.com\ngmail,com",
-			),
 			array( 'timezone_string', 0, 0 ),
 			array( 'timezone_string', 'Europe/London', 'Europe/London' ),
 			array( 'timezone_string', get_option( 'timezone_string' ), 'invalid' ),
