@@ -52,7 +52,6 @@ if ( $_POST ) {
 	$checked_options = array(
 		'menu_items'                  => array(),
 		'upload_space_check_disabled' => 1,
-		'add_new_users'               => 0,
 	);
 	foreach ( $checked_options as $option_name => $option_unchecked_value ) {
 		if ( ! isset( $_POST[ $option_name ] ) ) {
@@ -61,7 +60,6 @@ if ( $_POST ) {
 	}
 
 	$options = array(
-		'add_new_users',
 		'menu_items',
 		'upload_space_check_disabled',
 		'blog_upload_space',
@@ -168,17 +166,6 @@ if ( isset( $_GET['updated'] ) ) {
 					?>
 				</td>
 			</tr>
-		</table>
-		<h2><?php _e( 'Registration Settings' ); ?></h2>
-		<table class="form-table" role="presentation">
-			<tr id="addnewusers">
-				<th scope="row"><?php _e( 'Add Users' ); ?></th>
-				<td>
-					<label><input name="add_new_users" type="checkbox" id="add_new_users" value="1"<?php checked( get_site_option( 'add_new_users' ) ); ?> /> <?php _e( 'Allow site administrators to add new users to their site via the "Users &rarr; Add User" page' ); ?></label>
-				</td>
-			</tr>
-
-
 		</table>
 		<h2><?php _e( 'New Site Settings' ); ?></h2>
 		<table class="form-table" role="presentation">

@@ -663,7 +663,7 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 		case 'create_users':
 			if ( ! is_multisite() ) {
 				$caps[] = $cap;
-			} elseif ( is_super_admin( $user_id ) || get_site_option( 'add_new_users' ) ) {
+			} elseif ( is_super_admin( $user_id ) ) {
 				$caps[] = $cap;
 			} else {
 				$caps[] = 'do_not_allow';

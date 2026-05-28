@@ -1216,7 +1216,6 @@ We hope you enjoy your new site. Thanks!
 		'first_post'                  => __( 'Welcome to %s. This is your first post. Edit or delete it, then start writing!' ),
 		// @todo - Network admins should have a method of editing the network siteurl (used for cookie hash).
 		'siteurl'                     => get_option( 'home' ) . '/',
-		'add_new_users'               => '0',
 		'upload_space_check_disabled' => is_multisite() ? get_site_option( 'upload_space_check_disabled' ) : '1',
 		'subdomain_install'           => $subdomain_install,
 		'user_count'                  => get_site_option( 'user_count' ),
