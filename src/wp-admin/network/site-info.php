@@ -74,15 +74,6 @@ if ( isset( $_REQUEST['action'] ) && 'update-site' === $_REQUEST['action'] ) {
 	}
 
 	$existing_details     = get_site( $id );
-	$blog_data_checkboxes = array( 'public', 'archived', 'deleted' );
-
-	foreach ( $blog_data_checkboxes as $c ) {
-		if ( ! in_array( (int) $existing_details->$c, array( 0, 1 ), true ) ) {
-			$blog_data[ $c ] = $existing_details->$c;
-		} else {
-			$blog_data[ $c ] = isset( $_POST['blog'][ $c ] ) ? 1 : 0;
-		}
-	}
 
 	update_blog_details( $id, $blog_data );
 
@@ -186,27 +177,6 @@ if ( ! empty( $messages ) ) {
 		<tr class="form-field">
 			<th scope="row"><label for="blog_last_updated"><?php _e( 'Last Updated' ); ?></label></th>
 			<td><input name="blog[last_updated]" type="text" id="blog_last_updated" value="<?php echo esc_attr( $details->last_updated ); ?>" /></td>
-		</tr>
-		<?php
-		$site_attributes_title = __( 'Attributes' );
-
-		$attribute_fields = array( 'public' => _x( 'Public', 'site' ) );
-		if ( ! $is_main_site ) {
-			$attribute_fields['archived'] = __( 'Archived' );
-			$attribute_fields['deleted']  = __( 'Flagged for Deletion' );
-		}
-		?>
-		<tr>
-			<th scope="row"><?php echo $site_attributes_title; ?></th>
-			<td>
-			<fieldset>
-			<legend class="screen-reader-text"><?php echo $site_attributes_title; ?></legend>
-			<?php foreach ( $attribute_fields as $field_key => $field_label ) : ?>
-				<label><input type="checkbox" name="blog[<?php echo $field_key; ?>]" value="1" <?php checked( (bool) $details->$field_key, true ); ?> <?php disabled( ! in_array( (int) $details->$field_key, array( 0, 1 ), true ) ); ?> />
-				<?php echo $field_label; ?></label><br />
-			<?php endforeach; ?>
-			<fieldset>
-			</td>
 		</tr>
 	</table>
 

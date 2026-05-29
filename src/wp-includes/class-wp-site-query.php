@@ -140,9 +140,6 @@ class WP_Site_Query {
 	 *                                                   - 'path_length'
 	 *                                                   - 'site__in'
 	 *                                                   - 'network__in'
-	 *                                                   - 'deleted'
-	 *                                                   - 'archived'
-	 *                                                   - 'public'
 	 *                                                   - false, an empty array, or 'none' to disable `ORDER BY` clause.
 	 *                                                   Default 'id'.
 	 *     @type string          $order                  How to order retrieved sites. Accepts 'ASC', 'DESC'. Default 'ASC'.
@@ -156,11 +153,6 @@ class WP_Site_Query {
 	 *     @type string          $path                   Limit results to those affiliated with a given path. Default empty.
 	 *     @type string[]        $path__in               Array of paths to include affiliated sites for. Default empty.
 	 *     @type string[]        $path__not_in           Array of paths to exclude affiliated sites for. Default empty.
-	 *     @type int             $public                 Limit results to public sites. Accepts 1 or 0. Default empty.
-	 *     @type int             $archived               Limit results to archived sites. Accepts 1 or 0. Default empty.
-	 *     @type int             $mature                 Limit results to mature sites. Accepts 1 or 0. Default empty.
-	 *     @type int             $spam                   Limit results to spam sites. Accepts 1 or 0. Default empty.
-	 *     @type int             $deleted                Limit results to deleted sites. Accepts 1 or 0. Default empty.
 	 *     @type int             $lang_id                Limit results to a language ID. Default empty.
 	 *     @type string[]        $lang__in               Array of language IDs to include affiliated sites for. Default empty.
 	 *     @type string[]        $lang__not_in           Array of language IDs to exclude affiliated sites for. Default empty.
@@ -203,9 +195,6 @@ class WP_Site_Query {
 			'path'                   => '',
 			'path__in'               => '',
 			'path__not_in'           => '',
-			'public'                 => null,
-			'archived'               => null,
-			'deleted'                => null,
 			'lang_id'                => null,
 			'lang__in'               => '',
 			'lang__not_in'           => '',
@@ -557,21 +546,6 @@ class WP_Site_Query {
 			$this->sql_clauses['where']['path__not_in'] = "path NOT IN ( '" . implode( "', '", $wpdb->_escape( $this->query_vars['path__not_in'] ) ) . "' )";
 		}
 
-		if ( is_numeric( $this->query_vars['archived'] ) ) {
-			$archived                               = absint( $this->query_vars['archived'] );
-			$this->sql_clauses['where']['archived'] = $wpdb->prepare( 'archived = %s ', absint( $archived ) );
-		}
-
-		if ( is_numeric( $this->query_vars['deleted'] ) ) {
-			$deleted                               = absint( $this->query_vars['deleted'] );
-			$this->sql_clauses['where']['deleted'] = $wpdb->prepare( 'deleted = %d ', $deleted );
-		}
-
-		if ( is_numeric( $this->query_vars['public'] ) ) {
-			$public                               = absint( $this->query_vars['public'] );
-			$this->sql_clauses['where']['public'] = $wpdb->prepare( 'public = %d ', $public );
-		}
-
 		if ( is_numeric( $this->query_vars['lang_id'] ) ) {
 			$lang_id                               = absint( $this->query_vars['lang_id'] );
 			$this->sql_clauses['where']['lang_id'] = $wpdb->prepare( 'lang_id = %d ', $lang_id );
@@ -792,9 +766,6 @@ class WP_Site_Query {
 			case 'last_updated':
 			case 'path':
 			case 'registered':
-			case 'deleted':
-			case 'archived':
-			case 'public':
 				$parsed = $orderby;
 				break;
 			case 'network_id':

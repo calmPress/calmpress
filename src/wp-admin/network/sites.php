@@ -232,37 +232,6 @@ if ( isset( $_GET['action'] ) ) {
 			}
 
 			break;
-
-		case 'archiveblog':
-		case 'unarchiveblog':
-			update_blog_status( $id, 'archived', ( 'archiveblog' === $_GET['action'] ) ? '1' : '0' );
-			break;
-
-		case 'activateblog':
-			update_blog_status( $id, 'deleted', '0' );
-
-			/**
-			 * Fires after a network site has its deletion flag removed.
-			 *
-			 * @since MU (3.0.0)
-			 *
-			 * @param int $id The ID of the reactivated site.
-			 */
-			do_action( 'activate_blog', $id );
-			break;
-
-		case 'deactivateblog':
-			/**
-			 * Fires before a network site is flagged for deletion.
-			 *
-			 * @since MU (3.0.0)
-			 *
-			 * @param int $id The ID of the site being flagged for deletion.
-			 */
-			do_action( 'deactivate_blog', $id );
-
-			update_blog_status( $id, 'deleted', '1' );
-			break;
 	}
 
 	if ( empty( $updated_action ) && array_key_exists( $_GET['action'], $manage_actions ) ) {

@@ -427,62 +427,6 @@ class Tests_Multisite_wpSiteQuery extends WP_UnitTestCase {
 		$this->assertEmpty( $found );
 	}
 
-	// archived, deleted, public.
-
-	public function test_wp_site_query_by_archived() {
-		$q     = new WP_Site_Query();
-		$found = $q->query(
-			array(
-				'fields'       => 'ids',
-				// Exclude main site since we don't have control over it here.
-				'site__not_in' => array( 1 ),
-				'archived'     => '0',
-			)
-		);
-
-		$this->assertSameSets( array_values( self::$site_ids ), $found );
-	}
-
-	public function test_wp_site_query_by_deleted() {
-		$q     = new WP_Site_Query();
-		$found = $q->query(
-			array(
-				'fields'       => 'ids',
-				// Exclude main site since we don't have control over it here.
-				'site__not_in' => array( 1 ),
-				'deleted'      => '0',
-			)
-		);
-
-		$this->assertSameSets( array_values( self::$site_ids ), $found );
-	}
-
-	public function test_wp_site_query_by_deleted_with_no_results() {
-		$q     = new WP_Site_Query();
-		$found = $q->query(
-			array(
-				'fields'  => 'ids',
-				'deleted' => '1',
-			)
-		);
-
-		$this->assertEmpty( $found );
-	}
-
-	public function test_wp_site_query_by_public() {
-		$q     = new WP_Site_Query();
-		$found = $q->query(
-			array(
-				'fields'       => 'ids',
-				// Exclude main site since we don't have control over it here.
-				'site__not_in' => array( 1 ),
-				'public'       => '1',
-			)
-		);
-
-		$this->assertSameSets( array_values( self::$site_ids ), $found );
-	}
-
 	public function test_wp_site_query_by_lang_id_with_zero() {
 		$q     = new WP_Site_Query();
 		$found = $q->query(

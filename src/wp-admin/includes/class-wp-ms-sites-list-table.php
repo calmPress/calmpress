@@ -35,8 +35,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 	 */
 	public function __construct( $args = array() ) {
 		$this->status_list = array(
-			'archived' => array( 'site-archived', __( 'Archived' ) ),
-			'deleted'  => array( 'site-deleted', __( 'Flagged for Deletion' ) ),
 		);
 
 		parent::__construct(
@@ -162,12 +160,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 			$args['no_found_rows'] = false;
 		}
 
-		// Take into account the role the user has selected.
-		$status = isset( $_REQUEST['status'] ) ? wp_unslash( trim( $_REQUEST['status'] ) ) : '';
-		if ( in_array( $status, array( 'public', 'archived', 'deleted' ), true ) ) {
-			$args[ $status ] = 1;
-		}
-
 		/**
 		 * Filters the arguments for the site query in the sites list table.
 		 *
@@ -225,24 +217,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 				'All <span class="count">(%s)</span>',
 				'All <span class="count">(%s)</span>',
 				'sites'
-			),
-
-			/* translators: %s: Number of sites. */
-			'public'   => _n_noop(
-				'Public <span class="count">(%s)</span>',
-				'Public <span class="count">(%s)</span>'
-			),
-
-			/* translators: %s: Number of sites. */
-			'archived' => _n_noop(
-				'Archived <span class="count">(%s)</span>',
-				'Archived <span class="count">(%s)</span>'
-			),
-
-			/* translators: %s: Number of sites. */
-			'deleted'  => _n_noop(
-				'Flagged for Deletion <span class="count">(%s)</span>',
-				'Flagged for Deletion <span class="count">(%s)</span>'
 			),
 		);
 
@@ -730,53 +704,6 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 		);
 
 		if ( ! is_main_site( $blog['blog_id'] ) ) {
-			if ( '1' === $blog['deleted'] ) {
-				$actions['activate'] = sprintf(
-					'<a href="%1$s">%2$s</a>',
-					esc_url(
-						wp_nonce_url(
-							network_admin_url( 'sites.php?action=confirm&amp;action2=activateblog&amp;id=' . $blog['blog_id'] ),
-							'activateblog_' . $blog['blog_id']
-						)
-					),
-					_x( 'Remove Deletion Flag', 'site' )
-				);
-			} else {
-				$actions['deactivate'] = sprintf(
-					'<a href="%1$s">%2$s</a>',
-					esc_url(
-						wp_nonce_url(
-							network_admin_url( 'sites.php?action=confirm&amp;action2=deactivateblog&amp;id=' . $blog['blog_id'] ),
-							'deactivateblog_' . $blog['blog_id']
-						)
-					),
-					__( 'Flag for Deletion' )
-				);
-			}
-
-			if ( '1' === $blog['archived'] ) {
-				$actions['unarchive'] = sprintf(
-					'<a href="%1$s">%2$s</a>',
-					esc_url(
-						wp_nonce_url(
-							network_admin_url( 'sites.php?action=confirm&amp;action2=unarchiveblog&amp;id=' . $blog['blog_id'] ),
-							'unarchiveblog_' . $blog['blog_id']
-						)
-					),
-					__( 'Unarchive' )
-				);
-			} else {
-				$actions['archive'] = sprintf(
-					'<a href="%1$s">%2$s</a>',
-					esc_url(
-						wp_nonce_url(
-							network_admin_url( 'sites.php?action=confirm&amp;action2=archiveblog&amp;id=' . $blog['blog_id'] ),
-							'archiveblog_' . $blog['blog_id']
-						)
-					),
-					_x( 'Archive', 'verb; site' )
-				);
-			}
 
 			if ( current_user_can( 'delete_site', $blog['blog_id'] ) ) {
 				$actions['delete'] = sprintf(

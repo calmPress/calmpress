@@ -64,29 +64,11 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 			$this->assertObjectHasProperty( 'path', $blog );
 			$this->assertObjectHasProperty( 'site_id', $blog );
 			$this->assertObjectHasProperty( 'siteurl', $blog );
-			$this->assertObjectHasProperty( 'archived', $blog );
-			$this->assertObjectHasProperty( 'deleted', $blog );
 		}
-
-		// Mark each remaining site as archived, and deleted.
-		update_blog_details( $blog_ids[1], array( 'archived' => 1 ) );
-		update_blog_details( $blog_ids[2], array( 'deleted' => 1 ) );
 
 		// Passing true as the second parameter should retrieve ALL sites, even if marked.
 		$blogs_of_user    = get_blogs_of_user( $user1_id, true );
 		$blog_ids_of_user = array_keys( $blogs_of_user );
-		$this->assertSame( $blog_ids, $blog_ids_of_user );
-
-		// Check if sites are flagged as expected.
-		$this->assertEquals( 1, $blogs_of_user[ $blog_ids[1] ]->archived );
-		$this->assertEquals( 1, $blogs_of_user[ $blog_ids[2] ]->deleted );
-
-		unset( $blog_ids[1] );
-		unset( $blog_ids[2] );
-		sort( $blog_ids );
-
-		// Passing false (the default) as the second parameter should retrieve only good sites.
-		$blog_ids_of_user = array_keys( get_blogs_of_user( $user1_id, false ) );
 		$this->assertSame( $blog_ids, $blog_ids_of_user );
 	}
 

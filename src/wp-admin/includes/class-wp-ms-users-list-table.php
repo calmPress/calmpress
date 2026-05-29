@@ -386,13 +386,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 			$actions         = array();
 			$actions['edit'] = '<a href="' . esc_url( network_admin_url( 'site-info.php?id=' . $site->userblog_id ) ) . '">' . __( 'Edit' ) . '</a>';
 
-			if ( 1 === (int) $site->deleted ) {
-				$class .= 'site-deleted ';
-			}
-			if ( 1 === (int) $site->archived ) {
-				$class .= 'site-archived ';
-			}
-
 			$actions['view'] = '<a class="' . $class . '" href="' . esc_url( get_home_url( $site->userblog_id ) ) . '">' . __( 'View' ) . '</a>';
 
 			/**
@@ -458,16 +451,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	public function display_rows() {
 		foreach ( $this->items as $user ) {
 			$class = '';
-
-			$status_list = array(
-				'deleted' => 'site-deleted',
-			);
-
-			foreach ( $status_list as $status => $col ) {
-				if ( $user->$status ) {
-					$class .= " $col";
-				}
-			}
 
 			?>
 			<tr class="<?php echo trim( $class ); ?>">

@@ -41,54 +41,6 @@ class Tests_Multisite_UpdateBlogDetails extends WP_UnitTestCase {
 
 		$this->assertSame( 'example.com', $blog->domain );
 		$this->assertSame( '/my_path/', $blog->path );
-		$this->assertSame( '0', $blog->spam );
-	}
-
-	/**
-	 * Test each of the actions that should fire in update_blog_details() depending on
-	 * the flag and flag value being set. Each action should fire once and should not
-	 * fire if a flag is already set for the given flag value.
-	 *
-	 * @param string $flag       The name of the flag being set or unset on a site.
-	 * @param string $flag_value '0' or '1'. The value of the flag being set.
-	 * @param string $action     The hook expected to fire for the flag name and flag combination.
-	 *
-	 * @dataProvider data_flag_hooks
-	 */
-	public function test_update_blog_details_flag_action( $flag, $flag_value, $hook ) {
-		$test_action_counter = new MockAction();
-
-		$blog_id = self::factory()->blog->create();
-
-		// Set an initial value of '1' for the flag when '0' is the flag value being tested.
-		if ( '0' === $flag_value ) {
-			update_blog_details( $blog_id, array( $flag => '1' ) );
-		}
-
-		add_action( $hook, array( $test_action_counter, 'action' ) );
-
-		update_blog_details( $blog_id, array( $flag => $flag_value ) );
-		$blog = get_site( $blog_id );
-
-		$this->assertSame( $flag_value, $blog->{$flag} );
-
-		// The hook attached to this flag should have fired once during update_blog_details().
-		$this->assertSame( 1, $test_action_counter->get_call_count() );
-
-		// Update the site to the exact same flag value for this flag.
-		update_blog_details( $blog_id, array( $flag => $flag_value ) );
-
-		// The hook attached to this flag should not have fired again.
-		$this->assertSame( 1, $test_action_counter->get_call_count() );
-	}
-
-	public function data_flag_hooks() {
-		return array(
-			array( 'archived', '1', 'archive_blog' ),
-			array( 'archived', '0', 'unarchive_blog' ),
-			array( 'deleted', '1', 'make_delete_blog' ),
-			array( 'deleted', '0', 'make_undelete_blog' ),
-		);
 	}
 
 	/**

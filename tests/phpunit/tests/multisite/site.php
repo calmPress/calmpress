@@ -218,47 +218,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 	}
 
 	/**
-	 * When a site is flagged as 'deleted', its data should be cleared from cache.
-	 */
-	public function test_data_in_cache_after_wpmu_delete_blog_drop_false() {
-		$blog_id = self::factory()->blog->create();
-
-		$details = get_blog_details( $blog_id, false );
-		$key     = md5( $details->domain . $details->path );
-
-		// Delete the site without forcing a table drop.
-		wpmu_delete_blog( $blog_id, false );
-
-		$this->assertFalse( wp_cache_get( $blog_id, 'blog-details' ) );
-		$this->assertFalse( wp_cache_get( $blog_id . 'short', 'blog-details' ) );
-		$this->assertFalse( wp_cache_get( $key, 'blog-lookup' ) );
-		$this->assertFalse( wp_cache_get( $key, 'blog-id-cache' ) );
-	}
-
-	/**
-	 * When a site is flagged as 'deleted', its data should remain in the database.
-	 */
-	public function test_data_in_tables_after_wpmu_delete_blog_drop_false() {
-		global $wpdb;
-
-		$blog_id = self::factory()->blog->create();
-
-		// Delete the site without forcing a table drop.
-		wpmu_delete_blog( $blog_id, false );
-
-		$prefix = $wpdb->get_blog_prefix( $blog_id );
-		foreach ( $wpdb->tables( 'blog', false ) as $table ) {
-			$suppress = $wpdb->suppress_errors();
-
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$table_fields = $wpdb->get_results( "DESCRIBE $prefix$table;" );
-
-			$wpdb->suppress_errors( $suppress );
-			$this->assertNotEmpty( $table_fields, $prefix . $table );
-		}
-	}
-
-	/**
 	 * When a site is fully deleted, its data should be cleared from cache.
 	 */
 	public function test_data_in_cache_after_wpmu_delete_blog_drop_true() {
@@ -300,24 +259,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 	}
 
 	/**
-	 * When the main site of a network is fully deleted, its data should be cleared from cache.
-	 */
-	public function test_data_in_cache_after_wpmu_delete_blog_main_site_drop_true() {
-		$blog_id = 1; // The main site in our test suite has an ID of 1.
-
-		$details = get_blog_details( $blog_id, false );
-		$key     = md5( $details->domain . $details->path );
-
-		// Delete the site and force a table drop.
-		wpmu_delete_blog( $blog_id, true );
-
-		$this->assertFalse( wp_cache_get( $blog_id, 'blog-details' ) );
-		$this->assertFalse( wp_cache_get( $blog_id . 'short', 'blog-details' ) );
-		$this->assertFalse( wp_cache_get( $key, 'blog-lookup' ) );
-		$this->assertFalse( wp_cache_get( $key, 'blog-id-cache' ) );
-	}
-
-	/**
 	 * When the main site of a network is fully deleted, its data should remain in the database.
 	 */
 	public function test_data_in_tables_after_wpmu_delete_blog_main_site_drop_true() {
@@ -338,20 +279,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 			$wpdb->suppress_errors( $suppress );
 			$this->assertNotEmpty( $table_fields, $prefix . $table );
 		}
-	}
-
-	/**
-	 * The site count of a network should change when a site is flagged as 'deleted'.
-	 */
-	public function test_network_count_after_wpmu_delete_blog_drop_false() {
-		$blog_id = self::factory()->blog->create();
-
-		// Delete the site without forcing a table drop.
-		wpmu_delete_blog( $blog_id, false );
-
-		// Update the blog count cache to use get_blog_count().
-		wp_update_network_counts();
-		$this->assertSame( 1, get_blog_count() );
 	}
 
 	/**
@@ -1012,9 +939,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 					'domain'     => 'example.com',
 					'path'       => '/',
 					'network_id' => 1,
-					'public'     => 1,
-					'archived'   => 0,
-					'deleted'    => 0,
 					'lang_id'    => 0,
 				),
 			),
@@ -1059,17 +983,11 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 				array(
 					'domain'   => 'example.com',
 					'path'     => 'foobar',
-					'public'   => 0,
-					'archived' => 1,
-					'deleted'  => 1,
 					'lang_id'  => 1,
 				),
 				array(
 					'domain'   => 'example.com',
 					'path'     => '/foobar/',
-					'public'   => 0,
-					'archived' => 1,
-					'deleted'  => 1,
 					'lang_id'  => 1,
 				),
 			),
@@ -1081,9 +999,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 					'domain'     => 'example.com:8888',
 					'path'       => '/',
 					'network_id' => 1,
-					'public'     => 1,
-					'archived'   => 0,
-					'deleted'    => 0,
 					'lang_id'    => 0,
 				),
 			),
@@ -1173,15 +1088,9 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 			),
 			array(
 				array(
-					'public'   => 0,
-					'archived' => 1,
-					'deleted'  => 1,
 					'lang_id'  => 1,
 				),
 				array(
-					'public'   => 0,
-					'archived' => 1,
-					'deleted'  => 1,
 					'lang_id'  => 1,
 				),
 			),
@@ -1336,18 +1245,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 				),
 				array(
 					'path' => '/',
-				),
-			),
-			array(
-				array(
-					'public'   => '0',
-					'archived' => '1',
-					'deleted'  => true,
-				),
-				array(
-					'public'   => 0,
-					'archived' => 1,
-					'deleted'  => 1,
 				),
 			),
 			array(
@@ -1644,142 +1541,6 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 		);
 
 		$this->assertEmpty( array_filter( $result ) );
-	}
-
-	/**
-	 * @ticket 40364
-	 * @dataProvider data_site_status_hook_triggers
-	 */
-	public function test_site_status_hook_triggers( $insert_site_data, $expected_insert_hooks, $update_site_data, $expected_update_hooks ) {
-		// First: Insert a site.
-		$this->listen_to_site_status_hooks();
-
-		$site_data = array_merge(
-			array(
-				'domain' => 'example-site.com',
-				'path'   => '/',
-			),
-			$insert_site_data
-		);
-
-		$site_id = wp_insert_site( $site_data );
-
-		$insert_expected = array_fill_keys( $expected_insert_hooks, $site_id );
-		$insert_result   = $this->get_listen_to_site_status_hooks_result();
-
-		// Second: Update that site.
-		$this->listen_to_site_status_hooks();
-
-		wp_update_site( $site_id, $update_site_data );
-
-		$update_expected = array_fill_keys( $expected_update_hooks, $site_id );
-		$update_result   = $this->get_listen_to_site_status_hooks_result();
-
-		// Check both insert and update results.
-		$this->assertSameSetsWithIndex( $insert_expected, $insert_result );
-		$this->assertSameSetsWithIndex( $update_expected, $update_result );
-	}
-
-	public function data_site_status_hook_triggers() {
-		return array(
-			array(
-				array(
-					'public'   => 1,
-					'archived' => 1,
-					'deleted'  => 1,
-				),
-				array(
-					'archive_blog',
-					'make_delete_blog',
-				),
-				array(
-					'public'   => 0,
-					'archived' => 0,
-					'deleted'  => 0,
-				),
-				array(
-					'update_blog_public',
-					'unarchive_blog',
-					'make_undelete_blog',
-				),
-			),
-			array(
-				array(
-					'public'   => 0,
-					'archived' => 0,
-					'deleted'  => 0,
-				),
-				array(
-					'update_blog_public',
-				),
-				array(
-					'public'   => 1,
-					'archived' => 1,
-					'deleted'  => 1,
-				),
-				array(
-					'update_blog_public',
-					'archive_blog',
-					'make_delete_blog',
-				),
-			),
-			array(
-				array(
-					'public'   => 0,
-					'archived' => 0,
-					'deleted'  => 1,
-				),
-				array(
-					'update_blog_public',
-					'make_delete_blog',
-				),
-				array(
-					'public'   => 0,
-					'archived' => 1,
-					'deleted'  => 0,
-				),
-				array(
-					'archive_blog',
-					'make_undelete_blog',
-				),
-			),
-		);
-	}
-
-	private function listen_to_site_status_hooks() {
-		$this->site_status_hooks = array();
-
-		$hooknames = array(
-			'archive_blog',
-			'unarchive_blog',
-			'make_delete_blog',
-			'make_undelete_blog',
-			'update_blog_public',
-		);
-
-		foreach ( $hooknames as $hookname ) {
-			add_action( $hookname, array( $this, 'action_site_status_hook' ), 10, 1 );
-		}
-	}
-
-	private function get_listen_to_site_status_hooks_result() {
-		$hooknames = array(
-			'archive_blog',
-			'unarchive_blog',
-			'make_delete_blog',
-			'make_undelete_blog',
-			'update_blog_public',
-		);
-
-		foreach ( $hooknames as $hookname ) {
-			remove_action( $hookname, array( $this, 'action_site_status_hook' ), 10 );
-		}
-
-		return $this->site_status_hooks;
-	}
-
-	public function action_site_status_hook( $site_id ) {
-		$this->site_status_hooks[ current_action() ] = $site_id;
 	}
 
 	/**

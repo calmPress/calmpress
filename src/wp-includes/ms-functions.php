@@ -2084,20 +2084,6 @@ function fix_phpmailer_messageid( $phpmailer ) {
 }
 
 /**
- * Update this blog's 'public' setting in the global blogs table.
- *
- * Public blogs have a setting of 1, private blogs are 0.
- *
- * @since MU (3.0.0)
- *
- * @param int $old_value The old public value.
- * @param int $value     The new public value.
- */
-function update_blog_public( $old_value, $value ) {
-	update_blog_status( get_current_blog_id(), 'public', (int) $value );
-}
-
-/**
  * Ensure that the welcome message is not empty. Currently unused.
  *
  * @since MU (3.0.0)

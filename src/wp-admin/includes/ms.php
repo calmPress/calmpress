@@ -53,6 +53,7 @@ function check_upload_size( $file ) {
  *
  * @since 3.0.0
  * @since 5.1.0 Use wp_delete_site() internally to delete the site row from the database.
+ * @since calmPress 1.0.0 When $drop is false nothing is done.
  *
  * @param int  $blog_id Site ID.
  * @param bool $drop    True if site's database tables should be dropped. Default false.
@@ -87,23 +88,6 @@ function wpmu_delete_blog( $blog_id, $drop = false ) {
 
 	if ( $drop ) {
 		wp_delete_site( $blog_id );
-	} else {
-
-		$users = get_users(
-			array(
-				'blog_id' => $blog_id,
-				'fields'  => 'ids',
-			)
-		);
-
-		// Remove users from this blog.
-		if ( ! empty( $users ) ) {
-			foreach ( $users as $user_id ) {
-				remove_user_from_blog( $user_id, $blog_id );
-			}
-		}
-
-		update_blog_status( $blog_id, 'deleted', 1 );
 	}
 
 	if ( $switch ) {

@@ -68,60 +68,13 @@ function wp_get_active_network_plugins() {
  * blog-suspended.php drop-ins.
  *
  * @since 3.0.0
- *
+ * @since calmPress 1.0.0 There is no obvious setting that disables a site, but keeping
+ *                        this function as it it the right one in which such functionality
+ *                        should be added when there will be one.
+ * 
  * @return true|string Returns true on success, or drop-in file to include.
  */
 function ms_site_check() {
-
-	/**
-	 * Filters checking the status of the current blog.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param bool|null $check Whether to skip the blog status check. Default null.
-	 */
-	$check = apply_filters( 'ms_site_check', null );
-	if ( null !== $check ) {
-		return true;
-	}
-
-	// Allow super admins to see blocked sites.
-	if ( is_super_admin() ) {
-		return true;
-	}
-
-	$blog = get_site();
-
-	if ( '1' === $blog->deleted ) {
-		if ( file_exists( WP_CONTENT_DIR . '/blog-deleted.php' ) ) {
-			return WP_CONTENT_DIR . '/blog-deleted.php';
-		} else {
-			wp_die( 'This site is no longer available.', '', array( 'response' => 410 ) );
-		}
-	}
-
-	if ( '2' === $blog->deleted ) {
-		if ( file_exists( WP_CONTENT_DIR . '/blog-inactive.php' ) ) {
-			return WP_CONTENT_DIR . '/blog-inactive.php';
-		} else {
-			$admin_email = str_replace( '@', ' AT ', get_site_option( 'admin_email', 'support@' . get_network()->domain ) );
-			wp_die(
-				sprintf(
-					/* translators: %s: Admin email link. */
-					__( 'This site has not been activated yet. If you are having problems activating your site, please contact %s.' ),
-					sprintf( '<a href="mailto:%1$s">%1$s</a>', $admin_email )
-				)
-			);
-		}
-	}
-
-	if ( '1' === $blog->archived ) {
-		if ( file_exists( WP_CONTENT_DIR . '/blog-suspended.php' ) ) {
-			return WP_CONTENT_DIR . '/blog-suspended.php';
-		} else {
-			wp_die( 'This site has been archived or suspended.', '', array( 'response' => 410 ) );
-		}
-	}
 
 	return true;
 }

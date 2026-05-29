@@ -707,32 +707,6 @@ function ms_is_switched() {
 }
 
 /**
- * Checks if a particular blog is archived.
- *
- * @since MU (3.0.0)
- *
- * @param int $id Blog ID.
- * @return string Whether the blog is archived or not.
- */
-function is_archived( $id ) {
-	return get_blog_status( $id, 'archived' );
-}
-
-/**
- * Updates the 'archived' status of a particular blog.
- *
- * @since MU (3.0.0)
- *
- * @param int    $id       Blog ID.
- * @param string $archived The new status.
- * @return string $archived
- */
-function update_archived( $id, $archived ) {
-	update_blog_status( $id, 'archived', $archived );
-	return $archived;
-}
-
-/**
  * Updates a blog details field.
  *
  * @since MU (3.0.0)
@@ -748,7 +722,7 @@ function update_archived( $id, $archived ) {
 function update_blog_status( $blog_id, $pref, $value ) {
 	global $wpdb;
 
-	$allowed_field_names = array( 'site_id', 'domain', 'path', 'registered', 'last_updated', 'public', 'archived', 'deleted', 'lang_id' );
+	$allowed_field_names = array( 'site_id', 'domain', 'path', 'registered', 'last_updated', 'lang_id' );
 
 	if ( ! in_array( $pref, $allowed_field_names, true ) ) {
 		return $value;

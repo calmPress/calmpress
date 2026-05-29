@@ -16,7 +16,6 @@
 add_action( 'init', 'ms_subdomain_constants' );
 
 // Functions.
-add_action( 'update_option_blog_public', 'update_blog_public', 10, 2 );
 add_filter( 'site_option_welcome_user_email', 'welcome_user_msg_filter' );
 
 // Users.
@@ -44,7 +43,6 @@ add_action( 'wp_update_site', 'wp_maybe_clean_new_site_cache_on_update', 10, 2 )
 add_action( 'wp_initialize_site', 'wp_initialize_site', 10, 2 );
 add_action( 'wp_initialize_site', 'wpmu_log_new_registrations', 100, 2 );
 add_action( 'wp_uninitialize_site', 'wp_uninitialize_site', 10, 1 );
-add_action( 'update_blog_public', 'wp_update_blog_public_option_on_site_update', 1, 2 );
 
 // Site meta.
 add_action( 'added_blog_meta', 'wp_cache_set_sites_last_changed' );

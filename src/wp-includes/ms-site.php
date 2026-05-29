@@ -1171,25 +1171,6 @@ function wp_maybe_clean_new_site_cache_on_update( $new_site, $old_site ) {
 }
 
 /**
- * Updates the `blog_public` option for a given site ID.
- *
- * @since 5.1.0
- *
- * @param int    $site_id   Site ID.
- * @param string $is_public Whether the site is public. A numeric string,
- *                          for compatibility reasons. Accepts '1' or '0'.
- */
-function wp_update_blog_public_option_on_site_update( $site_id, $is_public ) {
-
-	// Bail if the site's database tables do not exist (yet).
-	if ( ! wp_is_site_initialized( $site_id ) ) {
-		return;
-	}
-
-	update_blog_option( $site_id, 'blog_public', $is_public );
-}
-
-/**
  * Sets the last changed time for the 'sites' cache group.
  *
  * @since 5.1.0
