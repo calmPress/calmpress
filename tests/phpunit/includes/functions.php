@@ -230,6 +230,7 @@ function _wp_die_handler_txt( $message, $title, $args ) {
 	$message = html_entity_decode( strip_tags( $message ) );
 	$title   = html_entity_decode( strip_tags( $title ) );
 
+	debug_print_backtrace();
 	echo "\033[0;31m";
 	echo "\nwp_die() called\n";
 	echo "Message: $message\n";
