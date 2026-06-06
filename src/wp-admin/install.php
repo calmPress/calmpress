@@ -165,7 +165,7 @@ function display_setup_form( $error = null ) {
 				$subdirectory_text = sprintf(
 					/* translators: %s: example for url */
 					esc_html__( 'Multiple sites using subdirectories (%s)' ),
-					$host . '/' . $path . '/site1/'
+					$host . $path . '/site1/'
 				);
 				$subdomain_text = sprintf(
 					/* translators: %s: example for url */
