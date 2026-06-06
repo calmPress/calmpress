@@ -110,10 +110,15 @@ $submenu['plugins.php'][5]  = array( __( 'Installed Plugins' ), 'manage_network_
 $submenu['plugins.php'][10] = array( __( 'Add Plugin' ), 'install_plugins', 'plugin-install.php' );
 
 $menu[25] = array( __( 'Settings' ), 'manage_network_options', 'settings.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-admin-settings' );
+$submenu['settings.php'][5]  = array( __( 'Network Settings' ), 'manage_network_options', 'settings.php' );
+$submenu['settings.php'][15]  = array( __( 'Email Delivery' ), 'manage_network_options', 'options-email.php' );
 if ( defined( 'MULTISITE' ) && defined( 'WP_ALLOW_MULTISITE' ) && WP_ALLOW_MULTISITE ) {
-	$submenu['settings.php'][5]  = array( __( 'Network Settings' ), 'manage_network_options', 'settings.php' );
 	$submenu['settings.php'][10] = array( __( 'Network Setup' ), 'setup_network', 'setup.php' );
 }
+
+$menu[30] = array( __( 'Tools' ), 'tools_menu', 'tools.php', '', 'menu-top menu-icon-tools', 'menu-tools', 'dashicons-admin-tools' );
+$submenu['tools.php'][5] = array( __( 'Test Email Delivery' ), 'manage_network_options', 'test-email-delivery.php' );
+
 unset( $update_data );
 
 $menu[99] = array( '', 'exist', 'separator-last', '', 'wp-menu-separator' );
