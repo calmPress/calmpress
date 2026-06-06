@@ -485,13 +485,15 @@ function populate_options( array $options = array() ) {
 		'calm_embedding_on'               => 0,
 		'robots_txt'                      => 'User-agent: *',
 		'calm_maintenance_mode_type'      => '',
-		'calm_email_delivery'             => [
+		'calm_email_transport'             => [
 			'type'       => 'local',
 			'host'       => '',
 			'user'       => '',
 			'password'   => '',
-			'from_name'  => 'calmPress',
 			'from_email' => '', // domain is unknown at this point.
+		],
+		'calm_email_preferences'              => [
+			'from_name'  => 'calmPress',
 			'verbosity'  => 'no',
 		],
 		'custom_logo'                     => 0,
@@ -516,7 +518,8 @@ function populate_options( array $options = array() ) {
 		'htaccess_user_section',
 		'wp_config_user_section',
 		'robots_txt',
-		'calm_email_delivery',
+		'calm_email_transport',
+		'calm_email_preferences',
 		'admin_email',
 		'comment_moderator_user',
 	);
@@ -1221,6 +1224,15 @@ We hope you enjoy your new site. Thanks!
 		'user_count'                  => get_site_option( 'user_count' ),
 		'active_sitewide_plugins'     => array(),
 		'WPLANG'                      => get_locale(),
+		// Initialize the structure for mail gateway info.
+		'calm_email_transport'        => [
+			'type'       => 'local',
+			'host'       => '',
+			'user'       => '',
+			'password'   => '',
+			'from_email' => '',
+		],
+
 	);
 
 	$sitemeta = wp_parse_args( $meta, $sitemeta );

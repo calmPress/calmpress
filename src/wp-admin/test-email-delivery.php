@@ -150,21 +150,20 @@ if ( isset( $_POST['test'] ) ) {
 		}
 	}
 } elseif ( isset( $_POST[ 'save_smtp' ] ) ) {
-	$opt = get_option( 'calm_email_delivery' );
+	$opt = get_option( 'calm_email_transport' );
 	$opt['type']     = 'smtp';
 	$opt['host']     = $server;
 	$opt['user']     = $user;
 	$opt['password'] = $password;
-	update_option( 'calm_email_delivery', $opt );
+	update_option( 'calm_email_transport', $opt );
 	$message = __( 'SMTP Settings Saved' );
 	$message_type = 'success';
 } elseif ( isset( $_POST['test_email'] ) ) {
 	// To keep the flow of wp_mail "authentic" overwrite the
 	// email settings values.
 	add_filter(
-		'option_calm_email_delivery',
-		static function ( $value ) use ( $from_name, $from_email ) {
-			$value['from_name']  = $from_name;
+		'option_calm_email_transport',
+		static function ( $value ) use ( $from_email ) {
 			$value['from_email'] = $from_email;
 			return $value;
 		}
@@ -187,7 +186,7 @@ if ( isset( $_POST['test'] ) ) {
 	);
 
 	if ( $r ) {
-		$message              = __('test email sent' );
+		$message              = __( 'test email sent' );
 		$message_type         = 'success';
 		$disabled_save_sender = '';
 	} else {
@@ -356,11 +355,10 @@ if ( isset( $_POST['test'] ) ) {
 add_action(
 	'admin_footer',
 	static function () {
-		$opt        = get_option( 'calm_email_delivery' );
+		$opt        = get_option( 'calm_email_transport' );
 		$host       = $opt['host'];
 		$user       = $opt['user'];
 		$password   = $opt['password']; 
-		$from_name  = $opt['from_name']; 
 		$from_email = $opt['from_email']; 
 		// The settings values will be populated into input fields when the user will 
 		// want it to happen. This is a very simplified way to fetch the settings
@@ -381,8 +379,6 @@ add_action(
 	} );
 	b = document.querySelector( '#populate_sender' );
 	b.addEventListener( 'click', () => {
-		e       = document.querySelector( '#from_name' );
-		e.value = "<?php echo esc_js( $from_name );?>";
 		e       = document.querySelector( '#from_email' );
 		e.value = "<?php echo esc_js( $from_email );?>";
 	} );
