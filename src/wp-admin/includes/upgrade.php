@@ -129,8 +129,6 @@ if ( ! function_exists( 'wp_install' ) ) :
 
 		flush_rewrite_rules( true );
 
-		wp_new_blog_notification( $blog_title, $guessurl, $user_id, ( $email_password ? $user_password : __( 'The password you chose during installation.' ) ) );
-
 		wp_cache_flush();
 
 		/**
@@ -447,95 +445,6 @@ function wp_install_enable_pretty_permalinks() {
 
 	return false;
 }
-
-if ( ! function_exists( 'wp_new_blog_notification' ) ) :
-	/**
-	 * Notifies the site admin that the installation of WordPress is complete.
-	 *
-	 * Sends an email to the new administrator that the installation is complete
-	 * and provides them with a record of their login credentials.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $blog_title Site title.
-	 * @param string $blog_url   Site URL.
-	 * @param int    $user_id    Administrator's user ID.
-	 * @param string $password   Administrator's password. Note that a placeholder message is
-	 *                           usually passed instead of the actual password.
-	 */
-	function wp_new_blog_notification(
-		$blog_title,
-		$blog_url,
-		$user_id,
-		#[\SensitiveParameter]
-		$password
-	) {
-		$user      = new WP_User( $user_id );
-		$email     = $user->user_email;
-		$name      = $user->user_login;
-		$login_url = wp_login_url();
-
-		$message = sprintf(
-			/* translators: New site notification email. 1: New site URL, 2: User login, 3: User password or password reset link, 4: Login URL. */
-			__(
-				'Your new WordPress site has been successfully set up at:
-
-%1$s
-
-You can log in to the administrator account with the following information:
-
-Username: %2$s
-Password: %3$s
-Log in here: %4$s
-
-We hope you enjoy your new site. Thanks!
-
---The calmPress Team
-https://example.org/
-'
-			),
-			$blog_url,
-			$name,
-			$password,
-			$login_url
-		);
-
-		$installed_email = array(
-			'to'      => $email,
-			'subject' => __( 'New WordPress Site' ),
-			'message' => $message,
-			'headers' => '',
-		);
-
-		/**
-		 * Filters the contents of the email sent to the site administrator when WordPress is installed.
-		 *
-		 * @since 5.6.0
-		 *
-		 * @param array $installed_email {
-		 *     Used to build wp_mail().
-		 *
-		 *     @type string $to      The email address of the recipient.
-		 *     @type string $subject The subject of the email.
-		 *     @type string $message The content of the email.
-		 *     @type string $headers Headers.
-		 * }
-		 * @param WP_User $user          The site administrator user object.
-		 * @param string  $blog_title    The site title.
-		 * @param string  $blog_url      The site URL.
-		 * @param string  $password      The site administrator's password. Note that a placeholder message
-		 *                               is usually passed instead of the user's actual password.
-		 */
-		$installed_email = apply_filters( 'wp_installed_email', $installed_email, $user, $blog_title, $blog_url, $password );
-
-		wp_mail(
-			$installed_email['to'],
-			$installed_email['subject'],
-			$installed_email['message'],
-			$installed_email['headers']
-		);
-	}
-endif;
 
 if ( ! function_exists( 'wp_upgrade' ) ) :
 	/**
