@@ -265,13 +265,11 @@ function default_sender(): void {
 	<p class="description">
 		<?php
 		esc_html_e(
-			'Here you can override the default sender of emails. It will not
- have an impact at emails sent with the sender set in advance.'
+			'Configure the default sender used for outgoing emails. These settings do not affect emails that specify a sender in advance.'
 		);
 		echo '<br>';
 		printf(
-			esc_html__( 'If both Name and Email Address are set the recipient will see the mail
-			     as sent from %s' ),
+			esc_html__( 'If both Name and Email Address are set, recipient will see the mail as sent from %s' ),
 			'<code>Name &lt;email address&gt;</code>'
 		);
 		?>
@@ -316,6 +314,9 @@ function email_address() : void {
 	>
 	<p class="validate-failure-message" aria-live="polite">
 		<?php esc_attr_e( 'The email adress seems to be invalid' ); ?>
+	</p>
+	<p class="description">
+		<?php esc_html_e( 'The sender email address displayed to recipients. Some email providers require this address to match the authenticated account or a verified sender identity.' ); ?>
 	</p>
 	<?php
 }

@@ -324,7 +324,7 @@ if ( isset( $_POST['test'] ) ) {
 				<td>
 					<input type="text" id="from_name" name="from_name" value="<?php echo esc_attr( $from_name );?>">
 					<p class="description">
-						<?php esc_html_e( 'The name of the sender from which the email will seem to originate.' ); ?>
+						<?php esc_html_e( 'The sender name displayed to recipients.' ); ?>
 					</p>
 				</td>
 			</tr>
@@ -337,7 +337,7 @@ if ( isset( $_POST['test'] ) ) {
 				<td>
 					<input type="text" id="from_email" name="from_email" value="<?php echo esc_attr( $from_email );?>">
 					<p class="description">
-						<?php esc_html_e( 'The email address from which the email will seem to originate.' ); ?>
+						<?php esc_html_e( 'The sender email address displayed to recipients. Some email providers require this address to match the authenticated account or a verified sender identity.' ); ?>
 					</p>
 				</td>
 			</tr>
