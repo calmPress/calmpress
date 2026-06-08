@@ -122,14 +122,14 @@ add_settings_field(
  * @since 1.0.0
  */
 function gateway() : void {
-	$opt  = get_option( 'calm_email_transport' );
+	$opt  = get_option( 'calm_email_delivery' );
 	$type = $opt['type'];
 	$options = [
 		'local' => esc_html__( 'Local Server' ),
 		'smtp'  => esc_html__( 'SMTP Server' ),
 	];
 	?>
-	<select id="email_delivery_type" name="calm_email_transport[type]" aria-describedby="gateway_description">
+	<select id="email_delivery_type" name="calm_email_delivery[type]" aria-describedby="gateway_description">
 		<?php
 		foreach ( $options as $value => $label ) {
 			echo '<option ' . selected( $type, $value, false ) . 
@@ -179,12 +179,12 @@ function smtp_section(): void {
  * @since 1.0.0
  */
 function host() : void {
-	$opt  = get_option( 'calm_email_transport' );
+	$opt  = get_option( 'calm_email_delivery' );
 	$host = $opt['host'];
 	?>
 	<input
 		type="text"
-		name="calm_email_transport[host]"
+		name="calm_email_delivery[host]"
 		value="<?php esc_attr_e( $host );?>"
 		validate="pattern"
 		validate-on="input"
@@ -211,12 +211,12 @@ function host() : void {
  * @since 1.0.0
  */
 function user() : void {
-	$opt  = get_option( 'calm_email_transport' );
+	$opt  = get_option( 'calm_email_delivery' );
 	$user = $opt['user'];
 	?>
 	<input
 		type="text"
-		name="calm_email_transport[user]"
+		name="calm_email_delivery[user]"
 		value="<?php esc_attr_e( $user );?>"
 		aria-describedby="user_decription"
 	>
@@ -236,12 +236,12 @@ function user() : void {
  * @since 1.0.0
  */
 function password() : void {
-	$opt      = get_option( 'calm_email_transport' );
+	$opt      = get_option( 'calm_email_delivery' );
 	$password = $opt['password'];
 	?>
 	<input
 		type="email"
-		name="calm_email_transport[password]"
+		name="calm_email_delivery[password]"
 		value="<?php esc_attr_e( $password );?>"
 		aria-describedby="password_description"
 	>
@@ -283,12 +283,12 @@ function default_sender(): void {
  * @since 1.0.0
  */
 function name() : void {
-	$opt       = get_option( 'calm_email_preferences' );
+	$opt       = get_option( 'calm_email_delivery' );
 	$from_name = $opt['from_name'];
 	?>
 	<input
 		type="text"
-		name="calm_email_preferences[from_name]"
+		name="calm_email_delivery[from_name]"
 		value="<?php esc_attr_e( $from_name );?>"
 	>
 	<?php
@@ -300,12 +300,12 @@ function name() : void {
  * @since 1.0.0
  */
 function email_address() : void {
-	$opt        = get_option( 'calm_email_transport' );
+	$opt        = get_option( 'calm_email_delivery' );
 	$from_email = $opt['from_email'];
 	?>
 	<input
 		type="text"
-		name="calm_email_transport[from_email]"
+		name="calm_email_delivery[from_email]"
 		validate="pattern"
 		validation-pattern="^\s*$|\s*[\w.]*@[\w-]+([.][-\w]+)*\s*$"
 		validate-on="focusout"
@@ -349,7 +349,7 @@ function logging(): void {
  * @since 1.0.0
  */
 function verbosity() : void {
-	$opt       = get_option( 'calm_email_preferences' );
+	$opt       = get_option( 'calm_email_delivery' );
 	$verbosity = $opt['verbosity'];
 	$options = [
 		'no'         => esc_html__( 'No logging' ),
@@ -357,7 +357,7 @@ function verbosity() : void {
 		'full'       => esc_html__( 'Full' ),
 	];
 	?>
-	<select name="calm_email_preferences[verbosity]">
+	<select name="calm_email_delivery[verbosity]">
 		<?php
 		foreach ( $options as $value => $label ) {
 			echo '<option ' . selected( $verbosity, $value, false ) . 
@@ -371,7 +371,7 @@ function verbosity() : void {
 require ABSPATH . 'wp-admin/admin-header.php';
 
 // Hide the SMTP section if gateway is local.
-$opt  = get_option( 'calm_email_transport' );
+$opt  = get_option( 'calm_email_delivery' );
 $type = $opt['type'];
 
 if ( 'local' === $type ) {

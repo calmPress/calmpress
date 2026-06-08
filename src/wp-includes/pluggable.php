@@ -397,15 +397,14 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		 */
 		$phpmailer->Encoding = PHPMailer\PHPMailer\PHPMailer::ENCODING_8BIT;
 
-		$options    = get_option( 'calm_email_transport' );
-		$id_options = get_option( 'calm_email_preferences' );
+		$options = get_option( 'calm_email_delivery' );
 
 		// Set "From" name and email.
 
 		// If we don't have a name from the input headers.
 		if ( ! isset( $from_name ) ) {
-			if ( $id_options['from_name'] ) {
-				$from_name = $id_options['from_name'];
+			if ( $options['from_name'] ) {
+				$from_name = $options['from_name'];
 			} else {
 				$from_name = 'calmPress';
 			}
@@ -647,8 +646,8 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		try {
 			$send = $phpmailer->send();
 
-			if ( $id_options['verbosity'] !== 'no' ) {
-				\calmpress\logger\Log_Emails::mail_success( $phpmailer, $id_options['verbosity'] );
+			if ( $options['verbosity'] !== 'no' ) {
+				\calmpress\logger\Log_Emails::mail_success( $phpmailer, $options['verbosity'] );
 			}
 
 			/**

@@ -120,8 +120,7 @@ $allowed_options            = array(
 		'robots_txt',
 	],
 	'email_delivery' => [
-		'calm_email_transport',
-		'calm_email_preferences',
+		'calm_email_delivery',
 	]
 );
 $allowed_options['misc']    = array();

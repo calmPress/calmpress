@@ -150,21 +150,22 @@ if ( isset( $_POST['test'] ) ) {
 		}
 	}
 } elseif ( isset( $_POST[ 'save_smtp' ] ) ) {
-	$opt = get_site_option( 'calm_email_transport' );
+	$opt = get_site_option( 'calm_email_delivery' );
 	$opt['type']       = 'smtp';
 	$opt['host']       = $server;
 	$opt['user']       = $user;
 	$opt['password']   = $password;
-	update_site_option( 'calm_email_transport', $opt );
+	update_site_option( 'calm_email_delivery', $opt );
 	$message = __( 'SMTP Settings Saved' );
 	$message_type = 'success';
 } elseif ( isset( $_POST['test_email'] ) ) {
 	// To keep the flow of wp_mail "authentic" overwrite the
 	// email settings values.
 	add_filter(
-		'site_option_calm_email_transport',
-		static function ( $value ) use ( $from_email ) {
+		'site_option_calm_email_delivery',
+		static function ( $value ) use ( $from_email, $from_name ) {
 			$value['from_email'] = $from_email;
+			$value['from_name']  = $from_name;
 			return $value;
 		}
 	);
@@ -355,11 +356,12 @@ if ( isset( $_POST['test'] ) ) {
 add_action(
 	'admin_footer',
 	static function () {
-		$opt        = get_site_option( 'calm_email_transport' );
+		$opt        = get_site_option( 'calm_email_delivery' );
 		$host       = $opt['host'];
 		$user       = $opt['user'];
 		$password   = $opt['password']; 
 		$from_email = $opt['from_email']; 
+		$from_name  = $opt['from_name']; 
 		// The settings values will be populated into input fields when the user will 
 		// want it to happen. This is a very simplified way to fetch the settings
 		// into the input fields, a proper one would have required AJAX to fetch fresh
@@ -381,6 +383,8 @@ add_action(
 	b.addEventListener( 'click', () => {
 		e       = document.querySelector( '#from_email' );
 		e.value = "<?php echo esc_js( $from_email );?>";
+		e       = document.querySelector( '#from_name' );
+		e.value = "<?php echo esc_js( $from_name );?>";
 	} );
 
 	<?php
