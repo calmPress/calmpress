@@ -52,9 +52,9 @@ class Email_Address {
 	 *                        none whitespace text around them.
 	 *                        The address is sanitized. Space are removed.
 	 * 
-	 * @throws RunTimeException if email address is invalid
+	 * @throws \RunTimeException if email address is invalid
 	 */
-	public function __construct( string $address, string $name="" ) {
+	public function __construct( string $address, string $name = '' ) {
 		// white space should be removed
 		$this->address = trim( str_replace( ["\r", "\n", "\t", ' '], '', $address ) );
 
