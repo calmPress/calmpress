@@ -397,42 +397,17 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		 */
 		$phpmailer->Encoding = PHPMailer\PHPMailer\PHPMailer::ENCODING_8BIT;
 
-		$options = get_option( 'calm_email_delivery' );
+		$settings = new calmpress\email\Email_Settings();
 
 		// Set "From" name and email.
 
-		// If we don't have a name from the input headers.
+		// If we don't have a name from the input headers, use the configured name.
 		if ( ! isset( $from_name ) ) {
-			if ( $options['from_name'] ) {
-				$from_name = $options['from_name'];
-			} else {
-				$from_name = 'calmPress';
-			}
+			$from_name = $settings->sender()->name;
 		}
 
-		/*
-		 * If we don't have an email from the input headers, default to calmpress@$sitename
-		 * Some hosts will block outgoing mail from this address if it doesn't exist,
-		 * but there's no easy alternative. Defaulting to admin_email might appear to be
-		 * another option, but some hosts may refuse to relay mail from an unknown domain.
-		 * See https://core.trac.wordpress.org/ticket/5007.
-		 */
 		if ( ! isset( $from_email ) ) {
-			if ( $options['from_email'] ) {
-				$from_email = $options['from_email'];
-			} else {
-				// Get the site domain and get rid of www.
-				$sitename   = wp_parse_url( network_home_url(), PHP_URL_HOST );
-				$from_email = 'calmpress@';
-
-				if ( null !== $sitename ) {
-					if ( str_starts_with( $sitename, 'www.' ) ) {
-						$sitename = substr( $sitename, 4 );
-					}
-
-					$from_email .= $sitename;
-				}
-			}
+			$from_email = $settings->sender()->address;
 		}
 
 		/**
@@ -512,14 +487,14 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		}
 
 		// Set to use PHP's mail() or SMTP setting.
-		if ( $options['type'] === 'smtp' ) {
+		if ( $settings->is_smtp() ) {
 			$phpmailer->isSMTP();
-			$phpmailer->Host       = $options['host'];
+			$phpmailer->Host       = $settings->smtp_host();
 			$phpmailer->SMTPAuth   = true;
 			$phpmailer->SMTPSecure = 'tls';
 			$phpmailer->Port       = 587;
-			$phpmailer->Username   = $options['user'];
-			$phpmailer->Password   = $options['password'];
+			$phpmailer->Username   = $settings->smtp_user();
+			$phpmailer->Password   = $settings->smtp_password();
 		} else {
 			$phpmailer->isMail();
 		}
@@ -646,7 +621,7 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		try {
 			$send = $phpmailer->send();
 
-			if ( $options['verbosity'] !== 'no' ) {
+			if ( $settings->log_succesful_email() ) {
 				\calmpress\logger\Log_Emails::mail_success( $phpmailer, $options['verbosity'] );
 			}
 

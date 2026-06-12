@@ -99,17 +99,17 @@ class Log_Emails {
 	/**
 	 * Format mail content for output.
 	 *
-	 * @param PHPMailer $mailer The phpmailer control object while sending the mail.
-	 * @param string    $log_verbosity The level of verbosity of the log. Valid values
-	 *                                 'recipients' - show recipients info and subject
-	 *                                 'full' - Should content as well as recipients
+	 * @param PHPMailer $mailer        The phpmailer control object while sending the mail.
+	 * @param bool      $full_content  Control the level of verbosity of the log. If false
+	 *                                 log only recipients info and subject.
+	 *                                 If true logs content as well as recipients
 	 *                                 and subject.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return string The human readable output.
 	 */
-	static protected function output_email( PHPMailer $mailer, string $log_verbosity ) : string {
+	static protected function output_email( PHPMailer $mailer, bool $full_content ) : string {
 		$to     = self::readable_address_collection( $mailer->getToAddresses() );
 		$from   = self::readable_address( $mailer->FromName, $mailer->From );
 		$cc     = self::readable_address_collection( $mailer->getCCAddresses() );
@@ -128,7 +128,7 @@ class Log_Emails {
 		$output .= 'Reply-To: ' . $reply  . "\n";
 
 
-		if ( $log_verbosity === 'full' ) {
+		if ( $full_content ) {
 			$attachments = [];
 			foreach ( $mailer->getAttachments() as $attachment ) {
 				// For a string based attachment (probably base64), indicate its name
@@ -159,15 +159,15 @@ class Log_Emails {
 	 * Log sent successfuly sent mails.
 	 *
 	 * @param PHPMailer $mailer        The phpmailer control object while sending the mail.
-	 * @param string    $log_verbosity The level of verbosity of the log. Valid values
-	 *                                 'recipients' - show recipients info and subject
-	 *                                 'full' - Should content as well as recipients
+	 * @param bool      $full_content  Control the level of verbosity of the log. If false
+	 *                                 log only recipients info and subject.
+	 *                                 If true logs content as well as recipients
 	 *                                 and subject.
 	 *
 	 * @since 1.0.0
 	 */
-	static public function mail_success( PHPMailer $mailer, string $log_verbosity ): void {
-		$output = self::output_email( $mailer, $log_verbosity );
+	static public function mail_success( PHPMailer $mailer, bool $full_content ): void {
+		$output = self::output_email( $mailer, $full_content );
 		self::$sent_logger->log_message( $output );
 	}
 
@@ -182,7 +182,7 @@ class Log_Emails {
 	static public function mail_failed( PHPMailer $mailer, \Exception $ex ): void {
 
 		$output  = $ex->getMessage() . "\n";
-		$output .= self::output_email( $mailer, 'recipients' );
+		$output .= self::output_email( $mailer, false );
 		self::$failed_logger->log_message( $output );
 	}
 

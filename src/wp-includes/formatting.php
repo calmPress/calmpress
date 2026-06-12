@@ -4717,27 +4717,7 @@ function sanitize_option( $option, $value ) {
 			}
 			break;
 		case 'calm_email_delivery':
-			if ( is_array( $value ) ) {
-				$value = array_map( 'trim', $value );
-				// Check all expected keys have value.
-				$expected_keys = ['type', 'host', 'user', 'password', 'from_email', 'verbosity', 'from_name'];
-				foreach ( $expected_keys as $key ) {
-					if ( ! array_key_exists( $key, $value ) ) {
-						trigger_error( 'missing key ' . $key, E_USER_ERROR );
-					}
-				}
-				// Check gateway type is valid.
-				if ( ! in_array( $value['type'], ['local', 'smtp'], true ) ) {
-					trigger_error( 'bad gateway type ' . $value['type'], E_USER_ERROR );
-				}
-				// Check for valid verbosity.
-				if ( ! in_array( $value['verbosity'], ['no', 'full', 'recipients'], true ) ) {
-					trigger_error( 'bad verbosity type ' . $value['verbosity'], E_USER_ERROR );
-				}
-			} else {
-				// Value being set is not even an array.
-				trigger_error( 'illeagal value being set', E_USER_ERROR );
-			}
+			$value = calmpress\email\Email_Settings::validate_option_value( $value );
 			break;
 	}
 
