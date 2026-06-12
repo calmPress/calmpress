@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 use calmpress\email\Email_Address;
 
-class Email_Address_Test extends WP_UnitTestCase {
+class Test_Email_Address extends WP_UnitTestCase {
 
 	/**
 	 * Test that the constructor set name and address properties and throws
