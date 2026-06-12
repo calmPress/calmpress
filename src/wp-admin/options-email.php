@@ -184,6 +184,7 @@ function host() : void {
 	?>
 	<input
 		type="text"
+		class="regular-text"
 		name="calm_email_delivery[host]"
 		value="<?php esc_attr_e( $host );?>"
 		validate="pattern"
@@ -216,6 +217,7 @@ function user() : void {
 	?>
 	<input
 		type="text"
+		class="regular-text"
 		name="calm_email_delivery[user]"
 		value="<?php esc_attr_e( $user );?>"
 		aria-describedby="user_decription"
@@ -241,6 +243,7 @@ function password() : void {
 	?>
 	<input
 		type="email"
+		class="regular-text"
 		name="calm_email_delivery[password]"
 		value="<?php esc_attr_e( $password );?>"
 		aria-describedby="password_description"
@@ -288,6 +291,7 @@ function name() : void {
 	?>
 	<input
 		type="text"
+		class="regular-text"
 		name="calm_email_delivery[from_name]"
 		value="<?php esc_attr_e( $from_name );?>"
 	>
@@ -305,6 +309,7 @@ function email_address() : void {
 	?>
 	<input
 		type="text"
+		class="regular-text"
 		name="calm_email_delivery[from_email]"
 		validate="pattern"
 		validation-pattern="^\s*$|\s*[\w.]*@[\w-]+([.][-\w]+)*\s*$"

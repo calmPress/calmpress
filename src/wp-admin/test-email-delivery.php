@@ -242,7 +242,7 @@ if ( isset( $_POST['test'] ) ) {
 					</label>
 				</th>
 				<td>
-					<input type="text" id="server" name="server" value="<?php echo esc_attr( $server );?>">
+					<input type="text" class="regular-text" id="server" name="server" value="<?php echo esc_attr( $server );?>">
 					<p class="description">
 						<?php esc_html_e( 'The domain or IP of the server. The server should support TLS on port 587.' ); ?>
 					</p>
@@ -255,7 +255,7 @@ if ( isset( $_POST['test'] ) ) {
 					</label>
 				</th>
 				<td>
-					<input type="text" id="user" name="user" value="<?php echo esc_attr( $user );?>">
+					<input type="text" class="regular-text" id="user" name="user" value="<?php echo esc_attr( $user );?>">
 					<p class="description">
 						<?php esc_html_e( 'The user name to use when authenticating with the server' ); ?>
 					</p>
@@ -268,7 +268,7 @@ if ( isset( $_POST['test'] ) ) {
 					</label>
 				</th>
 				<td>
-					<input type="text" id="password" name="password" value="<?php echo esc_attr( $password );?>">
+					<input type="text" class="regular-text" id="password" name="password" value="<?php echo esc_attr( $password );?>">
 					<p class="description">
 						<?php esc_html_e( 'The password to use when authenticating with the server' ); ?>
 					</p>
@@ -310,7 +310,7 @@ if ( isset( $_POST['test'] ) ) {
 					</label>
 				</th>
 				<td>
-					<input type="text" id="sendto" name="sendto" value="<?php echo esc_attr( $sendto );?>">
+					<input type="text" class="regular-text" id="sendto" name="sendto" value="<?php echo esc_attr( $sendto );?>">
 					<p class="description">
 						<?php esc_html_e( 'The email address to which to send the test mail.' ); ?>
 					</p>
@@ -323,7 +323,7 @@ if ( isset( $_POST['test'] ) ) {
 					</label>
 				</th>
 				<td>
-					<input type="text" id="from_name" name="from_name" value="<?php echo esc_attr( $from_name );?>">
+					<input type="text" class="regular-text" id="from_name" name="from_name" value="<?php echo esc_attr( $from_name );?>">
 					<p class="description">
 						<?php esc_html_e( 'The sender name displayed to recipients.' ); ?>
 					</p>
@@ -336,7 +336,7 @@ if ( isset( $_POST['test'] ) ) {
 					</label>
 				</th>
 				<td>
-					<input type="text" id="from_email" name="from_email" value="<?php echo esc_attr( $from_email );?>">
+					<input type="text" class="regular-text" id="from_email" name="from_email" value="<?php echo esc_attr( $from_email );?>">
 					<p class="description">
 						<?php esc_html_e( 'The sender email address displayed to recipients. Some email providers require this address to match the authenticated account or a verified sender identity.' ); ?>
 					</p>
