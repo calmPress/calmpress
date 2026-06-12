@@ -80,7 +80,6 @@ class Tests_Pluggable_Signatures extends WP_UnitTestCase {
 			'install_network',
 			'wp_install',
 			'wp_install_defaults',
-			'wp_new_blog_notification',
 			'wp_upgrade',
 		);
 		$test_files     = array(
@@ -258,7 +257,6 @@ class Tests_Pluggable_Signatures extends WP_UnitTestCase {
 				'language'      => '',
 			),
 			'wp_install_defaults'             => array( 'user_id' ),
-			'wp_new_blog_notification'        => array( 'blog_title', 'blog_url', 'user_id', 'password' ),
 			'wp_upgrade'                      => array(),
 		);
 
