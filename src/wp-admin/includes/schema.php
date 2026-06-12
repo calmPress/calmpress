@@ -344,7 +344,13 @@ $wp_queries = wp_get_db_schema( 'all' );
 function populate_options( array $options = array() ) {
 	global $wpdb, $wp_current_db_version;
 
-	$guessurl = wp_guess_url();
+	$guessurl           = wp_guess_url();
+	$guess_email_domain = wp_parse_url( $guessurl, PHP_URL_HOST );
+
+	if ( str_starts_with( $guess_email_domain, 'www.' ) ) {
+		$guess_email_domain = substr( $guess_email_domain, 4 );
+	}
+
 	/**
 	 * Fires before creating WordPress options and populating their default values.
 	 *
@@ -490,7 +496,7 @@ function populate_options( array $options = array() ) {
 			'host'       => '',
 			'user'       => '',
 			'password'   => '',
-			'from_email' => '', // domain is unknown at this point.
+			'from_email' => 'noreply@' . strtolower( $guess_email_domain ),
 			'from_name'  => 'calmPress',
 			'verbosity'  => 'no',
 		],
@@ -962,6 +968,7 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 			'admin_email'       => $email,
 			'site_name'         => $site_name,
 			'subdomain_install' => $subdomain_install,
+			'domain'            => $domain,
 		)
 	);
 
@@ -1016,6 +1023,11 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 				'meta_value' => $current_site->blog_id,
 			)
 		);
+
+		// Not ideal but this seem the only place in which options can be added to the main site
+		// of a network as dedicated API triggered when a new site is created
+		// are not triggered for the main site.
+		add_option( 'calm_network_override', [] );
 
 		if ( $subdomain_install ) {
 			$wp_rewrite->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
@@ -1116,6 +1128,13 @@ function populate_network_meta( $network_id, array $meta = array() ) {
 	global $wpdb;
 
 	$network_id = (int) $network_id;
+
+	$domain = $meta['domain'];
+	$sender_domain = strtolower( $domain );
+
+	if ( str_starts_with( $sender_domain, 'www.' ) ) {
+		$sender_domain = substr( $sender_domain, 4 );
+	}
 
 	$email             = ! empty( $meta['admin_email'] ) ? $meta['admin_email'] : '';
 	$subdomain_install = isset( $meta['subdomain_install'] ) ? (int) $meta['subdomain_install'] : 0;
@@ -1227,9 +1246,9 @@ We hope you enjoy your new site. Thanks!
 			'host'       => '',
 			'user'       => '',
 			'password'   => '',
-			'from_email' => '',
-			'from_name'  => '',
-			'verbosity'  => 'no',  // Just to be compatible with the per site and standalone option
+			'from_email' => 'noreply@' . strtolower( $sender_domain ),
+			'from_name'  => 'calmPress',
+			'verbosity'  => 'no',  // Just to be compatible with the per site and standalone option.
 		],
 
 	);

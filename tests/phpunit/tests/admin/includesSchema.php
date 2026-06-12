@@ -286,17 +286,19 @@ class Tests_Admin_IncludesSchema extends WP_UnitTestCase {
 	public function data_populate_network_meta() {
 		return array(
 			array(
-				array(),
+				array( 'domain' => 'example.org' ),
 				array(
 					// Random meta to check.
 					'blog_upload_space' => '100',
 					'fileupload_maxk'   => '1500',
+					'domain'            => 'example.org',
 				),
 			),
 			array(
 				array(
 					'site_name' => 'My Great Network',
 					'WPLANG'    => 'fr_FR',
+					'domain'    => 'example.org',
 				),
 				array(
 					// Random meta to check.
@@ -304,17 +306,20 @@ class Tests_Admin_IncludesSchema extends WP_UnitTestCase {
 					'blog_upload_space' => '100',
 					'fileupload_maxk'   => '1500',
 					'WPLANG'            => 'fr_FR',
+					'domain'            => 'example.org',
 				),
 			),
 			array(
 				array(
 					'custom_meta' => '1',
+					'domain'      => 'example.org',
 				),
 				array(
 					// Random meta to check.
 					'custom_meta'       => '1',
 					'blog_upload_space' => '100',
 					'fileupload_maxk'   => '1500',
+					'domain'            => 'example.org',
 				),
 			),
 		);
