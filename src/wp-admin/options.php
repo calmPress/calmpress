@@ -228,6 +228,7 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 	}
 
 	if ( $options ) {
+		$option_values     = [];
 		$user_language_old = get_user_locale();
 
 		foreach ( $options as $option ) {
@@ -241,18 +242,51 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 				}
 				$value = wp_unslash( $value );
 			}
-			update_option( $option, $value );
+			$option_values[ $option ] = $value;
 		}
 
-		/*
-		 * Switch translation in case WPLANG was changed.
-		 * The global $locale is used in get_locale() which is
-		 * used as a fallback in get_user_locale().
+		/**
+		 * Validate submitted settings values before they are saved.
+		 *
+		 * The filter receives the values submitted for all options registered to the
+		 * current settings page. Callbacks should inspect the submitted values and add
+		 * any validation failures to the supplied WP_Error object.
+		 *
+		 * Returning a WP_Error containing one or more errors will prevent all options
+		 * on the settings page from being updated. Validation errors are displayed to
+		 * the user using the Settings API error handling mechanism.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param WP_Error $errors Validation errors detected so far.
+		 * @param array    $option_values Submitted option values keyed by option name.
+		 *                         All registered options are always present in the array;
+		 *                         options not included in the submission will have a value of null.
+		 * @return WP_Error Validation errors.
 		 */
-		unset( $GLOBALS['locale'] );
-		$user_language_new = get_user_locale();
-		if ( $user_language_old !== $user_language_new ) {
-			load_default_textdomain( $user_language_new );
+		$validation_errors = apply_filters( 'check_input_errors_' . $option_page, new WP_Error(), $option_values );
+		$id = 0;
+		foreach ( $validation_errors->get_error_messages() as $message ) {
+			add_settings_error( $option_page, 'setting_error_' . $id++, $message, 'error' );
+		}
+
+		if ( ! $validation_errors->has_errors() ) {
+			foreach ( $option_values as $k => $v ) {
+				update_option( $k, $v );
+			}
+
+			/*
+			* Switch translation in case WPLANG was changed.
+			* The global $locale is used in get_locale() which is
+			* used as a fallback in get_user_locale().
+			*/
+			unset( $GLOBALS['locale'] );
+			$user_language_new = get_user_locale();
+			if ( $user_language_old !== $user_language_new ) {
+				load_default_textdomain( $user_language_new );
+			}
+		} else {
+			set_transient( get_current_user_id() . '_save_failure_' . $option_page, $option_values, 30 );
 		}
 	} else {
 		add_settings_error( 'general', 'settings_updated', __( 'Settings save failed.' ), 'error' );
@@ -265,6 +299,7 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 	// If no settings errors were registered add a general 'updated' message.
 	if ( ! count( get_settings_errors() ) ) {
 		add_settings_error( 'general', 'settings_updated', __( 'Settings saved.' ), 'success' );
+		delete_transient( get_current_user_id() . ':save_failure:' . $option_page );
 	}
 
 	set_transient( 'settings_errors', get_settings_errors(), 30 ); // 30 seconds.
