@@ -667,7 +667,6 @@ function wp_initialize_site( $site_id, array $args = array() ) {
 				'upload_path' => get_blog_option( $network->site_id, 'upload_path' ),
 				'blog_public' => (int) $site->public,
 				'WPLANG'      => get_network_option( $network->id, 'WPLANG' ),
-				'calm_network_override' => [],
 			),
 			$args['options']
 		)

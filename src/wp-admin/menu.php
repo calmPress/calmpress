@@ -325,8 +325,9 @@ $menu[80]                               = array( __( 'Settings' ), 'manage_optio
 	}
 	if ( is_super_admin() ) {
 		$submenu['options-general.php'][43] = array( __( 'robots.txt' ), 'manage_options', 'options-robots-txt.php' );
-		$submenu['options-general.php'][44] = array( __( 'Email Delivery'),  'manage_options', 'options-email.php' );
 	}
+	$submenu['options-general.php'][44] = array( __( 'Email Delivery'),  'manage_options', 'options-email.php' );
+
 
 if ( ! is_multisite() ) {
 $menu[85]                       = array( __( 'Backups' ), 'backup', 'backups.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-database' );

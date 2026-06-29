@@ -1509,7 +1509,7 @@ function wp_default_scripts( $scripts ) {
 
 		$scripts->add( 'calm-form-validate', "/wp-admin/js/form-validate$suffix.js", [] );
 
-		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate'] );
+		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate', 'calm-utils'] );
 
 		$scripts->add( 'calm-reauth', "/wp-includes/js/cp-reauth$suffix.js", ['wp-auth-check'] );
 

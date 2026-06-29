@@ -20,8 +20,8 @@ class Test_Email_Settings extends WP_UnitTestCase {
 	 */
 	private function get_option(): array {
 		if ( is_multisite() ) {
-			$override_opt = get_option( 'calm_network_override' );
-			if ( ! array_key_exists( 'email_delivery', $override_opt ) ) {
+			$opts = get_option( 'calm_email_delivery' );
+			if ( ! array_key_exists( 'network_override', $opts ) ) {
 				return get_site_option( 'calm_email_delivery' );
 			}
 		}
@@ -39,8 +39,8 @@ class Test_Email_Settings extends WP_UnitTestCase {
 	 */
 	private function update_option( $opt ) {
 		if ( is_multisite() ) {
-			$override_opt = get_option( 'calm_network_override' );
-			if ( ! array_key_exists( 'email_delivery', $override_opt ) ) {
+			$opts = get_option( 'calm_email_delivery' );
+			if ( ! array_key_exists( 'network_override', $opts ) ) {
 				update_site_option( 'calm_email_delivery', $opt );
 				return;
 			}
@@ -74,10 +74,13 @@ class Test_Email_Settings extends WP_UnitTestCase {
 	public function test_is_local() {
 		if ( is_multisite() ) {
 			// Test with network defaults.
-			update_option( 'calm_network_override', [] );
+			$opt = get_option( 'calm_email_delivery' );
+			unset( $opt['network_override'] );
+			update_option( 'calm_email_delivery', $opt );
 			$this->is_local_tests();
 			// Test with a site override.
-			update_option( 'calm_network_override', ['email_delivery' => 1] );
+			$opt['network_override'] = 1;
+			update_option( 'calm_email_delivery', $opt );
 			$this->is_local_tests();
 		} else {
 			$this->is_local_tests();	
@@ -286,6 +289,22 @@ class Test_Email_Settings extends WP_UnitTestCase {
 			$this->assertEquals( $t, calmpress\email\Email_Settings::validate_option_value( $t ) );
 		}
 
+		// Validate network override when one-ish.
+		foreach ( [ 1, '1' ] as $v ) {
+			$t = $good_value;
+			$t['network_override'] = $v;
+			$a = calmpress\email\Email_Settings::validate_option_value( $t );
+			$this->assertTrue( array_key_exists( 'network_override', $a ) );
+		}
+		
+		// Validate network override when zero-ish.
+		foreach ( [ 0, '0' ] as $v ) {
+			$t = $good_value;
+			$t['network_override'] = $v;
+			$a = calmpress\email\Email_Settings::validate_option_value( $t );
+			$this->assertFalse( array_key_exists( 'network_override', $a ) );
+		}
+		
 		// Exception thrown on bad verbosity.
 		$t = $good_value;
 		$t['verbosity'] = 'wow';
@@ -311,5 +330,12 @@ class Test_Email_Settings extends WP_UnitTestCase {
 			$this->fail( 'Exception not thrown on empty SMTP host' );
 		} catch ( \LogicException $e ) {}
 
+		// Exception thrown when network override has weird value
+		$t = $good_value;
+		$t['network_override'] = 'me';
+		try {
+			calmpress\email\Email_Settings::validate_option_value( $t );
+			$this->fail( 'Exception not thrown on bad network_override' );
+		} catch ( \LogicException $e ) {}
 	}
 }

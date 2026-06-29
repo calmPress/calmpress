@@ -21,11 +21,46 @@ wp_enqueue_script( 'calm-options-email' );
 $title       = __( 'Email Delivery Settings' );
 $parent_file = 'options-general.php';
 
+// Dynamically load saved values if there was a validation error.
+$previous_save =  get_transient( get_current_user_id() . '_save_failure_email_delivery' );
+if ( $previous_save ) {
+	add_filter(
+		'pre_option_calm_email_delivery',
+		function ( $value ) use ( $previous_save ) {
+			return $previous_save['calm_email_delivery'];
+		},
+	);
+}
+
+if ( is_multisite() ) {
+	add_settings_section(
+		'calm-override-email-delivery-section',
+		__( 'Override Network Defaults' ),
+		__NAMESPACE__ . '\network_override_section',
+		'email_delivery'
+	);
+
+	if ( is_super_admin() ) {
+		add_settings_field(
+			'calm-override_email-delivery-field',
+			__( 'Override network defaults for this site' ),
+			__NAMESPACE__ . '\network_override',
+			'email_delivery',
+			'calm-override-email-delivery-section',
+			[ 'label_for' => 'calm-override_email-delivery-field' ]
+		);
+	}
+}
+
 add_settings_section(
 	'calm-email-delivery-outgoing-section',
 	'',
 	'',
-	'email_delivery'
+	'email_delivery',
+	[
+		'before_section' => '<div class="gateway_settings">',
+		'after_section'  => '</div>',
+	]
 );
 
 add_settings_field(
@@ -43,7 +78,7 @@ add_settings_section(
 	__NAMESPACE__ . '\smtp_section',
 	'email_delivery',
 	[
-		'before_section' => '<div id="smtp_settings">',
+		'before_section' => '<div id="smtp_settings" class="gateway_settings">',
 		'after_section' => '</div>',
 	]
 );
@@ -97,7 +132,10 @@ add_settings_field(
 	__NAMESPACE__ . '\email_address',
 	'email_delivery',
 	'calm-email-delivery-sender-section',
-	[ 'label_for' => 'calm-email-delivery-sender-email' ]
+	[
+		'label_for' => 'calm-email-delivery-sender-email',
+		'class'     => 'gateway_settings',
+	]
 );
 
 add_settings_section(
@@ -115,6 +153,41 @@ add_settings_field(
 	'calm-email-delivery-logging-section',
 	[ 'label_for' => 'calm-email-delivery-logging-verbosity' ]
 );
+
+/**
+ * HTML for description of the override section
+ */
+function network_override_section(): void {
+	if ( ! is_super_admin() ) {
+		?>
+		<p class="description">
+			<?php
+			esc_html_e( 'Email delivery settings are managed by the network administrator.
+Contact the network administrator to allow this site to override these settings.' );
+			?>
+		</p>
+		<?php
+	}
+}
+
+/**
+ * Output the HTML for the network override checkbox.
+ *
+ * @since 1.0.0
+ */
+function network_override() : void {
+	$opt = get_option( 'calm_email_delivery' );
+	$val = array_key_exists( 'network_override', $opt );
+	?>
+	<input type="hidden" name="calm_email_delivery[network_override]" value="0">
+	<input id="calm-override_email-delivery-field" type="checkbox" <?php checked( $val ); ?> name="calm_email_delivery[network_override]" value="1">
+	<p class="description">
+		<?php
+		esc_html_e( 'Allow this site to override network email delivery and sender settings.' );
+		?>
+	</p>
+	<?php
+}
 
 /**
  * Output the HTML for the gateway selection.
@@ -374,32 +447,27 @@ function verbosity() : void {
 }
 
 require ABSPATH . 'wp-admin/admin-header.php';
-
-// Hide the SMTP section if gateway is local.
-$opt  = get_option( 'calm_email_delivery' );
-$type = $opt['type'];
-
-if ( 'local' === $type ) {
-	?>
-	<style>#smtp_settings{display:none}</style>
-	<?php
-}
-
 ?>
 <div class="wrap">
 	<h1><?php echo esc_html( $title ); ?></h1>
-	<p>
-		<?php
-			/* translators: %s: the link to the email delivery test page */
-			printf(
-				esc_html__( 'You can test settings related to SMTP connectivity,
- sender email, and general email delivery in the %s page before applying them here'),
-				'<a href="' . esc_url( admin_url( 'test-email-delivery.php' ) ) .'">' .
-				esc_html__( 'Test Email Delivery' ) .
-				'</a>'
-			);
+	<?php
+	if ( \calmpress\email\Email_Settings::current_user_can_change_gateway() ) {
 		?>
-	</p>
+		<p>
+			<?php
+				/* translators: %s: the link to the email delivery test page */
+				printf(
+					esc_html__( 'You can test settings related to SMTP connectivity,
+ sender email, and general email delivery in the %s page before applying them here'),
+					'<a href="' . esc_url( admin_url( 'test-email-delivery.php' ) ) .'">' .
+					esc_html__( 'Test Email Delivery' ) .
+					'</a>'
+				);
+			?>
+		</p>
+		<?php
+	}
+	?>
 
 	<form method="post" class="calm-validate" action="options.php" novalidate="novalidate">
 		<?php

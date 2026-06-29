@@ -93,8 +93,7 @@ class Email_Settings {
 		if ( is_multisite() ) {
 			// If a site in the network, use network settings if site is not allowed to override
 			// them.
-			$override_opt = get_option( 'calm_network_override' );
-			if ( ! array_key_exists( 'email_delivery', $override_opt ) ) {
+			if ( ! array_key_exists( 'network_override', $options ) ) {
 				$options = self::validate_option_value( get_site_option( 'calm_email_delivery' ) );
 			}
 
@@ -266,11 +265,46 @@ class Email_Settings {
 					throw new \LogicException( 'SMTP host is not given' );
 				}
 			}
+
+			// unset network_override if its not a truthful value
+			if ( array_key_exists( 'network_override', $value ) ) {
+				if ( in_array( $value['network_override'], [ 1, '1' ], true ) ) {
+					$value['network_override'] = true;
+				} elseif ( in_array( $value['network_override'], [ 0, '0' ], true ) ) {
+					unset( $value['network_override'] );
+				} else {
+					throw new \LogicException( 'Invalid value for "network_override".' );
+				}
+			}
 		} else {
 			// Value being set is not even an array.
 			throw new \LogicException( 'not an array' );
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Indicate if current user can change gateway related settings.
+	 * 
+	 * For standalone install admin (whoever can manage options) always can.
+	 * In a network site admin (including super admin) can only if overriding network defaults can be done
+	 * on the site.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @return bool true, if current user can change getway related setting, false otherwise.
+	 */
+	public static function current_user_can_change_gateway(): bool {
+		if ( is_multisite() ) {
+			// Check if its a network site admin or super user and setting can be overidden.
+			$opt = get_option( 'calm_email_delivery' );
+			if ( array_key_exists( 'network_override', $opt ) ) {
+				return current_user_can( 'manage_options' );
+			}
+			return false;
+		} else {
+			return current_user_can( 'manage_options' );
+		}
 	}
 }

@@ -21,6 +21,17 @@ wp_enqueue_script( 'calm-options-email' );
 $title       = __( 'Email Delivery Settings' );
 $parent_file = 'options-general.php';
 
+// Dynamically load saved values if there was a validation error.
+$previous_save =  get_transient( get_current_user_id() . '_save_network_failure_' . get_current_network_id() . '_email_delivery' );
+if ( $previous_save ) {
+	add_filter(
+		'pre_site_option_calm_email_delivery',
+		function ( $value ) use ( $previous_save ) {
+			return $previous_save['calm_email_delivery'];
+		},
+	);
+}
+
 add_settings_section(
 	'calm-email-delivery-outgoing-section',
 	'',
@@ -324,6 +335,7 @@ if ( 'local' === $type ) {
 
 ?>
 <div class="wrap">
+<?php settings_errors(); ?>
 	<h1><?php echo esc_html( $title ); ?></h1>
 	<p>
 		<?php
@@ -345,6 +357,8 @@ page before applying them here. Individual sites can use different settings if s
 		do_settings_sections( 'email_delivery' );
 		submit_button();
 		?>
+		<?php // for compatibility with the structure of standalone option ?>
+		<input name="calm_email_delivery[verbosity]" type="hidden" value="no">
 	</form>
 </div>
 

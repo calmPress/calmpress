@@ -1024,11 +1024,6 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 			)
 		);
 
-		// Not ideal but this seem the only place in which options can be added to the main site
-		// of a network as dedicated API triggered when a new site is created
-		// are not triggered for the main site.
-		add_option( 'calm_network_override', [] );
-
 		if ( $subdomain_install ) {
 			$wp_rewrite->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		} else {
