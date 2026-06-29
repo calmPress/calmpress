@@ -272,7 +272,9 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 
 		if ( ! $validation_errors->has_errors() ) {
 			foreach ( $option_values as $k => $v ) {
-				update_option( $k, $v );
+				if ( $v !== null ) {
+					update_option( $k, $v );
+				}
 			}
 
 			/*
