@@ -1,5 +1,5 @@
 /**
- * CCollection of commonly used utils
+ * Collection of commonly used utils
  */
 
 /**
@@ -293,9 +293,9 @@ class jquery_like_element_wrapper {
      * only for elements matching it.
      * 
      * @param {string}   eventType The name of the event to which the handler is associated.
-     * @param @param {string|function} selectorOrHandler
-     *                             Either a CSS selector string for delegated event handling,
-     *                             or a direct event handler function.
+     * @param {string|function} selectorOrHandler
+     *                          Either a CSS selector string for delegated event handling,
+     *                          or a direct event handler function.
      * @param {function} handler   The handler for the event.
      * 
      * @returns {jquery_like_element_wrapper} The element for easy chaining.
@@ -336,13 +336,13 @@ class jquery_like_element_wrapper {
      * @returns {jquery_like_element_wrapper} The element for easy chaining.
      */
     hide() {
-        this.el.hidden = true;
         const style = getComputedStyle( this.el ).display;
         // Prevent double hide from making show to fail.
         if ( style !== 'none' ) {
             this.el.dataset.display = style;
         }
         this.el.style.display = 'none';
+        this.el.hidden = true;
         return this;
     }
 
@@ -453,7 +453,7 @@ class jquery_like_element_wrapper {
      * @throws if the element is not an input (do not support value property).
      */
     value() {
-        if ( ! ('value' in this.el ) ) {
+        if ( ! ( 'value' in this.el ) ) {
             throw new Error( 'Element does not support value' );
         }
         return this.el.value;
