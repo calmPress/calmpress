@@ -386,7 +386,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 			$actions         = array();
 			$actions['edit'] = '<a href="' . esc_url( network_admin_url( 'site-info.php?id=' . $site->userblog_id ) ) . '">' . __( 'Edit' ) . '</a>';
 
-			$actions['view'] = '<a class="' . $class . '" href="' . esc_url( get_home_url( $site->userblog_id ) ) . '">' . __( 'View' ) . '</a>';
+			$actions['view'] = '<a href="' . esc_url( get_home_url( $site->userblog_id ) ) . '">' . __( 'View' ) . '</a>';
 
 			/**
 			 * Filters the action links displayed next the sites a user belongs to
