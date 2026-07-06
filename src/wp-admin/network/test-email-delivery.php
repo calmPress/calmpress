@@ -170,13 +170,22 @@ if ( isset( $_POST['test'] ) ) {
 		}
 	);
 
+	// Make sure the site settings are not overriding the network ones.
+	add_filter(
+		'option_calm_email_delivery',
+		static function ( $value ) {
+			unset( $value['network_override'] );
+			return $value;
+		}
+	);
+
 	// Catch the error if mail send failed.
 	$error = null;
-	add_filter(
+	// Store errors reported by wp_mail.
+	add_action(
 		'wp_mail_failed',
-		static function ( $value ) use ( &$error ) {
+		static function ( $value ) use ( &$error ): void {
 			$error = $value;
-			return $value;
 		}
 	);
 
@@ -191,11 +200,18 @@ if ( isset( $_POST['test'] ) ) {
 		$message_type         = 'success';
 		$disabled_save_sender = '';
 	} else {
-		/* translators: %s: the human description of the reason */
-		$message = sprintf(
-			__('Failed sending test email. Reason: %s'),
-			$r->get_error_message()
-		);
+		if ( $error instanceof \WP_Error ) {
+			/* translators: %s: the human description of the reason */
+			$message = sprintf(
+				__('Failed sending test email. Reason: %s'),
+				$error->get_error_message()
+			);
+		} else {
+			// wp_mail failed but no error WP_Error reported? something likely to be wrong with some code.
+			throw new \LogicException(
+				'wp_mail() returned false without providing a WP_Error.'
+			);
+		}
 	}
 }
 ?>
