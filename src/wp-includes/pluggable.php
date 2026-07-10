@@ -622,7 +622,7 @@ if ( ! function_exists( 'wp_mail' ) ) :
 			$send = $phpmailer->send();
 
 			if ( $settings->log_succesful_email() ) {
-				\calmpress\logger\Log_Emails::mail_success( $phpmailer, $options['verbosity'] );
+				\calmpress\logger\Log_Emails::mail_success( $phpmailer, $settings->log_content() );
 			}
 
 			/**
