@@ -145,15 +145,6 @@ add_settings_section(
 	'email_delivery',
 );
 
-add_settings_field(
-	'calm-email-delivery-logging-verbosity',
-	__( 'Verbosity' ),
-	__NAMESPACE__ . '\verbosity',
-	'email_delivery',
-	'calm-email-delivery-logging-section',
-	[ 'label_for' => 'calm-email-delivery-logging-verbosity' ]
-);
-
 /**
  * HTML for description of the override section
  */
@@ -418,31 +409,6 @@ function logging(): void {
 		);
 		?>
 	</p>
-	<?php
-}
-
-/**
- * Output the HTML for the input for logging verbosity setting.
- *
- * @since 1.0.0
- */
-function verbosity() : void {
-	$opt       = get_option( 'calm_email_delivery' );
-	$verbosity = $opt['verbosity'];
-	$options = [
-		'no'         => esc_html__( 'No logging' ),
-		'recipients' => esc_html__( 'Only Recipients' ),
-		'full'       => esc_html__( 'Full' ),
-	];
-	?>
-	<select name="calm_email_delivery[verbosity]">
-		<?php
-		foreach ( $options as $value => $label ) {
-			echo '<option ' . selected( $verbosity, $value, false ) . 
-			     ' value="' . esc_attr( $value ) . '">' . $label . '</option>';
-		}
-		?>
-	</select>
 	<?php
 }
 

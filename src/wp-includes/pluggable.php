@@ -621,10 +621,6 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		try {
 			$send = $phpmailer->send();
 
-			if ( $settings->log_succesful_email() ) {
-				\calmpress\logger\Log_Emails::mail_success( $phpmailer, $settings->log_content() );
-			}
-
 			/**
 			 * Fires after PHPMailer has successfully sent an email.
 			 *

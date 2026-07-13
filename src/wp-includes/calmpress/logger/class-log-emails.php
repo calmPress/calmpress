@@ -31,21 +31,11 @@ class Log_Emails {
 	static protected Logger $failed_logger;
 
 	/**
-	 * The logger used to log successfully sent mails.
-	 * 
-	 * @var Logger
-	 * 
-	 * @since 1.0.0
-	 */
-	static protected Logger $sent_logger;
-
-	/**
 	 * Initialize loggers and cleanup handler. 
 	 */
 	static public function init():void {
 		$dir                 = Controller::log_directory_path();
-		self::$failed_logger = new File_Logger( $dir, 'failed_emails' );
-		self::$sent_logger   = new File_Logger( $dir, 'sent_emails' );
+		self::$failed_logger = new File_Logger( $dir . '/failed_emails' );
 
 		// Cleanup logs once a day.
 		add_action( 'logs_cleanup', __CLASS__ . '::purge_old_log_entries' );
@@ -156,22 +146,6 @@ class Log_Emails {
 	}
 
 	/**
-	 * Log sent successfuly sent mails.
-	 *
-	 * @param PHPMailer $mailer        The phpmailer control object while sending the mail.
-	 * @param bool      $full_content  Control the level of verbosity of the log. If false
-	 *                                 log only recipients info and subject.
-	 *                                 If true logs content as well as recipients
-	 *                                 and subject.
-	 *
-	 * @since 1.0.0
-	 */
-	static public function mail_success( PHPMailer $mailer, bool $full_content ): void {
-		$output = self::output_email( $mailer, $full_content );
-		self::$sent_logger->log_message( $output );
-	}
-
-	/**
 	 * Log mail which failed to send.
 	 *
 	 * @param PHPMailer  $mailer The phpmailer control object while sending the mail.
@@ -193,6 +167,5 @@ class Log_Emails {
 	 */
 	static public function purge_old_log_entries() : void {
 		self::$failed_logger->purge_old_log_entries( 30 );
-		self::$sent_logger->purge_old_log_entries( 30 );
 	}
 }

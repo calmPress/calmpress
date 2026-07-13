@@ -61,16 +61,6 @@ class Email_Settings {
 	private readonly Email_Address $sender;
 
 	/**
-	 * The type of the gateway being used either
-	 * - 'no'          indicating no loging of successful emails.
-	 * - 'recipients'  indicating logging of the recieoients of successful emails.
-	 * - 'full'        indicating logging of the full content of successful emails.
-	 * 
-	 * @since 1.0.0
-	 */
-	private readonly string $log_type;
-
-	/**
 	 * Construct the object based on the value of the relevant options.
 	 * 
 	 * For network sites values related to getway and sender email are based on network
@@ -86,9 +76,6 @@ class Email_Settings {
 	public function __construct() {
 		$options   = self::validate_option_value( get_option( 'calm_email_delivery' ) );
 		$from_name = $options['from_name'];
-
-		// Logging verbosity always set at site option.
-		$verbosity = $options['verbosity'];
 
 		if ( is_multisite() ) {
 			// If a site in the network, use network settings if site is not allowed to override
@@ -113,7 +100,6 @@ class Email_Settings {
 		$this->smtp_user     = $options['user'];
 		$this->smtp_password = $options['password'];
 		$this->sender        = new Email_Address( $options['from_email'], $from_name );
-		$this->log_type      = $verbosity;
 	}
 
 	/**
@@ -201,28 +187,6 @@ class Email_Settings {
 	}
 
 	/**
-	 * Indicate if reciepient of successfuly sent email should be logged.
-	 * 
-	 * @since 1.0.0
-	 * 
-	 * @return bool true if recipients should be logged, false otherwise.
-	 */
-	public function log_succesful_email(): bool {
-		return $this->log_type !== 'no';
-	}
-
-	/**
-	 * Indicate if the content of successfuly sent email should be logged.
-	 * 
-	 * @since 1.0.0
-	 * 
-	 * @return bool true if content should be logged, false otherwise.
-	 */
-	public function log_content(): bool {
-		return $this->log_type === 'full';
-	}
-
-	/**
 	 * Validate that the option value matches expected format and values in keys and normalize if needed.
 	 * 
 	 * @since 1.0.0
@@ -237,7 +201,7 @@ class Email_Settings {
 		if ( is_array( $value ) ) {
 			$value = array_map( 'trim', $value );
 			// Check all expected keys have value.
-			$expected_keys = ['type', 'host', 'user', 'password', 'from_email', 'verbosity', 'from_name'];
+			$expected_keys = ['type', 'host', 'user', 'password', 'from_email', 'from_name'];
 			foreach ( $expected_keys as $key ) {
 				if ( ! array_key_exists( $key, $value ) ) {
 					throw new \LogicException( 'missing key ' . $key );
@@ -247,11 +211,6 @@ class Email_Settings {
 			// Check gateway type is valid.
 			if ( ! in_array( $value['type'], ['local', 'smtp'], true ) ) {
 				throw new \LogicException( 'bad gateway type ' . $value['type'] );
-			}
-
-			// Check for valid verbosity.
-			if ( ! in_array( $value['verbosity'], ['no', 'full', 'recipients'], true ) ) {
-				throw new \LogicException( 'bad verbosity type ' . $value['verbosity'] );
 			}
 
 			// Check validity of sender's email

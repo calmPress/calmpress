@@ -357,8 +357,6 @@ page before applying them here. Individual sites can use different settings if s
 		do_settings_sections( 'email_delivery' );
 		submit_button();
 		?>
-		<?php // for compatibility with the structure of standalone option ?>
-		<input name="calm_email_delivery[verbosity]" type="hidden" value="no">
 	</form>
 </div>
 

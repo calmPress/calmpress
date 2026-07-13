@@ -107,52 +107,6 @@ class Test_Email_Settings extends WP_UnitTestCase {
 	}
 
 	/**
-	 * test log_succesful_email
-	 * 
-	 * @since 1.0.0
-	 */
-	public function test_log_succesful_email() {
-		$opt = get_option( 'calm_email_delivery' );
-		$opt['verbosity'] = 'no';
-		update_option( 'calm_email_delivery', $opt );
-		$settings = new calmpress\email\Email_Settings();
-		$this->assertFalse( $settings->log_succesful_email() );
-
-		$opt['verbosity'] = 'full';
-		update_option( 'calm_email_delivery', $opt );
-		$settings = new calmpress\email\Email_Settings();
-		$this->assertTrue( $settings->log_succesful_email() );
-
-		$opt['verbosity'] = 'recipients';
-		update_option( 'calm_email_delivery', $opt );
-		$settings = new calmpress\email\Email_Settings();
-		$this->assertTrue( $settings->log_succesful_email() );
-	}
-
-	/**
-	 * test log_content
-	 * 
-	 * @since 1.0.0
-	 */
-	public function test_log_content() {
-		$opt = get_option( 'calm_email_delivery' );
-		$opt['verbosity'] = 'no';
-		update_option( 'calm_email_delivery', $opt );
-		$settings = new calmpress\email\Email_Settings();
-		$this->assertFalse( $settings->log_content() );
-
-		$opt['verbosity'] = 'full';
-		update_option( 'calm_email_delivery', $opt );
-		$settings = new calmpress\email\Email_Settings();
-		$this->assertTrue( $settings->log_content() );
-
-		$opt['verbosity'] = 'recipients';
-		update_option( 'calm_email_delivery', $opt );
-		$settings = new calmpress\email\Email_Settings();
-		$this->assertFalse( $settings->log_content() );
-	}
-
-	/**
 	 * Test smtp_host.
 	 * 
 	 * @since 1.0.0
@@ -236,10 +190,9 @@ class Test_Email_Settings extends WP_UnitTestCase {
 			'password'   => 'pp',
 			'from_name'  => 'tester',
 			'from_email' => 'tester@a.b',
-			'verbosity'  => 'no'
 		];
 
-		$keys = ['type', 'host', 'user', 'password', 'from_name', 'from_email', 'verbosity'];
+		$keys = ['type', 'host', 'user', 'password', 'from_name', 'from_email'];
 
 		// check a known good value validates.
 		$this->assertEquals( $good_value, calmpress\email\Email_Settings::validate_option_value( $good_value ) );
@@ -282,13 +235,6 @@ class Test_Email_Settings extends WP_UnitTestCase {
 			$this->fail( 'Exception not thrown on bad type' );
 		} catch ( \LogicException $e ) {}
 
-		// Validates on all verbosity.
-		foreach ( ['no', 'recipients', 'full'] as $value ) {
-			$t = $good_value;
-			$t['verbosity'] = $value;
-			$this->assertEquals( $t, calmpress\email\Email_Settings::validate_option_value( $t ) );
-		}
-
 		// Validate network override when one-ish.
 		foreach ( [ 1, '1' ] as $v ) {
 			$t = $good_value;
@@ -305,14 +251,6 @@ class Test_Email_Settings extends WP_UnitTestCase {
 			$this->assertFalse( array_key_exists( 'network_override', $a ) );
 		}
 		
-		// Exception thrown on bad verbosity.
-		$t = $good_value;
-		$t['verbosity'] = 'wow';
-		try {
-			calmpress\email\Email_Settings::validate_option_value( $t );
-			$this->fail( 'Exception not thrown on bad verbosity' );
-		} catch ( \LogicException $e ) {}
-
 		// Exception thrown on illegal sender email address.
 		$t = $good_value;
 		$t['from_email'] = 'me';

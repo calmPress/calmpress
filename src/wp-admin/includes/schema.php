@@ -498,7 +498,6 @@ function populate_options( array $options = array() ) {
 			'password'   => '',
 			'from_email' => 'noreply@' . strtolower( $guess_email_domain ),
 			'from_name'  => 'calmPress',
-			'verbosity'  => 'no',
 		],
 		'custom_logo'                     => 0,
 	);
@@ -1243,7 +1242,6 @@ We hope you enjoy your new site. Thanks!
 			'password'   => '',
 			'from_email' => 'noreply@' . strtolower( $sender_domain ),
 			'from_name'  => 'calmPress',
-			'verbosity'  => 'no',  // Just to be compatible with the per site and standalone option.
 		],
 
 	);
