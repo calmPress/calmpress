@@ -15,7 +15,7 @@ namespace calmpress\logger;
  *
  * The logger is initialized with a path to the directory in which
  * log files should be stored. The log files names are in the format
- * of {prefix}-{utc date}.log and contain line with the server time in which the
+ * of {utc date}.log and contain line with the server time in which the
  * log was added and the message.
  * The format of each log entry tries to emulate the php error file with the addition
  * information of logged in user and url with which the server was accessed.
@@ -34,16 +34,7 @@ class File_Logger implements Logger {
 	readonly protected string $directory;
 
 	/**
-	 * The prefix to be used for generated files.
-	 * 
-	 * @var string
-	 * 
-	 * @since 1.0.0
-	 */
-	readonly protected string $prefix;
-
-	/**
-	 * Construct a file logger with the file to log to.
+	 * Construct a file logger with the directory to log to.
 	 *
 	 * @param string $directory The directory in which to store log files.
 	 *
@@ -51,8 +42,7 @@ class File_Logger implements Logger {
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( string $directory, string $prefix ) {
-		$this->prefix = $prefix;
+	public function __construct( string $directory ) {
 
 		$this->directory = rtrim( $directory, '/' );
 		\calmpress\utils\ensure_dir_exists( $this->directory );
@@ -87,7 +77,7 @@ class File_Logger implements Logger {
 	{
 		$date = gmdate( 'Y-m-d' );
 		$time = gmdate( 'H:i:s' );
-		$file = $this->directory . '/' . $this->prefix . '-' . $date . '.log';
+		$file = $this->directory . '/' . $date . '.log';
 		$in   = '';
 		if ( $file_name ) {
 			$in = ' in ' . $file_name;
@@ -127,7 +117,7 @@ class File_Logger implements Logger {
 	 * @since 1.0.0
 	 */
 	public function purge_old_log_entries( int $days_to_keep ) : void {
-		$files = glob( $this->directory . '/' . $this->prefix . '-*.log');
+		$files = glob( $this->directory . '/*.log');
 		$threshold = strtotime( '-' . $days_to_keep . ' day' );
   
 		foreach ( $files as $file ) {

@@ -93,11 +93,11 @@ class Controller {
 	 */
 	static public function init() {
 		$dir                       = self::log_directory_path();
-		self::$error_logger        = new File_Logger( $dir, 'error' );
-		self::$warnings_logger     = new File_Logger( $dir, 'warning' );
-		self::$info_logger         = new File_Logger( $dir, 'info' );
-		self::$audit_logger        = new File_Logger( $dir, 'audit' );
-		self::$slow_queries_logger = new File_Logger( $dir, 'slow_queries' );
+		self::$error_logger        = new File_Logger( $dir . '/error' );
+		self::$warnings_logger     = new File_Logger( $dir . '/warning' );
+		self::$info_logger         = new File_Logger( $dir . '/info' );
+		self::$audit_logger        = new File_Logger( $dir . '/audit' );
+		self::$slow_queries_logger = new File_Logger( $dir . '/slow_queries' );
 
 		// Let errors propogate when running test with phpunit
 		if ( ! defined( 'WP_RUN_CORE_TESTS' ) ) {
@@ -111,13 +111,16 @@ class Controller {
 	}
 
 	/**
-	 * The path to the directory in which core log files are located.
+	 * The path to the directory in which standalone and network per site log files are located.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return string The path
 	 */
 	static public function log_directory_path(): string {
+		if ( is_multisite() ) {
+			return WP_CONTENT_DIR . '/.private/logs/' . get_current_blog_id();
+		}
 		return WP_CONTENT_DIR . '/.private/logs';
 	}
 
