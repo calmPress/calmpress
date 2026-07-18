@@ -138,13 +138,6 @@ add_settings_field(
 	]
 );
 
-add_settings_section(
-	'calm-email-delivery-logging-section',
-	__( 'Logging' ),
-	__NAMESPACE__ . '\logging',
-	'email_delivery',
-);
-
 /**
  * HTML for description of the override section
  */
@@ -386,28 +379,6 @@ function email_address() : void {
 	</p>
 	<p class="description">
 		<?php esc_html_e( 'The sender email address displayed to recipients. Some email providers require this address to match the authenticated account or a verified sender identity.' ); ?>
-	</p>
-	<?php
-}
-
-/**
- * Output description related to the logging section
- *
- * @since 1.0.0
- */
-function logging(): void {
-	?>
-	<p class="description">
-		<?php
-		esc_html_e(
-			'Failures to send are always logged, but you might want to control if and
- how successful email which were sent will be logged. If you have a good
- enough email logging at you email server you might want to activate logging
- only for debugging. When logging you can log the content of the emails
- as well as the recipients, but if your emails usually include HTML it might
- be hard to read the log file.'
-		);
-		?>
 	</p>
 	<?php
 }
