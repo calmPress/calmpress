@@ -45,6 +45,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
     // element exists only on network sites.
     try {
 	    cp_$( '#calm-override_email-delivery-field' ).on( 'change', update_override_network );
+        cp_$( 'tr.gateway_settings' ).setData( 'display', 'table-row' ); // No way to set the attribute in php.
         update_override_network();
     } catch ( e ) {}
 });
