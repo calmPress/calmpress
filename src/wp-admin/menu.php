@@ -304,9 +304,13 @@ if ( ! is_multisite() ) {
 		$submenu['tools.php'][55] = array( __( 'Safe Mode' ), 'safe_mode', 'safe-mode.php' );
 	}
 }
+
 if ( is_super_admin() ) { 
 	$submenu['tools.php'][56] = array( __( 'Switch user' ), 'delete_users', 'switch-user.php' );
-	$submenu['tools.php'][57] = array( __( 'Test Email Delivery' ), 'delete_users', 'test-email-delivery.php' );
+	$email_settings = new \calmpress\email\Email_Settings();
+	if ( ! $email_settings->uses_network_settings() ) {
+		$submenu['tools.php'][57] = array( __( 'Test Email Delivery' ), 'delete_users', 'test-email-delivery.php' );
+	}
 }
 
 $menu[80]                               = array( __( 'Settings' ), 'manage_options', 'options-general.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-admin-settings' );

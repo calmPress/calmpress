@@ -178,6 +178,30 @@ class Test_Email_Settings extends WP_UnitTestCase {
 	}
 
 	/**
+	 * test uses_network_settings in all enviroments
+	 * 
+	 * @since 1.0.0
+	 */
+	public function test_uses_network_settings() {
+		if ( is_multisite() ) {
+			// Test with network defaults.
+			$opt = get_option( 'calm_email_delivery' );
+			unset( $opt['network_override'] );
+			update_option( 'calm_email_delivery', $opt );
+			$settings = new calmpress\email\Email_Settings();
+			$this->assertTrue( $settings->uses_network_settings() );
+			// Test with a site override.
+			$opt['network_override'] = 1;
+			update_option( 'calm_email_delivery', $opt );
+			$settings = new calmpress\email\Email_Settings();
+			$this->assertFalse( $settings->uses_network_settings() );
+		} else {
+			$settings = new calmpress\email\Email_Settings();
+			$this->assertFalse( $settings->uses_network_settings() );
+		}
+	}
+
+	/**
 	 * Test validate_option_value function detects bad values.
 	 * 
 	 * @since 1.0.0

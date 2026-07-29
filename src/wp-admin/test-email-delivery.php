@@ -22,6 +22,11 @@ if ( ! empty( $_POST ) &&
 		wp_die( esc_html__( 'Missing credentials to test email delivery. Please refresh the page and try again' ) );
 }
 
+$email_settings = new \calmpress\email\Email_Settings();
+if ( $email_settings->uses_network_settings() ) {
+	wp_die( esc_html__( 'Email delivery cannot be tested for this site because it uses network-wide settings.' ) );
+}
+
 $title       = __( 'Test Email Delivery' );
 $parent_file = 'tools.php';
 

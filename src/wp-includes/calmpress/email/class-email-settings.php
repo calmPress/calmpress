@@ -187,6 +187,25 @@ class Email_Settings {
 	}
 
 	/**
+	 * Indicates if the current site uses the default settings of the network.
+	 * 
+	 * Always false for standalone sites.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @return bool True if site use network settings (do not override them). False if it do not
+	 *              or a standalone site.
+	 */
+	public function uses_network_settings(): bool {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		$opt = get_option( 'calm_email_delivery' );
+		return ! array_key_exists( 'network_override', $opt );
+	}
+
+	/**
 	 * Validate that the option value matches expected format and values in keys and normalize if needed.
 	 * 
 	 * @since 1.0.0
