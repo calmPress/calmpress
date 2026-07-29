@@ -123,10 +123,6 @@ require ABSPATH . WPINC . '/calmpress/autoloader.php';
 // calmPress utility functions.
 require ABSPATH . WPINC . '/calmpress/utils.php';
 
-// Initialize loggers.
-calmpress\logger\Controller::init();
-calmpress\logger\Log_Emails::init();
-
 // calmPress rest api routes.
 require ABSPATH . WPINC . '/calmpress/rest-endpoints.php';
 
@@ -178,6 +174,10 @@ register_shutdown_function( 'shutdown_action_hook' );
 if ( SHORTINIT ) {
 	return false;
 }
+
+// Initialize loggers.
+calmpress\logger\Controller::init();
+calmpress\logger\Log_Emails::init();
 
 // Load the L10n library.
 require_once ABSPATH . WPINC . '/l10n.php';
