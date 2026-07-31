@@ -64,6 +64,46 @@ class Paths {
 	}
 
 	/**
+	 * The path to the private files root directory.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The path.
+	 */
+	public function private_root_directory() : string {
+		return $this->wp_content_directory() . '.private/';
+	}
+
+	/**
+	 * The path to the directory in which standalone and network per site log files are located.
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param bool $network_site_context When true inndicates that the path generated for the network site
+	 *                                   currently being the context for executaion.
+	 *
+	 * @return string The path
+	 * 
+	 * @throws \LogicException When $network_site_context is true but the context is not of an actual
+	 *                         network site.
+	 */
+	public function log_directory( bool $network_site_context = false ): string {
+		if (  $network_site_context ) {
+			if ( is_multisite() ) {
+				$blog_id = get_current_blog_id();
+				if ( $blog_id !== 0 ) {
+					return $this->private_root_directory() . 'logs/site/' . get_current_blog_id();
+				} else {
+					throw new \LogicException( 'Site ID not found' );
+				}
+			} else {
+				throw new \LogicException( 'Site ID not found' );
+			}
+		}
+		return $this->private_root_directory() . 'logs/';
+	}
+
+	/**
 	 * The path to the plugins root directory.
 	 *
 	 * @since 1.0.0

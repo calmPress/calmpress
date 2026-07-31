@@ -92,7 +92,8 @@ class Controller {
 	 * @since 1.0.0
 	 */
 	static public function init() {
-		$dir                       = self::log_directory_path();
+		$paths                     = new \calmpress\calmpress\Paths();
+		$dir                       = $paths->log_directory();
 		self::$error_logger        = new File_Logger( $dir . '/error' );
 		self::$warnings_logger     = new File_Logger( $dir . '/warning' );
 		self::$info_logger         = new File_Logger( $dir . '/info' );
@@ -108,20 +109,6 @@ class Controller {
 
 		// Cleanup logs once a day.
 		add_action( 'logs_cleanup', __CLASS__ . '::purge_old_log_entries' );
-	}
-
-	/**
-	 * The path to the directory in which standalone and network per site log files are located.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The path
-	 */
-	static public function log_directory_path(): string {
-		if ( is_multisite() ) {
-			return WP_CONTENT_DIR . '/.private/logs/' . get_current_blog_id();
-		}
-		return WP_CONTENT_DIR . '/.private/logs';
 	}
 
 	/**
