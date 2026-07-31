@@ -34,7 +34,10 @@ class Log_Emails {
 	 * Initialize loggers and cleanup handler. 
 	 */
 	static public function init():void {
-		$dir                 = Controller::log_directory_path();
+		$settings            = new \calmpress\email\Email_Settings();
+		// Use a site specific log directory when a site overrides network settings.
+		$paths               = new \calmpress\calmpress\Paths();
+		$dir                 = $paths->log_directory( is_multisite() && ! $settings->uses_network_settings() );
 		self::$failed_logger = new File_Logger( $dir . '/failed_emails' );
 
 		// Cleanup logs once a day.
