@@ -337,40 +337,6 @@ function wp_dashboard_right_now() {
 	<?php
 	update_right_now_message();
 
-	// Check if search engines are asked not to index this site.
-	if ( ! is_network_admin() && ! is_user_admin()
-		&& current_user_can( 'manage_options' ) && ! get_option( 'blog_public' )
-	) {
-
-		/**
-		 * Filters the link title attribute for the 'Search engines discouraged'
-		 * message displayed in the 'At a Glance' dashboard widget.
-		 *
-		 * Prior to 3.8.0, the widget was named 'Right Now'.
-		 *
-		 * @since 3.0.0
-		 * @since 4.5.0 The default for `$title` was updated to an empty string.
-		 *
-		 * @param string $title Default attribute text.
-		 */
-		$title = apply_filters( 'privacy_on_link_title', '' );
-
-		/**
-		 * Filters the link label for the 'Search engines discouraged' message
-		 * displayed in the 'At a Glance' dashboard widget.
-		 *
-		 * Prior to 3.8.0, the widget was named 'Right Now'.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param string $content Default text.
-		 */
-		$content = apply_filters( 'privacy_on_link_text', __( 'Search engines discouraged' ) );
-
-		$title_attr = '' === $title ? '' : " title='$title'";
-
-		echo "<p class='search-engines-info'><a href='options-reading.php'$title_attr>$content</a></p>";
-	}
 	?>
 	</div>
 	<?php

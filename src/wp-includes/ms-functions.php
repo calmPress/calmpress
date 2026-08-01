@@ -1293,7 +1293,7 @@ function wpmu_create_user(
  */
 function wpmu_create_blog( $domain, $path, $title, $user_id, $options = array(), $network_id = 1 ) {
 	$defaults = array(
-		'public' => 0,
+		'public' => 1,
 	);
 	$options  = wp_parse_args( $options, $defaults );
 

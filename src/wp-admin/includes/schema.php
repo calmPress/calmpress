@@ -489,7 +489,6 @@ function populate_options( array $options = array() ) {
 
 		// calmPress 1.0.0
 		'calm_embedding_on'               => 0,
-		'robots_txt'                      => 'User-agent: *',
 		'calm_maintenance_mode_type'      => '',
 		'calm_email_delivery'             => [
 			'type'       => 'local',
@@ -520,7 +519,6 @@ function populate_options( array $options = array() ) {
 		'auto_plugin_theme_update_emails',
 		'htaccess_user_section',
 		'wp_config_user_section',
-		'robots_txt',
 		'calm_email_delivery',
 		'admin_email',
 		'comment_moderator_user',

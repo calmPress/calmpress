@@ -107,7 +107,6 @@ $allowed_options            = array(
 		'show_on_front',
 		'page_on_front',
 		'page_for_posts',
-		'blog_public',
 		'calm_embedding_on',
 	),
 	'htaccess'   => [
@@ -115,9 +114,6 @@ $allowed_options            = array(
 	],
 	'wp-config'   => [
 		'wp_config_user_section',
-	],
-	'robots_txt'   => [
-		'robots_txt',
 	],
 	'email_delivery' => [
 		'calm_email_delivery',
