@@ -1548,6 +1548,7 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 	 * @dataProvider data_wp_initialize_site
 	 */
 	public function test_wp_initialize_site( $args, $expected_options, $expected_meta ) {
+		$site_public = get_site( self::$uninitialized_site_id )->public;
 		$result = wp_initialize_site( self::$uninitialized_site_id, $args );
 
 		switch_to_blog( self::$uninitialized_site_id );
@@ -1556,6 +1557,8 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 		foreach ( $expected_options as $option => $value ) {
 			$options[ $option ] = get_option( $option );
 		}
+		$this->assertSame( '1', get_option( 'blog_public' ) );
+		$this->assertArrayNotHasKey( 'blog_public', wp_load_alloptions( true ) );
 
 		$meta = array();
 		foreach ( $expected_meta as $meta_key => $value ) {
@@ -1570,6 +1573,7 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 
 		$this->assertTrue( $result );
 		$this->assertTrue( $initialized );
+		$this->assertSame( $site_public, get_site( self::$uninitialized_site_id )->public );
 		$this->assertSame( $expected_options, $options );
 		$this->assertSame( $expected_meta, $meta );
 	}

@@ -139,7 +139,6 @@ class WP_Debug_Data {
 		$permalink_structure    = get_option( 'permalink_structure' );
 		$is_ssl                 = is_ssl();
 		$is_multisite           = is_multisite();
-		$blog_public            = get_option( 'blog_public' );
 		$default_comment_status = get_option( 'default_comment_status' );
 		$environment_type       = wp_get_environment_type();
 		$core_version           = calmpress_version();
@@ -194,11 +193,6 @@ class WP_Debug_Data {
 				'label' => __( 'Is this a multisite?' ),
 				'value' => is_multisite() ? __( 'Yes' ) : __( 'No' ),
 				'debug' => is_multisite(),
-			),
-			'blog_public'            => array(
-				'label' => __( 'Is this site discouraging search engines?' ),
-				'value' => $blog_public ? __( 'No' ) : __( 'Yes' ),
-				'debug' => $blog_public,
 			),
 			'default_comment_status' => array(
 				'label' => __( 'Default comment status' ),

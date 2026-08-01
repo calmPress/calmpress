@@ -78,8 +78,9 @@ class Tests_Robots extends WP_UnitTestCase {
 		$this->assertEmpty( $output );
 
 		update_option( 'blog_public', '0' );
+		$this->assertSame( 0, get_option( 'blog_public' ) );
 		$output = get_echo( 'wp_robots' );
-		$this->assertStringContainsString( "'noindex, nofollow'", $output );
+		$this->assertEmpty( $output );
 	}
 
 	/**
@@ -94,7 +95,7 @@ class Tests_Robots extends WP_UnitTestCase {
 
 		update_option( 'blog_public', '0' );
 		$output = get_echo( 'wp_robots' );
-		$this->assertStringContainsString( "'noindex, nofollow'", $output );
+		$this->assertStringContainsString( "'noindex, follow'", $output );
 	}
 
 	/**
@@ -119,7 +120,7 @@ class Tests_Robots extends WP_UnitTestCase {
 
 		update_option( 'blog_public', '0' );
 		$output = get_echo( 'wp_robots' );
-		$this->assertEmpty( $output );
+		$this->assertStringContainsString( "'max-image-preview:large'", $output );
 	}
 
 	/**

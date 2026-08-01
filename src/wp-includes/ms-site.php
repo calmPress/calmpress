@@ -658,19 +658,18 @@ function wp_initialize_site( $site_id, array $args = array() ) {
 	}
 
 	// Populate the site's options.
-	populate_options(
-		array_merge(
-			array(
-				'home'        => untrailingslashit( $home_scheme . '://' . $site->domain . $site->path ),
-				'siteurl'     => untrailingslashit( $siteurl_scheme . '://' . $site->domain . $site->path ),
-				'blogname'    => wp_unslash( $args['title'] ),
-				'upload_path' => get_blog_option( $network->site_id, 'upload_path' ),
-				'blog_public' => (int) $site->public,
-				'WPLANG'      => get_network_option( $network->id, 'WPLANG' ),
-			),
-			$args['options']
-		)
+	$site_options = array_merge(
+		array(
+			'home'        => untrailingslashit( $home_scheme . '://' . $site->domain . $site->path ),
+			'siteurl'     => untrailingslashit( $siteurl_scheme . '://' . $site->domain . $site->path ),
+			'blogname'    => wp_unslash( $args['title'] ),
+			'upload_path' => get_blog_option( $network->site_id, 'upload_path' ),
+			'WPLANG'      => get_network_option( $network->id, 'WPLANG' ),
+		),
+		$args['options']
 	);
+	$site_options['blog_public'] = '1';
+	populate_options( $site_options );
 
 	// Clean blog cache after populating options.
 	clean_blog_cache( $site );

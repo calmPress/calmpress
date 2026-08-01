@@ -100,6 +100,8 @@ class Tests_Admin_IncludesSchema extends WP_UnitTestCase {
 		populate_options( $options );
 
 		wp_cache_delete( 'alloptions', 'options' );
+		$this->assertSame( '1', get_option( 'blog_public' ) );
+		$this->assertArrayNotHasKey( 'blog_public', wp_load_alloptions( true ) );
 
 		$results = array();
 		foreach ( $expected as $option => $value ) {

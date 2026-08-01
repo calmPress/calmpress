@@ -4560,6 +4560,7 @@ function sanitize_option( $option, $value ) {
 		case 'large_size_h':
 		case 'mailserver_port':
 		case 'comment_max_links':
+		case 'blog_public':
 		case 'page_on_front':
 		case 'page_for_posts':
 		case 'rss_excerpt_length':
@@ -4626,15 +4627,6 @@ function sanitize_option( $option, $value ) {
 				$value = preg_replace( '/[^a-zA-Z0-9_-]/', '', $value ); // Strips slashes.
 			} else {
 				$value = '';
-			}
-			break;
-
-		case 'blog_public':
-			// This is the value if the settings checkbox is not checked on POST. Don't rely on this.
-			if ( null === $value ) {
-				$value = 1;
-			} else {
-				$value = (int) $value;
 			}
 			break;
 

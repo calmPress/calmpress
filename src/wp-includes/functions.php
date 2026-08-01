@@ -1580,9 +1580,7 @@ function do_feed_rss2( $for_comments ) {
  * Displays the default robots.txt file content.
  *
  * @since 2.1.0
- * @since 5.3.0 Remove the "Disallow: /" output if search engine visibility is
- *              discouraged in favor of robots meta HTML tag via wp_robots_no_robots()
- *              filter callback.
+ * @since 5.3.0 Removed the "Disallow: /" output.
  */
 function do_robots() {
 	header( 'Content-Type: text/plain; charset=utf-8' );
@@ -1595,7 +1593,6 @@ function do_robots() {
 	do_action( 'do_robotstxt' );
 
 	$output = '';
-	$public = (bool) get_option( 'blog_public' );
 
 	/**
 	 * Filters the robots.txt output.
@@ -1605,7 +1602,7 @@ function do_robots() {
 	 * @param string $output The robots.txt output.
 	 * @param bool   $public Whether the site is considered "public".
 	 */
-	echo apply_filters( 'robots_txt', $output, $public );
+	echo apply_filters( 'robots_txt', $output, true );
 }
 
 /**

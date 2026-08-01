@@ -514,6 +514,7 @@ function populate_options( array $options = array() ) {
 
 	// Set autoload to no for these options.
 	$fat_options = array(
+		'blog_public',
 		'recently_edited',
 		'uninstall_plugins',
 		'auto_plugin_theme_update_emails',

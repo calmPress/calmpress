@@ -86,7 +86,7 @@ class WP_Sitemaps {
 	 * @return bool Whether sitemaps are enabled.
 	 */
 	public function sitemaps_enabled() {
-		$is_enabled = (bool) get_option( 'blog_public' );
+		$is_enabled = true;
 
 		/**
 		 * Filters whether XML Sitemaps are enabled or not.

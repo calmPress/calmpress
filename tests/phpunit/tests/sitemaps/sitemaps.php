@@ -366,6 +366,9 @@ class Tests_Sitemaps_Sitemaps extends WP_UnitTestCase {
 	 * Test robots.txt output.
 	 */
 	public function test_robots_text() {
+		update_option( 'blog_public', '0' );
+		$this->assertSame( 0, get_option( 'blog_public' ) );
+
 		// Get the text added to the default robots text output.
 		$robots_text    = apply_filters( 'robots_txt', '', true );
 		$sitemap_string = 'Sitemap: http://' . WP_TESTS_DOMAIN . '/wp-sitemap.xml';
@@ -415,6 +418,7 @@ class Tests_Sitemaps_Sitemaps extends WP_UnitTestCase {
 	 * @ticket 50643
 	 */
 	public function test_sitemaps_enabled() {
+		update_option( 'blog_public', '0' );
 		$before = wp_sitemaps_get_server()->sitemaps_enabled();
 		add_filter( 'wp_sitemaps_enabled', '__return_false' );
 		$after = wp_sitemaps_get_server()->sitemaps_enabled();

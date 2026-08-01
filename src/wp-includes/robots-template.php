@@ -50,11 +50,10 @@ function wp_robots() {
 }
 
 /**
- * Adds `noindex` to the robots meta tag if required by the site configuration.
+ * Retains the site-configuration callback for WordPress compatibility.
  *
- * If a blog is marked as not being public then noindex will be output to
- * tell web robots not to index the page content. Add this to the
- * {@see 'wp_robots'} filter.
+ * CalmPress does not have a site-wide search-engine visibility setting, so
+ * this callback does not add any directives.
  *
  * Typical usage is as a {@see 'wp_robots'} callback:
  *
@@ -68,10 +67,6 @@ function wp_robots() {
  * @return array Filtered robots directives.
  */
 function wp_robots_noindex( array $robots ) {
-	if ( ! get_option( 'blog_public' ) ) {
-		return wp_robots_no_robots( $robots );
-	}
-
 	return $robots;
 }
 
@@ -140,11 +135,7 @@ function wp_robots_noindex_search( array $robots ) {
 function wp_robots_no_robots( array $robots ) {
 	$robots['noindex'] = true;
 
-	if ( get_option( 'blog_public' ) ) {
-		$robots['follow'] = true;
-	} else {
-		$robots['nofollow'] = true;
-	}
+	$robots['follow'] = true;
 
 	return $robots;
 }
@@ -174,7 +165,7 @@ function wp_robots_sensitive_page( array $robots ) {
  * Adds `max-image-preview:large` to the robots meta tag.
  *
  * This directive tells web robots that large image previews are allowed to be
- * displayed, e.g. in search engines, unless the blog is marked as not being public.
+ * displayed, e.g. in search engines.
  *
  * Typical usage is as a {@see 'wp_robots'} callback:
  *
@@ -186,8 +177,6 @@ function wp_robots_sensitive_page( array $robots ) {
  * @return array Filtered robots directives.
  */
 function wp_robots_max_image_preview_large( array $robots ) {
-	if ( get_option( 'blog_public' ) ) {
-		$robots['max-image-preview'] = 'large';
-	}
+	$robots['max-image-preview'] = 'large';
 	return $robots;
 }
