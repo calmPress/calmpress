@@ -175,10 +175,6 @@ if ( SHORTINIT ) {
 	return false;
 }
 
-// Initialize loggers.
-calmpress\logger\Controller::init();
-calmpress\logger\Log_Emails::init();
-
 // Load the L10n library.
 require_once ABSPATH . WPINC . '/l10n.php';
 require_once ABSPATH . WPINC . '/class-wp-textdomain-registry.php';
@@ -187,6 +183,12 @@ require_once ABSPATH . WPINC . '/class-wp-locale-switcher.php';
 
 // Run the installer if WordPress is not installed.
 wp_not_installed();
+
+// Initialize loggers.
+calmpress\logger\Controller::init();
+if ( ! wp_installing() ) { // Avoid pointless errors during install.
+	calmpress\logger\Log_Emails::init();
+}
 
 // Load most of WordPress.
 require ABSPATH . WPINC . '/class-wp-walker.php';
