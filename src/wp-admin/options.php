@@ -1,15 +1,10 @@
 <?php
 /**
- * Options Management Administration Screen.
+ * Options Management Administration Endpoint.
  *
- * If accessed directly in a browser this page shows a list of all saved options
- * along with editable fields for their values. Serialized data is not supported
- * and there is no way to remove options via this page. It is not linked to from
- * anywhere else in the admin.
- *
- * This file is also the target of the forms in core and custom options pages
- * that use the Settings API. In this case it saves the new option values
- * and returns the user to their page of origin.
+ * This file is the target of forms in core and custom options pages that use
+ * the Settings API. It saves submitted option values and returns the user to
+ * their page of origin.
  *
  * @package WordPress
  * @subpackage Administration
@@ -18,10 +13,9 @@
 /** WordPress Administration Bootstrap */
 require_once __DIR__ . '/admin.php';
 
-// Used in the HTML title tag.
-$title       = __( 'Settings' );
-$this_file   = 'options.php';
-$parent_file = 'options-general.php';
+if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? 'GET' ) ) {
+	exit;
+}
 
 $action      = ! empty( $_REQUEST['action'] ) ? sanitize_text_field( $_REQUEST['action'] ) : '';
 $option_page = ! empty( $_REQUEST['option_page'] ) ? sanitize_text_field( $_REQUEST['option_page'] ) : '';
@@ -308,83 +302,4 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 	exit;
 }
 
-require_once ABSPATH . 'wp-admin/admin-header.php';
-?>
-
-<div class="wrap">
-	<h1><?php esc_html_e( 'All Settings' ); ?></h1>
-
-	<?php
-	wp_admin_notice(
-		'<strong>' . __( 'Warning:' ) . '</strong> ' . __( 'This page allows direct access to your site settings. You can break things here. Please be cautious!' ),
-		array(
-			'type' => 'warning',
-		)
-	);
-	?>
-	<form name="form" action="options.php" method="post" id="all-options">
-		<?php wp_nonce_field( 'options-options' ); ?>
-		<input type="hidden" name="action" value="update" />
-		<input type="hidden" name="option_page" value="options" />
-		<table class="form-table" role="presentation">
-<?php
-$options = $wpdb->get_results( "SELECT * FROM $wpdb->options ORDER BY option_name" );
-
-foreach ( (array) $options as $option ) :
-	$disabled = false;
-
-	if ( '' === $option->option_name ) {
-		continue;
-	}
-
-	if ( 'home' === $option->option_name && defined( 'WP_HOME' ) ) {
-		$disabled = true;
-	}
-
-	if ( 'siteurl' === $option->option_name ) {
-		$disabled = true;
-	}
-
-	if ( is_serialized( $option->option_value ) ) {
-		if ( is_serialized_string( $option->option_value ) ) {
-			// This is a serialized string, so we should display it.
-			$value               = maybe_unserialize( $option->option_value );
-			$options_to_update[] = $option->option_name;
-		} else {
-			$value    = 'SERIALIZED DATA';
-			$disabled = true;
-		}
-	} else {
-		$value               = $option->option_value;
-		$options_to_update[] = $option->option_name;
-	}
-
-	$class = 'all-options';
-
-	if ( $disabled ) {
-		$class .= ' disabled';
-	}
-
-	$name = esc_attr( $option->option_name );
-	?>
-<tr>
-	<th scope="row"><label for="<?php echo $name; ?>"><?php echo esc_html( $option->option_name ); ?></label></th>
-<td>
-	<?php if ( str_contains( $value, "\n" ) ) : ?>
-		<textarea class="<?php echo $class; ?>" name="<?php echo $name; ?>" id="<?php echo $name; ?>" cols="30" rows="5"><?php echo esc_textarea( $value ); ?></textarea>
-	<?php else : ?>
-		<input class="regular-text <?php echo $class; ?>" type="text" name="<?php echo $name; ?>" id="<?php echo $name; ?>" value="<?php echo esc_attr( $value ); ?>"<?php disabled( $disabled, true ); ?> />
-	<?php endif; ?></td>
-</tr>
-<?php endforeach; ?>
-</table>
-
-<input type="hidden" name="page_options" value="<?php echo esc_attr( implode( ',', $options_to_update ) ); ?>" />
-
-<?php submit_button( __( 'Save Changes' ), 'primary', 'Update' ); ?>
-
-</form>
-</div>
-
-<?php
-require_once ABSPATH . 'wp-admin/admin-footer.php';
+exit;
