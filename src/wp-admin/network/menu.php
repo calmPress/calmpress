@@ -111,6 +111,7 @@ $submenu['plugins.php'][10] = array( __( 'Add Plugin' ), 'install_plugins', 'plu
 
 $menu[25] = array( __( 'Settings' ), 'manage_network_options', 'settings.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-admin-settings' );
 $submenu['settings.php'][5]  = array( __( 'Network Settings' ), 'manage_network_options', 'settings.php' );
+$submenu['settings.php'][7]  = array( __( 'Identity' ), 'manage_network_options', 'identity.php' );
 $submenu['settings.php'][15]  = array( __( 'Email Delivery' ), 'manage_network_options', 'options-email.php' );
 if ( defined( 'MULTISITE' ) && defined( 'WP_ALLOW_MULTISITE' ) && WP_ALLOW_MULTISITE ) {
 	$submenu['settings.php'][10] = array( __( 'Network Setup' ), 'setup_network', 'setup.php' );

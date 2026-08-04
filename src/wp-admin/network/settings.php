@@ -64,7 +64,6 @@ if ( $_POST ) {
 		'upload_space_check_disabled',
 		'blog_upload_space',
 		'upload_filetypes',
-		'site_name',
 		'first_post',
 		'first_page',
 		'first_comment',
@@ -125,13 +124,6 @@ if ( isset( $_GET['updated'] ) ) {
 		<?php wp_nonce_field( 'siteoptions' ); ?>
 		<h2><?php _e( 'Operational Settings' ); ?></h2>
 		<table class="form-table" role="presentation">
-			<tr>
-				<th scope="row"><label for="site_name"><?php _e( 'Network Title' ); ?></label></th>
-				<td>
-					<input name="site_name" type="text" id="site_name" class="regular-text" value="<?php echo esc_attr( get_network()->site_name ); ?>" />
-				</td>
-			</tr>
-
 			<tr>
 				<th scope="row"><label for="admin_email"><?php _e( 'Network Admin Email' ); ?></label></th>
 				<td>
