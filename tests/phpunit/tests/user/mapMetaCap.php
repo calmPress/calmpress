@@ -49,6 +49,68 @@ class Tests_User_MapMetaCap extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Tests that deletion capability is denied for a configured Site Icon attachment.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_delete_post_is_denied_for_site_icon_attachment() {
+		$attachment_id = self::factory()->attachment->create();
+		update_option( 'site_icon', $attachment_id );
+
+		$this->assertSame(
+			[ 'do_not_allow' ],
+			map_meta_cap( 'delete_post', self::$user_id, $attachment_id )
+		);
+
+		delete_option( 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Tests that deletion capability is denied for a Network Site Icon attachment.
+	 *
+	 * @since calmPress 1.0.0
+	 * @group ms-required
+	 */
+	public function test_delete_post_is_denied_for_network_site_icon_attachment() {
+		$attachment_id = self::factory()->attachment->create();
+		update_network_option( null, 'site_icon', $attachment_id );
+
+		$this->assertSame(
+			[ 'do_not_allow' ],
+			map_meta_cap( 'delete_post', self::$user_id, $attachment_id )
+		);
+
+		delete_network_option( null, 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Tests that the Network Site Icon ID does not deny deletion capability on another site.
+	 *
+	 * @since calmPress 1.0.0
+	 * @group ms-required
+	 */
+	public function test_network_site_icon_id_does_not_deny_deletion_capability_on_another_site() {
+		$attachment_id = self::factory()->attachment->create( [ 'import_id' => 9876 ] );
+		update_network_option( null, 'site_icon', $attachment_id );
+
+		$blog_id = self::factory()->blog->create();
+		add_user_to_blog( $blog_id, self::$user_id, 'administrator' );
+		switch_to_blog( $blog_id );
+
+		$other_attachment_id = self::factory()->attachment->create( [ 'import_id' => $attachment_id ] );
+
+		$this->assertSame( $attachment_id, $other_attachment_id );
+		$this->assertTrue( user_can( self::$user_id, 'delete_post', $other_attachment_id ) );
+
+		wp_delete_attachment( $other_attachment_id, true );
+		restore_current_blog();
+		delete_network_option( null, 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
 	public function test_capability_type_post_with_no_extra_caps() {
 
 		register_post_type(

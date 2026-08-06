@@ -4027,6 +4027,18 @@ function wp_trash_post( $post_id = 0 ) {
 		return $post;
 	}
 
+	if ( 'attachment' === $post->post_type ) {
+		// A site's configured Site Icon attachment must remain available.
+		if ( (int) get_option( 'site_icon' ) === $post->ID ) {
+			return false;
+		}
+
+		// A Network Site Icon is an attachment belonging to the network's main site.
+		if ( is_multisite() && is_main_site() && (int) get_network_option( null, 'site_icon', 0 ) === $post->ID ) {
+			return false;
+		}
+	}
+
 	if ( 'trash' === $post->post_status ) {
 		return false;
 	}
@@ -6519,6 +6531,16 @@ function wp_delete_attachment( $post_id, $force_delete = false ) {
 	$post = get_post( $post );
 
 	if ( 'attachment' !== $post->post_type ) {
+		return false;
+	}
+
+	// A site's configured Site Icon attachment must remain available.
+	if ( (int) get_option( 'site_icon' ) === $post->ID ) {
+		return false;
+	}
+
+	// A Network Site Icon is an attachment belonging to the network's main site.
+	if ( is_multisite() && is_main_site() && (int) get_network_option( null, 'site_icon', 0 ) === $post->ID ) {
 		return false;
 	}
 

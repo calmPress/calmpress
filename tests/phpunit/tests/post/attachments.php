@@ -13,6 +13,62 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 		parent::tear_down();
 	}
 
+	/**
+	 * Tests that a configured Site Icon attachment cannot be deleted.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_site_icon_attachment_cannot_be_deleted() {
+		$attachment_id = self::factory()->attachment->create();
+		update_option( 'site_icon', $attachment_id );
+
+		$this->assertFalse( wp_delete_attachment( $attachment_id, true ) );
+		$this->assertInstanceOf( WP_Post::class, get_post( $attachment_id ) );
+
+		delete_option( 'site_icon' );
+		$this->assertInstanceOf( WP_Post::class, wp_delete_attachment( $attachment_id, true ) );
+	}
+
+	/**
+	 * Tests that a Network Site Icon attachment cannot be deleted.
+	 *
+	 * @since calmPress 1.0.0
+	 * @group ms-required
+	 */
+	public function test_network_site_icon_attachment_cannot_be_deleted() {
+		$attachment_id = self::factory()->attachment->create();
+		update_network_option( null, 'site_icon', $attachment_id );
+
+		$this->assertFalse( wp_delete_attachment( $attachment_id, true ) );
+		$this->assertInstanceOf( WP_Post::class, get_post( $attachment_id ) );
+
+		delete_network_option( null, 'site_icon' );
+		$this->assertInstanceOf( WP_Post::class, wp_delete_attachment( $attachment_id, true ) );
+	}
+
+	/**
+	 * Tests that the Network Site Icon ID does not prevent deleting an attachment on another site.
+	 *
+	 * @since calmPress 1.0.0
+	 * @group ms-required
+	 */
+	public function test_network_site_icon_id_does_not_prevent_deleting_attachment_on_another_site() {
+		$attachment_id = self::factory()->attachment->create( [ 'import_id' => 9876 ] );
+		update_network_option( null, 'site_icon', $attachment_id );
+
+		$blog_id = self::factory()->blog->create();
+		switch_to_blog( $blog_id );
+
+		$other_attachment_id = self::factory()->attachment->create( [ 'import_id' => $attachment_id ] );
+
+		$this->assertSame( $attachment_id, $other_attachment_id );
+		$this->assertInstanceOf( WP_Post::class, wp_delete_attachment( $other_attachment_id, true ) );
+
+		restore_current_blog();
+		delete_network_option( null, 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
 	public function test_insert_bogus_image() {
 		$filename = rand_str() . '.jpg';
 		$contents = rand_str();

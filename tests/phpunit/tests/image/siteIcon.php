@@ -114,7 +114,7 @@ class Tests_WP_Site_Icon extends WP_UnitTestCase {
 		$attachment_id = $this->insert_attachment();
 		update_option( 'site_icon', $attachment_id );
 
-		wp_delete_attachment( $attachment_id, true );
+		$this->wp_site_icon->delete_attachment_data( $attachment_id );
 
 		$this->assertFalse( get_option( 'site_icon', false ) );
 	}
@@ -132,6 +132,7 @@ class Tests_WP_Site_Icon extends WP_UnitTestCase {
 		$this->wp_site_icon->get_post_metadata( '', $attachment_id, '_wp_attachment_backup_sizes', true );
 		$this->assertSame( 10, has_filter( 'intermediate_image_sizes', array( $this->wp_site_icon, 'intermediate_image_sizes' ) ) );
 
+		delete_option( 'site_icon' );
 		wp_delete_attachment( $attachment_id, true );
 	}
 
