@@ -206,6 +206,39 @@ class Tests_Post_GetPostStatus extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that a configured Site Icon has an attachment state.
+	 *
+	 * @since calmPress 1.0.0
+	 * @covers ::get_post_states
+	 */
+	public function test_site_icon_attachment_has_post_state() {
+		$attachment_id = self::factory()->attachment->create();
+		update_option( 'site_icon', $attachment_id );
+
+		$this->assertSame( 'Site Icon', get_post_states( get_post( $attachment_id ) )['site_icon'] );
+
+		delete_option( 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Tests that a configured Network Site Icon has an attachment state.
+	 *
+	 * @since calmPress 1.0.0
+	 * @group ms-required
+	 * @covers ::get_post_states
+	 */
+	public function test_network_site_icon_attachment_has_post_state() {
+		$attachment_id = self::factory()->attachment->create();
+		update_network_option( null, 'site_icon', $attachment_id );
+
+		$this->assertSame( 'Network Site Icon', get_post_states( get_post( $attachment_id ) )['network_site_icon'] );
+
+		delete_network_option( null, 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
 	 * Data provider for test_filter_post_states_html_should_enable_post_state_html_output_modification().
 	 *
 	 * @return array[] {

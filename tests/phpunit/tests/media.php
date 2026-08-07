@@ -469,6 +469,43 @@ https://w.org</a>',
 	}
 
 	/**
+	 * Tests that attachment data identifies a configured Site Icon.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_wp_prepare_attachment_for_js_identifies_site_icon() {
+		$attachment_id = self::factory()->attachment->create();
+		update_option( 'site_icon', $attachment_id );
+
+		$prepped = wp_prepare_attachment_for_js( $attachment_id );
+
+		$this->assertTrue( $prepped['isSiteIcon'] );
+		$this->assertFalse( $prepped['isNetworkSiteIcon'] );
+
+		delete_option( 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Tests that attachment data identifies a configured Network Site Icon.
+	 *
+	 * @since calmPress 1.0.0
+	 * @group ms-required
+	 */
+	public function test_wp_prepare_attachment_for_js_identifies_network_site_icon() {
+		$attachment_id = self::factory()->attachment->create();
+		update_network_option( null, 'site_icon', $attachment_id );
+
+		$prepped = wp_prepare_attachment_for_js( $attachment_id );
+
+		$this->assertFalse( $prepped['isSiteIcon'] );
+		$this->assertTrue( $prepped['isNetworkSiteIcon'] );
+
+		delete_network_option( null, 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
 	 * @ticket 38965
 	 */
 	public function test_wp_prepare_attachment_for_js_without_image_sizes() {

@@ -443,6 +443,14 @@ function wp_print_media_templates() {
 				<div class="filename"><strong><?php _e( 'File name:' ); ?></strong> {{ data.filename }}</div>
 				<div class="file-type"><strong><?php _e( 'File type:' ); ?></strong> {{ data.mime }}</div>
 				<div class="file-size"><strong><?php _e( 'File size:' ); ?></strong> {{ data.filesizeHumanReadable }}</div>
+				<# if ( data.isSiteIcon || data.isNetworkSiteIcon ) { #>
+					<div class="site-icon-state">
+						<strong><?php esc_html_e( 'Used as:' ); ?></strong>
+						<# if ( data.isSiteIcon ) { #><?php esc_html_e( 'Site Icon' ); ?><# } #>
+						<# if ( data.isSiteIcon && data.isNetworkSiteIcon ) { #>, <# } #>
+						<# if ( data.isNetworkSiteIcon ) { #><?php esc_html_e( 'Network Site Icon' ); ?><# } #>
+					</div>
+				<# } #>
 				<# if ( 'image' === data.type && ! data.uploading ) { #>
 					<# if ( data.width && data.height ) { #>
 						<div class="dimensions"><strong><?php _e( 'Dimensions:' ); ?></strong>
@@ -682,6 +690,14 @@ function wp_print_media_templates() {
 				<div class="uploaded">{{ data.dateFormatted }}</div>
 
 				<div class="file-size">{{ data.filesizeHumanReadable }}</div>
+				<# if ( data.isSiteIcon || data.isNetworkSiteIcon ) { #>
+					<div class="site-icon-state">
+						<strong><?php esc_html_e( 'Used as:' ); ?></strong>
+						<# if ( data.isSiteIcon ) { #><?php esc_html_e( 'Site Icon' ); ?><# } #>
+						<# if ( data.isSiteIcon && data.isNetworkSiteIcon ) { #>, <# } #>
+						<# if ( data.isNetworkSiteIcon ) { #><?php esc_html_e( 'Network Site Icon' ); ?><# } #>
+					</div>
+				<# } #>
 				<# if ( 'image' === data.type && ! data.uploading ) { #>
 					<# if ( data.width && data.height ) { #>
 						<div class="dimensions">

@@ -4466,6 +4466,7 @@ function wp_plupload_default_settings() {
  * to be JSON-encoded and fit into an Attachment model.
  *
  * @since 3.5.0
+ * @since calmPress 1.0.0 Added the `isSiteIcon` and `isNetworkSiteIcon` values.
  *
  * @param int|WP_Post $attachment Attachment ID or object.
  * @return array|void {
@@ -4496,6 +4497,8 @@ function wp_plupload_default_settings() {
  *     @type array  $nonces                Nonces for update, delete and edit.
  *     @type string $orientation           If the attachment is an image, represents the image orientation
  *                                         (landscape or portrait).
+ *     @type bool   $isSiteIcon            Whether the attachment is the site's Site Icon.
+ *     @type bool   $isNetworkSiteIcon     Whether the attachment is the Network Site Icon.
  *     @type array  $sizes                 If the attachment is an image, contains an array of arrays
  *                                         for the images sizes: thumbnail, medium, large, and full.
  *     @type string $status                Post status of the attachment (usually 'inherit').
@@ -4557,6 +4560,11 @@ function wp_prepare_attachment_for_js( $attachment ) {
 		'editLink'      => false,
 		'meta'          => false,
 	);
+
+	$response['isSiteIcon']        = (int) get_option( 'site_icon' ) === $attachment->ID;
+	$response['isNetworkSiteIcon'] = is_multisite()
+		&& is_main_site()
+		&& (int) get_network_option( null, 'site_icon', 0 ) === $attachment->ID;
 
 	$author = new WP_User( $attachment->post_author );
 
