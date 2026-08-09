@@ -513,6 +513,7 @@ function _wp_make_subsizes( $new_sizes, $file, $image_meta, $attachment_id ) {
  * Copy parent attachment properties to newly cropped image.
  *
  * @since 6.5.0
+ * @since calmPress 1.0.0 Cropped network attachments retain network ownership.
  *
  * @param string $cropped              Path to the cropped image file.
  * @param int    $parent_attachment_id Parent file Attachment ID.
@@ -561,6 +562,10 @@ function wp_copy_parent_attachment_properties( $cropped, $parent_attachment_id, 
 	}
 
 	$attachment['post_parent'] = $parent_attachment_id;
+
+	if ( 'network' === $parent->post_status ) {
+		$attachment['post_status'] = 'network';
+	}
 
 	return $attachment;
 }

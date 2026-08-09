@@ -1274,6 +1274,41 @@ VIDEO;
 	}
 
 	/**
+	 * Tests that an authenticated network media upload creates a network attachment.
+	 */
+	public function test_media_handle_upload_sets_network_status() {
+		$test_file = DIR_TESTDATA . '/images/test-image.jpg';
+		$tmp_name  = wp_tempnam( $test_file );
+
+		copy( $test_file, $tmp_name );
+
+		$_FILES['upload'] = [
+			'tmp_name' => $tmp_name,
+			'name'     => 'test-image.jpg',
+			'type'     => 'image/jpeg',
+			'error'    => 0,
+			'size'     => filesize( $test_file ),
+		];
+		$_POST['media_owned_by_network'] = true;
+
+		$attachment_id = media_handle_upload(
+			'upload',
+			0,
+			[],
+			[
+				'action'    => 'test_network_media_upload',
+				'test_form' => false,
+			]
+		);
+
+		unset( $_FILES['upload'], $_POST['media_owned_by_network'] );
+
+		$this->assertSame( 'network', get_post( $attachment_id )->post_status );
+
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
 	 * @ticket 37989
 	 */
 	public function test_media_handle_upload_expected_titles() {

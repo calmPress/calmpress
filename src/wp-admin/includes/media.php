@@ -284,6 +284,7 @@ function media_send_to_editor( $html ) {
  * Saves a file submitted from a POST request and create an attachment post for it.
  *
  * @since 2.5.0
+ * @since calmPress 1.0.0 Network-owned media requests create network attachments.
  *
  * @param string $file_id   Index of the `$_FILES` array that the file was sent.
  * @param int    $post_id   The post ID of a post to attach the media item to. Required, but can
@@ -417,6 +418,10 @@ function media_handle_upload( $file_id, $post_id, $post_data = array(), $overrid
 
 	// This should never be set as it would then overwrite an existing attachment.
 	unset( $attachment['ID'] );
+
+	if ( isset( $_POST['media_owned_by_network'] ) && true === $_POST['media_owned_by_network'] ) {
+		$attachment['post_status'] = 'network';
+	}
 
 	// Save the data.
 	$attachment_id = wp_insert_attachment( $attachment, $file, $post_id, true );

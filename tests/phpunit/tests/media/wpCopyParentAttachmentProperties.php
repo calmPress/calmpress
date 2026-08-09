@@ -49,4 +49,22 @@ class Tests_Media_wpCopyParentAttachmentProperties extends WP_UnitTestCase {
 
 		unlink( $file );
 	}
+
+	/**
+	 * Tests that a cropped network attachment retains network ownership.
+	 */
+	public function test_network_attachment_status_is_copied() {
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$attachment = $this->factory->attachment->create(
+			[
+				'post_status' => 'network',
+				'guid'        => 'http://example.org/wp-content/uploads/canola.jpg',
+			]
+		);
+
+		$object = wp_copy_parent_attachment_properties( DIR_TESTDATA . '/images/canola.jpg', $attachment );
+
+		$this->assertSame( 'network', $object['post_status'] );
+	}
 }
