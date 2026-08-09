@@ -14,6 +14,59 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that network attachments retain their status and are excluded from normal attachment queries.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_network_attachment_status_and_queries() {
+		$attachment_url = 'https://example.org/network-icon.jpg';
+		$attachment_id  = self::factory()->attachment->create(
+			[
+				'guid'        => $attachment_url,
+				'post_status' => 'network',
+			]
+		);
+
+		$this->assertSame( 'network', get_post_status( $attachment_id ) );
+		$this->assertSame( $attachment_url, wp_get_attachment_url( $attachment_id ) );
+
+		wp_update_post( [ 'ID' => $attachment_id, 'post_title' => 'Updated network attachment' ] );
+		$this->assertSame( 'network', get_post( $attachment_id )->post_status );
+		$this->assertNotContains(
+			$attachment_id,
+			get_posts(
+				[
+					'post_type'      => 'attachment',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+				]
+			)
+		);
+		$this->assertNotContains(
+			$attachment_id,
+			get_posts(
+				[
+					'post_type'      => 'attachment',
+					'post_status'    => 'any',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+				]
+			)
+		);
+		$this->assertContains(
+			$attachment_id,
+			get_posts(
+				[
+					'post_type'      => 'attachment',
+					'post_status'    => 'network',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+				]
+			)
+		);
+	}
+
+	/**
 	 * Tests that a configured Site Icon attachment cannot be deleted.
 	 *
 	 * @since calmPress 1.0.0

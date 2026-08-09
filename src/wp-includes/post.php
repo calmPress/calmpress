@@ -765,6 +765,17 @@ function create_initial_post_types() {
 		)
 	);
 
+	// A post status used to identify attachments owned by the network.
+	register_post_status(
+		'network',
+		[
+			'label'               => _x( 'Network', 'post status' ),
+			'internal'            => true,
+			'_builtin'            => true, /* internal use only. */
+			'exclude_from_search' => true,
+		]
+	);
+
 	register_post_status(
 		'request-pending',
 		array(
@@ -1240,10 +1251,11 @@ function get_post_mime_type( $post = null ) {
 /**
  * Retrieves the post status based on the post ID.
  *
- * If the post ID is of an attachment, then the parent post status will be given
- * instead.
+ * For an attachment with the 'inherit' status, the parent post status is returned
+ * when available. Network attachments retain their stored 'network' status.
  *
  * @since 2.0.0
+ * @since calmPress 1.0.0 Network attachments return their stored status.
  *
  * @param int|WP_Post $post Optional. Post ID or post object. Defaults to global $post.
  * @return string|false Post status on success, false on failure.
@@ -1284,10 +1296,10 @@ function get_post_status( $post = null ) {
 		}
 	} elseif (
 		'attachment' === $post->post_type &&
-		! in_array( $post_status, array( 'private', 'trash', 'auto-draft' ), true )
+		! in_array( $post_status, [ 'network', 'private', 'trash', 'auto-draft' ], true )
 	) {
 		/*
-		 * Ensure uninherited attachments have a permitted status either 'private', 'trash', 'auto-draft'.
+		 * Ensure uninherited attachments have a permitted status of 'network', 'private', 'trash', or 'auto-draft'.
 		 * This is to match the logic in wp_insert_post().
 		 *
 		 * Note: 'inherit' is excluded from this check as it is resolved to the parent post's
@@ -3499,7 +3511,10 @@ function wp_count_posts( $type = 'post', $perm = '' ) {
  * you the number of attachments that are children of a post. You can get that
  * by counting the number of children that post has.
  *
+ * Trashed and network-owned attachments are not counted.
+ *
  * @since 2.5.0
+ * @since calmPress 1.0.0 Network attachments are excluded from the counts.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
@@ -3519,7 +3534,7 @@ function wp_count_attachments( $mime_type = '' ) {
 
 	if ( false === $counts ) {
 		$and   = wp_post_mime_type_where( $mime_type );
-		$count = $wpdb->get_results( "SELECT post_mime_type, COUNT( * ) AS num_posts FROM $wpdb->posts WHERE post_type = 'attachment' AND post_status != 'trash' $and GROUP BY post_mime_type", ARRAY_A );
+		$count = $wpdb->get_results( "SELECT post_mime_type, COUNT( * ) AS num_posts FROM $wpdb->posts WHERE post_type = 'attachment' AND post_status NOT IN ( 'trash', 'network' ) $and GROUP BY post_mime_type", ARRAY_A );
 
 		$counts = array();
 		foreach ( (array) $count as $row ) {
@@ -4009,6 +4024,7 @@ function _reset_front_page_settings_for_post( $post_id ) {
  * If Trash is disabled, the post or page is permanently deleted.
  *
  * @since 2.9.0
+ * @since calmPress 1.0.0 Network attachments cannot be moved to the Trash.
  *
  * @see wp_delete_post()
  *
@@ -4028,13 +4044,13 @@ function wp_trash_post( $post_id = 0 ) {
 	}
 
 	if ( 'attachment' === $post->post_type ) {
-		// A site's configured Site Icon attachment must remain available.
-		if ( (int) get_option( 'site_icon' ) === $post->ID ) {
+		// Attachments owned by the network cannot be moved to the Trash.
+		if ( 'network' === $post->post_status ) {
 			return false;
 		}
 
-		// A Network Site Icon is an attachment belonging to the network's main site.
-		if ( is_multisite() && is_main_site() && (int) get_network_option( null, 'site_icon', 0 ) === $post->ID ) {
+		// A site's configured Site Icon attachment must remain available.
+		if ( (int) get_option( 'site_icon' ) === $post->ID ) {
 			return false;
 		}
 	}
@@ -4466,6 +4482,7 @@ function wp_get_recent_posts( $args = array(), $output = ARRAY_A ) {
  * @since 4.2.0 Support was added for encoding emoji in the post title, content, and excerpt.
  * @since 4.4.0 A 'meta_input' array can now be passed to `$postarr` to add post meta data.
  * @since 5.6.0 Added the `$fire_after_hooks` parameter.
+ * @since calmPress 1.0.0 Attachments may use the 'network' status.
  *
  * @see sanitize_post()
  * @global wpdb $wpdb WordPress database abstraction object.
@@ -4623,7 +4640,7 @@ function wp_insert_post( $postarr, $wp_error = false, $fire_after_hooks = true )
 
 	$post_status = empty( $postarr['post_status'] ) ? 'draft' : $postarr['post_status'];
 
-	if ( 'attachment' === $post_type && ! in_array( $post_status, array( 'inherit', 'private', 'trash', 'auto-draft' ), true ) ) {
+	if ( 'attachment' === $post_type && ! in_array( $post_status, [ 'inherit', 'network', 'private', 'trash', 'auto-draft' ], true ) ) {
 		$post_status = 'inherit';
 	}
 

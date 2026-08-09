@@ -69,45 +69,14 @@ class Tests_Post_WpTrashPost extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that a Network Site Icon attachment cannot be moved to the Trash.
-	 *
-	 * @since calmPress 1.0.0
-	 * @group ms-required
+	 * Tests that an attachment owned by the network cannot be moved to the Trash.
 	 */
-	public function test_network_site_icon_attachment_cannot_be_trashed() {
-		$attachment_id = self::factory()->attachment->create();
-		update_network_option( null, 'site_icon', $attachment_id );
+	public function test_network_attachment_cannot_be_trashed() {
+		$attachment_id = self::factory()->attachment->create( [ 'post_status' => 'network' ] );
 
 		$this->assertFalse( wp_trash_post( $attachment_id ) );
-		$this->assertNotSame( 'trash', get_post_status( $attachment_id ) );
+		$this->assertSame( 'network', get_post( $attachment_id )->post_status );
 
-		delete_network_option( null, 'site_icon' );
-		wp_delete_attachment( $attachment_id, true );
-	}
-
-	/**
-	 * Tests that the Network Site Icon ID does not prevent trashing an attachment on another site.
-	 *
-	 * @since calmPress 1.0.0
-	 * @group ms-required
-	 */
-	public function test_network_site_icon_id_does_not_prevent_trashing_attachment_on_another_site() {
-		$attachment_id = self::factory()->attachment->create( [ 'import_id' => 9876 ] );
-		update_network_option( null, 'site_icon', $attachment_id );
-
-		$blog_id = self::factory()->blog->create();
-		switch_to_blog( $blog_id );
-
-		$other_attachment_id = self::factory()->attachment->create( [ 'import_id' => $attachment_id ] );
-		$result              = wp_trash_post( $other_attachment_id );
-
-		$this->assertSame( $attachment_id, $other_attachment_id );
-		$this->assertInstanceOf( WP_Post::class, $result );
-		$this->assertSame( 'trash', get_post_status( $other_attachment_id ) );
-
-		wp_delete_attachment( $other_attachment_id, true );
-		restore_current_blog();
-		delete_network_option( null, 'site_icon' );
 		wp_delete_attachment( $attachment_id, true );
 	}
 
