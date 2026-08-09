@@ -1784,6 +1784,22 @@ function wp_ajax_upload_attachment() {
 		wp_die();
 	}
 
+	$network_owned = is_multisite() && isset( $_POST['media_owned_by_network'] );
+
+	if ( $network_owned && ! current_user_can( 'manage_network_options' ) ) {
+		echo wp_json_encode(
+			[
+				'success' => false,
+				'data'    => [
+					'message'  => __( 'Sorry, you are not allowed to upload media owned by this network.' ),
+					'filename' => esc_html( $_FILES['async-upload']['name'] ),
+				],
+			]
+		);
+
+		wp_die();
+	}
+
 	if ( isset( $_REQUEST['post_id'] ) ) {
 		$post_id = $_REQUEST['post_id'];
 
@@ -1808,6 +1824,10 @@ function wp_ajax_upload_attachment() {
 
 	if ( is_wp_error( $post_data ) ) {
 		wp_die( $post_data->get_error_message() );
+	}
+
+	if ( $network_owned ) {
+		$post_data['media_owned_by_network'] = true;
 	}
 
 	// If the context is custom header or background, make sure the uploaded file is an image.
@@ -3084,6 +3104,22 @@ function wp_ajax_destroy_sessions() {
  * @since 4.3.0
  */
 function wp_ajax_crop_image() {
+	$switched = false;
+
+	if ( is_multisite() && isset( $_POST['media_owned_by_network'] ) ) {
+		if ( ! current_user_can( 'manage_network_options' ) ) {
+			wp_send_json_error();
+		}
+
+		$main_site_id = get_main_site_id();
+
+		if ( get_current_blog_id() !== $main_site_id ) {
+			// Network-owned attachments and their files are stored on the network main site.
+			switch_to_blog( $main_site_id );
+			$switched = true;
+		}
+	}
+
 	$attachment_id = absint( $_POST['id'] );
 
 	check_ajax_referer( 'image_editor-' . $attachment_id, 'nonce' );
@@ -3177,7 +3213,13 @@ function wp_ajax_crop_image() {
 			$attachment_id = apply_filters( 'wp_ajax_cropped_attachment_id', $attachment_id, $context );
 	}
 
-	wp_send_json_success( wp_prepare_attachment_for_js( $attachment_id ) );
+	$response = wp_prepare_attachment_for_js( $attachment_id );
+
+	if ( $switched ) {
+		restore_current_blog();
+	}
+
+	wp_send_json_success( $response );
 }
 
 /**

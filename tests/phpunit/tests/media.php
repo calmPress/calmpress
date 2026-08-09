@@ -1274,36 +1274,49 @@ VIDEO;
 	}
 
 	/**
-	 * Tests that an authenticated network media upload creates a network attachment.
+	 * Tests that network-owned media is uploaded to the network main site.
+	 *
+	 * @group ms-required
 	 */
-	public function test_media_handle_upload_sets_network_status() {
+	public function test_network_media_is_uploaded_to_main_site() {
+		$main_site_id  = get_main_site_id();
+		$other_site_id = self::factory()->blog->create();
+
 		$test_file = DIR_TESTDATA . '/images/test-image.jpg';
 		$tmp_name  = wp_tempnam( $test_file );
 
 		copy( $test_file, $tmp_name );
+		switch_to_blog( $other_site_id );
 
-		$_FILES['upload'] = [
+		$other_upload_directory = wp_get_upload_dir()['basedir'];
+		$_FILES['upload']        = [
 			'tmp_name' => $tmp_name,
-			'name'     => 'test-image.jpg',
+			'name'     => 'network-image.jpg',
 			'type'     => 'image/jpeg',
 			'error'    => 0,
 			'size'     => filesize( $test_file ),
 		];
-		$_POST['media_owned_by_network'] = true;
 
 		$attachment_id = media_handle_upload(
 			'upload',
 			0,
-			[],
+			[ 'media_owned_by_network' => true ],
 			[
 				'action'    => 'test_network_media_upload',
 				'test_form' => false,
 			]
 		);
 
-		unset( $_FILES['upload'], $_POST['media_owned_by_network'] );
+		unset( $_FILES['upload'] );
 
+		$this->assertSame( $other_site_id, get_current_blog_id() );
+		$this->assertNull( get_post( $attachment_id ) );
+
+		restore_current_blog();
+
+		$this->assertSame( $main_site_id, get_current_blog_id() );
 		$this->assertSame( 'network', get_post( $attachment_id )->post_status );
+		$this->assertStringStartsNotWith( $other_upload_directory, get_attached_file( $attachment_id ) );
 
 		wp_delete_attachment( $attachment_id, true );
 	}

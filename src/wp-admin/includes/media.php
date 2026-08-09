@@ -294,6 +294,20 @@ function media_send_to_editor( $html ) {
  * @return int|WP_Error ID of the attachment or a WP_Error object on failure.
  */
 function media_handle_upload( $file_id, $post_id, $post_data = array(), $overrides = array( 'test_form' => false ) ) {
+	$network_owned = is_multisite() && isset( $post_data['media_owned_by_network'] );
+	$switched      = false;
+	unset( $post_data['media_owned_by_network'] );
+
+	if ( $network_owned ) {
+		$main_site_id = get_main_site_id();
+
+		if ( get_current_blog_id() !== $main_site_id ) {
+			// Network-owned attachments and their files are stored on the network main site.
+			switch_to_blog( $main_site_id );
+			$switched = true;
+		}
+	}
+
 	$time = current_time( 'mysql' );
 	$post = get_post( $post_id );
 
@@ -307,6 +321,10 @@ function media_handle_upload( $file_id, $post_id, $post_data = array(), $overrid
 	$file = wp_handle_upload( $_FILES[ $file_id ], $overrides, $time );
 
 	if ( isset( $file['error'] ) ) {
+		if ( $switched ) {
+			restore_current_blog();
+		}
+
 		return new WP_Error( 'upload_error', $file['error'] );
 	}
 
@@ -419,7 +437,7 @@ function media_handle_upload( $file_id, $post_id, $post_data = array(), $overrid
 	// This should never be set as it would then overwrite an existing attachment.
 	unset( $attachment['ID'] );
 
-	if ( isset( $_POST['media_owned_by_network'] ) && true === $_POST['media_owned_by_network'] ) {
+	if ( $network_owned ) {
 		$attachment['post_status'] = 'network';
 	}
 
@@ -440,6 +458,10 @@ function media_handle_upload( $file_id, $post_id, $post_data = array(), $overrid
 		 * This is generally slow and may cause timeouts or out of memory errors.
 		 */
 		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $file ) );
+	}
+
+	if ( $switched ) {
+		restore_current_blog();
 	}
 
 	return $attachment_id;
