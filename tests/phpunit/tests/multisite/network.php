@@ -72,6 +72,42 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that unused network attachments older than a day are deleted.
+	 */
+	public function test_delete_unused_network_attachments() {
+		$old_date = gmdate( 'Y-m-d H:i:s', time() - ( 2 * DAY_IN_SECONDS ) );
+
+		$unused_attachment_id = self::factory()->attachment->create(
+			[
+				'post_status'   => 'network',
+				'post_date'     => $old_date,
+				'post_date_gmt' => $old_date,
+			]
+		);
+		$recent_attachment_id = self::factory()->attachment->create(
+			[
+				'post_status' => 'network',
+			]
+		);
+		$site_icon_id = self::factory()->attachment->create(
+			[
+				'post_status'   => 'network',
+				'post_date'     => $old_date,
+				'post_date_gmt' => $old_date,
+			]
+		);
+		update_network_option( null, 'site_icon', $site_icon_id );
+
+		get_network()->delete_unused_network_attachments();
+
+		$this->assertNull( get_post( $unused_attachment_id ) );
+		$this->assertInstanceOf( WP_Post::class, get_post( $recent_attachment_id ) );
+		$this->assertInstanceOf( WP_Post::class, get_post( $site_icon_id ) );
+
+		delete_network_option( null, 'site_icon' );
+	}
+
+	/**
 	 * If a second network is created, network ID 1 should still be returned
 	 * as the main network ID.
 	 */

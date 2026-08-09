@@ -70,6 +70,10 @@ add_action( 'delete_post', '_update_blog_date_on_post_delete' );
 add_action( 'transition_post_status', '_update_blog_date_on_post_publish', 10, 3 );
 add_action( 'transition_post_status', '_update_posts_count_on_transition_post_status', 10, 3 );
 
+if ( is_main_site() ) {
+	add_action( 'wp_scheduled_delete', [ get_network(), 'delete_unused_network_attachments' ] );
+}
+
 // Counts.
 add_action( 'admin_init', 'wp_schedule_update_network_counts' );
 add_action( 'update_network_counts', 'wp_update_network_counts', 10, 0 );

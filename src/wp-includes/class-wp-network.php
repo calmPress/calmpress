@@ -315,6 +315,42 @@ class WP_Network {
 	}
 
 	/**
+	 * Permanently deletes network-owned attachments that have remained unused for a day.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @throws RuntimeException If the current site is not this network's main site.
+	 */
+	public function delete_unused_network_attachments() {
+		if ( get_current_blog_id() !== $this->site_id ) {
+			throw new RuntimeException( 'Network attachments can only be deleted from the network main site.' );
+		}
+
+		// Find old network-owned attachments other than the configured Site Icon.
+		$attachment_ids = get_posts(
+			[
+				'post_type'      => 'attachment',
+				'post_status'    => 'network',
+				'post__not_in'   => [ (int) get_network_option( $this->id, 'site_icon', 0 ) ],
+				'fields'         => 'ids',
+				'posts_per_page' => -1,
+				'date_query'     => [
+					[
+						'column'    => 'post_date_gmt',
+						'before'    => gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ),
+						'inclusive' => true,
+					],
+				],
+			]
+		);
+
+		// Permanently delete the unused attachments and their generated files.
+		foreach ( $attachment_ids as $attachment_id ) {
+			wp_delete_attachment( $attachment_id, true );
+		}
+	}
+
+	/**
 	 * Retrieves the closest matching network for a domain and path.
 	 *
 	 * This will not necessarily return an exact match for a domain and path. Instead, it
