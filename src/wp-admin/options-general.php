@@ -253,14 +253,7 @@ $tagline_description = sprintf(
 	</div>
 
 	<p class="description">
-		<?php
-			printf(
-				/* translators: 1: pixel value for icon size. 2: pixel value for icon size. */
-				__( 'The Site Icon is what you see in browser tabs, bookmark bars, and within the WordPress mobile apps. It should be square and at least <code>%1$s by %2$s</code> pixels.' ),
-				512,
-				512
-			);
-		?>
+		<?php esc_html_e( 'The Site Icon may appear in browser tabs, bookmarks, and other places where browsers identify the site. Other applications and services may also use it when representing the site. For best results across different uses, choose a square image. The recommended size is 512 by 512 pixels.' ); ?>
 	</p>
 
 </td>
