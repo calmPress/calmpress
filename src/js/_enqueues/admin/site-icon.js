@@ -87,6 +87,10 @@
 				new wp.media.controller.Library( {
 					title: $el.data( 'choose-text' ),
 					library: wp.media.query( { type: 'image' } ),
+					content: 'upload',
+					contentUserSetting: ! $el.data( 'upload-only' ),
+					router: $el.data( 'upload-only' ) ? false : 'browse',
+					searchable: ! $el.data( 'upload-only' ),
 					date: false,
 					suggestedWidth: $el.data( 'size' ),
 					suggestedHeight: $el.data( 'size' ),

@@ -337,6 +337,7 @@ module.exports = function(grunt) {
 					[ WORKING_DIR + 'wp-admin/js/editor-expand.js' ]: [ './src/js/_enqueues/wp/editor/dfw.js' ],
 					[ WORKING_DIR + 'wp-admin/js/editor.js' ]: [ './src/js/_enqueues/wp/editor/base.js' ],
 					[ WORKING_DIR + 'wp-admin/js/form-validate.js' ]: [ './src/js/_enqueues/admin/form-validate.js' ],
+					[ WORKING_DIR + 'wp-admin/js/network-identity.js' ]: [ './src/js/_enqueues/admin/network-identity.js' ],
 					[ WORKING_DIR + 'wp-admin/js/options-email.js' ]: [ './src/js/_enqueues/admin/options-email.js' ],
 					[ WORKING_DIR + 'wp-admin/js/gallery.js' ]: [ './src/js/_enqueues/lib/gallery.js' ],
 					[ WORKING_DIR + 'wp-admin/js/image-edit.js' ]: [ './src/js/_enqueues/lib/image-edit.js' ],

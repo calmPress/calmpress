@@ -89,7 +89,11 @@ $allowed_options            = array(
 	],
 	'email_delivery' => [
 		'calm_email_delivery',
-	]
+	],
+	'identity' => [
+		'site_name',
+		'site_icon',
+	],
 );
 
 /**

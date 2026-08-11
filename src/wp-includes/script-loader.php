@@ -1511,6 +1511,8 @@ function wp_default_scripts( $scripts ) {
 
 		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate', 'calm-utils'] );
 
+		$scripts->add( 'calm-network-identity', "/wp-admin/js/network-identity$suffix.js", [ 'site-icon', 'media-views' ], false, 1 );
+
 		$scripts->add( 'calm-reauth', "/wp-includes/js/cp-reauth$suffix.js", ['wp-auth-check'] );
 
 		$scripts->add( 'svg-painter', '/wp-admin/js/svg-painter.js', array( 'jquery' ), false, 1 );

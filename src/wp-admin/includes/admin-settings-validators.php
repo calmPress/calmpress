@@ -86,3 +86,35 @@ add_filter(
 	10,
 	2
 );
+
+// Validate values submitted at the Network Identity settings page.
+add_filter(
+	'check_network_input_errors_identity',
+	function ( \WP_Error $errors, array $options ): \WP_Error {
+		$attachment_id = (int) $options['site_icon'];
+
+		if ( 0 === $attachment_id ) {
+			return $errors;
+		}
+
+		/*
+		 * Verify the selected network-owned image remains available before saving its ID.
+		 * This lets the user upload it again instead of saving an unusable option.
+		 *
+		 * Network-owned media is stored in the network main site.
+		 */
+		switch_to_blog( get_main_site_id() );
+
+		$image = wp_get_attachment_image_src( $attachment_id, 'full' );
+
+		restore_current_blog();
+
+		if ( ! is_array( $image ) ) {
+			$errors->add( 'invalid_site_icon', __( 'The selected image is no longer available. Please upload it again.' ) );
+		}
+
+		return $errors;
+	},
+	10,
+	2
+);
