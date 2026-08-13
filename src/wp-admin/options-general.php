@@ -152,23 +152,57 @@ $tagline_description = sprintf(
 	$classes_for_upload_button = 'upload-button button';
 	$classes_for_update_button = 'button';
 	$classes_for_wrapper       = '';
+	$site_icon_id              = (int) get_option( 'site_icon' );
+	$site_icon_url             = ( 0 === $site_icon_id ) ? '' : wp_get_attachment_image_url( $site_icon_id, 'full' );
+	$site_icon_url             = ( is_string( $site_icon_url ) ) ? $site_icon_url : '';
+	$network_site_icon_url     = '';
+	$network_app_icon_alt      = '';
+	$network_browser_icon_alt  = '';
 
-	if ( has_site_icon() ) {
-		$classes_for_wrapper         .= ' has-site-icon';
+	if ( is_multisite() ) {
+		switch_to_blog( get_main_site_id() );
+
+		$network_site_icon_id  = (int) get_network_option( 0, 'site_icon', 0 );
+		$network_site_icon_url = ( 0 === $network_site_icon_id ) ? '' : wp_get_attachment_image_url( $network_site_icon_id, 'full' );
+		$network_site_icon_url = ( is_string( $network_site_icon_url ) ) ? $network_site_icon_url : '';
+
+		restore_current_blog();
+
+		if ( $network_site_icon_url ) {
+			$network_site_icon_filename = wp_basename( $network_site_icon_url );
+			$network_app_icon_alt       = sprintf(
+				/* translators: %s: The Network Site Icon filename. */
+				__( 'App icon preview: Network Site Icon: %s' ),
+				$network_site_icon_filename
+			);
+			$network_browser_icon_alt   = sprintf(
+				/* translators: %s: The Network Site Icon filename. */
+				__( 'Browser icon preview: Network Site Icon: %s' ),
+				$network_site_icon_filename
+			);
+		}
+	}
+
+	if ( ( 0 === $site_icon_id ) && ( $network_site_icon_url ) ) {
+		$site_icon_url         = $network_site_icon_url;
+		$classes_for_wrapper  .= ' has-site-icon';
+	} elseif ( $site_icon_id ) {
+		$classes_for_wrapper .= ' has-site-icon';
+	} else {
+		$classes_for_wrapper .= ' hidden';
+	}
+
+	if ( $site_icon_id ) {
 		$classes_for_button           = $classes_for_update_button;
 		$classes_for_button_on_change = $classes_for_upload_button;
 	} else {
-		$classes_for_wrapper         .= ' hidden';
 		$classes_for_button           = $classes_for_upload_button;
 		$classes_for_button_on_change = $classes_for_update_button;
 	}
 
 	// Handle alt text for site icon on page load.
-	$site_icon_id           = (int) get_option( 'site_icon' );
 	$app_icon_alt_value     = '';
 	$browser_icon_alt_value = '';
-
-	$site_icon_url = get_site_icon_url();
 
 	if ( $site_icon_id ) {
 		$img_alt            = get_post_meta( $site_icon_id, '_wp_attachment_image_alt', true );
@@ -198,6 +232,9 @@ $tagline_description = sprintf(
 				$img_alt
 			);
 		}
+	} elseif ( $network_site_icon_url ) {
+		$app_icon_alt_value     = $network_app_icon_alt;
+		$browser_icon_alt_value = $network_browser_icon_alt;
 	}
 	?>
 
@@ -207,6 +244,15 @@ $tagline_description = sprintf(
 	}
 	</style>
 
+	<?php if ( $network_site_icon_url ) { ?>
+		<p
+			id="network-site-icon-label"
+			class="description<?php echo ( $site_icon_id ) ? ' hidden' : ''; ?>"
+			data-pending-text="<?php esc_attr_e( 'The Network Site Icon will be used after saving' ); ?>"
+		>
+			<strong><?php esc_html_e( 'Currently using the Network Site Icon' ); ?></strong>
+		</p>
+	<?php } ?>
 	<div id="site-icon-preview" class="site-icon-preview settings <?php echo esc_attr( $classes_for_wrapper ); ?>">
 		<div class="direction-wrap">
 			<img id="app-icon-preview" src="<?php echo esc_url( $site_icon_url ); ?>" class="app-icon-preview" alt="<?php echo esc_attr( $app_icon_alt_value ); ?>" />
@@ -231,14 +277,19 @@ $tagline_description = sprintf(
 			class="<?php echo esc_attr( $classes_for_button ); ?>"
 			data-alt-classes="<?php echo esc_attr( $classes_for_button_on_change ); ?>"
 			data-size="512"
-			data-choose-text="<?php esc_attr_e( 'Choose a Site Icon' ); ?>"
+			data-choose-text="<?php echo esc_attr( ( $network_site_icon_url ) ? __( 'Use a Site-Specific Icon' ) : __( 'Choose a Site Icon' ) ); ?>"
 			data-update-text="<?php esc_attr_e( 'Change Site Icon' ); ?>"
 			data-update="<?php esc_attr_e( 'Set as Site Icon' ); ?>"
-			data-state="<?php echo esc_attr( has_site_icon() ); ?>"
+			data-state="<?php echo esc_attr( (bool) $site_icon_id ); ?>"
+			data-network-icon-url="<?php echo esc_url( $network_site_icon_url ); ?>"
+			data-network-app-icon-alt="<?php echo esc_attr( $network_app_icon_alt ); ?>"
+			data-network-browser-icon-alt="<?php echo esc_attr( $network_browser_icon_alt ); ?>"
 
 		>
-			<?php if ( has_site_icon() ) : ?>
+			<?php if ( $site_icon_id ) : ?>
 				<?php _e( 'Change Site Icon' ); ?>
+			<?php elseif ( $network_site_icon_url ) : ?>
+				<?php esc_html_e( 'Use a Site-Specific Icon' ); ?>
 			<?php else : ?>
 				<?php _e( 'Choose a Site Icon' ); ?>
 			<?php endif; ?>
@@ -246,9 +297,13 @@ $tagline_description = sprintf(
 		<button
 			id="js-remove-site-icon"
 			type="button"
-			<?php echo has_site_icon() ? 'class="button button-secondary reset remove-site-icon"' : 'class="button button-secondary reset hidden"'; ?>
+			<?php echo ( $site_icon_id ) ? 'class="button button-secondary reset"' : 'class="button button-secondary reset hidden"'; ?>
 		>
-			<?php _e( 'Remove Site Icon' ); ?>
+			<?php if ( $network_site_icon_url ) { ?>
+				<?php esc_html_e( 'Use Network Site Icon' ); ?>
+			<?php } else { ?>
+				<?php esc_html_e( 'Stop Using Site Icon' ); ?>
+			<?php } ?>
 		</button>
 	</div>
 

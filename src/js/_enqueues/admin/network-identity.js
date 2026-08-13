@@ -8,7 +8,9 @@
 /* global calm_network_identity, jQuery, wp */
 
 ( function ( $ ) {
-	var media_ajax = wp.media.ajax;
+	var media_ajax = wp.media.ajax,
+		$remove_button = $( '#js-remove-site-icon' ),
+		$removal_warning = $( '#network-site-icon-removal-warning' );
 
 	/**
 	 * Uses the network main site's AJAX URL for media attachment requests.
@@ -63,7 +65,12 @@
 		} );
 	};
 
-	$( '#js-remove-site-icon' ).on( 'click', function () {
+	$remove_button.on( 'click', function () {
 		$( '#site_icon_hidden_field' ).val( '0' );
 	} );
+
+	// Keep the warning synchronized with the removal action as the selected icon changes.
+	new MutationObserver( function () {
+		$removal_warning.toggleClass( 'hidden', $remove_button.hasClass( 'hidden' ) );
+	} ).observe( $remove_button[0], { attributes: true, attributeFilter: [ 'class' ] } );
 }( jQuery ) );

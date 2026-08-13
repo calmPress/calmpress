@@ -14,6 +14,7 @@
 		$appIconPreview = $( '#app-icon-preview' ),
 		$hiddenDataField = $( '#site_icon_hidden_field' ),
 		$removeButton = $( '#js-remove-site-icon' ),
+		$networkSiteIconLabel = $( '#network-site-icon-label' ),
 		frame;
 
 	/**
@@ -190,6 +191,7 @@
 
 		// Remove hidden class from icon preview div and remove button.
 		$iconPreview.removeClass( 'hidden' );
+		$networkSiteIconLabel.addClass( 'hidden' );
 		$removeButton.removeClass( 'hidden' );
 
 		// Set the global CSS variable for --site-icon-url to the selected image URL.
@@ -217,17 +219,28 @@
 	 * @since 6.5.0
 	 */
 	$removeButton.on( 'click', function () {
+		var networkIconUrl = $chooseButton.attr( 'data-network-icon-url' );
+
 		$hiddenDataField.val( 'false' );
 		$( this ).toggleClass( 'hidden' );
-		$iconPreview.toggleClass( 'hidden' );
+		$iconPreview.toggleClass( 'hidden', ! networkIconUrl );
+		$networkSiteIconLabel
+			.toggleClass( 'hidden', ! networkIconUrl )
+			.find( 'strong' )
+			.text( $networkSiteIconLabel.attr( 'data-pending-text' ) );
 		$browserIconPreview.attr( {
-			src: '',
-			alt: '',
+			src: networkIconUrl || '',
+			alt: $chooseButton.attr( 'data-network-browser-icon-alt' ) || '',
 		} );
 		$appIconPreview.attr( {
-			src: '',
-			alt: '',
+			src: networkIconUrl || '',
+			alt: $chooseButton.attr( 'data-network-app-icon-alt' ) || '',
 		} );
+
+		document.documentElement.style.setProperty(
+			'--site-icon-url',
+			networkIconUrl ? 'url(' + networkIconUrl + ')' : ''
+		);
 
 		/**
 		 * Resets state to the button, for correct visual style and state.

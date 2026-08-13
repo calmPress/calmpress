@@ -175,6 +175,7 @@ function site_icon_field(): void {
 		$browser_icon_alt = '';
 	}
 	?>
+	<div class="site-icon-section">
 	<style>
 	:root {
 		--site-icon-url: url( '<?php echo esc_url( $site_icon_url ); ?>' );
@@ -227,13 +228,17 @@ function site_icon_field(): void {
 			type="button"
 			class="<?php echo esc_attr( 'button button-secondary reset remove-site-icon' . ( $site_icon_id ? '' : ' hidden' ) ); ?>"
 		>
-			<?php esc_html_e( 'Remove Site Icon' ); ?>
+			<?php esc_html_e( 'Remove Network Site Icon' ); ?>
 		</button>
 	</div>
+	<p class="description<?php echo ( $site_icon_id ) ? '' : ' hidden'; ?>" id="network-site-icon-removal-warning">
+		<?php esc_html_e( 'The image will be permanently deleted after the Network Site Icon is removed.' ); ?>
+	</p>
 
 	<p class="description">
-		<?php esc_html_e( 'The Site Icon may appear in browser tabs, bookmarks, and other places where browsers identify the site. Other applications and services may also use it when representing the site. For best results across different uses, choose a square image. The recommended size is 512 by 512 pixels.' ); ?>
+		<?php esc_html_e( 'Sites that do not configure their own Site Icon will use this icon. For best results across different uses, choose a square image. The recommended size is 512 by 512 pixels.' ); ?>
 	</p>
+	</div>
 	<?php
 	restore_current_blog();
 }
