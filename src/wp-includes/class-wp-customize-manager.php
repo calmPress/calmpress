@@ -5054,34 +5054,37 @@ class WP_Customize_Manager {
 			);
 		}
 
-		$this->add_setting(
-			'site_icon',
-			array(
-				'type'       => 'option',
-				'capability' => 'manage_options',
-				'transport'  => 'postMessage', // Previewed with JS in the Customizer controls window.
-			)
-		);
-
-		$this->add_control(
-			new WP_Customize_Site_Icon_Control(
-				$this,
+		// Directory-based networks use the Network Site Icon for every site.
+		if ( ! is_multisite() || is_subdomain_install() ) {
+			$this->add_setting(
 				'site_icon',
 				array(
-					'label'       => __( 'Site Icon' ),
-					'description' => sprintf(
-						/* translators: 1: pixel value for icon size. 2: pixel value for icon size. */
-						'<p>' . __( 'The Site Icon is what you see in browser tabs, bookmark bars, and within the WordPress mobile apps. It should be square and at least <code>%1$s by %2$s</code> pixels.' ) . '</p>',
-						512,
-						512
-					),
-					'section'     => 'title_tagline',
-					'priority'    => 60,
-					'height'      => 512,
-					'width'       => 512,
+					'type'       => 'option',
+					'capability' => 'manage_options',
+					'transport'  => 'postMessage', // Previewed with JS in the Customizer controls window.
 				)
-			)
-		);
+			);
+
+			$this->add_control(
+				new WP_Customize_Site_Icon_Control(
+					$this,
+					'site_icon',
+					array(
+						'label'       => __( 'Site Icon' ),
+						'description' => sprintf(
+							/* translators: 1: pixel value for icon size. 2: pixel value for icon size. */
+							'<p>' . __( 'The Site Icon is what you see in browser tabs, bookmark bars, and within the WordPress mobile apps. It should be square and at least <code>%1$s by %2$s</code> pixels.' ) . '</p>',
+							512,
+							512
+						),
+						'section'     => 'title_tagline',
+						'priority'    => 60,
+						'height'      => 512,
+						'width'       => 512,
+					)
+				)
+			);
+		}
 
 		$this->add_setting(
 			'custom_logo',

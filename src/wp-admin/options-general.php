@@ -145,6 +145,8 @@ $tagline_description = sprintf(
 </td>
 </tr>
 
+<?php // Directory-based networks use the Network Site Icon for every site. ?>
+<?php if ( ! is_multisite() || is_subdomain_install() ) { ?>
 <tr class="site-icon-section">
 <th scope="row"><?php _e( 'Site Icon' ); ?></th>
 <td>
@@ -313,6 +315,7 @@ $tagline_description = sprintf(
 
 </td>
 </tr>
+<?php } ?>
 
 <?php
 

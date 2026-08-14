@@ -74,6 +74,10 @@ class Site_Icon {
 		if ( ! is_multisite() ) {
 			$attachment_id = (int) get_option( 'site_icon' );
 			$url = ( 0 === $attachment_id ) ? '' : $this->attachment_url( $attachment_id, 0, $size );
+		// Directory-based networks use the Network Site Icon for every site.
+		} elseif ( ! is_subdomain_install() ) {
+			$network_attachment_id = (int) get_network_option( 0, 'site_icon', 0 );
+			$url                   = ( 0 === $network_attachment_id ) ? '' : $this->attachment_url( $network_attachment_id, get_main_site_id(), $size );
 		} else {
 			// Try the Site Icon configured for the represented site first.
 			$site_attachment_id = (int) get_blog_option( $this->blog_id, 'site_icon' );

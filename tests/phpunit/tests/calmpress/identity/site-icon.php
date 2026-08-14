@@ -26,9 +26,13 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that the Site Icon returns its attachment URL.
+	 * Tests that a standalone site's Site Icon returns its attachment URL.
 	 */
 	public function test_url_returns_attachment_url(): void {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'This behavior applies only to standalone installations.' );
+		}
+
 		$attachment_id = self::factory()->attachment->create_upload_object(
 			DIR_TESTDATA . '/images/canola.jpg'
 		);
@@ -51,9 +55,13 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the result when a configured Site Icon has no attachment URL.
+	 * Tests the standalone result when a configured Site Icon has no attachment URL.
 	 */
 	public function test_url_is_false_when_attachment_url_cannot_be_resolved(): void {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'This behavior applies only to standalone installations.' );
+		}
+
 		update_option( 'site_icon', PHP_INT_MAX );
 
 		$site_icon = new Site_Icon();
@@ -91,13 +99,16 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that a site's Site Icon is used when no network Site Icon is configured.
+	 * Tests that a directory-based network ignores a site's configured Site Icon.
 	 *
 	 * @group ms-required
 	 */
-	public function test_site_icon_is_used_without_network_site_icon(): void {
-		$original_blog_id = get_current_blog_id();
-		$blog_id          = self::factory()->blog->create();
+	public function test_directory_based_network_ignores_site_icon(): void {
+		if ( is_subdomain_install() ) {
+			$this->markTestSkipped( 'This behavior applies only to directory-based networks.' );
+		}
+
+		$blog_id = self::factory()->blog->create();
 
 		delete_network_option( null, 'site_icon' );
 
@@ -106,13 +117,11 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 			DIR_TESTDATA . '/images/test-image.jpg'
 		);
 		update_option( 'site_icon', $attachment_id );
-		$expected_url = wp_get_attachment_image_url( $attachment_id, 'full' );
 		restore_current_blog();
 
 		$site_icon = new Site_Icon( $blog_id );
 
-		$this->assertSame( $expected_url, $site_icon->url() );
-		$this->assertSame( $original_blog_id, get_current_blog_id() );
+		$this->assertSame( '', $site_icon->url() );
 	}
 
 	/**
@@ -132,55 +141,27 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the result when a site's configured Site Icon has no attachment URL.
+	 * Tests that a directory-based network uses its Site Icon instead of a site's icon.
 	 *
 	 * @group ms-required
 	 */
-	public function test_url_is_false_when_site_icon_url_cannot_be_resolved(): void {
-		$blog_id = self::factory()->blog->create();
+	public function test_directory_based_network_site_icon_overrides_site_icon(): void {
+		if ( is_subdomain_install() ) {
+			$this->markTestSkipped( 'This behavior applies only to directory-based networks.' );
+		}
 
-		update_blog_option( $blog_id, 'site_icon', PHP_INT_MAX );
-		delete_network_option( null, 'site_icon' );
-
-		$site_icon = new Site_Icon( $blog_id );
-
-		$this->assertFalse( $site_icon->url() );
-	}
-
-	/**
-	 * Tests that an unresolvable site icon falls back to the network Site Icon.
-	 *
-	 * @group ms-required
-	 */
-	public function test_network_site_icon_is_used_when_site_icon_url_cannot_be_resolved(): void {
 		$blog_id              = self::factory()->blog->create();
 		$network_site_icon_id = self::factory()->attachment->create_upload_object(
 			DIR_TESTDATA . '/images/test-image.jpg'
 		);
 		$network_site_icon_url = wp_get_attachment_image_url( $network_site_icon_id, 'full' );
 
-		update_blog_option( $blog_id, 'site_icon', PHP_INT_MAX );
+		update_blog_option( $blog_id, 'site_icon', 1 );
 		update_network_option( null, 'site_icon', $network_site_icon_id );
 
 		$site_icon = new Site_Icon( $blog_id );
 
 		$this->assertSame( $network_site_icon_url, $site_icon->url() );
-	}
-
-	/**
-	 * Tests the result when neither configured Site Icon URL can be resolved.
-	 *
-	 * @group ms-required
-	 */
-	public function test_url_is_false_when_site_and_network_site_icon_urls_cannot_be_resolved(): void {
-		$blog_id = self::factory()->blog->create();
-
-		update_blog_option( $blog_id, 'site_icon', PHP_INT_MAX );
-		update_network_option( null, 'site_icon', PHP_INT_MAX );
-
-		$site_icon = new Site_Icon( $blog_id );
-
-		$this->assertFalse( $site_icon->url() );
 	}
 
 	/**
@@ -222,11 +203,102 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that a site's Site Icon takes precedence over its network's Site Icon.
+	 * Tests that a subdomain-network site uses its own Site Icon without a network icon.
 	 *
 	 * @group ms-required
 	 */
-	public function test_site_icon_takes_precedence_over_network_site_icon(): void {
+	public function test_subdomain_site_icon_is_used_without_network_site_icon(): void {
+		if ( ! is_subdomain_install() ) {
+			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
+		}
+
+		$original_blog_id = get_current_blog_id();
+		$blog_id          = self::factory()->blog->create();
+
+		delete_network_option( null, 'site_icon' );
+
+		switch_to_blog( $blog_id );
+		$attachment_id = self::factory()->attachment->create_upload_object(
+			DIR_TESTDATA . '/images/test-image.jpg'
+		);
+		update_option( 'site_icon', $attachment_id );
+		$expected_url = wp_get_attachment_image_url( $attachment_id, 'full' );
+		restore_current_blog();
+
+		$site_icon = new Site_Icon( $blog_id );
+
+		$this->assertSame( $expected_url, $site_icon->url() );
+		$this->assertSame( $original_blog_id, get_current_blog_id() );
+	}
+
+	/**
+	 * Tests the result when a subdomain-network site's Site Icon cannot be resolved.
+	 *
+	 * @group ms-required
+	 */
+	public function test_subdomain_site_icon_url_cannot_be_resolved(): void {
+		if ( ! is_subdomain_install() ) {
+			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
+		}
+
+		$blog_id = self::factory()->blog->create();
+
+		update_blog_option( $blog_id, 'site_icon', PHP_INT_MAX );
+		delete_network_option( null, 'site_icon' );
+
+		$this->assertFalse( ( new Site_Icon( $blog_id ) )->url() );
+	}
+
+	/**
+	 * Tests that an unresolvable subdomain-network site icon falls back to the network icon.
+	 *
+	 * @group ms-required
+	 */
+	public function test_subdomain_network_site_icon_is_used_when_site_icon_cannot_be_resolved(): void {
+		if ( ! is_subdomain_install() ) {
+			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
+		}
+
+		$blog_id              = self::factory()->blog->create();
+		$network_site_icon_id = self::factory()->attachment->create_upload_object(
+			DIR_TESTDATA . '/images/test-image.jpg'
+		);
+		$expected_url = wp_get_attachment_image_url( $network_site_icon_id, 'full' );
+
+		update_blog_option( $blog_id, 'site_icon', PHP_INT_MAX );
+		update_network_option( null, 'site_icon', $network_site_icon_id );
+
+		$this->assertSame( $expected_url, ( new Site_Icon( $blog_id ) )->url() );
+	}
+
+	/**
+	 * Tests the result when neither subdomain-network Site Icon can be resolved.
+	 *
+	 * @group ms-required
+	 */
+	public function test_subdomain_site_and_network_site_icon_urls_cannot_be_resolved(): void {
+		if ( ! is_subdomain_install() ) {
+			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
+		}
+
+		$blog_id = self::factory()->blog->create();
+
+		update_blog_option( $blog_id, 'site_icon', PHP_INT_MAX );
+		update_network_option( null, 'site_icon', PHP_INT_MAX );
+
+		$this->assertFalse( ( new Site_Icon( $blog_id ) )->url() );
+	}
+
+	/**
+	 * Tests that a subdomain-network site's Site Icon takes precedence over its network icon.
+	 *
+	 * @group ms-required
+	 */
+	public function test_subdomain_site_icon_takes_precedence_over_network_site_icon(): void {
+		if ( ! is_subdomain_install() ) {
+			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
+		}
+
 		$blog_id              = self::factory()->blog->create();
 		$network_site_icon_id = self::factory()->attachment->create_upload_object(
 			DIR_TESTDATA . '/images/test-image.jpg'
@@ -242,8 +314,7 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 		$expected_url = wp_get_attachment_image_url( $site_icon_id, 'full' );
 		restore_current_blog();
 
-		$site_icon = new Site_Icon( $blog_id );
-
-		$this->assertSame( $expected_url, $site_icon->url() );
+		$this->assertSame( $expected_url, ( new Site_Icon( $blog_id ) )->url() );
 	}
+
 }
