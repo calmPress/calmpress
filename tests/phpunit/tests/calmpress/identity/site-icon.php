@@ -203,17 +203,13 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that a subdomain-network site uses its own Site Icon without a network icon.
+	 * Tests that a mapped-domain site uses its own Site Icon without a network icon.
 	 *
 	 * @group ms-required
 	 */
-	public function test_subdomain_site_icon_is_used_without_network_site_icon(): void {
-		if ( ! is_subdomain_install() ) {
-			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
-		}
-
+	public function test_mapped_domain_site_icon_is_used_without_network_site_icon(): void {
 		$original_blog_id = get_current_blog_id();
-		$blog_id          = self::factory()->blog->create();
+		$blog_id          = self::factory()->blog->create( [ 'domain' => 'mapped.example.net' ] );
 
 		delete_network_option( null, 'site_icon' );
 
@@ -232,16 +228,12 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the result when a subdomain-network site's Site Icon cannot be resolved.
+	 * Tests the result when a mapped-domain site's Site Icon cannot be resolved.
 	 *
 	 * @group ms-required
 	 */
-	public function test_subdomain_site_icon_url_cannot_be_resolved(): void {
-		if ( ! is_subdomain_install() ) {
-			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
-		}
-
-		$blog_id = self::factory()->blog->create();
+	public function test_mapped_domain_site_icon_url_cannot_be_resolved(): void {
+		$blog_id = self::factory()->blog->create( [ 'domain' => 'mapped.example.net' ] );
 
 		update_blog_option( $blog_id, 'site_icon', PHP_INT_MAX );
 		delete_network_option( null, 'site_icon' );
@@ -250,16 +242,12 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that an unresolvable subdomain-network site icon falls back to the network icon.
+	 * Tests that an unresolvable mapped-domain Site Icon falls back to the network icon.
 	 *
 	 * @group ms-required
 	 */
-	public function test_subdomain_network_site_icon_is_used_when_site_icon_cannot_be_resolved(): void {
-		if ( ! is_subdomain_install() ) {
-			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
-		}
-
-		$blog_id              = self::factory()->blog->create();
+	public function test_mapped_domain_network_site_icon_is_used_when_site_icon_cannot_be_resolved(): void {
+		$blog_id              = self::factory()->blog->create( [ 'domain' => 'mapped.example.net' ] );
 		$network_site_icon_id = self::factory()->attachment->create_upload_object(
 			DIR_TESTDATA . '/images/test-image.jpg'
 		);
@@ -272,16 +260,12 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the result when neither subdomain-network Site Icon can be resolved.
+	 * Tests the result when neither mapped-domain nor network Site Icon can be resolved.
 	 *
 	 * @group ms-required
 	 */
-	public function test_subdomain_site_and_network_site_icon_urls_cannot_be_resolved(): void {
-		if ( ! is_subdomain_install() ) {
-			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
-		}
-
-		$blog_id = self::factory()->blog->create();
+	public function test_mapped_domain_site_and_network_site_icon_urls_cannot_be_resolved(): void {
+		$blog_id = self::factory()->blog->create( [ 'domain' => 'mapped.example.net' ] );
 
 		update_blog_option( $blog_id, 'site_icon', PHP_INT_MAX );
 		update_network_option( null, 'site_icon', PHP_INT_MAX );
@@ -290,16 +274,12 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that a subdomain-network site's Site Icon takes precedence over its network icon.
+	 * Tests that a mapped-domain site's Site Icon takes precedence over its network icon.
 	 *
 	 * @group ms-required
 	 */
-	public function test_subdomain_site_icon_takes_precedence_over_network_site_icon(): void {
-		if ( ! is_subdomain_install() ) {
-			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
-		}
-
-		$blog_id              = self::factory()->blog->create();
+	public function test_mapped_domain_site_icon_takes_precedence_over_network_site_icon(): void {
+		$blog_id              = self::factory()->blog->create( [ 'domain' => 'mapped.example.net' ] );
 		$network_site_icon_id = self::factory()->attachment->create_upload_object(
 			DIR_TESTDATA . '/images/test-image.jpg'
 		);
@@ -313,6 +293,55 @@ class Site_Icon_Test extends \WP_UnitTestCase {
 		update_option( 'site_icon', $site_icon_id );
 		$expected_url = wp_get_attachment_image_url( $site_icon_id, 'full' );
 		restore_current_blog();
+
+		$this->assertSame( $expected_url, ( new Site_Icon( $blog_id ) )->url() );
+	}
+
+	/**
+	 * Tests that a native subdomain ignores its configured Site Icon.
+	 *
+	 * @group ms-required
+	 */
+	public function test_native_subdomain_ignores_site_icon(): void {
+		if ( ! is_subdomain_install() ) {
+			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
+		}
+
+		$network = get_network();
+		$blog_id = self::factory()->blog->create( [ 'domain' => 'native.' . $network->domain ] );
+
+		delete_network_option( null, 'site_icon' );
+
+		switch_to_blog( $blog_id );
+		$attachment_id = self::factory()->attachment->create_upload_object(
+			DIR_TESTDATA . '/images/test-image.jpg'
+		);
+		update_option( 'site_icon', $attachment_id );
+		restore_current_blog();
+
+		$this->assertSame( '', ( new Site_Icon( $blog_id ) )->url() );
+	}
+
+	/**
+	 * Tests that a native subdomain uses the network Site Icon instead of its own.
+	 *
+	 * @group ms-required
+	 */
+	public function test_native_subdomain_uses_network_site_icon(): void {
+		if ( ! is_subdomain_install() ) {
+			$this->markTestSkipped( 'This behavior applies only to subdomain-based networks.' );
+		}
+
+		$network = get_network();
+		$blog_id = self::factory()->blog->create( [ 'domain' => 'native.' . $network->domain ] );
+
+		update_blog_option( $blog_id, 'site_icon', PHP_INT_MAX );
+
+		$network_site_icon_id = self::factory()->attachment->create_upload_object(
+			DIR_TESTDATA . '/images/test-image.jpg'
+		);
+		$expected_url = wp_get_attachment_image_url( $network_site_icon_id, 'full' );
+		update_network_option( null, 'site_icon', $network_site_icon_id );
 
 		$this->assertSame( $expected_url, ( new Site_Icon( $blog_id ) )->url() );
 	}

@@ -210,6 +210,20 @@ class WP_Site {
 	}
 
 	/**
+	 * Determines whether the site uses a domain outside its network's domain.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return bool True when the site uses a mapped domain, false otherwise.
+	 */
+	public function has_mapped_domain(): bool {
+		$site_domain    = strtolower( $this->domain );
+		$network_domain = strtolower( get_network( $this->network_id )->domain );
+
+		return ( $site_domain !== $network_domain ) && ( ! str_ends_with( $site_domain, '.' . $network_domain ) );
+	}
+
+	/**
 	 * Getter.
 	 *
 	 * Allows current multisite naming conventions when getting properties.

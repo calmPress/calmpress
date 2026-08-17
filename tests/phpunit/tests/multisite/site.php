@@ -87,6 +87,38 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Tests that the network's own domain is not considered mapped.
+	 */
+	public function test_has_mapped_domain_is_false_for_network_domain() {
+		$site = get_site( self::$site_ids['make.wordpress.org/'] );
+
+		$this->assertFalse( $site->has_mapped_domain() );
+	}
+
+	/**
+	 * Tests that a subdomain of the network domain is not considered mapped.
+	 */
+	public function test_has_mapped_domain_is_false_for_network_subdomain() {
+		$site_id = self::factory()->blog->create(
+			[
+				'domain'     => 'docs.make.wordpress.org',
+				'network_id' => self::$network_ids['make.wordpress.org/'],
+			]
+		);
+
+		$this->assertFalse( get_site( $site_id )->has_mapped_domain() );
+	}
+
+	/**
+	 * Tests that a domain outside the network domain is considered mapped.
+	 */
+	public function test_has_mapped_domain_is_true_for_external_domain() {
+		$site = get_site( self::$uninitialized_site_id );
+
+		$this->assertTrue( $site->has_mapped_domain() );
+	}
+
 	public function test_switch_restore_blog() {
 		global $_wp_switched_stack, $wpdb;
 

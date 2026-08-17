@@ -145,8 +145,8 @@ $tagline_description = sprintf(
 </td>
 </tr>
 
-<?php // Directory-based networks use the Network Site Icon for every site. ?>
-<?php if ( ! is_multisite() || is_subdomain_install() ) { ?>
+<?php // Only standalone sites and sites with mapped domains can configure their own Site Icon. ?>
+<?php if ( ( ! is_multisite() ) || ( get_site()->has_mapped_domain() ) ) { ?>
 <tr class="site-icon-section">
 <th scope="row"><?php _e( 'Site Icon' ); ?></th>
 <td>

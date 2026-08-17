@@ -5054,8 +5054,8 @@ class WP_Customize_Manager {
 			);
 		}
 
-		// Directory-based networks use the Network Site Icon for every site.
-		if ( ! is_multisite() || is_subdomain_install() ) {
+		// Only standalone sites and sites with mapped domains can configure their own Site Icon.
+		if ( ( ! is_multisite() ) || ( get_site()->has_mapped_domain() ) ) {
 			$this->add_setting(
 				'site_icon',
 				array(
