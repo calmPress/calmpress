@@ -351,6 +351,12 @@ function populate_options( array $options = array() ) {
 		$guess_email_domain = substr( $guess_email_domain, 4 );
 	}
 
+	// If we are likely going to end with invalid email addree, set the email domain to something
+	// which is obviously not usable for sending email.
+	if ( ! is_email( 'noreply@' . $guess_email_domain ) ) {
+		$guess_email_domain = 'example.invalid';
+	}
+
 	/**
 	 * Fires before creating WordPress options and populating their default values.
 	 *
