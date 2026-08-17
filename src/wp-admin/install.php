@@ -585,13 +585,14 @@ RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 RewriteBase {$path}
 RewriteRule ^index\.php$ - [L]
 RewriteRule (^|/)\. - [F]
-RewriteRule ^wp-includes/(.*)\.php$ - [F]
-RewriteRule ^wp-content/(.*)\.php$ - [F]
+RewriteRule ^(?:[_0-9a-zA-Z-]+/)?wp-includes/.*\.php$ - [F]
+RewriteRule ^(?:[_0-9a-zA-Z-]+/)?wp-content/.*\.php$ - [F]
 RewriteRule ^([_0-9a-zA-Z-]+/)?wp-admin$ \$1wp-admin/ [R=301,L]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) {$path}\$2 [L]
-RewriteRule ^([_0-9a-zA-Z-]+/)?(.*\.php)$ {$path}\$2 [L]
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^[_0-9a-zA-Z-]+/(wp-(content|admin|includes).*) {$path}\$1 [L]
+RewriteRule ^[_0-9a-zA-Z-]+/(.*\.php)$ {$path}\$1 [L]
 RewriteRule . {$path}index.php [L]
 HTACCESS,
 					'network_subdomain'    => <<<HTACCESS
