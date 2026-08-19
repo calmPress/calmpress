@@ -8,6 +8,8 @@
 
 declare(strict_types=1);
 
+namespace calmpress\admin_settings;
+
 // Validate values submitted at the email delivery options page.
 add_filter(
 	'check_input_errors_email_delivery',
@@ -87,31 +89,87 @@ add_filter(
 	2
 );
 
+/**
+ * Validates that an option value identifies an image attachment.
+ *
+ * @since 1.0.0
+ *
+ * @param \WP_Error $errors        The currently collected errors.
+ * @param int       $value         The option value to validate.
+ * @param string    $error_message The message to add when the value is invalid.
+ *
+ * @return void
+ */
+function validate_image_attachment_option_value( \WP_Error $errors, int $value, string $error_message ): void {
+	if ( ( 0 !== $value ) && ( ! wp_attachment_is_image( $value ) ) ) {
+		$errors->add( 'invalid_image_attachment', $error_message );
+	}
+}
+
+// Validate values submitted at the General settings page.
+add_filter(
+	'check_input_errors_general',
+	/**
+	 * Validates image attachment options submitted from General Settings.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Error $errors  The currently collected errors.
+	 * @param array     $options Submitted option values keyed by option name.
+	 *
+	 * @return \WP_Error The errors collected while validating the options.
+	 */
+	function ( \WP_Error $errors, array $options ): \WP_Error {
+		validate_image_attachment_option_value(
+			$errors,
+			(int) $options['custom_logo'],
+			__( 'The selected logo must be an image. Please select an image file.' )
+		);
+		validate_image_attachment_option_value(
+			$errors,
+			(int) $options['site_icon'],
+			__( 'The selected Site Icon must be an image. Please select an image file.' )
+		);
+
+		return $errors;
+	},
+	10,
+	2
+);
+
 // Validate values submitted at the Network Identity settings page.
 add_filter(
 	'check_network_input_errors_identity',
+	/**
+	 * Validates image attachment options submitted from Network Identity Settings.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Error $errors  The currently collected errors.
+	 * @param array     $options Submitted option values keyed by option name.
+	 *
+	 * @return \WP_Error The errors collected while validating the options.
+	 */
 	function ( \WP_Error $errors, array $options ): \WP_Error {
-		$attachment_id = (int) $options['site_icon'];
-
-		if ( 0 === $attachment_id ) {
-			return $errors;
-		}
-
 		/*
-		 * Verify the selected network-owned image remains available before saving its ID.
-		 * This lets the user upload it again instead of saving an unusable option.
+		 * Validate selected network-owned media as images before saving their IDs.
 		 *
 		 * Network-owned media is stored in the network main site.
 		 */
 		switch_to_blog( get_main_site_id() );
 
-		$image = wp_get_attachment_image_src( $attachment_id, 'full' );
+		validate_image_attachment_option_value(
+			$errors,
+			(int) $options['site_icon'],
+			__( 'The selected Site Icon must be an image. Please select an image file.' )
+		);
+		validate_image_attachment_option_value(
+			$errors,
+			(int) $options['custom_logo'],
+			__( 'The selected logo must be an image. Please select an image file.' )
+		);
 
 		restore_current_blog();
-
-		if ( ! is_array( $image ) ) {
-			$errors->add( 'invalid_site_icon', __( 'The selected image is no longer available. Please upload it again.' ) );
-		}
 
 		return $errors;
 	},

@@ -4333,6 +4333,31 @@
 		},
 
 		/**
+		 * Check whether an attachment can be used by this control.
+		 *
+		 * @since calmPress 1.0.0
+		 *
+		 * @param {Object} attachment Attachment data from the media modal.
+		 * @return {boolean} Whether the attachment has the expected media type.
+		 */
+		isValidAttachment: function( attachment ) {
+			var notificationCode = 'invalid_file_type';
+
+			this.notifications.remove( notificationCode );
+
+			if ( ! this.params.button_labels.invalid_file_type || ! this.params.mime_type || this.params.mime_type === attachment.type ) {
+				return true;
+			}
+
+			this.notifications.add( new api.Notification( notificationCode, {
+				message: this.params.button_labels.invalid_file_type,
+				type: 'error'
+			} ) );
+
+			return false;
+		},
+
+		/**
 		 * Callback handler for when an attachment is selected in the media modal.
 		 * Gets the selected image information, and sets it within the control.
 		 */
@@ -4341,6 +4366,10 @@
 			var node,
 				attachment = this.frame.state().get( 'selection' ).first().toJSON(),
 				mejsSettings = window._wpmejsSettings || {};
+
+			if ( ! this.isValidAttachment( attachment ) ) {
+				return;
+			}
 
 			this.params.attachment = attachment;
 
@@ -4571,6 +4600,10 @@
 		onSelect: function() {
 			var attachment = this.frame.state().get( 'selection' ).first().toJSON();
 
+			if ( ! this.isValidAttachment( attachment ) ) {
+				return;
+			}
+
 			if ( this.params.width === attachment.width && this.params.height === attachment.height && ! this.params.flex_width && ! this.params.flex_height ) {
 				this.setImageFromAttachment( attachment );
 				this.frame.close();
@@ -4790,6 +4823,10 @@
 		onSelect: function() {
 			var attachment = this.frame.state().get( 'selection' ).first().toJSON(),
 				controller = this;
+
+			if ( ! this.isValidAttachment( attachment ) ) {
+				return;
+			}
 
 			if ( this.params.width === attachment.width && this.params.height === attachment.height && ! this.params.flex_width && ! this.params.flex_height ) {
 				wp.ajax.post( 'crop-image', {

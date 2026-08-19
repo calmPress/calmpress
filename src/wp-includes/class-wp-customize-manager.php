@@ -5059,9 +5059,10 @@ class WP_Customize_Manager {
 			$this->add_setting(
 				'site_icon',
 				array(
-					'type'       => 'option',
-					'capability' => 'manage_options',
-					'transport'  => 'postMessage', // Previewed with JS in the Customizer controls window.
+					'type'              => 'option',
+					'capability'        => 'manage_options',
+					'transport'         => 'postMessage', // Previewed with JS in the Customizer controls window.
+					'validate_callback' => array( $this, '_validate_image_attachment' ),
 				)
 			);
 
@@ -5077,10 +5078,13 @@ class WP_Customize_Manager {
 							512,
 							512
 						),
-						'section'     => 'title_tagline',
-						'priority'    => 60,
-						'height'      => 512,
-						'width'       => 512,
+						'section'       => 'title_tagline',
+						'priority'      => 60,
+						'height'        => 512,
+						'width'         => 512,
+						'button_labels' => array(
+							'invalid_file_type' => __( 'Only images can be used for this feature.' ),
+						),
 					)
 				)
 			);
@@ -5089,9 +5093,10 @@ class WP_Customize_Manager {
 		$this->add_setting(
 			'custom_logo',
 			array(
-				'type'           => 'option',
-				'theme_supports' => array( 'custom-logo' ),
-				'transport'      => 'postMessage',
+				'type'              => 'option',
+				'theme_supports'    => array( 'custom-logo' ),
+				'transport'         => 'postMessage',
+				'validate_callback' => array( $this, '_validate_image_attachment' ),
 			)
 		);
 
@@ -5106,13 +5111,14 @@ class WP_Customize_Manager {
 					'priority'      => 8,
 					'mime_type'     => 'image',
 					'button_labels' => array(
-						'select'       => __( 'Select logo' ),
-						'change'       => __( 'Change logo' ),
-						'remove'       => __( 'Remove' ),
-						'default'      => __( 'Default' ),
-						'placeholder'  => __( 'No logo selected' ),
-						'frame_title'  => __( 'Select logo' ),
-						'frame_button' => __( 'Choose logo' ),
+						'select'            => __( 'Select logo' ),
+						'change'            => __( 'Change logo' ),
+						'remove'            => __( 'Remove' ),
+						'default'           => __( 'Default' ),
+						'placeholder'       => __( 'No logo selected' ),
+						'frame_title'       => __( 'Select logo' ),
+						'frame_button'      => __( 'Choose logo' ),
+						'invalid_file_type' => __( 'Only images can be used for this feature.' ),
 					),
 				)
 			)
@@ -5946,5 +5952,25 @@ class WP_Customize_Manager {
 	 */
 	public function _render_custom_logo_partial() {
 		return get_custom_logo();
+	}
+
+	/**
+	 * Validates that a Customizer media setting identifies an image attachment.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_Error $validity Current validity information.
+	 * @param mixed    $value    Proposed attachment ID.
+	 *
+	 * @return WP_Error Validity information for the proposed value.
+	 */
+	public function _validate_image_attachment( $validity, $value ) {
+		$attachment_id = (int) $value;
+
+		if ( ( 0 !== $attachment_id ) && ( ! wp_attachment_is_image( $attachment_id ) ) ) {
+			$validity->add( 'invalid_image_attachment', __( 'Only images can be used for this feature.' ) );
+		}
+
+		return $validity;
 	}
 }
