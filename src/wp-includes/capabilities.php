@@ -121,14 +121,14 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			}
 
 			if ( 'attachment' === $post->post_type ) {
-				// A site's configured Site Icon attachment must remain available.
-				if ( (int) get_option( 'site_icon' ) === $post->ID ) {
+				// A site's configured Site Icon and Logo attachments must remain available.
+				if ( ( (int) get_option( 'site_icon' ) === $post->ID ) || ( (int) get_option( 'custom_logo' ) === $post->ID ) ) {
 					$caps[] = 'do_not_allow';
 					break;
 				}
 
-				// A Network Site Icon is an attachment belonging to the network's main site.
-				if ( is_multisite() && is_main_site() && (int) get_network_option( null, 'site_icon', 0 ) === $post->ID ) {
+				// Network Site Icon and Logo attachments belong to the network's main site.
+				if ( ( is_multisite() ) && ( is_main_site() ) && ( ( (int) get_network_option( null, 'site_icon', 0 ) === $post->ID ) || ( (int) get_network_option( null, 'custom_logo', 0 ) === $post->ID ) ) ) {
 					$caps[] = 'do_not_allow';
 					break;
 				}

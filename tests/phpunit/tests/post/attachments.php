@@ -83,6 +83,20 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that a configured Logo attachment cannot be deleted.
+	 */
+	public function test_logo_attachment_cannot_be_deleted() {
+		$attachment_id = self::factory()->attachment->create();
+		update_option( 'custom_logo', $attachment_id );
+
+		$this->assertFalse( wp_delete_attachment( $attachment_id, true ) );
+		$this->assertInstanceOf( WP_Post::class, get_post( $attachment_id ) );
+
+		delete_option( 'custom_logo' );
+		$this->assertInstanceOf( WP_Post::class, wp_delete_attachment( $attachment_id, true ) );
+	}
+
+	/**
 	 * Tests that a Network Site Icon attachment cannot be deleted.
 	 *
 	 * @since calmPress 1.0.0
@@ -96,6 +110,22 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 		$this->assertInstanceOf( WP_Post::class, get_post( $attachment_id ) );
 
 		delete_network_option( null, 'site_icon' );
+		$this->assertInstanceOf( WP_Post::class, wp_delete_attachment( $attachment_id, true ) );
+	}
+
+	/**
+	 * Tests that a Network Logo attachment cannot be deleted.
+	 *
+	 * @group ms-required
+	 */
+	public function test_network_logo_attachment_cannot_be_deleted() {
+		$attachment_id = self::factory()->attachment->create();
+		update_network_option( null, 'custom_logo', $attachment_id );
+
+		$this->assertFalse( wp_delete_attachment( $attachment_id, true ) );
+		$this->assertInstanceOf( WP_Post::class, get_post( $attachment_id ) );
+
+		delete_network_option( null, 'custom_logo' );
 		$this->assertInstanceOf( WP_Post::class, wp_delete_attachment( $attachment_id, true ) );
 	}
 
@@ -119,6 +149,28 @@ class Tests_Post_Attachments extends WP_UnitTestCase {
 
 		restore_current_blog();
 		delete_network_option( null, 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Tests that the Network Logo ID does not prevent deleting an attachment on another site.
+	 *
+	 * @group ms-required
+	 */
+	public function test_network_logo_id_does_not_prevent_deleting_attachment_on_another_site() {
+		$attachment_id = self::factory()->attachment->create( [ 'import_id' => 9877 ] );
+		update_network_option( null, 'custom_logo', $attachment_id );
+
+		$blog_id = self::factory()->blog->create();
+		switch_to_blog( $blog_id );
+
+		$other_attachment_id = self::factory()->attachment->create( [ 'import_id' => $attachment_id ] );
+
+		$this->assertSame( $attachment_id, $other_attachment_id );
+		$this->assertInstanceOf( WP_Post::class, wp_delete_attachment( $other_attachment_id, true ) );
+
+		restore_current_blog();
+		delete_network_option( null, 'custom_logo' );
 		wp_delete_attachment( $attachment_id, true );
 	}
 

@@ -69,6 +69,20 @@ class Tests_Post_WpTrashPost extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that a configured Logo attachment cannot be moved to the Trash.
+	 */
+	public function test_logo_attachment_cannot_be_trashed() {
+		$attachment_id = self::factory()->attachment->create();
+		update_option( 'custom_logo', $attachment_id );
+
+		$this->assertFalse( wp_trash_post( $attachment_id ) );
+		$this->assertNotSame( 'trash', get_post_status( $attachment_id ) );
+
+		delete_option( 'custom_logo' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
 	 * Tests that an attachment owned by the network cannot be moved to the Trash.
 	 */
 	public function test_network_attachment_cannot_be_trashed() {
