@@ -781,7 +781,6 @@ class WP_Test_REST_Themes_Controller extends WP_Test_REST_Controller_Testcase {
 			'flex-width'           => true,
 			'flex-height'          => true,
 			'header-text'          => array( 'site-title', 'site-description' ),
-			'unlink-homepage-logo' => false,
 		);
 		add_theme_support( 'custom-logo', $wordpress_logo );
 		$response = self::perform_active_theme_request();

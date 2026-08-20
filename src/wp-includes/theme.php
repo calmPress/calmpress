@@ -2426,6 +2426,7 @@ function get_theme_starter_content() {
  *              through `editor-gradient-presets` theme support.
  * @since 5.5.0 The `core-block-patterns` feature was added and is enabled by default.
  * @since 5.5.0 The `custom-logo` feature now also accepts 'unlink-homepage-logo'.
+ * @since calmPress 1.0.0 The `custom-logo` feature no longer accepts 'unlink-homepage-logo'.
  * @since 5.6.0 The `post-formats` feature warns if no array is passed as the second parameter.
  * @since 5.8.0 The `widgets-block-editor` feature enables the Widgets block editor.
  * @since 5.8.0 The `block-templates` feature indicates whether a theme uses block-based templates.
@@ -2531,8 +2532,7 @@ function add_theme_support( $feature, ...$args ) {
 				'height'               => null,
 				'flex-width'           => false,
 				'flex-height'          => false,
-				'header-text'          => '',
-				'unlink-homepage-logo' => false,
+				'header-text' => '',
 			);
 			$args[0]  = wp_parse_args( array_intersect_key( $args[0], $defaults ), $defaults );
 
@@ -3856,9 +3856,6 @@ function create_initial_theme_features() {
 							'items' => array(
 								'type' => 'string',
 							),
-						),
-						'unlink-homepage-logo' => array(
-							'type' => 'boolean',
 						),
 					),
 				),
