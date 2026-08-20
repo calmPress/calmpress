@@ -875,35 +875,25 @@ function has_site_icon( $blog_id = 0 ) {
  * Determines whether the site has a custom logo.
  *
  * @since 4.5.0
+ * @since calmPress 1.0.0 Falls back to the Network Logo when a site has no configured Logo.
  *
  * @param int $blog_id Optional. ID of the blog in question. Default is the ID of the current blog.
  * @return bool Whether the site has a custom logo or not.
  */
 function has_custom_logo( $blog_id = 0 ) {
-	$switched_blog = false;
+	$logo = new calmpress\identity\Logo( $blog_id );
 
-	if ( is_multisite() && ! empty( $blog_id ) && get_current_blog_id() !== (int) $blog_id ) {
-		switch_to_blog( $blog_id );
-		$switched_blog = true;
-	}
-
-	$custom_logo_id = get_option( 'custom_logo' );
-	$is_image       = ( $custom_logo_id ) ? wp_attachment_is_image( $custom_logo_id ) : false;
-
-	if ( $switched_blog ) {
-		restore_current_blog();
-	}
-
-	return $is_image;
+	return $logo->has_image();
 }
 
 /**
- * Returns a custom logo, linked to home unless the theme supports removing the link on the home page.
+ * Returns a custom logo linked to the site homepage.
  *
  * @since 4.5.0
  * @since 5.5.0 Added option to remove the link on the home page with `unlink-homepage-logo` theme support
  *              for the `custom-logo` theme feature.
  * @since 5.5.1 Disabled lazy-loading by default.
+ * @since calmPress 1.0.0 Added Network Logo fallback and made Logos always link to the site homepage.
  *
  * @param int $blog_id Optional. ID of the blog in question. Default is the ID of the current blog.
  * @return string Custom logo markup.
@@ -917,33 +907,21 @@ function get_custom_logo( $blog_id = 0 ) {
 		$switched_blog = true;
 	}
 
-	// We have a logo. Logo is go.
-	if ( has_custom_logo() ) {
-		$custom_logo_id   = get_option( 'custom_logo' );
-		$custom_logo_attr = array(
-			'class'   => 'custom-logo',
-			'loading' => false,
-		);
+	$logo = new calmpress\identity\Logo();
 
-		$unlink_homepage_logo = (bool) get_theme_support( 'custom-logo', 'unlink-homepage-logo' );
+	$custom_logo_attr = array(
+		'class'   => 'custom-logo',
+		'loading' => false,
+		'alt'     => get_bloginfo( 'name', 'display' ),
+	);
 
-		if ( $unlink_homepage_logo && is_front_page() && ! is_paged() ) {
-			/*
-			 * If on the home page, set the logo alt attribute to an empty string,
-			 * as the image is decorative and doesn't need its purpose to be described.
-			 */
-			$custom_logo_attr['alt'] = '';
-		} else {
-			/*
-			 * If the logo alt attribute is empty, get the site title and explicitly pass it
-			 * to the attributes used by wp_get_attachment_image().
-			 */
-			$image_alt = get_post_meta( $custom_logo_id, '_wp_attachment_image_alt', true );
-			if ( empty( $image_alt ) ) {
-				$custom_logo_attr['alt'] = get_bloginfo( 'name', 'display' );
-			}
-		}
+	$custom_logo_id = (int) get_option( 'custom_logo' );
 
+	if ( is_multisite() && ( 0 === $custom_logo_id ) ) {
+		$custom_logo_id = (int) get_network_option( 0, 'custom_logo', 0 );
+	}
+
+	if ( 0 !== $custom_logo_id ) {
 		/**
 		 * Filters the list of custom logo image attributes.
 		 *
@@ -954,33 +932,20 @@ function get_custom_logo( $blog_id = 0 ) {
 		 * @param int   $blog_id          ID of the blog to get the custom logo for.
 		 */
 		$custom_logo_attr = apply_filters( 'get_custom_logo_image_attributes', $custom_logo_attr, $custom_logo_id, $blog_id );
+	}
 
-		/*
-		 * If the alt attribute is not empty, there's no need to explicitly pass it
-		 * because wp_get_attachment_image() already adds the alt attribute.
-		 */
-		$image = wp_get_attachment_image( $custom_logo_id, 'full', false, $custom_logo_attr );
+	$image = $logo->img( $custom_logo_attr );
 
-		// Check that we have a proper HTML img element.
-		if ( $image ) {
+	// Check that we have a proper HTML img element.
+	if ( $image ) {
+		$aria_current = ! is_paged() && ( is_front_page() || is_home() && ( (int) get_option( 'page_for_posts' ) !== get_queried_object_id() ) ) ? ' aria-current="page"' : '';
 
-			if ( $unlink_homepage_logo && is_front_page() && ! is_paged() ) {
-				// If on the home page, don't link the logo to home.
-				$html = sprintf(
-					'<span class="custom-logo-link">%1$s</span>',
-					$image
-				);
-			} else {
-				$aria_current = ! is_paged() && ( is_front_page() || is_home() && ( (int) get_option( 'page_for_posts' ) !== get_queried_object_id() ) ) ? ' aria-current="page"' : '';
-
-				$html = sprintf(
-					'<a href="%1$s" class="custom-logo-link" rel="home"%2$s>%3$s</a>',
-					esc_url( home_url( '/' ) ),
-					$aria_current,
-					$image
-				);
-			}
-		}
+		$html = sprintf(
+			'<a href="%1$s" class="custom-logo-link" rel="home"%2$s>%3$s</a>',
+			esc_url( home_url( '/' ) ),
+			$aria_current,
+			$image
+		);
 	} elseif ( is_customize_preview() ) {
 		// If no logo is set but we're in the Customizer, leave a placeholder (needed for the live preview).
 		$html = sprintf(
@@ -1006,7 +971,7 @@ function get_custom_logo( $blog_id = 0 ) {
 }
 
 /**
- * Displays a custom logo, linked to home unless the theme supports removing the link on the home page.
+ * Displays a custom logo linked to the site homepage.
  *
  * @since 4.5.0
  *
