@@ -24,10 +24,51 @@ $timezone_format = _x( 'Y-m-d H:i:s', 'timezone date format' );
 
 add_action( 'admin_head', 'options_general_add_js' );
 
+/**
+ * Limits General Settings media uploads to image files.
+ *
+ * The page uses media uploads only for the Logo and Site Icon settings.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @param array $settings Default Plupload settings.
+ *
+ * @return array General Settings Plupload settings.
+ */
+function options_general_image_upload_settings( $settings ) {
+	$image_extensions = [];
+
+	foreach ( get_allowed_mime_types() as $extensions => $mime_type ) {
+		if ( str_starts_with( $mime_type, 'image/' ) ) {
+			$image_extensions = array_merge( $image_extensions, explode( '|', $extensions ) );
+		}
+	}
+
+	$settings['filters']['mime_types'] = [
+		[
+			'title'      => __( 'Images' ),
+			'extensions' => implode( ',', $image_extensions ),
+		],
+	];
+
+	return $settings;
+}
+
+add_filter( 'plupload_default_settings', 'options_general_image_upload_settings' );
 require_once ABSPATH . 'wp-admin/admin-header.php';
 wp_enqueue_media();
+remove_filter( 'plupload_default_settings', 'options_general_image_upload_settings' );
 wp_enqueue_script( 'site-icon' );
 wp_enqueue_script( 'calm-logo-selection' );
+wp_add_inline_script(
+	'calm-logo-selection',
+	'var calm_logo_selection = ' . wp_json_encode(
+		[
+			'invalid_file_type' => __( 'Only images can be used for this feature.' ),
+		]
+	) . ';',
+	'before'
+);
 ?>
 
 <div class="wrap">
@@ -70,26 +111,37 @@ $tagline_description = sprintf(
 	$classes_for_upload_button = 'upload-button button';
 	$classes_for_update_button = 'button';
 	$classes_for_wrapper       = '';
+	$logo_image_id             = (int) get_option( 'custom_logo' );
+	$logo_url                  = ( 0 === $logo_image_id ) ? false : wp_get_attachment_image_url( $logo_image_id, 'full' );
+	$logo_url                  = ( is_string( $logo_url ) ) ? $logo_url : '';
+	$network_logo_url          = '';
 
-	if ( has_custom_logo() ) {
+	if ( is_multisite() ) {
+		switch_to_blog( get_main_site_id() );
+		$network_logo_id  = (int) get_network_option( 0, 'custom_logo', 0 );
+		$network_logo_url = ( 0 === $network_logo_id ) ? false : wp_get_attachment_image_url( $network_logo_id, 'full' );
+		$network_logo_url = ( is_string( $network_logo_url ) ) ? $network_logo_url : '';
+		restore_current_blog();
+	}
+
+	if ( $logo_url ) {
 		$classes_for_wrapper         .= ' has-logo';
 		$classes_for_button           = $classes_for_update_button;
 		$classes_for_button_on_change = $classes_for_upload_button;
 	} else {
-		$classes_for_wrapper         .= ' hidden';
+		$classes_for_wrapper         .= ( $network_logo_url ) ? ' has-logo' : ' hidden';
 		$classes_for_button           = $classes_for_upload_button;
 		$classes_for_button_on_change = $classes_for_update_button;
 	}
 
-	$logo_image_id = (int) get_option( 'custom_logo' );
-	$logo_url =    '';
-	if ( $logo_image_id ) {
-		$logo_url =  wp_get_attachment_image_url( $logo_image_id, 'full' );
-	}
+	$logo_preview_url = ( $logo_url ) ? $logo_url : $network_logo_url;
 	?>
 
 	<div id="logo-preview-container" class="settings <?php echo esc_attr( $classes_for_wrapper ); ?>">
-		<img id="logo-preview" style="display:block;max-width:100%;height:auto;max-height:150px; margin-bottom:16px;" src="<?php echo esc_url( $logo_url ); ?>" alt="" />
+		<p id="network-logo-label" class="description<?php echo ( ( $network_logo_url ) && ( ! $logo_url ) ) ? '' : ' hidden'; ?>" data-pending-text="<?php esc_attr_e( 'The Network Logo will be used after saving.' ); ?>">
+			<strong><?php esc_html_e( 'Currently using the Network Logo' ); ?></strong>
+		</p>
+		<img id="logo-preview" style="display:block;max-width:100%;height:auto;max-height:150px; margin-bottom:16px;" src="<?php echo esc_url( $logo_preview_url ); ?>" alt="" />
 	</div>
 
 	<input type="hidden" name="custom_logo" id="logo_hidden_field" value="<?php form_option( 'custom_logo' ); ?>" />
@@ -98,14 +150,17 @@ $tagline_description = sprintf(
 			id="choose-logo-from-library-button"
 			class="<?php echo esc_attr( $classes_for_button ); ?>"
 			data-alt-classes="<?php echo esc_attr( $classes_for_button_on_change ); ?>"
-			data-choose-text="<?php esc_attr_e( 'Choose a Logo' ); ?>"
+			data-choose-text="<?php echo esc_attr( ( $network_logo_url ) ? __( 'Use a Site-Specific Logo' ) : __( 'Choose a Logo' ) ); ?>"
 			data-update-text="<?php esc_attr_e( 'Change Logo' ); ?>"
 			data-update="<?php esc_attr_e( 'Set as Logo' ); ?>"
-			data-state="<?php echo esc_attr( has_custom_logo() ); ?>"
+			data-state="<?php echo esc_attr( (bool) $logo_url ); ?>"
+			data-network-logo-url="<?php echo esc_url( $network_logo_url ); ?>"
 
 		>
-			<?php if ( has_custom_logo() ) { ?>
+			<?php if ( $logo_url ) { ?>
 				<?php esc_html_e( 'Change Logo' ); ?>
+			<?php } elseif ( $network_logo_url ) { ?>
+				<?php esc_html_e( 'Use a Site-Specific Logo' ); ?>
 			<?php } else { ?>
 				<?php esc_html_e( 'Choose a Logo' ); ?>
 			<?php } ?>
@@ -113,9 +168,13 @@ $tagline_description = sprintf(
 		<button
 			id="js-remove-logo"
 			type="button"
-			<?php echo has_custom_logo() ? 'class="button button-secondary reset remove-logo"' : 'class="button button-secondary reset hidden"'; ?>
+			<?php echo ( $logo_url ) ? 'class="button button-secondary reset remove-logo"' : 'class="button button-secondary reset hidden"'; ?>
 		>
-			<?php _e( 'Remove Logo' ); ?>
+			<?php if ( $network_logo_url ) { ?>
+				<?php esc_html_e( 'Use Network Logo' ); ?>
+			<?php } else { ?>
+				<?php esc_html_e( 'Stop Using Logo' ); ?>
+			<?php } ?>
 		</button>
 	</div>
 
