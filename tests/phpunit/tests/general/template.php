@@ -456,7 +456,7 @@ class Tests_General_Template extends WP_UnitTestCase {
 	 * @group custom_logo
 	 * @covers ::the_custom_logo
 	 */
-	public function test_the_custom_logo_with_alt() {
+	public function test_the_custom_logo_uses_site_title_instead_of_attachment_alt() {
 		$this->set_custom_logo();
 
 		$image_alt = 'My alt attribute';
@@ -470,11 +470,35 @@ class Tests_General_Template extends WP_UnitTestCase {
 			array(
 				'class'   => 'custom-logo',
 				'loading' => false,
+				'alt'     => get_bloginfo( 'name', 'display' ),
 			)
 		);
 
 		$this->expectOutputString( '<a href="http://' . WP_TESTS_DOMAIN . '/" class="custom-logo-link" rel="home">' . $image . '</a>' );
 		the_custom_logo();
+	}
+
+	/**
+	 * Tests that the Logo remains linked on the homepage when a theme requests otherwise.
+	 *
+	 * @group custom_logo
+	 * @covers ::get_custom_logo
+	 */
+	public function test_get_custom_logo_ignores_unlink_homepage_logo_theme_support(): void {
+		add_theme_support(
+			'custom-logo',
+			array(
+				'unlink-homepage-logo' => true,
+			)
+		);
+		$this->set_custom_logo();
+		$this->go_to( home_url( '/' ) );
+
+		$custom_logo = get_custom_logo();
+
+		$this->assertFalse( get_theme_support( 'custom-logo', 'unlink-homepage-logo' ) );
+		$this->assertStringStartsWith( '<a ', $custom_logo );
+		$this->assertStringContainsString( 'aria-current="page"', $custom_logo );
 	}
 
 	/**
