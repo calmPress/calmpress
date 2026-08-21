@@ -326,12 +326,15 @@ class WP_Network {
 			throw new RuntimeException( 'Network attachments can only be deleted from the network main site.' );
 		}
 
-		// Find old network-owned attachments other than the configured Site Icon.
+		// Find old network-owned attachments other than the configured Site Icon and Logo.
 		$attachment_ids = get_posts(
 			[
 				'post_type'      => 'attachment',
 				'post_status'    => 'network',
-				'post__not_in'   => [ (int) get_network_option( $this->id, 'site_icon', 0 ) ],
+				'post__not_in'   => [
+					(int) get_network_option( $this->id, 'site_icon', 0 ),
+					(int) get_network_option( $this->id, 'custom_logo', 0 ),
+				],
 				'fields'         => 'ids',
 				'posts_per_page' => -1,
 				'date_query'     => [

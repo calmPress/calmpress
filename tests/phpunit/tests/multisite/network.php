@@ -96,15 +96,25 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 				'post_date_gmt' => $old_date,
 			]
 		);
+		$logo_id = self::factory()->attachment->create(
+			[
+				'post_status'   => 'network',
+				'post_date'     => $old_date,
+				'post_date_gmt' => $old_date,
+			]
+		);
 		update_network_option( null, 'site_icon', $site_icon_id );
+		update_network_option( null, 'custom_logo', $logo_id );
 
 		get_network()->delete_unused_network_attachments();
 
 		$this->assertNull( get_post( $unused_attachment_id ) );
 		$this->assertInstanceOf( WP_Post::class, get_post( $recent_attachment_id ) );
 		$this->assertInstanceOf( WP_Post::class, get_post( $site_icon_id ) );
+		$this->assertInstanceOf( WP_Post::class, get_post( $logo_id ) );
 
 		delete_network_option( null, 'site_icon' );
+		delete_network_option( null, 'custom_logo' );
 	}
 
 	/**
