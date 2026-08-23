@@ -2024,6 +2024,15 @@ function media_upload_form( $errors = null ) {
 		$max_upload_size = 0;
 	}
 
+	// Show a decimal only when the limit is not an exact multiple of the displayed unit.
+	$max_upload_size_decimals = 0;
+	foreach ( [ TB_IN_BYTES, GB_IN_BYTES, MB_IN_BYTES, KB_IN_BYTES ] as $unit_size ) {
+		if ( $max_upload_size >= $unit_size ) {
+			$max_upload_size_decimals = ( 0 === $max_upload_size % $unit_size ) ? 0 : 1;
+			break;
+		}
+	}
+
 	?>
 	<div id="media-upload-notice">
 	<?php
@@ -2204,7 +2213,7 @@ function media_upload_form( $errors = null ) {
 <p class="max-upload-size">
 	<?php
 	/* translators: %s: Maximum allowed file size. */
-	printf( __( 'Maximum upload file size: %s.' ), esc_html( size_format( $max_upload_size ) ) );
+	printf( __( 'Maximum upload file size: %s.' ), esc_html( size_format( $max_upload_size, $max_upload_size_decimals ) ) );
 	?>
 </p>
 	<?php

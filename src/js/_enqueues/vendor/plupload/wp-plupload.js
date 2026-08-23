@@ -451,7 +451,7 @@ window.wp = window.wp || {};
 					message = Uploader.errorMap[ key ];
 
 					if ( typeof message === 'function' ) {
-						message = message( pluploadError.file, pluploadError );
+						message = message( pluploadError.file, pluploadError, up );
 					}
 
 					break;
@@ -480,8 +480,15 @@ window.wp = window.wp || {};
 		'IO_ERROR':               pluploadL10n.io_error,
 		'SECURITY_ERROR':         pluploadL10n.security_error,
 
-		'FILE_SIZE_ERROR': function( file ) {
-			return pluploadL10n.file_exceeds_size_limit.replace( '%s', file.name );
+		'FILE_SIZE_ERROR': function( file, error, uploader ) {
+			var maximumFileSize = plupload.parseSize( uploader.settings.filters.max_file_size ),
+				fileSize = plupload.formatSize( file.size ).toUpperCase(),
+				formattedMaximumFileSize = plupload.formatSize( maximumFileSize ).toUpperCase();
+
+			return pluploadL10n.file_exceeds_size_limit
+				.replace( '%1$s', file.name )
+				.replace( '%2$s', fileSize )
+				.replace( '%3$s', formattedMaximumFileSize );
 		},
 
 		'HTTP_ERROR': function( file ) {

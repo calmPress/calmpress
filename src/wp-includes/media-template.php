@@ -279,6 +279,15 @@ function wp_print_media_templates() {
 				if ( ! $max_upload_size ) {
 					$max_upload_size = 0;
 				}
+
+				// Show a decimal only when the limit is not an exact multiple of the displayed unit.
+				$max_upload_size_decimals = 0;
+				foreach ( [ TB_IN_BYTES, GB_IN_BYTES, MB_IN_BYTES, KB_IN_BYTES ] as $unit_size ) {
+					if ( $max_upload_size >= $unit_size ) {
+						$max_upload_size_decimals = ( 0 === $max_upload_size % $unit_size ) ? 0 : 1;
+						break;
+					}
+				}
 				?>
 
 				<p class="max-upload-size">
@@ -286,7 +295,7 @@ function wp_print_media_templates() {
 					printf(
 						/* translators: %s: Maximum allowed file size. */
 						__( 'Maximum upload file size: %s.' ),
-						esc_html( size_format( $max_upload_size ) )
+						esc_html( size_format( $max_upload_size, $max_upload_size_decimals ) )
 					);
 				?>
 				</p>

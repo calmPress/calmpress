@@ -941,8 +941,8 @@ function wp_default_scripts( $scripts ) {
 	// Error messages for Plupload.
 	$uploader_l10n = array(
 		'queue_limit_exceeded'      => __( 'You have attempted to queue too many files.' ),
-		/* translators: %s: File name. */
-		'file_exceeds_size_limit'   => __( '%s exceeds the maximum upload size for this site.' ),
+		/* translators: 1: File name, 2: File size, 3: Maximum allowed file size. */
+		'file_exceeds_size_limit'   => __( 'The size of %1$s is %2$s, which exceeds the maximum upload size of %3$s.' ),
 		'zero_byte_file'            => __( 'This file is empty. Please try another.' ),
 		'invalid_filetype'          => __( 'This file cannot be processed by the web server.' ),
 		'not_an_image'              => __( 'This file is not an image. Please try another.' ),

@@ -339,9 +339,15 @@ function uploadError( fileObj, errorCode, message, up ) {
 }
 
 function uploadSizeError( up, file ) {
-	var message, errorDiv;
+	var message, errorDiv,
+		maximumFileSize = plupload.parseSize( up.settings.filters.max_file_size ),
+		fileSize = plupload.formatSize( file.size ).toUpperCase(),
+		formattedMaximumFileSize = plupload.formatSize( maximumFileSize ).toUpperCase();
 
-	message = pluploadL10n.file_exceeds_size_limit.replace( '%s', file.name );
+	message = pluploadL10n.file_exceeds_size_limit
+		.replace( '%1$s', file.name )
+		.replace( '%2$s', fileSize )
+		.replace( '%3$s', formattedMaximumFileSize );
 
 	// Construct the error div.
 	errorDiv = jQuery( '<div />' )
