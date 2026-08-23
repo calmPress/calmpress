@@ -5,7 +5,7 @@
  * @output wp-admin/js/cp-logo-selection.js
  */
 
-/* global wp */
+/* global calm_logo_selection, wp */
 
 (function () {
 	var $chooseButton = cp_$( '#choose-logo-from-library-button' ),
@@ -13,7 +13,10 @@
 		$logoPreviewContainer = cp_$( '#logo-preview-container' ),
 		$hiddenDataField = cp_$( '#logo_hidden_field' ),
 		$removeButton = cp_$( '#js-remove-logo' ),
+		$network_logo_label = cp_$( '#network-logo-label' ),
 		frame;
+
+	wp.Uploader.errorMap.FILE_EXTENSION_ERROR = calm_logo_selection.invalid_file_type;
 
 	/**
 	 * Initializes the media frame for selecting or cropping an image.
@@ -68,6 +71,7 @@
 
 		// Remove hidden class from icon preview div and remove button.
 		$logoPreviewContainer.removeClass( 'hidden' );
+		$network_logo_label.addClass( 'hidden' );
 		$removeButton.removeClass( 'hidden' );
 
 		// If the choose button is not in the update state, swap the classes.
@@ -90,9 +94,15 @@
 	 * @since 1.0.0
 	 */
 	$removeButton.on( 'click', function () {
+		var network_logo_url = $chooseButton.data( 'network-logo-url' );
+
 		$hiddenDataField.setValue( 'false' );
 		$removeButton.toggleClass( 'hidden' );
-		$logoPreviewContainer.toggleClass( 'hidden' );
+		$logoPreviewContainer.toggleClass( 'hidden', ! network_logo_url );
+		$network_logo_label
+			.toggleClass( 'hidden', ! network_logo_url )
+			.find( 'strong' )
+			.setText( $network_logo_label.data( 'pending-text' ) );
 
 		/**
 		 * Resets state to the button, for correct visual style and state.
@@ -105,6 +115,6 @@
 			.setData( 'data-state', '' )
 			.setText( $chooseButton.data( 'choose-text' ) )
 			.trigger( 'focus' );
-		$logoPreview.setAttribute( 'src', '' );
+		$logoPreview.setAttribute( 'src', network_logo_url || '' );
 	} );
 })();

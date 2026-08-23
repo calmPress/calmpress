@@ -93,6 +93,7 @@ $allowed_options            = array(
 	'identity' => [
 		'site_name',
 		'site_icon',
+		'custom_logo',
 	],
 );
 

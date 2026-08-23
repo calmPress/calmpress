@@ -1,0 +1,19 @@
+/*------------------------------------------------------------------------------
+  Network Identity Settings
+------------------------------------------------------------------------------*/
+
+button.reset.remove-network-logo {
+	color: #b32d2e;
+	text-decoration: none;
+	border-color: transparent;
+	box-shadow: none;
+	background: transparent;
+}
+
+button.reset.remove-network-logo:focus,
+button.reset.remove-network-logo:hover {
+	background: #b32d2e;
+	color: #fff;
+	border-color: #b32d2e;
+	box-shadow: 0 0 0 1px #b32d2e;
+}

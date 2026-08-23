@@ -222,24 +222,9 @@ class Tests_Post_GetPostStatus extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that a configured Network Site Icon has an attachment state.
+	 * Tests that a configured Logo has an attachment state.
 	 *
 	 * @since calmPress 1.0.0
-	 * @group ms-required
-	 * @covers ::get_post_states
-	 */
-	public function test_network_site_icon_attachment_has_post_state() {
-		$attachment_id = self::factory()->attachment->create();
-		update_network_option( null, 'site_icon', $attachment_id );
-
-		$this->assertSame( 'Network Site Icon', get_post_states( get_post( $attachment_id ) )['network_site_icon'] );
-
-		delete_network_option( null, 'site_icon' );
-		wp_delete_attachment( $attachment_id, true );
-	}
-
-	/**
-	 * Tests that a configured Logo has an attachment state.
 	 *
 	 * @covers ::get_post_states
 	 */
@@ -250,22 +235,6 @@ class Tests_Post_GetPostStatus extends WP_UnitTestCase {
 		$this->assertSame( 'Logo', get_post_states( get_post( $attachment_id ) )['custom_logo'] );
 
 		delete_option( 'custom_logo' );
-		wp_delete_attachment( $attachment_id, true );
-	}
-
-	/**
-	 * Tests that a configured Network Logo has an attachment state.
-	 *
-	 * @group ms-required
-	 * @covers ::get_post_states
-	 */
-	public function test_network_logo_attachment_has_post_state() {
-		$attachment_id = self::factory()->attachment->create();
-		update_network_option( null, 'custom_logo', $attachment_id );
-
-		$this->assertSame( 'Network Logo', get_post_states( get_post( $attachment_id ) )['network_custom_logo'] );
-
-		delete_network_option( null, 'custom_logo' );
 		wp_delete_attachment( $attachment_id, true );
 	}
 

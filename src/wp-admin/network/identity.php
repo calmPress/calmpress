@@ -37,6 +37,14 @@ add_settings_field(
 );
 
 add_settings_field(
+	'custom_logo',
+	esc_html__( 'Logo' ),
+	__NAMESPACE__ . '\logo_field',
+	'identity',
+	'identity-section'
+);
+
+add_settings_field(
 	'site_icon',
 	esc_html__( 'Site Icon' ),
 	__NAMESPACE__ . '\\site_icon_field',
@@ -45,28 +53,42 @@ add_settings_field(
 );
 
 /**
- * Configures the Network Site Icon uploader for a single file selection.
+ * Configures Network Identity media uploaders for a single file selection.
  *
  * @since 1.0.0
  *
  * @param array $settings Default Plupload settings.
  *
- * @return array Network Site Icon Plupload settings.
+ * @return array Network Identity media Plupload settings.
  */
 function network_media_upload_settings( array $settings ): array {
+	$image_extensions = [];
+
+	foreach ( get_allowed_mime_types() as $extensions => $mime_type ) {
+		if ( str_starts_with( $mime_type, 'image/' ) ) {
+			$image_extensions = array_merge( $image_extensions, explode( '|', $extensions ) );
+		}
+	}
+
 	$settings['multi_selection'] = false;
+	$settings['filters']['mime_types'] = [
+		[
+			'title'      => __( 'Images' ),
+			'extensions' => implode( ',', $image_extensions ),
+		],
+	];
 
 	return $settings;
 }
 
 /**
- * Marks Network Site Icon uploads as media owned by the network.
+ * Marks Network Identity uploads as media owned by the network.
  *
  * @since 1.0.0
  *
  * @param array $params Default Plupload multipart parameters.
  *
- * @return array Network Site Icon multipart parameters.
+ * @return array Network Identity media multipart parameters.
  */
 function network_media_upload_params( array $params ): array {
 	$params['media_owned_by_network'] = '1';
@@ -115,12 +137,14 @@ function enqueue_assets(): void {
 
 	wp_enqueue_script( 'site-icon' );
 	wp_enqueue_script( 'calm-network-identity' );
+	wp_enqueue_style( 'calm-identity' );
 
 	wp_add_inline_script(
 		'calm-network-identity',
 		'var calm_network_identity = ' . wp_json_encode(
 			[
-				'ajax_url' => $media_ajax_url,
+				'ajax_url'          => $media_ajax_url,
+				'invalid_file_type' => __( 'Only images can be used for this feature.' ),
 			]
 		) . ';',
 		'before'
@@ -181,7 +205,7 @@ function site_icon_field(): void {
 		--site-icon-url: url( '<?php echo esc_url( $site_icon_url ); ?>' );
 	}
 
-	/* The upload-only Site Icon frame must not expose additional Media Library items. */
+	/* Upload-only Network Identity frames must not expose additional Media Library items. */
 	.media-modal .load-more {
 		display: none;
 	}
@@ -238,6 +262,67 @@ function site_icon_field(): void {
 	<p class="description">
 		<?php esc_html_e( 'Sites that do not configure their own Site Icon will use this icon. For best results across different uses, choose a square image. The recommended size is 512 by 512 pixels.' ); ?>
 	</p>
+	</div>
+	<?php
+	restore_current_blog();
+}
+
+/**
+ * Outputs the Network Logo setting field.
+ *
+ * Attachment APIs are called from the network main site's context.
+ *
+ * @since 1.0.0
+ */
+function logo_field(): void {
+	// The Network Logo attachment belongs to the network main site.
+	switch_to_blog( get_main_site_id() );
+
+	$logo_id  = (int) get_network_option( 0, 'custom_logo', 0 );
+	$logo_url = ( 0 === $logo_id ) ? false : wp_get_attachment_image_url( $logo_id, 'full' );
+
+	if ( ! is_string( $logo_url ) ) {
+		$logo_id  = 0;
+		$logo_url = '';
+	}
+	?>
+	<div class="network-logo-section">
+		<div id="network-logo-preview-container" class="settings<?php echo ( $logo_id ) ? ' has-logo' : ' hidden'; ?>">
+			<img id="network-logo-preview" style="display:block;max-width:100%;height:auto;max-height:150px;margin-bottom:16px;" src="<?php echo esc_url( $logo_url ); ?>" alt="" />
+		</div>
+
+		<input type="hidden" name="custom_logo" id="network_logo_hidden_field" value="<?php echo esc_attr( $logo_id ); ?>" />
+		<div class="logo-action-buttons">
+			<button
+				type="button"
+				id="choose-network-logo-button"
+				class="<?php echo esc_attr( ( $logo_id ) ? 'button' : 'upload-button button' ); ?>"
+				data-alt-classes="<?php echo esc_attr( ( $logo_id ) ? 'upload-button button' : 'button' ); ?>"
+				data-choose-text="<?php esc_attr_e( 'Choose a Logo' ); ?>"
+				data-update-text="<?php esc_attr_e( 'Change Logo' ); ?>"
+				data-update="<?php esc_attr_e( 'Set as Logo' ); ?>"
+				data-state="<?php echo esc_attr( (bool) $logo_id ); ?>"
+			>
+				<?php if ( $logo_id ) { ?>
+					<?php esc_html_e( 'Change Logo' ); ?>
+				<?php } else { ?>
+					<?php esc_html_e( 'Choose a Logo' ); ?>
+				<?php } ?>
+			</button>
+			<button
+				id="js-remove-network-logo"
+				type="button"
+				class="button button-secondary reset remove-network-logo<?php echo ( $logo_id ) ? '' : ' hidden'; ?>"
+			>
+				<?php esc_html_e( 'Remove Network Logo' ); ?>
+			</button>
+		</div>
+		<p class="description<?php echo ( $logo_id ) ? '' : ' hidden'; ?>" id="network-logo-removal-warning">
+			<?php esc_html_e( 'The image will be permanently deleted after the Network Logo is removed.' ); ?>
+		</p>
+		<p class="description">
+			<?php esc_html_e( 'This Logo provides a shared visual identity for the network. Sites that do not configure their own Logo use it. Whether the Logo is displayed depends on each site\'s theme.' ); ?>
+		</p>
 	</div>
 	<?php
 	restore_current_blog();

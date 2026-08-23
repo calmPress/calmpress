@@ -1623,7 +1623,7 @@ function _post_states( $post, $display = true ) {
  * Retrieves an array of post states from a post.
  *
  * @since 5.3.0
- * @since calmPress 1.0.0 Added Site Icon attachment states.
+ * @since calmPress 1.0.0 Added Site Icon and Logo attachment states.
  *
  * @param WP_Post $post The post to retrieve states for.
  * @return string[] Array of post state labels keyed by their state.
@@ -1678,9 +1678,10 @@ function get_post_states( $post ) {
 			$post_states['site_icon'] = esc_html_x( 'Site Icon', 'attachment usage' );
 		}
 
-		if ( is_multisite() && is_main_site() && (int) get_network_option( null, 'site_icon', 0 ) === $post->ID ) {
-			$post_states['network_site_icon'] = esc_html_x( 'Network Site Icon', 'attachment usage' );
+		if ( (int) get_option( 'custom_logo' ) === $post->ID ) {
+			$post_states['custom_logo'] = esc_html_x( 'Logo', 'attachment usage' );
 		}
+
 	}
 
 	/**

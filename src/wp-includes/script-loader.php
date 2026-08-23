@@ -1511,7 +1511,7 @@ function wp_default_scripts( $scripts ) {
 
 		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate', 'calm-utils'] );
 
-		$scripts->add( 'calm-network-identity', "/wp-admin/js/network-identity$suffix.js", [ 'site-icon', 'media-views' ], false, 1 );
+		$scripts->add( 'calm-network-identity', "/wp-admin/js/network-identity$suffix.js", [ 'site-icon', 'media-views', 'calm-utils' ], false, 1 );
 
 		$scripts->add( 'calm-reauth', "/wp-includes/js/cp-reauth$suffix.js", ['wp-auth-check'] );
 
@@ -1577,6 +1577,7 @@ function wp_default_styles( $styles ) {
 	$styles->add( 'maintenance-mode', "/wp-admin/css/maintenance-mode$suffix.css" );
 	$styles->add( 'calm-webauthn', "/wp-admin/css/cp-webauthn$suffix.css" );
 	$styles->add( 'calm-application-passwords', "/wp-admin/css/cp-application-passwords$suffix.css" );
+	$styles->add( 'calm-identity', "/wp-admin/css/identity$suffix.css" );
 
 	$styles->add( 'wp-admin', false, array( 'dashicons', 'common', 'forms', 'admin-menu', 'dashboard', 'list-tables', 'edit', 'revisions', 'media', 'themes', 'nav-menus', 'widgets', 'site-icon', 'l10n' ) );
 
