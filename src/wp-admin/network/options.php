@@ -38,52 +38,6 @@ if ( ! current_user_can( $capability ) ) {
 }
 
 $allowed_options            = array(
-	'general'    => array(
-		'blogname',
-		'blogdescription',
-		'custom_logo',
-		'site_icon',
-		'gmt_offset',
-		'date_format',
-		'time_format',
-		'start_of_week',
-		'timezone_string',
-		'WPLANG',
-		'admin_email'
-	),
-	'discussion' => array(
-		'default_comment_status',
-		'comments_notify',
-		'comment_moderation',
-		'comment_previously_approved',
-		'comment_max_links',
-		'show_avatars',
-		'thread_comments',
-		'thread_comments_depth',
-		'comment_order',
-		'comment_moderator_user',
-	),
-	'media'      => array(
-		'thumbnail_size_w',
-		'thumbnail_size_h',
-		'thumbnail_crop',
-		'medium_size_w',
-		'medium_size_h',
-		'large_size_w',
-		'large_size_h',
-		'image_default_size',
-		'image_default_align',
-		'image_default_link_type',
-	),
-	'reading'    => array(
-		'posts_per_page',
-		'posts_per_rss',
-		'rss_use_excerpt',
-		'show_on_front',
-		'page_on_front',
-		'page_for_posts',
-		'calm_embedding_on',
-	),
 	'htaccess'   => [
 		'htaccess_user_section',
 	],
