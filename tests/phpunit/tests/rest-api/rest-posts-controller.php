@@ -4425,6 +4425,7 @@ Shankle pork chop prosciutto ribeye ham hock pastrami. T-bone shank brisket baco
 					'trash',
 					'auto-draft',
 					'inherit',
+					'network',
 					'request-pending',
 					'request-confirmed',
 					'request-failed',
