@@ -21,7 +21,8 @@ if ( ! $user_id ) {
 	$user_id = $current_user->ID;
 }
 
-if ( ! get_userdata( $user_id ) ) {
+$profile_user = get_userdata( $user_id );
+if ( ! $profile_user || in_array( 'deleted', $profile_user->roles, true ) ) {
 	wp_die( __( 'Invalid user ID.' ) );
 }
 
