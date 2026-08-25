@@ -1531,6 +1531,35 @@ class Tests_User_Query extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @group ms-excluded
+	 */
+	public function test_users_with_deleted_role_are_excluded_by_default() {
+		$deleted_user_id = self::factory()->user->create( array( 'role' => 'deleted' ) );
+
+		$this->assertNotContains( $deleted_user_id, get_users( array( 'fields' => 'ID' ) ) );
+		$this->assertNotContains(
+			$deleted_user_id,
+			get_users(
+				array(
+					'fields'       => 'ID',
+					'role__not_in' => array( 'subscriber' ),
+				)
+			)
+		);
+		$this->assertSame(
+			array( (string) $deleted_user_id ),
+			get_users(
+				array(
+					'fields'   => 'ID',
+					'include'  => array( $deleted_user_id ),
+					'role__in' => array( 'deleted' ),
+				)
+			)
+		);
+		$this->assertSame( $deleted_user_id, get_user_by( 'id', $deleted_user_id )->ID );
+	}
+
+	/**
 	 * @ticket 22212
 	 */
 	public function test_role__in_role__not_in_combined() {
