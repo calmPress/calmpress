@@ -292,6 +292,7 @@ function edit_user( $user_id = 0 ) {
  * user management.
  *
  * @since 2.8.0
+ * @since calmPress 1.0.0 The `pending_activation` and `deleted` roles are excluded from the returned roles.
  *
  * @return array[] Array of arrays containing role information.
  */
@@ -299,6 +300,7 @@ function get_editable_roles() {
 	$all_roles = wp_roles()->roles;
 
 	unset( $all_roles['pending_activation'] );
+	unset( $all_roles['deleted'] );
 
 	/**
 	 * Filters the list of editable roles.

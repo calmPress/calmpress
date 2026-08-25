@@ -215,6 +215,10 @@ class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 		$this->assertSame( $anonymized_email, get_userdata( $user_id )->user_email );
 	}
 
+	public function test_deleted_role_is_not_editable() {
+		$this->assertArrayNotHasKey( 'deleted', get_editable_roles() );
+	}
+
 	/**
 	 * @ticket 20447
 	 */
