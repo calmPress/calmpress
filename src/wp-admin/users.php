@@ -201,31 +201,6 @@ switch ( $wp_list_table->current_action() ) {
 			$user_ids = array_diff( $user_ids, array( $current_user->ID ) );
 		}
 
-		/**
-		 * Filters whether the users being deleted have additional content
-		 * associated with them outside of the `post_author` relationships.
-		 *
-		 * @since 5.2.0
-		 *
-		 * @param bool  $users_have_additional_content Whether the users have additional content. Default false.
-		 * @param int[] $user_ids                      Array of IDs for users being deleted.
-		 */
-		$users_have_content = (bool) apply_filters( 'users_have_additional_content', false, $user_ids );
-
-		if ( $user_ids && ! $users_have_content ) {
-			if ( $wpdb->get_var(
-				"SELECT ID FROM {$wpdb->posts}
-				WHERE post_author IN( " . implode( ',', $user_ids ) . ' )
-				LIMIT 1'
-			) ) {
-				$users_have_content = true;
-			}
-		}
-
-		if ( $users_have_content ) {
-			add_action( 'admin_head', 'delete_users_add_js' );
-		}
-
 		require_once ABSPATH . 'wp-admin/admin-header.php';
 		?>
 		<form method="post" name="updateusers" id="updateusers">
@@ -290,40 +265,9 @@ switch ( $wp_list_table->current_action() ) {
 
 		<?php
 		if ( $go_delete ) :
-
-			if ( ! $users_have_content ) :
-				?>
-				<input type="hidden" name="delete_option" value="delete" />
-			<?php else : ?>
-				<fieldset>
-				<?php if ( 1 === $go_delete ) : ?>
-					<p><legend><?php _e( 'What should be done with content owned by this user?' ); ?></legend></p>
-				<?php else : ?>
-					<p><legend><?php _e( 'What should be done with content owned by these users?' ); ?></legend></p>
-				<?php endif; ?>
-
-				<ul style="list-style:none;">
-					<li>
-						<input type="radio" id="delete_option0" name="delete_option" value="delete" />
-						<label for="delete_option0"><?php _e( 'Delete all content.' ); ?></label>
-					</li>
-					<li>
-						<input type="radio" id="delete_option1" name="delete_option" value="reassign" />
-						<label for="delete_option1"><?php _e( 'Attribute all content to:' ); ?></label>
-						<?php
-						wp_dropdown_users(
-							array(
-								'name'    => 'reassign_user',
-								'exclude' => $user_ids,
-								'show'    => 'display_name_with_login',
-							)
-						);
-						?>
-					</li>
-				</ul>
-				</fieldset>
-				<?php
-			endif;
+			?>
+			<input type="hidden" name="delete_option" value="delete" />
+			<?php
 
 			/**
 			 * Fires at the end of the delete users form prior to the confirm button.
