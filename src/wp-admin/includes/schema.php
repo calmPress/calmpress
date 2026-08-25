@@ -861,6 +861,7 @@ function populate_roles_cp_100() {
 		$role->add_cap( 'safe_mode' );
 	}
 	add_role( 'pending_activation', 'Pending Activation' );
+	add_role( 'deleted', 'Deleted' );
 }
 
 if ( ! function_exists( 'install_network' ) ) :

@@ -1466,3 +1466,5 @@ _x( 'Contributor', 'User role' );
 _x( 'Subscriber', 'User role' );
 /* translators: User role for users pending activation. */
 _x( 'Pending Activation', 'User role' );
+/* translators: User role for deleted users. */
+_x( 'Deleted', 'User role' );

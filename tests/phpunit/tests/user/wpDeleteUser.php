@@ -18,12 +18,17 @@ class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 		$blogs   = get_blogs_of_user( $user_id );
 		$this->assertSame( array( 1 ), array_keys( $blogs ) );
 
-		// Non-existent users don't have blogs.
+		// Deleted users retain their record and site membership on single-site installations.
 		self::delete_user( $user_id );
 
 		$user = new WP_User( $user_id );
-		$this->assertFalse( $user->exists(), 'WP_User->exists' );
-		$this->assertSame( array(), get_blogs_of_user( $user_id ) );
+		if ( is_multisite() ) {
+			$this->assertFalse( $user->exists(), 'WP_User->exists' );
+			$this->assertSame( array(), get_blogs_of_user( $user_id ) );
+		} else {
+			$this->assertTrue( $user->exists(), 'WP_User->exists' );
+			$this->assertSame( array( 1 ), array_keys( get_blogs_of_user( $user_id ) ) );
+		}
 	}
 
 	/**
@@ -47,8 +52,13 @@ class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 		// and will achieve the desired effect with is_user_member_of_blog().
 		wp_delete_user( $user_id );
 
-		$this->assertFalse( is_user_member_of_blog( $user_id ) );
-		$this->assertFalse( is_user_member_of_blog( $user_id, get_current_blog_id() ) );
+		if ( is_multisite() ) {
+			$this->assertFalse( is_user_member_of_blog( $user_id ) );
+			$this->assertFalse( is_user_member_of_blog( $user_id, get_current_blog_id() ) );
+		} else {
+			$this->assertTrue( is_user_member_of_blog( $user_id ) );
+			$this->assertTrue( is_user_member_of_blog( $user_id, get_current_blog_id() ) );
+		}
 
 		wp_set_current_user( $old_current );
 	}
@@ -94,18 +104,115 @@ class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 		if ( is_multisite() ) {
 			$this->assertTrue( $user->exists() );
 		} else {
-			$this->assertFalse( $user->exists() );
+			$this->assertTrue( $user->exists() );
+			$this->assertSame( array( 'deleted' ), $user->roles );
 		}
 
 		$this->assertNotNull( get_post( $post_id ) );
-		$this->assertSame( 'trash', get_post( $post_id )->post_status );
-		// 'nav_menu_item' is `delete_with_user = false` so the nav post should remain published.
+		$this->assertSame( 'publish', get_post( $post_id )->post_status );
+		$this->assertSame( $user_id, (int) get_post( $post_id )->post_author );
+		// Content of every post type remains associated with the anonymized user.
 		$this->assertNotNull( get_post( $nav_id ) );
 		$this->assertSame( 'publish', get_post( $nav_id )->post_status );
+		$this->assertSame( $user_id, (int) get_post( $nav_id )->post_author );
 		wp_delete_post( $nav_id, true );
 		$this->assertNull( get_post( $nav_id ) );
 		wp_delete_post( $post_id, true );
 		$this->assertNull( get_post( $post_id ) );
+	}
+
+	/**
+	 * @group ms-excluded
+	 */
+	public function test_delete_user_anonymizes_account_and_removes_non_core_meta() {
+		$user_id = self::factory()->user->create(
+			array(
+				'user_login'   => 'person-to-delete',
+				'user_email'   => 'person@example.org',
+				'user_url'     => 'https://example.org/person',
+				'display_name' => 'Identifying Name',
+				'role'         => 'author',
+			)
+		);
+		update_user_meta( $user_id, 'first_name', 'Identifying' );
+		update_user_meta( $user_id, 'plugin_personal_data', 'private' );
+
+		$this->assertTrue( wp_delete_user( $user_id ) );
+
+		$user = get_userdata( $user_id );
+		$this->assertInstanceOf( WP_User::class, $user );
+		$this->assertSame( 'person-to-delete', $user->user_login );
+		$this->assertMatchesRegularExpression( '/^deleted-[0-9]{8}@example\.invalid$/', $user->user_email );
+		$this->assertSame( 'deleted ' . substr( $user->user_email, 8, 8 ), $user->display_name );
+		$this->assertSame( '', $user->user_url );
+		$this->assertSame( '', $user->user_activation_key );
+		$this->assertSame( array( 'deleted' ), $user->roles );
+		$this->assertSame( '', get_user_meta( $user_id, 'nickname', true ) );
+		$this->assertSame( '', get_user_meta( $user_id, 'first_name', true ) );
+		$this->assertSame( '', get_user_meta( $user_id, 'plugin_personal_data', true ) );
+		$meta_keys = array_keys( get_user_meta( $user_id ) );
+		sort( $meta_keys );
+		$expected_meta_keys = array( $GLOBALS['wpdb']->prefix . 'capabilities', $GLOBALS['wpdb']->prefix . 'user_level' );
+		sort( $expected_meta_keys );
+		$this->assertSame( $expected_meta_keys, $meta_keys );
+	}
+
+	/**
+	 * @group ms-excluded
+	 */
+	public function test_anonymization_occurs_between_delete_actions() {
+		$user_id    = self::factory()->user->create(
+			array(
+				'user_login' => 'lifecycle-user',
+				'user_email' => 'lifecycle@example.org',
+			)
+		);
+		$action_data = array();
+
+		$before = static function ( $deleted_user_id ) use ( &$action_data ) {
+			$action_data['before'] = get_userdata( $deleted_user_id )->user_email;
+		};
+		$after  = static function ( $deleted_user_id ) use ( &$action_data ) {
+			$action_data['after'] = get_userdata( $deleted_user_id )->user_email;
+		};
+
+		add_action( 'delete_user', $before );
+		add_action( 'deleted_user', $after );
+		wp_delete_user( $user_id );
+		remove_action( 'delete_user', $before );
+		remove_action( 'deleted_user', $after );
+
+		$this->assertSame( 'lifecycle@example.org', $action_data['before'] );
+		$this->assertMatchesRegularExpression( '/^deleted-[0-9]{8}@example\.invalid$/', $action_data['after'] );
+	}
+
+	/**
+	 * @group ms-excluded
+	 */
+	public function test_deleting_an_anonymized_user_returns_false_without_running_the_lifecycle_again() {
+		$user_id = self::factory()->user->create();
+		wp_delete_user( $user_id );
+
+		$anonymized_email = get_userdata( $user_id )->user_email;
+		$delete_count     = 0;
+		$deleted_count    = 0;
+		$before           = static function () use ( &$delete_count ) {
+			++$delete_count;
+		};
+		$after            = static function () use ( &$deleted_count ) {
+			++$deleted_count;
+		};
+
+		add_action( 'delete_user', $before );
+		add_action( 'deleted_user', $after );
+		$result = wp_delete_user( $user_id );
+		remove_action( 'delete_user', $before );
+		remove_action( 'deleted_user', $after );
+
+		$this->assertFalse( $result );
+		$this->assertSame( 0, $delete_count );
+		$this->assertSame( 0, $deleted_count );
+		$this->assertSame( $anonymized_email, get_userdata( $user_id )->user_email );
 	}
 
 	/**
@@ -132,7 +239,7 @@ class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 
 		$u_string = (string) $u;
 		$this->assertTrue( wp_delete_user( $u_string ) );
-		$this->assertFalse( get_user_by( 'id', $u ) );
+		$this->assertInstanceOf( WP_User::class, get_user_by( 'id', $u ) );
 	}
 
 	/**

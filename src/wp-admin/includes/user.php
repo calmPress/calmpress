@@ -356,23 +356,28 @@ function get_users_drafts( $user_id ) {
 }
 
 /**
- * Delete user and optionally reassign posts and links to another user.
+ * Delete a user and optionally reassign posts and links to another user.
  *
  * Note that on a Multisite installation the user only gets removed from the site
  * and does not get deleted from the database.
  *
- * If the `$reassign` parameter is not assigned to a user ID, then all posts will
- * be deleted of that user. The action {@see 'delete_user'} that is passed the user ID
- * being deleted will be run after the posts are either reassigned or deleted.
- * The user meta will also be deleted that are for that user ID.
+ * If the `$reassign` parameter is assigned to a user ID, then all posts will be
+ * reassigned to that user. Otherwise, content remains associated with the anonymized
+ * user record. The action {@see 'delete_user'} that is passed the user ID being
+ * deleted will be run before the posts are reassigned or the user is anonymized.
+ * Non-core user meta will also be deleted for that user ID. On a single-site
+ * installation, the user database row is retained with anonymized account data.
+ * Attempting to delete an already anonymized user on a single-site installation
+ * returns false without running the deletion lifecycle again.
  *
  * @since 2.0.0
+ * @since calmPress 1.0.0 On single-site installations, user records are anonymized instead of removed from the database.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
  * @param int $id       User ID.
  * @param int $reassign Optional. Reassign posts and links to new User ID.
- * @return bool True when finished.
+ * @return bool True when finished. False if the user does not exist or is already anonymized.
  */
 function wp_delete_user( $id, $reassign = null ) {
 	global $wpdb;
@@ -384,7 +389,7 @@ function wp_delete_user( $id, $reassign = null ) {
 	$id   = (int) $id;
 	$user = new WP_User( $id );
 
-	if ( ! $user->exists() ) {
+	if ( ! $user->exists() || ( ! is_multisite() && in_array( 'deleted', $user->roles, true ) ) ) {
 		return false;
 	}
 
@@ -411,34 +416,7 @@ function wp_delete_user( $id, $reassign = null ) {
 	 */
 	do_action( 'delete_user', $id, $reassign, $user );
 
-	if ( null === $reassign ) {
-		$post_types_to_delete = array();
-		foreach ( get_post_types( array(), 'objects' ) as $post_type ) {
-			if ( $post_type->delete_with_user ) {
-				$post_types_to_delete[] = $post_type->name;
-			} elseif ( null === $post_type->delete_with_user && post_type_supports( $post_type->name, 'author' ) ) {
-				$post_types_to_delete[] = $post_type->name;
-			}
-		}
-
-		/**
-		 * Filters the list of post types to delete with a user.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param string[] $post_types_to_delete Array of post types to delete.
-		 * @param int      $id                   User ID.
-		 */
-		$post_types_to_delete = apply_filters( 'post_types_to_delete_with_user', $post_types_to_delete, $id );
-		$post_types_to_delete = implode( "', '", $post_types_to_delete );
-		$post_ids             = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_author = %d AND post_type IN ('$post_types_to_delete')", $id ) );
-		if ( $post_ids ) {
-			foreach ( $post_ids as $post_id ) {
-				wp_delete_post( $post_id );
-			}
-		}
-
-	} else {
+	if ( null !== $reassign ) {
 		$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_author = %d", $id ) );
 		$wpdb->update( $wpdb->posts, array( 'post_author' => $reassign ), array( 'post_author' => $id ) );
 		if ( ! empty( $post_ids ) ) {
@@ -448,7 +426,7 @@ function wp_delete_user( $id, $reassign = null ) {
 		}
 	}
 
-	// FINALLY, delete user.
+	// FINALLY, remove the user from the site or anonymize the account.
 	if ( is_multisite() ) {
 		remove_user_from_blog( $id, get_current_blog_id() );
 	} else {
@@ -457,7 +435,39 @@ function wp_delete_user( $id, $reassign = null ) {
 			delete_metadata_by_mid( 'user', $mid );
 		}
 
-		$wpdb->delete( $wpdb->users, array( 'ID' => $id ) );
+		/*
+		 * Give the anonymized values a random disambiguation identifier so multiple
+		 * deleted users do not have the same email address or display name.
+		 */
+		do {
+			$deleted_user_disambiguator = (string) wp_rand( 10000000, 99999999 );
+			$deleted_user_name          = 'deleted-' . $deleted_user_disambiguator;
+			$deleted_user_email         = $deleted_user_name . '@example.invalid';
+		} while ( email_exists( $deleted_user_email ) );
+
+		/* translators: %s: Random disambiguation identifier for an anonymized user. */
+		$deleted_user_display_name = sprintf( __( 'deleted %s' ), $deleted_user_disambiguator );
+
+		/*
+		 * Remove identifying and authentication data while retaining the internal,
+		 * non-identifying user login so existing references to the account remain valid.
+		 */
+		$wpdb->update(
+			$wpdb->users,
+			array(
+				'user_pass'           => wp_hash_password( wp_generate_password( 64, true, true ) ),
+				'user_nicename'       => $deleted_user_name,
+				'user_email'          => $deleted_user_email,
+				'user_url'            => '',
+				'user_activation_key' => '',
+				'display_name'        => $deleted_user_display_name,
+			),
+			array( 'ID' => $id )
+		);
+
+		// Need to create new user in order to preserve the original user object passed to the deletion actions.
+		$anonymized_user = new WP_User( $id );
+		$anonymized_user->set_role( 'deleted' );
 	}
 
 	clean_user_cache( $user );
