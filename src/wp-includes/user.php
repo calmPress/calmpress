@@ -1221,6 +1221,7 @@ function update_user_meta( $user_id, $meta_key, $meta_value, $prev_value = '' ) 
  * @since 3.0.0
  * @since 4.4.0 The number of users with no role is now included in the `none` element.
  * @since 4.9.0 The `$site_id` parameter was added to support multisite.
+ * @since calmPress 1.0.0 Users with the `deleted` role are excluded from counts.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
@@ -1271,6 +1272,7 @@ function count_users( $strategy = 'time', $site_id = null ) {
 		} else {
 			$avail_roles = wp_roles()->get_names();
 		}
+		unset( $avail_roles['deleted'] );
 
 		// Build a CPU-intensive query that will return concise information.
 		$select_count = array();
@@ -1282,12 +1284,17 @@ function count_users( $strategy = 'time', $site_id = null ) {
 
 		// Add the meta_value index to the selection list, then run the query.
 		$row = $wpdb->get_row(
-			"
+			$wpdb->prepare(
+				"
 			SELECT {$select_count}, COUNT(*)
 			FROM {$wpdb->usermeta}
 			INNER JOIN {$wpdb->users} ON user_id = ID
-			WHERE meta_key = '{$blog_prefix}capabilities'
-		",
+			WHERE meta_key = %s
+				AND meta_value NOT LIKE %s
+				",
+				$blog_prefix . 'capabilities',
+				'%' . $wpdb->esc_like( '"deleted"' ) . '%'
+			),
 			ARRAY_N
 		);
 
@@ -1312,6 +1319,7 @@ function count_users( $strategy = 'time', $site_id = null ) {
 		$avail_roles = array(
 			'none' => 0,
 		);
+		$total_users = 0;
 
 		$users_of_blog = $wpdb->get_col(
 			"
@@ -1327,6 +1335,10 @@ function count_users( $strategy = 'time', $site_id = null ) {
 			if ( ! is_array( $b_roles ) ) {
 				continue;
 			}
+			if ( ! empty( $b_roles['deleted'] ) ) {
+				continue;
+			}
+			++$total_users;
 			if ( empty( $b_roles ) ) {
 				++$avail_roles['none'];
 			}
@@ -1339,7 +1351,7 @@ function count_users( $strategy = 'time', $site_id = null ) {
 			}
 		}
 
-		$result['total_users'] = count( $users_of_blog );
+		$result['total_users'] = $total_users;
 		$result['avail_roles'] =& $avail_roles;
 	}
 
@@ -1409,6 +1421,7 @@ function wp_maybe_update_user_counts( $network_id = null ) {
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  * @since 6.0.0
+ * @since calmPress 1.0.0 Excludes deleted users on single-site installations.
  *
  * @param int|null $network_id ID of the network. Defaults to the current network.
  * @return bool Whether the update was successful.
@@ -1428,12 +1441,12 @@ function wp_update_user_counts( $network_id = null ) {
 		);
 	}
 
-	$query = "SELECT COUNT(ID) as c FROM $wpdb->users";
 	if ( is_multisite() ) {
-		$query .= " WHERE spam = '0' AND deleted = '0'";
+		$count = $wpdb->get_var( "SELECT COUNT(ID) as c FROM $wpdb->users WHERE spam = '0' AND deleted = '0'" );
+	} else {
+		$user_counts = count_users( 'time' );
+		$count       = $user_counts['total_users'];
 	}
-
-	$count = $wpdb->get_var( $query );
 
 	return update_network_option( $network_id, 'user_count', $count );
 }

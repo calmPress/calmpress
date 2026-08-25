@@ -6,6 +6,19 @@
 class Tests_User_CountUsers extends WP_UnitTestCase {
 
 	/**
+	 * @dataProvider data_count_users_strategies
+	 * @group ms-excluded
+	 */
+	public function test_count_users_excludes_deleted_users( $strategy ) {
+		self::factory()->user->create( array( 'role' => 'deleted' ) );
+
+		$count = count_users( $strategy );
+
+		$this->assertSame( 1, $count['total_users'] );
+		$this->assertArrayNotHasKey( 'deleted', $count['avail_roles'] );
+	}
+
+	/**
 	 * @ticket 22993
 	 *
 	 * @dataProvider data_count_users_strategies
