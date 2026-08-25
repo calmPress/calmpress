@@ -372,6 +372,11 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		 */
 		$prepared_args = apply_filters( 'rest_user_query', $prepared_args, $request );
 
+		// Never expose deleted users through REST, even when the deleted role is explicitly requested.
+		$prepared_args['role__not_in']   = isset( $prepared_args['role__not_in'] ) ? (array) $prepared_args['role__not_in'] : array();
+		$prepared_args['role__not_in'][] = 'deleted';
+		$prepared_args['role__not_in']   = array_unique( $prepared_args['role__not_in'] );
+
 		$query = new WP_User_Query( $prepared_args );
 
 		if ( ! $is_head_request ) {
@@ -438,6 +443,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 	 * Get the user, if the ID is valid.
 	 *
 	 * @since 4.7.2
+	 * @since calmPress 1.0.0 Deleted users are treated as invalid REST resources.
 	 *
 	 * @param int $id Supplied ID.
 	 * @return WP_User|WP_Error True if ID is valid, WP_Error otherwise.
@@ -454,7 +460,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		}
 
 		$user = get_userdata( (int) $id );
-		if ( empty( $user ) || ! $user->exists() ) {
+		if ( empty( $user ) || ! $user->exists() || in_array( 'deleted', $user->roles, true ) ) {
 			return $error;
 		}
 

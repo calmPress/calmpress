@@ -1061,6 +1061,29 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->check_get_user_response( $response, 'embed' );
 	}
 
+	/**
+	 * @group ms-excluded
+	 */
+	public function test_deleted_user_is_not_accessible() {
+		$user_id = self::factory()->user->create( array( 'role' => 'deleted' ) );
+
+		wp_set_current_user( self::$user );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/users/%d', $user_id ) );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertErrorResponse( 'rest_user_invalid_id', $response, 404 );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/users' );
+		$response = rest_get_server()->dispatch( $request );
+		$user_ids = wp_list_pluck( $response->get_data(), 'id' );
+		$this->assertNotContains( $user_id, $user_ids );
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
+		$request->set_param( 'roles', array( 'deleted' ) );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( array(), $response->get_data() );
+	}
+
 	public function test_prepare_item() {
 		wp_set_current_user( self::$user );
 
