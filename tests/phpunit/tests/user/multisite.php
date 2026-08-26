@@ -1,5 +1,8 @@
 <?php
 
+require_once ABSPATH . 'wp-admin/includes/user.php';
+require_once ABSPATH . 'wp-admin/includes/ms.php';
+
 /**
  * Tests specific to users in multisite.
  *
@@ -124,7 +127,8 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 
 		wpmu_delete_user( $user1_id );
 		$user = new WP_User( $user1_id );
-		$this->assertFalse( $user->exists() );
+		$this->assertTrue( $user->exists() );
+		$this->assertSame( '1', $user->deleted );
 		$this->assertFalse( is_user_member_of_blog( $user1_id ) );
 
 		wp_set_current_user( $old_current );
@@ -177,6 +181,9 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Tests that deleting a revoked super administrator retains and marks its user record.
+	 */
 	public function test_revoked_super_admin_is_deleted() {
 		if ( isset( $GLOBALS['super_admins'] ) ) {
 			$old_global = $GLOBALS['super_admins'];
@@ -189,7 +196,8 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		wpmu_delete_user( $user_id );
 		$user = new WP_User( $user_id );
 
-		$this->assertFalse( $user->exists(), 'WP_User->exists' );
+		$this->assertTrue( $user->exists(), 'WP_User->exists' );
+		$this->assertSame( '1', $user->deleted );
 
 		if ( isset( $old_global ) ) {
 			$GLOBALS['super_admins'] = $old_global;
@@ -247,12 +255,91 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Tests that a numeric string can identify a user for network deletion.
+	 */
 	public function test_numeric_string_user_id() {
 		$u = self::factory()->user->create();
 
 		$u_string = (string) $u;
 		$this->assertTrue( wpmu_delete_user( $u_string ) );
-		$this->assertFalse( get_user_by( 'id', $u ) );
+		$this->assertSame( '1', get_user_by( 'id', $u )->deleted );
+	}
+
+	/**
+	 * Tests that network deletion anonymizes the user without deleting authored content.
+	 */
+	public function test_wpmu_delete_user_anonymizes_user_and_preserves_content() {
+		global $wpdb;
+
+		$password = 'correct horse battery staple';
+		$user_id  = self::factory()->user->create(
+			array(
+				'user_email'   => 'network-user@example.org',
+				'user_pass'    => $password,
+				'display_name' => 'Network User',
+			)
+		);
+		$post_id  = self::factory()->post->create( array( 'post_author' => $user_id ) );
+		update_user_meta( $user_id, 'personal_data', 'private value' );
+
+		$this->assertTrue( wpmu_delete_user( $user_id ) );
+
+		$user = get_user_by( 'id', $user_id );
+
+		$this->assertInstanceOf( WP_User::class, $user );
+		$this->assertSame( '1', $user->deleted );
+		$this->assertFalse( $user->can_login() );
+		$this->assertMatchesRegularExpression( '/^deleted-[0-9]{8}$/', $user->user_login );
+		$this->assertMatchesRegularExpression( '/^deleted-[0-9]{8}@example\.invalid$/', $user->user_email );
+		$this->assertSame( 'deleted ' . substr( $user->user_email, 8, 8 ), $user->display_name );
+		$this->assertSame( '', $user->user_url );
+		$this->assertSame( '', $user->user_activation_key );
+		$this->assertSame( array(), get_user_meta( $user_id ) );
+		$this->assertSame( $user_id, (int) get_post( $post_id )->post_author );
+		$this->assertWPError( wp_authenticate( $user->user_login, $password ) );
+		$this->assertSame( 1, (int) $wpdb->get_var( $wpdb->prepare( "SELECT deleted FROM $wpdb->users WHERE ID = %d", $user_id ) ) );
+	}
+
+	/**
+	 * Tests that an already deleted network user is not deleted a second time.
+	 */
+	public function test_wpmu_delete_user_returns_false_for_deleted_user() {
+		$user_id = self::factory()->user->create();
+
+		$this->assertTrue( wpmu_delete_user( $user_id ) );
+		$this->assertFalse( wpmu_delete_user( $user_id ) );
+	}
+
+	/**
+	 * Tests that a user can be added with a network-deleted user's former email address.
+	 */
+	public function test_can_add_user_with_network_deleted_user_email_address() {
+		$email = 'former-network-user@example.org';
+		remove_action( 'edit_user_created_user', 'wp_send_new_user_notifications', 10 );
+
+		$_POST = array(
+			'email' => $email,
+			'pass1' => 'original-password',
+			'pass2' => 'original-password',
+		);
+		$deleted_user_id = add_user();
+
+		$this->assertNotWPError( $deleted_user_id );
+		$this->assertTrue( wpmu_delete_user( $deleted_user_id ) );
+
+		$_POST = array(
+			'email' => $email,
+			'pass1' => 'replacement-password',
+			'pass2' => 'replacement-password',
+		);
+
+		$new_user_id = add_user();
+		add_action( 'edit_user_created_user', 'wp_send_new_user_notifications', 10, 2 );
+
+		$this->assertNotWPError( $new_user_id );
+		$this->assertSame( $email, get_userdata( $new_user_id )->user_email );
+		$this->assertSame( $new_user_id, email_exists( $email ) );
 	}
 
 	/**

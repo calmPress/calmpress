@@ -96,16 +96,17 @@ function wpmu_delete_blog( $blog_id, $drop = false ) {
 }
 
 /**
- * Deletes a user and all of their posts from the network.
+ * Deletes a user from the network.
  *
  * This function:
  *
- * - Deletes all posts (of all post types) authored by the user on all sites on the network
- * - Deletes all links owned by the user on all sites on the network
  * - Removes the user from all sites on the network
- * - Deletes the user from the database
+ * - Removes the user's metadata
+ * - Anonymizes the user's identity and authentication data
+ * - Marks the retained user record as deleted across the network
  *
  * @since 3.0.0
+ * @since calmPress 1.0.0 User records are anonymized and marked as deleted instead of being removed from the database.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
@@ -122,7 +123,7 @@ function wpmu_delete_user( $id ) {
 	$id   = (int) $id;
 	$user = new WP_User( $id );
 
-	if ( ! $user->exists() ) {
+	if ( ! $user->can_login() ) {
 		return false;
 	}
 
@@ -149,22 +150,14 @@ function wpmu_delete_user( $id ) {
 		foreach ( $blogs as $blog ) {
 			switch_to_blog( $blog->userblog_id );
 			remove_user_from_blog( $id, $blog->userblog_id );
-
-			$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_author = %d", $id ) );
-			foreach ( (array) $post_ids as $post_id ) {
-				wp_delete_post( $post_id );
-			}
-
 			restore_current_blog();
 		}
 	}
 
-	$meta = $wpdb->get_col( $wpdb->prepare( "SELECT umeta_id FROM $wpdb->usermeta WHERE user_id = %d", $id ) );
-	foreach ( $meta as $mid ) {
-		delete_metadata_by_mid( 'user', $mid );
-	}
+	anonymize_user( $user );
 
-	$wpdb->delete( $wpdb->users, array( 'ID' => $id ) );
+	// Mark the retained user record as deleted across the network.
+	$wpdb->update( $wpdb->users, array( 'deleted' => 1 ), array( 'ID' => $id ) );
 
 	clean_user_cache( $user );
 
@@ -805,7 +798,6 @@ function confirm_delete_users( $users ) {
 	<?php
 	wp_nonce_field( 'ms-users-delete' );
 	$site_admins = get_super_admins();
-	$admin_out   = '<option value="' . esc_attr( $current_user->ID ) . '">' . $current_user->user_email . '</option>';
 	?>
 	<table class="form-table" role="presentation">
 	<?php
@@ -843,63 +835,17 @@ function confirm_delete_users( $users ) {
 
 			if ( ! empty( $blogs ) ) {
 				?>
-				<td><fieldset><p><legend>
+				<td>
 				<?php
-				printf(
-					/* translators: %s: User login. */
-					__( 'What should be done with content owned by %s?' ),
-					'<em>' . $delete_user->user_email . '</em>'
-				);
-				?>
-				</legend></p>
-				<?php
-				foreach ( (array) $blogs as $key => $details ) {
-					$blog_users = get_users(
-						array(
-							'blog_id' => $details->userblog_id,
-							'fields'  => array( 'ID', 'user_login' ),
-						)
+				foreach ( array_keys( (array) $blogs ) as $blog_id ) {
+					printf(
+						'<input type="hidden" name="blog[%1$d][%2$d]" value="0" />',
+						(int) $user_id,
+						(int) $blog_id
 					);
-
-					if ( is_array( $blog_users ) && ! empty( $blog_users ) ) {
-						$user_site     = "<a href='" . esc_url( get_home_url( $details->userblog_id ) ) . "'>{$details->blogname}</a>";
-						$user_dropdown = '<label for="reassign_user" class="screen-reader-text">' .
-								/* translators: Hidden accessibility text. */
-								__( 'Select a user' ) .
-							'</label>';
-						$user_dropdown .= "<select name='blog[$user_id][$key]' id='reassign_user'>";
-						$user_list      = '';
-
-						foreach ( $blog_users as $user ) {
-							if ( ! in_array( (int) $user->ID, $allusers, true ) ) {
-								$user_list .= "<option value='{$user->ID}'>{$user->user_email}</option>";
-							}
-						}
-
-						if ( '' === $user_list ) {
-							$user_list = $admin_out;
-						}
-
-						$user_dropdown .= $user_list;
-						$user_dropdown .= "</select>\n";
-						?>
-						<ul style="list-style:none;">
-							<li>
-								<?php
-								/* translators: %s: Link to user's site. */
-								printf( __( 'Site: %s' ), $user_site );
-								?>
-							</li>
-							<li><label><input type="radio" id="delete_option0" name="delete[<?php echo $details->userblog_id . '][' . $delete_user->ID; ?>]" value="delete" checked="checked" />
-							<?php _e( 'Delete all content.' ); ?></label></li>
-							<li><label><input type="radio" id="delete_option1" name="delete[<?php echo $details->userblog_id . '][' . $delete_user->ID; ?>]" value="reassign" />
-							<?php _e( 'Attribute all content to:' ); ?></label>
-							<?php echo $user_dropdown; ?></li>
-						</ul>
-						<?php
-					}
 				}
-				echo '</fieldset></td></tr>';
+				_e( 'The user will be removed from all sites.' );
+				echo '</td></tr>';
 			} else {
 				?>
 				<td><p><?php _e( 'User has no sites or content and will be deleted.' ); ?></p></td>
