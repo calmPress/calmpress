@@ -432,42 +432,9 @@ function wp_delete_user( $id, $reassign = null ) {
 	if ( is_multisite() ) {
 		remove_user_from_blog( $id, get_current_blog_id() );
 	} else {
-		$meta = $wpdb->get_col( $wpdb->prepare( "SELECT umeta_id FROM $wpdb->usermeta WHERE user_id = %d", $id ) );
-		foreach ( $meta as $mid ) {
-			delete_metadata_by_mid( 'user', $mid );
-		}
+		anonymize_user( $user );
 
-		/*
-		 * Give the anonymized values a random disambiguation identifier so multiple
-		 * deleted users do not have the same email address or display name.
-		 */
-		do {
-			$deleted_user_disambiguator = (string) wp_rand( 10000000, 99999999 );
-			$deleted_user_name          = 'deleted-' . $deleted_user_disambiguator;
-			$deleted_user_email         = $deleted_user_name . '@example.invalid';
-		} while ( email_exists( $deleted_user_email ) );
-
-		/* translators: %s: Random disambiguation identifier for an anonymized user. */
-		$deleted_user_display_name = sprintf( __( 'deleted %s' ), $deleted_user_disambiguator );
-
-		/*
-		 * Remove identifying and authentication data while retaining the internal,
-		 * non-identifying user login so existing references to the account remain valid.
-		 */
-		$wpdb->update(
-			$wpdb->users,
-			array(
-				'user_pass'           => wp_hash_password( wp_generate_password( 64, true, true ) ),
-				'user_nicename'       => $deleted_user_name,
-				'user_email'          => $deleted_user_email,
-				'user_url'            => '',
-				'user_activation_key' => '',
-				'display_name'        => $deleted_user_display_name,
-			),
-			array( 'ID' => $id )
-		);
-
-		// Need to create new user in order to preserve the original user object passed to the deletion actions.
+		// Create a new object to preserve the original user object passed to the deletion actions.
 		$anonymized_user = new WP_User( $id );
 		$anonymized_user->set_role( 'deleted' );
 	}

@@ -2020,6 +2020,58 @@ function email_exists( $email ) {
 }
 
 /**
+ * Removes identity, authentication data, and metadata from a user account.
+ *
+ * The numeric user ID and database record are retained. The caller is responsible
+ * for marking the account as deleted in the appropriate context.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @global wpdb $wpdb WordPress database abstraction object.
+ *
+ * @param WP_User $user User account to anonymize.
+ */
+function anonymize_user( WP_User $user ): void {
+	global $wpdb;
+
+	$meta = $wpdb->get_col( $wpdb->prepare( "SELECT umeta_id FROM $wpdb->usermeta WHERE user_id = %d", $user->ID ) );
+	foreach ( $meta as $mid ) {
+		delete_metadata_by_mid( 'user', $mid );
+	}
+
+	/*
+	 * Give the anonymized values a random disambiguation identifier so multiple
+	 * deleted users do not have the same email address or display name.
+	 */
+	do {
+		$deleted_user_disambiguator = (string) wp_rand( 10000000, 99999999 );
+		$deleted_user_name          = 'deleted-' . $deleted_user_disambiguator;
+		$deleted_user_email         = $deleted_user_name . '@example.invalid';
+	} while ( username_exists( $deleted_user_name ) || email_exists( $deleted_user_email ) );
+
+	/* translators: %s: Random disambiguation identifier for an anonymized user. */
+	$deleted_user_display_name = sprintf( __( 'deleted %s' ), $deleted_user_disambiguator );
+
+	/*
+	 * Remove identifying and authentication data while retaining the numeric user ID
+	 * so existing references to the account remain valid.
+	 */
+	$wpdb->update(
+		$wpdb->users,
+		array(
+			'user_login'          => $deleted_user_name,
+			'user_pass'           => wp_hash_password( wp_generate_password( 64, true, true ) ),
+			'user_nicename'       => $deleted_user_name,
+			'user_email'          => $deleted_user_email,
+			'user_url'            => '',
+			'user_activation_key' => '',
+			'display_name'        => $deleted_user_display_name,
+		),
+		array( 'ID' => $user->ID )
+	);
+}
+
+/**
  * Checks whether a username is valid.
  *
  * @since 2.0.1
