@@ -371,6 +371,25 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * Indicates whether the account can be used to log in.
+	 *
+	 * Users that do not exist or are marked as deleted cannot log in. Standalone
+	 * installations store the deleted state as a role. Multisite stores
+	 * network-wide deletion in the global users table.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return bool Whether the account can be used to log in.
+	 */
+	public function can_login(): bool {
+		if ( ! $this->exists() ) {
+			return false;
+		}
+
+		return empty( $this->deleted ) && ! in_array( 'deleted', $this->roles, true );
+	}
+
+	/**
 	 * Retrieves the value of a property or meta key.
 	 *
 	 * Retrieves from the users and usermeta table.

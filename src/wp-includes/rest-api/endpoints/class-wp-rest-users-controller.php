@@ -460,7 +460,7 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 		}
 
 		$user = get_userdata( (int) $id );
-		if ( empty( $user ) || ! $user->exists() || in_array( 'deleted', $user->roles, true ) ) {
+		if ( empty( $user ) || ! $user->can_login() ) {
 			return $error;
 		}
 

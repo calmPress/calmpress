@@ -33,7 +33,6 @@ if ( ! function_exists( 'wp_set_current_user' ) ) :
 		&& ( $current_user instanceof WP_User )
 		&& ( $id === $current_user->ID )
 		&& ( null !== $id )
-		&& ! in_array( 'deleted', $current_user->roles, true )
 		) {
 			return $current_user;
 		}
@@ -41,7 +40,7 @@ if ( ! function_exists( 'wp_set_current_user' ) ) :
 		$current_user = new WP_User( $id, $name );
 
 		// Deleted users must be treated as logged out and cannot become the current user.
-		if ( in_array( 'deleted', $current_user->roles, true ) ) {
+		if ( ! $current_user->can_login() ) {
 			$current_user = new WP_User( 0 );
 		}
 
@@ -707,7 +706,7 @@ if ( ! function_exists( 'wp_authenticate' ) ) :
 		 * @param string                $password User password.
 		 */
 		$user = apply_filters( 'authenticate', null, $username, $password );
-		if ( $user instanceof WP_User && in_array( 'deleted', $user->roles, true ) ) {
+		if ( $user instanceof WP_User && ! $user->can_login() ) {
 			$user = new WP_Error( 'incorrect_password', __( 'Invalid email address or password.' ) );
 		}
 

@@ -450,6 +450,17 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertFalse( $user->exists() );
 	}
 
+	/**
+	 * Tests that deleted and nonexistent users cannot log in.
+	 */
+	public function test_can_login() {
+		$user = self::factory()->user->create_and_get( array( 'role' => 'deleted' ) );
+
+		$this->assertFalse( $user->can_login() );
+		$this->assertFalse( ( new WP_User( 0 ) )->can_login() );
+		$this->assertTrue( self::factory()->user->create_and_get()->can_login() );
+	}
+
 	public function test_global_authordata() {
 		global $authordata, $id;
 

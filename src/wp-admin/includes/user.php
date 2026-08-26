@@ -391,7 +391,7 @@ function wp_delete_user( $id, $reassign = null ) {
 	$id   = (int) $id;
 	$user = new WP_User( $id );
 
-	if ( ! $user->exists() || ( ! is_multisite() && in_array( 'deleted', $user->roles, true ) ) ) {
+	if ( ! $user->can_login() ) {
 		return false;
 	}
 

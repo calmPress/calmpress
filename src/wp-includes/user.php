@@ -4694,7 +4694,7 @@ function wp_is_application_passwords_available_for_user( $user ) {
 		return false;
 	}
 
-	if ( in_array( 'deleted', $user->roles, true ) ) {
+	if ( ! $user->can_login() ) {
 		return false;
 	}
 
