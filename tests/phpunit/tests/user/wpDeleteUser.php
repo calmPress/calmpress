@@ -1,5 +1,7 @@
 <?php
 
+require_once ABSPATH . 'wp-admin/includes/user.php';
+
 /**
  * @group user
  */
@@ -141,7 +143,8 @@ class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 
 		$user = get_userdata( $user_id );
 		$this->assertInstanceOf( WP_User::class, $user );
-		$this->assertSame( 'person-to-delete', $user->user_login );
+		$this->assertMatchesRegularExpression( '/^deleted-[0-9]{8}$/', $user->user_login );
+		$this->assertFalse( username_exists( 'person-to-delete' ) );
 		$this->assertMatchesRegularExpression( '/^deleted-[0-9]{8}@example\.invalid$/', $user->user_email );
 		$this->assertSame( 'deleted ' . substr( $user->user_email, 8, 8 ), $user->display_name );
 		$this->assertSame( '', $user->user_url );
@@ -155,6 +158,39 @@ class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 		$expected_meta_keys = array( $GLOBALS['wpdb']->prefix . 'capabilities', $GLOBALS['wpdb']->prefix . 'user_level' );
 		sort( $expected_meta_keys );
 		$this->assertSame( $expected_meta_keys, $meta_keys );
+	}
+
+	/**
+	 * Tests that a user can be added with a deleted user's former email address.
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_can_add_user_with_deleted_user_email_address() {
+		$email = 'former-user@example.org';
+		remove_action( 'edit_user_created_user', 'wp_send_new_user_notifications', 10 );
+
+		$_POST = array(
+			'email' => $email,
+			'pass1' => 'original-password',
+			'pass2' => 'original-password',
+		);
+		$deleted_user_id = add_user();
+
+		$this->assertNotWPError( $deleted_user_id );
+		$this->assertTrue( wp_delete_user( $deleted_user_id ) );
+
+		$_POST = array(
+			'email' => $email,
+			'pass1' => 'replacement-password',
+			'pass2' => 'replacement-password',
+		);
+
+		$new_user_id = add_user();
+		add_action( 'edit_user_created_user', 'wp_send_new_user_notifications', 10, 2 );
+
+		$this->assertNotWPError( $new_user_id );
+		$this->assertSame( $email, get_userdata( $new_user_id )->user_email );
+		$this->assertSame( $new_user_id, email_exists( $email ) );
 	}
 
 	/**
