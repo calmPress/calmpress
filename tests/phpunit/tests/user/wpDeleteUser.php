@@ -160,6 +160,74 @@ class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 	/**
 	 * @group ms-excluded
 	 */
+	public function test_deleted_user_cannot_authenticate_with_their_old_credentials() {
+		$password = 'known-password';
+		$email    = 'authentication@example.org';
+		$user_id  = self::factory()->user->create(
+			array(
+				'user_email' => $email,
+				'user_pass'  => $password,
+			)
+		);
+
+		$this->assertSame( $user_id, wp_authenticate( $email, $password )->ID );
+
+		wp_delete_user( $user_id );
+		$deleted_user = get_userdata( $user_id );
+
+		$this->assertWPError( wp_authenticate( $email, $password ) );
+		$this->assertWPError( wp_authenticate( $deleted_user->user_email, $password ) );
+	}
+
+	/**
+	 * @group ms-excluded
+	 */
+	public function test_delete_user_invalidates_sessions_and_password_reset_keys() {
+		$user_id   = self::factory()->user->create();
+		$user      = get_userdata( $user_id );
+		$sessions  = WP_Session_Tokens::get_instance( $user_id );
+		$token     = $sessions->create( time() + HOUR_IN_SECONDS );
+		$reset_key = get_password_reset_key( $user );
+
+		$this->assertTrue( $sessions->verify( $token ) );
+		$this->assertNotWPError( check_password_reset_key( $reset_key, $user->user_email ) );
+
+		wp_delete_user( $user_id );
+
+		$this->assertFalse( $sessions->verify( $token ) );
+		$this->assertWPError( check_password_reset_key( $reset_key, $user->user_email ) );
+	}
+
+	/**
+	 * @group ms-required
+	 */
+	public function test_multisite_delete_removes_only_current_site_membership() {
+		$user_id = self::factory()->user->create(
+			array(
+				'user_email'   => 'network-user@example.org',
+				'display_name' => 'Network User',
+				'role'         => 'author',
+			)
+		);
+		$other_site_id = self::factory()->blog->create();
+		add_user_to_blog( $other_site_id, $user_id, 'subscriber' );
+		update_user_meta( $user_id, 'network_profile_data', 'preserved' );
+
+		$this->assertTrue( wp_delete_user( $user_id ) );
+
+		$user = get_userdata( $user_id );
+		$this->assertInstanceOf( WP_User::class, $user );
+		$this->assertSame( 'network-user@example.org', $user->user_email );
+		$this->assertSame( 'Network User', $user->display_name );
+		$this->assertSame( 'preserved', get_user_meta( $user_id, 'network_profile_data', true ) );
+		$this->assertFalse( is_user_member_of_blog( $user_id, get_current_blog_id() ) );
+		$this->assertTrue( is_user_member_of_blog( $user_id, $other_site_id ) );
+		$this->assertNotContains( 'deleted', $user->roles );
+	}
+
+	/**
+	 * @group ms-excluded
+	 */
 	public function test_anonymization_occurs_between_delete_actions() {
 		$user_id    = self::factory()->user->create(
 			array(
