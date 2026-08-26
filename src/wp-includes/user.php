@@ -4676,6 +4676,7 @@ function wp_is_application_passwords_available() {
  * to restrict availability to certain users.
  *
  * @since 5.6.0
+ * @since calmPress 1.0.0 Application Passwords are unavailable for deleted users.
  *
  * @param int|WP_User $user The user to check.
  * @return bool
@@ -4690,6 +4691,10 @@ function wp_is_application_passwords_available_for_user( $user ) {
 	}
 
 	if ( ! $user || ! $user->exists() ) {
+		return false;
+	}
+
+	if ( in_array( 'deleted', $user->roles, true ) ) {
 		return false;
 	}
 

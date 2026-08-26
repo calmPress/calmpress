@@ -17,6 +17,7 @@ if ( ! function_exists( 'wp_set_current_user' ) ) :
 	 * actions on users who aren't signed in.
 	 *
 	 * @since 2.0.3
+	 * @since calmPress 1.0.0 Deleted users cannot be set as the current user.
 	 *
 	 * @global WP_User $current_user The current user object which holds the user data.
 	 *
@@ -32,11 +33,17 @@ if ( ! function_exists( 'wp_set_current_user' ) ) :
 		&& ( $current_user instanceof WP_User )
 		&& ( $id === $current_user->ID )
 		&& ( null !== $id )
+		&& ! in_array( 'deleted', $current_user->roles, true )
 		) {
 			return $current_user;
 		}
 
 		$current_user = new WP_User( $id, $name );
+
+		// Deleted users must be treated as logged out and cannot become the current user.
+		if ( in_array( 'deleted', $current_user->roles, true ) ) {
+			$current_user = new WP_User( 0 );
+		}
 
 		setup_userdata( $current_user->ID );
 
@@ -670,6 +677,7 @@ if ( ! function_exists( 'wp_authenticate' ) ) :
 	 *
 	 * @since 2.5.0
 	 * @since 4.5.0 `$username` now accepts an email address.
+	 * @since calmPress 1.0.0 Deleted users cannot authenticate.
 	 *
 	 * @param string $username User's username or email address.
 	 * @param string $password User's password.
@@ -699,6 +707,9 @@ if ( ! function_exists( 'wp_authenticate' ) ) :
 		 * @param string                $password User password.
 		 */
 		$user = apply_filters( 'authenticate', null, $username, $password );
+		if ( $user instanceof WP_User && in_array( 'deleted', $user->roles, true ) ) {
+			$user = new WP_Error( 'incorrect_password', __( 'Invalid email address or password.' ) );
+		}
 
 		if ( null === $user || false === $user ) {
 			/*

@@ -997,6 +997,41 @@ class Tests_Auth extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_User', wp_authenticate( self::USER_EMAIL, self::USER_PASS ) );
 	}
 
+	public function test_deleted_user_cannot_authenticate() {
+		$password = 'known-password';
+		$user     = self::factory()->user->create_and_get(
+			array(
+				'user_email' => 'deleted-authentication@example.org',
+				'user_pass'  => $password,
+				'role'       => 'deleted',
+			)
+		);
+
+		$this->assertWPError( wp_authenticate( $user->user_email, $password ) );
+
+		$authenticate_deleted_user = static function () use ( $user ) {
+			return $user;
+		};
+		add_filter( 'authenticate', $authenticate_deleted_user, 1 );
+		$this->assertWPError( wp_authenticate( $user->user_email, $password ) );
+		remove_filter( 'authenticate', $authenticate_deleted_user, 1 );
+	}
+
+	public function test_deleted_user_cannot_become_current_user() {
+		$user_id = self::factory()->user->create( array( 'role' => 'deleted' ) );
+
+		wp_set_current_user( $user_id );
+		$this->assertSame( 0, wp_get_current_user()->ID );
+
+		$determine_deleted_user = static function () use ( $user_id ) {
+			return $user_id;
+		};
+		add_filter( 'determine_current_user', $determine_deleted_user, 1 );
+		unset( $GLOBALS['current_user'] );
+		$this->assertSame( 0, wp_get_current_user()->ID );
+		remove_filter( 'determine_current_user', $determine_deleted_user, 1 );
+	}
+
 	/**
 	 * @ticket 60700
 	 */
@@ -1239,6 +1274,14 @@ class Tests_Auth extends WP_UnitTestCase {
 		$error = wp_authenticate_application_password( null, self::$_user->user_email, 'password' );
 		$this->assertWPError( $error );
 		$this->assertSame( 'incorrect_password', $error->get_error_code() );
+	}
+
+	public function test_application_passwords_are_not_available_for_deleted_user() {
+		$user = self::factory()->user->create_and_get( array( 'role' => 'deleted' ) );
+
+		add_filter( 'wp_is_application_passwords_available_for_user', '__return_true' );
+
+		$this->assertFalse( wp_is_application_passwords_available_for_user( $user ) );
 	}
 
 	/**
