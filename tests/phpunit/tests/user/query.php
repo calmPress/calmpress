@@ -1550,12 +1550,50 @@ class Tests_User_Query extends WP_UnitTestCase {
 			array( (string) $deleted_user_id ),
 			get_users(
 				array(
-					'fields'   => 'ID',
-					'include'  => array( $deleted_user_id ),
-					'role__in' => array( 'deleted' ),
+					'deleted' => true,
+					'fields'  => 'ID',
+					'include' => array( $deleted_user_id ),
 				)
 			)
 		);
+		$this->assertSame( $deleted_user_id, get_user_by( 'id', $deleted_user_id )->ID );
+	}
+
+	/**
+	 * Tests that network-deleted users are returned only when explicitly requested.
+	 *
+	 * @group ms-required
+	 */
+	public function test_network_deleted_users_are_excluded_by_default() {
+		require_once ABSPATH . 'wp-admin/includes/ms.php';
+
+		$active_user_id  = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$deleted_user_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+
+		$this->assertTrue( wpmu_delete_user( $deleted_user_id ) );
+
+		$this->assertNotContains(
+			(string) $deleted_user_id,
+			get_users(
+				array(
+					'blog_id' => 0,
+					'fields'  => 'ID',
+				)
+			)
+		);
+		$deleted_users = get_users(
+			array(
+				'blog_id' => 0,
+				'deleted' => true,
+				'fields'  => 'ID',
+			)
+		);
+
+		$this->assertContains(
+			(string) $deleted_user_id,
+			$deleted_users
+		);
+		$this->assertNotContains( (string) $active_user_id, $deleted_users );
 		$this->assertSame( $deleted_user_id, get_user_by( 'id', $deleted_user_id )->ID );
 	}
 

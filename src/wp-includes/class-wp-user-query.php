@@ -92,6 +92,7 @@ class WP_User_Query {
 	public static function fill_query_vars( $args ) {
 		$defaults = array(
 			'blog_id'             => get_current_blog_id(),
+			'deleted'             => false,
 			'role'                => '',
 			'role__in'            => array(),
 			'role__not_in'        => array(),
@@ -144,7 +145,7 @@ class WP_User_Query {
 	 * @since 5.9.0 Added 'capability', 'capability__in', and 'capability__not_in' parameters.
 	 *              Deprecated the 'who' parameter.
 	 * @since 6.3.0 Added 'cache_results' parameter.
-	 * @since calmPress 1.0.0 Users with the `deleted` role are excluded unless `role` or `role__in` is specified.
+	 * @since calmPress 1.0.0 Added the `deleted` parameter. Users marked as deleted are excluded by default.
 	 *
 	 * @global wpdb     $wpdb     WordPress database abstraction object.
 	 * @global WP_Roles $wp_roles WordPress role management object.
@@ -153,6 +154,8 @@ class WP_User_Query {
 	 *     Optional. Array or string of query parameters.
 	 *
 	 *     @type int             $blog_id             The site ID. Default is the current site.
+	 *     @type bool            $deleted             Whether to query deleted users instead of active users.
+	 *                                                Default false.
 	 *     @type string|string[] $role                An array or a comma-separated list of role names that users
 	 *                                                must match to be included in results. Note that this is
 	 *                                                an inclusive list: users must match *each* role. Default empty.
@@ -284,11 +287,17 @@ class WP_User_Query {
 		$qv =& $this->query_vars;
 		$qv = $this->fill_query_vars( $qv );
 
-		// Exclude deleted users unless the query affirmatively requests specific roles.
-		if ( empty( $qv['role'] ) && empty( $qv['role__in'] ) ) {
-			$qv['role__not_in']   = (array) $qv['role__not_in'];
-			$qv['role__not_in'][] = 'deleted';
-			$qv['role__not_in']   = array_unique( $qv['role__not_in'] );
+		// Standalone installations store the deleted state as a role.
+		if ( ! is_multisite() ) {
+			if ( $qv['deleted'] ) {
+				$qv['role']         = 'deleted';
+				$qv['role__in']     = array();
+				$qv['role__not_in'] = array();
+			} else {
+				$qv['role__not_in']   = (array) $qv['role__not_in'];
+				$qv['role__not_in'][] = 'deleted';
+				$qv['role__not_in']   = array_unique( $qv['role__not_in'] );
+			}
 		}
 
 		$allowed_fields = array(
@@ -333,6 +342,10 @@ class WP_User_Query {
 
 		$this->query_from  = "FROM $wpdb->users";
 		$this->query_where = 'WHERE 1=1';
+		if ( is_multisite() ) {
+			$deleted          = $qv['deleted'] ? 1 : 0;
+			$this->query_where .= " AND $wpdb->users.deleted = $deleted";
+		}
 
 		// Parse and sanitize 'include', for use by 'orderby' as well as 'include' below.
 		if ( ! empty( $qv['include'] ) ) {
