@@ -394,6 +394,7 @@ if ( ! is_multisite() ) {
 <td><input name="home" type="url" id="home" aria-describedby="home-description" value="<?php form_option( 'home' ); ?>"<?php disabled( defined( 'WP_HOME' ) ); ?> class="regular-text code<?php echo $wp_home_class; ?>" />
 </td>
 </tr>
+<?php } ?>
 
 <tr>
 	<th scope="row"><label for="admin_email"><?php esc_html_e( 'System notifications recipient' ); ?></label></th>
@@ -401,7 +402,7 @@ if ( ! is_multisite() ) {
 		<?php
 			$email = get_option( 'admin_email' );
 			echo '<select name="admin_email">';
-			foreach ( WP_User::administrators() as $user ) {
+			foreach ( calmpress\site\Site::current()->administrators() as $user ) {
 				$selected = '';
 				if ( $user->user_email === $email ) {
 					$selected = ' selected';
@@ -416,7 +417,7 @@ if ( ! is_multisite() ) {
 		</p>
 	</td>
 </tr>
-<?php } ?>
+
 
 <?php
 $languages    = get_available_languages();
