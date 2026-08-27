@@ -297,7 +297,12 @@ add_filter( 'option_blog_charset', '_canonical_charset' );
 add_filter( 'option_home', '_config_wp_home' );
 add_filter( 'pre_option_siteurl', '_config_wp_siteurl' );
 
-add_filter( 'option_admin_email', [ 'WP_User', 'admin_email' ] );
+add_filter(
+	'option_admin_email',
+	static function ( string $email ): string {
+		return calmpress\site\Site::current()->admin_email( $email );
+	}
+);
 
 add_filter( 'tiny_mce_before_init', '_mce_set_direction' );
 add_filter( 'teeny_mce_before_init', '_mce_set_direction' );

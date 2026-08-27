@@ -1075,24 +1075,6 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * All the administrator users of the site ordered by user ID which means
-	 * virtually by user creation time.
-	 *
-	 * @since calmPress 1.0.0
-	 *
-	 * @return WP_User[] The array of users.
-	 * 
-	 * @throws \RuntimeException if the are no admins.
-	 */
-	public static function administrators(): array {
-		$admins = get_users( [ 'role' => 'administrator', 'orderby' => 'ID' ] );
-		if ( count( $admins ) === 0 ) {
-			throw new \RuntimeException( 'No administrators found on this site. Please configure at least one administrator.' );
-		}
-		return $admins;
-	}
-
-	/**
 	 * Indicates whether the user is the target for notification about system events.
 	 * 
 	 * @since calmPress 1.0.0
@@ -1106,40 +1088,6 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * The email address which is target of system notifications. 
-	 * 
-	 * Mostly respect the value in admin_email option, but make sure it matches an actual
-	 * administrator, if not set the value to be an email of another administrator
-	 * and return it.
-	 *
-	 * @since calmPress 1.0.0
-	 *
-	 * @param string $email_address The email address set in the option.
-	 * 
-	 * @return string The email address.
-	 */
-	public static function admin_email( string $email_address ): string {
-
-		// At install time there are no users, so just trust what is given.
-		if ( wp_installing() ) {
-			return $email_address;
-		}
-
-		$user = get_user_by( 'email', $email_address );
-
-		// If user exists and has administrator role, just return the email
-		if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) {
-			return $email_address;
-		}
-	
-		// email is not of an administrator, just select one of them to get a better
-		// email address.
-
-		$admins = self::administrators();
-		return $admins[0]->user_email;
-	}
-
-	/**
 	 * Indicates whether the user is the default target for notification about comment
 	 * moderation events.
 	 * 
@@ -1150,60 +1098,8 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 */
 	public function is_default_comment_moderation_notification_recipient():bool {
 		// Can not just compare id in option as it might not be of a valid user.
-		$email = self::default_comment_moderator_email();
+		$email = calmpress\site\Site::current()->default_comment_moderator_email();
 		return $this->user_email === $email;
-	}
-
-	/**
-	 * The email address which is default target of comment moderation notifications. 
-	 * 
-	 * Mostly respect the value in comment_moderator_user option, but make sure it
-	 * matches an actual editor or administrator,
-	 * if not set the value to be the email of admin which gets site notification
-	 *
-	 * @since calmPress 1.0.0
-	 * 
-	 * @return string The email address.
-	 */
-	public static function default_comment_moderator_email(): string {
-
-		$user_id = get_option( 'comment_moderator_user' );
-		$user = get_user_by( 'id', $user_id );
-
-		// If user exists and has administrator or editior role, just return the email
-		if (
-			$user &&
-		    ! empty( array_intersect( ['administrator', 'editor'],	(array) $user->roles ) ) 
-		   ) {
-			return $user->user_email;
-		}
-	
-		// email is not of an administrator nor editor, use the target email for system 
-		// notification.
-		return self::admin_email( get_option( 'admin_email' ));
-	}
-
-	/**
-	 * The user which is default target of comment moderation notifications. 
-	 * 
-	 * Mostly a syntatic sugar around default_comment_moderator_email
-	 *
-	 * @since calmPress 1.0.0
-	 * 
-	 * @return WP_User The configure user, or the default admin user.
-	 * 
-	 * @throws RuntimeExeption if no user could be found.
-	 */
-	public static function default_comment_moderator_user(): WP_User {
-
-		$user = get_user_by( 'email', self::default_comment_moderator_email() );
-		if ( ! $user instanceof \WP_User ) {
-			throw new \RuntimeException(
-				'Site default comment moderation recipient user could not be found.'
-			);
-		}
-
-		return $user;
 	}
 
 	/**

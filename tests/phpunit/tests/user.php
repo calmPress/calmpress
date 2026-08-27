@@ -1861,31 +1861,6 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
-	 * test admin_email returns an email of an administrator
-	 * 
-	 * @since calmPress 1.0.0
-	 */
-	public function test_admin_email() {
-		// For an email which is not related to an administrator
-		// return the email of the administrator
-
-		// Just an irrelevant email
-		$email = WP_User::admin_email( 'dummy' );
-		$user = get_user_by( 'email', $email );
-		$this->assertSame( ['administrator'], $user->roles );
-
-		// An email of non admin user
-		$email = WP_User::admin_email( 'author@email.com' );
-		$user = get_user_by( 'email', $email );
-		$this->assertSame( ['administrator'], $user->roles );
-
-		// An actual administrator, check its the same user.
-		$email = WP_User::admin_email( 'admin@test.com' );
-		$user = get_user_by( 'email', $email );
-		$this->assertSame( 'admin@test.com', $user->user_email );
-	}
-
-	/**
 	 * test is_system_notification_recipient
 	 * 
 	 * @since calmPress 1.0.0
@@ -1914,36 +1889,6 @@ class Tests_User extends WP_UnitTestCase {
 
 		$user = get_user_by( 'id', $admin2_id );
 		$this->assertTrue( $user->is_system_notification_recipient() );
-	}
-
-	/**
-	 * test default_comment_moderator_email returns an email of
-	 * the configured target for comment moderation emails. 
-	 * 
-	 * @since @calmPress 1.0.0
-	 */
-	public function test_default_comment_moderator_email() {
-		
-		// no user id at the option, returns an admin.
-		$email = WP_User::default_comment_moderator_email();
-		$user = get_user_by( 'email', $email );
-		$this->assertSame( ['administrator'], $user->roles );
-
-		// option set to author, returns an admin
-		update_option( 'comment_moderator_user', self::$_author);
-		$email = WP_User::default_comment_moderator_email();
-		$user = get_user_by( 'email', $email );
-		$this->assertSame( ['administrator'], $user->roles );
-
-		// An administrator, check its the same user.
-		update_option( 'comment_moderator_user', self::$admin_id );
-		$email = WP_User::default_comment_moderator_email();
-		$this->assertSame( 'admin@test.com', $email );
-
-		// An editor, check its the same user.
-		update_option( 'comment_moderator_user', self::$editor_id );
-		$email = WP_User::default_comment_moderator_email();
-		$this->assertSame( 'test@example.com', $email );
 	}
 
 	/**

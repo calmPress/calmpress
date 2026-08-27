@@ -23,7 +23,7 @@
  * @property string $home
  */
 #[AllowDynamicProperties]
-class WP_Site {
+class WP_Site extends calmpress\site\Site {
 
 	/**
 	 * Site ID.
@@ -207,6 +207,19 @@ class WP_Site {
 	 */
 	public function to_array() {
 		return get_object_vars( $this );
+	}
+
+	/**
+	 * Retrieves an option for the site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $name Option name.
+	 *
+	 * @return mixed The option value, or false when the option does not exist.
+	 */
+	protected function option( string $name ): mixed {
+		return get_blog_option( (int) $this->blog_id, $name );
 	}
 
 	/**

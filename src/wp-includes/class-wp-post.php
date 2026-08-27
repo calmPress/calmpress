@@ -425,7 +425,7 @@ class WP_Post implements \calmpress\avatar\Has_Avatar {
 		}
 
 		// Otherwise return the globaly configured user.
-		return WP_User::default_comment_moderator_user();
+		return calmpress\site\Site::current()->default_comment_moderator_user();
     }
 
 	/**

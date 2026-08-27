@@ -101,7 +101,7 @@ printf(
 	<th scope="row"><label for="comment_moderator_user"><?php esc_html_e( 'Default recipient for comment moderation notifications' ); ?></label></th>
 	<td>
 		<?php
-			$user_email = WP_User::default_comment_moderator_email();
+			$user_email = calmpress\site\Site::current()->default_comment_moderator_email();
 			echo '<select name="comment_moderator_user">';
 			$users = get_users( [
 				'role__in' => ['administrator', 'editor'],

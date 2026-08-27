@@ -1,5 +1,7 @@
 <?php
 
+use calmpress\site\Site as CalmPress_Site;
+
 /**
  * Tests specific to networks in multisite.
  *
@@ -706,6 +708,54 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		$fetched_network = get_network( $new_network_id );
 		$this->assertInstanceOf( 'WP_Network', $fetched_network );
 		$this->assertSame( $new_network_id, $fetched_network->id );
+	}
+
+	/**
+	 * Tests that the current multisite site retrieves its administrators.
+	 */
+	public function test_current_site_retrieves_its_administrators() {
+		$site    = CalmPress_Site::current();
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+
+		$this->assertEquals( get_current_blog_id(), $site->blog_id );
+		$this->assertContains( $user_id, wp_list_pluck( $site->administrators(), 'ID' ) );
+	}
+
+	/**
+	 * Tests that the network admin email is controlled by the notification super administrator.
+	 */
+	public function test_network_admin_email_maps_to_notification_user() {
+		$original_admin_user_id = (int) get_site_option( 'admin_user_id' );
+		$user_id                = self::factory()->user->create(
+			array(
+				'user_email' => 'network-notifications@example.org',
+			)
+		);
+		grant_super_admin( $user_id );
+
+		update_site_option( 'admin_user_id', $user_id );
+
+		$network = get_network();
+
+		$this->assertContains( $user_id, wp_list_pluck( $network->administrators(), 'ID' ) );
+		$this->assertTrue( $network->is_system_notifications_recipient( get_userdata( $user_id ) ) );
+		$this->assertSame( 'network-notifications@example.org', $network->admin_email() );
+		$this->assertSame( 'network-notifications@example.org', get_site_option( 'admin_email' ) );
+
+		update_site_option( 'admin_email', 'unrelated@example.org' );
+		$this->assertSame( 'network-notifications@example.org', get_site_option( 'admin_email' ) );
+
+		wp_update_user(
+			array(
+				'ID'         => $user_id,
+				'user_email' => 'updated-network-notifications@example.org',
+			)
+		);
+		$this->assertSame( 'updated-network-notifications@example.org', get_site_option( 'admin_email' ) );
+		$this->assertFalse( revoke_super_admin( $user_id ) );
+
+		update_site_option( 'admin_user_id', $original_admin_user_id );
+		$this->assertTrue( revoke_super_admin( $user_id ) );
 	}
 
 	/**
