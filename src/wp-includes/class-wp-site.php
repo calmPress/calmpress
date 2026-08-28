@@ -223,6 +223,17 @@ class WP_Site extends calmpress\site\Site {
 	}
 
 	/**
+	 * Retrieves the network containing the site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return WP_Network|null The site's network, or null if it cannot be resolved.
+	 */
+	public function network(): ?WP_Network {
+		return get_network( (int) $this->site_id );
+	}
+
+	/**
 	 * Determines whether the site uses a domain outside its network's domain.
 	 *
 	 * @since calmPress 1.0.0

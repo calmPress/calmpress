@@ -16,7 +16,10 @@ class Site extends WP_UnitTestCase {
 	 * Tests that the current standalone site is represented by a Site object.
 	 */
 	public function test_current_returns_standalone_site(): void {
-		$this->assertSame( CalmPress_Site::class, get_class( CalmPress_Site::current() ) );
+		$site = CalmPress_Site::current();
+
+		$this->assertSame( CalmPress_Site::class, get_class( $site ) );
+		$this->assertNull( $site->network() );
 	}
 
 	/**

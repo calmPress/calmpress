@@ -12,6 +12,7 @@ namespace calmpress\site;
 
 use RuntimeException;
 use UnexpectedValueException;
+use WP_Network;
 use WP_User;
 
 /**
@@ -174,5 +175,16 @@ class Site {
 		}
 
 		return $site;
+	}
+
+	/**
+	 * Retrieves the network containing the site.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return WP_Network|null The site's network, or null for a standalone site.
+	 */
+	public function network(): ?WP_Network {
+		return null;
 	}
 }

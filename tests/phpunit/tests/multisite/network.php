@@ -722,6 +722,13 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that the current site resolves its parent network.
+	 */
+	public function test_current_site_resolves_its_network() {
+		$this->assertEquals( get_current_network_id(), CalmPress_Site::current()->network()->id );
+	}
+
+	/**
 	 * Tests that the network admin email is controlled by the notification super administrator.
 	 */
 	public function test_network_admin_email_maps_to_notification_user() {
