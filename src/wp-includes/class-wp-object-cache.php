@@ -420,10 +420,23 @@ class WP_Object_Cache {
 	 * Clears the object cache of all data.
 	 *
 	 * @since 2.0.0
+	 * @since calmPress 1.0.0 Clears persisted cache groups that were not used in the current request.
 	 *
 	 * @return true Always returns true.
 	 */
 	public function flush() {
+
+		// Persisted groups from earlier requests may not have been instantiated in this request.
+		foreach ( [ calmpress\object_cache\File::class, calmpress\object_cache\PHP_File::class ] as $cache_class ) {
+			try {
+				$cache = new $cache_class( '' );
+				$cache->clear();
+			} catch ( RuntimeException $e ) {
+
+				// An unavailable persistent backend has no cache entries to clear.
+			}
+		}
+
 		foreach ( $this->cache_groups as $groups ) {
 			if ( ! is_array( $groups ) ) {
 				// must be a global group cache.
