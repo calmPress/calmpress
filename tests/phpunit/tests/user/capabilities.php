@@ -1812,7 +1812,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'user_email' => 'notification@example.com',
 		] );
 
-		update_option( 'admin_email', 'notification@example.com' );
+		update_option( 'admin_user_id', $notification_admin_id );
 
 		$this->assertFalse( user_can( self::$users['administrator']->ID, 'delete_user', $notification_admin_id ) );
 	}
@@ -1826,7 +1826,7 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'user_email' => 'notification@example.com',
 		] );
 
-		update_option( 'admin_email', 'notification@example.com' );
+		update_option( 'admin_user_id', $notification_admin_id );
 
 		$this->assertFalse( user_can( self::$users['administrator']->ID, 'remove_user', $notification_admin_id ) );
 

@@ -68,7 +68,7 @@ $allowed_options            = array(
 		'start_of_week',
 		'timezone_string',
 		'WPLANG',
-		'admin_email'
+		'admin_user_id',
 	),
 	'discussion' => array(
 		'default_comment_status',

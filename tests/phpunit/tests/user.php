@@ -1874,21 +1874,21 @@ class Tests_User extends WP_UnitTestCase {
 			]
 		);
 
-		update_option( 'admin_email', 'admin@test.com' );
+		update_option( 'admin_user_id', self::$admin_id );
 
 		$user = get_user_by( 'id', self::$admin_id );
-		$this->assertTrue( $user->is_system_notification_recipient() );
+		$this->assertTrue( $user->is_system_notification_recipient( calmpress\site\Site::current() ) );
 
 		$user = get_user_by( 'id', $admin2_id );
-		$this->assertFalse( $user->is_system_notification_recipient() );
+		$this->assertFalse( $user->is_system_notification_recipient( calmpress\site\Site::current() ) );
 
-		update_option( 'admin_email', 'admin2@test.com' );
+		update_option( 'admin_user_id', $admin2_id );
 
 		$user = get_user_by( 'id', self::$admin_id );
-		$this->assertFalse( $user->is_system_notification_recipient() );
+		$this->assertFalse( $user->is_system_notification_recipient( calmpress\site\Site::current() ) );
 
 		$user = get_user_by( 'id', $admin2_id );
-		$this->assertTrue( $user->is_system_notification_recipient() );
+		$this->assertTrue( $user->is_system_notification_recipient( calmpress\site\Site::current() ) );
 	}
 
 	/**

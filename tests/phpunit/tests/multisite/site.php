@@ -1697,6 +1697,7 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 
 		switch_to_blog( self::$uninitialized_site_id );
 		$user_is_admin = user_can( 1, 'manage_options' );
+		$admin_user_id = (int) get_option( 'admin_user_id' );
 		$admin_email   = get_option( 'admin_email' );
 		restore_current_blog();
 
@@ -1704,6 +1705,7 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 
 		$this->assertTrue( $result );
 		$this->assertTrue( $user_is_admin );
+		$this->assertSame( 1, $admin_user_id );
 		$this->assertSame( get_userdata( 1 )->user_email, $admin_email );
 	}
 

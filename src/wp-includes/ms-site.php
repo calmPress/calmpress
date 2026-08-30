@@ -691,6 +691,7 @@ function wp_initialize_site( $site_id, array $args = array() ) {
 
 	// Set the site administrator.
 	add_user_to_blog( $site->id, $args['user_id'], 'administrator' );
+	update_option( 'admin_user_id', $args['user_id'] );
 	if ( ! user_can( $args['user_id'], 'manage_network' ) && ! get_user_meta( $args['user_id'], 'primary_blog', true ) ) {
 		update_user_meta( $args['user_id'], 'primary_blog', $site->id );
 	}

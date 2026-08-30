@@ -116,6 +116,7 @@ if ( ! function_exists( 'wp_install' ) ) :
 
 		$user = new WP_User( $user_id );
 		$user->set_role( 'administrator' );
+		update_option( 'admin_user_id', $user_id );
 
 		if ( $user_created ) {
 			wp_update_user( $user );

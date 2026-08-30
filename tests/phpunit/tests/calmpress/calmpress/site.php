@@ -36,16 +36,16 @@ class Site extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that the system notification email belongs to a site administrator.
+	 * Tests that the system notification email follows the configured administrator.
 	 */
 	public function test_admin_email_returns_site_administrator_email(): void {
-		self::factory()->user->create(
+		$author_id = self::factory()->user->create(
 			[
 				'role'       => 'author',
 				'user_email' => 'site-author@example.org',
 			]
 		);
-		self::factory()->user->create(
+		$administrator_id = self::factory()->user->create(
 			[
 				'role'       => 'administrator',
 				'user_email' => 'site-administrator@example.org',
@@ -54,13 +54,24 @@ class Site extends WP_UnitTestCase {
 
 		$site = CalmPress_Site::current();
 
-		foreach ( [ 'invalid', 'site-author@example.org' ] as $email ) {
-			$user = get_user_by( 'email', $site->admin_email( $email ) );
+		update_option( 'admin_user_id', $administrator_id );
+		$this->assertSame( 'site-administrator@example.org', $site->admin_email() );
+		$this->assertSame( 'site-administrator@example.org', get_option( 'admin_email' ) );
 
-			$this->assertContains( 'administrator', $user->roles );
-		}
+		wp_update_user(
+			[
+				'ID'         => $administrator_id,
+				'user_email' => 'changed-site-administrator@example.org',
+			]
+		);
+		$this->assertSame( 'changed-site-administrator@example.org', $site->admin_email() );
+		$this->assertSame( 'changed-site-administrator@example.org', get_option( 'admin_email' ) );
 
-		$this->assertSame( 'site-administrator@example.org', $site->admin_email( 'site-administrator@example.org' ) );
+		update_option( 'admin_user_id', $author_id );
+		$this->assertSame( $administrator_id, (int) get_option( 'admin_user_id' ) );
+
+		update_option( 'admin_email', 'direct-change@example.org' );
+		$this->assertSame( 'changed-site-administrator@example.org', get_option( 'admin_email' ) );
 	}
 
 	/**

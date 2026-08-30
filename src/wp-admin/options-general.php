@@ -397,18 +397,18 @@ if ( ! is_multisite() ) {
 <?php } ?>
 
 <tr>
-	<th scope="row"><label for="admin_email"><?php esc_html_e( 'System notifications recipient' ); ?></label></th>
+	<th scope="row"><label for="admin_user_id"><?php esc_html_e( 'System notifications recipient' ); ?></label></th>
 	<td>
 		<?php
-			$email = get_option( 'admin_email' );
-			echo '<select name="admin_email">';
+			$admin_user_id = (int) get_option( 'admin_user_id' );
+			echo '<select name="admin_user_id" id="admin_user_id">';
 			foreach ( calmpress\site\Site::current()->administrators() as $user ) {
 				$selected = '';
-				if ( $user->user_email === $email ) {
+				if ( $user->ID === $admin_user_id ) {
 					$selected = ' selected';
 				}
-				echo '<option value="' . esc_attr( $user->user_email ) . '"' . $selected .'>'
-				     . esc_html( $user->display_name . ' ('. $user->user_email . ')' ) . '</option>';
+				echo '<option value="' . esc_attr( $user->ID ) . '"' . $selected . '>'
+					. esc_html( $user->display_name . ' (' . $user->user_email . ')' ) . '</option>';
 			}
 			echo '</select>';
 		?>

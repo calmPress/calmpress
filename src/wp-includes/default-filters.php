@@ -297,11 +297,57 @@ add_filter( 'option_blog_charset', '_canonical_charset' );
 add_filter( 'option_home', '_config_wp_home' );
 add_filter( 'pre_option_siteurl', '_config_wp_siteurl' );
 
+// Keep the compatibility admin_email option mapped to the configured notification user.
 add_filter(
 	'option_admin_email',
+	/**
+	 * Resolves the system notification email from the configured user.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $email Stored email address.
+	 *
+	 * @return string The configured user's email address.
+	 */
 	static function ( string $email ): string {
-		return calmpress\site\Site::current()->admin_email( $email );
+		// The notification user does not exist yet during installation.
+		if ( wp_installing() ) {
+			return $email;
+		}
+
+		return calmpress\site\Site::current()->admin_email();
 	}
+);
+
+add_filter(
+	'pre_update_option_admin_user_id',
+	/**
+	 * Ensures the system notification user is an active site administrator.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param mixed $user_id     Proposed user ID.
+	 * @param mixed $old_user_id Current user ID.
+	 *
+	 * @return mixed The proposed user ID when valid, otherwise the current user ID.
+	 */
+	static function ( mixed $user_id, mixed $old_user_id ): mixed {
+
+		// Perform basic validation that the value appears to be an integer.
+		if ( $user_id != (int) $user_id ) {
+			return $old_user_id;
+		}
+
+		$user = get_userdata( (int) $user_id );
+
+		if ( $user && $user->can_login() && in_array( 'administrator', $user->roles, true ) ) {
+			return $user_id;
+		}
+
+		return $old_user_id;
+	},
+	10,
+	2
 );
 
 add_filter( 'tiny_mce_before_init', '_mce_set_direction' );
