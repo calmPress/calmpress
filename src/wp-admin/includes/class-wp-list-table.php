@@ -810,7 +810,6 @@ class WP_List_Table {
 		 *  - `edit_post_tag_per_page`
 		 *  - `edit_category_per_page`
 		 *  - `edit_{$taxonomy}_per_page`
-		 *  - `site_users_network_per_page`
 		 *  - `users_per_page`
 		 *
 		 * @since 2.9.0

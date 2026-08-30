@@ -17,22 +17,6 @@
 class WP_Users_List_Table extends WP_List_Table {
 
 	/**
-	 * Site ID to generate the Users list table for.
-	 *
-	 * @since 3.1.0
-	 * @var int
-	 */
-	public $site_id;
-
-	/**
-	 * Whether or not the current Users list table is for Multisite.
-	 *
-	 * @since 3.1.0
-	 * @var bool
-	 */
-	public $is_site_users;
-
-	/**
 	 * Constructor.
 	 *
 	 * @since 3.1.0
@@ -49,12 +33,6 @@ class WP_Users_List_Table extends WP_List_Table {
 				'screen'   => isset( $args['screen'] ) ? $args['screen'] : null,
 			)
 		);
-
-		$this->is_site_users = 'site-users-network' === $this->screen->id;
-
-		if ( $this->is_site_users ) {
-			$this->site_id = isset( $_REQUEST['id'] ) ? (int) $_REQUEST['id'] : 0;
-		}
 	}
 
 	/**
@@ -65,11 +43,7 @@ class WP_Users_List_Table extends WP_List_Table {
 	 * @return bool
 	 */
 	public function ajax_user_can() {
-		if ( $this->is_site_users ) {
-			return current_user_can( 'manage_sites' );
-		} else {
-			return current_user_can( 'list_users' );
-		}
+		return current_user_can( 'list_users' );
 	}
 
 	/**
@@ -87,8 +61,7 @@ class WP_Users_List_Table extends WP_List_Table {
 
 		$role = isset( $_REQUEST['role'] ) ? $_REQUEST['role'] : '';
 
-		$per_page       = ( $this->is_site_users ) ? 'site_users_network_per_page' : 'users_per_page';
-		$users_per_page = $this->get_items_per_page( $per_page );
+		$users_per_page = $this->get_items_per_page( 'users_per_page' );
 
 		$paged = $this->get_pagenum();
 
@@ -96,7 +69,7 @@ class WP_Users_List_Table extends WP_List_Table {
 			$args = array(
 				'number'  => $users_per_page,
 				'offset'  => ( $paged - 1 ) * $users_per_page,
-				'include' => wp_get_users_with_no_role( $this->site_id ),
+				'include' => wp_get_users_with_no_role(),
 				'search'  => $usersearch,
 				'fields'  => 'all_with_meta',
 			);
@@ -112,10 +85,6 @@ class WP_Users_List_Table extends WP_List_Table {
 
 		if ( '' !== $args['search'] ) {
 			$args['search'] = '*' . $args['search'] . '*';
-		}
-
-		if ( $this->is_site_users ) {
-			$args['blog_id'] = $this->site_id;
 		}
 
 		if ( isset( $_REQUEST['orderby'] ) ) {
@@ -178,24 +147,14 @@ class WP_Users_List_Table extends WP_List_Table {
 
 		$count_users = ! wp_is_large_user_count();
 
-		if ( $this->is_site_users ) {
-			$url = 'site-users.php?id=' . $this->site_id;
-		} else {
-			$url = 'users.php';
-		}
+		$url = 'users.php';
 
 		$role_links  = array();
 		$avail_roles = array();
 		$all_text    = __( 'All' );
 
 		if ( $count_users ) {
-			if ( $this->is_site_users ) {
-				switch_to_blog( $this->site_id );
-				$users_of_blog = count_users( 'time', $this->site_id );
-				restore_current_blog();
-			} else {
-				$users_of_blog = count_users();
-			}
+			$users_of_blog = count_users();
 
 			$total_users = $users_of_blog['total_users'];
 			$avail_roles =& $users_of_blog['avail_roles'];
@@ -371,10 +330,6 @@ class WP_Users_List_Table extends WP_List_Table {
 			'posts'    => _x( 'Posts', 'post type general name' ),
 		);
 
-		if ( $this->is_site_users ) {
-			unset( $columns['posts'] );
-		}
-
 		return $columns;
 	}
 
@@ -400,9 +355,7 @@ class WP_Users_List_Table extends WP_List_Table {
 	 */
 	public function display_rows() {
 		// Query the post counts for this page.
-		if ( ! $this->is_site_users ) {
-			$post_counts = count_many_users_posts( array_keys( $this->items ) );
-		}
+		$post_counts = count_many_users_posts( array_keys( $this->items ) );
 
 		foreach ( $this->items as $userid => $user_object ) {
 			echo "\n\t" . $this->single_row( $user_object, '', '', isset( $post_counts ) ? $post_counts[ $userid ] : 0 );
@@ -430,11 +383,7 @@ class WP_Users_List_Table extends WP_List_Table {
 		$user_object->filter = 'display';
 		$email               = $user_object->user_email;
 
-		if ( $this->is_site_users ) {
-			$url = "site-users.php?id={$this->site_id}&amp;";
-		} else {
-			$url = 'users.php?';
-		}
+		$url = 'users.php?';
 
 		$user_roles = $this->get_role_list( $user_object );
 
@@ -455,8 +404,8 @@ class WP_Users_List_Table extends WP_List_Table {
 			}
 		}
 
-		if ( $user_object->is_system_notification_recipient() ) {
-			$extended_info[] = __( 'System notifications' );
+		if ( $user_object->is_system_notification_recipient( calmpress\site\Site::current() ) ) {
+			$extended_info[] = esc_html__( 'System notifications' );
 		}
 
 		if ( $user_object->is_default_comment_moderation_notification_recipient() ) {

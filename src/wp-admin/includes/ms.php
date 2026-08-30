@@ -920,7 +920,7 @@ function network_edit_site_nav( $args = array() ) {
 	/**
 	 * Filters the links that appear on site-editing network pages.
 	 *
-	 * Default links: 'site-info', 'site-users', 'site-themes', and 'site-settings'.
+	 * Default links: 'site-info', 'site-themes', and 'site-settings'.
 	 *
 	 * @since 4.6.0
 	 *
@@ -942,11 +942,6 @@ function network_edit_site_nav( $args = array() ) {
 			'site-info'     => array(
 				'label' => __( 'Info' ),
 				'url'   => 'site-info.php',
-				'cap'   => 'manage_sites',
-			),
-			'site-users'    => array(
-				'label' => __( 'Users' ),
-				'url'   => 'site-users.php',
 				'cap'   => 'manage_sites',
 			),
 			'site-themes'   => array(
