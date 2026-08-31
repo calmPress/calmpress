@@ -745,9 +745,16 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		$network = get_network();
 
 		$this->assertContains( $user_id, wp_list_pluck( $network->administrators(), 'ID' ) );
-		$this->assertTrue( $network->is_system_notifications_recipient( get_userdata( $user_id ) ) );
+		$this->assertTrue( get_userdata( $user_id )->is_system_notification_recipient( $network ) );
 		$this->assertSame( 'network-notifications@example.org', $network->admin_email() );
 		$this->assertSame( 'network-notifications@example.org', get_site_option( 'admin_email' ) );
+
+		update_site_option( 'admin_user_id', -$user_id );
+		$this->assertSame( $user_id, (int) get_site_option( 'admin_user_id' ) );
+
+		$non_super_admin_id = self::factory()->user->create();
+		update_site_option( 'admin_user_id', $non_super_admin_id );
+		$this->assertSame( $user_id, (int) get_site_option( 'admin_user_id' ) );
 
 		update_site_option( 'admin_email', 'unrelated@example.org' );
 		$this->assertSame( 'network-notifications@example.org', get_site_option( 'admin_email' ) );

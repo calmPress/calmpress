@@ -49,6 +49,9 @@ $allowed_options            = array(
 		'site_icon',
 		'custom_logo',
 	],
+	'notifications' => [
+		'admin_user_id',
+	],
 );
 
 /**

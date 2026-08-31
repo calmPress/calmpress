@@ -120,9 +120,22 @@ switch ( $action ) {
 		// Grant or revoke super admin status if requested.
 		if ( is_multisite() && is_network_admin()
 			&& ! IS_PROFILE_PAGE && current_user_can( 'manage_network_options' )
-			&& ! isset( $super_admins ) && empty( $_POST['super_admin'] ) === is_super_admin( $user_id )
+			&& empty( $_POST['super_admin'] ) === is_super_admin( $user_id )
 		) {
-			empty( $_POST['super_admin'] ) ? revoke_super_admin( $user_id ) : grant_super_admin( $user_id );
+			$grant_super_admin = ! empty( $_POST['super_admin'] );
+			$status_updated    = $grant_super_admin ? grant_super_admin( $user_id ) : revoke_super_admin( $user_id );
+
+			if ( ! $status_updated ) {
+				if ( ! is_wp_error( $errors ) ) {
+					$errors = new WP_Error();
+				}
+
+				if ( ! $grant_super_admin && get_userdata( $user_id )->is_system_notification_recipient( get_network() ) ) {
+					$errors->add( 'super_admin', __( 'The super admin receiving network system notifications cannot be demoted. Select another notification recipient first.' ) );
+				} else {
+					$errors->add( 'super_admin', __( 'The Super Admin status could not be updated.' ) );
+				}
+			}
 		}
 
 		if ( ! is_wp_error( $errors ) ) {
@@ -578,11 +591,29 @@ switch ( $action ) {
 				</tr>
 				<?php
 					} // end mock role.
-					if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE && ! isset( $super_admins ) ) : ?>
+					if ( is_multisite() && is_network_admin() && ! IS_PROFILE_PAGE ) :
+						$is_notification_recipient = $profile_user->is_system_notification_recipient( get_network() );
+						?>
 						<tr class="user-super-admin-wrap">
-							<th><?php _e( 'Super Admin' ); ?></th>
+							<th><?php esc_html_e( 'Super Admin' ); ?></th>
 							<td>
-								<p><label><input type="checkbox" id="super_admin" name="super_admin"<?php checked( is_super_admin( $profile_user->ID ) ); ?> /> <?php _e( 'Grant this user super admin privileges for the Network.' ); ?></label></p>
+								<?php if ( $is_notification_recipient ) : ?>
+									<input type="hidden" name="super_admin" value="1" />
+									<p>
+										<?php
+
+										printf(
+
+											/* translators: 1: Opening link to network notification settings. 2: Closing link. */
+											esc_html__( 'This user is a Super Admin and receives network system notifications. To demote this user, %1$sselect another notification recipient%2$s first.' ),
+											'<a href="' . esc_url( network_admin_url( 'options-notifications.php' ) ) . '">',
+											'</a>'
+										);
+										?>
+									</p>
+								<?php else : ?>
+									<p><label><input type="checkbox" id="super_admin" name="super_admin"<?php checked( is_super_admin( $profile_user->ID ) ); ?> /> <?php esc_html_e( 'Grant this user super admin privileges for the Network.' ); ?></label></p>
+								<?php endif; ?>
 							</td>
 						</tr>
 					<?php endif; ?>

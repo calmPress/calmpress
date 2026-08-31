@@ -115,3 +115,70 @@ add_action( 'update_option_home', 'clean_site_details_cache', 10, 0 );
 
 // Allow multisite domains for HTTP requests.
 add_filter( 'http_request_host_is_external', 'ms_allowed_http_request_hosts', 20, 2 );
+
+// Keep the network admin email mapped to the configured notification user.
+add_filter(
+	'site_option_admin_email',
+	/**
+	 * Resolves the network admin email from the configured notification user.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $email      Stored option value.
+	 * @param string $option     Option name.
+	 * @param int    $network_id Network ID.
+	 *
+	 * @return string The notification user's email.
+	 */
+	static function ( string $email, string $option, int $network_id ): string {
+		return get_network( $network_id )->admin_email();
+	},
+	10,
+	3
+);
+add_filter(
+	'pre_update_site_option_admin_email',
+	/**
+	 * Prevents changes to the network admin email.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $email     Proposed option value.
+	 * @param string $old_email Current option value.
+	 *
+	 * @return string The unchanged current value.
+	 */
+	static function ( string $email, string $old_email ): string {
+		return $old_email;
+	},
+	10,
+	2
+);
+add_filter(
+	'pre_update_site_option_admin_user_id',
+	/**
+	 * Ensures the network notification user is a super admin.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param mixed $user_id     Proposed user ID.
+	 * @param mixed $old_user_id Current user ID.
+	 *
+	 * @return mixed The proposed user ID when valid, otherwise the current user ID.
+	 */
+	static function ( mixed $user_id, mixed $old_user_id ): mixed {
+
+		// Perform basic validation that the value appears to be an integer.
+		if ( $user_id != (int) $user_id ) {
+			return $old_user_id;
+		}
+
+		if ( is_super_admin( (int) $user_id ) ) {
+			return $user_id;
+		}
+
+		return $old_user_id;
+	},
+	10,
+	2
+);

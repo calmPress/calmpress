@@ -165,31 +165,17 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 	}
 
 	public function test_revoked_super_admin_can_be_deleted() {
-		if ( isset( $GLOBALS['super_admins'] ) ) {
-			$old_global = $GLOBALS['super_admins'];
-			unset( $GLOBALS['super_admins'] );
-		}
-
 		$user_id = self::factory()->user->create();
 		grant_super_admin( $user_id );
 		revoke_super_admin( $user_id );
 
 		$this->assertTrue( wpmu_delete_user( $user_id ) );
-
-		if ( isset( $old_global ) ) {
-			$GLOBALS['super_admins'] = $old_global;
-		}
 	}
 
 	/**
 	 * Tests that deleting a revoked super administrator retains and marks its user record.
 	 */
 	public function test_revoked_super_admin_is_deleted() {
-		if ( isset( $GLOBALS['super_admins'] ) ) {
-			$old_global = $GLOBALS['super_admins'];
-			unset( $GLOBALS['super_admins'] );
-		}
-
 		$user_id = self::factory()->user->create();
 		grant_super_admin( $user_id );
 		revoke_super_admin( $user_id );
@@ -198,37 +184,19 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 
 		$this->assertTrue( $user->exists(), 'WP_User->exists' );
 		$this->assertSame( '1', $user->deleted );
-
-		if ( isset( $old_global ) ) {
-			$GLOBALS['super_admins'] = $old_global;
-		}
 	}
 
 	public function test_super_admin_cannot_be_deleted() {
-		if ( isset( $GLOBALS['super_admins'] ) ) {
-			$old_global = $GLOBALS['super_admins'];
-			unset( $GLOBALS['super_admins'] );
-		}
-
 		$user_id = self::factory()->user->create();
 		grant_super_admin( $user_id );
 
 		$this->assertFalse( wpmu_delete_user( $user_id ) );
-
-		if ( isset( $old_global ) ) {
-			$GLOBALS['super_admins'] = $old_global;
-		}
 	}
 
 	/**
 	 * @ticket 27205
 	 */
 	public function test_granting_super_admins() {
-		if ( isset( $GLOBALS['super_admins'] ) ) {
-			$old_global = $GLOBALS['super_admins'];
-			unset( $GLOBALS['super_admins'] );
-		}
-
 		$user_id = self::factory()->user->create();
 
 		$this->assertFalse( is_super_admin( $user_id ) );
@@ -238,9 +206,6 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		$this->assertFalse( grant_super_admin( $user_id ) );
 		$this->assertTrue( revoke_super_admin( $user_id ) );
 
-		// None of these operations should set the $super_admins global.
-		$this->assertFalse( isset( $GLOBALS['super_admins'] ) );
-
 		// Try with two users.
 		$second_user = self::factory()->user->create();
 		$this->assertTrue( grant_super_admin( $user_id ) );
@@ -249,10 +214,19 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		$this->assertTrue( is_super_admin( $user_id ) );
 		$this->assertTrue( revoke_super_admin( $user_id ) );
 		$this->assertTrue( revoke_super_admin( $second_user ) );
+	}
 
-		if ( isset( $old_global ) ) {
-			$GLOBALS['super_admins'] = $old_global;
-		}
+	/**
+	 * Tests that a missing super admin option does not grant privileges to the admin login.
+	 */
+	public function test_get_super_admins_has_no_default_user() {
+		$site_admins = get_site_option( 'site_admins' );
+
+		delete_site_option( 'site_admins' );
+		$actual = get_super_admins();
+		update_site_option( 'site_admins', $site_admins );
+
+		$this->assertSame( array(), $actual );
 	}
 
 	/**
@@ -452,11 +426,6 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 	 * @ticket 39170
 	 */
 	public function test_revoke_super_admin_with_network_email() {
-		if ( isset( $GLOBALS['super_admins'] ) ) {
-			$old_global = $GLOBALS['super_admins'];
-			unset( $GLOBALS['super_admins'] );
-		}
-
 		$old_network_email = get_site_option( 'admin_email' );
 		$email_address     = 'superadmin333@example.org';
 
@@ -472,11 +441,6 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 		$result = revoke_super_admin( $user_id );
 
 		update_site_option( 'admin_email', $old_network_email );
-
-		if ( isset( $old_global ) ) {
-			$GLOBALS['super_admins'] = $old_global;
-		}
-
 		$this->assertTrue( $result );
 	}
 }

@@ -57,7 +57,7 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 
 			// Prevent deleting the administrator getting notifications.
 			$user = get_user_by( 'id', $user_id_to_delete );
-			if ( $user->is_system_notification_recipient() ) {
+			if ( $user->is_system_notification_recipient( calmpress\site\Site::current() ) ) {
 				$caps[] = 'do_not_allow';
 			} else {
 				$caps[] = 'remove_users';
@@ -659,7 +659,7 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 				// Prevent deleting the administrator getting notifications,
 				// except for super user on network.
 				$user = get_user_by( 'id', $user_id_to_delete );
-				if ( $user && $user->is_system_notification_recipient() ) {
+				if ( $user && $user->is_system_notification_recipient( calmpress\site\Site::current() ) ) {
 					$caps[] = 'do_not_allow';
 					return $caps;
 				}
@@ -1087,19 +1087,14 @@ function remove_role( $role ) {
  * Retrieves a list of super admins.
  *
  * @since 3.0.0
+ * @since calmPress 1.0.0 The `$network_id` parameter was added.
  *
- * @global array $super_admins
+ * @param int|null $network_id Network ID. Null uses the current network.
  *
  * @return string[] List of super admin logins.
  */
-function get_super_admins() {
-	global $super_admins;
-
-	if ( isset( $super_admins ) ) {
-		return $super_admins;
-	} else {
-		return get_site_option( 'site_admins', array( 'admin' ) );
-	}
+function get_super_admins( $network_id = null ) {
+	return get_network_option( $network_id, 'site_admins', array() );
 }
 
 /**
@@ -1138,15 +1133,12 @@ function is_super_admin( $user_id = false ) {
  *
  * @since 3.0.0
  *
- * @global array $super_admins
- *
  * @param int $user_id ID of the user to be granted Super Admin privileges.
  * @return bool True on success, false on failure. This can fail when the user is
- *              already a super admin or when the `$super_admins` global is defined.
+ *              already a super admin.
  */
 function grant_super_admin( $user_id ) {
-	// If global super_admins override is defined, there is nothing to do here.
-	if ( isset( $GLOBALS['super_admins'] ) || ! is_multisite() ) {
+	if ( ! is_multisite() ) {
 		return false;
 	}
 
@@ -1159,8 +1151,7 @@ function grant_super_admin( $user_id ) {
 	 */
 	do_action( 'grant_super_admin', $user_id );
 
-	// Directly fetch site_admins instead of using get_super_admins().
-	$super_admins = get_site_option( 'site_admins', array( 'admin' ) );
+	$super_admins = get_super_admins();
 
 	$user = get_userdata( $user_id );
 	if ( $user && ! in_array( $user->user_login, $super_admins, true ) ) {
@@ -1185,16 +1176,21 @@ function grant_super_admin( $user_id ) {
  *
  * @since 3.0.0
  * @since 6.9.0 Super admin privileges can be revoked regardless of email address.
- *
- * @global array $super_admins
+ * @since calmPress 1.0.0 Super Admin status cannot be revoked from the user configured to receive network notifications.
  *
  * @param int $user_id ID of the user Super Admin privileges to be revoked from.
- * @return bool True on success, false on failure. This can fail when the user's email
- *              is the network admin email or when the `$super_admins` global is defined.
+ * 
+ * @return bool True on success, false on failure.
  */
 function revoke_super_admin( $user_id ) {
-	// If global super_admins override is defined, there is nothing to do here.
-	if ( isset( $GLOBALS['super_admins'] ) || ! is_multisite() ) {
+	if ( ! is_multisite() ) {
+		return false;
+	}
+
+	$network = get_network();
+	$user    = get_userdata( $user_id );
+
+	if ( $network && $user && $user->is_system_notification_recipient( $network ) ) {
 		return false;
 	}
 
@@ -1207,8 +1203,7 @@ function revoke_super_admin( $user_id ) {
 	 */
 	do_action( 'revoke_super_admin', $user_id );
 
-	// Directly fetch site_admins instead of using get_super_admins().
-	$super_admins = get_site_option( 'site_admins', array( 'admin' ) );
+	$super_admins = get_super_admins();
 
 	$user = get_userdata( $user_id );
 	if ( $user ) {

@@ -269,8 +269,17 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 			$name = '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . _x( 'Anonymous', 'name' ) . '</span>';
 		}
 
-		$super_admins = get_super_admins();
-		$avatar       = get_avatar( $user, 32 );
+		$super_admins  = get_super_admins();
+		$avatar        = get_avatar( $user, 32 );
+		$extended_info = array();
+
+		if ( in_array( $user->user_login, $super_admins, true ) ) {
+			$extended_info[] = esc_html__( 'Super Admin' );
+		}
+
+		if ( $user->is_system_notification_recipient( get_network() ) ) {
+			$extended_info[] = esc_html__( 'System notifications' );
+		}
 
 		echo $avatar;
 
@@ -286,8 +295,8 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 			<?php
 			echo $edit;
 
-			if ( in_array( $user->user_login, $super_admins, true ) ) {
-				echo ' &mdash; ' . __( 'Super Admin' );
+			if ( $extended_info ) {
+				echo ' &mdash; ' . implode( ', ', $extended_info );
 			}
 			?>
 		</strong>

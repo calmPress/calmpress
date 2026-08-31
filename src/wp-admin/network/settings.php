@@ -21,26 +21,6 @@ if ( ! current_user_can( 'manage_network_options' ) ) {
 $title       = __( 'Network Settings' );
 $parent_file = 'settings.php';
 
-// Handle network admin email change requests.
-if ( ! empty( $_GET['network_admin_hash'] ) ) {
-	$new_admin_details = get_site_option( 'network_admin_hash' );
-	$redirect          = 'settings.php?updated=false';
-	if ( is_array( $new_admin_details ) && hash_equals( $new_admin_details['hash'], $_GET['network_admin_hash'] ) && ! empty( $new_admin_details['newemail'] ) ) {
-		update_site_option( 'admin_email', $new_admin_details['newemail'] );
-		delete_site_option( 'network_admin_hash' );
-		delete_site_option( 'new_admin_email' );
-		$redirect = 'settings.php?updated=true';
-	}
-	wp_redirect( network_admin_url( $redirect ) );
-	exit;
-} elseif ( ! empty( $_GET['dismiss'] ) && 'new_network_admin_email' === $_GET['dismiss'] ) {
-	check_admin_referer( 'dismiss_new_network_admin_email' );
-	delete_site_option( 'network_admin_hash' );
-	delete_site_option( 'new_admin_email' );
-	wp_redirect( network_admin_url( 'settings.php?updated=true' ) );
-	exit;
-}
-
 add_action( 'admin_head', 'network_settings_add_js' );
 
 if ( $_POST ) {
@@ -73,7 +53,6 @@ if ( $_POST ) {
 		'welcome_user_email',
 		'fileupload_maxk',
 		'WPLANG',
-		'new_admin_email',
 		'first_comment_email',
 	);
 
@@ -122,43 +101,6 @@ if ( isset( $_GET['updated'] ) ) {
 	<h1><?php echo esc_html( $title ); ?></h1>
 	<form method="post" action="settings.php" novalidate="novalidate">
 		<?php wp_nonce_field( 'siteoptions' ); ?>
-		<h2><?php _e( 'Operational Settings' ); ?></h2>
-		<table class="form-table" role="presentation">
-			<tr>
-				<th scope="row"><label for="admin_email"><?php _e( 'Network Admin Email' ); ?></label></th>
-				<td>
-					<input name="new_admin_email" type="email" id="admin_email" aria-describedby="admin-email-desc" class="regular-text" value="<?php echo esc_attr( get_site_option( 'admin_email' ) ); ?>" />
-					<p class="description" id="admin-email-desc">
-						<?php _e( 'This address is used for admin purposes. If you change this, an email will be sent to your new address to confirm it. <strong>The new address will not become active until confirmed.</strong>' ); ?>
-					</p>
-					<?php
-					$new_admin_email = get_site_option( 'new_admin_email' );
-					if ( $new_admin_email && get_site_option( 'admin_email' ) !== $new_admin_email ) :
-						$notice_message = sprintf(
-							/* translators: %s: New network admin email. */
-							__( 'There is a pending change of the network admin email to %s.' ),
-							'<code>' . esc_html( $new_admin_email ) . '</code>'
-						);
-
-						$notice_message .= sprintf(
-							' <a href="%1$s">%2$s</a>',
-							esc_url( wp_nonce_url( network_admin_url( 'settings.php?dismiss=new_network_admin_email' ), 'dismiss_new_network_admin_email' ) ),
-							__( 'Cancel' )
-						);
-
-						wp_admin_notice(
-							$notice_message,
-							array(
-								'type'               => 'warning',
-								'dismissible'        => true,
-								'additional_classes' => array( 'inline' ),
-							)
-						);
-					endif;
-					?>
-				</td>
-			</tr>
-		</table>
 		<h2><?php _e( 'New Site Settings' ); ?></h2>
 		<table class="form-table" role="presentation">
 

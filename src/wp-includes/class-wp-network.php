@@ -354,6 +354,47 @@ class WP_Network {
 	}
 
 	/**
+	 * Retrieves the network's administrators.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return WP_User[] The network administrators.
+	 *
+	 * @throws RuntimeException If the network has no administrators.
+	 */
+	public function administrators(): array {
+		$administrator_logins = get_super_admins( $this->id );
+		$administrators       = array();
+
+		foreach ( $administrator_logins as $login ) {
+			$user = get_user_by( 'login', $login );
+
+			if ( $user && $user->can_login() ) {
+				$administrators[] = $user;
+			}
+		}
+
+		if ( array() === $administrators ) {
+			throw new RuntimeException( 'No administrators found for this network. Please configure at least one administrator.' );
+		}
+
+		return $administrators;
+	}
+
+	/**
+	 * Retrieves the email address that receives system notifications for the network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string The notification recipient's email address.
+	 */
+	public function admin_email(): string {
+		$user = get_userdata( (int) get_network_option( $this->id, 'admin_user_id' ) );
+
+		return $user->user_email;
+	}
+
+	/**
 	 * Retrieves the closest matching network for a domain and path.
 	 *
 	 * This will not necessarily return an exact match for a domain and path. Instead, it

@@ -70,6 +70,9 @@ class Site extends WP_UnitTestCase {
 		update_option( 'admin_user_id', $author_id );
 		$this->assertSame( $administrator_id, (int) get_option( 'admin_user_id' ) );
 
+		update_option( 'admin_user_id', -$administrator_id );
+		$this->assertSame( $administrator_id, (int) get_option( 'admin_user_id' ) );
+
 		update_option( 'admin_email', 'direct-change@example.org' );
 		$this->assertSame( 'changed-site-administrator@example.org', get_option( 'admin_email' ) );
 	}
@@ -82,6 +85,18 @@ class Site extends WP_UnitTestCase {
 		update_option( 'comment_moderator_user', $user_id );
 
 		$this->assertSame( $user_id, CalmPress_Site::current()->default_comment_moderator_user()->ID );
+	}
+
+	/**
+	 * Tests that a missing comment moderator falls back to the system notification recipient.
+	 */
+	public function test_default_comment_moderator_user_falls_back_to_notification_recipient(): void {
+		$administrator_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+		update_option( 'admin_user_id', $administrator_id );
+		update_option( 'comment_moderator_user', PHP_INT_MAX );
+
+		$this->assertSame( $administrator_id, CalmPress_Site::current()->default_comment_moderator_user()->ID );
 	}
 
 	/**

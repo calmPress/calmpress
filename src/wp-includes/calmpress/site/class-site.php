@@ -62,32 +62,16 @@ class Site {
 	}
 
 	/**
-	 * Resolves the email address that receives system notifications for the site.
-	 *
-	 * The configured email must belong to a site administrator. The first site
-	 * administrator is used when the configured email is invalid.
+	 * Retrieves the email address that receives system notifications for the site.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $email_address Configured email address.
-	 *
 	 * @return string The notification recipient's email address.
 	 */
-	public function admin_email( string $email_address ): string {
-		// At install time there are no users, so trust the configured address.
-		if ( wp_installing() ) {
-			return $email_address;
-		}
+	public function admin_email(): string {
+		$user = get_userdata( (int) $this->option( 'admin_user_id' ) );
 
-		$administrators = $this->administrators();
-
-		foreach ( $administrators as $administrator ) {
-			if ( $administrator->user_email === $email_address ) {
-				return $email_address;
-			}
-		}
-
-		return $administrators[0]->user_email;
+		return $user->user_email;
 	}
 
 	/**
@@ -95,18 +79,16 @@ class Site {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return WP_User The configured user, or the default administrator.
-	 *
-	 * @throws RuntimeException If the recipient user cannot be found.
+	 * @return WP_User The configured user, or the system notification recipient.
 	 */
 	public function default_comment_moderator_user(): WP_User {
-		$user = get_user_by( 'email', $this->default_comment_moderator_email() );
+		$user = new WP_User( (int) $this->option( 'comment_moderator_user' ), '', (int) $this->blog_id );
 
-		if ( ! $user instanceof WP_User ) {
-			throw new RuntimeException( 'Site default comment moderation recipient user could not be found.' );
+		if ( 0 !== $user->ID && array_intersect( [ 'administrator', 'editor' ], $user->roles ) ) {
+			return $user;
 		}
 
-		return $user;
+		return get_userdata( (int) $this->option( 'admin_user_id' ) );
 	}
 
 	/**
@@ -120,25 +102,7 @@ class Site {
 	 * @return string The recipient's email address.
 	 */
 	public function default_comment_moderator_email(): string {
-		$configured_user_id = $this->option( 'comment_moderator_user' );
-		$users              = [];
-
-		if ( is_numeric( $configured_user_id ) && 0 < (int) $configured_user_id ) {
-			$users = get_users(
-				[
-					'blog_id'  => (int) $this->blog_id,
-					'include'  => [ (int) $configured_user_id ],
-					'role__in' => [ 'administrator', 'editor' ],
-					'number'   => 1,
-				]
-			);
-		}
-
-		if ( [] !== $users ) {
-			return $users[0]->user_email;
-		}
-
-		return $this->admin_email( (string) $this->option( 'admin_email' ) );
+		return $this->default_comment_moderator_user()->user_email;
 	}
 
 	/**

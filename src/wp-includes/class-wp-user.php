@@ -1075,16 +1075,21 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * Indicates whether the user is the target for notification about system events.
-	 * 
+	 * Indicates whether the user is the target for notifications about system events
+	 * for a specific site or network.
+	 *
 	 * @since calmPress 1.0.0
-	 * 
-	 * @return bool true if the user configured to recieve system notification,
-	 *              otherwise false.
+	 *
+	 * @param calmpress\site\Site|WP_Network $context Site or network whose notification target is checked.
+	 *
+	 * @return bool True if the user is the notification target in the supplied context, otherwise false.
 	 */
-	public function is_system_notification_recipient():bool {
-		$email = get_option( 'admin_email' );
-		return $this->user_email === $email;
+	public function is_system_notification_recipient( calmpress\site\Site|WP_Network $context ): bool {
+		if ( $context instanceof WP_Network ) {
+			return $this->ID === (int) get_network_option( $context->id, 'admin_user_id' );
+		}
+
+		return $this->user_email === $context->admin_email();
 	}
 
 	/**

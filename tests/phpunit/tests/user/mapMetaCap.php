@@ -8,7 +8,6 @@
 class Tests_User_MapMetaCap extends WP_UnitTestCase {
 
 	protected static $post_type    = 'mapmetacap';
-	protected static $super_admins = null;
 	protected static $user_id      = null;
 	protected static $author_id    = null;
 	protected static $post_id      = null;
@@ -17,11 +16,9 @@ class Tests_User_MapMetaCap extends WP_UnitTestCase {
 		self::$user_id   = $factory->user->create( array( 'role' => 'administrator' ) );
 		self::$author_id = $factory->user->create( array( 'role' => 'administrator' ) );
 
-		if ( isset( $GLOBALS['super_admins'] ) ) {
-			self::$super_admins = $GLOBALS['super_admins'];
+		if ( is_multisite() ) {
+			grant_super_admin( self::$user_id );
 		}
-		$user                    = new WP_User( self::$user_id );
-		$GLOBALS['super_admins'] = array( $user->user_login );
 
 		register_post_type( self::$post_type );
 
@@ -35,7 +32,10 @@ class Tests_User_MapMetaCap extends WP_UnitTestCase {
 	}
 
 	public static function wpTearDownAfterClass() {
-		$GLOBALS['super_admins'] = self::$super_admins;
+		if ( is_multisite() ) {
+			revoke_super_admin( self::$user_id );
+		}
+
 		unset( $GLOBALS['wp_post_types'][ self::$post_type ] );
 	}
 
