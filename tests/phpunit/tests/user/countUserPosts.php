@@ -116,17 +116,17 @@ class Tests_User_CountUserPosts extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Post count should be correct after deleting user without reassigning posts.
+	 * Post count should be retained after anonymizing a user without reassigning posts.
 	 *
 	 * @ticket 39242
 	 */
 	public function test_post_count_retained_after_deleting_user_without_reassigning_posts() {
 		$this->assertSame( '4', count_user_posts( self::$user_id ), 'User is expected to have a count of four posts prior to deletion.' );
 
-		// Delete the original user without reassigning their posts.
+		// Anonymize the original user without reassigning their posts.
 		wp_delete_user( self::$user_id );
 
-		$this->assertSame( '0', count_user_posts( self::$user_id ), 'User is expected to have a count of zero posts following deletion.' );
+		$this->assertSame( '4', count_user_posts( self::$user_id ), 'User is expected to retain a count of four posts following anonymization.' );
 	}
 
 	/**

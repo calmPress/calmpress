@@ -2599,7 +2599,14 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
 	}
 
-	public function test_delete_user_reassign_passed_as_boolean_false_trashes_post() {
+	/**
+	 * Tests that values representing false preserve content associated with the anonymized user.
+	 *
+	 * @dataProvider data_reassign_values_representing_false
+	 *
+	 * @param mixed $reassign Reassignment request value.
+	 */
+	public function test_delete_user_reassign_passed_as_false_preserves_post( mixed $reassign ) {
 		$user_id = self::factory()->user->create();
 
 		$this->allow_user_to_manage_multisite();
@@ -2614,7 +2621,7 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 
 		$request          = new WP_REST_Request( 'DELETE', sprintf( '/wp/v2/users/%d', $user_id ) );
 		$request['force'] = true;
-		$request->set_param( 'reassign', false );
+		$request->set_param( 'reassign', $reassign );
 		$response = rest_get_server()->dispatch( $request );
 
 		// Not implemented in multisite.
@@ -2624,63 +2631,21 @@ class WP_Test_REST_Users_Controller extends WP_Test_REST_Controller_Testcase {
 		}
 
 		$test_post = get_post( $test_post );
-		$this->assertSame( 'trash', $test_post->post_status );
+		$this->assertSame( 'publish', $test_post->post_status );
+		$this->assertSame( $user_id, (int) $test_post->post_author );
 	}
 
-	public function test_delete_user_reassign_passed_as_string_false_trashes_post() {
-		$user_id = self::factory()->user->create();
-
-		$this->allow_user_to_manage_multisite();
-
-		wp_set_current_user( self::$user );
-
-		$test_post = self::factory()->post->create(
-			array(
-				'post_author' => $user_id,
-			)
-		);
-
-		$request          = new WP_REST_Request( 'DELETE', sprintf( '/wp/v2/users/%d', $user_id ) );
-		$request['force'] = true;
-		$request->set_param( 'reassign', 'false' );
-		$response = rest_get_server()->dispatch( $request );
-
-		// Not implemented in multisite.
-		if ( is_multisite() ) {
-			$this->assertErrorResponse( 'rest_cannot_delete', $response, 501 );
-			return;
-		}
-
-		$test_post = get_post( $test_post );
-		$this->assertSame( 'trash', $test_post->post_status );
-	}
-
-	public function test_delete_user_reassign_passed_as_empty_string_trashes_post() {
-		$user_id = self::factory()->user->create();
-
-		$this->allow_user_to_manage_multisite();
-
-		wp_set_current_user( self::$user );
-
-		$test_post = self::factory()->post->create(
-			array(
-				'post_author' => $user_id,
-			)
-		);
-
-		$request          = new WP_REST_Request( 'DELETE', sprintf( '/wp/v2/users/%d', $user_id ) );
-		$request['force'] = true;
-		$request->set_param( 'reassign', '' );
-		$response = rest_get_server()->dispatch( $request );
-
-		// Not implemented in multisite.
-		if ( is_multisite() ) {
-			$this->assertErrorResponse( 'rest_cannot_delete', $response, 501 );
-			return;
-		}
-
-		$test_post = get_post( $test_post );
-		$this->assertSame( 'trash', $test_post->post_status );
+	/**
+	 * Provides REST reassignment values that represent false.
+	 *
+	 * @return array[] Reassignment values.
+	 */
+	public function data_reassign_values_representing_false(): array {
+		return [
+			'boolean false' => [ false ],
+			'string false'  => [ 'false' ],
+			'empty string'  => [ '' ],
+		];
 	}
 
 	public function test_delete_user_reassign_passed_as_0_reassigns_author() {
