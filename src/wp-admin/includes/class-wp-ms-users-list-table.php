@@ -59,7 +59,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 			return;
 		}
 
-		// Include users associated with the current network, except for users whose
 		// Users awaiting activation are shown only in the Pending Activation view.
 		$pending_user_ids = wp_list_pluck( $this->users_pending_activation(), 'ID' );
 		$network_user_ids = array_values( array_diff( get_network()->user_ids(), $pending_user_ids ) );
@@ -239,6 +238,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 
 		if ( 'pending_activation' === $role ) {
 			return array(
+				'name'       => __( 'Name' ),
 				'email'      => __( 'Email' ),
 				'registered' => __( 'Invited' ),
 			);
@@ -544,12 +544,6 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 * @return string Name of the default primary column, in this case, 'name'.
 	 */
 	protected function get_default_primary_column_name() {
-		global $role;
-
-		if ( 'pending_activation' === $role ) {
-			return 'email';
-		}
-
 		return 'name';
 	}
 
@@ -590,8 +584,8 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 				'cancel-network-invitation-' . $user->ID
 			);
 
-			$actions['resend'] = '<a href="' . esc_url( $resend_url ) . '">' . esc_html__( 'Resend' ) . '</a>';
-			$actions['cancel'] = '<a class="delete" href="' . esc_url( $cancel_url ) . '">' . esc_html__( 'Cancel' ) . '</a>';
+			$actions['resend-invitation'] = '<a href="' . esc_url( $resend_url ) . '">' . esc_html__( 'Resend Invitation' ) . '</a>';
+			$actions['cancel-invitation'] = '<a class="delete" href="' . esc_url( $cancel_url ) . '">' . esc_html__( 'Cancel Invitation' ) . '</a>';
 
 			return $this->row_actions( $actions );
 		}
