@@ -40,7 +40,7 @@ function network_invitation_user_from_request( WP_Network $network ): WP_User {
 		wp_safe_redirect(
 			add_query_arg(
 				[
-					'role'    => 'pending',
+					'role'    => 'pending_activation',
 					'updated' => 'true',
 					'action'  => 'invitation_not_pending',
 				],
@@ -73,7 +73,7 @@ if ( isset( $_GET['action'] ) ) {
 			wp_safe_redirect(
 				add_query_arg(
 					[
-						'role'    => 'pending',
+						'role'    => 'pending_activation',
 						'updated' => 'true',
 						'action'  => 'invitation_resent',
 					],
@@ -97,7 +97,7 @@ if ( isset( $_GET['action'] ) ) {
 			wp_safe_redirect(
 				add_query_arg(
 					[
-						'role'    => 'pending',
+						'role'    => 'pending_activation',
 						'updated' => 'true',
 						'action'  => 'invitation_cancelled',
 					],
@@ -296,7 +296,7 @@ if ( isset( $_REQUEST['updated'] ) && 'true' === $_REQUEST['updated'] && ! empty
 			$message = esc_html__( 'Invitation cancelled.' );
 			break;
 		case 'invitation_not_pending':
-			$message     = esc_html__( 'The user does not have a pending invitation to this network.' );
+			$message     = esc_html__( 'The user is not pending activation in this network.' );
 			$notice_type = 'warning';
 			break;
 	}
@@ -336,7 +336,7 @@ if ( isset( $_REQUEST['updated'] ) && 'true' === $_REQUEST['updated'] && ! empty
 
 	<?php $wp_list_table->views(); ?>
 
-	<?php if ( ! isset( $_GET['role'] ) || 'pending' !== $_GET['role'] ) : ?>
+	<?php if ( ! isset( $_GET['role'] ) || 'pending_activation' !== $_GET['role'] ) : ?>
 		<form method="get" class="search-form">
 			<?php $wp_list_table->search_box( __( 'Search Users' ), 'all-user' ); ?>
 		</form>

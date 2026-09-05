@@ -1,6 +1,6 @@
 <?php
 /**
- * Edit a user with a pending network invitation.
+ * Edit a user pending network activation.
  *
  * @package calmPress
  * @subpackage Multisite
@@ -86,14 +86,14 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 	}
 }
 
-$title       = __( 'Edit Pending User' );
+$title       = __( 'Edit User Pending Activation' );
 $parent_file = 'users.php';
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 
 <div class="wrap">
-	<h1><?php esc_html_e( 'Edit Pending User' ); ?></h1>
+	<h1><?php esc_html_e( 'Edit User Pending Activation' ); ?></h1>
 
 	<?php
 	if ( isset( $_GET['updated'] ) ) {

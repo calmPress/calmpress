@@ -528,13 +528,13 @@ class WP_Network {
 	}
 
 	/**
-	 * The users with pending invitations to the network.
+	 * The users pending activation in the network.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * @return WP_User[] Users with pending invitations.
+	 * @return WP_User[] Users pending activation.
 	 */
-	public function users_with_pending_invites(): array {
+	public function users_pending_activation(): array {
 		return get_users(
 			[
 				'blog_id'    => 0,

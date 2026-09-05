@@ -45,8 +45,8 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 
 		$paged = $this->get_pagenum();
 
-		if ( 'pending' === $role ) {
-			$users       = $this->users_with_pending_invites();
+		if ( 'pending_activation' === $role ) {
+			$users       = $this->users_pending_activation();
 			$total_items = count( $users );
 			$this->items = array_slice( $users, ( $paged - 1 ) * $users_per_page, $users_per_page );
 
@@ -60,8 +60,8 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 		}
 
 		// Include users associated with the current network, except for users whose
-		// invitations to this network are still pending.
-		$pending_user_ids = wp_list_pluck( $this->users_with_pending_invites(), 'ID' );
+		// Users awaiting activation are shown only in the Pending Activation view.
+		$pending_user_ids = wp_list_pluck( $this->users_pending_activation(), 'ID' );
 		$network_user_ids = array_values( array_diff( get_network()->user_ids(), $pending_user_ids ) );
 
 		// WP_User_Query treats an empty include array as unrestricted; user ID 0
@@ -135,7 +135,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	protected function get_bulk_actions() {
 		global $role;
 
-		if ( 'pending' === $role ) {
+		if ( 'pending_activation' === $role ) {
 			return array();
 		}
 
@@ -152,8 +152,8 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	public function no_items() {
 		global $role;
 
-		if ( 'pending' === $role ) {
-			_e( 'No pending invitations found.' );
+		if ( 'pending_activation' === $role ) {
+			_e( 'No users pending activation found.' );
 			return;
 		}
 
@@ -167,7 +167,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	protected function get_views() {
 		global $role;
 
-		$pending_users = $this->users_with_pending_invites();
+		$pending_users = $this->users_pending_activation();
 		$total_users   = count( get_network()->user_ids() );
 		$super_admins  = get_super_admins();
 		$total_admins  = count( $super_admins );
@@ -186,7 +186,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 				),
 				number_format_i18n( $total_users )
 			),
-			'current' => ! in_array( $role, array( 'super', 'pending' ), true ),
+			'current' => ! in_array( $role, array( 'super', 'pending_activation' ), true ),
 		);
 
 		$role_links['super'] = array(
@@ -203,18 +203,14 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 			'current' => 'super' === $role,
 		);
 
-		$role_links['pending'] = array(
-			'url'     => network_admin_url( 'users.php?role=pending' ),
+		$role_links['pending_activation'] = array(
+			'url'     => network_admin_url( 'users.php?role=pending_activation' ),
 			'label'   => sprintf(
-				/* translators: Number of pending user invitations. */
-				_n(
-					'Pending Invitation <span class="count">(%s)</span>',
-					'Pending Invitations <span class="count">(%s)</span>',
-					$total_pending
-				),
+				'%s <span class="count">(%s)</span>',
+				esc_html__( 'Pending Activation' ),
 				number_format_i18n( $total_pending )
 			),
-			'current' => 'pending' === $role,
+			'current' => 'pending_activation' === $role,
 		);
 
 		return $this->get_views_links( $role_links );
@@ -241,7 +237,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	public function get_columns() {
 		global $role;
 
-		if ( 'pending' === $role ) {
+		if ( 'pending_activation' === $role ) {
 			return array(
 				'email'      => __( 'Email' ),
 				'registered' => __( 'Invited' ),
@@ -272,7 +268,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	protected function get_sortable_columns() {
 		global $role;
 
-		if ( 'pending' === $role ) {
+		if ( 'pending_activation' === $role ) {
 			return array();
 		}
 
@@ -414,7 +410,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 */
 	protected function _column_blogs( $user, $classes, $data, $primary ) {
 		echo '<td class="', $classes, ' has-row-actions" ', $data, '>';
-		echo $this->column_blogs( $user );
+		$this->column_blogs( $user );
 		echo $this->handle_row_actions( $user, 'blogs', $primary );
 		echo '</td>';
 	}
@@ -550,7 +546,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	protected function get_default_primary_column_name() {
 		global $role;
 
-		if ( 'pending' === $role ) {
+		if ( 'pending_activation' === $role ) {
 			return 'email';
 		}
 
@@ -586,11 +582,11 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 			}
 
 			$resend_url = wp_nonce_url(
-				network_admin_url( 'users.php?role=pending&action=resend-invitation&user_id=' . $user->ID ),
+				network_admin_url( 'users.php?role=pending_activation&action=resend-invitation&user_id=' . $user->ID ),
 				'resend-network-invitation-' . $user->ID
 			);
 			$cancel_url = wp_nonce_url(
-				network_admin_url( 'users.php?role=pending&action=cancel-invitation&user_id=' . $user->ID ),
+				network_admin_url( 'users.php?role=pending_activation&action=cancel-invitation&user_id=' . $user->ID ),
 				'cancel-network-invitation-' . $user->ID
 			);
 
@@ -626,13 +622,13 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * The users with pending invitations to the current network.
+	 * The users pending activation in the current network.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * @return WP_User[] Users with pending invitations.
+	 * @return WP_User[] Users pending activation.
 	 */
-	public function users_with_pending_invites(): array {
-		return get_network()->users_with_pending_invites();
+	public function users_pending_activation(): array {
+		return get_network()->users_pending_activation();
 	}
 }

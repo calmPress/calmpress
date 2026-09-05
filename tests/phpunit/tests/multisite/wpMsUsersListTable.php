@@ -100,29 +100,29 @@ class Tests_Multisite_wpMsUsersListTable extends WP_UnitTestCase {
 		$expected = array(
 			'all'     => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php" class="current" aria-current="page">All <span class="count">(' . $all . ')</span></a>',
 			'super'   => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=super">Super Admin <span class="count">(' . $super . ')</span></a>',
-			'pending' => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=pending">Pending Invitations <span class="count">(0)</span></a>',
+			'pending_activation' => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=pending_activation">Pending Activation <span class="count">(0)</span></a>',
 		);
 
 		$this->assertSame( $expected, $this->table->get_views() );
 	}
 
 	/**
-	 * Tests that pending network invitations are listed separately from users.
+	 * Tests that users pending network activation are listed separately from active users.
 	 */
-	public function test_pending_network_invitations_view() {
+	public function test_pending_network_activation_view() {
 		$email = 'listed-network-invitation@example.org';
 
 		$user = self::factory()->user->create_and_get( [ 'user_email' => $email ] );
 		$user->invite_to_network( get_network() );
 
-		$_REQUEST['role'] = 'pending';
+		$_REQUEST['role'] = 'pending_activation';
 		$this->table->prepare_items();
 
 		unset( $_REQUEST['role'] );
 
 		$this->assertCount( 1, $this->table->items );
 		$this->assertSame( $email, $this->table->items[0]->user_email );
-		$this->assertArrayHasKey( 'pending', $this->table->get_views() );
+		$this->assertArrayHasKey( 'pending_activation', $this->table->get_views() );
 
 		$GLOBALS['role'] = '';
 	}

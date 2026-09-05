@@ -14,7 +14,7 @@ $user_id = isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : 0;
 $user = get_userdata( $user_id );
 
 if ( $user && $user->has_network_invite( get_network() ) ) {
-	require ABSPATH . 'wp-admin/network/user-edit-invitation.php';
+	require ABSPATH . 'wp-admin/network/user-edit-pending-activation.php';
 	return;
 }
 

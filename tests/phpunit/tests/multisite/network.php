@@ -793,7 +793,7 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		$this->assertTrue( $user->was_created_for_network_invitation() );
 		$this->assertSame( array(), get_blogs_of_user( $user->ID ) );
 
-		$invited_users = $network->users_with_pending_invites();
+		$invited_users = $network->users_pending_activation();
 		$invited_user  = end( $invited_users );
 
 		$this->assertSame( $email, $invited_user->user_email );
@@ -813,7 +813,7 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $user->has_network_invite( $network ) );
 		$this->assertTrue( $user->has_network_invite( $other_network ) );
-		$this->assertContains( $user->ID, wp_list_pluck( $other_network->users_with_pending_invites(), 'ID' ) );
+		$this->assertContains( $user->ID, wp_list_pluck( $other_network->users_pending_activation(), 'ID' ) );
 
 		// Authenticate through the current network using a one-time password.
 		$one_time_password = One_Time_Password::new( HOUR_IN_SECONDS );
@@ -839,7 +839,7 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		$this->assertTrue( $network->has_user( $user ) );
 		$this->assertContains( $user->ID, $network->orphaned_user_ids() );
 		$this->assertFalse( $other_network->has_user( $user ) );
-		$this->assertContains( $user->ID, wp_list_pluck( $other_network->users_with_pending_invites(), 'ID' ) );
+		$this->assertContains( $user->ID, wp_list_pluck( $other_network->users_pending_activation(), 'ID' ) );
 
 		// Assigning a site role removes the user's orphaned state.
 		add_user_to_blog( (int) $network->site_id, $user->ID, 'subscriber' );
