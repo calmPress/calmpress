@@ -157,6 +157,14 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 		do_action( 'user_account_activate' , $user );
 	}
 
+	if ( is_multisite() ) {
+		$network = get_network();
+
+		if ( $user->has_network_invite( $network ) ) {
+			$user->mark_network_invite_as_accepted( $network );
+		}
+	}
+
 	/**
 	 * Fires after the user has successfully logged in.
 	 *
@@ -927,8 +935,6 @@ function wp_list_users( $args = array() ) {
  * @since 3.0.0
  * @since 4.7.0 Converted to use `get_sites()`.
  *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
  * @param int  $user_id User ID
  * @param bool $all     Whether to retrieve all sites, or only sites that are not
  *                      marked as deleted, or archived.
@@ -936,8 +942,6 @@ function wp_list_users( $args = array() ) {
  *                  or belongs to no sites.
  */
 function get_blogs_of_user( $user_id, $all = false ) {
-	global $wpdb;
-
 	$user_id = (int) $user_id;
 
 	// Logged out users can't have sites.
@@ -964,8 +968,9 @@ function get_blogs_of_user( $user_id, $all = false ) {
 		return $sites;
 	}
 
-	$keys = get_user_meta( $user_id );
-	if ( empty( $keys ) ) {
+	$site_ids = ( new WP_User( $user_id ) )->site_ids();
+
+	if ( [] === $site_ids ) {
 		return array();
 	}
 
@@ -981,30 +986,6 @@ function get_blogs_of_user( $user_id, $all = false ) {
 		$sites[ $site_id ]->archived    = 0;
 		$sites[ $site_id ]->deleted     = 0;
 		return $sites;
-	}
-
-	$site_ids = array();
-
-	if ( isset( $keys[ $wpdb->base_prefix . 'capabilities' ] ) && defined( 'MULTISITE' ) ) {
-		$site_ids[] = 1;
-		unset( $keys[ $wpdb->base_prefix . 'capabilities' ] );
-	}
-
-	$keys = array_keys( $keys );
-
-	foreach ( $keys as $key ) {
-		if ( ! str_ends_with( $key, 'capabilities' ) ) {
-			continue;
-		}
-		if ( $wpdb->base_prefix && ! str_starts_with( $key, $wpdb->base_prefix ) ) {
-			continue;
-		}
-		$site_id = str_replace( array( $wpdb->base_prefix, '_capabilities' ), '', $key );
-		if ( ! is_numeric( $site_id ) ) {
-			continue;
-		}
-
-		$site_ids[] = (int) $site_id;
 	}
 
 	$sites = array();

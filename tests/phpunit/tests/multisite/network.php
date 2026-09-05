@@ -1,6 +1,7 @@
 <?php
 
 use calmpress\site\Site as CalmPress_Site;
+use calmpress\utils\One_Time_Password;
 
 /**
  * Tests specific to networks in multisite.
@@ -770,6 +771,98 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 
 		update_site_option( 'admin_user_id', $original_admin_user_id );
 		$this->assertTrue( revoke_super_admin( $user_id ) );
+	}
+
+	/**
+	 * Tests that authenticating an account accepts the current network's invitation.
+	 */
+	public function test_network_user_invitation_activation() {
+		$network       = get_network();
+		$other_network = get_network( self::$different_network_id );
+		$email         = 'pending-network-user@example.org';
+
+		// Create an invitation-only account with an invitation from the current network.
+		$user_id = self::factory()->user->create( [ 'user_email' => $email ] );
+		remove_user_from_blog( $user_id, (int) $network->site_id );
+		$user = get_userdata( $user_id );
+		$user->mark_as_created_for_network_invitation();
+		$user->invite_to_network( $network );
+
+		// Verify that the account has no site capabilities and is pending only on the current network.
+		$this->assertInstanceOf( WP_User::class, $user );
+		$this->assertTrue( $user->was_created_for_network_invitation() );
+		$this->assertSame( array(), get_blogs_of_user( $user->ID ) );
+
+		$invited_users = $network->users_with_pending_invites();
+		$invited_user  = end( $invited_users );
+
+		$this->assertSame( $email, $invited_user->user_email );
+		$this->assertSame(
+			[ (int) $network->id ],
+			array_map( 'intval', get_user_meta( $user->ID, WP_User::INVITED_BY_NETWORK_META_KEY ) )
+		);
+		$this->assertTrue( $user->has_network_invite( $network ) );
+		$this->assertFalse( $user->has_network_invite( $other_network ) );
+		$this->assertFalse( $network->has_user( $user ) );
+
+		// Add a second invitation and verify that each network tracks its invitation independently.
+		$user->invite_to_network( $other_network );
+		$this->assertSame(
+			[ (int) $network->id, (int) $other_network->id ],
+			array_map( 'intval', get_user_meta( $user->ID, WP_User::INVITED_BY_NETWORK_META_KEY ) )
+		);
+		$this->assertTrue( $user->has_network_invite( $network ) );
+		$this->assertTrue( $user->has_network_invite( $other_network ) );
+		$this->assertContains( $user->ID, wp_list_pluck( $other_network->users_with_pending_invites(), 'ID' ) );
+
+		// Authenticate through the current network using a one-time password.
+		$one_time_password = One_Time_Password::new( HOUR_IN_SECONDS );
+		update_user_meta( $user->ID, WP_User::OTP_META_ID, $one_time_password->serialize() );
+		$authenticated_user = wp_signon(
+			array(
+				'user_login'    => $email,
+				'user_password' => $one_time_password->password,
+			)
+		);
+
+		// Verify that only the current network's invitation was accepted and the active account is preserved.
+		$this->assertInstanceOf( WP_User::class, $authenticated_user );
+		$this->assertSame( $user->ID, $authenticated_user->ID );
+		$this->assertSame( array(), get_blogs_of_user( $user->ID ) );
+		$this->assertSame(
+			[ (int) $other_network->id ],
+			array_map( 'intval', get_user_meta( $user->ID, WP_User::INVITED_BY_NETWORK_META_KEY ) )
+		);
+		$this->assertFalse( $user->was_created_for_network_invitation() );
+		$this->assertFalse( $user->has_network_invite( $network ) );
+		$this->assertTrue( $user->has_network_invite( $other_network ) );
+		$this->assertTrue( $network->has_user( $user ) );
+		$this->assertContains( $user->ID, $network->orphaned_user_ids() );
+		$this->assertFalse( $other_network->has_user( $user ) );
+		$this->assertContains( $user->ID, wp_list_pluck( $other_network->users_with_pending_invites(), 'ID' ) );
+
+		// Assigning a site role removes the user's orphaned state.
+		add_user_to_blog( (int) $network->site_id, $user->ID, 'subscriber' );
+		$this->assertNotContains( $user->ID, $network->orphaned_user_ids() );
+	}
+
+	/**
+	 * Tests that granting Super Admin status removes the user's orphaned state.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_grant_super_admin_removes_orphaned_state() {
+		$network = get_network();
+		$user    = self::factory()->user->create_and_get();
+
+		remove_user_from_blog( $user->ID, (int) $network->site_id );
+		$network->add_orphaned_user( $user );
+		$this->assertContains( $user->ID, $network->orphaned_user_ids() );
+
+		$this->assertTrue( grant_super_admin( $user->ID ) );
+		$this->assertNotContains( $user->ID, $network->orphaned_user_ids() );
+
+		revoke_super_admin( $user->ID );
 	}
 
 	/**

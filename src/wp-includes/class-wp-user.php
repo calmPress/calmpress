@@ -127,6 +127,21 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	const OTP_META_ID = 'otp';
 
 	/**
+	 * The user meta key identifying a network invitation awaiting authentication.
+	 * Each pending network is stored as a separate value under this key.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public const INVITED_BY_NETWORK_META_KEY = 'calmpress_network_invitation';
+
+	/**
+	 * The user meta key identifying an account created for a network invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public const CREATED_FOR_NETWORK_INVITATION_META_KEY = 'calmpress_created_for_network_invitation';
+
+	/**
 	 * Constructor.
 	 *
 	 * Retrieves the userdata and passes it to WP_User::init().
@@ -387,6 +402,205 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		}
 
 		return empty( $this->deleted ) && ! in_array( 'deleted', $this->roles, true );
+	}
+
+	/**
+	 * Marks the user as invited to a network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_Network $network Network to which the user is invited.
+	 *
+	 * @throws RuntimeException If the invitation cannot be stored.
+	 */
+	public function invite_to_network( WP_Network $network ): void {
+		if ( false === add_user_meta( $this->ID, self::INVITED_BY_NETWORK_META_KEY, (int) $network->id ) ) {
+			throw new RuntimeException( 'The network invitation could not be stored.' );
+		}
+	}
+
+	/**
+	 * Indicates whether the user has a pending invitation to a network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_Network $network Network whose invitation is checked.
+	 *
+	 * @return bool Whether the user has a pending invitation to the network.
+	 */
+	public function has_network_invite( WP_Network $network ): bool {
+		$network_ids = array_map( 'intval', get_user_meta( $this->ID, self::INVITED_BY_NETWORK_META_KEY ) );
+
+		return in_array( (int) $network->id, $network_ids, true );
+	}
+
+	/**
+	 * Indicates whether the user has any pending network invitations.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return bool Whether the user has pending network invitations.
+	 */
+	public function has_any_network_invites(): bool {
+		return metadata_exists( 'user', $this->ID, self::INVITED_BY_NETWORK_META_KEY );
+	}
+
+	/**
+	 * Marks the account as having been created for a network invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @throws RuntimeException If the account cannot be marked.
+	 */
+	public function mark_as_created_for_network_invitation(): void {
+		if ( ! update_user_meta( $this->ID, self::CREATED_FOR_NETWORK_INVITATION_META_KEY, true ) ) {
+			throw new RuntimeException( 'The account could not be marked as created for a network invitation.' );
+		}
+	}
+
+	/**
+	 * Indicates whether the account was created for a network invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return bool Whether the account was created for a network invitation.
+	 */
+	public function was_created_for_network_invitation(): bool {
+		return metadata_exists( 'user', $this->ID, self::CREATED_FOR_NETWORK_INVITATION_META_KEY );
+	}
+
+	/**
+	 * Retrieves the IDs of sites on which the user has been assigned capabilities.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return int[] Site IDs.
+	 */
+	public function site_ids(): array {
+		global $wpdb;
+
+		if ( ! $this->exists() ) {
+			return [];
+		}
+
+		$keys = get_user_meta( $this->ID );
+
+		if ( [] === $keys ) {
+			return [];
+		}
+
+		if ( ! is_multisite() ) {
+			return [ get_current_blog_id() ];
+		}
+
+		$site_ids = [];
+
+		if ( isset( $keys[ $wpdb->base_prefix . 'capabilities' ] ) && defined( 'MULTISITE' ) ) {
+			$site_ids[] = 1;
+			unset( $keys[ $wpdb->base_prefix . 'capabilities' ] );
+		}
+
+		foreach ( array_keys( $keys ) as $key ) {
+			if ( ! str_ends_with( $key, 'capabilities' ) ) {
+				continue;
+			}
+
+			if ( $wpdb->base_prefix && ! str_starts_with( $key, $wpdb->base_prefix ) ) {
+				continue;
+			}
+
+			$site_id = str_replace( [ $wpdb->base_prefix, '_capabilities' ], '', $key );
+
+			if ( ! is_numeric( $site_id ) ) {
+				continue;
+			}
+
+			$site_ids[] = (int) $site_id;
+		}
+
+		return $site_ids;
+	}
+
+	/**
+	 * Retrieves the sites on which the user has been assigned capabilities.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return calmpress\site\Site[] Sites on which the user has been assigned capabilities.
+	 */
+	public function sites(): array {
+		$site_ids = $this->site_ids();
+
+		if ( [] === $site_ids ) {
+			return [];
+		}
+
+		if ( ! is_multisite() ) {
+			return [ calmpress\site\Site::current() ];
+		}
+
+		$args = [
+			'number'   => '',
+			'site__in' => $site_ids,
+		];
+
+		$args['archived'] = 0;
+		$args['deleted']  = 0;
+
+		return get_sites( $args );
+	}
+
+	/**
+	 * Indicates whether the user has been assigned capabilities on a site in a network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_Network $network Network whose membership is checked.
+	 *
+	 * @return bool Whether the user is part of the network.
+	 */
+	public function is_member_of_network( WP_Network $network ): bool {
+		$site_ids = $this->site_ids();
+
+		if ( [] === $site_ids ) {
+			return false;
+		}
+
+		return [] !== get_sites(
+			[
+				'fields'     => 'ids',
+				'network_id' => (int) $network->id,
+				'number'     => 1,
+				'site__in'   => $site_ids,
+			]
+		);
+	}
+
+	/**
+	 * Marks a pending network invitation as accepted.
+	 *
+	 * Accepting an invitation activates the shared account, so it must be preserved if
+	 * invitations from other networks are later cancelled.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_Network $network Network whose invitation is accepted.
+	 */
+	public function mark_network_invite_as_accepted( WP_Network $network ): void {
+		$network->add_orphaned_user( $this );
+		delete_user_meta( $this->ID, self::INVITED_BY_NETWORK_META_KEY, (int) $network->id );
+		delete_user_meta( $this->ID, self::CREATED_FOR_NETWORK_INVITATION_META_KEY );
+	}
+
+	/**
+	 * Cancels a pending invitation to a network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_Network $network Network whose invitation is cancelled.
+	 */
+	public function cancel_network_invite( WP_Network $network ): void {
+		delete_user_meta( $this->ID, self::INVITED_BY_NETWORK_META_KEY, (int) $network->id );
 	}
 
 	/**

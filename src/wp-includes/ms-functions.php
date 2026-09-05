@@ -191,13 +191,15 @@ function add_user_to_blog( $blog_id, $user_id, $role ) {
 		return new WP_Error( 'user_cannot_be_added', __( 'User cannot be added to this site.' ) );
 	}
 
+	$site = get_site( $blog_id );
+
 	if ( ! get_user_meta( $user_id, 'primary_blog', true ) ) {
 		update_user_meta( $user_id, 'primary_blog', $blog_id );
-		$site = get_site( $blog_id );
 		update_user_meta( $user_id, 'source_domain', $site->domain );
 	}
 
 	$user->set_role( $role );
+	get_network( $site->network_id )->remove_orphaned_user( $user );
 
 	/**
 	 * Fires immediately after a user is added to a site.
@@ -951,25 +953,18 @@ function wpmu_signup_blog_notification(
 }
 
 /**
- * Sends a confirmation request email to a user when they sign up for a new user account (without signing up for a site
- * at the same time). The user account will not become active until the confirmation link is clicked.
+ * Sends an invitation to authenticate and activate a user account.
+	 *
+	 * @since MU (3.0.0)
+	 * @since calmPress 1.0.0 The `wpmu_signup_user_notification`,
+	 *                         `wpmu_signup_user_notification_email`, and
+	 *                         `wpmu_signup_user_notification_subject` filters are no longer supported.
+	 *
+	 * @param string $user_login The user's login name.
+	 * @param string $user_email Unused email address retained for signature compatibility.
+ * @param string $key        Unused activation key retained for signature compatibility.
+ * @param array  $meta       Unused signup metadata retained for signature compatibility.
  *
- * This is the notification function used when no new site has
- * been requested.
- *
- * Filter {@see 'wpmu_signup_user_notification'} to bypass this function or
- * replace it with your own notification behavior.
- *
- * Filter {@see 'wpmu_signup_user_notification_email'} and
- * {@see 'wpmu_signup_user_notification_subject'} to change the content
- * and subject line of the email sent to newly registered users.
- *
- * @since MU (3.0.0)
- *
- * @param string $user_login The user's login name.
- * @param string $user_email The user's email address.
- * @param string $key        The activation key created in wpmu_signup_user()
- * @param array  $meta       Optional. Signup meta data. Default empty array.
  * @return bool
  */
 function wpmu_signup_user_notification(
@@ -979,84 +974,15 @@ function wpmu_signup_user_notification(
 	$key,
 	$meta = array()
 ) {
-	/**
-	 * Filters whether to bypass the email notification for new user sign-up.
-	 *
-	 * @since MU (3.0.0)
-	 *
-	 * @param string $user_login User login name.
-	 * @param string $user_email User email address.
-	 * @param string $key        Activation key created in wpmu_signup_user().
-	 * @param array  $meta       Signup meta data. Default empty array.
-	 */
-	if ( ! apply_filters( 'wpmu_signup_user_notification', $user_login, $user_email, $key, $meta ) ) {
-		return false;
-	}
-
 	$user            = get_user_by( 'login', $user_login );
 	$switched_locale = $user && switch_to_user_locale( $user->ID );
 
-	// Send email with activation link.
-	$admin_email = get_site_option( 'admin_email' );
-
-	if ( '' === $admin_email ) {
-		$admin_email = 'support@' . wp_parse_url( network_home_url(), PHP_URL_HOST );
-	}
-
-	$from_name       = ( '' !== get_site_option( 'site_name' ) ) ? esc_html( get_site_option( 'site_name' ) ) : 'calmPress';
-	$message_headers = "From: \"{$from_name}\" <{$admin_email}>\n" . 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . "\"\n";
-	$message         = sprintf(
-		/**
-		 * Filters the content of the notification email for new user sign-up.
-		 *
-		 * Content should be formatted for transmission via wp_mail().
-		 *
-		 * @since MU (3.0.0)
-		 *
-		 * @param string $content    Content of the notification email.
-		 * @param string $user_login User login name.
-		 * @param string $user_email User email address.
-		 * @param string $key        Activation key created in wpmu_signup_user().
-		 * @param array  $meta       Signup meta data. Default empty array.
-		 */
-		apply_filters(
-			'wpmu_signup_user_notification_email',
-			/* translators: New user notification email. %s: Activation URL. */
-			__( "To activate your user, please click the following link:\n\n%s\n\nAfter you activate, you will receive *another email* with your login." ),
-			$user_login,
-			$user_email,
-			$key,
-			$meta
-		),
-		site_url( "wp-activate.php?key=$key" )
+	$email = new calmpress\email\User_Invitation_Email(
+		$user,
+		get_network()->site_name,
+		wp_login_url()
 	);
-
-	$subject = sprintf(
-		/**
-		 * Filters the subject of the notification email of new user signup.
-		 *
-		 * @since MU (3.0.0)
-		 *
-		 * @param string $subject    Subject of the notification email.
-		 * @param string $user_login User login name.
-		 * @param string $user_email User email address.
-		 * @param string $key        Activation key created in wpmu_signup_user().
-		 * @param array  $meta       Signup meta data. Default empty array.
-		 */
-		apply_filters(
-			'wpmu_signup_user_notification_subject',
-			/* translators: New user notification email subject. 1: Network title, 2: New user login. */
-			_x( '[%1$s] Activate %2$s', 'New user notification email subject' ),
-			$user_login,
-			$user_email,
-			$key,
-			$meta
-		),
-		$from_name,
-		$user_email
-	);
-
-	wp_mail( $user_email, wp_specialchars_decode( $subject ), $message, $message_headers );
+	$email->send();
 
 	if ( $switched_locale ) {
 		restore_previous_locale();

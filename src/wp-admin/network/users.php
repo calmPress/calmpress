@@ -14,11 +14,98 @@ if ( ! current_user_can( 'manage_network_users' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to access this page.' ), 403 );
 }
 
+$wp_list_table = _get_list_table( 'WP_MS_Users_List_Table' );
+
+/**
+ * Retrieves the user referenced by a network invitation action.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @param WP_Network $network Network whose invitation is being managed.
+ *
+ * @return WP_User The invited user.
+ */
+function network_invitation_user_from_request( WP_Network $network ): WP_User {
+	if ( ! isset( $_GET['user_id'] ) ) {
+		wp_die( 'Invalid user ID.' );
+	}
+
+	$user = get_userdata( (int) $_GET['user_id'] );
+
+	if ( ! $user ) {
+		wp_die( 'User does not exist.' );
+	}
+
+	if ( ! $user->has_network_invite( $network ) ) {
+		wp_safe_redirect(
+			add_query_arg(
+				[
+					'role'    => 'pending',
+					'updated' => 'true',
+					'action'  => 'invitation_not_pending',
+				],
+				network_admin_url( 'users.php' )
+			)
+		);
+		exit;
+	}
+
+	return $user;
+}
+
 if ( isset( $_GET['action'] ) ) {
 	/** This action is documented in wp-admin/network/edit.php */
 	do_action( 'wpmuadminedit' );
 
 	switch ( $_GET['action'] ) {
+		case 'resend-invitation':
+			$network = get_network();
+			$user    = network_invitation_user_from_request( $network );
+
+			check_admin_referer( 'resend-network-invitation-' . $user->ID );
+			$email = new calmpress\email\User_Invitation_Email(
+				$user,
+				$network->site_name,
+				wp_login_url()
+			);
+			$email->send();
+
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'role'    => 'pending',
+						'updated' => 'true',
+						'action'  => 'invitation_resent',
+					],
+					network_admin_url( 'users.php' )
+				)
+			);
+			exit;
+
+		case 'cancel-invitation':
+			$network = get_network();
+			$user    = network_invitation_user_from_request( $network );
+
+			check_admin_referer( 'cancel-network-invitation-' . $user->ID );
+			$user->cancel_network_invite( $network );
+
+			// An account created only for invitations is no longer needed after its final invitation is cancelled.
+			if ( $user->was_created_for_network_invitation() && ! $user->has_any_network_invites() && [] === $user->sites() ) {
+				wpmu_delete_user( $user->ID );
+			}
+
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'role'    => 'pending',
+						'updated' => 'true',
+						'action'  => 'invitation_cancelled',
+					],
+					network_admin_url( 'users.php' )
+				)
+			);
+			exit;
+
 		case 'deleteuser':
 			if ( ! current_user_can( 'manage_network_users' ) ) {
 				wp_die( __( 'Sorry, you are not allowed to access this page.' ), 403 );
@@ -164,7 +251,6 @@ if ( isset( $_GET['action'] ) ) {
 	}
 }
 
-$wp_list_table = _get_list_table( 'WP_MS_Users_List_Table' );
 $pagenum       = $wp_list_table->get_pagenum();
 $wp_list_table->prepare_items();
 $total_pages = $wp_list_table->get_pagination_arg( 'total_pages' );
@@ -191,7 +277,8 @@ get_current_screen()->set_screen_reader_content(
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 if ( isset( $_REQUEST['updated'] ) && 'true' === $_REQUEST['updated'] && ! empty( $_REQUEST['action'] ) ) {
-	$message = '';
+	$message     = '';
+	$notice_type = 'success';
 	switch ( $_REQUEST['action'] ) {
 		case 'delete':
 			$message = __( 'User deleted.' );
@@ -202,12 +289,22 @@ if ( isset( $_REQUEST['updated'] ) && 'true' === $_REQUEST['updated'] && ! empty
 		case 'add':
 			$message = __( 'User added.' );
 			break;
+		case 'invitation_resent':
+			$message = esc_html__( 'Invitation resent.' );
+			break;
+		case 'invitation_cancelled':
+			$message = esc_html__( 'Invitation cancelled.' );
+			break;
+		case 'invitation_not_pending':
+			$message     = esc_html__( 'The user does not have a pending invitation to this network.' );
+			$notice_type = 'warning';
+			break;
 	}
 
 	wp_admin_notice(
 		$message,
 		array(
-			'type'        => 'success',
+			'type'        => $notice_type,
 			'dismissible' => true,
 			'id'          => 'message',
 		)
@@ -239,9 +336,11 @@ if ( isset( $_REQUEST['updated'] ) && 'true' === $_REQUEST['updated'] && ! empty
 
 	<?php $wp_list_table->views(); ?>
 
-	<form method="get" class="search-form">
-		<?php $wp_list_table->search_box( __( 'Search Users' ), 'all-user' ); ?>
-	</form>
+	<?php if ( ! isset( $_GET['role'] ) || 'pending' !== $_GET['role'] ) : ?>
+		<form method="get" class="search-form">
+			<?php $wp_list_table->search_box( __( 'Search Users' ), 'all-user' ); ?>
+		</form>
+	<?php endif; ?>
 
 	<form id="form-user-list" action="users.php?action=allusers" method="post">
 		<?php $wp_list_table->display(); ?>

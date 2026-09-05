@@ -45,12 +45,36 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 
 		$paged = $this->get_pagenum();
 
+		if ( 'pending' === $role ) {
+			$users       = $this->users_with_pending_invites();
+			$total_items = count( $users );
+			$this->items = array_slice( $users, ( $paged - 1 ) * $users_per_page, $users_per_page );
+
+			$this->set_pagination_args(
+				array(
+					'total_items' => $total_items,
+					'per_page'    => $users_per_page,
+				)
+			);
+			return;
+		}
+
+		// Include users associated with the current network, except for users whose
+		// invitations to this network are still pending.
+		$pending_user_ids = wp_list_pluck( $this->users_with_pending_invites(), 'ID' );
+		$network_user_ids = array_values( array_diff( get_network()->user_ids(), $pending_user_ids ) );
+
+		// WP_User_Query treats an empty include array as unrestricted; user ID 0
+		// ensures that an empty network returns no users.
+		$network_user_ids = [] === $network_user_ids ? [ 0 ] : $network_user_ids;
+
 		$args = array(
-			'number'  => $users_per_page,
-			'offset'  => ( $paged - 1 ) * $users_per_page,
-			'search'  => $usersearch,
-			'blog_id' => 0,
-			'fields'  => 'all_with_meta',
+			'number'     => $users_per_page,
+			'offset'     => ( $paged - 1 ) * $users_per_page,
+			'search'     => $usersearch,
+			'blog_id'    => 0,
+			'fields'     => 'all_with_meta',
+			'include'    => $network_user_ids,
 		);
 
 		if ( wp_is_large_network( 'users' ) ) {
@@ -109,6 +133,12 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
+		global $role;
+
+		if ( 'pending' === $role ) {
+			return array();
+		}
+
 		$actions = array();
 		if ( current_user_can( 'delete_users' ) ) {
 			$actions['delete'] = __( 'Delete' );
@@ -120,6 +150,13 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	/**
 	 */
 	public function no_items() {
+		global $role;
+
+		if ( 'pending' === $role ) {
+			_e( 'No pending invitations found.' );
+			return;
+		}
+
 		_e( 'No users found.' );
 	}
 
@@ -130,9 +167,11 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	protected function get_views() {
 		global $role;
 
-		$total_users  = get_user_count();
-		$super_admins = get_super_admins();
-		$total_admins = count( $super_admins );
+		$pending_users = $this->users_with_pending_invites();
+		$total_users   = count( get_network()->user_ids() );
+		$super_admins  = get_super_admins();
+		$total_admins  = count( $super_admins );
+		$total_pending = count( $pending_users );
 
 		$role_links        = array();
 		$role_links['all'] = array(
@@ -147,7 +186,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 				),
 				number_format_i18n( $total_users )
 			),
-			'current' => 'super' !== $role,
+			'current' => ! in_array( $role, array( 'super', 'pending' ), true ),
 		);
 
 		$role_links['super'] = array(
@@ -162,6 +201,20 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 				number_format_i18n( $total_admins )
 			),
 			'current' => 'super' === $role,
+		);
+
+		$role_links['pending'] = array(
+			'url'     => network_admin_url( 'users.php?role=pending' ),
+			'label'   => sprintf(
+				/* translators: Number of pending user invitations. */
+				_n(
+					'Pending Invitation <span class="count">(%s)</span>',
+					'Pending Invitations <span class="count">(%s)</span>',
+					$total_pending
+				),
+				number_format_i18n( $total_pending )
+			),
+			'current' => 'pending' === $role,
 		);
 
 		return $this->get_views_links( $role_links );
@@ -186,6 +239,15 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
+		global $role;
+
+		if ( 'pending' === $role ) {
+			return array(
+				'email'      => __( 'Email' ),
+				'registered' => __( 'Invited' ),
+			);
+		}
+
 		$users_columns = array(
 			'cb'         => '<input type="checkbox" />',
 			'name'       => __( 'Name' ),
@@ -208,6 +270,12 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 * @return array
 	 */
 	protected function get_sortable_columns() {
+		global $role;
+
+		if ( 'pending' === $role ) {
+			return array();
+		}
+
 		return array(
 			'name'       => array( 'name', false, __( 'Name' ), __( 'Table ordered by Name.' ) ),
 			'email'      => array( 'email', false, __( 'E-mail' ), __( 'Table ordered by E-mail.' ) ),
@@ -311,7 +379,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 * @param WP_User $user The current WP_User object.
 	 */
 	public function column_email( $user ) {
-		echo "<a href='" . esc_url( "mailto:$user->user_email" ) . "'>$user->user_email</a>";
+		echo '<a href="' . esc_url( "mailto:$user->user_email" ) . '">' . esc_html( $user->user_email ) . '</a>';
 	}
 
 	/**
@@ -325,12 +393,15 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 */
 	public function column_registered( $user ) {
 		global $mode;
+
+		$registered = isset( $user->registered ) ? $user->registered : $user->user_registered;
+
 		if ( 'list' === $mode ) {
 			$date = __( 'Y/m/d' );
 		} else {
 			$date = __( 'Y/m/d g:i:s a' );
 		}
-		echo mysql2date( $date, $user->user_registered );
+		echo mysql2date( $date, $registered );
 	}
 
 	/**
@@ -477,6 +548,12 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	 * @return string Name of the default primary column, in this case, 'name'.
 	 */
 	protected function get_default_primary_column_name() {
+		global $role;
+
+		if ( 'pending' === $role ) {
+			return 'email';
+		}
+
 		return 'name';
 	}
 
@@ -499,6 +576,24 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 
 		// Restores the more descriptive, specific name for use within this method.
 		$user = $item;
+
+		if ( $user->has_network_invite( get_network() ) ) {
+			$resend_url = wp_nonce_url(
+				network_admin_url( 'users.php?role=pending&action=resend-invitation&user_id=' . $user->ID ),
+				'resend-network-invitation-' . $user->ID
+			);
+			$cancel_url = wp_nonce_url(
+				network_admin_url( 'users.php?role=pending&action=cancel-invitation&user_id=' . $user->ID ),
+				'cancel-network-invitation-' . $user->ID
+			);
+
+			return $this->row_actions(
+				array(
+					'resend' => '<a href="' . esc_url( $resend_url ) . '">' . __( 'Resend' ) . '</a>',
+					'cancel' => '<a class="delete" href="' . esc_url( $cancel_url ) . '">' . __( 'Cancel' ) . '</a>',
+				)
+			);
+		}
 
 		$super_admins = get_super_admins();
 		$actions      = array();
@@ -523,5 +618,16 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 		$actions = apply_filters( 'ms_user_row_actions', $actions, $user );
 
 		return $this->row_actions( $actions );
+	}
+
+	/**
+	 * The users with pending invitations to the current network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return WP_User[] Users with pending invitations.
+	 */
+	public function users_with_pending_invites(): array {
+		return get_network()->users_with_pending_invites();
 	}
 }

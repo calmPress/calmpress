@@ -154,6 +154,11 @@ function wpmu_delete_user( $id ) {
 		}
 	}
 
+	// Remove stale orphaned-user entries before anonymizing the user globally.
+	foreach ( get_networks( [ 'number' => 0 ] ) as $network ) {
+		$network->remove_orphaned_user( $user );
+	}
+
 	anonymize_user( $user );
 
 	// Mark the retained user record as deleted across the network.

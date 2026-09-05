@@ -9,6 +9,8 @@ use calmpress\site\Site as CalmPress_Site;
 
 /**
  * Tests the site abstraction on a standalone installation.
+ *
+ * @group ms-excluded
  */
 class Site extends WP_UnitTestCase {
 

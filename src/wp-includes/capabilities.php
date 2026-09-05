@@ -1156,7 +1156,12 @@ function grant_super_admin( $user_id ) {
 	$user = get_userdata( $user_id );
 	if ( $user && ! in_array( $user->user_login, $super_admins, true ) ) {
 		$super_admins[] = $user->user_login;
-		update_site_option( 'site_admins', $super_admins );
+
+		if ( ! update_site_option( 'site_admins', $super_admins ) ) {
+			return false;
+		}
+
+		get_network()->remove_orphaned_user( $user );
 
 		/**
 		 * Fires after the user is granted Super Admin privileges.

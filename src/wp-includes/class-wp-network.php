@@ -395,6 +395,158 @@ class WP_Network {
 	}
 
 	/**
+	 * The IDs of network users who have no site role and are not Super Admins.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return int[] User IDs.
+	 */
+	public function orphaned_user_ids(): array {
+		$user_ids = get_network_option( $this->id, 'orphaned_users', [] );
+
+		if ( ! is_array( $user_ids ) ) {
+			return [];
+		}
+
+		return array_values( array_unique( array_filter( array_map( 'intval', $user_ids ) ) ) );
+	}
+
+	/**
+	 * The users associated with the network through orphaned-user status,
+	 * site capabilities, or Super Admin status.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return int[] User IDs.
+	 */
+	public function user_ids(): array {
+		global $wpdb;
+
+		$user_ids = $this->orphaned_user_ids();
+		$site_ids = get_sites(
+			[
+				'fields'     => 'ids',
+				'network_id' => (int) $this->id,
+				'number'     => 0,
+			]
+		);
+
+		if ( [] !== $site_ids ) {
+			$capability_keys = array_map(
+				static function ( $site_id ) use ( $wpdb ): string {
+					return $wpdb->get_blog_prefix( $site_id ) . 'capabilities';
+				},
+				$site_ids
+			);
+			$placeholders = implode( ', ', array_fill( 0, count( $capability_keys ), '%s' ) );
+
+			$user_ids = array_merge(
+				$user_ids,
+				array_map(
+					'intval',
+					$wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT user_id FROM $wpdb->usermeta WHERE meta_key IN ($placeholders)", ...$capability_keys ) )
+				)
+			);
+		}
+
+		$administrator_logins = get_super_admins( $this->id );
+
+		if ( [] !== $administrator_logins ) {
+			$user_ids = array_merge(
+				$user_ids,
+				get_users(
+					[
+						'blog_id'   => 0,
+						'fields'    => 'ids',
+						'login__in' => $administrator_logins,
+					]
+				)
+			);
+		}
+
+		return array_values( array_unique( $user_ids ) );
+	}
+
+	/**
+	 * Indicates whether a user belongs to the network.
+	 *
+	 * Site users, orphaned users, and Super Admins belong to the network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_User $user User whose membership is checked.
+	 *
+	 * @return bool Whether the user belongs to the network.
+	 */
+	public function has_user( WP_User $user ): bool {
+		return in_array( $user->ID, $this->user_ids(), true );
+	}
+
+	/**
+	 * Marks a user as belonging to the network without a site role.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_User $user User to mark as orphaned.
+	 *
+	 * @throws RuntimeException If the network membership cannot be stored.
+	 */
+	public function add_orphaned_user( WP_User $user ): void {
+		$user_ids = $this->orphaned_user_ids();
+
+		if ( in_array( $user->ID, $user_ids, true ) ) {
+			return;
+		}
+
+		$user_ids[] = $user->ID;
+
+		if ( ! update_network_option( $this->id, 'orphaned_users', $user_ids ) ) {
+			throw new RuntimeException( 'The user could not be marked as orphaned in the network.' );
+		}
+	}
+
+	/**
+	 * Removes a user from the network's orphaned users.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_User $user User whose orphaned state is removed.
+	 *
+	 * @throws RuntimeException If the network membership cannot be removed.
+	 */
+	public function remove_orphaned_user( WP_User $user ): void {
+		$user_ids = $this->orphaned_user_ids();
+		$remaining_user_ids = array_values( array_diff( $user_ids, [ $user->ID ] ) );
+
+		if ( $user_ids === $remaining_user_ids ) {
+			return;
+		}
+
+		if ( ! update_network_option( $this->id, 'orphaned_users', $remaining_user_ids ) ) {
+			throw new RuntimeException( 'The user could not be removed from the network orphan list.' );
+		}
+	}
+
+	/**
+	 * The users with pending invitations to the network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return WP_User[] Users with pending invitations.
+	 */
+	public function users_with_pending_invites(): array {
+		return get_users(
+			[
+				'blog_id'    => 0,
+				'meta_key'   => WP_User::INVITED_BY_NETWORK_META_KEY,
+				'meta_value' => (int) $this->id,
+				'orderby'    => 'registered',
+				'order'      => 'DESC',
+			]
+		);
+	}
+
+	/**
 	 * Retrieves the closest matching network for a domain and path.
 	 *
 	 * This will not necessarily return an exact match for a domain and path. Instead, it

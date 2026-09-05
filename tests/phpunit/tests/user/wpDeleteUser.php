@@ -8,6 +8,27 @@ require_once ABSPATH . 'wp-admin/includes/user.php';
 class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 
 	/**
+	 * Tests that deleting a network user removes rather than creates orphaned state.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_network_deletion_removes_orphaned_state() {
+		require_once ABSPATH . 'wp-admin/includes/ms.php';
+
+		$network = get_network();
+		$user    = self::factory()->user->create_and_get();
+
+		remove_user_from_blog( $user->ID, (int) $network->site_id );
+		$network->add_orphaned_user( $user );
+
+		$this->assertContains( $user->ID, $network->orphaned_user_ids() );
+		$this->assertTrue( wpmu_delete_user( $user->ID ) );
+		$this->assertNotContains( $user->ID, $network->orphaned_user_ids() );
+	}
+
+	/**
 	 * Test that usermeta cache is cleared after user deletion.
 	 *
 	 * @ticket 19500
@@ -20,15 +41,15 @@ class Tests_User_wpDeleteUser extends WP_UnitTestCase {
 		$blogs   = get_blogs_of_user( $user_id );
 		$this->assertSame( array( 1 ), array_keys( $blogs ) );
 
-		// Deleted users retain their record and site membership on single-site installations.
+		// Deleted users retain their record, while multisite removes their site memberships.
 		self::delete_user( $user_id );
 
 		$user = new WP_User( $user_id );
+		$this->assertTrue( $user->exists(), 'WP_User->exists' );
+
 		if ( is_multisite() ) {
-			$this->assertFalse( $user->exists(), 'WP_User->exists' );
 			$this->assertSame( array(), get_blogs_of_user( $user_id ) );
 		} else {
-			$this->assertTrue( $user->exists(), 'WP_User->exists' );
 			$this->assertSame( array( 1 ), array_keys( get_blogs_of_user( $user_id ) ) );
 		}
 	}

@@ -1324,6 +1324,8 @@ class Tests_User extends WP_UnitTestCase {
 	 * @ticket 42766
 	 */
 	public function test_edit_user_blank_password() {
+		wp_set_current_user( self::$admin_id );
+
 		$_POST                 = array();
 		$_GET                  = array();
 		$_REQUEST              = array();
@@ -1347,6 +1349,8 @@ class Tests_User extends WP_UnitTestCase {
 
 		$this->assertIsInt( $user_id );
 		$this->assertInstanceOf( 'WP_User', $user );
+		$this->assertContains( 'pending_activation', $user->roles );
+		$this->assertSame( 'subscriber', get_user_meta( $user_id, 'activate_to_role', true ) );
 
 		// Check updating user with empty password.
 		$_POST['pass1'] = $_POST['pass2'] = '';
@@ -1889,6 +1893,101 @@ class Tests_User extends WP_UnitTestCase {
 
 		$user = get_user_by( 'id', $admin2_id );
 		$this->assertTrue( $user->is_system_notification_recipient( calmpress\site\Site::current() ) );
+	}
+
+	/**
+	 * Tests that a user's sites are returned as site objects.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_sites_returns_site_objects() {
+		$user  = get_userdata( self::$admin_id );
+		$sites = $user->sites();
+
+		$this->assertSame( [ get_current_blog_id() ], $user->site_ids() );
+		$this->assertNotEmpty( $sites );
+		$this->assertContainsOnlyInstancesOf( calmpress\site\Site::class, $sites );
+		$this->assertContains( get_current_blog_id(), array_map( 'intval', wp_list_pluck( $sites, 'blog_id' ) ) );
+	}
+
+	/**
+	 * Tests that WP_User::site_ids() returns every site on which the user has capabilities.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_site_ids_on_multisite() {
+		$user = self::factory()->user->create_and_get( [ 'role' => 'administrator' ] );
+
+		// Assign capabilities to the user on two additional sites in the current network.
+		$site_ids = self::factory()->blog->create_many( 2, [ 'user_id' => $user->ID ] );
+		$site_ids = array_merge( [ 1 ], $site_ids );
+
+		// Assign capabilities to the user on a site in another network.
+		$network_id = self::factory()->network->create();
+		$site_ids[] = self::factory()->blog->create(
+			[
+				'network_id' => $network_id,
+				'user_id'    => $user->ID,
+			]
+		);
+
+		$this->assertSame( $site_ids, $user->site_ids() );
+	}
+
+	/**
+	 * Tests that WP_User::sites() returns site objects for sites on which the user has capabilities.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_sites_on_multisite() {
+		$user = self::factory()->user->create_and_get( [ 'role' => 'administrator' ] );
+
+		// Assign capabilities to the user on two additional sites in the current network.
+		$site_ids = self::factory()->blog->create_many( 2, [ 'user_id' => $user->ID ] );
+		$site_ids = array_merge( [ 1 ], $site_ids );
+
+		// Assign capabilities to the user on a site in another network.
+		$network_id = self::factory()->network->create();
+		$site_ids[] = self::factory()->blog->create(
+			[
+				'network_id' => $network_id,
+				'user_id'    => $user->ID,
+			]
+		);
+
+		$sites = $user->sites();
+
+		$this->assertContainsOnlyInstancesOf( WP_Site::class, $sites );
+		$this->assertSame( $site_ids, array_map( 'intval', wp_list_pluck( $sites, 'blog_id' ) ) );
+	}
+
+	/**
+	 * Tests that network membership is limited to networks containing a site on which the user has capabilities.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_is_member_of_network() {
+		$user            = self::factory()->user->create_and_get( [ 'role' => 'administrator' ] );
+		$current_network = get_network();
+		$other_network   = get_network( self::factory()->network->create() );
+
+		$this->assertTrue( $user->is_member_of_network( $current_network ) );
+		$this->assertFalse( $user->is_member_of_network( $other_network ) );
+
+		self::factory()->blog->create(
+			[
+				'network_id' => $other_network->id,
+				'user_id'    => $user->ID,
+			]
+		);
+
+		$this->assertTrue( $user->is_member_of_network( $other_network ) );
 	}
 
 	/**

@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace calmpress\email;
 
+use InvalidArgumentException;
+
 /**
  * A representation of email address related information.
  * 
@@ -52,14 +54,14 @@ class Email_Address {
 	 *                        none whitespace text around them.
 	 *                        The address is sanitized. Space are removed.
 	 * 
-	 * @throws \RunTimeException if email address is invalid
+	 * @throws InvalidArgumentException If the email address is invalid.
 	 */
 	public function __construct( string $address, string $name = '' ) {
 		// white space should be removed
 		$this->address = trim( str_replace( ["\r", "\n", "\t", ' '], '', $address ) );
 
 		if ( ! is_email( $this->address ) ) {
-			throw new \RuntimeException( 'The email address ' . $this->address . ' is invalid' );
+			throw new InvalidArgumentException( 'The email address ' . $this->address . ' is invalid' );
 		}
 
 		$this->name = trim( str_replace( "\r\n", ' ', $name ) );

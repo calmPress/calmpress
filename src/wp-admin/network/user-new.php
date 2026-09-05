@@ -27,56 +27,66 @@ if ( isset( $_REQUEST['action'] ) && 'add-user' == $_REQUEST['action'] ) {
 
 	$user = wp_unslash( $_POST['user'] );
 
-	$user_details = wpmu_validate_user_signup( md5( $user['email'] ), $user['email'] );
+	try {
+		$email_address = new calmpress\email\Email_Address( $user['email'] );
+		$network      = get_network();
+		$invited_user = get_user_by( 'email', $email_address->address );
 
-	if ( is_wp_error( $user_details[ 'errors' ] ) && ! empty( $user_details[ 'errors' ]->errors ) ) {
-		$add_user_errors = $user_details[ 'errors' ];
-	} else {
-		$password = wp_generate_password( 12, false);
-		$user_id = wpmu_create_user( md5( $user['email'] ), $password, sanitize_email( $user['email'] ) );
-
-		if ( ! $user_id ) {
-			$add_user_errors = new WP_Error( 'add_user_fail', __( 'Cannot add user.' ) );
+		if ( $invited_user ) {
+			$user_id = $invited_user->ID;
 		} else {
-			/**
-			 * Fires after a new user has been created via the network user-new.php page.
-			 *
-			 * @since 4.4.0
-			 *
-			 * @param int $user_id ID of the newly created user.
-			 */
-			do_action( 'network_user_new_created_user', $user_id );
-
-			wp_redirect(
-				add_query_arg(
-					array(
-						'update'  => 'added',
-						'user_id' => $user_id,
-					),
-					'user-new.php'
-				)
+			$user_id = wp_insert_user(
+				[
+					'user_login' => md5( $email_address->address ),
+					'user_email' => $email_address->address,
+					'user_pass'  => wp_generate_password( 32, true, true ),
+				]
 			);
-			exit;
-		}
-	}
-}
 
-$message = '';
-if ( isset( $_GET['update'] ) ) {
-	if ( 'added' === $_GET['update'] ) {
-		$edit_link = '';
-		if ( isset( $_GET['user_id'] ) ) {
-			$user_id_new = absint( $_GET['user_id'] );
-			if ( $user_id_new ) {
-				$edit_link = esc_url( add_query_arg( 'wp_http_referer', urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ), get_edit_user_link( $user_id_new ) ) );
+			if ( ! is_wp_error( $user_id ) ) {
+
+				// A network invitation creates an account without granting capabilities on a site.
+				remove_user_from_blog( $user_id, (int) $network->site_id );
+				$invited_user = get_userdata( $user_id );
+				$invited_user->mark_as_created_for_network_invitation();
 			}
 		}
 
-		$message = __( 'User added.' );
+		if ( ! is_wp_error( $user_id ) ) {
+			if ( $network->has_user( $invited_user ) ) {
+				wp_redirect( add_query_arg( 'update', 'existing', 'user-new.php' ) );
+				exit;
+			} else {
+				if ( ! $invited_user->has_network_invite( $network ) ) {
+					$invited_user->invite_to_network( $network );
+				}
 
-		if ( $edit_link ) {
-			$message .= sprintf( ' <a href="%s">%s</a>', $edit_link, __( 'Edit user' ) );
+				$invitation_email = new calmpress\email\User_Invitation_Email(
+					$invited_user,
+					$network->site_name,
+					wp_login_url()
+				);
+				$invitation_email->send();
+
+				wp_redirect( add_query_arg( 'update', 'invited', 'user-new.php' ) );
+				exit;
+			}
+		} else {
+			$add_user_errors = $user_id;
 		}
+	} catch ( InvalidArgumentException ) {
+		$add_user_errors = new WP_Error( 'invalid_email', __( 'The email address is invalid.' ) );
+	}
+}
+
+$message      = '';
+$message_type = 'success';
+if ( isset( $_GET['update'] ) ) {
+	if ( 'invited' === $_GET['update'] ) {
+		$message = esc_html__( 'Invitation sent.' );
+	} elseif ( 'existing' === $_GET['update'] ) {
+		$message      = esc_html__( 'This user is already part of the network.' );
+		$message_type = 'info';
 	}
 }
 
@@ -94,7 +104,7 @@ if ( '' !== $message ) {
 	wp_admin_notice(
 		$message,
 		array(
-			'type'        => 'success',
+			'type'        => $message_type,
 			'dismissible' => true,
 			'id'          => 'message',
 		)
@@ -126,7 +136,7 @@ if ( isset( $add_user_errors ) && is_wp_error( $add_user_errors ) ) {
 				<td><input type="email" class="regular-text" name="user[email]" id="email" required="required" /></td>
 			</tr>
 			<tr class="form-field">
-				<td colspan="2" class="td-full"><?php _e( 'A password reset link will be sent to the user via email.' ); ?></td>
+				<td colspan="2" class="td-full"><?php esc_html_e( 'An invitation to authenticate will be sent to the user via email.' ); ?></td>
 			</tr>
 		</table>
 	<?php

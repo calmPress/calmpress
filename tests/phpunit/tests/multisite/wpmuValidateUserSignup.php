@@ -112,12 +112,14 @@ class Tests_Multisite_wpmuValidateUserSignup extends WP_UnitTestCase {
 		wpmu_signup_user( 'foo123', 'foo@example.com' );
 		$key  = $wpdb->get_var( "SELECT activation_key FROM $wpdb->signups WHERE user_login = 'foo123'" );
 		$user = wpmu_activate_signup( $key );
+
+		require_once ABSPATH . 'wp-admin/includes/ms.php';
 		wpmu_delete_user( $user['user_id'] );
 
 		$valid = wpmu_validate_user_signup( 'foo123', 'foo2@example.com' );
 
 		remove_filter( 'wpmu_signup_user_notification', '__return_false' );
-		remove_filter( 'wpmu_signup_user_notification', '__return_false' );
+		remove_filter( 'wpmu_welcome_user_notification', '__return_false' );
 
 		$this->assertNotContains( 'user_name', $valid['errors']->get_error_codes() );
 		$this->assertNotContains( 'user_email', $valid['errors']->get_error_codes() );

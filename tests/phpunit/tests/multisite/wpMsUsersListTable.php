@@ -98,10 +98,54 @@ class Tests_Multisite_wpMsUsersListTable extends WP_UnitTestCase {
 		$super = count( get_super_admins() );
 
 		$expected = array(
-			'all'   => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php" class="current" aria-current="page">All <span class="count">(' . $all . ')</span></a>',
-			'super' => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=super">Super Admin <span class="count">(' . $super . ')</span></a>',
+			'all'     => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php" class="current" aria-current="page">All <span class="count">(' . $all . ')</span></a>',
+			'super'   => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=super">Super Admin <span class="count">(' . $super . ')</span></a>',
+			'pending' => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=pending">Pending Invitations <span class="count">(0)</span></a>',
 		);
 
 		$this->assertSame( $expected, $this->table->get_views() );
+	}
+
+	/**
+	 * Tests that pending network invitations are listed separately from users.
+	 */
+	public function test_pending_network_invitations_view() {
+		$email = 'listed-network-invitation@example.org';
+
+		$user = self::factory()->user->create_and_get( [ 'user_email' => $email ] );
+		$user->invite_to_network( get_network() );
+
+		$_REQUEST['role'] = 'pending';
+		$this->table->prepare_items();
+
+		unset( $_REQUEST['role'] );
+
+		$this->assertCount( 1, $this->table->items );
+		$this->assertSame( $email, $this->table->items[0]->user_email );
+		$this->assertArrayHasKey( 'pending', $this->table->get_views() );
+
+		$GLOBALS['role'] = '';
+	}
+
+	/**
+	 * Tests that a network-level user is hidden from unrelated networks.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_user_of_another_network_is_excluded() {
+		$current_network = get_network();
+		$other_network   = get_network( self::factory()->network->create() );
+		$user            = self::factory()->user->create_and_get();
+
+		remove_user_from_blog( $user->ID, (int) $current_network->site_id );
+		$other_network->add_orphaned_user( $user );
+
+		$this->table->prepare_items();
+		$this->assertNotContains( $user->ID, wp_list_pluck( $this->table->items, 'ID' ) );
+
+		add_user_to_blog( (int) $current_network->site_id, $user->ID, 'subscriber' );
+
+		$this->table->prepare_items();
+		$this->assertContains( $user->ID, wp_list_pluck( $this->table->items, 'ID' ) );
 	}
 }

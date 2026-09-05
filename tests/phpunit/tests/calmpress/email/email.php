@@ -461,7 +461,7 @@ class Email_Test extends WP_UnitTestCase {
 		$t->set_bounce_address( " bou\nnce@a.com  " );
 		$this->assertSame( 'bounce@a.com', $t->bounce_address() );
 
-		// Empty string is an exception for eemail address validation.
+		// Empty string is an exception for email address validation.
 		$t->set_bounce_address( '' );
 		$this->assertSame( '', $t->bounce_address() );
 
@@ -469,7 +469,7 @@ class Email_Test extends WP_UnitTestCase {
 		$thrown = false;
 		try {
 			$t->set_bounce_address( "test" );
-		} catch ( \RuntimeException $e ) {
+		} catch ( \InvalidArgumentException $e ) {
 			$thrown = true;
 		}
 		$this->assertTrue( $thrown );

@@ -169,49 +169,24 @@ Please click the following link to confirm the invite:
 		);
 	}
 
-	if ( ! is_multisite() ) {
-		// edit_user expects those password fields in $_POST.
-		$pass           = wp_generate_password( 24 );
-		$_POST['pass1'] = $pass;
-		$_POST['pass2'] = $pass;
+	// edit_user expects those password fields in $_POST.
+	$pass           = wp_generate_password( 24 );
+	$_POST['pass1'] = $pass;
+	$_POST['pass2'] = $pass;
 
-		$user_id = edit_user();
+	$user_id = edit_user();
 
-		if ( is_wp_error( $user_id ) ) {
-			$add_user_errors = $user_id;
-		} else {
-			if ( current_user_can( 'list_users' ) ) {
-				$redirect = 'users.php?update=add&id=' . $user_id;
-			} else {
-				$redirect = add_query_arg( 'update', 'add', 'user-new.php' );
-			}
-
-			wp_redirect( $redirect );
-			die();
-		}
+	if ( is_wp_error( $user_id ) ) {
+		$add_user_errors = $user_id;
 	} else {
-		// Adding a new user to this site.
-		$new_user_email = wp_unslash( $_REQUEST['email'] );
-		$user_details   = wpmu_validate_user_signup( md5( $new_user_email ), $new_user_email );
-
-		if ( is_wp_error( $user_details['errors'] ) && $user_details['errors']->has_errors() ) {
-			$add_user_errors = $user_details['errors'];
+		if ( current_user_can( 'list_users' ) ) {
+			$redirect = 'users.php?update=add&id=' . $user_id;
 		} else {
-			$new_user_login = md5( $new_user_email );
-			wp_ensure_editable_role( $_REQUEST['role'] );
-
-			wpmu_signup_user(
-				$new_user_login,
-				$new_user_email,
-				array(
-					'add_to_blog' => get_current_blog_id(),
-					'new_role'    => $_REQUEST['role'],
-				)
-			);
-			$redirect = add_query_arg( array( 'update' => 'newuserconfirmation' ), 'user-new.php' );
-			wp_redirect( $redirect );
-			die();
+			$redirect = add_query_arg( 'update', 'add', 'user-new.php' );
 		}
+
+		wp_redirect( $redirect );
+		die();
 	}
 }
 

@@ -1679,6 +1679,7 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 		$this->assertSameSets(
 			array(
 				'administrator',
+				'deleted',
 				'editor',
 				'author',
 				'contributor',
