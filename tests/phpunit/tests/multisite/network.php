@@ -780,9 +780,15 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		$network       = get_network();
 		$other_network = get_network( self::$different_network_id );
 		$email         = 'pending-network-user@example.org';
+		$display_name  = 'Pending Network User';
 
 		// Create an invitation-only account with an invitation from the current network.
-		$user_id = self::factory()->user->create( [ 'user_email' => $email ] );
+		$user_id = self::factory()->user->create(
+			[
+				'user_email'   => $email,
+				'display_name' => $display_name,
+			]
+		);
 		remove_user_from_blog( $user_id, (int) $network->site_id );
 		$user = get_userdata( $user_id );
 		$user->mark_as_created_for_network_invitation();
@@ -797,6 +803,7 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		$invited_user  = end( $invited_users );
 
 		$this->assertSame( $email, $invited_user->user_email );
+		$this->assertSame( $display_name, $invited_user->display_name );
 		$this->assertSame(
 			[ (int) $network->id ],
 			array_map( 'intval', get_user_meta( $user->ID, WP_User::INVITED_BY_NETWORK_META_KEY ) )
