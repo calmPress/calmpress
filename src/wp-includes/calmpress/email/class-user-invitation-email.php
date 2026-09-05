@@ -43,6 +43,8 @@ class User_Invitation_Email {
 	 * @param string   $login_url The login page URL.
 	 */
 	public function __construct( \WP_User $user, string $site_name, string $login_url ) {
+		$switched_locale = switch_to_user_locale( $user->ID );
+
 		/* translators: %s: Site or network name. */
 		$subject = __( '[%s] User invitation' );
 
@@ -61,6 +63,10 @@ If you were not expecting this invitation, you can ignore this email.'
 			false,
 			$user->email_address()
 		);
+
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
 
 		$this->user      = $user;
 		$this->site_name = $site_name;

@@ -27,8 +27,23 @@ if ( isset( $_REQUEST['action'] ) && 'add-user' == $_REQUEST['action'] ) {
 
 	$user = wp_unslash( $_POST['user'] );
 
+	if ( ! isset( $user['display_name'] ) || ! is_string( $user['display_name'] ) ) {
+		wp_die( 'The add-user form did not submit a display name.' );
+	}
+
+	if ( ! isset( $user['locale'] ) || ! is_string( $user['locale'] ) ) {
+		wp_die( 'The add-user form did not submit a preferred language.' );
+	}
+
+	if ( 'site-default' !== $user['locale'] && 'en_US' !== $user['locale'] && ! in_array( $user['locale'], get_available_languages(), true ) ) {
+		wp_die( 'The add-user form submitted an invalid preferred language.' );
+	}
+
 	try {
 		$email_address = new calmpress\email\Email_Address( $user['email'] );
+		$display_name  = trim( $user['display_name'] );
+		$locale        = 'site-default' === $user['locale'] ? '' : $user['locale'];
+
 		$network      = get_network();
 		$invited_user = get_user_by( 'email', $email_address->address );
 
@@ -37,9 +52,11 @@ if ( isset( $_REQUEST['action'] ) && 'add-user' == $_REQUEST['action'] ) {
 		} else {
 			$user_id = wp_insert_user(
 				[
-					'user_login' => md5( $email_address->address ),
-					'user_email' => $email_address->address,
-					'user_pass'  => wp_generate_password( 32, true, true ),
+					'user_login'   => md5( $email_address->address ),
+					'user_email'   => $email_address->address,
+					'user_pass'    => wp_generate_password( 32, true, true ),
+					'display_name' => $display_name,
+					'locale'       => $locale,
 				]
 			);
 
@@ -132,8 +149,29 @@ if ( isset( $add_user_errors ) && is_wp_error( $add_user_errors ) ) {
 		<p><?php echo wp_required_field_message(); ?></p>
 		<table class="form-table" role="presentation">
 			<tr class="form-field form-required">
-				<th scope="row"><label for="email"><?php _e( 'Email' ); ?> <?php echo wp_required_field_indicator(); ?></label></th>
-				<td><input type="email" class="regular-text" name="user[email]" id="email" required="required" /></td>
+				<th scope="row"><label for="email"><?php esc_html_e( 'Email' ); ?> <?php echo wp_required_field_indicator(); ?></label></th>
+				<td><input type="email" class="regular-text" name="user[email]" id="email" value="<?php echo isset( $user['email'] ) ? esc_attr( $user['email'] ) : ''; ?>" required="required" /></td>
+			</tr>
+			<tr class="form-field">
+				<th scope="row"><label for="display-name"><?php esc_html_e( 'Display Name' ); ?></label></th>
+				<td><input type="text" class="regular-text" name="user[display_name]" id="display-name" value="<?php echo isset( $user['display_name'] ) ? esc_attr( $user['display_name'] ) : ''; ?>" /></td>
+			</tr>
+			<tr class="form-field">
+				<th scope="row"><label for="locale"><?php esc_html_e( 'Preferred Language' ); ?></label></th>
+				<td>
+					<?php
+					$selected_locale = isset( $user['locale'] ) ? $user['locale'] : 'site-default';
+					wp_dropdown_languages(
+						[
+							'name'                     => 'user[locale]',
+							'id'                       => 'locale',
+							'selected'                 => $selected_locale,
+							'languages'                => get_available_languages(),
+							'show_option_site_default' => true,
+						]
+					);
+					?>
+				</td>
 			</tr>
 			<tr class="form-field">
 				<td colspan="2" class="td-full"><?php esc_html_e( 'An invitation to authenticate will be sent to the user via email.' ); ?></td>

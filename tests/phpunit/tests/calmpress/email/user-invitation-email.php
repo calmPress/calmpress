@@ -36,6 +36,44 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that the invitation is generated in the invited user's preferred language.
+	 */
+	public function test_constructor_uses_user_locale(): void {
+		$locale_during_translation = '';
+
+		/**
+		 * Records the locale used to translate the invitation subject.
+		 *
+		 * @param string $translation Translated text.
+		 * @param string $text        Original text.
+		 *
+		 * @return string The translated text.
+		 */
+		$record_locale = static function ( string $translation, string $text ) use ( &$locale_during_translation ): string {
+			if ( '[%s] User invitation' === $text ) {
+				$locale_during_translation = get_locale();
+			}
+
+			return $translation;
+		};
+
+		$user = self::factory()->user->create_and_get(
+			[
+				'user_email' => 'localized-invitee@example.com',
+				'locale'     => 'de_DE',
+			]
+		);
+		$original_locale = get_locale();
+
+		add_filter( 'gettext', $record_locale, 10, 2 );
+		new User_Invitation_Email( $user, 'Example Network', 'https://example.com/login' );
+		remove_filter( 'gettext', $record_locale, 10 );
+
+		$this->assertSame( 'de_DE', $locale_during_translation );
+		$this->assertSame( $original_locale, get_locale() );
+	}
+
+	/**
 	 * Tests that the invitation is sent through the common Email implementation.
 	 */
 	public function test_send(): void {
