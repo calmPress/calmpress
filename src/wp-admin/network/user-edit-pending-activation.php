@@ -48,29 +48,14 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 
 	// Save valid values, and send an invitation to the new email address if it changed.
 	if ( ! $errors->has_errors() ) {
-		$email_changed = $email_address->address !== $user->user_email;
-		$result        = wp_update_user(
-			[
-				'ID'           => $user->ID,
-				'user_email'   => $email_address->address,
-				'display_name' => $display_name,
-				'locale'       => 'site-default' === $locale ? '' : $locale,
-			]
-		);
-
-		if ( is_wp_error( $result ) ) {
-			$errors = $result;
-		} else {
-			$user = get_userdata( $result );
-
-			if ( $email_changed ) {
-				$invitation_email = new calmpress\email\User_Invitation_Email(
-					$user,
-					$network->site_name,
-					wp_login_url()
-				);
-				$invitation_email->send();
-			}
+		try {
+			$user->update_pending_network_user(
+				$network,
+				$email_address,
+				$display_name,
+				'site-default' === $locale ? '' : $locale
+			);
+			$user = get_userdata( $user->ID );
 
 			wp_redirect(
 				add_query_arg(
@@ -82,6 +67,8 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 				)
 			);
 			exit;
+		} catch ( RuntimeException $exception ) {
+			$errors->add( 'user_update_failed', $exception->getMessage() );
 		}
 	}
 }

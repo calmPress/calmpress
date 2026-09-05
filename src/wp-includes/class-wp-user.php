@@ -446,6 +446,49 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * Updates a user pending activation in a network.
+	 *
+	 * An email-address change sends a new invitation to the updated address.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_Network    $network       Network in which the user is pending activation.
+	 * @param Email_Address $email_address Updated email address.
+	 * @param string        $display_name  Updated display name.
+	 * @param string        $locale        Updated preferred language.
+	 *
+	 * @throws RuntimeException If the user is not pending activation or cannot be updated.
+	 */
+	public function update_pending_network_user( WP_Network $network, Email_Address $email_address, string $display_name, string $locale ): void {
+		if ( ! $this->has_network_invite( $network ) ) {
+			throw new RuntimeException( 'The user is not pending activation in the network.' );
+		}
+
+		$email_changed = $email_address->address !== $this->user_email;
+		$result        = wp_update_user(
+			[
+				'ID'           => $this->ID,
+				'user_email'   => $email_address->address,
+				'display_name' => $display_name,
+				'locale'       => $locale,
+			]
+		);
+
+		if ( is_wp_error( $result ) ) {
+			throw new RuntimeException( $result->get_error_message() );
+		}
+
+		if ( $email_changed ) {
+			$invitation_email = new calmpress\email\User_Invitation_Email(
+				get_userdata( $this->ID ),
+				$network->site_name,
+				wp_login_url()
+			);
+			$invitation_email->send();
+		}
+	}
+
+	/**
 	 * Marks the account as having been created for a network invitation.
 	 *
 	 * @since calmPress 1.0.0

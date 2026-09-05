@@ -1,5 +1,6 @@
 <?php
 
+use calmpress\email\Email_Address;
 use calmpress\site\Site as CalmPress_Site;
 use calmpress\utils\One_Time_Password;
 
@@ -851,6 +852,94 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		// Assigning a site role removes the user's orphaned state.
 		add_user_to_blog( (int) $network->site_id, $user->ID, 'subscriber' );
 		$this->assertNotContains( $user->ID, $network->orphaned_user_ids() );
+	}
+
+	/**
+	 * Tests that WP_User::update_pending_network_user() updates account details and resends to a changed email address.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_update_pending_network_user_resends_invitation_for_changed_email(): void {
+		$mail    = [];
+		$network = get_network();
+		$user    = self::factory()->user->create_and_get(
+			[
+				'user_email' => 'original-pending-user@example.org',
+			]
+		);
+		$user->invite_to_network( $network );
+
+		/**
+		 * Captures and suppresses the outgoing invitation.
+		 *
+		 * @param null|bool $return     Whether to short-circuit sending.
+		 * @param array     $attributes The wp_mail() arguments.
+		 *
+		 * @return false Prevents delivery by the test mailer.
+		 */
+		$capture_mail = static function ( $return, $attributes ) use ( &$mail ): false {
+			$mail = $attributes;
+
+			return false;
+		};
+
+		add_filter( 'pre_wp_mail', $capture_mail, 10, 2 );
+		$user->update_pending_network_user(
+			$network,
+			new Email_Address( 'updated-pending-user@example.org' ),
+			'Updated Pending User',
+			'en_US'
+		);
+		remove_filter( 'pre_wp_mail', $capture_mail, 10 );
+
+		$updated_user = get_userdata( $user->ID );
+
+		$this->assertSame( 'updated-pending-user@example.org', $updated_user->user_email );
+		$this->assertSame( 'Updated Pending User', $updated_user->display_name );
+		$this->assertSame( 'en_US', $updated_user->locale );
+		$this->assertStringContainsString( 'updated-pending-user@example.org', $mail['to'][0] );
+	}
+
+	/**
+	 * Tests that WP_User::update_pending_network_user() does not resend when the email address is unchanged.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_update_pending_network_user_does_not_resend_for_other_changes(): void {
+		$mail_sent = false;
+		$network   = get_network();
+		$user      = self::factory()->user->create_and_get(
+			[
+				'user_email' => 'unchanged-pending-user@example.org',
+			]
+		);
+		$user->invite_to_network( $network );
+
+		/**
+		 * Records and suppresses an unexpected outgoing email.
+		 *
+		 * @return false Prevents delivery by the test mailer.
+		 */
+		$record_mail = static function () use ( &$mail_sent ): false {
+			$mail_sent = true;
+
+			return false;
+		};
+
+		add_filter( 'pre_wp_mail', $record_mail );
+		$user->update_pending_network_user(
+			$network,
+			new Email_Address( $user->user_email ),
+			'Changed Display Name',
+			'en_US'
+		);
+		remove_filter( 'pre_wp_mail', $record_mail );
+
+		$updated_user = get_userdata( $user->ID );
+
+		$this->assertSame( 'Changed Display Name', $updated_user->display_name );
+		$this->assertSame( 'en_US', $updated_user->locale );
+		$this->assertFalse( $mail_sent );
 	}
 
 	/**
