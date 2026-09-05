@@ -168,6 +168,7 @@ if ( isset( $add_user_errors ) && is_wp_error( $add_user_errors ) ) {
 							'selected'                 => $selected_locale,
 							'languages'                => get_available_languages(),
 							'show_option_site_default' => true,
+							'explicit_option_en_us'    => true,
 						]
 					);
 					?>

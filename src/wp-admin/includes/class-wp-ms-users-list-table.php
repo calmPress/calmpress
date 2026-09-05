@@ -578,6 +578,13 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 		$user = $item;
 
 		if ( $user->has_network_invite( get_network() ) ) {
+			$actions = array();
+
+			if ( current_user_can( 'edit_user', $user->ID ) ) {
+				$edit_link       = esc_url( add_query_arg( 'wp_http_referer', urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ), get_edit_user_link( $user->ID ) ) );
+				$actions['edit'] = '<a href="' . $edit_link . '">' . esc_html__( 'Edit' ) . '</a>';
+			}
+
 			$resend_url = wp_nonce_url(
 				network_admin_url( 'users.php?role=pending&action=resend-invitation&user_id=' . $user->ID ),
 				'resend-network-invitation-' . $user->ID
@@ -587,12 +594,10 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 				'cancel-network-invitation-' . $user->ID
 			);
 
-			return $this->row_actions(
-				array(
-					'resend' => '<a href="' . esc_url( $resend_url ) . '">' . __( 'Resend' ) . '</a>',
-					'cancel' => '<a class="delete" href="' . esc_url( $cancel_url ) . '">' . __( 'Cancel' ) . '</a>',
-				)
-			);
+			$actions['resend'] = '<a href="' . esc_url( $resend_url ) . '">' . esc_html__( 'Resend' ) . '</a>';
+			$actions['cancel'] = '<a class="delete" href="' . esc_url( $cancel_url ) . '">' . esc_html__( 'Cancel' ) . '</a>';
+
+			return $this->row_actions( $actions );
 		}
 
 		$super_admins = get_super_admins();
