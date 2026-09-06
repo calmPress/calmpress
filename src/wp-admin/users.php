@@ -156,8 +156,13 @@ switch ( $wp_list_table->current_action() ) {
 
 			$user = get_userdata( $id );
 
-			// If $role is empty, none will be set.
-			$user->set_role( $role );
+			if ( in_array( 'pending_activation', $user->roles, true ) ) {
+				// Keep the user pending and change the role assigned after activation.
+				update_user_meta( $id, 'activate_to_role', $role );
+			} else {
+				// If $role is empty, none will be set.
+				$user->set_role( $role );
+			}
 		}
 
 		wp_redirect( add_query_arg( 'update', $update, $redirect ) );
