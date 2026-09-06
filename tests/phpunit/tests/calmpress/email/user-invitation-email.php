@@ -26,12 +26,13 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 				'user_email' => 'invitee@example.com',
 			]
 		);
-		$email = new User_Invitation_Email( $user, 'Example Network', 'https://example.com/login' );
+		$email = new User_Invitation_Email( $user, 'Example &amp; Network', 'https://example.com/login' );
 
 		$this->assertSame( $user, $email->user );
-		$this->assertSame( 'Example Network', $email->site_name );
-		$this->assertSame( 'https://example.com/login', $email->login_url );
+		$this->assertSame( 'Example & Network', $email->site_name );
+		$this->assertSame( 'https://example.com/login?wp_lang=en_US', $email->login_url );
 		$this->assertStringContainsString( 'You were invited', $email->email->content() );
+		$this->assertStringContainsString( 'Example & Network', $email->email->content() );
 		$this->assertStringContainsString( 'https://example.com/login', $email->email->content() );
 	}
 
@@ -66,11 +67,12 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 		$original_locale = get_locale();
 
 		add_filter( 'gettext', $record_locale, 10, 2 );
-		new User_Invitation_Email( $user, 'Example Network', 'https://example.com/login' );
+		$email = new User_Invitation_Email( $user, 'Example Network', 'https://example.com/login' );
 		remove_filter( 'gettext', $record_locale, 10 );
 
 		$this->assertSame( 'de_DE', $locale_during_translation );
 		$this->assertSame( $original_locale, get_locale() );
+		$this->assertSame( 'https://example.com/login?wp_lang=de_DE', $email->login_url );
 	}
 
 	/**

@@ -44,6 +44,8 @@ class User_Invitation_Email {
 	 */
 	public function __construct( \WP_User $user, string $site_name, string $login_url ) {
 		$switched_locale = switch_to_user_locale( $user->ID );
+		$site_name       = wp_specialchars_decode( $site_name, ENT_QUOTES );
+		$login_url       = add_query_arg( 'wp_lang', get_user_locale( $user ), $login_url );
 
 		/* translators: %s: Site or network name. */
 		$subject = __( '[%s] User invitation' );
@@ -58,7 +60,7 @@ If you were not expecting this invitation, you can ignore this email.'
 		);
 
 		$this->email = new Email(
-			wp_specialchars_decode( sprintf( $subject, $site_name ) ),
+			sprintf( $subject, $site_name ),
 			sprintf( $content, $site_name, $login_url ),
 			false,
 			$user->email_address()
