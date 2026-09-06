@@ -26,6 +26,11 @@ if ( ! $profile_user || ! $profile_user->can_login() ) {
 	wp_die( __( 'Invalid user ID.' ) );
 }
 
+if ( ! is_multisite() && in_array( 'pending_activation', $profile_user->roles, true ) ) {
+	require ABSPATH . 'wp-admin/user-edit-pending-activation.php';
+	return;
+}
+
 // Define IS_PROFILE_PAGE to reflect if the user is editing his own profile.
 // Checking if its already define for backword compatibility with profile.php.
 if ( ! defined( 'IS_PROFILE_PAGE' ) ) {

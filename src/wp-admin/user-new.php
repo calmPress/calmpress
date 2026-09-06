@@ -169,6 +169,14 @@ Please click the following link to confirm the invite:
 		);
 	}
 
+	if ( ! isset( $_POST['locale'] ) || ! is_string( $_POST['locale'] ) ) {
+		wp_die( 'The add-user form did not submit a preferred language.' );
+	}
+
+	if ( 'site-default' !== $_POST['locale'] && 'en_US' !== $_POST['locale'] && ! in_array( $_POST['locale'], get_available_languages(), true ) ) {
+		wp_die( 'The add-user form submitted an invalid preferred language.' );
+	}
+
 	// edit_user expects those password fields in $_POST.
 	$pass           = wp_generate_password( 24 );
 	$_POST['pass1'] = $pass;
@@ -381,15 +389,11 @@ if ( current_user_can( 'create_users' ) ) {
 	?>
 <p>
 	<?php
-	/* translators: %s: link to Login page URL, <br> can be used. */
-	echo str_replace( '&lt;br&gt;', '<br>', sprintf(
-		esc_html__( 'Create a new user account and add it to this site.<br>
-After creating the account, notify the user to visit %s and request 
- a temporary password using the email address assigned to the account.<br>
-Until they log in for the first time, the account will appear with the 
- "Pending Activation" role. After login, it will switch to the role you selected.' ),
+	/* translators: %s: Login page URL. */
+	echo sprintf(
+		esc_html__( 'Create a new user account and add it to this site. An invitation email will instruct the user to visit %s and request a one-time password. Until the first successful login, the account will have the Pending Activation role. It will then receive the role selected below.' ),
 		'<code style="user-select:all">' . esc_url( wp_login_url() ) . '</code>'
- 	) );
+	);
 	?>
 </p>
 <form method="post" name="createuser" id="createuser" novalidate="novalidate"
@@ -408,6 +412,7 @@ $new_user_login        = $creating && isset( $_POST['user_login'] ) ? wp_unslash
 $new_user_email        = $creating && isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : '';
 $new_user_display_name = $creating && isset( $_POST['display_name'] ) ? wp_unslash( $_POST['display_name'] ) : '';
 $new_user_role         = $creating && isset( $_POST['role'] ) ? wp_unslash( $_POST['role'] ) : '';
+$new_user_locale       = $creating && isset( $_POST['locale'] ) ? wp_unslash( $_POST['locale'] ) : 'site-default';
 
 ?>
 <table class="form-table" role="presentation">
@@ -415,7 +420,7 @@ $new_user_role         = $creating && isset( $_POST['role'] ) ? wp_unslash( $_PO
 		<th scope="row"><label for="email"><?php _e('Email'); ?> <span class="description"><?php _e('(required)'); ?></span></label></th>
 		<td>
 			<input name="email" type="email" id="email" value="<?php echo esc_attr( $new_user_email ); ?>" />
-			<p class="decription">
+			<p class="description">
 				<?php esc_html_e( 'The user\'s email address.' );?>
 			</p>
 		</td>
@@ -423,10 +428,9 @@ $new_user_role         = $creating && isset( $_POST['role'] ) ? wp_unslash( $_PO
 	<tr>
 		<th scope="row"><label for="display_name"><?php _e('Display Name'); ?></label></th>
 		<td>
-			<input name="display_name" type="test" id="display_name" value="<?php echo esc_attr( $new_user_display_name ); ?>" />
-			<p class="decription">
-				<?php esc_html_e( 'The user\'s initial display name, which can be changed later. If left empty,
- it will be automatically generated from the email address.' );?>
+			<input name="display_name" type="text" id="display_name" value="<?php echo esc_attr( $new_user_display_name ); ?>" />
+			<p class="description">
+				<?php esc_html_e( 'The user\'s initial display name, which can be changed later. If left empty, it will be generated from the email address.' );?>
 			</p>
 		</td>
 	</tr>
@@ -441,12 +445,31 @@ $new_user_role         = $creating && isset( $_POST['role'] ) ? wp_unslash( $_PO
 			wp_dropdown_roles( $new_user_role );
 			?>
 			</select>
-			<p class="decription">
+			<p class="description">
 				<?php esc_html_e( 'The role that will be assigned to the user when they log in for the first time.' );?>
 			</p>
 		</td>
 	</tr>
 	<?php } ?>
+	<tr class="form-field">
+		<th scope="row"><label for="locale"><?php esc_html_e( 'Language' ); ?><span class="dashicons dashicons-translation" aria-hidden="true"></span></label></th>
+		<td>
+			<?php
+			wp_dropdown_languages(
+				[
+					'name'                        => 'locale',
+					'id'                          => 'locale',
+					'selected'                    => $new_user_locale,
+					'languages'                   => get_available_languages(),
+					'show_available_translations' => false,
+					'show_option_site_default'    => true,
+					'explicit_option_en_us'       => true,
+				]
+			);
+			?>
+			<p class="description"><?php esc_html_e( 'The language used for the invitation email and in the administration interface after activation. The user can change it later in their profile.' ); ?></p>
+		</td>
+	</tr>
 </table>
 
 	<?php
