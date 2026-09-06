@@ -145,8 +145,16 @@ if ( isset( $add_user_errors ) && is_wp_error( $add_user_errors ) ) {
 	);
 }
 ?>
+	<p>
+		<?php
+		/* translators: %s: Login page URL. */
+		echo sprintf(
+			esc_html__( 'Create a user account that belongs to this network without adding it to a site. An invitation email will instruct the user to visit %s and request a one-time password. Until the first successful login, the account will appear as pending activation.' ),
+			'<code style="user-select:all">' . esc_url( wp_login_url() ) . '</code>'
+		);
+		?>
+	</p>
 	<form action="<?php echo esc_url( network_admin_url( 'user-new.php?action=add-user' ) ); ?>" id="adduser" method="post" novalidate="novalidate">
-		<p><?php echo wp_required_field_message(); ?></p>
 		<table class="form-table" role="presentation">
 			<tr class="form-field form-required">
 				<th scope="row"><label for="email"><?php esc_html_e( 'Email' ); ?> <?php echo wp_required_field_indicator(); ?></label></th>
@@ -154,28 +162,30 @@ if ( isset( $add_user_errors ) && is_wp_error( $add_user_errors ) ) {
 			</tr>
 			<tr class="form-field">
 				<th scope="row"><label for="display-name"><?php esc_html_e( 'Display Name' ); ?></label></th>
-				<td><input type="text" class="regular-text" name="user[display_name]" id="display-name" value="<?php echo isset( $user['display_name'] ) ? esc_attr( $user['display_name'] ) : ''; ?>" /></td>
+				<td>
+					<input type="text" class="regular-text" name="user[display_name]" id="display-name" value="<?php echo isset( $user['display_name'] ) ? esc_attr( $user['display_name'] ) : ''; ?>" />
+					<p class="description"><?php esc_html_e( 'The user\'s initial display name, which can be changed later. If left empty, it will be generated from the email address.' ); ?></p>
+				</td>
 			</tr>
 			<tr class="form-field">
-				<th scope="row"><label for="locale"><?php esc_html_e( 'Preferred Language' ); ?></label></th>
+				<th scope="row"><label for="locale"><?php esc_html_e( 'Language' ); ?><span class="dashicons dashicons-translation" aria-hidden="true"></span></label></th>
 				<td>
 					<?php
 					$selected_locale = isset( $user['locale'] ) ? $user['locale'] : 'site-default';
 					wp_dropdown_languages(
 						[
-							'name'                     => 'user[locale]',
-							'id'                       => 'locale',
-							'selected'                 => $selected_locale,
-							'languages'                => get_available_languages(),
-							'show_option_site_default' => true,
-							'explicit_option_en_us'    => true,
+							'name'                        => 'user[locale]',
+							'id'                          => 'locale',
+							'selected'                    => $selected_locale,
+							'languages'                   => get_available_languages(),
+							'show_available_translations' => false,
+							'show_option_site_default'    => true,
+							'explicit_option_en_us'       => true,
 						]
 					);
 					?>
+					<p class="description"><?php esc_html_e( 'The language used for the invitation email and in the administration interface after activation. The user can change it later in their profile.' ); ?></p>
 				</td>
-			</tr>
-			<tr class="form-field">
-				<td colspan="2" class="td-full"><?php esc_html_e( 'An invitation to authenticate will be sent to the user via email.' ); ?></td>
 			</tr>
 		</table>
 	<?php
