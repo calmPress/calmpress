@@ -35,19 +35,69 @@ get_current_screen()->set_screen_reader_content(
 	)
 );
 
+$redirect = 'users.php';
+
 if ( empty( $_REQUEST ) ) {
 	$referer = '<input type="hidden" name="wp_http_referer" value="' . esc_attr( wp_unslash( $_SERVER['REQUEST_URI'] ) ) . '" />';
 } elseif ( isset( $_REQUEST['wp_http_referer'] ) ) {
 	$redirect = remove_query_arg( array( 'wp_http_referer', 'updated', 'delete_count' ), wp_unslash( $_REQUEST['wp_http_referer'] ) );
 	$referer  = '<input type="hidden" name="wp_http_referer" value="' . esc_attr( $redirect ) . '" />';
 } else {
-	$redirect = 'users.php';
 	$referer  = '';
 }
 
 $update = '';
 
 switch ( $wp_list_table->current_action() ) {
+	case 'resend-invitation':
+		if ( ! isset( $_GET['user'] ) ) {
+			wp_die( 'No user ID was provided.' );
+		}
+
+		$user_id = (int) $_GET['user'];
+		$user    = get_userdata( $user_id );
+
+		if ( ! $user || ! in_array( 'pending_activation', $user->roles, true ) ) {
+			wp_die( __( 'This user is not pending activation.' ), 400 );
+		}
+
+		if ( ! current_user_can( 'edit_user', $user_id ) ) {
+			wp_die( __( 'Sorry, you are not allowed to edit this user.' ), 403 );
+		}
+
+		check_admin_referer( 'resend-user-invitation-' . $user_id );
+		wp_new_user_notification( $user_id, null, 'user' );
+
+		wp_redirect( add_query_arg( 'update', 'invitation_resent', $redirect ) );
+		exit;
+
+	case 'cancel-invitation':
+		if ( ! isset( $_GET['user'] ) ) {
+			wp_die( 'No user ID was provided.' );
+		}
+
+		$user_id = (int) $_GET['user'];
+		$user    = get_userdata( $user_id );
+
+		if ( ! $user || ! in_array( 'pending_activation', $user->roles, true ) ) {
+			wp_die( __( 'This user is not pending activation.' ), 400 );
+		}
+
+		$cancel_capability = is_multisite() ? 'remove_user' : 'delete_user';
+		if ( ! current_user_can( $cancel_capability, $user_id ) ) {
+			wp_die( __( 'Sorry, you are not allowed to cancel this invitation.' ), 403 );
+		}
+
+		check_admin_referer( 'cancel-user-invitation-' . $user_id );
+
+		if ( is_multisite() ) {
+			remove_user_from_blog( $user_id, get_current_blog_id() );
+		} else {
+			wp_delete_user( $user_id );
+		}
+
+		wp_redirect( add_query_arg( 'update', 'invitation_cancelled', $redirect ) );
+		exit;
 
 	/* Bulk Dropdown menu Role changes */
 	case 'promote':
@@ -495,6 +545,26 @@ switch ( $wp_list_table->current_action() ) {
 				case 'promote':
 					$messages[] = wp_get_admin_notice(
 						__( 'Changed roles.' ),
+						array(
+							'id'                 => 'message',
+							'additional_classes' => array( 'updated' ),
+							'dismissible'        => true,
+						)
+					);
+					break;
+				case 'invitation_resent':
+					$messages[] = wp_get_admin_notice(
+						esc_html__( 'Invitation resent.' ),
+						array(
+							'id'                 => 'message',
+							'additional_classes' => array( 'updated' ),
+							'dismissible'        => true,
+						)
+					);
+					break;
+				case 'invitation_cancelled':
+					$messages[] = wp_get_admin_notice(
+						esc_html__( 'Invitation cancelled.' ),
 						array(
 							'id'                 => 'message',
 							'additional_classes' => array( 'updated' ),

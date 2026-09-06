@@ -435,7 +435,24 @@ class WP_Users_List_Table extends WP_List_Table {
 				$edit = '<strong>' . esc_html( $user_object->display_name . $extended_string ) . '</strong><br />';
 			}
 
-			if ( ! is_multisite()
+			if ( in_array( 'pending_activation', $user_object->roles, true ) ) {
+				if ( current_user_can( 'edit_user', $user_object->ID ) ) {
+					$resend_url = wp_nonce_url(
+						"users.php?action=resend-invitation&amp;user=$user_object->ID",
+						'resend-user-invitation-' . $user_object->ID
+					);
+					$actions['resend-invitation'] = '<a href="' . esc_url( $resend_url ) . '">' . esc_html__( 'Resend Invitation' ) . '</a>';
+				}
+
+				$cancel_capability = is_multisite() ? 'remove_user' : 'delete_user';
+				if ( get_current_user_id() !== $user_object->ID && current_user_can( $cancel_capability, $user_object->ID ) ) {
+					$cancel_url = wp_nonce_url(
+						"users.php?action=cancel-invitation&amp;user=$user_object->ID",
+						'cancel-user-invitation-' . $user_object->ID
+					);
+					$actions['cancel-invitation'] = '<a class="submitdelete" href="' . esc_url( $cancel_url ) . '">' . esc_html__( 'Cancel Invitation' ) . '</a>';
+				}
+			} elseif ( ! is_multisite()
 				&& get_current_user_id() !== $user_object->ID
 				&& current_user_can( 'delete_user', $user_object->ID )
 			) {
