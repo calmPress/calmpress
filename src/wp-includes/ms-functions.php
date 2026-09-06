@@ -974,8 +974,7 @@ function wpmu_signup_user_notification(
 	$key,
 	$meta = array()
 ) {
-	$user            = get_user_by( 'login', $user_login );
-	$switched_locale = $user && switch_to_user_locale( $user->ID );
+	$user = get_user_by( 'login', $user_login );
 
 	$email = new calmpress\email\User_Invitation_Email(
 		$user,
@@ -983,10 +982,6 @@ function wpmu_signup_user_notification(
 		wp_login_url()
 	);
 	$email->send();
-
-	if ( $switched_locale ) {
-		restore_previous_locale();
-	}
 
 	return true;
 }

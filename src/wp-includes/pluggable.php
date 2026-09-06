@@ -2119,25 +2119,15 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) :
 
 		$user = get_userdata( $user_id );
 
-		/*
-		 * The blogname option is escaped with esc_html() on the way into the database in sanitize_option().
-		 * We want to reverse this for the plain text arena of emails.
-		 */
-		$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+		$blogname = get_option( 'blogname' );
 
 		// `$deprecated` was pre-4.3 `$plaintext_pass`. An empty `$plaintext_pass` didn't send a user notification.
 		if ( 'admin' === $notify || ( empty( $deprecated ) && empty( $notify ) ) ) {
 			return;
 		}
 
-		$switched_locale = switch_to_user_locale( $user_id );
-
 		$email = new calmpress\email\User_Invitation_Email( $user, $blogname, wp_login_url() );
 		$email->send();
-
-		if ( $switched_locale ) {
-			restore_previous_locale();
-		}
 	}
 endif;
 
