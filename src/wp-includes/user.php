@@ -1084,7 +1084,13 @@ function is_user_member_of_blog( $user_id = 0, $blog_id = 0 ) {
 	}
 	$has_cap = get_user_meta( $user_id, $capabilities_key, true );
 
-	return is_array( $has_cap );
+	if ( ! is_array( $has_cap ) ) {
+		return false;
+	}
+
+	$is_pending_activation = 1 === count( $has_cap ) && array_key_exists( 'pending_activation', $has_cap );
+
+	return ! $is_pending_activation;
 }
 
 /**
@@ -1202,7 +1208,8 @@ function update_user_meta( $user_id, $meta_key, $meta_value, $prev_value = '' ) 
  * @since 3.0.0
  * @since 4.4.0 The number of users with no role is now included in the `none` element.
  * @since 4.9.0 The `$site_id` parameter was added to support multisite.
- * @since calmPress 1.0.0 Users with the `deleted` role are excluded from counts.
+ * @since calmPress 1.0.0 Users with the `deleted` role and site invitations with
+ *                         the `pending_activation` role are excluded from total counts.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
@@ -1292,7 +1299,7 @@ function count_users( $strategy = 'time', $site_id = null ) {
 		$role_counts['none'] = (int) $row[ $col++ ];
 
 		// Get the meta_value index from the end of the result set.
-		$total_users = (int) $row[ $col ];
+		$total_users = (int) $row[ $col ] - ( $role_counts['pending_activation'] ?? 0 );
 
 		$result['total_users'] = $total_users;
 		$result['avail_roles'] =& $role_counts;
@@ -1319,7 +1326,9 @@ function count_users( $strategy = 'time', $site_id = null ) {
 			if ( ! empty( $b_roles['deleted'] ) ) {
 				continue;
 			}
-			++$total_users;
+			if ( empty( $b_roles['pending_activation'] ) ) {
+				++$total_users;
+			}
 			if ( empty( $b_roles ) ) {
 				++$avail_roles['none'];
 			}

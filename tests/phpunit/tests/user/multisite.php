@@ -135,6 +135,42 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that a pending site activation is not treated as site membership.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_pending_activation_is_not_site_membership(): void {
+		$site_id = self::factory()->blog->create();
+		$user    = self::factory()->user->create_and_get();
+
+		// Assign the site-scoped invitation role.
+		$this->assertTrue( add_user_to_blog( $site_id, $user->ID, 'pending_activation' ) );
+
+		// Verify that membership APIs exclude the invited site.
+		$this->assertTrue( $user->is_pending_activation_on_site( get_site( $site_id ) ) );
+		$this->assertFalse( is_user_member_of_blog( $user->ID, $site_id ) );
+		$this->assertNotContains( $site_id, $user->site_ids() );
+		$this->assertArrayNotHasKey( $site_id, get_blogs_of_user( $user->ID ) );
+
+		// Verify that default discovery excludes the invitation while an explicit role query finds it.
+		$this->assertNotContains(
+			$user->ID,
+			array_map( 'intval', get_users( [ 'blog_id' => $site_id, 'fields' => 'ids' ] ) )
+		);
+		$this->assertContains(
+			$user->ID,
+			array_map( 'intval', get_users( [ 'blog_id' => $site_id, 'role' => 'pending_activation', 'fields' => 'ids' ] ) )
+		);
+
+		// Verify that the invitation has a separate role count but is not part of the active total.
+		foreach ( [ 'time', 'memory' ] as $strategy ) {
+			$counts = count_users( $strategy, $site_id );
+			$this->assertSame( 0, $counts['total_users'] );
+			$this->assertSame( 1, $counts['avail_roles']['pending_activation'] );
+		}
+	}
+
+	/**
 	 * @ticket 20601
 	 */
 	public function test_user_member_of_blog() {

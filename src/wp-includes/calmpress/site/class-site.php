@@ -24,6 +24,15 @@ use WP_User;
 class Site {
 
 	/**
+	 * ID of the initial site represented by base-prefixed database keys.
+	 *
+	 * This is independent of which site is configured as a network's main site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public const INITIAL_SITE_ID = 1;
+
+	/**
 	 * Site ID.
 	 *
 	 * Stored as a numeric string for compatibility with WP_Site.

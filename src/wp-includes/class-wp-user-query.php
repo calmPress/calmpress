@@ -359,6 +359,13 @@ class WP_User_Query {
 			$blog_id = absint( $qv['blog_id'] );
 		}
 
+		// A pending activation role represents an invitation, not site membership.
+		if ( is_multisite() && $blog_id && empty( $qv['role'] ) && empty( $qv['role__in'] ) ) {
+			$qv['role__not_in']   = (array) $qv['role__not_in'];
+			$qv['role__not_in'][] = 'pending_activation';
+			$qv['role__not_in']   = array_unique( $qv['role__not_in'] );
+		}
+
 		if ( $qv['has_published_posts'] && $blog_id ) {
 			if ( true === $qv['has_published_posts'] ) {
 				$post_types = get_post_types( array( 'public' => true ) );

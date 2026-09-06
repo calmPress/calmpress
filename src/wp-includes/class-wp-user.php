@@ -538,8 +538,13 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 
 		$site_ids = [];
 
-		if ( isset( $keys[ $wpdb->base_prefix . 'capabilities' ] ) && defined( 'MULTISITE' ) ) {
-			$site_ids[] = 1;
+		// The main site's capabilities key does not contain its site ID, so it
+		// must be handled separately. A pending invitation is not membership.
+		if ( isset( $keys[ $wpdb->base_prefix . 'capabilities' ] ) ) {
+			$site = get_site( calmpress\site\Site::INITIAL_SITE_ID );
+			if ( $site && ! $this->is_pending_activation_on_site( $site ) ) {
+				$site_ids[] = (int) $site->blog_id;
+			}
 			unset( $keys[ $wpdb->base_prefix . 'capabilities' ] );
 		}
 
@@ -558,10 +563,34 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 				continue;
 			}
 
-			$site_ids[] = (int) $site_id;
+			$site_id = (int) $site_id;
+			$site    = get_site( $site_id );
+			if ( $site && ! $this->is_pending_activation_on_site( $site ) ) {
+				$site_ids[] = $site_id;
+			}
 		}
 
 		return $site_ids;
+	}
+
+	/**
+	 * Indicates whether the user is awaiting activation on a site.
+	 *
+	 * A pending activation role represents an invitation and does not make the
+	 * user a member of the site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site for which the pending state is checked.
+	 *
+	 * @return bool Whether pending activation is the user's only role on the site.
+	 */
+	public function is_pending_activation_on_site( calmpress\site\Site $site ): bool {
+		global $wpdb;
+
+		$capabilities = get_user_meta( $this->ID, $wpdb->get_blog_prefix( (int) $site->blog_id ) . 'capabilities', true );
+
+		return [ 'pending_activation' => true ] === $capabilities;
 	}
 
 	/**
