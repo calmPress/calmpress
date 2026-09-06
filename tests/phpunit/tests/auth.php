@@ -777,6 +777,40 @@ class Tests_Auth extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that a successful login activates a user pending activation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @covers ::wp_signon
+	 */
+	public function test_successful_login_activates_pending_user(): void {
+		$password = 'pending-user-password';
+		$user     = self::factory()->user->create_and_get(
+			[
+				'user_email' => 'pending-user@example.com',
+				'user_pass'  => $password,
+				'role'       => 'pending_activation',
+			]
+		);
+		update_user_meta( $user->ID, 'activate_to_role', 'editor' );
+
+		// Authenticate the pending user for the first time.
+		$authenticated_user = wp_signon(
+			[
+				'user_login'    => $user->user_email,
+				'user_password' => $password,
+			]
+		);
+
+		// Verify that authentication assigned the intended role and cleared the pending state.
+		$activated_user = get_userdata( $user->ID );
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertSame( $user->ID, $authenticated_user->ID );
+		$this->assertSame( [ 'editor' ], $activated_user->roles );
+		$this->assertSame( '', get_user_meta( $user->ID, 'activate_to_role', true ) );
+	}
+
+	/**
 	 * @dataProvider data_usernames
 	 *
 	 * @ticket 21022
