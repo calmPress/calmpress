@@ -129,15 +129,17 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 					$selected_locale = '' === $user->locale ? 'site-default' : $user->locale;
 					wp_dropdown_languages(
 						[
-							'name'                     => 'locale',
-							'id'                       => 'locale',
-							'selected'                 => $selected_locale,
-							'languages'                => get_available_languages(),
-							'show_option_site_default' => true,
-							'explicit_option_en_us'    => true,
+							'name'                        => 'locale',
+							'id'                          => 'locale',
+							'selected'                    => $selected_locale,
+							'languages'                   => get_available_languages(),
+							'show_available_translations' => false,
+							'show_option_site_default'    => true,
+							'explicit_option_en_us'       => true,
 						]
 					);
 					?>
+					<p class="description"><?php esc_html_e( 'The language used for the invitation email and in the administration interface after activation. The user can change it later in their profile.' ); ?></p>
 				</td>
 			</tr>
 		</table>
