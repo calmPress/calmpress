@@ -73,14 +73,20 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 	}
 }
 
-$title       = __( 'Edit User Pending Activation' );
+/* translators: %s: User's display name. */
+$title       = sprintf( __( 'Edit User Account %s' ), $user->display_name );
 $parent_file = 'users.php';
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 
 <div class="wrap">
-	<h1><?php esc_html_e( 'Edit User Pending Activation' ); ?></h1>
+	<h1><?php echo esc_html( $title ); ?></h1>
+	<p>
+		<?php
+		esc_html_e( 'This user is pending activation. You can change the email address, display name, and preferred language. Changing the email address will send an invitation to the new address.' );
+		?>
+	</p>
 
 	<?php
 	if ( isset( $_GET['updated'] ) ) {
@@ -115,7 +121,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 				<td><input type="text" class="regular-text" name="display_name" id="display-name" value="<?php echo esc_attr( $user->display_name ); ?>" /></td>
 			</tr>
 			<tr class="form-field">
-				<th scope="row"><label for="locale"><?php esc_html_e( 'Preferred Language' ); ?></label></th>
+				<th scope="row">
+					<label for="locale"><?php esc_html_e( 'Language' ); ?><span class="dashicons dashicons-translation" aria-hidden="true"></span></label>
+				</th>
 				<td>
 					<?php
 					$selected_locale = '' === $user->locale ? 'site-default' : $user->locale;
