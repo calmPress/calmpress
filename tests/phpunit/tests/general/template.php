@@ -253,6 +253,17 @@ class Tests_General_Template extends WP_UnitTestCase {
 	 */
 	public function test_customize_preview_wp_site_icon_dirty() {
 		global $wp_customize;
+
+		if ( is_multisite() ) {
+			$blog_id = self::factory()->blog->create(
+				array(
+					'domain' => 'mapped.example.net',
+				)
+			);
+			add_user_to_blog( $blog_id, self::$administrator_id, 'administrator' );
+			switch_to_blog( $blog_id );
+		}
+
 		wp_set_current_user( self::$administrator_id );
 
 		require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
@@ -273,6 +284,10 @@ class Tests_General_Template extends WP_UnitTestCase {
 		$output = implode( "\n", $output );
 		$this->expectOutputString( $output );
 		wp_site_icon();
+
+		if ( is_multisite() ) {
+			restore_current_blog();
+		}
 	}
 
 	/**

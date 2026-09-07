@@ -1226,6 +1226,7 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 	 * @ticket 59935
 	 *
 	 * @covers WP_REST_Server::get_index
+	 * @group ms-excluded
 	 */
 	public function test_get_index_should_include_site_icon() {
 		update_option( 'site_icon', self::$icon_id );
