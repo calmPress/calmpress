@@ -1,15 +1,17 @@
 /**
- * Updates text-based avatar previews when their source text changes.
+ * Live previews for text-based avatars.
  *
+ * @package CalmPress
  * @since calmPress 1.0.0
  */
+
 ( function() {
 
 /**
  * Calculates the CRC32 value used to select a generated avatar color.
  * Keep this algorithm synchronized with Text_Based_Avatar::attributes().
  *
- * @since calmPress 1.0.0
+ * @since 1.0.0
  *
  * @param {string} value Value from which the checksum is calculated.
  * @return {number} Unsigned CRC32 value.
@@ -32,7 +34,7 @@ function calculate_avatar_crc32( value ) {
  * Derives the letters displayed in a generated avatar from source text.
  * Keep this algorithm synchronized with Text_Based_Avatar::avatar_text().
  *
- * @since calmPress 1.0.0
+ * @since 1.0.0
  *
  * @param {string} value Source text.
  * @return {string} Up to three avatar letters.
@@ -57,7 +59,7 @@ function text_based_avatar_letters( value ) {
 /**
  * Encodes SVG markup as a base64 data URL.
  *
- * @since calmPress 1.0.0
+ * @since 1.0.0
  *
  * @param {string} svg SVG markup.
  * @return {string} SVG data URL.
@@ -74,58 +76,58 @@ function avatar_svg_data_url( svg ) {
 }
 
 /**
- * Updates every text-based avatar preview from its configured input.
+ * Updates the text-based avatar preview configured by an input.
  * Keep the generated SVG synchronized with Text_Based_Avatar::attributes().
  *
- * @since calmPress 1.0.0
+ * @since 1.0.0
+ *
+ * @param {Event} event Display-name input event.
  */
-function update_text_based_avatar_previews() {
-	const previews = document.querySelectorAll( '[data-text-based-avatar-input]' );
+function update_text_based_avatar_preview( event ) {
+	const input = event.currentTarget;
+	const preview_id = input.dataset.textBasedAvatarPreview;
+	const preview = document.getElementById( preview_id );
 
-	for ( const preview of previews ) {
-		const input = document.getElementById( preview.dataset.textBasedAvatarInput );
-		const image = preview.querySelector( 'img' );
-		const colors = JSON.parse( preview.dataset.textBasedAvatarColors );
+	if ( ! preview ) {
+		const message = 'Text-based avatar preview container "' + preview_id + '" was not found.';
 
-		if ( ! input || ! image || ! colors.length ) {
-			continue;
-		}
-
-		const avatar_text = text_based_avatar_letters( input.value );
-		const color_index = calculate_avatar_crc32( input.value + preview.dataset.textBasedAvatarColorFactor ) % colors.length;
-		const escaped_text = avatar_text.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
-		const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="50%" y="50%" font-size="50" text-anchor="middle" dy=".35em" fill="white" font-family="Arial">' + escaped_text + '</text></svg>';
-
-		image.src = avatar_svg_data_url( svg );
-		image.className = ( image.className.replace( /(?:^|\s)av-\d+(?=\s|$)/g, '' ).trim() + ' av-' + color_index ).trim();
-		image.style.backgroundColor = colors[ color_index ];
+		console.error( message );
+		throw new Error( message );
 	}
+
+	// The preview ID identifies the container holding the image that will be updated.
+	const image = preview.querySelector( 'img' );
+	if ( ! image ) {
+		const message = 'Text-based avatar preview container "' + preview_id + '" does not contain an image.';
+
+		console.error( message );
+		throw new Error( message );
+	}
+
+	const colors = text_based_avatar_settings.colors;
+	const avatar_text = text_based_avatar_letters( input.value );
+	const color_index = calculate_avatar_crc32( input.value + input.dataset.textBasedAvatarColorFactor ) % colors.length;
+	const escaped_text = avatar_text.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
+	const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="50%" y="50%" font-size="50" text-anchor="middle" dy=".35em" fill="white" font-family="Arial">' + escaped_text + '</text></svg>';
+
+	image.src = avatar_svg_data_url( svg );
+	image.className = ( image.className.replace( /(?:^|\s)av-\d+(?=\s|$)/g, '' ).trim() + ' av-' + color_index ).trim();
+	image.style.backgroundColor = colors[ color_index ];
 }
 
 /**
  * Connects text-based avatar previews to their source inputs.
  *
- * @since calmPress 1.0.0
+ * @since 1.0.0
  */
-function initialize_text_based_avatar_previews() {
-	const previews = document.querySelectorAll( '[data-text-based-avatar-input]' );
-	const inputs = new Set();
-
-	for ( const preview of previews ) {
-		const input = document.getElementById( preview.dataset.textBasedAvatarInput );
-		if ( input ) {
-			inputs.add( input );
-		}
-	}
+function connect_text_based_avatar_previews() {
+	const inputs = document.querySelectorAll( '[data-text-based-avatar-preview]' );
 
 	for ( const input of inputs ) {
-		input.addEventListener( 'input', update_text_based_avatar_previews );
+		input.addEventListener( 'input', update_text_based_avatar_preview );
 	}
 }
 
-if ( 'loading' === document.readyState ) {
-	document.addEventListener( 'DOMContentLoaded', initialize_text_based_avatar_previews );
-} else {
-	initialize_text_based_avatar_previews();
-}
+// The script is loaded in the admin footer after avatar preview markup.
+connect_text_based_avatar_previews();
 }() );
