@@ -244,6 +244,15 @@ input.validation-warning ~ .validate-failure-message {
 	color:rgb(219, 166, 23);
 }
 
+#site-profile-page input[type="checkbox"] + label {
+	margin-inline-start: 4px;
+	cursor: pointer;
+}
+
+#site-profile-page .site-profile-field {
+	margin-top: 1em;
+}
+
 .form-invalid .form-required,
 .form-invalid .form-required:focus,
 .form-invalid.form-required input,

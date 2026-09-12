@@ -223,9 +223,13 @@ class Tests_User extends WP_UnitTestCase {
 	 */
 	public function test_user_properties() {
 		$user = new WP_User( self::$author_id );
+		$data = get_object_vars( $user->data );
 
-		foreach ( $user->data as $key => $data ) {
-			$this->assertEquals( $data, $user->$key );
+		// Display name is a site-contextual property rather than a magic database-row property.
+		unset( $data['display_name'] );
+
+		foreach ( $data as $key => $value ) {
+			$this->assertEquals( $value, $user->$key );
 		}
 
 		$this->assertTrue( isset( $user->$key ) );
@@ -362,6 +366,302 @@ class Tests_User extends WP_UnitTestCase {
 
 		update_user_meta( self::$author_id, 'dashed-key', 'abcdefg' );
 		$this->assertTrue( $user->has_prop( 'dashed-key' ) );
+	}
+
+	/**
+	 * Tests that standalone users cannot have a site display name override.
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_has_display_name_override_for_site_returns_false_on_standalone() {
+		$user = new WP_User( self::$author_id );
+
+		$this->assertFalse( $user->has_display_name_override_for_site( calmpress\site\Site::current() ) );
+	}
+
+	/**
+	 * Tests that the account display name is the contextual display name on standalone installations.
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_account_display_name_returns_display_name_on_standalone() {
+		$user = new WP_User( self::$author_id );
+
+		$this->assertSame( $user->display_name, $user->account_display_name() );
+	}
+
+	/**
+	 * Tests that a site's display name is the account display name on standalone installations.
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_display_name_for_site_returns_display_name_on_standalone() {
+		$user = new WP_User( self::$author_id );
+
+		$this->assertSame( $user->display_name, $user->display_name_for_site( calmpress\site\Site::current() ) );
+	}
+
+	/**
+	 * Tests that setting a site display name updates the account on standalone installations.
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_set_display_name_for_site_updates_standalone_user() {
+		$user = new WP_User( self::$author_id );
+		$user->set_display_name_for_site( calmpress\site\Site::current(), 'Updated Name' );
+
+		$this->assertSame( 'Updated Name', $user->display_name );
+		$this->assertSame( 'Updated Name', $user->data->display_name );
+		$this->assertSame( 'Updated Name', $user->account_display_name() );
+		$this->assertSame( 'Updated Name', get_userdata( self::$author_id )->display_name );
+	}
+
+	/**
+	 * Tests that removing a site display name does not change a standalone account.
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_remove_display_name_for_site_does_not_change_standalone_user() {
+		$user         = new WP_User( self::$author_id );
+		$display_name = $user->display_name;
+
+		$user->remove_display_name_for_site( calmpress\site\Site::current() );
+
+		$this->assertSame( $display_name, $user->display_name );
+		$this->assertSame( $display_name, get_userdata( self::$author_id )->display_name );
+	}
+
+	/**
+	 * Tests that standalone users cannot have a site avatar override.
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_has_avatar_override_for_site_returns_false_on_standalone() {
+		$user = new WP_User( self::$author_id );
+
+		$this->assertFalse( $user->has_avatar_override_for_site( calmpress\site\Site::current() ) );
+	}
+
+	/**
+	 * Tests that setting a site avatar updates the account avatar on standalone installations.
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_set_avatar_for_site_updates_standalone_user() {
+		$user       = new WP_User( self::$author_id );
+		$attachment = self::factory()->attachment->create_and_get();
+
+		$user->set_avatar_for_site( calmpress\site\Site::current(), $attachment );
+
+		$this->assertSame( $attachment->ID, (int) get_user_meta( self::$author_id, WP_User::AVATAR_ATTACHMENT_ID, true ) );
+	}
+
+	/**
+	 * Tests that removing a site avatar removes the account avatar on standalone installations.
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_remove_avatar_for_site_updates_standalone_user() {
+		$user       = new WP_User( self::$author_id );
+		$attachment = self::factory()->attachment->create_and_get();
+
+		$user->set_avatar( $attachment );
+		$user->remove_avatar_for_site( calmpress\site\Site::current() );
+
+		$this->assertSame( '', get_user_meta( self::$author_id, WP_User::AVATAR_ATTACHMENT_ID, true ) );
+	}
+
+	/**
+	 * Tests whether display name overrides are configured for individual sites.
+	 *
+	 * @group ms-required
+	 */
+	public function test_has_display_name_override_for_site_is_site_specific() {
+		$user_id        = self::factory()->user->create( [ 'display_name' => 'Account Name' ] );
+		$first_site_id  = self::factory()->blog->create();
+		$second_site_id = self::factory()->blog->create();
+		$user           = get_userdata( $user_id );
+		$first_site     = get_site( $first_site_id );
+		$second_site    = get_site( $second_site_id );
+
+		$this->assertFalse( $user->has_display_name_override_for_site( $first_site ) );
+
+		$user->set_display_name_for_site( $first_site, 'First Site Name' );
+		$user->set_display_name_for_site( $second_site, 'Second Site Name' );
+
+		$this->assertTrue( $user->has_display_name_override_for_site( $first_site ) );
+		$this->assertTrue( $user->has_display_name_override_for_site( $second_site ) );
+
+		$user->remove_display_name_for_site( $first_site );
+
+		$this->assertFalse( $user->has_display_name_override_for_site( $first_site ) );
+		$this->assertTrue( $user->has_display_name_override_for_site( $second_site ) );
+	}
+
+	/**
+	 * Tests that display names configured for individual sites do not affect each other.
+	 *
+	 * @group ms-required
+	 */
+	public function test_display_name_for_site_is_site_specific() {
+		$user_id        = self::factory()->user->create( [ 'display_name' => 'Account Name' ] );
+		$first_site_id  = self::factory()->blog->create();
+		$second_site_id = self::factory()->blog->create();
+		$user           = get_userdata( $user_id );
+		$first_site     = get_site( $first_site_id );
+		$second_site    = get_site( $second_site_id );
+
+		// The account display name is used until a site override is configured.
+		$this->assertSame( 'Account Name', $user->display_name_for_site( $first_site ) );
+
+		$user->set_display_name_for_site( $first_site, 'First Site Name' );
+		$user->set_display_name_for_site( $second_site, 'Second Site Name' );
+
+		$this->assertSame( 'First Site Name', $user->display_name_for_site( $first_site ) );
+		$this->assertSame( 'Second Site Name', $user->display_name_for_site( $second_site ) );
+	}
+
+	/**
+	 * Tests that construction and for_site() set the contextual display name.
+	 *
+	 * @group ms-required
+	 */
+	public function test_for_site_sets_contextual_display_name() {
+		$user_id        = self::factory()->user->create( [ 'display_name' => 'Account Name' ] );
+		$first_site_id  = self::factory()->blog->create();
+		$second_site_id = self::factory()->blog->create();
+		$user           = get_userdata( $user_id );
+
+		$user->set_display_name_for_site( get_site( $first_site_id ), 'First Site Name' );
+		$user->set_display_name_for_site( get_site( $second_site_id ), 'Second Site Name' );
+
+		// A user object exposes the display name for the site context in which it was initialized.
+		$user = new WP_User( $user_id, '', $first_site_id );
+		$this->assertSame( 'First Site Name', $user->display_name );
+		$this->assertSame( 'First Site Name', $user->get( 'display_name' ) );
+		$this->assertSame( 'Account Name', $user->data->display_name );
+		$this->assertSame( 'Account Name', $user->account_display_name() );
+
+		$user->for_site( $second_site_id );
+		$this->assertSame( 'Second Site Name', $user->display_name );
+		$this->assertSame( 'Second Site Name', $user->get( 'display_name' ) );
+		$this->assertSame( 'Account Name', $user->data->display_name );
+		$this->assertSame( 'Account Name', $user->account_display_name() );
+	}
+
+	/**
+	 * Tests that setting a display name updates a user object in the same site context.
+	 *
+	 * @group ms-required
+	 */
+	public function test_set_display_name_for_site_updates_current_context() {
+		$user_id = self::factory()->user->create( [ 'display_name' => 'Account Name' ] );
+		$site_id = self::factory()->blog->create();
+		$site    = get_site( $site_id );
+		$user    = new WP_User( $user_id, '', $site_id );
+
+		$user->set_display_name_for_site( $site, 'Site Name' );
+
+		$this->assertSame( 'Site Name', $user->display_name );
+		$this->assertSame( 'Site Name', $user->display_name_for_site( $site ) );
+		$this->assertSame( 'Account Name', $user->account_display_name() );
+	}
+
+	/**
+	 * Tests that removing a display name updates a user object in the same site context.
+	 *
+	 * @group ms-required
+	 */
+	public function test_remove_display_name_for_site_updates_current_context() {
+		$user_id = self::factory()->user->create( [ 'display_name' => 'Account Name' ] );
+		$site_id = self::factory()->blog->create();
+		$site    = get_site( $site_id );
+		$user    = new WP_User( $user_id, '', $site_id );
+
+		$user->set_display_name_for_site( $site, 'Site Name' );
+		$user->remove_display_name_for_site( $site );
+
+		$this->assertSame( 'Account Name', $user->display_name );
+		$this->assertSame( 'Account Name', $user->display_name_for_site( $site ) );
+		$this->assertFalse( $user->has_display_name_override_for_site( $site ) );
+	}
+
+	/**
+	 * Tests that avatar_for_site() inherits the account avatar without an override.
+	 *
+	 * @group ms-required
+	 */
+	public function test_avatar_for_site_inherits_account_avatar_without_override() {
+		$user_id = self::factory()->user->create(
+			[
+				'display_name' => 'Account Name',
+				'user_email'   => 'avatar@example.org',
+			]
+		);
+		$site_id = self::factory()->blog->create();
+		$site    = get_site( $site_id );
+		$user    = new WP_User( $user_id, '', $site_id );
+
+		$user->set_display_name_for_site( $site, 'Site Persona' );
+		$avatar_attributes = $user->avatar_for_site( $site )->attributes( 50 );
+		$svg               = base64_decode( substr( $avatar_attributes['src'], strlen( 'data:image/svg+xml;base64,' ) ) );
+
+		$this->assertStringContainsString( '>AN</text>', $svg );
+		$this->assertFalse( $user->has_avatar_override_for_site( $site ) );
+	}
+
+	/**
+	 * Tests that a generated avatar override uses the site's display name.
+	 *
+	 * @group ms-required
+	 */
+	public function test_set_generated_avatar_for_site_uses_site_display_name() {
+		$user_id = self::factory()->user->create(
+			[
+				'display_name' => 'Account Name',
+				'user_email'   => 'avatar@example.org',
+			]
+		);
+		$site_id = self::factory()->blog->create();
+		$site    = get_site( $site_id );
+		$user    = new WP_User( $user_id, '', $site_id );
+
+		$user->set_display_name_for_site( $site, 'Site Persona' );
+		$user->set_generated_avatar_for_site( $site );
+		$avatar_attributes = $user->avatar_for_site( $site )->attributes( 50 );
+		$svg               = base64_decode( substr( $avatar_attributes['src'], strlen( 'data:image/svg+xml;base64,' ) ) );
+
+		$this->assertStringContainsString( '>SP</text>', $svg );
+		$this->assertTrue( $user->has_avatar_override_for_site( $site ) );
+	}
+
+	/**
+	 * Tests that temporary editor behavior applies only to the site where it was enabled.
+	 *
+	 * @group ms-required
+	 */
+	public function test_mocked_role_is_site_specific() {
+		$user_id        = self::factory()->user->create();
+		$first_site_id  = self::factory()->blog->create();
+		$second_site_id = self::factory()->blog->create();
+
+		add_user_to_blog( $first_site_id, $user_id, 'administrator' );
+		add_user_to_blog( $second_site_id, $user_id, 'administrator' );
+
+		switch_to_blog( $first_site_id );
+		$user = new WP_User( $user_id, '', $first_site_id );
+		$user->set_mocked_role( 'editor' );
+		$user = new WP_User( $user_id, '', $first_site_id );
+		$this->assertSame( 'editor', $user->mocked_role() );
+		$this->assertFalse( $user->has_cap( 'manage_options' ) );
+		$this->assertTrue( $user->has_cap( 'edit_pages' ) );
+		restore_current_blog();
+
+		switch_to_blog( $second_site_id );
+		$user = new WP_User( $user_id, '', $second_site_id );
+		$this->assertSame( '', $user->mocked_role() );
+		$this->assertTrue( $user->has_cap( 'manage_options' ) );
+		restore_current_blog();
 	}
 
 	public function test_update_user() {

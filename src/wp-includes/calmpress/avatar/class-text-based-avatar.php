@@ -134,6 +134,9 @@ class Text_Based_Avatar implements Avatar {
 	 * if intl extension is active remove accents from the resulting string.
 	 * 
 	 * Designed to be used by other code.
+	 *
+	 * Keep this algorithm synchronized with text_based_avatar_letters() in
+	 * wp-admin/js/text-based-avatar.js.
 	 * 
 	 * @since 1.0.0
 	 *
@@ -188,6 +191,9 @@ class Text_Based_Avatar implements Avatar {
 	 * The attributes to be used in the generated img. generate a data URI
 	 * containing the SVG with the appropriate letters for the src attribute
 	 * and a class identifying the background color to use by default.
+	 *
+	 * Keep the color selection and generated SVG synchronized with
+	 * wp-admin/js/text-based-avatar.js.
 	 *
 	 * @since 1.0.0
 	 *

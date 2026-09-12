@@ -22,5 +22,9 @@ $menu[999] = array( '', 'exist', 'separator-last', '', 'wp-menu-separator' );
 
 $compat                            = array();
 $submenu                           = array();
+$submenu['user-edit.php'][5]       = array( __( 'Account' ), 'exist', 'user-edit.php' );
+if ( wp_is_application_passwords_available_for_user( get_current_user_id() ) ) {
+	$submenu['user-edit.php'][50] = array( __( 'Application Passwords' ), 'exist', 'application-passwords.php' );
+}
 
 require_once ABSPATH . 'wp-admin/includes/menu.php';

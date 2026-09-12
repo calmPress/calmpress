@@ -235,8 +235,16 @@ function wp_admin_bar_my_account_item( $wp_admin_bar ) {
 		$profile_url = false;
 	}
 
+	$current_user = wp_get_current_user();
+
+	// Site contexts use the local profile identity.
+	// Network and account administration represent the shared account.
+	$display_name = ( is_network_admin() || is_user_admin() )
+		? $current_user->account_display_name()
+		: $current_user->display_name;
+
 	/* translators: %s: Current user's display name. */
-	$howdy = sprintf( __( 'Howdy, %s' ), '<span class="display-name">' . wp_get_current_user()->display_name . '</span>' );
+	$howdy = sprintf( __( 'Howdy, %s' ), '<span class="display-name">' . esc_html( $display_name ) . '</span>' );
 
 	$avatar = get_avatar( $user_id, 26 );
 	$wp_admin_bar->add_node(
@@ -264,6 +272,9 @@ function wp_admin_bar_my_account_item( $wp_admin_bar ) {
 function wp_admin_bar_my_account_menu( $wp_admin_bar ) {
 	$user_id      = get_current_user_id();
 	$current_user = wp_get_current_user();
+	$display_name = is_multisite() && ! is_network_admin() && ! is_user_admin()
+		? $current_user->display_name_for_site( calmpress\site\Site::current() )
+		: $current_user->display_name;
 
 	if ( ! $user_id ) {
 		return;
@@ -285,7 +296,7 @@ function wp_admin_bar_my_account_menu( $wp_admin_bar ) {
 	);
 
 	$user_info  = get_avatar( $current_user, 64 );
-	$user_info .= "<span class='display-name'>" . esc_html( $current_user->display_name ) . '</span>';
+	$user_info .= "<span class='display-name'>" . esc_html( $display_name ) . '</span>';
 
 	$user_info .= "<span class='username'>" . esc_html( $current_user->user_email ) . '</span>';
 

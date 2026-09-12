@@ -341,7 +341,10 @@ $_wp_last_utility_menu = 90; // The index of the last top-level menu in the util
 // Try to keep the profile menu as the last admin menu.
 $menu[900] = array( __( 'My Profile' ), 'read', 'my-profile', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
 	$submenu['my-profile'][5] = array( __( 'Account' ), 'read', 'user-edit.php' );
-	$submenu['my-profile'][10] = array( __( 'Device Login' ), 'read', 'webauthn.php' );
+	if ( is_multisite() ) {
+		$submenu['my-profile'][10] = array( __( 'This Site' ), 'read', 'site-profile.php' );
+	}
+	$submenu['my-profile'][20] = array( __( 'Device Login' ), 'read', 'webauthn.php' );
 	if ( wp_is_application_passwords_available_for_user( get_current_user_id() ) ) {
 		$submenu['my-profile'][50] = array( __( 'Application Passwords' ), 'read', 'application-passwords.php' );
 	}

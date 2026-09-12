@@ -123,6 +123,12 @@ $submenu['tools.php'][5] = array( __( 'Test Email Delivery' ), 'manage_network_o
 
 unset( $update_data );
 
+$menu[90]                 = array( __( 'My Profile' ), 'exist', 'profile.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
+$submenu['profile.php'][5] = array( __( 'Account' ), 'exist', 'profile.php' );
+if ( wp_is_application_passwords_available_for_user( get_current_user_id() ) ) {
+	$submenu['profile.php'][50] = array( __( 'Application Passwords' ), 'exist', 'application-passwords.php' );
+}
+
 $menu[99] = array( '', 'exist', 'separator-last', '', 'wp-menu-separator' );
 
 require_once ABSPATH . 'wp-admin/includes/menu.php';

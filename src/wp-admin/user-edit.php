@@ -557,7 +557,7 @@ switch ( $action ) {
 					<?php
 					} // End User roles.
 
-					if ( in_array( 'administrator', $profile_user->roles, true ) ) {
+					if ( ! is_multisite() && array_intersect( [ 'administrator', 'editor' ], $profile_user->roles ) ) {
 						?>
 					<tr id="mock-role-wrap" class="user-mock-role-wrap"><th><label for="mock-role"><?php esc_html_e( 'Behave like the role' ); ?></label></th>
 						<td>
@@ -565,18 +565,18 @@ switch ( $action ) {
 								<?php
 								$current_behave = $profile_user->mocked_role( );
 								foreach (
-									[
-										'' => 'Administrator',
-										'editor' => 'Editor',
-										'author' => 'Author',
-									]
+									(
+										in_array( 'administrator', $profile_user->roles, true )
+										? [ '' => 'Administrator', 'editor' => 'Editor', 'author' => 'Author' ]
+										: [ '' => 'Editor', 'author' => 'Author' ]
+									)
 									as $key => $role ) {
 									echo '<option value="' . esc_attr( $key ) . '" ' . selected( $key, $current_behave, false ) .'>' . esc_html(  translate_user_role( $role ) ) . '</option>';
 								}
 								?>
 							</select>
 						<?php
-						$expiry = (int) get_user_meta( $profile_user->ID, 'mock_role_expiry', true );
+						$expiry = (int) get_user_option( WP_User::SITE_MOCKED_ROLE_EXPIRY_OPTION, $profile_user->ID );
 						if ( '' !== $current_behave && $expiry > time() ) {
 							?>
 							<p>
@@ -589,9 +589,9 @@ switch ( $action ) {
 							?>
 							</p>
 						<?php } ?>
-							<p class="description"><?php esc_html_e( 'The account can be set to behave like an Editor or Author instead of Administrator.' ); ?></p>
-							<p class="description"><?php esc_html_e( 'This can be used to reduce the admin clutter if the account is used for content editting.' ); ?></p>
-							<p class="description"><?php esc_html_e( 'The behaviour will last 14 days from the time is set, or until it is set to Administrator.' ); ?></p>
+							<p class="description"><?php esc_html_e( 'The account can temporarily behave like a lower role without changing its assigned role.' ); ?></p>
+							<p class="description"><?php esc_html_e( 'This can reduce administration clutter when the account is used for editing content.' ); ?></p>
+							<p class="description"><?php esc_html_e( 'The behavior will last 14 days from the time it is set, or until the assigned role is selected again.' ); ?></p>
 						</td>
 				</tr>
 				<?php
@@ -633,7 +633,7 @@ switch ( $action ) {
 					<tr class="user-display-name-wrap">
 						<th><label for="display_name"><?php esc_html_e( 'Display name publicly as' ); ?></label></th>
 						<td>
-							<input type="text" class="regular-text" name="display_name" id="display_name" value="<?php echo esc_attr( $profile_user->display_name ); ?>">
+							<input type="text" class="regular-text" name="display_name" id="display_name" value="<?php echo esc_attr( $profile_user->display_name ); ?>"<?php if ( current_user_can( 'upload_files' ) ) : ?> data-text-based-avatar-preview="avatar_text_preview" data-text-based-avatar-color-factor="<?php echo esc_attr( $profile_user->user_email ); ?>"<?php endif; ?>>
 							<p class="description">
 								<?php esc_html_e( 'The name which will be used to identify you in the admin and at public contexts like comments.' ); ?>
 							</p>
@@ -645,6 +645,7 @@ switch ( $action ) {
 						<p class="description"><?php _e( 'Some information about yourself.' ); ?></p></td>
 					</tr>
 
+					<?php if ( current_user_can( 'upload_files' ) ) : ?>
 					<tr class="user-avatar-image">
 						<th><?php esc_html_e( 'Avatar image' ); ?></th>
 						<td>
@@ -687,13 +688,8 @@ switch ( $action ) {
 									if ( ! $avatar->attachment() ) {
 										$disabled = ' disabled=""';
 									}
-									if ( current_user_can( 'upload_files' ) ) {
-										echo '<button type="button" class="button" id="select_avatar_image" style="margin:0 5px">' . esc_html__( 'Use a Different Image' ) . '</button>';
-									}
+									echo '<button type="button" class="button" id="select_avatar_image" style="margin:0 5px">' . esc_html__( 'Use a Different Image' ) . '</button>';
 									echo '<button type="button" class="button" id="revert_avatar_image"' . $disabled . '>' . esc_html__( 'Revert to the Site`s Default' ) . '</button>';
-									if ( ! current_user_can( 'upload_files' ) ) {
-										echo '<p>' . esc_html__( 'You do not have the permissions required to upload a new avatar image.' ) . '</p>';
-									}
 									?>
 								</div>
 								<p class="description">
@@ -702,6 +698,7 @@ switch ( $action ) {
 							</div>
 						</td>
 					</tr>
+					<?php endif; ?>
 				</table>
 				<?php
 				ob_start();

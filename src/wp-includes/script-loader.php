@@ -1169,6 +1169,13 @@ function wp_default_scripts( $scripts ) {
 	$scripts->set_translations( 'auth-app' );
 
 	$scripts->add( 'text-based-avatar', "/wp-admin/js/text-based-avatar$suffix.js", array(), false, 1 );
+	did_action( 'init' ) && $scripts->localize(
+		'text-based-avatar',
+		'text_based_avatar_settings',
+		[
+			'colors' => calmpress\avatar\Text_Based_Avatar::COLORS,
+		]
+	);
 	$scripts->add( 'user-profile', "/wp-admin/js/user-profile$suffix.js", array( 'clipboard', 'jquery', 'password-strength-meter', 'wp-util', 'calm-utils', 'wp-a11y', 'text-based-avatar' ), false, 1 );
 	$scripts->set_translations( 'user-profile' );
 	$scripts->add( 'site-profile', "/wp-admin/js/site-profile$suffix.js", array( 'user-profile', 'calm-form-validate', 'text-based-avatar' ), false, 1 );
