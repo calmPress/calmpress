@@ -129,10 +129,6 @@ if ( isset( $_REQUEST['action'] ) && 'add-site' == $_REQUEST['action'] ) {
 	$wpdb->show_errors();
 
 	if ( ! is_wp_error( $id ) ) {
-		if ( ! is_super_admin( $user_id ) && ! get_user_option( 'primary_blog', $user_id ) ) {
-			update_user_option( $user_id, 'primary_blog', $id, true );
-		}
-
 		wpmu_new_site_admin_notification( $id, $user_id );
 		wpmu_welcome_notification( $id, $user_id, $password, $title, array( 'public' => 1 ) );
 		wp_redirect(

@@ -29,13 +29,7 @@ function get_sitestats() {
 }
 
 /**
- * Gets one of a user's active blogs.
- *
- * Returns the user's primary blog, if they have one and
- * it is active. If it's inactive, function returns another
- * active blog of the user. If none are found, the user
- * is added as a Subscriber to the Dashboard Blog and that blog
- * is returned.
+ * Gets one of a user's active sites.
  *
  * @since MU (3.0.0)
  *
@@ -52,60 +46,10 @@ function get_active_blog_for_user( $user_id ) {
 		return $blogs[ get_current_blog_id() ];
 	}
 
-	$primary_blog = get_user_meta( $user_id, 'primary_blog', true );
-	$first_blog   = current( $blogs );
-	if ( false !== $primary_blog ) {
-		if ( ! isset( $blogs[ $primary_blog ] ) ) {
-			update_user_meta( $user_id, 'primary_blog', $first_blog->userblog_id );
-			$primary = get_site( $first_blog->userblog_id );
-		} else {
-			$primary = get_site( $primary_blog );
+	foreach ( $blogs as $blog ) {
+		if ( (int) $blog->site_id === get_current_network_id() ) {
+			return get_site( $blog->userblog_id );
 		}
-	} else {
-		// TODO: Review this call to add_user_to_blog too - to get here the user must have a role on this blog?
-		$result = add_user_to_blog( $first_blog->userblog_id, $user_id, 'subscriber' );
-
-		if ( ! is_wp_error( $result ) ) {
-			update_user_meta( $user_id, 'primary_blog', $first_blog->userblog_id );
-			$primary = $first_blog;
-		}
-	}
-
-	if ( ( ! is_object( $primary ) )
-		|| ( '1' === $primary->archived || '1' === $primary->deleted )
-	) {
-		$blogs = get_blogs_of_user( $user_id, true ); // If a user's primary blog is shut down, check their other blogs.
-		$ret   = false;
-
-		if ( is_array( $blogs ) && count( $blogs ) > 0 ) {
-			$current_network_id = get_current_network_id();
-
-			foreach ( (array) $blogs as $blog_id => $blog ) {
-				if ( $blog->site_id !== $current_network_id ) {
-					continue;
-				}
-
-				$details = get_site( $blog_id );
-				if ( is_object( $details )
-					&& '0' === $details->archived && '0' === $details->deleted
-				) {
-					$ret = $details;
-					if ( (int) get_user_meta( $user_id, 'primary_blog', true ) !== $blog_id ) {
-						update_user_meta( $user_id, 'primary_blog', $blog_id );
-					}
-					if ( ! get_user_meta( $user_id, 'source_domain', true ) ) {
-						update_user_meta( $user_id, 'source_domain', $details->domain );
-					}
-					break;
-				}
-			}
-		} else {
-			return;
-		}
-
-		return $ret;
-	} else {
-		return $primary;
 	}
 }
 
@@ -193,11 +137,6 @@ function add_user_to_blog( $blog_id, $user_id, $role ) {
 
 	$site = get_site( $blog_id );
 
-	if ( ! get_user_meta( $user_id, 'primary_blog', true ) ) {
-		update_user_meta( $user_id, 'primary_blog', $blog_id );
-		update_user_meta( $user_id, 'source_domain', $site->domain );
-	}
-
 	$user->set_role( $role );
 	get_network( $site->network_id )->remove_orphaned_user( $user );
 
@@ -258,28 +197,6 @@ function remove_user_from_blog( $user_id, $blog_id = 0, $reassign = 0 ) {
 	 */
 	do_action( 'remove_user_from_blog', $user_id, $blog_id, $reassign );
 
-	/*
-	 * If being removed from the primary blog, set a new primary
-	 * if the user is assigned to multiple blogs.
-	 */
-	$primary_blog = (int) get_user_meta( $user_id, 'primary_blog', true );
-	if ( $primary_blog === $blog_id ) {
-		$new_id     = '';
-		$new_domain = '';
-		$blogs      = get_blogs_of_user( $user_id );
-		foreach ( (array) $blogs as $blog ) {
-			if ( $blog->userblog_id === $blog_id ) {
-				continue;
-			}
-			$new_id     = $blog->userblog_id;
-			$new_domain = $blog->domain;
-			break;
-		}
-
-		update_user_meta( $user_id, 'primary_blog', $new_id );
-		update_user_meta( $user_id, 'source_domain', $new_domain );
-	}
-
 	$user = get_userdata( $user_id );
 	if ( ! $user ) {
 		restore_current_blog();
@@ -287,12 +204,6 @@ function remove_user_from_blog( $user_id, $blog_id = 0, $reassign = 0 ) {
 	}
 
 	$user->remove_all_caps();
-
-	$blogs = get_blogs_of_user( $user_id );
-	if ( count( $blogs ) === 0 ) {
-		update_user_meta( $user_id, 'primary_blog', '' );
-		update_user_meta( $user_id, 'source_domain', '' );
-	}
 
 	if ( $reassign ) {
 		$reassign = (int) $reassign;
@@ -1942,8 +1853,18 @@ function maybe_add_existing_user_to_blog() {
  */
 function add_existing_user_to_blog( $details = false ) {
 	if ( is_array( $details ) ) {
-		$blog_id = get_current_blog_id();
-		$result  = add_user_to_blog( $blog_id, $details['user_id'], $details['role'] );
+		$user = get_userdata( $details['user_id'] );
+		$site = calmpress\site\Site::current();
+		if ( $user && $user->is_pending_activation_on_site( $site ) ) {
+			try {
+				$user->accept_site_invitation( $site, $details['role'] );
+				$result = true;
+			} catch ( RuntimeException $exception ) {
+				$result = new WP_Error( 'could_not_add_user', $exception->getMessage() );
+			}
+		} else {
+			$result = add_user_to_blog( (int) $site->blog_id, $details['user_id'], $details['role'] );
+		}
 
 		/**
 		 * Fires immediately after an existing user is added to a site.
@@ -1985,11 +1906,7 @@ function add_new_user_to_blog(
 		$role    = $meta['new_role'];
 		remove_user_from_blog( $user_id, get_network()->site_id ); // Remove user from main blog.
 
-		$result = add_user_to_blog( $blog_id, $user_id, $role );
-
-		if ( ! is_wp_error( $result ) ) {
-			update_user_meta( $user_id, 'primary_blog', $blog_id );
-		}
+		add_user_to_blog( $blog_id, $user_id, $role );
 	}
 }
 

@@ -681,60 +681,6 @@ function avoid_blog_page_permalink_collision( $data, $postarr ) {
 }
 
 /**
- * Handles the display of choosing a user's primary site.
- *
- * This displays the user's primary site and allows the user to choose
- * which site is primary.
- *
- * @since 3.0.0
- */
-function choose_primary_blog() {
-	?>
-	<table class="form-table" role="presentation">
-	<tr>
-	<?php /* translators: My Sites label. */ ?>
-		<th scope="row"><label for="primary_blog"><?php _e( 'Primary Site' ); ?></label></th>
-		<td>
-		<?php
-		$all_blogs    = get_blogs_of_user( get_current_user_id() );
-		$primary_blog = (int) get_user_meta( get_current_user_id(), 'primary_blog', true );
-		if ( count( $all_blogs ) > 1 ) {
-			$found = false;
-			?>
-			<select name="primary_blog" id="primary_blog">
-				<?php
-				foreach ( (array) $all_blogs as $blog ) {
-					if ( $blog->userblog_id === $primary_blog ) {
-						$found = true;
-					}
-					?>
-					<option value="<?php echo $blog->userblog_id; ?>"<?php selected( $primary_blog, $blog->userblog_id ); ?>><?php echo esc_url( get_home_url( $blog->userblog_id ) ); ?></option>
-					<?php
-				}
-				?>
-			</select>
-			<?php
-			if ( ! $found ) {
-				$blog = reset( $all_blogs );
-				update_user_meta( get_current_user_id(), 'primary_blog', $blog->userblog_id );
-			}
-		} elseif ( 1 === count( $all_blogs ) ) {
-			$blog = reset( $all_blogs );
-			echo esc_url( get_home_url( $blog->userblog_id ) );
-			if ( $blog->userblog_id !== $primary_blog ) { // Set the primary blog again if it's out of sync with blog list.
-				update_user_meta( get_current_user_id(), 'primary_blog', $blog->userblog_id );
-			}
-		} else {
-			_e( 'Not available' );
-		}
-		?>
-		</td>
-	</tr>
-	</table>
-	<?php
-}
-
-/**
  * Determines whether or not this network from this page can be edited.
  *
  * By default editing of network is restricted to the Network Admin for that `$network_id`.

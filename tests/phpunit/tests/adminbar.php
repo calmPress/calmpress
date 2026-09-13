@@ -159,21 +159,16 @@ class Tests_AdminBar extends WP_UnitTestCase {
 		$node_my_account = $wp_admin_bar->get_node( 'my-account' );
 		$node_user_info  = $wp_admin_bar->get_node( 'user-info' );
 
-		// Get primary blog.
-		$primary = get_active_blog_for_user( self::$editor_id );
-		$this->assertIsObject( $primary );
-
 		// No Site menu as the user isn't a member of this blog.
 		$this->assertNull( $node_site_name );
 
-		$primary_profile_url = get_admin_url( $primary->blog_id, 'user-edit.php' );
+		$user_profile_url = user_admin_url( 'user-edit.php' );
 
-		// Ensure the user's primary blog is not the same as the main site.
-		$this->assertNotEquals( $primary_profile_url, admin_url( 'user-edit.php' ) );
+		$this->assertNotEquals( $user_profile_url, admin_url( 'user-edit.php' ) );
 
-		// Profile URLs should go to the user's primary blog.
-		$this->assertSame( $primary_profile_url, $node_my_account->href );
-		$this->assertSame( $primary_profile_url, $node_user_info->href );
+		// Profile URLs should remain in the user administration context.
+		$this->assertSame( $user_profile_url, $node_my_account->href );
+		$this->assertSame( $user_profile_url, $node_user_info->href );
 
 		restore_current_blog();
 	}
@@ -213,10 +208,6 @@ class Tests_AdminBar extends WP_UnitTestCase {
 		$node_my_account = $wp_admin_bar->get_node( 'my-account' );
 		$node_user_info  = $wp_admin_bar->get_node( 'user-info' );
 
-		// Get primary blog.
-		$primary = get_active_blog_for_user( self::$no_role_id );
-		$this->assertNull( $primary );
-
 		// No Site menu as the user isn't a member of this site.
 		$this->assertNull( $node_site_name );
 
@@ -224,7 +215,7 @@ class Tests_AdminBar extends WP_UnitTestCase {
 
 		$this->assertNotEquals( $user_profile_url, admin_url( 'user-edit.php' ) );
 
-		// Profile URLs should go to the user's primary blog.
+		// Profile URLs should remain in the user administration context.
 		$this->assertSame( $user_profile_url, $node_my_account->href );
 		$this->assertSame( $user_profile_url, $node_user_info->href );
 

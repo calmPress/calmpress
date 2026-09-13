@@ -59,7 +59,7 @@ class Tests_Link_GetDashboardUrl extends WP_UnitTestCase {
 
 		remove_user_from_blog( self::$user_id, get_current_blog_id() );
 
-		$expected = get_admin_url( $site_id );
+		$expected = user_admin_url();
 		$result   = get_dashboard_url( self::$user_id );
 
 		remove_user_from_blog( self::$user_id, $site_id );

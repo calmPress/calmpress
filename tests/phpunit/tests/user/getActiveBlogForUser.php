@@ -17,7 +17,7 @@ class Tests_User_GetActiveBlogForUser extends WP_UnitTestCase {
 	}
 
 	public static function wpTearDownAfterClass() {
-		wpmu_delete_user( self::$user_id );
+		self::delete_user( self::$user_id );
 
 		global $wp_rewrite;
 		$wp_rewrite->init();
@@ -39,38 +39,15 @@ class Tests_User_GetActiveBlogForUser extends WP_UnitTestCase {
 	/**
 	 * @ticket 38355
 	 */
-	public function test_get_active_blog_for_user_with_primary_site() {
-		$site_id_one = self::factory()->blog->create( array( 'user_id' => self::$user_id ) );
-		$site_id_two = self::factory()->blog->create( array( 'user_id' => self::$user_id ) );
-
+	public function test_get_active_blog_for_user_with_site() {
 		$sites           = get_blogs_of_user( self::$user_id );
 		$site_ids        = array_keys( $sites );
-		$primary_site_id = $site_ids[1];
-
-		update_user_meta( self::$user_id, 'primary_blog', $primary_site_id );
+		$active_site_id  = $site_ids[0];
 
 		$result = get_active_blog_for_user( self::$user_id );
 
-		wp_delete_site( $site_id_one );
-		wp_delete_site( $site_id_two );
+		wp_delete_site( $active_site_id );
 
-		$this->assertSame( $primary_site_id, $result->id );
-	}
-
-	/**
-	 * @ticket 38355
-	 */
-	public function test_get_active_blog_for_user_without_primary_site() {
-		$sites           = get_blogs_of_user( self::$user_id );
-		$site_ids        = array_keys( $sites );
-		$primary_site_id = $site_ids[0];
-
-		delete_user_meta( self::$user_id, 'primary_blog' );
-
-		$result = get_active_blog_for_user( self::$user_id );
-
-		wp_delete_site( $primary_site_id );
-
-		$this->assertSame( $primary_site_id, $result->id );
+		$this->assertSame( $active_site_id, $result->id );
 	}
 }
