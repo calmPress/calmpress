@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace calmpress\site;
 
+use calmpress\identity\Site_Icon;
 use RuntimeException;
 use UnexpectedValueException;
 use WP_Network;
@@ -44,6 +45,60 @@ class Site {
 	 * @var string
 	 */
 	public $blog_id = '1';
+
+	/**
+	 * The site's name.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The site name.
+	 */
+	public function name(): string {
+		if ( ! is_multisite() ) {
+			return (string) get_option( 'blogname' );
+		}
+
+		return (string) get_blog_option( (int) $this->blog_id, 'blogname' );
+	}
+
+	/**
+	 * The site's icon.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return Site_Icon The site icon.
+	 */
+	public function icon(): Site_Icon {
+		return new Site_Icon( (int) $this->blog_id );
+	}
+
+	/**
+	 * The site's public URL.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string      $path   Path relative to the site URL.
+	 * @param string|null $scheme URL scheme, or null to use the current context.
+	 *
+	 * @return string The site URL.
+	 */
+	public function home_url( string $path = '', ?string $scheme = null ): string {
+		return get_home_url( (int) $this->blog_id, $path, $scheme );
+	}
+
+	/**
+	 * The site's administration URL.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $path   Path relative to the administration URL.
+	 * @param string $scheme URL scheme.
+	 *
+	 * @return string The site administration URL.
+	 */
+	public function admin_url( string $path = '', string $scheme = 'admin' ): string {
+		return get_admin_url( (int) $this->blog_id, $path, $scheme );
+	}
 
 	/**
 	 * Retrieves the site's administrators ordered by user ID.
