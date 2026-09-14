@@ -404,7 +404,7 @@ function login( \WP_REST_Request $request ): \WP_REST_Response {
 	// code taken from wp_login.php, find default url to redirect to if none given.
 	if ( ( empty( $redirect_to ) || 'wp-admin/' === $redirect_to || admin_url() === $redirect_to ) ) {
 		// If the user doesn't belong to a blog, send them to user admin. If the user can't edit posts, send them to their profile.
-		if ( is_multisite() && ! get_active_blog_for_user( $user->ID ) && ! is_super_admin( $user->ID ) ) {
+		if ( is_multisite() && ! $user->sites() && ! is_super_admin( $user->ID ) ) {
 			$redirect_to = user_admin_url();
 		} elseif ( is_multisite() && ! $user->has_cap( 'read' ) ) {
 			$redirect_to = get_dashboard_url( $user->ID );
