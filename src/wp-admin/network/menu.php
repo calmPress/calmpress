@@ -123,8 +123,10 @@ $submenu['tools.php'][5] = array( __( 'Test Email Delivery' ), 'manage_network_o
 
 unset( $update_data );
 
-$menu[90]                 = array( __( 'My Profile' ), 'exist', 'profile.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
-$submenu['profile.php'][5] = array( __( 'Account' ), 'exist', 'profile.php' );
+$menu[90]                  = array( __( 'My Profile' ), 'exist', 'profile.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
+$submenu['profile.php'][5]  = array( __( 'Account' ), 'exist', 'profile.php' );
+$submenu['profile.php'][10] = array( __( 'Sites' ), 'exist', user_admin_url( 'sites.php' ) );
+$submenu['profile.php'][20] = array( __( 'Device Login' ), 'exist', 'webauthn.php' );
 if ( wp_is_application_passwords_available_for_user( get_current_user_id() ) ) {
 	$submenu['profile.php'][50] = array( __( 'Application Passwords' ), 'exist', 'application-passwords.php' );
 }

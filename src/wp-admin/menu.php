@@ -30,10 +30,6 @@ $menu[2] = array( __( 'Dashboard' ), 'read', 'index.php', '', 'menu-top menu-top
 
 $submenu['index.php'][0] = array( __( 'Home' ), 'read', 'index.php' );
 
-if ( is_multisite() ) {
-	$submenu['index.php'][5] = array( __( 'My Sites' ), 'read', 'my-sites.php' );
-}
-
 if ( ! is_multisite() || current_user_can( 'update_core' ) ) {
 	$update_data = wp_get_update_data();
 }
@@ -340,9 +336,12 @@ $_wp_last_utility_menu = 90; // The index of the last top-level menu in the util
 
 // Try to keep the profile menu as the last admin menu.
 $menu[900] = array( __( 'My Profile' ), 'read', 'my-profile', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
-	$submenu['my-profile'][5] = array( __( 'Account' ), 'read', 'user-edit.php' );
 	if ( is_multisite() ) {
-		$submenu['my-profile'][10] = array( __( 'This Site' ), 'read', 'site-profile.php' );
+		$submenu['my-profile'][5]  = array( __( 'Account' ), 'read', 'user-edit.php' );
+		$submenu['my-profile'][10] = array( __( 'Sites' ), 'read', user_admin_url( 'sites.php' ) );
+		$submenu['my-profile'][15] = array( __( 'This Site' ), 'read', 'site-profile.php' );
+	} else {
+		$submenu['my-profile'][5] = array( __( 'Account' ), 'read', 'user-edit.php' );
 	}
 	$submenu['my-profile'][20] = array( __( 'Device Login' ), 'read', 'webauthn.php' );
 	if ( wp_is_application_passwords_available_for_user( get_current_user_id() ) ) {

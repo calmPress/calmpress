@@ -5,6 +5,7 @@
  * @package calmPress
  */
 
+use calmpress\identity\Site_Icon;
 use calmpress\site\Site as CalmPress_Site;
 
 /**
@@ -22,6 +23,42 @@ class Site extends WP_UnitTestCase {
 
 		$this->assertSame( CalmPress_Site::class, get_class( $site ) );
 		$this->assertNull( $site->network() );
+	}
+
+	/**
+	 * Tests the public URL exposed by a standalone site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_standalone_site_home_url(): void {
+		$this->assertSame( home_url(), CalmPress_Site::current()->home_url() );
+	}
+
+	/**
+	 * Tests the administration URL exposed by a standalone site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_standalone_site_admin_url(): void {
+		$this->assertSame( admin_url(), CalmPress_Site::current()->admin_url() );
+	}
+
+	/**
+	 * Tests the name exposed by a standalone site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_standalone_site_name(): void {
+		$this->assertSame( get_option( 'blogname' ), CalmPress_Site::current()->name() );
+	}
+
+	/**
+	 * Tests the icon exposed by a standalone site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_standalone_site_icon(): void {
+		$this->assertInstanceOf( Site_Icon::class, CalmPress_Site::current()->icon() );
 	}
 
 	/**

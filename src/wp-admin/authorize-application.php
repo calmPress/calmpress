@@ -173,7 +173,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 				?>
 				<p>
 					<?php
-					/* translators: 1: URL to my-sites.php, 2: Number of sites the user has. */
+					/* translators: 1: URL to the Sites screen, 2: Number of sites the user has. */
 					$message = _n(
 						'This will grant access to <a href="%1$s">the %2$s site in this installation that you have permissions on</a>.',
 						'This will grant access to <a href="%1$s">all %2$s sites in this installation that you have permissions on</a>.',
@@ -181,7 +181,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 					);
 
 					if ( is_super_admin() ) {
-						/* translators: 1: URL to my-sites.php, 2: Number of sites the user has. */
+						/* translators: 1: URL to the Sites screen, 2: Number of sites the user has. */
 						$message = _n(
 							'This will grant access to <a href="%1$s">the %2$s site on the network as you have Super Admin rights</a>.',
 							'This will grant access to <a href="%1$s">all %2$s sites on the network as you have Super Admin rights</a>.',
@@ -191,7 +191,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
 					printf(
 						$message,
-						admin_url( 'my-sites.php' ),
+						user_admin_url( 'sites.php' ),
 						number_format_i18n( $blogs_count )
 					);
 					?>

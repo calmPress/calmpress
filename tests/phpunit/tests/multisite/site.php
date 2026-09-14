@@ -16,6 +16,42 @@ class Tests_Multisite_Site extends WP_UnitTestCase {
 	protected static $site_ids;
 	protected static $uninitialized_site_id;
 
+	/**
+	 * Tests the public URL exposed by a network site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_site_home_url(): void {
+		$this->assertSame( home_url(), get_site()->home_url() );
+	}
+
+	/**
+	 * Tests the administration URL exposed by a network site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_site_admin_url(): void {
+		$this->assertSame( admin_url(), get_site()->admin_url() );
+	}
+
+	/**
+	 * Tests the name exposed by a network site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_site_name(): void {
+		$this->assertSame( get_option( 'blogname' ), get_site()->name() );
+	}
+
+	/**
+	 * Tests the icon exposed by a network site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_site_icon(): void {
+		$this->assertInstanceOf( calmpress\identity\Site_Icon::class, get_site()->icon() );
+	}
+
 	public function set_up() {
 		global $wpdb;
 		parent::set_up();
