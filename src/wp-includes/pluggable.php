@@ -2092,7 +2092,7 @@ endif;
 
 if ( ! function_exists( 'wp_new_user_notification' ) ) :
 	/**
-	 * Emails an invitation to authenticate to a newly registered user.
+	 * Emails login instructions to a newly registered user.
 	 *
 	 * @since 2.0.0
 	 * @since 4.3.0 The `$plaintext_pass` parameter was changed to `$notify`.
@@ -2101,6 +2101,8 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) :
 	 * @since calmPress 1.0.0 Admin notifications are no longer sent. The
 	 *                         `wp_send_new_user_notification_to_admin` and
 	 *                         `wp_new_user_notification_email_admin` filters are no longer supported.
+	 * @since calmPress 1.0.0 Pending accounts receive activation instructions;
+	 *                         active accounts receive a password-setting link.
 	 *
 	 * @param int    $user_id    User ID.
 	 * @param null   $deprecated Not used (argument deprecated).
@@ -2119,15 +2121,45 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) :
 
 		$user = get_userdata( $user_id );
 
-		$blogname = get_option( 'blogname' );
-
 		// `$deprecated` was pre-4.3 `$plaintext_pass`. An empty `$plaintext_pass` didn't send a user notification.
 		if ( 'admin' === $notify || ( empty( $deprecated ) && empty( $notify ) ) ) {
 			return;
 		}
 
-		$email = new calmpress\email\User_Invitation_Email( $user, $blogname, wp_login_url() );
-		$email->send();
+		$pending_activation = in_array( 'pending_activation', $user->roles, true );
+		if ( is_multisite() && $user->has_network_invite( get_network() ) ) {
+			$pending_activation = true;
+		}
+
+		if ( $pending_activation ) {
+			$email = new calmpress\email\User_Invitation_Email( $user, get_option( 'blogname' ), wp_login_url() );
+			$email->send();
+
+			return;
+		}
+
+		$key = get_password_reset_key( $user );
+		if ( is_wp_error( $key ) ) {
+			return;
+		}
+
+		$switched_locale = switch_to_user_locale( $user_id );
+		$blogname         = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+
+		$message  = sprintf( __( 'Username: %s' ), $user->user_login ) . "\r\n\r\n";
+		$message .= __( 'To set your password, visit the following address:' ) . "\r\n\r\n";
+		$message .= network_site_url( 'wp-login.php?action=rp&key=' . $key . '&login=' . rawurlencode( $user->user_login ), 'login' ) . "\r\n\r\n";
+		$message .= wp_login_url() . "\r\n";
+
+		wp_mail(
+			$user->user_email,
+			wp_specialchars_decode( sprintf( __( '[%s] Login Details' ), $blogname ) ),
+			$message
+		);
+
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
 	}
 endif;
 

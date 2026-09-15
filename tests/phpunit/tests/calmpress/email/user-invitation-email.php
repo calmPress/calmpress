@@ -122,6 +122,7 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create(
 			[
 				'user_email' => 'standalone-invitee@example.com',
+				'role'       => 'pending_activation',
 			]
 		);
 
@@ -132,6 +133,46 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'User invitation', $mail['subject'] );
 		$this->assertStringContainsString( wp_login_url(), $mail['message'] );
 		$this->assertStringNotContainsString( 'action=rp', $mail['message'] );
+	}
+
+	/**
+	 * Tests that wp_new_user_notification() sends password-setting instructions to an active user.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_wp_new_user_notification_sends_password_setting_link_to_active_user(): void {
+		$mail = [];
+
+		/**
+		 * Captures and suppresses the outgoing message.
+		 *
+		 * @since calmPress 1.0.0
+		 *
+		 * @param null|bool $return     Whether to short-circuit sending.
+		 * @param array     $attributes The wp_mail() arguments.
+		 *
+		 * @return false Prevents delivery by the test mailer.
+		 */
+		$capture_mail = static function ( $return, $attributes ) use ( &$mail ): false {
+			$mail = $attributes;
+
+			return false;
+		};
+
+		$user_id = self::factory()->user->create(
+			[
+				'user_email' => 'active-user@example.com',
+				'role'       => 'subscriber',
+			]
+		);
+
+		add_filter( 'pre_wp_mail', $capture_mail, 10, 2 );
+		wp_new_user_notification( $user_id, null, 'user' );
+		remove_filter( 'pre_wp_mail', $capture_mail, 10 );
+
+		$this->assertStringContainsString( 'Login Details', $mail['subject'] );
+		$this->assertStringContainsString( 'action=rp', $mail['message'] );
+		$this->assertStringNotContainsString( 'User invitation', $mail['subject'] );
 	}
 
 }
