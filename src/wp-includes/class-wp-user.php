@@ -34,7 +34,6 @@ use calmpress\webauthn\Devices_Of_User;
  * @property string $user_activation_key
  * @property string $user_status
  * @property int    $user_level
- * @property string $display_name
  * @property string $spam
  * @property string $deleted
  * @property string $locale
@@ -57,6 +56,14 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @var int
 	 */
 	public $ID = 0;
+
+	/**
+	 * Display name for the site context of this user object.
+	 *
+	 * @since calmPress 1.0.0
+	 * @var string
+	 */
+	public $display_name = '';
 
 	/**
 	 * Capabilities that the individual user has been granted outside of those inherited from their role.
@@ -119,6 +126,41 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @since calmPress 1.0.0
 	 */
 	const AVATAR_ATTACHMENT_ID = 'calm_avatar_id';
+
+	/**
+	 * The user option containing the display name used on a site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	const SITE_DISPLAY_NAME_OPTION = 'calm_site_display_name';
+
+	/**
+	 * The user option containing the avatar attachment used on a site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	const SITE_AVATAR_ATTACHMENT_ID_OPTION = 'calm_site_avatar_id';
+
+	/**
+	 * The user option containing the role an administrator temporarily behaves as on a site.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	const SITE_MOCKED_ROLE_OPTION = 'calm_site_mocked_role';
+
+	/**
+	 * The user option containing the expiry of a site's temporary mocked role.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	const SITE_MOCKED_ROLE_EXPIRY_OPTION = 'calm_site_mocked_role_expiry';
+
+	/**
+	 * The user option containing the role requested by a pending site invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	const SITE_INVITATION_ROLE_OPTION = 'calm_site_invitation_role';
 
 	/**
 	 * The user meta key in which the one time password is stored.
@@ -325,7 +367,6 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @return mixed Value of the given user meta key (if set). If `$key` is 'id', the user ID.
 	 */
 	public function __get( $key ) {
-
 		if ( isset( $this->data->$key ) ) {
 			$value = $this->data->$key;
 		} else {
@@ -513,6 +554,216 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * Invites the user to a site.
+	 *
+	 * A user awaiting network activation receives instructions for activating the
+	 * account. An active network user receives a link for responding to the site
+	 * invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site to which the user is invited.
+	 * @param string                $role Role to assign after acceptance.
+	 *
+	 * @throws InvalidArgumentException If the intended role does not exist.
+	 * @throws RuntimeException If the invitation cannot be stored.
+	 */
+	public function invite_to_site( calmpress\site\Site $site, string $role ): void {
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		try {
+			// Role definitions and user options are specific to the invited site.
+
+			if ( ! wp_roles()->is_role( $role ) || in_array( $role, [ 'pending_activation', 'deleted' ], true ) ) {
+				throw new InvalidArgumentException( 'The intended site role is invalid.' );
+			}
+
+			$result = add_user_to_blog( (int) $site->blog_id, $this->ID, 'pending_activation' );
+			if ( is_wp_error( $result ) ) {
+				throw new RuntimeException( $result->get_error_message() );
+			}
+
+			if ( ! update_user_option( $this->ID, self::SITE_INVITATION_ROLE_OPTION, $role ) ) {
+				throw new RuntimeException( 'The intended site role could not be stored.' );
+			}
+
+			$network = $site->network();
+			if ( $network && $this->has_network_invite( $network ) ) {
+				$invitation_email = new calmpress\email\User_Invitation_Email(
+					$this,
+					$site->name(),
+					wp_login_url()
+				);
+			} else {
+				$invitation_email = new calmpress\email\Existing_User_Invitation_To_Site_Email(
+					$this,
+					$site,
+					user_admin_url( 'sites.php' )
+				);
+			}
+			$invitation_email->send();
+		} finally {
+			if ( $switched ) {
+				restore_current_blog();
+			}
+		}
+	}
+
+	/**
+	 * The pending site invitations belonging to a network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_Network $network Network in which pending invitations are selected.
+	 *
+	 * @return calmpress\site\Site[] Sites to which the user has pending invitations.
+	 */
+	public function sites_pending_activation( WP_Network $network ): array {
+		global $wpdb;
+
+		$sites = [];
+		foreach ( get_user_meta( $this->ID ) as $key => $values ) {
+			if ( [ 'pending_activation' => true ] !== maybe_unserialize( $values[0] ) ) {
+				continue;
+			}
+
+			if ( $wpdb->base_prefix . 'capabilities' === $key ) {
+				$site_id = calmpress\site\Site::INITIAL_SITE_ID;
+			} elseif ( preg_match( '/^' . preg_quote( $wpdb->base_prefix, '/' ) . '(\d+)_capabilities$/', $key, $matches ) ) {
+				$site_id = (int) $matches[1];
+			} else {
+				continue;
+			}
+
+			$site = get_site( $site_id );
+			if ( $site && (int) $site->network_id === (int) $network->id ) {
+				$sites[] = $site;
+			}
+		}
+
+		return $sites;
+	}
+
+	/**
+	 * The role intended for a pending site invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site whose intended role is returned.
+	 *
+	 * @return string The intended role.
+	 *
+	 * @throws RuntimeException If the invitation or intended role is missing or invalid.
+	 */
+	public function site_invitation_role( calmpress\site\Site $site ): string {
+		if ( ! $this->is_pending_activation_on_site( $site ) ) {
+			throw new RuntimeException( 'The user does not have a pending invitation to the site.' );
+		}
+
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		try {
+			$role = get_user_option( self::SITE_INVITATION_ROLE_OPTION, $this->ID );
+			if ( ! is_string( $role ) || ! wp_roles()->is_role( $role ) || in_array( $role, [ 'pending_activation', 'deleted' ], true ) ) {
+				throw new RuntimeException( 'The pending site invitation does not have a valid intended role.' );
+			}
+
+			return $role;
+		} finally {
+			if ( $switched ) {
+				restore_current_blog();
+			}
+		}
+	}
+
+	/**
+	 * Accepts the user's pending invitation to a site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site whose invitation is accepted.
+	 * @param string|null           $role Intended role supplied by a compatible legacy invitation.
+	 *
+	 * @throws RuntimeException If the invitation or intended role is missing, or membership cannot be assigned.
+	 */
+	public function accept_site_invitation( calmpress\site\Site $site, ?string $role = null ): void {
+		if ( ! $this->is_pending_activation_on_site( $site ) ) {
+			throw new RuntimeException( 'The user does not have a pending invitation to the site.' );
+		}
+		if ( null === $role ) {
+			$role = $this->site_invitation_role( $site );
+		}
+
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		if ( ! is_string( $role ) || ! wp_roles()->is_role( $role ) || in_array( $role, [ 'pending_activation', 'deleted' ], true ) ) {
+			if ( $switched ) {
+				restore_current_blog();
+			}
+			throw new RuntimeException( 'The pending site invitation does not have a valid intended role.' );
+		}
+
+		$result = add_user_to_blog( (int) $site->blog_id, $this->ID, $role );
+		if ( is_wp_error( $result ) ) {
+			if ( $switched ) {
+				restore_current_blog();
+			}
+			throw new RuntimeException( $result->get_error_message() );
+		}
+
+		delete_user_option( $this->ID, self::SITE_INVITATION_ROLE_OPTION );
+		if ( $switched ) {
+			restore_current_blog();
+		}
+
+		if ( (int) $site->blog_id === $this->site_id ) {
+			$this->for_site( $this->site_id );
+		}
+	}
+
+	/**
+	 * Declines the user's pending invitation to a site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site whose invitation is declined.
+	 *
+	 * @throws RuntimeException If the invitation is missing or cannot be removed.
+	 */
+	public function decline_site_invitation( calmpress\site\Site $site ): void {
+		if ( ! $this->is_pending_activation_on_site( $site ) ) {
+			throw new RuntimeException( 'The user does not have a pending invitation to the site.' );
+		}
+
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		try {
+			$result = remove_user_from_blog( $this->ID, (int) $site->blog_id );
+			if ( is_wp_error( $result ) ) {
+				throw new RuntimeException( $result->get_error_message() );
+			}
+
+			delete_user_option( $this->ID, self::SITE_INVITATION_ROLE_OPTION );
+		} finally {
+			if ( $switched ) {
+				restore_current_blog();
+			}
+		}
+	}
+
+	/**
 	 * Retrieves the IDs of sites on which the user has been assigned capabilities.
 	 *
 	 * @since calmPress 1.0.0
@@ -686,6 +937,12 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @return mixed
 	 */
 	public function get( $key ) {
+
+		// Calling __get() directly bypasses the declared contextual display_name property.
+		if ( 'display_name' === $key ) {
+			return $this->display_name;
+		}
+
 		return $this->__get( $key );
 	}
 
@@ -766,13 +1023,15 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 
 		// Build $allcaps from role caps, overlay user's $caps.
 		$this->allcaps = array();
+
+		// For administrators and editors, determine whether the user asked to behave as a lower role.
+		$mock          = array_intersect( [ 'administrator', 'editor' ], $this->roles ) ? $this->mocked_role() : '';
 		foreach ( (array) $this->roles as $role ) {
-			// if the user is an administrator check if it should mock another role
-			if ( 'administrator' === $role ) {
-				$mock = $this->mocked_role();
-				if ( '' !== $mock ) {
-					$role = $mock;
-				}
+			// Apply only role simulations which reduce the user's role on this site.
+			if ( 'administrator' === $role && in_array( $mock, [ 'editor', 'author' ], true ) ) {
+				$role = $mock;
+			} elseif ( 'editor' === $role && 'author' === $mock ) {
+				$role = $mock;
 			}
 			$the_role      = $wp_roles->get_role( $role );
 			$this->allcaps = array_merge( (array) $this->allcaps, (array) $the_role->capabilities );
@@ -1109,6 +1368,18 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 			$this->site_id = get_current_blog_id();
 		}
 
+		if ( is_multisite() ) {
+			$this->display_name = $this->account_display_name();
+
+			// Use the display name configured for this site when one exists.
+			$display_name_meta_key = $wpdb->get_blog_prefix( $this->site_id ) . self::SITE_DISPLAY_NAME_OPTION;
+			if ( metadata_exists( 'user', $this->ID, $display_name_meta_key ) ) {
+				$this->display_name = (string) get_user_meta( $this->ID, $display_name_meta_key, true );
+			}
+		} else {
+			$this->display_name = (string) ( $this->data->display_name ?? '' );
+		}
+
 		$this->cap_key = $wpdb->get_blog_prefix( $this->site_id ) . 'capabilities';
 
 		$this->caps = $this->get_caps_data();
@@ -1180,29 +1451,323 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @return \calmpress\avatar\Avatar
 	 */
 	public function avatar(): \calmpress\avatar\Avatar {
+		if ( is_multisite() && ! is_network_admin() && ! is_user_admin() ) {
+			return $this->avatar_for_site( calmpress\site\Site::current() );
+		}
+
+		return $this->account_avatar();
+	}
+
+	/**
+	 * The avatar associated with the user's account.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return calmpress\avatar\Avatar The account avatar.
+	 */
+	public function account_avatar(): calmpress\avatar\Avatar {
+
 		$attachment_id = get_user_meta( $this->ID, self::AVATAR_ATTACHMENT_ID, true );
 		if ( $attachment_id ) {
-			return new \calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
+			return new calmpress\avatar\Image_Based_Avatar( get_post( $attachment_id ) );
 		} else {
-			return new \calmpress\avatar\Text_Based_Avatar( $this->display_name, $this->user_email );
+			return new calmpress\avatar\Text_Based_Avatar( $this->account_display_name(), $this->user_email );
+		}
+	}
+
+	/**
+	 * The display name associated with the user's account.
+	 *
+	 * On a standalone site this is also the user's contextual display name. On
+	 * a network, an individual site may use a different display name.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string The account display name.
+	 */
+	public function account_display_name(): string {
+		if ( ! is_multisite() ) {
+			return $this->display_name;
+		}
+
+		return (string) ( $this->data->display_name ?? '' );
+	}
+
+	/**
+	 * Indicates whether the user has a display name override for a site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site for which the override is checked.
+	 *
+	 * @return bool
+	 */
+	public function has_display_name_override_for_site( calmpress\site\Site $site ): bool {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		return metadata_exists( 'user', $this->ID, $wpdb->get_blog_prefix( (int) $site->blog_id ) . self::SITE_DISPLAY_NAME_OPTION );
+	}
+
+	/**
+	 * The display name used to represent the user on a site.
+	 *
+	 * The account display name is used when the user has not configured a name
+	 * for the specified site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site for which the display name is used.
+	 *
+	 * @return string The site display name.
+	 */
+	public function display_name_for_site( calmpress\site\Site $site ): string {
+		if ( (int) $site->blog_id === $this->site_id ) {
+			return $this->display_name;
+		}
+
+		global $wpdb;
+
+		return $this->has_display_name_override_for_site( $site )
+			? (string) get_user_meta( $this->ID, $wpdb->get_blog_prefix( (int) $site->blog_id ) . self::SITE_DISPLAY_NAME_OPTION, true )
+			: $this->account_display_name();
+	}
+
+	/**
+	 * Set the display name used to represent the user on a site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site         Site for which the display name is used.
+	 * @param string                $display_name Display name.
+	 *
+	 * @throws InvalidArgumentException If the display name is empty.
+	 * @throws RuntimeException If the account display name cannot be updated.
+	 */
+	public function set_display_name_for_site( calmpress\site\Site $site, string $display_name ): void {
+		if ( '' === $display_name ) {
+			throw new InvalidArgumentException( 'A site display name cannot be empty.' );
+		}
+
+		if ( ! is_multisite() ) {
+			$result = wp_update_user(
+				[
+					'ID'           => $this->ID,
+					'display_name' => $display_name,
+				]
+			);
+			if ( is_wp_error( $result ) ) {
+				throw new RuntimeException( $result->get_error_message() );
+			}
+
+			$this->data->display_name = $display_name;
+			$this->display_name       = $display_name;
+
+			return;
+		}
+
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		update_user_option( $this->ID, self::SITE_DISPLAY_NAME_OPTION, $display_name );
+
+		if ( $this->site_id === (int) $site->blog_id ) {
+			$this->display_name = $display_name;
+		}
+
+		if ( $switched ) {
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * Remove the display name override configured for the user on a site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site for which the override is removed.
+	 */
+	public function remove_display_name_for_site( calmpress\site\Site $site ): void {
+		if ( ! is_multisite() ) {
+			return;
+		}
+
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		delete_user_option( $this->ID, self::SITE_DISPLAY_NAME_OPTION );
+
+		if ( $this->site_id === (int) $site->blog_id ) {
+			$this->display_name = $this->account_display_name();
+		}
+
+		if ( $switched ) {
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * Indicates whether the user has an avatar override for a site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site for which the override is checked.
+	 *
+	 * @return bool
+	 */
+	public function has_avatar_override_for_site( calmpress\site\Site $site ): bool {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		return metadata_exists( 'user', $this->ID, $wpdb->get_blog_prefix( (int) $site->blog_id ) . self::SITE_AVATAR_ATTACHMENT_ID_OPTION );
+	}
+
+	/**
+	 * The avatar used to represent the user on a site.
+	 *
+	 * The account avatar is used when the user has not configured an avatar for
+	 * the specified site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site for which the avatar is used.
+	 *
+	 * @return \calmpress\avatar\Avatar The site avatar.
+	 */
+	public function avatar_for_site( calmpress\site\Site $site ): calmpress\avatar\Avatar {
+		if ( ! $this->has_avatar_override_for_site( $site ) ) {
+			return $this->account_avatar();
+		}
+
+		$switched = is_multisite() && get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		$avatar_setting = get_user_option( self::SITE_AVATAR_ATTACHMENT_ID_OPTION, $this->ID );
+		$avatar         = 'generated' === $avatar_setting
+			? new calmpress\avatar\Text_Based_Avatar( $this->display_name_for_site( $site ), $this->user_email )
+			: new calmpress\avatar\Image_Based_Avatar( get_post( (int) $avatar_setting ) );
+
+		if ( $switched ) {
+			restore_current_blog();
+		}
+
+		return $avatar;
+	}
+
+	/**
+	 * Use an avatar generated from the user's display name on a site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site for which the generated avatar is used.
+	 */
+	public function set_generated_avatar_for_site( calmpress\site\Site $site ): void {
+		if ( ! is_multisite() ) {
+			$this->remove_avatar();
+
+			return;
+		}
+
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		update_user_option( $this->ID, self::SITE_AVATAR_ATTACHMENT_ID_OPTION, 'generated' );
+
+		if ( $switched ) {
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * Set the avatar used to represent the user on a site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site       Site for which the avatar is used.
+	 * @param WP_Post              $attachment Avatar image attachment belonging to the site.
+	 */
+	public function set_avatar_for_site( calmpress\site\Site $site, WP_Post $attachment ): void {
+		if ( ! is_multisite() ) {
+			$this->set_avatar( $attachment );
+
+			return;
+		}
+
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		update_user_option( $this->ID, self::SITE_AVATAR_ATTACHMENT_ID_OPTION, $attachment->ID );
+
+		if ( $switched ) {
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * Remove the avatar configured for the user on a site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site for which the avatar is removed.
+	 */
+	public function remove_avatar_for_site( calmpress\site\Site $site ): void {
+		if ( ! is_multisite() ) {
+			$this->remove_avatar();
+
+			return;
+		}
+
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		delete_user_option( $this->ID, self::SITE_AVATAR_ATTACHMENT_ID_OPTION );
+
+		if ( $switched ) {
+			restore_current_blog();
 		}
 	}
 
 	/**
 	 * The user's mocked role if one set and active.
 	 *
-	 * Only administrators can have a mocked role, but it is the reponsability of the caller
-	 * to verify that this is an administrator. Mocked roles can be only 'editor' and 'author'.
+	 * Administrators can temporarily behave as editors or authors, and editors
+	 * can temporarily behave as authors. The caller decides whether the stored
+	 * role is lower than the user's assigned role.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * @return string Empty string if mock role is inactive, or user is not administrator,
-	 *                otherwise the mocked role name.
+	 * @return string The active mocked role, or an empty string if it is inactive.
 	 */
 	public function mocked_role(): string {
-		$role   = '';
-		$mock   = get_user_meta( $this->ID, 'mock_role', true );
-		$expiry = (int) get_user_meta( $this->ID, 'mock_role_expiry', true );
+		global $wpdb;
+
+		$role = '';
+
+		// get_user_option() resolves a WP_User and cannot be called while this object's capabilities are being built.
+		$mock   = get_user_meta( $this->ID, $wpdb->get_blog_prefix() . self::SITE_MOCKED_ROLE_OPTION, true );
+		$expiry = (int) get_user_meta( $this->ID, $wpdb->get_blog_prefix() . self::SITE_MOCKED_ROLE_EXPIRY_OPTION, true );
+		if ( ! is_multisite() && '' === $mock ) {
+			$mock   = get_user_meta( $this->ID, 'mock_role', true );
+			$expiry = (int) get_user_meta( $this->ID, 'mock_role_expiry', true );
+		}
 
 		if ( ! empty( $mock ) && $expiry > time() ) {
 			if ( 'editor' === $mock ) {
@@ -1214,6 +1779,28 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		}
 
 		return $role;
+	}
+
+	/**
+	 * Set how the user temporarily behaves on the current site.
+	 *
+	 * Passing an empty role restores the user's assigned role. The mocked
+	 * role expires after 14 days without changing the user's actual role.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $role `editor` or `author` to reduce the effective permissions, or an empty string to restore them.
+	 */
+	public function set_mocked_role( string $role ): void {
+		if ( ! in_array( $role, [ 'editor', 'author' ], true ) ) {
+			delete_user_option( $this->ID, self::SITE_MOCKED_ROLE_OPTION );
+			delete_user_option( $this->ID, self::SITE_MOCKED_ROLE_EXPIRY_OPTION );
+
+			return;
+		}
+
+		update_user_option( $this->ID, self::SITE_MOCKED_ROLE_OPTION, $role );
+		update_user_option( $this->ID, self::SITE_MOCKED_ROLE_EXPIRY_OPTION, time() + 14 * DAY_IN_SECONDS );
 	}
 
 	/**

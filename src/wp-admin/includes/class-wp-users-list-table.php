@@ -417,6 +417,10 @@ class WP_Users_List_Table extends WP_List_Table {
 			$extended_string = ' &mdash; ' . $extended_string;
 		}
 
+		$display_name = is_multisite()
+			? $user_object->display_name_for_site( calmpress\site\Site::current() )
+			: $user_object->display_name;
+
 		// Check if the user for this row is editable.
 		if ( current_user_can( 'list_users' ) ) {
 			// Set up the user editing link.
@@ -429,10 +433,10 @@ class WP_Users_List_Table extends WP_List_Table {
 			);
 
 			if ( current_user_can( 'edit_user',  $user_object->ID ) ) {
-				$edit = "<strong><a href=\"{$edit_link}\">" . esc_html( $user_object->display_name ) . '</a>' . $extended_string . '</strong><br />';
+				$edit = "<strong><a href=\"{$edit_link}\">" . esc_html( $display_name ) . '</a>' . $extended_string . '</strong><br />';
 				$actions['edit'] = '<a href="' . $edit_link . '">' . __( 'Edit' ) . '</a>';
 			} else {
-				$edit = '<strong>' . esc_html( $user_object->display_name . $extended_string ) . '</strong><br />';
+				$edit = '<strong>' . esc_html( $display_name . $extended_string ) . '</strong><br />';
 			}
 
 			if ( in_array( 'pending_activation', $user_object->roles, true ) ) {
@@ -491,7 +495,7 @@ class WP_Users_List_Table extends WP_List_Table {
 			);
 
 		} else {
-			$edit = '<strong>' . esc_html( $user_object->display_name . $super_admin ) . '</strong>';
+			$edit = '<strong>' . esc_html( $display_name ) . $extended_string . '</strong>';
 		}
 
 		$avatar = get_avatar( $user_object->ID, 32 );
