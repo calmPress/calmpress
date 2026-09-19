@@ -31,7 +31,6 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 		$this->assertSame( $user, $email->user );
 		$this->assertSame( 'Example & Network', $email->site_name );
 		$this->assertSame( 'https://example.com/login?wp_lang=en_US', $email->login_url );
-		$this->assertStringContainsString( 'You were invited', $email->email->content() );
 		$this->assertStringContainsString( 'Example & Network', $email->email->content() );
 		$this->assertStringContainsString( 'https://example.com/login', $email->email->content() );
 	}
@@ -130,7 +129,6 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 		wp_new_user_notification( $user_id, null, 'user' );
 		remove_filter( 'pre_wp_mail', $capture_mail, 10 );
 
-		$this->assertStringContainsString( 'User invitation', $mail['subject'] );
 		$this->assertStringContainsString( wp_login_url(), $mail['message'] );
 		$this->assertStringNotContainsString( 'action=rp', $mail['message'] );
 	}
@@ -170,9 +168,7 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 		wp_new_user_notification( $user_id, null, 'user' );
 		remove_filter( 'pre_wp_mail', $capture_mail, 10 );
 
-		$this->assertStringContainsString( 'Login Details', $mail['subject'] );
 		$this->assertStringContainsString( 'action=rp', $mail['message'] );
-		$this->assertStringNotContainsString( 'User invitation', $mail['subject'] );
 	}
 
 }

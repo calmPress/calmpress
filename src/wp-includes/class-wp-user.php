@@ -554,21 +554,23 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
-	 * Invites the user to a site.
-	 *
-	 * A user awaiting network activation receives instructions for activating the
-	 * account. An active network user receives a link for responding to the site
-	 * invitation.
+	 * Marks the user as invited to a site belonging to a network.
 	 *
 	 * @since calmPress 1.0.0
 	 *
-	 * @param calmpress\site\Site $site Site to which the user is invited.
-	 * @param string                $role Role to assign after acceptance.
+	 * @param calmpress\site\Site $site Network site to which the user is invited.
+	 * @param string                $role Role to assign when the user accepts the invitation.
 	 *
-	 * @throws InvalidArgumentException If the intended role does not exist.
+	 * @throws InvalidArgumentException If the site does not belong to a network or the intended role does not exist.
 	 * @throws RuntimeException If the invitation cannot be stored.
 	 */
-	public function invite_to_site( calmpress\site\Site $site, string $role ): void {
+	public function mark_as_invited_to_network_site( calmpress\site\Site $site, string $role ): void {
+		if ( null === $site->network() ) {
+			throw new InvalidArgumentException(
+				sprintf( 'Site %d does not belong to a network.', (int) $site->blog_id )
+			);
+		}
+
 		$switched = get_current_blog_id() !== (int) $site->blog_id;
 		if ( $switched ) {
 			switch_to_blog( (int) $site->blog_id );
@@ -578,7 +580,9 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 			// Role definitions and user options are specific to the invited site.
 
 			if ( ! wp_roles()->is_role( $role ) || in_array( $role, [ 'pending_activation', 'deleted' ], true ) ) {
-				throw new InvalidArgumentException( 'The intended site role is invalid.' );
+				throw new InvalidArgumentException(
+					sprintf( 'The intended role "%s" is invalid for site %d.', $role, (int) $site->blog_id )
+				);
 			}
 
 			$result = add_user_to_blog( (int) $site->blog_id, $this->ID, 'pending_activation' );
@@ -589,15 +593,57 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 			if ( ! update_user_option( $this->ID, self::SITE_INVITATION_ROLE_OPTION, $role ) ) {
 				throw new RuntimeException( 'The intended site role could not be stored.' );
 			}
+		} finally {
+			if ( $switched ) {
+				restore_current_blog();
+			}
+		}
+	}
 
-			$network = $site->network();
-			if ( $network && $this->has_network_invite( $network ) ) {
+	/**
+	 * Invites the user to a site belonging to a network.
+	 *
+	 * Sends the user an email explaining that they were invited and how to accept
+	 * the invitation. The site role to assign upon acceptance is stored with the
+	 * invitation.
+	 *
+	 * Users awaiting network activation receive account activation instructions.
+	 * Active network users receive a link for accepting or declining the invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Network site to which the user is invited.
+	 * @param string                $role Role to assign when the user accepts the invitation.
+	 *
+	 * @throws InvalidArgumentException If the site does not belong to a network or the intended role does not exist.
+	 * @throws RuntimeException If the invitation cannot be stored.
+	 */
+	public function invite_to_network_site( calmpress\site\Site $site, string $role ): void {
+		$network = $site->network();
+		if ( null === $network ) {
+			throw new InvalidArgumentException(
+				sprintf( 'Site %d does not belong to a network.', (int) $site->blog_id )
+			);
+		}
+
+		$switched = get_current_blog_id() !== (int) $site->blog_id;
+		if ( $switched ) {
+			switch_to_blog( (int) $site->blog_id );
+		}
+
+		try {
+			$this->mark_as_invited_to_network_site( $site, $role );
+
+			if ( $this->has_network_invite( $network ) ) {
+				// The user must first authenticate to accept the network invitation.
+				// Authentication also accepts this site invitation when it is the only one pending.
 				$invitation_email = new calmpress\email\User_Invitation_Email(
 					$this,
 					$site->name(),
 					wp_login_url()
 				);
 			} else {
+				// An active network user can review and answer the invitation on the Sites screen.
 				$invitation_email = new calmpress\email\Existing_User_Invitation_To_Site_Email(
 					$this,
 					$site,
@@ -690,10 +736,17 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @param calmpress\site\Site $site Site whose invitation is accepted.
 	 * @param string|null           $role Intended role supplied by a compatible legacy invitation.
 	 *
-	 * @throws RuntimeException If the invitation or intended role is missing, or membership cannot be assigned.
+	 * Has no effect if the user is already a member of the site.
+	 *
+	 * @throws RuntimeException If the user is neither invited nor already a member,
+	 *                          the intended role is missing, or membership cannot be assigned.
 	 */
 	public function accept_site_invitation( calmpress\site\Site $site, ?string $role = null ): void {
 		if ( ! $this->is_pending_activation_on_site( $site ) ) {
+			if ( is_user_member_of_blog( $this->ID, (int) $site->blog_id ) ) {
+				return;
+			}
+
 			throw new RuntimeException( 'The user does not have a pending invitation to the site.' );
 		}
 		if ( null === $role ) {
@@ -720,6 +773,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 			throw new RuntimeException( $result->get_error_message() );
 		}
 
+		$notification_recipient = $this->site_system_notification_recipient( $site );
 		delete_user_option( $this->ID, self::SITE_INVITATION_ROLE_OPTION );
 		if ( $switched ) {
 			restore_current_blog();
@@ -728,20 +782,28 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		if ( (int) $site->blog_id === $this->site_id ) {
 			$this->for_site( $this->site_id );
 		}
+
+		if ( $notification_recipient ) {
+			$notification = new calmpress\email\Site_Invitation_Accepted_Email( $notification_recipient, $this, $site );
+			$notification->send();
+		}
 	}
 
 	/**
 	 * Declines the user's pending invitation to a site.
 	 *
+	 * Calling this method after the invitation has already been removed has no
+	 * effect, allowing a repeated response to reach the requested state safely.
+	 *
 	 * @since calmPress 1.0.0
 	 *
 	 * @param calmpress\site\Site $site Site whose invitation is declined.
 	 *
-	 * @throws RuntimeException If the invitation is missing or cannot be removed.
+	 * @throws RuntimeException If the invitation cannot be removed.
 	 */
 	public function decline_site_invitation( calmpress\site\Site $site ): void {
 		if ( ! $this->is_pending_activation_on_site( $site ) ) {
-			throw new RuntimeException( 'The user does not have a pending invitation to the site.' );
+			return;
 		}
 
 		$switched = get_current_blog_id() !== (int) $site->blog_id;
@@ -750,6 +812,7 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		}
 
 		try {
+			$notification_recipient = $this->site_system_notification_recipient( $site );
 			$result = remove_user_from_blog( $this->ID, (int) $site->blog_id );
 			if ( is_wp_error( $result ) ) {
 				throw new RuntimeException( $result->get_error_message() );
@@ -761,6 +824,30 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 				restore_current_blog();
 			}
 		}
+
+		if ( $notification_recipient ) {
+			$notification = new calmpress\email\Site_Invitation_Declined_Email( $notification_recipient, $this, $site );
+			$notification->send();
+		}
+	}
+
+	/**
+	 * The user configured to receive system notifications for a site.
+	 *
+	 * An invalid recipient does not prevent the invited user from responding to
+	 * the invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site whose invitation is being answered.
+	 *
+	 * @return WP_User|null The notification recipient, or null when the site's
+	 *                      notification recipient is not configured correctly.
+	 */
+	private function site_system_notification_recipient( calmpress\site\Site $site ): ?WP_User {
+		$recipient = get_userdata( (int) get_blog_option( (int) $site->blog_id, 'admin_user_id' ) );
+
+		return $recipient && $recipient->can_login() && is_email( $recipient->user_email ) ? $recipient : null;
 	}
 
 	/**

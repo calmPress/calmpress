@@ -171,6 +171,196 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that edit_user() prepares a network-site invitation before sending its email.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_edit_user_prepares_network_site_invitation_before_notification(): void {
+		$administrator = self::factory()->user->create_and_get( [ 'role' => 'administrator' ] );
+		$mail_count     = 0;
+		$previous_post  = $_POST;
+
+		/**
+		 * Counts and suppresses outgoing email.
+		 *
+		 * @since calmPress 1.0.0
+		 */
+		$count_mail = static function () use ( &$mail_count ) {
+			++$mail_count;
+
+			return false;
+		};
+
+		wp_set_current_user( $administrator->ID );
+		$_POST = [
+			'role'         => 'editor',
+			'email'        => 'network-site-invitee@example.com',
+			'display_name' => 'Network Site Invitee',
+			'pass1'        => 'network-site-invitee-password',
+			'pass2'        => 'network-site-invitee-password',
+		];
+
+		add_filter( 'pre_wp_mail', $count_mail );
+		$user_id = edit_user();
+		remove_filter( 'pre_wp_mail', $count_mail );
+		$_POST = $previous_post;
+
+		$user = get_userdata( $user_id );
+		$site = get_site();
+
+		$this->assertSame( 1, $mail_count );
+		$this->assertTrue( $user->has_network_invite( get_network() ) );
+		$this->assertTrue( $user->is_pending_activation_on_site( $site ) );
+		$this->assertSame( 'editor', $user->site_invitation_role( $site ) );
+		$this->assertFalse( metadata_exists( 'user', $user->ID, 'activate_to_role' ) );
+	}
+
+	/**
+	 * Tests that wp_new_user_notification() sends activation instructions to a pending network user.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_wp_new_user_notification_sends_activation_email_for_pending_network_user(): void {
+		$user       = self::factory()->user->create_and_get();
+		$mail       = [];
+
+		/**
+		 * Captures the outgoing invitation email.
+		 *
+		 * @since calmPress 1.0.0
+		 */
+		$store_mail = static function ( $return, array $attributes ) use ( &$mail ) {
+			$mail = $attributes;
+
+			return false;
+		};
+
+		$user->invite_to_network( get_network() );
+		add_filter( 'pre_wp_mail', $store_mail, 10, 2 );
+		wp_new_user_notification( $user->ID, null, 'user' );
+		remove_filter( 'pre_wp_mail', $store_mail, 10 );
+
+		$this->assertStringContainsString( wp_login_url(), $mail['message'] );
+		$this->assertStringNotContainsString( 'action=rp', $mail['message'] );
+	}
+
+	/**
+	 * Tests that wp_signon() activates the network account without accepting site invitations.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_does_not_accept_pending_site_invitations(): void {
+		$password       = 'pending-network-user-password';
+		$user           = self::factory()->user->create_and_get( [ 'user_pass' => $password ] );
+		$first_site_id  = self::factory()->blog->create();
+		$second_site_id = self::factory()->blog->create();
+		$network        = get_network();
+
+		// Give the account an independent network invitation and two pending site invitations.
+		$user->invite_to_network( $network );
+		$user->invite_to_network_site( get_site( $first_site_id ), 'editor' );
+		$user->invite_to_network_site( get_site( $second_site_id ), 'author' );
+
+		// Authenticate in the context of one invited site.
+		switch_to_blog( $first_site_id );
+		$authenticated_user = wp_signon(
+			[
+				'user_login'    => $user->user_email,
+				'user_password' => $password,
+			]
+		);
+		restore_current_blog();
+
+		// Only network activation occurs; both site invitations remain pending.
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertFalse( $user->has_network_invite( $network ) );
+		$this->assertTrue( $user->is_pending_activation_on_site( get_site( $first_site_id ) ) );
+		$this->assertTrue( $user->is_pending_activation_on_site( get_site( $second_site_id ) ) );
+	}
+
+	/**
+	 * Tests that wp_signon() accepts the only site invitation when activating a network account.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_accepts_only_site_invitation_for_new_account(): void {
+		$password = 'single-site-invitation-password';
+		$user     = self::factory()->user->create_and_get( [ 'user_pass' => $password ] );
+		$site     = get_site( self::factory()->blog->create() );
+		$network  = get_network();
+
+		// Give the pending network account one site invitation.
+		$user->invite_to_network( $network );
+		$user->invite_to_network_site( $site, 'editor' );
+
+		// Authenticate the newly created account in the invited site's context.
+		switch_to_blog( (int) $site->blog_id );
+		$authenticated_user = wp_signon(
+			[
+				'user_login'    => $user->user_email,
+				'user_password' => $password,
+			]
+		);
+		restore_current_blog();
+
+		// Network and site activation complete together with the site's requested role.
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertFalse( $user->has_network_invite( $network ) );
+		$this->assertSame( [ 'editor' ], ( new WP_User( $user->ID, '', (int) $site->blog_id ) )->roles );
+		$this->assertTrue( is_user_member_of_blog( $user->ID, (int) $site->blog_id ) );
+	}
+
+	/**
+	 * Tests that add_existing_user_to_blog() applies each site's requested role independently.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @covers ::add_existing_user_to_blog
+	 */
+	public function test_add_existing_user_to_blog_activates_only_its_site_invitation(): void {
+		$user           = self::factory()->user->create_and_get();
+		$first_site_id  = self::factory()->blog->create();
+		$second_site_id = self::factory()->blog->create();
+
+		// Create two site invitations with roles that will differ after acceptance.
+		$user->invite_to_network_site( get_site( $first_site_id ), 'editor' );
+		$user->invite_to_network_site( get_site( $second_site_id ), 'author' );
+
+		// Accept only the first site's invitation with its requested role.
+		switch_to_blog( $first_site_id );
+		$result = add_existing_user_to_blog(
+			[
+				'user_id' => $user->ID,
+				'role'    => 'editor',
+			]
+		);
+		restore_current_blog();
+
+		// The accepted site gets its requested role while the other invitation remains pending.
+		$this->assertTrue( $result );
+		$this->assertSame( [ 'editor' ], ( new WP_User( $user->ID, '', $first_site_id ) )->roles );
+		$this->assertTrue( $user->is_pending_activation_on_site( get_site( $second_site_id ) ) );
+
+		// Accepting the second invitation applies that site's independently requested role.
+		switch_to_blog( $second_site_id );
+		$result = add_existing_user_to_blog(
+			[
+				'user_id' => $user->ID,
+				'role'    => 'author',
+			]
+		);
+		restore_current_blog();
+
+		$this->assertTrue( $result );
+		$this->assertSame( [ 'author' ], ( new WP_User( $user->ID, '', $second_site_id ) )->roles );
+		$this->assertSame( [ 'editor' ], ( new WP_User( $user->ID, '', $first_site_id ) )->roles );
+	}
+
+	/**
 	 * @ticket 20601
 	 */
 	public function test_user_member_of_blog() {

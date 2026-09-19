@@ -38,6 +38,10 @@ function add_handlers(): void {
 	// Backup delete "GET" (link) action.
 	add_action( 'admin_post_bulk_backup', '\calmpress\backup\Utils::handle_bulk_backup' );
 
+	// Site invitation response form submissions.
+	add_action( 'admin_post_accept_site_invitation', __NAMESPACE__ . '\handle_site_invitation_response' );
+	add_action( 'admin_post_decline_site_invitation', __NAMESPACE__ . '\handle_site_invitation_response' );
+
 	/**
 	 * Get the user from an email approval style URL requests which include the user
 	 * id and an expiry as nonce.
@@ -124,4 +128,55 @@ function add_handlers(): void {
 	// Verify installer email "GET" (link) action.
 	add_action( 'admin_post_nopriv_installeremail', __NAMESPACE__ . '\handle_verify_installer_email' );
 	add_action( 'admin_post_installeremail', __NAMESPACE__ . '\handle_verify_installer_email' );
+}
+
+/**
+ * Handles an authenticated user's response to a pending site invitation.
+ *
+ * @since 1.0.0
+ */
+function handle_site_invitation_response(): void {
+	if ( ! is_multisite() ) {
+		wp_die( 'Site invitations are available only on a network installation.', '', [ 'response' => 403 ] );
+	}
+
+	if ( ! isset( $_POST['action'], $_POST['site_id'] ) || ! is_string( $_POST['action'] ) || ! is_string( $_POST['site_id'] ) ) {
+		wp_die( 'The site invitation form did not submit the required values.', '', [ 'response' => 400 ] );
+	}
+
+	$action  = wp_unslash( $_POST['action'] );
+	$site_id = filter_var( wp_unslash( $_POST['site_id'] ), FILTER_VALIDATE_INT );
+	if ( false === $site_id || 1 > $site_id || ! in_array( $action, [ 'accept_site_invitation', 'decline_site_invitation' ], true ) ) {
+		wp_die( 'The site invitation form submitted invalid values.', '', [ 'response' => 400 ] );
+	}
+
+	$invitation_action = 'accept_site_invitation' === $action ? 'accept' : 'decline';
+	check_admin_referer( "user-site-invitation-$invitation_action-$site_id" );
+
+	$site = get_site( $site_id );
+	if ( null === $site ) {
+		wp_die( 'The invited site does not exist.', '', [ 'response' => 404 ] );
+	}
+	if ( (int) $site->network_id !== (int) get_network()->id ) {
+		wp_die( 'The invited site does not belong to the current network.', '', [ 'response' => 403 ] );
+	}
+
+	$user = wp_get_current_user();
+	if ( 'accept' === $invitation_action ) {
+		$user->accept_site_invitation( $site );
+
+		// The invited site may use a mapped domain, but its stored administration URL is trusted.
+		wp_redirect( $site->admin_url() );
+		exit;
+	}
+
+	$user->decline_site_invitation( $site );
+	wp_safe_redirect(
+		add_query_arg(
+			'invitation',
+			'declined',
+			user_admin_url( 'sites.php' )
+		)
+	);
+	exit;
 }

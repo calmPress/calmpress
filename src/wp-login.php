@@ -862,8 +862,27 @@ switch ( $action ) {
 		$reauth = ! empty( $_REQUEST['reauth'] );
 
 		// Will need session token if exists for interim login.
-		$cookie_parts  = wp_parse_auth_cookie( '', 'logged_in' );
-		$session_token = $cookie_parts['token'] ?? '';
+		$cookie_parts    = wp_parse_auth_cookie( '', 'logged_in' );
+		$session_token   = $cookie_parts['token'] ?? '';
+		$activation_site = null;
+
+		// Authentication automatically accepts the only pending site invitation and
+		// removes its pending state. Remember that site now so a successful login can
+		// redirect the new member to the account page in that site's context.
+		if ( is_multisite() ) {
+			$activation_user = isset( $tuser ) && $tuser instanceof WP_User ? $tuser : null;
+			if ( ! $activation_user && isset( $_POST['log'] ) && is_string( $_POST['log'] ) ) {
+				$activation_user = get_user_by( 'email', wp_unslash( $_POST['log'] ) );
+			}
+
+			$network = get_network();
+			if ( $activation_user && $activation_user->has_network_invite( $network ) ) {
+				$pending_sites = $activation_user->sites_pending_activation( $network );
+				if ( 1 === count( $pending_sites ) ) {
+					$activation_site = $pending_sites[0];
+				}
+			}
+		}
 
 		if ( ! $user ) { // If not set to an error before.
 			// Detect if its a user ativation, if so redirect to the user's profile
@@ -923,6 +942,15 @@ switch ( $action ) {
 		}
 
 		$requested_redirect_to = isset( $_REQUEST['redirect_to'] ) && is_string( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+
+		// A successful first authentication which accepted a site invitation starts at that site's account page.
+		if (
+			! is_wp_error( $user ) &&
+			$activation_site &&
+			is_user_member_of_blog( $user->ID, (int) $activation_site->blog_id )
+		) {
+			$redirect_to = $activation_site->admin_url( 'user-edit.php' );
+		}
 
 		/**
 		 * Filters the login redirect URL.

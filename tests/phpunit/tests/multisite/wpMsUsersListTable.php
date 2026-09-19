@@ -89,18 +89,23 @@ class Tests_Multisite_wpMsUsersListTable extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests the default network user views and their user counts.
+	 *
 	 * @ticket 42066
+	 * @since calmPress 1.0.0
 	 *
 	 * @covers WP_MS_Users_List_Table::get_views
 	 */
 	public function test_get_views_should_return_views_by_default() {
-		$all   = get_user_count();
-		$super = count( get_super_admins() );
+		$network = get_network();
+		$all     = count( $network->user_ids() );
+		$super   = count( get_super_admins() );
+		$pending = count( $network->users_pending_activation() );
 
 		$expected = array(
-			'all'     => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php" class="current" aria-current="page">All <span class="count">(' . $all . ')</span></a>',
-			'super'   => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=super">Super Admin <span class="count">(' . $super . ')</span></a>',
-			'pending_activation' => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=pending_activation">Pending Activation <span class="count">(0)</span></a>',
+			'all'                => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php" class="current" aria-current="page">All <span class="count">(' . $all . ')</span></a>',
+			'super'              => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=super">Super Admin <span class="count">(' . $super . ')</span></a>',
+			'pending_activation' => '<a href="http://' . WP_TESTS_DOMAIN . '/wp-admin/network/users.php?role=pending_activation">Pending Activation <span class="count">(' . $pending . ')</span></a>',
 		);
 
 		$this->assertSame( $expected, $this->table->get_views() );

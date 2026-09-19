@@ -30,9 +30,10 @@ function add_user() {
  * @return int|WP_Error User ID of the updated user or WP_Error on failure.
  */
 function edit_user( $user_id = 0 ) {
-	$wp_roles = wp_roles();
-	$user     = new stdClass();
-	$user_id  = (int) $user_id;
+	$wp_roles      = wp_roles();
+	$user          = new stdClass();
+	$user_id       = (int) $user_id;
+	$intended_role = '';
 	if ( $user_id ) {
 		$update           = true;
 		$user->ID         = $user_id;
@@ -81,8 +82,12 @@ function edit_user( $user_id = 0 ) {
 		) {
 			if ( ! $update ) {
 				// New users are pending until user confirms activation.
-				$user->role            = 'pending_activation';
-				$user->activate_to_role = $new_role;
+				$user->role = 'pending_activation';
+				if ( is_multisite() ) {
+					$intended_role = $new_role;
+				} else {
+					$user->activate_to_role = $new_role;
+				}
 			} else if ( in_array( 'pending_activation', $userdata->roles, true ) ) {
 				// The role of an inactive user is changed.
 				// Change only the role after activation.
@@ -155,19 +160,14 @@ function edit_user( $user_id = 0 ) {
 		}
 	}
 
-	if ( $update && isset( $_POST['mock_role'] ) ) {
+	if ( $update && ! is_multisite() && isset( $_POST['mock_role'] ) ) {
 		$mock_role = wp_unslash( $_POST['mock_role'] );
 		if ( ! in_array( $mock_role, [ 'editor', 'author' ], true ) ) {
 			$mock_role = '';
 		}
-		$last_mock       = '';
-		if ( isset( $userdata->mock_role ) ) {
-			$last_mock = $userdata->mock_role;
-		}
-		$user->mock_role = $mock_role;
-		if ( '' === $last_mock && '' !== $mock_role ) {
-			$user->mock_role_expiry = time() + 14 * DAY_IN_SECONDS;
-		}
+
+		$wp_user = new \WP_User( $user_id );
+		$wp_user->set_mocked_role( $mock_role );
 	}
 
 	/**
@@ -263,7 +263,19 @@ function edit_user( $user_id = 0 ) {
 		}
 	} else {
 		$user_id = wp_insert_user( $user );
-		$notify  = 'both';
+		$notify  = 'user';
+
+		if ( ! is_wp_error( $user_id ) && is_multisite() ) {
+			$created_user = get_userdata( $user_id );
+			$site         = calmpress\site\Site::current();
+
+			// Complete the network and site invitation state before notifying the new user.
+			// The notification callback below uses this state to select the activation email.
+			if ( $created_user->is_pending_activation_on_site( $site ) ) {
+				$created_user->invite_to_network( get_network() );
+				$created_user->mark_as_invited_to_network_site( $site, $intended_role );
+			}
+		}
 
 		/**
 		 * Fires after a new user has been created.
@@ -573,40 +585,6 @@ jQuery( function($) {
 } );
 </script>
 	<?php
-}
-
-/**
- * @since MU (3.0.0)
- *
- * @param string $text
- * @return string
- */
-function admin_created_user_email( $text ) {
-	$roles = get_editable_roles();
-	$role  = $roles[ $_REQUEST['role'] ];
-
-	if ( '' !== get_bloginfo( 'name' ) ) {
-		$site_title = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
-	} else {
-		$site_title = parse_url( home_url(), PHP_URL_HOST );
-	}
-
-	return sprintf(
-		/* translators: 1: Site title, 2: Site URL, 3: User role. */
-		__(
-			'Hi,
-You\'ve been invited to join \'%1$s\' at
-%2$s with the role of %3$s.
-If you do not want to join this site please ignore
-this email. This invitation will expire in a few days.
-
-Please click the following link to activate your user account:
-%%s'
-		),
-		$site_title,
-		home_url(),
-		wp_specialchars_decode( translate_user_role( $role['name'] ) )
-	);
 }
 
 /**

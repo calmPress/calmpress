@@ -52,7 +52,7 @@ class User_Invitation_Email {
 
 		/* translators: 1: Site or network name. 2: Login URL. */
 		$content = __(
-'You were invited to become a member of %1$s.
+'You were invited to become a member of "%1$s".
 
 To accept the invitation, visit and authenticate at the login page at %2$s. You will need to request a one-time password for this email address to complete the login process.
 

@@ -138,7 +138,12 @@ function add_user_to_blog( $blog_id, $user_id, $role ) {
 	$site = get_site( $blog_id );
 
 	$user->set_role( $role );
-	get_network( $site->network_id )->remove_orphaned_user( $user );
+
+	// Sites with a legacy or otherwise unresolved network ID still support role assignment.
+	$network = $site->network();
+	if ( null !== $network ) {
+		$network->remove_orphaned_user( $user );
+	}
 
 	/**
 	 * Fires immediately after a user is added to a site.

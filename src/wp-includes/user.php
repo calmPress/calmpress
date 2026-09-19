@@ -124,8 +124,9 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 		$user->user_activation_key = '';
 	}
 
-	// If this is an activation, remove the indicator and set the proper role.
-	if ( in_array( 'pending_activation', $user->roles, true ) ) {
+	// On a standalone site, first authentication replaces the pending role with
+	// the intended role. Network site invitations remain pending until accepted.
+	if ( ! is_multisite() && in_array( 'pending_activation', $user->roles, true ) ) {
 		$role = get_user_meta( $user->ID, 'activate_to_role', true );
 		if ( $role ) {
 			$user->set_role( $role );
@@ -162,6 +163,13 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 
 		if ( $user->has_network_invite( $network ) ) {
 			$user->mark_network_invite_as_accepted( $network );
+
+			// Automatically accept a site invitation only when the activating account has one choice.
+
+			$pending_sites = $user->sites_pending_activation( $network );
+			if ( 1 === count( $pending_sites ) ) {
+				$user->accept_site_invitation( $pending_sites[0] );
+			}
 		}
 	}
 

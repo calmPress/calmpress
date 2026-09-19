@@ -782,6 +782,7 @@ class Tests_Auth extends WP_UnitTestCase {
 	 * @since calmPress 1.0.0
 	 *
 	 * @covers ::wp_signon
+	 * @group ms-excluded
 	 */
 	public function test_successful_login_activates_pending_user(): void {
 		$password = 'pending-user-password';

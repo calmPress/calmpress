@@ -336,8 +336,8 @@ function wp_admin_bar_site_menu( $wp_admin_bar ) {
 		return;
 	}
 
-	// Show only when the user is a member of this site, or they're a super admin.
-	if ( ! is_user_member_of_blog() && ! current_user_can( 'manage_network' ) ) {
+	// The user dashboard represents the network account and is available without site membership.
+	if ( ! is_user_admin() && ! is_user_member_of_blog() && ! current_user_can( 'manage_network' ) ) {
 		return;
 	}
 
@@ -356,12 +356,13 @@ function wp_admin_bar_site_menu( $wp_admin_bar ) {
 	}
 
 	$title = wp_html_excerpt( $blogname, 40, '&hellip;' );
+	$url   = is_user_admin() ? network_home_url( '/' ) : home_url( '/' );
 
 	$wp_admin_bar->add_node(
 		array(
 			'id'    => 'site-name',
 			'title' => $title,
-			'href'  => ( is_admin() || ! current_user_can( 'read' ) ) ? home_url( '/' ) : admin_url(),
+			'href'  => ( is_admin() || ! current_user_can( 'read' ) ) ? $url : admin_url(),
 			'meta'  => array(
 				'menu_title' => $title,
 			),
@@ -376,8 +377,8 @@ function wp_admin_bar_site_menu( $wp_admin_bar ) {
 			array(
 				'parent' => 'site-name',
 				'id'     => 'view-site',
-				'title'  => __( 'Visit Site' ),
-				'href'   => home_url( '/' ),
+				'title'  => is_user_admin() ? __( 'Visit Main Site' ) : __( 'Visit Site' ),
+				'href'   => $url,
 			)
 		);
 

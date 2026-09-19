@@ -159,7 +159,7 @@ class Tests_General_Template extends WP_UnitTestCase {
 	 * @covers ::has_site_icon
 	 */
 	public function test_has_site_icon_returns_true_when_called_for_other_site_with_site_icon_set() {
-		$blog_id = self::factory()->blog->create();
+		$blog_id = self::factory()->blog->create( [ 'domain' => 'mapped-site-icon.example.net' ] );
 		switch_to_blog( $blog_id );
 		$this->set_site_icon();
 		restore_current_blog();
@@ -308,6 +308,7 @@ class Tests_General_Template extends WP_UnitTestCase {
 	 * Sets a site icon in options for testing.
 	 *
 	 * @since 4.3.0
+	 * @since calmPress 1.0.0 Sets the network icon unless the site has a mapped domain.
 	 */
 	private function set_site_icon() {
 		if ( ! $this->site_icon_id ) {
@@ -316,16 +317,25 @@ class Tests_General_Template extends WP_UnitTestCase {
 			remove_filter( 'intermediate_image_sizes_advanced', array( $this->wp_site_icon, 'additional_sizes' ) );
 		}
 
-		update_option( 'site_icon', $this->site_icon_id );
+		if ( is_multisite() && ! get_site()->has_mapped_domain() ) {
+			update_network_option( null, 'site_icon', $this->site_icon_id );
+		} else {
+			update_option( 'site_icon', $this->site_icon_id );
+		}
 	}
 
 	/**
 	 * Removes the site icon from options.
 	 *
 	 * @since 4.3.0
+	 * @since calmPress 1.0.0 Removes the network icon unless the site has a mapped domain.
 	 */
 	private function remove_site_icon() {
-		delete_option( 'site_icon' );
+		if ( is_multisite() && ! get_site()->has_mapped_domain() ) {
+			delete_network_option( null, 'site_icon' );
+		} else {
+			delete_option( 'site_icon' );
+		}
 	}
 
 	/**

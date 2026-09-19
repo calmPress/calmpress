@@ -5,6 +5,178 @@ require_once ABSPATH . 'wp-admin/includes/user.php';
 require_once ABSPATH . 'wp-admin/includes/image.php';
 
 /**
+ * Captures a user invitation email before delivery.
+ *
+ * @since calmPress 1.0.0
+ */
+class Tests_User_Invitation_Email_Mutator implements calmpress\email\User_Invitation_Email_Mutator {
+
+	/**
+	 * The captured email.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public ?calmpress\email\User_Invitation_Email $email = null;
+
+	/**
+	 * Indicates that this mutator has no ordering dependency.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\observer\Observer $observer Another registered observer.
+	 *
+	 * @return calmpress\observer\Observer_Priority No ordering dependency.
+	 */
+	public function notification_dependency_with( calmpress\observer\Observer $observer ): calmpress\observer\Observer_Priority {
+		return calmpress\observer\Observer_Priority::NONE;
+	}
+
+	/**
+	 * Captures the email and prevents delivery.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\email\User_Invitation_Email $email The invitation email.
+	 *
+	 * @throws calmpress\email\Abort_Send_Exception Always prevents delivery.
+	 */
+	public function mutate_by_ref( calmpress\email\User_Invitation_Email &$email ): void {
+		$this->email = $email;
+
+		throw new calmpress\email\Abort_Send_Exception();
+	}
+}
+
+/**
+ * Captures an existing user's site invitation email before delivery.
+ *
+ * @since calmPress 1.0.0
+ */
+class Tests_Existing_User_Invitation_To_Site_Email_Mutator implements calmpress\email\Existing_User_Invitation_To_Site_Email_Mutator {
+
+	/**
+	 * The captured email.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public ?calmpress\email\Existing_User_Invitation_To_Site_Email $email = null;
+
+	/**
+	 * Indicates that this mutator has no ordering dependency.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\observer\Observer $observer Another registered observer.
+	 *
+	 * @return calmpress\observer\Observer_Priority No ordering dependency.
+	 */
+	public function notification_dependency_with( calmpress\observer\Observer $observer ): calmpress\observer\Observer_Priority {
+		return calmpress\observer\Observer_Priority::NONE;
+	}
+
+	/**
+	 * Captures the email and prevents delivery.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\email\Existing_User_Invitation_To_Site_Email $email The site invitation email.
+	 *
+	 * @throws calmpress\email\Abort_Send_Exception Always prevents delivery.
+	 */
+	public function mutate_by_ref( calmpress\email\Existing_User_Invitation_To_Site_Email &$email ): void {
+		$this->email = $email;
+
+		throw new calmpress\email\Abort_Send_Exception();
+	}
+}
+
+/**
+ * Captures a site invitation acceptance email before delivery.
+ *
+ * @since calmPress 1.0.0
+ */
+class Tests_Site_Invitation_Accepted_Email_Mutator implements calmpress\email\Site_Invitation_Accepted_Email_Mutator {
+
+	/**
+	 * The captured email.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public ?calmpress\email\Site_Invitation_Accepted_Email $email = null;
+
+	/**
+	 * Indicates that this mutator has no ordering dependency.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\observer\Observer $observer Another registered observer.
+	 *
+	 * @return calmpress\observer\Observer_Priority No ordering dependency.
+	 */
+	public function notification_dependency_with( calmpress\observer\Observer $observer ): calmpress\observer\Observer_Priority {
+		return calmpress\observer\Observer_Priority::NONE;
+	}
+
+	/**
+	 * Captures the email and prevents delivery.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\email\Site_Invitation_Accepted_Email $email The invitation acceptance email.
+	 *
+	 * @throws calmpress\email\Abort_Send_Exception Always prevents delivery.
+	 */
+	public function mutate_by_ref( calmpress\email\Site_Invitation_Accepted_Email &$email ): void {
+		$this->email = $email;
+
+		throw new calmpress\email\Abort_Send_Exception();
+	}
+}
+
+/**
+ * Captures a site invitation decline email before delivery.
+ *
+ * @since calmPress 1.0.0
+ */
+class Tests_Site_Invitation_Declined_Email_Mutator implements calmpress\email\Site_Invitation_Declined_Email_Mutator {
+
+	/**
+	 * The captured email.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public ?calmpress\email\Site_Invitation_Declined_Email $email = null;
+
+	/**
+	 * Indicates that this mutator has no ordering dependency.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\observer\Observer $observer Another registered observer.
+	 *
+	 * @return calmpress\observer\Observer_Priority No ordering dependency.
+	 */
+	public function notification_dependency_with( calmpress\observer\Observer $observer ): calmpress\observer\Observer_Priority {
+		return calmpress\observer\Observer_Priority::NONE;
+	}
+
+	/**
+	 * Captures the email and prevents delivery.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\email\Site_Invitation_Declined_Email $email The invitation decline email.
+	 *
+	 * @throws calmpress\email\Abort_Send_Exception Always prevents delivery.
+	 */
+	public function mutate_by_ref( calmpress\email\Site_Invitation_Declined_Email &$email ): void {
+		$this->email = $email;
+
+		throw new calmpress\email\Abort_Send_Exception();
+	}
+}
+
+/**
  * Test functions in wp-includes/user.php
  *
  * @group user
@@ -1622,6 +1794,7 @@ class Tests_User extends WP_UnitTestCase {
 	 *
 	 * @ticket 35715
 	 * @ticket 42766
+	 * @since calmPress 1.0.0 Supports the network-site invitation role storage.
 	 */
 	public function test_edit_user_blank_password() {
 		wp_set_current_user( self::$admin_id );
@@ -1650,7 +1823,12 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertIsInt( $user_id );
 		$this->assertInstanceOf( 'WP_User', $user );
 		$this->assertContains( 'pending_activation', $user->roles );
-		$this->assertSame( 'subscriber', get_user_meta( $user_id, 'activate_to_role', true ) );
+
+		if ( is_multisite() ) {
+			$this->assertSame( 'subscriber', $user->site_invitation_role( calmpress\site\Site::current() ) );
+		} else {
+			$this->assertSame( 'subscriber', get_user_meta( $user_id, 'activate_to_role', true ) );
+		}
 
 		// Check updating user with empty password.
 		$_POST['pass1'] = $_POST['pass2'] = '';
@@ -1838,13 +2016,15 @@ class Tests_User extends WP_UnitTestCase {
 	 }
 
 	/**
-	 * Test the mocked_role method.
+	 * Tests WP_User::mocked_role() with the legacy standalone metadata.
 	 *
-	 * Verify that the role return by it matches mock role and expiry settings.
+	 * Verifies that the returned role matches the stored role and expiry settings.
 	 *
 	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-excluded
 	 */
-	function test_mocked_role() {
+	public function test_mocked_role() {
 		$user_id = wp_insert_user(
 			[
 				'user_login' => rand_str(),
@@ -2288,6 +2468,231 @@ class Tests_User extends WP_UnitTestCase {
 		);
 
 		$this->assertTrue( $user->is_member_of_network( $other_network ) );
+	}
+
+	/**
+	 * Tests that WP_User::site_invitation_role() returns the intended site role.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_site_invitation_role(): void {
+		$user = self::factory()->user->create_and_get();
+		$site = get_site( self::factory()->blog->create() );
+
+		// Create an invitation with a role that differs from its pending state.
+		$user->invite_to_network_site( $site, 'editor' );
+
+		// The invitation API exposes the role to apply after acceptance.
+		$this->assertSame( 'editor', $user->site_invitation_role( $site ) );
+	}
+
+	/**
+	 * Tests that WP_User::invite_to_network_site() sends account activation instructions to a pending network user.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_invite_to_network_site_sends_account_activation_email_for_pending_network_user(): void {
+		$user    = self::factory()->user->create_and_get();
+		$site    = get_site( self::factory()->blog->create() );
+		$mutator = new Tests_User_Invitation_Email_Mutator();
+
+		$user->invite_to_network( $site->network() );
+		calmpress\email\User_Invitation_Email::register_mutator( $mutator );
+		try {
+			$user->invite_to_network_site( $site, 'editor' );
+		} finally {
+			calmpress\email\User_Invitation_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertInstanceOf( calmpress\email\User_Invitation_Email::class, $mutator->email );
+		$this->assertSame( $user->ID, $mutator->email->user->ID );
+		$this->assertSame( $site->name(), $mutator->email->site_name );
+		$this->assertStringContainsString( get_site_url( (int) $site->blog_id, 'wp-login.php' ), $mutator->email->login_url );
+	}
+
+	/**
+	 * Tests that WP_User::invite_to_network_site() sends a site invitation to an active network user.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_invite_to_network_site_sends_site_invitation_email_for_active_network_user(): void {
+		$user    = self::factory()->user->create_and_get();
+		$site    = get_site( self::factory()->blog->create() );
+		$mutator = new Tests_Existing_User_Invitation_To_Site_Email_Mutator();
+
+		calmpress\email\Existing_User_Invitation_To_Site_Email::register_mutator( $mutator );
+		try {
+			$user->invite_to_network_site( $site, 'editor' );
+		} finally {
+			calmpress\email\Existing_User_Invitation_To_Site_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertInstanceOf( calmpress\email\Existing_User_Invitation_To_Site_Email::class, $mutator->email );
+		$this->assertSame( $user->ID, $mutator->email->user->ID );
+		$this->assertSame( (int) $site->blog_id, (int) $mutator->email->site->blog_id );
+		$this->assertSame( user_admin_url( 'sites.php' ), $mutator->email->invitations_url );
+	}
+
+	/**
+	 * Tests that WP_User::decline_site_invitation() removes a pending invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_decline_site_invitation(): void {
+		$user = self::factory()->user->create_and_get();
+		$site = get_site( self::factory()->blog->create() );
+
+		// Create and then decline an invitation to the site.
+		$user->invite_to_network_site( $site, 'editor' );
+		$user->decline_site_invitation( $site );
+
+		// Declining removes the pending state without creating site membership.
+		$this->assertFalse( $user->is_pending_activation_on_site( $site ) );
+		$this->assertFalse( is_user_member_of_blog( $user->ID, (int) $site->blog_id ) );
+	}
+
+	/**
+	 * Tests that WP_User::accept_site_invitation() has no effect for an existing member.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_accept_site_invitation_has_no_effect_for_existing_member(): void {
+		$user = self::factory()->user->create_and_get();
+		$site = get_site( self::factory()->blog->create() );
+
+		add_user_to_blog( (int) $site->blog_id, $user->ID, 'editor' );
+		$user->accept_site_invitation( $site );
+
+		$this->assertSame( [ 'editor' ], ( new WP_User( $user->ID, '', (int) $site->blog_id ) )->roles );
+	}
+
+	/**
+	 * Tests that WP_User::accept_site_invitation() rejects a user without membership or an invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_accept_site_invitation_rejects_uninvited_nonmember(): void {
+		$user = self::factory()->user->create_and_get();
+		$site = get_site( self::factory()->blog->create() );
+
+		$this->expectException( RuntimeException::class );
+		$user->accept_site_invitation( $site );
+	}
+
+	/**
+	 * Tests that WP_User::decline_site_invitation() has no effect without a pending invitation.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_decline_site_invitation_has_no_effect_without_invitation(): void {
+		$user = self::factory()->user->create_and_get();
+		$site = get_site( self::factory()->blog->create() );
+
+		$user->decline_site_invitation( $site );
+
+		$this->assertFalse( $user->is_pending_activation_on_site( $site ) );
+	}
+
+	/**
+	 * Tests that WP_User::accept_site_invitation() notifies the site's system notification recipient.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_accept_site_invitation_notifies_system_notification_recipient(): void {
+		$recipient = self::factory()->user->create_and_get( [ 'user_email' => 'site-notifications@example.com' ] );
+		$invitee   = self::factory()->user->create_and_get();
+		$site      = get_site( self::factory()->blog->create() );
+		$mutator   = new Tests_Site_Invitation_Accepted_Email_Mutator();
+
+		add_user_to_blog( (int) $site->blog_id, $recipient->ID, 'administrator' );
+		update_blog_option( (int) $site->blog_id, 'admin_user_id', $recipient->ID );
+		$invitee->invite_to_network_site( $site, 'editor' );
+
+		calmpress\email\Site_Invitation_Accepted_Email::register_mutator( $mutator );
+		try {
+			$invitee->accept_site_invitation( $site );
+		} finally {
+			calmpress\email\Site_Invitation_Accepted_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertInstanceOf( calmpress\email\Site_Invitation_Accepted_Email::class, $mutator->email );
+		$this->assertSame( $recipient->ID, $mutator->email->user->ID );
+		$this->assertSame( $invitee->ID, $mutator->email->invited_user->ID );
+		$this->assertSame( (int) $site->blog_id, (int) $mutator->email->site->blog_id );
+	}
+
+	/**
+	 * Tests that WP_User::decline_site_invitation() notifies the site's system notification recipient.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 */
+	public function test_decline_site_invitation_notifies_system_notification_recipient(): void {
+		$recipient = self::factory()->user->create_and_get( [ 'user_email' => 'declined-site-notifications@example.com' ] );
+		$invitee   = self::factory()->user->create_and_get();
+		$site      = get_site( self::factory()->blog->create() );
+		$mutator   = new Tests_Site_Invitation_Declined_Email_Mutator();
+
+		add_user_to_blog( (int) $site->blog_id, $recipient->ID, 'administrator' );
+		update_blog_option( (int) $site->blog_id, 'admin_user_id', $recipient->ID );
+		$invitee->invite_to_network_site( $site, 'editor' );
+
+		calmpress\email\Site_Invitation_Declined_Email::register_mutator( $mutator );
+		try {
+			$invitee->decline_site_invitation( $site );
+		} finally {
+			calmpress\email\Site_Invitation_Declined_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertInstanceOf( calmpress\email\Site_Invitation_Declined_Email::class, $mutator->email );
+		$this->assertSame( $recipient->ID, $mutator->email->user->ID );
+		$this->assertSame( $invitee->ID, $mutator->email->invited_user->ID );
+		$this->assertSame( (int) $site->blog_id, (int) $mutator->email->site->blog_id );
+	}
+
+	/**
+	 * Tests that WP_User::mark_as_invited_to_network_site() rejects a standalone site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_mark_as_invited_to_network_site_rejects_standalone_site(): void {
+		$user = self::factory()->user->create_and_get();
+
+		$this->expectException( InvalidArgumentException::class );
+		$user->mark_as_invited_to_network_site( calmpress\site\Site::current(), 'editor' );
+	}
+
+	/**
+	 * Tests that WP_User::invite_to_network_site() rejects a standalone site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-excluded
+	 */
+	public function test_invite_to_network_site_rejects_standalone_site(): void {
+		$user = self::factory()->user->create_and_get();
+
+		$this->expectException( InvalidArgumentException::class );
+		$user->invite_to_network_site( calmpress\site\Site::current(), 'editor' );
 	}
 
 	/**
