@@ -885,10 +885,23 @@ switch ( $action ) {
 		}
 
 		if ( ! $user ) { // If not set to an error before.
-			// Detect if its a user ativation, if so redirect to the user's profile
+			// Use the account page as the activation redirect. A site-specific account page
+			// replaces it below after a single site invitation is successfully accepted.
 			add_action(
-				'user_account_activate',
-				function ( $user ) use ( $redirect_to) {
+				'user_account_activated',
+				/**
+				 * Changes the successful-login destination after account activation.
+				 *
+				 * @since calmPress 1.0.0
+				 *
+				 * @param WP_User $user The newly activated user.
+				 */
+				function ( WP_User $user ) use ( &$redirect_to ): void {
+					if ( is_multisite() ) {
+						$redirect_to = user_admin_url( 'user-edit.php' );
+						return;
+					}
+
 					$redirect_to = get_edit_user_link( $user->ID );
 				}
 			);

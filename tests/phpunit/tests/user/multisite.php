@@ -281,6 +281,62 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that wp_signon() reports activation of a network-only account.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_fires_account_activated_action_for_network_invitation(): void {
+		$password          = 'network-invitation-password';
+		$user              = self::factory()->user->create_and_get(
+			[
+				'role'      => '',
+				'user_pass' => $password,
+			]
+		);
+		$network           = get_network();
+		$activated_user_id = 0;
+
+		$user->invite_to_network( $network );
+
+		/**
+		 * Records the user whose account was activated.
+		 *
+		 * @since calmPress 1.0.0
+		 *
+		 * @param WP_User $activated_user The newly activated user.
+		 */
+		$record_activation = static function ( WP_User $activated_user ) use ( &$activated_user_id ): void {
+			$activated_user_id = $activated_user->ID;
+		};
+
+		add_action( 'user_account_activated', $record_activation );
+		$authenticated_user = wp_signon(
+			[
+				'user_login'    => $user->user_email,
+				'user_password' => $password,
+			]
+		);
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertSame( $user->ID, $activated_user_id );
+		$this->assertFalse( $user->has_network_invite( $network ) );
+
+		// Later authentication must not report another activation.
+		$activated_user_id = 0;
+		$authenticated_user = wp_signon(
+			[
+				'user_login'    => $user->user_email,
+				'user_password' => $password,
+			]
+		);
+		remove_action( 'user_account_activated', $record_activation );
+
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertSame( 0, $activated_user_id );
+	}
+
+	/**
 	 * Tests that wp_signon() accepts the only site invitation when activating a network account.
 	 *
 	 * @since calmPress 1.0.0

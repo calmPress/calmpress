@@ -148,14 +148,13 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 		delete_user_meta( $user->ID, 'activate_to_role' );
 
 		/**
-		 * Fires after a user pending activation was authenticated and
-		 * set its role.
+		 * Fires after a pending user account is activated by successful authentication.
 		 *
 		 * @since calmPress 1.0.0
 		 *
-		 * @param WP_User $user       WP_User object of the logged-in user.
+		 * @param WP_User $user The newly activated user.
 		 */
-		do_action( 'user_account_activate' , $user );
+		do_action( 'user_account_activated', $user );
 	}
 
 	if ( is_multisite() ) {
@@ -170,6 +169,9 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 			if ( 1 === count( $pending_sites ) ) {
 				$user->accept_site_invitation( $pending_sites[0] );
 			}
+
+			/** This action is documented above. */
+			do_action( 'user_account_activated', $user );
 		}
 	}
 
