@@ -147,6 +147,11 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 
 		delete_user_meta( $user->ID, 'activate_to_role' );
 
+		$site         = calmpress\site\Site::current();
+		$recipient    = $site->system_notification_recipient();
+		$notification = new calmpress\email\User_Account_Activated_Email( $recipient, $user, $site );
+		$notification->send();
+
 		/**
 		 * Fires after a pending user account is activated by successful authentication.
 		 *
@@ -169,6 +174,10 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 			if ( 1 === count( $pending_sites ) ) {
 				$user->accept_site_invitation( $pending_sites[0] );
 			}
+
+			$recipient    = $network->system_notification_recipient();
+			$notification = new calmpress\email\User_Account_Activated_Email( $recipient, $user, $network );
+			$notification->send();
 
 			/** This action is documented above. */
 			do_action( 'user_account_activated', $user );

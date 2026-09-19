@@ -775,6 +775,18 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that WP_Network::system_notification_recipient() returns the configured user.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_system_notification_recipient_returns_configured_user(): void {
+		$network = get_network();
+		$user_id = (int) get_network_option( $network->id, 'admin_user_id' );
+
+		$this->assertSame( $user_id, $network->system_notification_recipient()->ID );
+	}
+
+	/**
 	 * Tests that authenticating an account accepts the current network's invitation.
 	 */
 	public function test_network_user_invitation_activation() {

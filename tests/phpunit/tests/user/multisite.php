@@ -337,6 +337,46 @@ class Tests_User_Multisite extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that activating a network invitation notifies its configured administrator.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_notifies_network_account_activation(): void {
+		$password  = 'network-notification-password';
+		$user      = self::factory()->user->create_and_get(
+			[
+				'role'      => '',
+				'user_pass' => $password,
+			]
+		);
+		$network   = get_network();
+		$recipient = get_userdata( (int) get_network_option( $network->id, 'admin_user_id' ) );
+		$mutator   = new Tests_User_Account_Activated_Email_Mutator();
+
+		$user->invite_to_network( $network );
+
+		calmpress\email\User_Account_Activated_Email::register_mutator( $mutator );
+		try {
+			$authenticated_user = wp_signon(
+				[
+					'user_login'    => $user->user_email,
+					'user_password' => $password,
+				]
+			);
+		} finally {
+			calmpress\email\User_Account_Activated_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertInstanceOf( calmpress\email\User_Account_Activated_Email::class, $mutator->email );
+		$this->assertSame( $recipient->ID, $mutator->email->user->ID );
+		$this->assertSame( $user->ID, $mutator->email->activated_user->ID );
+		$this->assertSame( $network, $mutator->email->context );
+	}
+
+	/**
 	 * Tests that wp_signon() accepts the only site invitation when activating a network account.
 	 *
 	 * @since calmPress 1.0.0

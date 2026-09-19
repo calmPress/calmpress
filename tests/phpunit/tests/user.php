@@ -177,6 +177,49 @@ class Tests_Site_Invitation_Declined_Email_Mutator implements calmpress\email\Si
 }
 
 /**
+ * Captures a user account activation email before delivery.
+ *
+ * @since calmPress 1.0.0
+ */
+class Tests_User_Account_Activated_Email_Mutator implements calmpress\email\User_Account_Activated_Email_Mutator {
+
+	/**
+	 * The captured email.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public ?calmpress\email\User_Account_Activated_Email $email = null;
+
+	/**
+	 * Indicates that this mutator has no ordering dependency.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\observer\Observer $observer Another registered observer.
+	 *
+	 * @return calmpress\observer\Observer_Priority No ordering dependency.
+	 */
+	public function notification_dependency_with( calmpress\observer\Observer $observer ): calmpress\observer\Observer_Priority {
+		return calmpress\observer\Observer_Priority::NONE;
+	}
+
+	/**
+	 * Captures the email and prevents delivery.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\email\User_Account_Activated_Email $email The account activation email.
+	 *
+	 * @throws calmpress\email\Abort_Send_Exception Always prevents delivery.
+	 */
+	public function mutate_by_ref( calmpress\email\User_Account_Activated_Email &$email ): void {
+		$this->email = $email;
+
+		throw new calmpress\email\Abort_Send_Exception();
+	}
+}
+
+/**
  * Test functions in wp-includes/user.php
  *
  * @group user
@@ -1871,6 +1914,47 @@ class Tests_User extends WP_UnitTestCase {
 	 */
 	public function action_check_passwords_blank_password( $user_login, &$pass1 ) {
 		$pass1 = '';
+	}
+
+	/**
+	 * Tests that standalone account activation notifies the configured administrator.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-excluded
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_notifies_standalone_account_activation(): void {
+		$password = 'standalone-activation-password';
+		$user     = self::factory()->user->create_and_get(
+			[
+				'role'      => 'pending_activation',
+				'user_pass' => $password,
+			]
+		);
+		$mutator  = new Tests_User_Account_Activated_Email_Mutator();
+
+		update_user_meta( $user->ID, 'activate_to_role', 'subscriber' );
+		update_option( 'admin_user_id', self::$admin_id );
+
+		calmpress\email\User_Account_Activated_Email::register_mutator( $mutator );
+		try {
+			$authenticated_user = wp_signon(
+				[
+					'user_login'    => $user->user_email,
+					'user_password' => $password,
+				]
+			);
+		} finally {
+			calmpress\email\User_Account_Activated_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertInstanceOf( calmpress\email\User_Account_Activated_Email::class, $mutator->email );
+		$this->assertSame( self::$admin_id, $mutator->email->user->ID );
+		$this->assertSame( $user->ID, $mutator->email->activated_user->ID );
+		$this->assertInstanceOf( calmpress\site\Site::class, $mutator->email->context );
+		$this->assertStringContainsString( $user->user_email, $mutator->email->email->content() );
 	}
 
 	/**

@@ -126,6 +126,17 @@ class Site {
 	}
 
 	/**
+	 * The user configured to receive system notifications for the site.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return WP_User The configured notification recipient.
+	 */
+	public function system_notification_recipient(): WP_User {
+		return get_userdata( (int) $this->option( 'admin_user_id' ) );
+	}
+
+	/**
 	 * Retrieves the email address that receives system notifications for the site.
 	 *
 	 * @since 1.0.0
@@ -133,9 +144,7 @@ class Site {
 	 * @return string The notification recipient's email address.
 	 */
 	public function admin_email(): string {
-		$user = get_userdata( (int) $this->option( 'admin_user_id' ) );
-
-		return $user->user_email;
+		return $this->system_notification_recipient()->user_email;
 	}
 
 	/**
@@ -152,7 +161,7 @@ class Site {
 			return $user;
 		}
 
-		return get_userdata( (int) $this->option( 'admin_user_id' ) );
+		return $this->system_notification_recipient();
 	}
 
 	/**

@@ -117,6 +117,18 @@ class Site extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that Site::system_notification_recipient() returns the configured user.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_system_notification_recipient_returns_configured_user(): void {
+		$administrator = self::factory()->user->create_and_get( [ 'role' => 'administrator' ] );
+		update_option( 'admin_user_id', $administrator->ID );
+
+		$this->assertSame( $administrator->ID, CalmPress_Site::current()->system_notification_recipient()->ID );
+	}
+
+	/**
 	 * Tests that the site retrieves its configured comment moderator.
 	 */
 	public function test_default_comment_moderator_user_returns_configured_user(): void {

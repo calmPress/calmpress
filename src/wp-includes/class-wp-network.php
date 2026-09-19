@@ -382,6 +382,17 @@ class WP_Network {
 	}
 
 	/**
+	 * The user configured to receive system notifications for the network.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return WP_User The configured notification recipient.
+	 */
+	public function system_notification_recipient(): WP_User {
+		return get_userdata( (int) get_network_option( $this->id, 'admin_user_id' ) );
+	}
+
+	/**
 	 * Retrieves the email address that receives system notifications for the network.
 	 *
 	 * @since calmPress 1.0.0
@@ -389,9 +400,7 @@ class WP_Network {
 	 * @return string The notification recipient's email address.
 	 */
 	public function admin_email(): string {
-		$user = get_userdata( (int) get_network_option( $this->id, 'admin_user_id' ) );
-
-		return $user->user_email;
+		return $this->system_notification_recipient()->user_email;
 	}
 
 	/**
