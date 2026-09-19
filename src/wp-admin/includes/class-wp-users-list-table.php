@@ -228,6 +228,12 @@ class WP_Users_List_Table extends WP_List_Table {
 	 * @return array Array of bulk action labels keyed by their action.
 	 */
 	protected function get_bulk_actions() {
+		global $role;
+
+		if ( 'pending_activation' === $role ) {
+			return array();
+		}
+
 		$actions = array();
 
 		if ( is_multisite() ) {
@@ -439,7 +445,8 @@ class WP_Users_List_Table extends WP_List_Table {
 				$edit = '<strong>' . esc_html( $display_name . $extended_string ) . '</strong><br />';
 			}
 
-			if ( in_array( 'pending_activation', $user_object->roles, true ) ) {
+			$is_pending_activation = in_array( 'pending_activation', $user_object->roles, true );
+			if ( $is_pending_activation ) {
 				if ( current_user_can( 'edit_user', $user_object->ID ) ) {
 					$resend_url = wp_nonce_url(
 						"users.php?action=resend-invitation&amp;user=$user_object->ID",
@@ -464,6 +471,7 @@ class WP_Users_List_Table extends WP_List_Table {
 			}
 
 			if ( is_multisite()
+				&& ! $is_pending_activation
 				&& current_user_can( 'remove_user', $user_object->ID )
 			) {
 				$actions['remove'] = "<a class='submitdelete' href='" . wp_nonce_url( $url . "action=remove&amp;user=$user_object->ID", 'bulk-users' ) . "'>" . __( 'Remove' ) . '</a>';
