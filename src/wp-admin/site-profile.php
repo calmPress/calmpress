@@ -214,7 +214,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 			</tr>
 			<?php endif; ?>
 			<?php if ( array_intersect( [ 'administrator', 'editor' ], $user->roles ) ) : ?>
-				<tr>
+				<tr id="mock-role-wrap">
 					<th><label for="mock-role"><?php esc_html_e( 'Behave like the role' ); ?></label></th>
 					<td>
 						<select name="mock_role" id="mock-role">

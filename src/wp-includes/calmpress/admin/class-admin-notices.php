@@ -149,10 +149,11 @@ class Admin_Notices {
 			// Give notice if role is not already switched.
 			$user = wp_get_current_user();
 			if ( '' === $user->mocked_role() ) {
+				$profile_url = is_multisite() ? admin_url( 'site-profile.php' ) : admin_url( 'user-edit.php' );
 				$msg = sprintf(
 					/* translators: 1: Openning link to profile page, 2: Closing </a> */
 					esc_html__( 'It seems like you are using the administrator user to create content. You should probably create a dediated user for that, alternatively to reduce the admin clutter you can make your account to behave like editor or author in your %1$sprofile settings page%2$s.' ),
-					'<a href="' . esc_url( admin_url( 'user-edit.php' ) ) . '#mock-role-wrap">',
+					'<a href="' . esc_url( $profile_url . '#mock-role-wrap' ) . '">',
 					'</a>'
 				);
 				echo "<div class='notice notice-warning is-dismissible'><p>$msg</p></div>";
