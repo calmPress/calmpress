@@ -338,7 +338,12 @@ $_wp_last_utility_menu = 90; // The index of the last top-level menu in the util
 $menu[900] = array( __( 'My Profile' ), 'read', 'my-profile', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
 	if ( is_multisite() ) {
 		$submenu['my-profile'][5]  = array( __( 'Account' ), 'read', 'user-edit.php' );
-		$submenu['my-profile'][10] = array( __( 'Sites' ), 'read', user_admin_url( 'sites.php' ) );
+
+		// The Sites screen is useful when there are other sites to visit or invitations to answer.
+		$user = wp_get_current_user();
+		if ( count( $user->sites() ) > 1 || [] !== $user->sites_pending_activation( get_network() ) ) {
+			$submenu['my-profile'][10] = array( __( 'Sites' ), 'read', user_admin_url( 'sites.php' ) );
+		}
 		$submenu['my-profile'][15] = array( __( 'This Site' ), 'read', 'site-profile.php' );
 	} else {
 		$submenu['my-profile'][5] = array( __( 'Account' ), 'read', 'user-edit.php' );
