@@ -103,12 +103,6 @@ $allowed_options            = array(
 		'page_for_posts',
 		'calm_embedding_on',
 	),
-	'htaccess'   => [
-		'htaccess_user_section',
-	],
-	'wp-config'   => [
-		'wp_config_user_section',
-	],
 	'email_delivery' => [
 		'calm_email_delivery',
 	]
@@ -122,6 +116,9 @@ if ( ! is_utf8_charset() ) {
 }
 
 if ( ! is_multisite() ) {
+	$allowed_options['htaccess']  = [ 'htaccess_user_section' ];
+	$allowed_options['wp-config'] = [ 'wp_config_user_section' ];
+
 	if ( ! defined( 'WP_HOME' ) ) {
 		$allowed_options['general'][] = 'home';
 	}

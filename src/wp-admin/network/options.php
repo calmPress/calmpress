@@ -38,9 +38,6 @@ if ( ! current_user_can( $capability ) ) {
 }
 
 $allowed_options            = array(
-	'htaccess'   => [
-		'htaccess_user_section',
-	],
 	'email_delivery' => [
 		'calm_email_delivery',
 	],

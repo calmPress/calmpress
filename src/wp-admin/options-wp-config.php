@@ -12,6 +12,10 @@ namespace calmpress\admin\wp_config;
 /** WordPress Administration Bootstrap */
 require_once dirname( __FILE__ ) . '/admin.php';
 
+if ( is_multisite() ) {
+	wp_die( 'The wp-config.php editor is not available on a network installation.', '', [ 'response' => 403 ] );
+}
+
 if ( ! is_super_admin() ) {
 	wp_die( esc_html__( 'Sorry, you are not allowed to manage wp-config.php for this site.' ) );
 }

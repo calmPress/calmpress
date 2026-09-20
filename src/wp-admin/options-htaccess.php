@@ -21,7 +21,7 @@ if ( ! is_apache() ) {
 }
 
 if ( is_multisite() ) {
-	wp_die( esc_html__( 'Sorry, but .htaccess for multisite is managed from the network admin.' ) );
+	wp_die( 'The .htaccess editor is not available on a network installation.', '', [ 'response' => 403 ] );
 }
 
 $title       = __( '.htaccess Settings' );
