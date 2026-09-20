@@ -11,6 +11,7 @@
  * Defines Multisite cookie constants.
  *
  * @since 3.0.0
+ * @since calmPress 1.0.0 Mapped domains use host-only cookies.
  */
 function ms_cookie_constants() {
 	$current_network = get_network();
@@ -45,7 +46,10 @@ function ms_cookie_constants() {
 	 * @since 2.0.0
 	 */
 	if ( ! defined( 'COOKIE_DOMAIN' ) && is_subdomain_install() ) {
-		if ( ! empty( $current_network->cookie_domain ) ) {
+		// A mapped domain cannot set a cookie for the network domain.
+		if ( get_site()->has_mapped_domain() ) {
+			define( 'COOKIE_DOMAIN', '' );
+		} elseif ( ! empty( $current_network->cookie_domain ) ) {
 			define( 'COOKIE_DOMAIN', '.' . $current_network->cookie_domain );
 		} else {
 			define( 'COOKIE_DOMAIN', '.' . $current_network->domain );
