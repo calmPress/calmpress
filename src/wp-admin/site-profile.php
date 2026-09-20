@@ -215,20 +215,33 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 			<?php endif; ?>
 			<?php if ( array_intersect( [ 'administrator', 'editor' ], $user->roles ) ) : ?>
 				<tr id="mock-role-wrap">
-					<th><label for="mock-role"><?php esc_html_e( 'Behave like the role' ); ?></label></th>
+					<th><label for="mock-role"><?php esc_html_e( 'Behave as' ); ?></label></th>
 					<td>
+						<?php
+						$assigned_role = in_array( 'administrator', $user->roles, true ) ? 'Administrator' : 'Editor';
+
+						/* translators: %s: The user's assigned role. */
+						$assigned_role_label = sprintf( __( 'Use my assigned role (%s)' ), translate_user_role( $assigned_role ) );
+						?>
 						<select name="mock_role" id="mock-role">
+							<option value="" <?php selected( '', $current_mocked_role ); ?>><?php echo esc_html( $assigned_role_label ); ?></option>
 							<?php if ( in_array( 'administrator', $user->roles, true ) ) : ?>
-								<option value="" <?php selected( '', $current_mocked_role ); ?>><?php echo esc_html( translate_user_role( 'Administrator' ) ); ?></option>
 								<option value="editor" <?php selected( 'editor', $current_mocked_role ); ?>><?php echo esc_html( translate_user_role( 'Editor' ) ); ?></option>
-							<?php else : ?>
-								<option value="" <?php selected( '', $current_mocked_role ); ?>><?php echo esc_html( translate_user_role( 'Editor' ) ); ?></option>
 							<?php endif; ?>
 							<option value="author" <?php selected( 'author', $current_mocked_role ); ?>><?php echo esc_html( translate_user_role( 'Author' ) ); ?></option>
 						</select>
-						<p class="description"><?php esc_html_e( 'The account can temporarily behave like a lower role without changing its assigned role.' ); ?></p>
+						<?php
+						$expiry = (int) get_user_option( WP_User::SITE_MOCKED_ROLE_EXPIRY_OPTION, $user->ID );
+						if ( '' !== $current_mocked_role && $expiry > time() ) {
+
+							/* translators: %s: Time until behavior expires. */
+							$remaining_time = sprintf( __( 'The lower-role behavior will last for another %s.' ), human_time_diff( $expiry, time() ) );
+							echo '<p class="description">' . esc_html( $remaining_time ) . '</p>';
+						}
+						?>
+						<p class="description"><?php esc_html_e( 'Choosing a lower role temporarily uses its permissions without changing your assigned role.' ); ?></p>
 						<p class="description"><?php esc_html_e( 'This can reduce administration clutter when the account is used for editing content.' ); ?></p>
-						<p class="description"><?php esc_html_e( 'The behavior will last 14 days from the time it is set, or until the assigned role is selected again.' ); ?></p>
+						<p class="description"><?php esc_html_e( 'The lower-role behavior ends after 14 days or when you select your assigned role.' ); ?></p>
 						<p class="description"><?php esc_html_e( 'This setting affects only this site.' ); ?></p>
 					</td>
 				</tr>

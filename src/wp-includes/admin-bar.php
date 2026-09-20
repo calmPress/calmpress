@@ -266,6 +266,7 @@ function wp_admin_bar_my_account_item( $wp_admin_bar ) {
  * Adds the "My Account" submenu items.
  *
  * @since 3.1.0
+ * @since calmPress 1.0.0 Shows the active mocked role and a link for changing it.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
  */
@@ -312,6 +313,31 @@ function wp_admin_bar_my_account_menu( $wp_admin_bar ) {
 			'href'   => $profile_url,
 		)
 	);
+
+	$mocked_role = array_intersect( [ 'administrator', 'editor' ], $current_user->roles ) ? $current_user->mocked_role() : '';
+	if ( '' !== $mocked_role ) {
+		$role_name = translate_user_role( 'editor' === $mocked_role ? 'Editor' : 'Author' );
+
+		/* translators: %s: Editor or Author role name. */
+		$status = sprintf( __( 'Behaving as %s' ), $role_name );
+		$role_url = is_multisite() ? admin_url( 'site-profile.php' ) : admin_url( 'user-edit.php' );
+
+		$wp_admin_bar->add_node(
+			[
+				'parent' => 'user-actions',
+				'id'     => 'mocked-role-status',
+				'title'  => esc_html( $status ),
+			]
+		);
+		$wp_admin_bar->add_node(
+			[
+				'parent' => 'user-actions',
+				'id'     => 'change-mocked-role',
+				'title'  => esc_html__( 'Change role for this site' ),
+				'href'   => $role_url . '#mock-role-wrap',
+			]
+		);
+	}
 
 	$wp_admin_bar->add_node(
 		array(
