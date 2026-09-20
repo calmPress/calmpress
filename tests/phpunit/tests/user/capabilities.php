@@ -2354,6 +2354,31 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that a super admin's mocked site role limits effective capabilities.
+	 *
+	 * @group ms-required
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_super_admin_mocked_role_change_capabilities() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		grant_super_admin( $user_id );
+
+		$user = new WP_User( $user_id );
+		$this->assertTrue( $user->has_cap( 'maintenance_mode' ) );
+
+		$user->set_mocked_role( 'editor' );
+		$user = new WP_User( $user_id );
+		$this->assertSame( 'editor', $user->mocked_role() );
+		$this->assertFalse( $user->has_cap( 'maintenance_mode' ) );
+		$this->assertTrue( $user->has_cap( 'edit_others_posts' ) );
+
+		$user->set_mocked_role( '' );
+		$user = new WP_User( $user_id );
+		$this->assertTrue( $user->has_cap( 'maintenance_mode' ) );
+	}
+
+	/**
 	 * test indirectly moderate_comments capability mapping at
 	 * map_meta_cap
 	 * 

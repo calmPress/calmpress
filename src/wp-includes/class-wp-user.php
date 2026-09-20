@@ -1376,8 +1376,9 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 
 		$caps = map_meta_cap( $cap, $this->ID, ...$args );
 
-		// Multisite super admin has all caps by definition, Unless specifically denied.
-		if ( is_multisite() && is_super_admin( $this->ID ) ) {
+		// A super admin behaving as a lower site role uses that role's capabilities until the mock expires.
+		$mocking_role = array_intersect( [ 'administrator', 'editor' ], $this->roles ) && '' !== $this->mocked_role();
+		if ( is_multisite() && is_super_admin( $this->ID ) && ! $mocking_role ) {
 			if ( in_array( 'do_not_allow', $caps, true ) ) {
 				return false;
 			}
