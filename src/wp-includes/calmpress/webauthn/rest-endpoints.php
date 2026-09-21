@@ -25,7 +25,7 @@ use calmpress\webauthn\Devices_Of_User;
 function invalid_request_response(): \WP_REST_Response {
 	return new \WP_REST_Response(
 		[ 'reason' => 'Invalid request' ],
-		500
+		400
 	);
 }
 
@@ -96,10 +96,13 @@ function create_challenge(): \WP_REST_Response {
  */
 function extract_challenge( string $client_data ):string {
 	$clientDataJSON  = base64URL_decode( $client_data );
+	if ( false === $clientDataJSON ) {
+		return '';
+	}
 
 	// Step 1. Decode clientDataJSON (plain JSON)
 	$clientData = json_decode( $clientDataJSON, true );
-	if ( ! $clientData || ! isset( $clientData['challenge'] ) ) {
+	if ( ! is_array( $clientData ) || ! isset( $clientData['challenge'] ) || ! is_string( $clientData['challenge'] ) ) {
 		 return '';
 	}
 
@@ -280,10 +283,9 @@ function login_challenge(): \WP_REST_Response {
 	// Generate a random byte stream.
 	$challenge = random_bytes( 32 );
 
-	// Save challenge at the server for 5 min at an easily retrievable
-	// format which allows to have more than one login challenge at same time.
-	// The data of '1' is there just because some data is needed, it has no meaning by itsel.
-	set_transient( 'webauthn_challenge_login_' . base64URL_encode( $challenge ), 1, 1 * HOUR_IN_SECONDS );
+	// Store each challenge independently for one hour so concurrent login attempts remain valid,
+	// and bind it to the RP ID so it cannot be completed on another domain.
+	set_transient( 'webauthn_challenge_login_' . base64URL_encode( $challenge ), Devices_Of_User::rp_info()->id, HOUR_IN_SECONDS );
 
 	// Response structured like browser expects
 
@@ -314,23 +316,27 @@ function login_challenge(): \WP_REST_Response {
  * @since 1.0.0
  * 
  * @return \WP_REST_Response A 400 if operation failed and message explaning the failure.
- *                           A 500 if challenge was not matched.
+ *                           A 400 if the challenge or assertion is invalid.
  *                           A 200 If user was logged in or reauthenticated.
  */
 function login( \WP_REST_Request $request ): \WP_REST_Response {
 
 	$t = $request->get_param( 'clientDataJSON' );
+	if ( ! is_string( $t ) ) {
+		return invalid_request_response();
+	}
 
 	// Check if the challenege was generate by us in the last 5 min.
 	$challenge = extract_challenge( $t );
 
-	// if challenge extarction failed send a 500
+	// Reject malformed client data before looking up or consuming a challenge.
 	if ( $challenge === '' ) {
 		return invalid_request_response();
 	}
 
 	$transient_key = 'webauthn_challenge_login_' . $challenge;
-	if ( ! get_transient( $transient_key ) ) {
+	$rp_id = Devices_Of_User::rp_info()->id;
+	if ( get_transient( $transient_key ) !== $rp_id ) {
 		return new \WP_REST_Response(
 			[ 'message' => __( 'Your attempt took too long. Please try again.' ) ],
 			400
@@ -338,8 +344,12 @@ function login( \WP_REST_Request $request ): \WP_REST_Response {
 	}
 	delete_transient( $transient_key );
 
-	$credential_id = $request->get_param( 'credential_id' );
-	$user_id = Devices_Of_User::credential_is_used( base64URL_decode( $credential_id ) );
+	$encoded_credential_id = $request->get_param( 'credential_id' );
+	$credential_id = is_string( $encoded_credential_id ) ? base64URL_decode( $encoded_credential_id ) : false;
+	if ( false === $credential_id || '' === $credential_id ) {
+		return invalid_request_response();
+	}
+	$user_id = Devices_Of_User::credential_is_used( $credential_id );
 	if ( $user_id === false ) {
 		return new \WP_REST_Response(
 			[ 'message' => __( 'Could not find a matching user.' ) ],
@@ -358,19 +368,92 @@ function login( \WP_REST_Request $request ): \WP_REST_Response {
 		}
 	}
 	$webauthn_user = get_user_by( 'id', $user_id );
+	if ( ! $webauthn_user ) {
+		return invalid_request_response();
+	}
+
+	$device = $webauthn_user->webauthn_registered_devices()->devices()[ $credential_id ] ?? null;
+	if ( ! $device ) {
+		return invalid_request_response();
+	}
+
+	try {
+		$client_data = \Webauthn\CollectedClientData::createFormJson( $t );
+		$origin_host = wp_parse_url( $client_data->origin, PHP_URL_HOST );
+		$site_host = wp_parse_url( home_url(), PHP_URL_HOST );
+		if ( ! is_string( $origin_host ) || ! is_string( $site_host ) || strcasecmp( $origin_host, $site_host ) !== 0 ) {
+			return invalid_request_response();
+		}
+
+		$encoded_authenticator_data = $request->get_param( 'authenticator_data' );
+		$encoded_signature = $request->get_param( 'signature' );
+		$raw_authenticator_data = is_string( $encoded_authenticator_data ) ? base64URL_decode( $encoded_authenticator_data ) : false;
+		$signature = is_string( $encoded_signature ) ? base64URL_decode( $encoded_signature ) : false;
+		if ( false === $raw_authenticator_data || false === $signature ) {
+			return invalid_request_response();
+		}
+
+		$authenticator_data = \Webauthn\AuthenticatorDataLoader::create()->load( $raw_authenticator_data );
+		$user_handle = pack( 'NN', $user_id >> 32, $user_id & 0xFFFFFFFF );
+		$encoded_user_handle = $request->get_param( 'user_handle' );
+		$response_user_handle = is_string( $encoded_user_handle ) ? base64URL_decode( $encoded_user_handle ) : null;
+		if ( false === $response_user_handle ) {
+			return invalid_request_response();
+		}
+		$assertion = \Webauthn\AuthenticatorAssertionResponse::create(
+			$client_data,
+			$authenticator_data,
+			$signature,
+			$response_user_handle
+		);
+		$credential = \Webauthn\PublicKeyCredentialSource::create(
+			$credential_id,
+			'public-key',
+			[],
+			'none',
+			\Webauthn\TrustPath\EmptyTrustPath::create(),
+			\Symfony\Component\Uid\Uuid::fromString( '00000000-0000-0000-0000-000000000000' ),
+			$device->public_key,
+			$user_handle,
+			0
+		);
+		$options = \Webauthn\PublicKeyCredentialRequestOptions::create( base64URL_decode( $challenge ), $rp_id, [], 'preferred' );
+		\Webauthn\AuthenticatorAssertionResponseValidator::create()->check(
+			$credential,
+			$assertion,
+			$options,
+			$site_host,
+			$user_handle
+		);
+	} catch ( \Throwable $error ) {
+		return invalid_request_response();
+	}
+
+	$device->set_last_authentication_time( new \DateTime() );
 
 	// Set the authenticate filter to always authenticate the user in the context
 	// of wp_signon so we will be able to use it.
-	add_filter(
-		'authenticate',
-		function ( $user, $usernam, $password ) use ( $webauthn_user ) {
-			return $webauthn_user;
-		},
-		19,
-		3
-	);
+	/**
+	 * Supply the user whose WebAuthn assertion was verified to wp_signon().
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param mixed $user Previously authenticated user or error.
+	 * @param string $username Submitted username.
+	 * @param string $password Submitted password.
+	 *
+	 * @return \WP_User Verified user.
+	 */
+	$authenticate_webauthn_user = static function ( $user, $username, $password ) use ( $webauthn_user ) {
+		return $webauthn_user;
+	};
+	add_filter( 'authenticate', $authenticate_webauthn_user, 19, 3 );
 
-	$user = wp_signon();
+	try {
+		$user = wp_signon();
+	} finally {
+		remove_filter( 'authenticate', $authenticate_webauthn_user, 19 );
+	}
 
 	// Check if login was rejected for another reason.
 	if ( is_wp_error( $user ) ) {
@@ -475,7 +558,18 @@ add_action(
 					],
 					'clientDataJSON' => [
 						'type'     => 'string',
-        				'required' => true,
+						'required' => true,
+					],
+					'authenticator_data' => [
+						'type'     => 'string',
+						'required' => true,
+					],
+					'signature' => [
+						'type'     => 'string',
+						'required' => true,
+					],
+					'user_handle' => [
+						'type' => 'string',
 					],
 					'redirect_to' => [
 						'type'     => 'string',

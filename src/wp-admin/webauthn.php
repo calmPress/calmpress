@@ -13,6 +13,7 @@ require_once __DIR__ . '/admin.php';
 
 $current_user = wp_get_current_user();
 $user_id      = $current_user->ID;
+$rp_info      = calmpress\webauthn\Devices_Of_User::rp_info();
 
 wp_enqueue_script( 'calm-webauthn' );
 wp_enqueue_style( 'calm-webauthn' );
@@ -31,12 +32,30 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
 <hr class="wp-header-end">
 
-<h2><?php esc_html_e( 'Devices that can be used for Login' ); ?></h2>
+<h2><?php esc_html_e( 'Devices used to log in' ); ?></h2>
 <p>
-	<?php esc_html_e( 'These are the devices you can use to login to your account on the device where they were set up. On most devices, this means using built-in authenticators such as biometrics or a PIN, or external security keys.' ); ?>
+	<?php esc_html_e( 'Manage the devices you can use to log in to your account. You authenticate in the same way you normally unlock each device, such as with a PIN, fingerprint, or face recognition. You can also use an external security key.' ); ?>
 	<span id="device_do_not_support_webauthn">
 		<?php esc_html_e( 'Your current browser or device do not support this kind of login.' );?>
 	</span>
+</p>
+<p>
+	<?php
+	$domain = '<strong>' . esc_html( $rp_info->id ) . '</strong>';
+	if ( is_multisite() && is_subdomain_install() && ! get_site()->has_mapped_domain() ) {
+		printf(
+			/* translators: %s: Network domain on which the login devices can be used. */
+			esc_html__( 'These devices can be used on %s and all its subdomains.' ),
+			$domain
+		);
+	} else {
+		printf(
+			/* translators: %s: Domain on which the login devices can be used. */
+			esc_html__( 'These devices can be used on %s.' ),
+			$domain
+		);
+	}
+	?>
 </p>
 <p><?php esc_html_e( 'Any changes you make here are saved automatically.' ); ?></p>
 

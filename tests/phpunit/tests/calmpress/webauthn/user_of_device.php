@@ -25,7 +25,7 @@ class User_Of_Device_Test extends WP_UnitTestCase {
 		$collection = new Devices_Of_User( $user );
 
 		// common use.
-		$t = new User_Of_Device( 'credential', 'public_key', 'just a test', $date, $collection );
+		$t = new User_Of_Device( 'credential', 'public_key', 'just a test', $date, $collection, 'example.org' );
 		$this->assertSame( 'credential', $t->credential_id );
 		$this->assertSame( 'public_key', $t->public_key );
 		$this->assertSame( 'just a test', $t->description() );
@@ -44,7 +44,7 @@ class User_Of_Device_Test extends WP_UnitTestCase {
 		$collection = new Devices_Of_User( $user );
 
 		// common use.
-		$t = new User_Of_Device( 'credential', 'public_key', 'just a test', $date, $collection );
+		$t = new User_Of_Device( 'credential', 'public_key', 'just a test', $date, $collection, 'example.org' );
 		$t->set_description( 'new desc' );
 		$this->assertSame( 'new desc', $t->description() );
 	}
@@ -60,7 +60,7 @@ class User_Of_Device_Test extends WP_UnitTestCase {
 		$collection = new Devices_Of_User( $user );
 
 		// common use.
-		$t = new User_Of_Device( 'cred', 'public_key', 'just a test', $date, $collection );
+		$t = new User_Of_Device( 'cred', 'public_key', 'just a test', $date, $collection, 'example.org' );
 		$date = new \DateTime( '+1 day' );
 		$t->set_last_authentication_time( $date );
 		$this->assertSame( $date, $t->last_authentication_time() );
@@ -77,7 +77,7 @@ class User_Of_Device_Test extends WP_UnitTestCase {
 		$collection = new Devices_Of_User( $user );
 
 		// serialize unserialize should give equal objects.
-		$t = new User_Of_Device( 'cred', 'public_key', 'just a test', $date, $collection );
+		$t = new User_Of_Device( 'cred', 'public_key', 'just a test', $date, $collection, 'example.org' );
 		$json = $t->serialize();
 
 		$u = User_Of_Device::unserialize( $json, $collection );
@@ -87,4 +87,19 @@ class User_Of_Device_Test extends WP_UnitTestCase {
 		$this->assertEquals( $date->getTimestamp(), $u->last_authentication_time()->getTimestamp() );
 		$this->assertSame( $collection, $u->user_devices_collection );
 	}
+
+	/**
+	 * Serialization preserves the RP ID.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_serialization_preserves_relying_party(): void {
+		$collection = new Devices_Of_User( new WP_User() );
+		$device = new User_Of_Device( 'credential', 'key', 'Test', new DateTime(), $collection, 'mapped.example' );
+
+		$stored = User_Of_Device::unserialize( $device->serialize(), $collection );
+
+		$this->assertSame( 'mapped.example', $stored->rp_id );
+	}
+
 }

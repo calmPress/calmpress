@@ -131,8 +131,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
             const data = {
                 credential_id: credential.id,
                 clientDataJSON: arrayBufferToBase64Url( credential.response.clientDataJSON ),
+                authenticator_data: arrayBufferToBase64Url( credential.response.authenticatorData ),
+                signature: arrayBufferToBase64Url( credential.response.signature ),
                 redirect_to: cp_$( '#redirect_to' ).value(),
             };
+			if ( credential.response.userHandle ) {
+				data.user_handle = arrayBufferToBase64Url( credential.response.userHandle );
+			}
 
             const login_response = await calm_fetch.post_no_nonce( 'calmpress/webauthn/login', data );
             const isReauthDialog = new URLSearchParams(window.location.search).has('interim-login');

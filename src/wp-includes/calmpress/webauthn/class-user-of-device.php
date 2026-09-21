@@ -41,6 +41,13 @@ class User_Of_Device {
 	public readonly string $credential_id;
 
 	/**
+	 * Domain for which this credential was registered.
+	 *
+	 * @since 1.0.0
+	 */
+	public readonly string $rp_id;
+
+	/**
 	 * The human readable description.
 	 *
 	 * @since 1.0.0
@@ -76,19 +83,22 @@ class User_Of_Device {
 	 *                               with the device.
 	 * @param Devices_Of_User $user_devices_collection The collection of devices
 	 *                                                 in which this device belongs.
+	 * @param string $rp_id Relying-party domain.
 	 */
 	public function __construct(
 		string          $credential_id,
 		string          $public_key,
 		string          $description,
 		\DateTime       $last_used,
-		Devices_Of_User $user_devices_collection
+		Devices_Of_User $user_devices_collection,
+		string          $rp_id
 	) {
 		$this->credential_id           = $credential_id;
 		$this->public_key              = $public_key;
 		$this->description             = $description;
 		$this->last_autheticated_at    = $last_used;
 		$this->user_devices_collection = $user_devices_collection; 
+		$this->rp_id                    = $rp_id;
 	}
 
 	/**
@@ -161,6 +171,7 @@ class User_Of_Device {
 	 * - p  which has the public key as a base64URL encoded string.
 	 * - de which has the description
 	 * - da which contains latest authentication time formatted as a unix time stamp.
+	 * - rp which identifies the relying-party domain.
 	 *
 	 * @since calmPress 1.0.0
 	 *
@@ -172,6 +183,7 @@ class User_Of_Device {
 		$o->p  = base64URL_encode( $this->public_key );
 		$o->de = $this->description;
 		$o->da = (string) $this->last_autheticated_at->getTimestamp();
+		$o->rp = $this->rp_id;
 		return json_encode( $o );
 	}
 
@@ -204,7 +216,7 @@ class User_Of_Device {
 		}
 
 		// Check for all expected fields.
-		foreach ( ['c', 'p', 'de', 'da' ] as $key ) {
+		foreach ( [ 'c', 'p', 'de', 'da', 'rp' ] as $key ) {
 			if ( ! isset( $o[ $key ] ) ) {
 				throw new \RuntimeException( 
 					sprintf(
@@ -226,17 +238,21 @@ class User_Of_Device {
 			}
 		}
 
+		if ( '' === $o['rp'] ) {
+			throw new \RuntimeException( 'Invalid relying party in stored credential' );
+		}
+
 		try {
 			$date = new \DateTime( '@' . $o['da'] );
-		} catch ( \Exception $e ) {
-			if ( $date === false ) {
-				throw new \RuntimeException( 
-					sprintf(
-						'Date can not be parsed from data %s',
-						$data
-					)
-				);
-			}
+		} catch ( \Exception $exception ) {
+			throw new \RuntimeException(
+				sprintf(
+					'Date can not be parsed from data %s',
+					$data
+				),
+				0,
+				$exception
+			);
 		}
 
 		return new User_Of_Device(
@@ -244,7 +260,8 @@ class User_Of_Device {
 			base64URL_decode( $o['p'] ),
 			$o['de'],
 			$date,
-			$user
+			$user,
+			$o['rp']
 		);
 	}
 }

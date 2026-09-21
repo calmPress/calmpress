@@ -61,13 +61,48 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		$this->assertSame( 0, count( $collection->devices() ) );
 
 		// One device added.
-		$device = new User_Of_Device( 'cred', 'public', 'desc', new \DateTime( 'now' ), $collection );
+		$device = new User_Of_Device( 'cred', 'public', 'desc', new \DateTime( 'now' ), $collection, Devices_Of_User::rp_info()->id );
 		$collection->store( $device );
 		$devices = $collection->devices();
 		$this->assertSame( 1, count( $devices ) );
 
 		// Check the device has the index of its public key
 		$this->assertSame( 'public', $devices['cred']->public_key );
+	}
+
+	/**
+	 * Tests that Devices_Of_User::devices() returns only devices for the current RP ID.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_devices_returns_only_devices_for_current_relying_party(): void {
+		$user = new WP_User( self::factory()->user->create() );
+		$collection = new Devices_Of_User( $user );
+		$current_rp_id = Devices_Of_User::rp_info()->id;
+
+		$collection->store( new User_Of_Device( 'current', 'key1', 'Current', new DateTime(), $collection, $current_rp_id ) );
+		$collection->store( new User_Of_Device( 'elsewhere', 'key2', 'Elsewhere', new DateTime(), $collection, 'mapped.example' ) );
+
+		$this->assertSame( [ 'current' ], array_keys( $collection->devices() ) );
+		$this->assertCount( 2, get_user_meta( $user->ID, Devices_Of_User::STORAGE_META_KEY, true ) );
+	}
+
+	/**
+	 * Removing a credential preserves registrations for other domains.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_remove_device_preserves_other_relying_parties(): void {
+		$user = new WP_User( self::factory()->user->create() );
+		$collection = new Devices_Of_User( $user );
+		$current_rp_id = Devices_Of_User::rp_info()->id;
+
+		$collection->store( new User_Of_Device( 'current', 'key1', 'Current', new DateTime(), $collection, $current_rp_id ) );
+		$collection->store( new User_Of_Device( 'elsewhere', 'key2', 'Elsewhere', new DateTime(), $collection, 'mapped.example' ) );
+		$collection->remove_device( 'current' );
+
+		$this->assertSame( [], $collection->devices() );
+		$this->assertSame( $user->ID, Devices_Of_User::credential_is_used( 'elsewhere' ) );
 	}
 
 	/**
@@ -85,7 +120,7 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		$collection = new Devices_Of_User( $user );
 
 		// One device added.
-		$device = new User_Of_Device( 'cred', 'deadbeef', 'desc', new \DateTime( 'now' ), $collection );
+		$device = new User_Of_Device( 'cred', 'deadbeef', 'desc', new \DateTime( 'now' ), $collection, Devices_Of_User::rp_info()->id );
 		$collection->store( $device );
 		$devices = $collection->devices();
 		$this->assertSame( 1, count( $devices ) );
@@ -410,6 +445,40 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		} else {
 			$this->assertSame( $rp_info->name, 'Test Blog' );
 			$this->assertSame( $rp_info->id, 'example.org' );
+		}
+	}
+
+	/**
+	 * Tests that Devices_Of_User::rp_info() returns the network domain for a network subdomain.
+	 *
+	 * @since 1.0.0
+	 * @group ms-required
+	 */
+	public function test_rp_info_returns_network_domain_for_network_subdomain(): void {
+		$original_home = get_option( 'home' );
+
+		try {
+			update_option( 'home', 'https://first.example.org' );
+			$this->assertSame( 'example.org', Devices_Of_User::rp_info()->id );
+		} finally {
+			update_option( 'home', $original_home );
+		}
+	}
+
+	/**
+	 * Tests that Devices_Of_User::rp_info() returns the site domain for a mapped site.
+	 *
+	 * @since 1.0.0
+	 * @group ms-required
+	 */
+	public function test_rp_info_returns_site_domain_for_mapped_site(): void {
+		$original_home = get_option( 'home' );
+
+		try {
+			update_option( 'home', 'https://mapped.example' );
+			$this->assertSame( 'mapped.example', Devices_Of_User::rp_info()->id );
+		} finally {
+			update_option( 'home', $original_home );
 		}
 	}
 

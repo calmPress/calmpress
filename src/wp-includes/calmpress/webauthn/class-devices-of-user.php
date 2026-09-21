@@ -119,7 +119,7 @@ class Devices_Of_User {
 	 * 
 	 * @return User_Of_Device[] where index is the device's client id as binary string.
 	 */
-	public function devices(): array {
+	private function all_devices(): array {
 		$ret = [];
 		$data = get_user_meta( $this->user->ID, self::STORAGE_META_KEY, true );
 
@@ -158,6 +158,22 @@ class Devices_Of_User {
 	}
 
 	/**
+	 * Devices usable on the current relying-party domain.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return User_Of_Device[] Devices indexed by credential ID.
+	 */
+	public function devices(): array {
+		$rp_id = self::rp_info()->id;
+
+		return array_filter(
+			$this->all_devices(),
+			static fn ( User_Of_Device $device ): bool => $device->rp_id === $rp_id
+		);
+	}
+
+	/**
 	 * Store the list of devices associated with the user in the DB.
 	 * 
 	 * @since 1.0.0
@@ -188,7 +204,7 @@ class Devices_Of_User {
 			throw new \LogicException( 'Trying to store a device in non matching collection' );
 		}
 
-		$devices = $this->devices();
+		$devices = $this->all_devices();
 		$devices[ $device->credential_id ] = $device;
 
 		$this->save_to_db( $devices );
@@ -256,6 +272,9 @@ class Devices_Of_User {
 		}
 
 		$devices = $this->devices();
+		if ( isset( $this->all_devices()[ $credential_id ] ) && ! isset( $devices[ $credential_id ] ) ) {
+			throw new \RuntimeException( 'credential belongs to another relying party', self::EXCEPTION_CREDENTIAL_USED );
+		}
 
 		// If credentials already exists for the user just update description.
 		$device = $this->device_for_credentials( $credential_id, $public_key );
@@ -279,7 +298,8 @@ class Devices_Of_User {
 			$public_key,
 			$description,
 			new \DateTime( 'now' ),
-			$this
+			$this,
+			self::rp_info()->id
 		);
 
 		$this->store( $device );
@@ -296,7 +316,11 @@ class Devices_Of_User {
 	 *                              as binary string.
 	 */
 	public function remove_device( string $credential_id ): void {
-		$devices = $this->devices();
+		if ( ! isset( $this->devices()[ $credential_id ] ) ) {
+			return;
+		}
+
+		$devices = $this->all_devices();
 
 		if ( ! array_key_exists( $credential_id, $devices ) ) {
 			return;
@@ -361,27 +385,26 @@ class Devices_Of_User {
 	}
 
 	/**
-	 * Generate Relaying Party info for server initiated messages.
-	 * 
-	 * The info is used to identify the site by the authenticator.
-	 * For non network sites it uses the site domain while for Networks
-	 * it uses the main domain of the site.
+	 * Relying party for the current site domain.
 	 *
-	 * Marked protected to be able to do tests with known info.
-	 * No actual support to overriding it by subclassing.
+	 * Network subdomains share the network RP ID. A mapped domain has its own.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return PublicKeyCredentialRpEntity
+	 * @return PublicKeyCredentialRpEntity Relying-party identity.
 	 */
-	static public function rp_info():PublicKeyCredentialRpEntity {
+	public static function rp_info():PublicKeyCredentialRpEntity {
+		$host = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+
 		if ( is_multisite() ) {
 			$network = get_network();
-			$rp_name = $network->site_name;
-			$rp_id   = $network->domain;
+			$network_domain = strtolower( rtrim( $network->domain, '.' ) );
+			$network_site = $host === $network_domain || str_ends_with( $host, '.' . $network_domain );
+			$rp_name = $network_site ? $network->site_name : get_bloginfo( 'name' );
+			$rp_id   = $network_site ? $network_domain : $host;
 		} else {
 			$rp_name = get_bloginfo( 'name' );
-			$rp_id   = wp_parse_url( home_url(), PHP_URL_HOST );
+			$rp_id   = $host;
 		}
 
 		return new PublicKeyCredentialRpEntity(
@@ -517,6 +540,9 @@ class Devices_Of_User {
 			if ( $used_user_id !== $this->user->ID ) {
 				// authenticator registered with another user.
 				throw new \RuntimeException( 'Authenticator registered with another user', self::EXCEPTION_CREDENTIAL_USED );
+			}
+			if ( ! isset( $this->devices()[ $credential_id ] ) ) {
+				throw new \RuntimeException( 'Authenticator registered for another domain', self::EXCEPTION_CREDENTIAL_USED );
 			}
 		}
 
