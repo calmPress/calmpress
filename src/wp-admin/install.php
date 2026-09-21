@@ -62,18 +62,6 @@ function display_header( $body_classes = '' ) {
 } // End display_header().
 
 /**
- * Help to identify when the site is install on a local machine.
- * 
- * Done by detecting if the remote address of the request is of a local machine.
- *
- * @since calmPress 1.0.0
- *
- * @return bool true if local machine install detected, false otherwise.
- */
-function is_local_install() {
-	return in_array( $_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1'], true );
-}
-/**
  * Display installer setup form.
  *
  * @since 2.8.0
@@ -316,9 +304,9 @@ if ( ! file_exists( WP_CONTENT_DIR . '/db.php' ) ) {
 	}
 }
 
-// Check installed as https unless it is local.
-if ( ! is_ssl() && ! is_local_install() ) {
-	$errors[] = esc_html__( 'This site is not currently being accessed over HTTPS. HTTPS is required for non-local installations.' );
+// CalmPress requires HTTPS for every installation, including local development sites.
+if ( ! is_ssl() ) {
+	$errors[] = esc_html__( 'This site is not currently being accessed over HTTPS. HTTPS is required to install CalmPress.' );
 }
 
 // Check for require php extensions.
