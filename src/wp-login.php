@@ -1112,6 +1112,11 @@ switch ( $action ) {
 			// if QR code URL failed, set the email to the email given in the
 			// URL.
 			$user_login = $_GET['qremail'];
+		} elseif ( isset( $_GET['email'] ) && is_string( $_GET['email'] ) ) {
+			$invited_email = wp_unslash( $_GET['email'] );
+			if ( is_email( $invited_email ) ) {
+				$user_login = $invited_email;
+			}
 		}
 
 		$aria_describedby = '';

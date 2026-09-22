@@ -30,7 +30,7 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 
 		$this->assertSame( $user, $email->user );
 		$this->assertSame( 'Example & Network', $email->site_name );
-		$this->assertSame( 'https://example.com/login?wp_lang=en_US', $email->login_url );
+		$this->assertSame( 'https://example.com/login?wp_lang=en_US&email=invitee@example.com', $email->login_url );
 		$this->assertStringContainsString( 'Example & Network', $email->email->content() );
 		$this->assertStringContainsString( 'https://example.com/login', $email->email->content() );
 	}
@@ -71,7 +71,7 @@ class User_Invitation_Email_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'de_DE', $locale_during_translation );
 		$this->assertSame( $original_locale, get_locale() );
-		$this->assertSame( 'https://example.com/login?wp_lang=de_DE', $email->login_url );
+		$this->assertSame( 'https://example.com/login?wp_lang=de_DE&email=localized-invitee@example.com', $email->login_url );
 	}
 
 	/**

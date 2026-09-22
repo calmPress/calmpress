@@ -45,7 +45,13 @@ class User_Invitation_Email {
 	public function __construct( \WP_User $user, string $site_name, string $login_url ) {
 		$switched_locale = switch_to_user_locale( $user->ID );
 		$site_name       = wp_specialchars_decode( $site_name, ENT_QUOTES );
-		$login_url       = add_query_arg( 'wp_lang', get_user_locale( $user ), $login_url );
+		$login_url       = add_query_arg(
+			[
+				'wp_lang' => get_user_locale( $user ),
+				'email'   => $user->user_email,
+			],
+			$login_url
+		);
 
 		/* translators: %s: Site or network name. */
 		$subject = __( '[%s] User invitation' );
