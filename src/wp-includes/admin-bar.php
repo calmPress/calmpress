@@ -333,7 +333,7 @@ function wp_admin_bar_my_account_menu( $wp_admin_bar ) {
 			[
 				'parent' => 'user-actions',
 				'id'     => 'change-mocked-role',
-				'title'  => esc_html__( 'Change role for this site' ),
+				'title'  => esc_html__( 'Change behavior' ),
 				'href'   => $role_url . '#mock-role-wrap',
 			]
 		);
