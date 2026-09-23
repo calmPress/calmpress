@@ -1,6 +1,49 @@
 <?php
 
 /**
+ * Captures a user account activation email before delivery in authentication tests.
+ *
+ * @since calmPress 1.0.0
+ */
+class Tests_Auth_User_Account_Activated_Email_Mutator implements calmpress\email\User_Account_Activated_Email_Mutator {
+
+	/**
+	 * The captured email.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public ?calmpress\email\User_Account_Activated_Email $email = null;
+
+	/**
+	 * Indicates that this mutator has no ordering dependency.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\observer\Observer $observer Another registered observer.
+	 *
+	 * @return calmpress\observer\Observer_Priority No ordering dependency.
+	 */
+	public function notification_dependency_with( calmpress\observer\Observer $observer ): calmpress\observer\Observer_Priority {
+		return calmpress\observer\Observer_Priority::NONE;
+	}
+
+	/**
+	 * Captures the email and prevents delivery.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\email\User_Account_Activated_Email $email The account activation email.
+	 *
+	 * @throws calmpress\email\Abort_Send_Exception Always prevents delivery.
+	 */
+	public function mutate_by_ref( calmpress\email\User_Account_Activated_Email &$email ): void {
+		$this->email = $email;
+
+		throw new calmpress\email\Abort_Send_Exception();
+	}
+}
+
+/**
  * @group pluggable
  * @group auth
  */
@@ -1150,6 +1193,174 @@ class Tests_Auth extends WP_UnitTestCase {
 
 		$result = wp_authenticate_cookie( null, null, null );
 		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
+	 * Tests that wp_signon() activates a network account without accepting multiple site invitations.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_does_not_accept_pending_site_invitations(): void {
+		$password       = 'pending-network-user-password';
+		$user           = self::factory()->user->create_and_get( [ 'user_pass' => $password ] );
+		$first_site_id  = self::factory()->blog->create();
+		$second_site_id = self::factory()->blog->create();
+		$network        = get_network();
+
+		// Give the account an independent network invitation and two pending site invitations.
+		$user->invite_to_network( $network );
+		$user->invite_to_network_site( get_site( $first_site_id ), 'editor' );
+		$user->invite_to_network_site( get_site( $second_site_id ), 'author' );
+
+		// Authenticate in the context of one invited site.
+		switch_to_blog( $first_site_id );
+		$authenticated_user = wp_signon(
+			[
+				'user_login'    => $user->user_email,
+				'user_password' => $password,
+			]
+		);
+		restore_current_blog();
+
+		// Only network activation occurs; both site invitations remain pending.
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertFalse( $user->has_network_invite( $network ) );
+		$this->assertTrue( $user->is_pending_activation_on_site( get_site( $first_site_id ) ) );
+		$this->assertTrue( $user->is_pending_activation_on_site( get_site( $second_site_id ) ) );
+	}
+
+	/**
+	 * Tests that wp_signon() reports activation of a network-only account once.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_fires_account_activated_action_for_network_invitation(): void {
+		$password          = 'network-invitation-password';
+		$user              = self::factory()->user->create_and_get( [ 'role' => '', 'user_pass' => $password ] );
+		$network           = get_network();
+		$activated_user_id = 0;
+
+		$user->invite_to_network( $network );
+
+		/**
+		 * Records the user whose account was activated.
+		 *
+		 * @since calmPress 1.0.0
+		 *
+		 * @param WP_User $activated_user The newly activated user.
+		 */
+		$record_activation = static function ( WP_User $activated_user ) use ( &$activated_user_id ): void {
+			$activated_user_id = $activated_user->ID;
+		};
+
+		add_action( 'user_account_activated', $record_activation );
+		$authenticated_user = wp_signon( [ 'user_login' => $user->user_email, 'user_password' => $password ] );
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertSame( $user->ID, $activated_user_id );
+		$this->assertFalse( $user->has_network_invite( $network ) );
+
+		// Later authentication must not report another activation.
+		$activated_user_id = 0;
+		$authenticated_user = wp_signon( [ 'user_login' => $user->user_email, 'user_password' => $password ] );
+		remove_action( 'user_account_activated', $record_activation );
+
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertSame( 0, $activated_user_id );
+	}
+
+	/**
+	 * Tests that activating a network-only invitation notifies the network recipient.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_notifies_network_account_activation(): void {
+		$password  = 'network-notification-password';
+		$user      = self::factory()->user->create_and_get( [ 'role' => '', 'user_pass' => $password ] );
+		$network   = get_network();
+		$recipient = get_userdata( (int) get_network_option( $network->id, 'admin_user_id' ) );
+		$mutator   = new Tests_Auth_User_Account_Activated_Email_Mutator();
+
+		$user->invite_to_network( $network );
+
+		calmpress\email\User_Account_Activated_Email::register_mutator( $mutator );
+		try {
+			$authenticated_user = wp_signon( [ 'user_login' => $user->user_email, 'user_password' => $password ] );
+		} finally {
+			calmpress\email\User_Account_Activated_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertInstanceOf( calmpress\email\User_Account_Activated_Email::class, $mutator->email );
+		$this->assertSame( $recipient->ID, $mutator->email->user->ID );
+		$this->assertSame( $user->ID, $mutator->email->activated_user->ID );
+		$this->assertSame( $network, $mutator->email->context );
+	}
+
+	/**
+	 * Tests that wp_signon() accepts the only site invitation for a newly activated account.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_accepts_only_site_invitation_for_new_account(): void {
+		$password = 'single-site-invitation-password';
+		$user     = self::factory()->user->create_and_get( [ 'user_pass' => $password ] );
+		$site     = get_site( self::factory()->blog->create() );
+		$network  = get_network();
+
+		$user->invite_to_network( $network );
+		$user->invite_to_network_site( $site, 'editor' );
+
+		switch_to_blog( (int) $site->blog_id );
+		$authenticated_user = wp_signon( [ 'user_login' => $user->user_email, 'user_password' => $password ] );
+		restore_current_blog();
+
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertFalse( $user->has_network_invite( $network ) );
+		$this->assertSame( [ 'editor' ], ( new WP_User( $user->ID, '', (int) $site->blog_id ) )->roles );
+		$this->assertTrue( is_user_member_of_blog( $user->ID, (int) $site->blog_id ) );
+	}
+
+	/**
+	 * Tests that a site-invited account activation does not notify the network recipient.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @group ms-required
+	 * @covers ::wp_signon
+	 */
+	public function test_wp_signon_does_not_notify_network_account_activation_for_site_invitation(): void {
+		$password = 'site-invitation-notification-password';
+		$user     = self::factory()->user->create_and_get( [ 'user_pass' => $password ] );
+		$site     = get_site( self::factory()->blog->create() );
+		$network  = get_network();
+		$mutator  = new Tests_Auth_User_Account_Activated_Email_Mutator();
+
+		$user->invite_to_network( $network );
+		$user->invite_to_network_site( $site, 'editor' );
+
+		calmpress\email\User_Account_Activated_Email::register_mutator( $mutator );
+		try {
+			switch_to_blog( (int) $site->blog_id );
+			$authenticated_user = wp_signon( [ 'user_login' => $user->user_email, 'user_password' => $password ] );
+			restore_current_blog();
+		} finally {
+			calmpress\email\User_Account_Activated_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertNotWPError( $authenticated_user );
+		$this->assertNull( $mutator->email );
 	}
 
 	/**

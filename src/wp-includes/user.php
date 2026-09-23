@@ -168,16 +168,19 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 		if ( $user->has_network_invite( $network ) ) {
 			$user->mark_network_invite_as_accepted( $network );
 
-			// Automatically accept a site invitation only when the activating account has one choice.
-
 			$pending_sites = $user->sites_pending_activation( $network );
+
+			// Automatically accept a site invitation only when the activating account has one choice.
 			if ( 1 === count( $pending_sites ) ) {
 				$user->accept_site_invitation( $pending_sites[0] );
 			}
 
-			$recipient    = $network->system_notification_recipient();
-			$notification = new calmpress\email\User_Account_Activated_Email( $recipient, $user, $network );
-			$notification->send();
+			// Network administrators are notified only about accounts invited directly to the network.
+			if ( [] === $pending_sites ) {
+				$recipient    = $network->system_notification_recipient();
+				$notification = new calmpress\email\User_Account_Activated_Email( $recipient, $user, $network );
+				$notification->send();
+			}
 
 			/** This action is documented above. */
 			do_action( 'user_account_activated', $user );
