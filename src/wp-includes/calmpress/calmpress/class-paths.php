@@ -157,7 +157,6 @@ class Paths {
 	public function core_root_file_names() : array{
 		return [
 			'index.php',
-			'wp-activate.php',
 			'wp-blog-header.php',
 			'wp-comments-post.php',
 			'wp-cron.php',

@@ -806,7 +806,7 @@ function wp_get_active_and_valid_themes() {
 
 	$themes = array();
 
-	if ( wp_installing() && 'wp-activate.php' !== $pagenow ) {
+	if ( wp_installing() ) {
 		return $themes;
 	}
 

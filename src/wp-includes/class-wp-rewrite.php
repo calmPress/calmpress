@@ -1120,11 +1120,7 @@ class WP_Rewrite {
 		// sitemap.xml -- only if installed at the root.
 		$sitemap_rewrite = ( empty( $home_path['path'] ) || '/' === $home_path['path'] ) ? array( 'sitemap\.xml' => $this->index . '?sitemap=index' ) : array();
 
-		// Registration rules.
 		$registration_pages = array();
-		if ( is_multisite() && is_main_site() ) {
-			$registration_pages['.*wp-activate.php$'] = $this->index . '?activate=true';
-		}
 
 		// Post rewrite rules.
 		$post_rewrite = $this->generate_rewrite_rules( $this->permalink_structure, EP_PERMALINK, true, false );
