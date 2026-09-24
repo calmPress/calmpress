@@ -1603,6 +1603,10 @@ abstract class WP_UnitTestCase_Base extends PHPUnit_Adapter_TestCase {
 	 */
 	public static function delete_user( $user_id ) {
 		if ( is_multisite() ) {
+			if ( ! function_exists( 'wpmu_delete_user' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/ms.php';
+			}
+
 			return wpmu_delete_user( $user_id );
 		}
 

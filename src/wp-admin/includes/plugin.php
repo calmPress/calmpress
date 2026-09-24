@@ -1932,7 +1932,7 @@ function get_admin_page_parent( $parent_page = '' ) {
 
 	// An explicitly selected registered parent takes precedence over filename-based detection.
 	if ( '' !== $parent_file ) {
-		foreach ( $menu as $menu_item ) {
+		foreach ( (array) $menu as $menu_item ) {
 			if ( $parent_file === $menu_item[2] ) {
 				return $parent_file;
 			}
