@@ -75,7 +75,8 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 
 /* translators: %s: User's display name. */
 $title       = sprintf( __( 'Edit User Account %s' ), $user->display_name );
-$parent_file = 'users.php';
+$parent_file  = 'network-edited-user';
+$submenu_file = 'user-edit.php?user_id=' . $user->ID;
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>

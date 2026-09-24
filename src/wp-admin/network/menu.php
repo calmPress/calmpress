@@ -61,6 +61,17 @@ $menu[10]                 = array( __( 'Users' ), 'manage_network_users', 'users
 $submenu['users.php'][5]  = array( __( 'All Users' ), 'manage_network_users', 'users.php' );
 $submenu['users.php'][10] = array( __( 'Add User' ), 'create_users', 'user-new.php' );
 
+// Menu for when a network administrator is viewing a specific user.
+if ( isset( $_GET['user_id'] ) && is_string( $_GET['user_id'] ) && $_GET['user_id'] == (int) $_GET['user_id'] && 0 < (int) $_GET['user_id'] ) {
+	$edited_user = get_userdata( (int) $_GET['user_id'] );
+	if ( $edited_user && current_user_can( 'manage_network_users' ) && get_network()->has_user( $edited_user ) ) {
+		/* translators: %s: User display name. */
+		$menu[12] = array( sprintf( __( 'User: %s' ), $edited_user->display_name ), 'manage_network_users', 'network-edited-user', '', 'menu-top menu-icon-users', 'menu-network-edited-user', 'dashicons-admin-users' );
+		$submenu['network-edited-user'][5]  = array( __( 'Account' ), 'manage_network_users', 'user-edit.php?user_id=' . $edited_user->ID );
+		$submenu['network-edited-user'][10] = array( __( 'Sites' ), 'manage_network_users', 'user-sites.php?user_id=' . $edited_user->ID );
+	}
+}
+
 if ( current_user_can( 'update_themes' ) && $update_data['counts']['themes'] ) {
 	$menu[15] = array(
 		sprintf(
@@ -125,7 +136,7 @@ unset( $update_data );
 
 $menu[90]                  = array( __( 'My Profile' ), 'exist', 'profile.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
 $submenu['profile.php'][5]  = array( __( 'Account' ), 'exist', 'profile.php' );
-$submenu['profile.php'][10] = array( __( 'Sites' ), 'exist', user_admin_url( 'sites.php' ) );
+$submenu['profile.php'][10] = array( __( 'Sites' ), 'exist', 'profile-sites.php' );
 $submenu['profile.php'][20] = array( __( 'Device Login' ), 'exist', 'webauthn.php' );
 if ( wp_is_application_passwords_available_for_user( get_current_user_id() ) ) {
 	$submenu['profile.php'][50] = array( __( 'Application Passwords' ), 'exist', 'application-passwords.php' );

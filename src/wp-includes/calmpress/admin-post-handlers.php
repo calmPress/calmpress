@@ -171,11 +171,15 @@ function handle_site_invitation_response(): void {
 	}
 
 	$user->decline_site_invitation( $site );
+	$sites_url = isset( $_POST['return_to_network_admin'] ) && '1' === $_POST['return_to_network_admin'] && current_user_can( 'manage_network' )
+		? network_admin_url( 'profile-sites.php' )
+		: user_admin_url( 'sites.php' );
+
 	wp_safe_redirect(
 		add_query_arg(
 			'invitation',
 			'declined',
-			user_admin_url( 'sites.php' )
+			$sites_url
 		)
 	);
 	exit;

@@ -1930,6 +1930,15 @@ function get_admin_page_parent( $parent_page = '' ) {
 	global $parent_file, $menu, $submenu, $pagenow, $typenow,
 		$plugin_page, $_wp_real_parent_file, $_wp_menu_nopriv, $_wp_submenu_nopriv;
 
+	// An explicitly selected registered parent takes precedence over filename-based detection.
+	if ( '' !== $parent_file ) {
+		foreach ( $menu as $menu_item ) {
+			if ( $parent_file === $menu_item[2] ) {
+				return $parent_file;
+			}
+		}
+	}
+
 	if ( ! empty( $parent_page ) && 'admin.php' !== $parent_page ) {
 		if ( isset( $_wp_real_parent_file[ $parent_page ] ) ) {
 			$parent_page = $_wp_real_parent_file[ $parent_page ];

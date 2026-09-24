@@ -7,8 +7,10 @@
  * @since calmPress 1.0.0
  */
 
-/** Load the User Administration bootstrap. */
-require_once __DIR__ . '/admin.php';
+if ( ! defined( 'WP_NETWORK_ADMIN' ) ) {
+	/** Load the User Administration bootstrap. */
+	require_once __DIR__ . '/admin.php';
+}
 
 if ( ! is_multisite() ) {
 	wp_die(
@@ -24,8 +26,9 @@ $network = get_network();
 $pending_sites = $user->sites_pending_activation( $network );
 $sites         = $user->sites();
 
-$title       = __( 'My Sites' );
-$parent_file = 'sites.php';
+$title        = __( 'My Sites' );
+$parent_file  = is_network_admin() ? 'profile.php' : 'user-edit.php';
+$submenu_file = is_network_admin() ? 'profile-sites.php' : 'sites.php';
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
@@ -87,10 +90,13 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 										<button type="submit" class="button-link"><?php esc_html_e( 'Accept' ); ?></button>
 									</form>
 									<span aria-hidden="true"> | </span>
-									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-										<input type="hidden" name="site_id" value="<?php echo esc_attr( $site_id ); ?>">
-										<input type="hidden" name="action" value="decline_site_invitation">
-										<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( "user-site-invitation-decline-$site_id" ) ); ?>">
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="site_id" value="<?php echo esc_attr( $site_id ); ?>">
+						<input type="hidden" name="action" value="decline_site_invitation">
+						<?php if ( is_network_admin() ) { ?>
+							<input type="hidden" name="return_to_network_admin" value="1">
+						<?php } ?>
+						<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( "user-site-invitation-decline-$site_id" ) ); ?>">
 										<button type="submit" class="button-link delete"><?php esc_html_e( 'Decline' ); ?></button>
 									</form>
 								</div>

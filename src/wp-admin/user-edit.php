@@ -26,6 +26,16 @@ if ( ! $profile_user || ! $profile_user->can_login() ) {
 	wp_die( __( 'Invalid user ID.' ) );
 }
 
+// Site administrators may change only information associated with the current site.
+if ( is_multisite() && ! is_network_admin() && $profile_user->ID !== $current_user->ID ) {
+	if ( is_user_member_of_blog( $profile_user->ID ) && current_user_can( 'promote_user', $profile_user->ID ) ) {
+		wp_safe_redirect( add_query_arg( 'user_id', $profile_user->ID, admin_url( 'site-profile.php' ) ) );
+		exit;
+	}
+
+	wp_die( 'You are not allowed to edit this user account.', '', [ 'response' => 403 ] );
+}
+
 if ( ! is_multisite() && in_array( 'pending_activation', $profile_user->roles, true ) ) {
 	require ABSPATH . 'wp-admin/user-edit-pending-activation.php';
 	return;
@@ -50,7 +60,8 @@ if ( IS_PROFILE_PAGE ) {
 }
 
 if ( ! IS_PROFILE_PAGE ) {
-	$parent_file = 'edited-user';
+	$parent_file  = is_network_admin() ? 'network-edited-user' : 'edited-user';
+	$submenu_file = 'user-edit.php?user_id=' . $user_id;
 } else {
 	$parent_file = 'my-profile';
 }
@@ -524,16 +535,24 @@ switch ( $action ) {
 						</td>
 					</tr>
 					<?php endif; ?>
-					<?php if ( ! IS_PROFILE_PAGE && ! is_network_admin() && current_user_can( 'promote_user', $profile_user->ID ) ) {
+					<?php
+					if (
+						! IS_PROFILE_PAGE
+						&& ! is_network_admin()
+						&& get_current_user_id() !== $profile_user->ID
+						&& current_user_can( 'promote_user', $profile_user->ID )
+					) {
 						$activation_label = '';
 						$roles            = $profile_user->roles;
+						$can_change_role  = ! $profile_user->is_system_notification_recipient( calmpress\site\Site::current() );
 						if ( in_array( 'pending_activation', $profile_user->roles, true ) ) {
 							$activation_label = ' ' . esc_html__( '(when activated)' );
-							$roles            = [ get_user_meta( $profile_user->ID, 'activate_to_role', true ) ];
+							$roles            = [ $profile_user->role_after_activation() ];
 						}
 					?>
 					<tr class="user-role-wrap"><th><label for="role"><?php esc_html_e( 'Role' ) . $activation_label; ?></label></th>
 						<td>
+							<?php if ( $can_change_role ) { ?>
 							<select name="role" id="role">
 								<?php
 									// Compare user role against currently editable roles.
@@ -543,21 +562,31 @@ switch ( $action ) {
 									// Print the full list of roles with the primary one selected.
 									wp_dropdown_roles( $user_role );
 
-									// Print the 'no role' option. Make it selected if the user has no role yet.
-									if ( $user_role ) {
-										echo '<option value="">' . __( '&mdash; No role for this site &mdash;' ) . '</option>';
-									} else {
-										echo '<option value="" selected="selected">' . __( '&mdash; No role for this site &mdash;' ) . '</option>';
+									// A network user may exist without having a role on this site.
+									if ( is_multisite() ) {
+										if ( $user_role ) {
+											echo '<option value="">' . __( '&mdash; No role for this site &mdash;' ) . '</option>';
+										} else {
+											echo '<option value="" selected="selected">' . __( '&mdash; No role for this site &mdash;' ) . '</option>';
+										}
 									}
 									?>
 							</select>
+							<?php } else { ?>
+								<?php echo esc_html( translate_user_role( 'Administrator' ) ); ?>
+								<p class="description"><?php esc_html_e( 'The user receiving system notifications cannot be demoted.' ); ?></p>
+							<?php } ?>
 						</td>
 					</tr>
 
 					<?php
 					} // End User roles.
 
-					if ( ! is_multisite() && array_intersect( [ 'administrator', 'editor' ], $profile_user->roles ) ) {
+					if (
+						! is_multisite()
+						&& get_current_user_id() === $profile_user->ID
+						&& array_intersect( [ 'administrator', 'editor' ], $profile_user->roles )
+					) {
 						?>
 					<tr id="mock-role-wrap" class="user-mock-role-wrap"><th><label for="mock-role"><?php esc_html_e( 'Behave as' ); ?></label></th>
 						<td>
@@ -636,7 +665,7 @@ switch ( $action ) {
 					<tr class="user-display-name-wrap">
 						<th><label for="display_name"><?php esc_html_e( 'Display name publicly as' ); ?></label></th>
 						<td>
-							<input type="text" class="regular-text" name="display_name" id="display_name" value="<?php echo esc_attr( $profile_user->display_name ); ?>"<?php if ( current_user_can( 'upload_files' ) ) : ?> data-text-based-avatar-preview="avatar_text_preview" data-text-based-avatar-color-factor="<?php echo esc_attr( $profile_user->user_email ); ?>"<?php endif; ?>>
+							<input type="text" class="regular-text" name="display_name" id="display_name" value="<?php echo esc_attr( $profile_user->display_name ); ?>" data-text-based-avatar-preview="avatar_text_preview" data-text-based-avatar-color-factor="<?php echo esc_attr( $profile_user->user_email ); ?>">
 							<p class="description">
 								<?php esc_html_e( 'The name which will be used to identify you in the admin and at public contexts like comments.' ); ?>
 							</p>
@@ -648,7 +677,6 @@ switch ( $action ) {
 						<p class="description"><?php _e( 'Some information about yourself.' ); ?></p></td>
 					</tr>
 
-					<?php if ( current_user_can( 'upload_files' ) ) : ?>
 					<tr class="user-avatar-image">
 						<th><?php esc_html_e( 'Avatar image' ); ?></th>
 						<td>
@@ -691,7 +719,9 @@ switch ( $action ) {
 									if ( ! $avatar->attachment() ) {
 										$disabled = ' disabled=""';
 									}
-									echo '<button type="button" class="button" id="select_avatar_image" style="margin:0 5px">' . esc_html__( 'Use a Different Image' ) . '</button>';
+									if ( current_user_can( 'upload_files' ) ) {
+										echo '<button type="button" class="button" id="select_avatar_image" style="margin:0 5px">' . esc_html__( 'Use a Different Image' ) . '</button>';
+									}
 									echo '<button type="button" class="button" id="revert_avatar_image"' . $disabled . '>' . esc_html__( 'Revert to the Site`s Default' ) . '</button>';
 									?>
 								</div>
@@ -701,7 +731,6 @@ switch ( $action ) {
 							</div>
 						</td>
 					</tr>
-					<?php endif; ?>
 				</table>
 				<?php
 				ob_start();

@@ -38,8 +38,8 @@ foreach ( $user->sites() as $site ) {
 
 /* translators: %s: User display name. */
 $title        = sprintf( __( 'Sites for %s' ), $user->display_name );
-$parent_file  = 'users.php';
-$submenu_file = 'users.php';
+$parent_file  = 'network-edited-user';
+$submenu_file = 'user-sites.php?user_id=' . $user->ID;
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>

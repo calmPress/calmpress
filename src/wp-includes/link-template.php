@@ -1480,19 +1480,31 @@ function edit_comment_link( $text = null, $before = '', $after = '' ) {
 }
 
 /**
- * Retrieves the edit user link.
+ * The URL for editing a user in the current administration context.
+ *
+ * For the current user, the URL targets their account profile. On a site in a
+ * network, the URL for another site member targets that user's site-specific
+ * profile. In other contexts, it targets the user's account editor in the
+ * current administration area.
  *
  * @since 3.5.0
+ * @since calmPress 1.0.0 Directs network-site user editing to the site-specific profile.
  *
  * @param int $user_id Optional. User ID. Defaults to the current user.
- * @return string URL to edit user page or empty string.
+ *
+ * @return string The appropriate user-editing URL, or an empty string when the
+ *                user does not exist or the current user cannot edit it.
  */
 function get_edit_user_link( $user_id = null ) {
 	if ( ! $user_id ) {
 		$user_id = get_current_user_id();
 	}
 
-	if ( empty( $user_id ) || ! current_user_can( 'edit_user', $user_id ) ) {
+	$can_edit_site_profile = is_multisite()
+		&& ! is_network_admin()
+		&& is_user_member_of_blog( $user_id )
+		&& current_user_can( 'promote_user', $user_id );
+	if ( empty( $user_id ) || ( ! current_user_can( 'edit_user', $user_id ) && ! $can_edit_site_profile ) ) {
 		return '';
 	}
 
@@ -1504,6 +1516,8 @@ function get_edit_user_link( $user_id = null ) {
 
 	if ( get_current_user_id() === $user->ID ) {
 		$link = get_edit_profile_url( $user->ID );
+	} elseif ( $can_edit_site_profile ) {
+		$link = add_query_arg( 'user_id', $user->ID, admin_url( 'site-profile.php' ) );
 	} else {
 		$link = add_query_arg( 'user_id', $user->ID, self_admin_url( 'user-edit.php' ) );
 	}

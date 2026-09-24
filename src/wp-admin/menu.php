@@ -270,14 +270,20 @@ if ( current_user_can( 'list_users' ) ) {
 	}
 }
 
-// Menu for when admin is editing a user.
-if ( array_key_exists( 'user_id', $_GET ) && current_user_can( 'edit_user', $_GET['user_id'] ) ) {
-	$user_id  = intval( $_GET['user_id'] );
-	$display_name = get_userdata( $user_id)->display_name;
+// Menu for when an administrator is editing a user in the current site context.
+if ( array_key_exists( 'user_id', $_GET ) && ( current_user_can( 'edit_user', $_GET['user_id'] ) || ( is_multisite() && current_user_can( 'promote_user', $_GET['user_id'] ) ) ) ) {
+	$user_id      = intval( $_GET['user_id'] );
+	$edited_user  = get_userdata( $user_id );
+	$display_name = $edited_user->display_name;
 	/* translators: %s is the display name of the user being edited */
 	$top_menu_label = sprintf( 'User: %s', $display_name );
-	$menu[71] = array( $top_menu_label, 'edited-user', 'user-edit.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
-		$submenu['edited-user'][5] = array( __( 'Account' ), 'edited-user', 'user-edit.php?user_id=' . $user_id );
+	if ( is_multisite() ) {
+		$menu[71] = array( $top_menu_label, 'read', 'edited-user', '', 'menu-top menu-icon-users', 'menu-edited-user', 'dashicons-admin-users' );
+		$submenu['edited-user'][5] = array( __( 'This Site' ), 'read', 'site-profile.php?user_id=' . $user_id );
+	} else {
+		$menu[71] = array( $top_menu_label, 'read', 'edited-user', '', 'menu-top menu-icon-users', 'menu-edited-user', 'dashicons-admin-users' );
+		$submenu['edited-user'][5] = array( __( 'Account' ), 'read', 'user-edit.php?user_id=' . $user_id );
+	}
 }
 
 $menu[75]                     = array( __( 'Tools' ), 'tools_menu', 'tools.php', '', 'menu-top menu-icon-tools', 'menu-tools', 'dashicons-admin-tools' );
@@ -337,18 +343,18 @@ $menu[85]                       = array( __( 'Backups' ), 'backup', 'backups.php
 $_wp_last_utility_menu = 90; // The index of the last top-level menu in the utility menu group.
 
 // Try to keep the profile menu as the last admin menu.
-$menu[900] = array( __( 'My Profile' ), 'read', 'my-profile', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
+$menu[900] = array( __( 'My Profile' ), 'read', 'my-profile', '', 'menu-top menu-icon-users', 'menu-my-profile', 'dashicons-admin-users' );
 	if ( is_multisite() ) {
-		$submenu['my-profile'][5]  = array( __( 'Account' ), 'read', 'user-edit.php' );
+		$submenu['my-profile'][5]  = array( __( 'Account' ), 'read', 'profile.php' );
+		$submenu['my-profile'][10] = array( __( 'This Site' ), 'read', 'site-profile.php' );
 
 		// The Sites screen is useful when there are other sites to visit or invitations to answer.
 		$user = wp_get_current_user();
 		if ( count( $user->sites() ) > 1 || [] !== $user->sites_pending_activation( get_network() ) ) {
-			$submenu['my-profile'][10] = array( __( 'Sites' ), 'read', user_admin_url( 'sites.php' ) );
+			$submenu['my-profile'][15] = array( __( 'Sites' ), 'read', user_admin_url( 'sites.php' ) );
 		}
-		$submenu['my-profile'][15] = array( __( 'This Site' ), 'read', 'site-profile.php' );
 	} else {
-		$submenu['my-profile'][5] = array( __( 'Account' ), 'read', 'user-edit.php' );
+		$submenu['my-profile'][5] = array( __( 'Account' ), 'read', 'profile.php' );
 	}
 	$submenu['my-profile'][20] = array( __( 'Device Login' ), 'read', 'webauthn.php' );
 	if ( wp_is_application_passwords_available_for_user( get_current_user_id() ) ) {

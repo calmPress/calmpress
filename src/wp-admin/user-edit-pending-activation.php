@@ -57,11 +57,10 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 		$email_changed = $email_address->address !== $user->user_email;
 		$result        = wp_update_user(
 			[
-				'ID'               => $user->ID,
-				'user_email'       => $email_address->address,
-				'display_name'     => $display_name,
-				'activate_to_role' => $role,
-				'locale'           => 'site-default' === $locale ? '' : $locale,
+				'ID'           => $user->ID,
+				'user_email'   => $email_address->address,
+				'display_name' => $display_name,
+				'locale'       => 'site-default' === $locale ? '' : $locale,
 			]
 		);
 
@@ -69,6 +68,7 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 			$errors = $result;
 		} else {
 			$user = get_userdata( $result );
+			$user->set_role_after_activation( $role );
 
 			if ( $email_changed ) {
 				$invitation_email = new calmpress\email\User_Invitation_Email(
@@ -144,7 +144,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 				<th scope="row"><label for="role"><?php esc_html_e( 'Role' ); ?></label></th>
 				<td>
 					<select name="role" id="role">
-						<?php wp_dropdown_roles( get_user_meta( $user->ID, 'activate_to_role', true ) ); ?>
+						<?php wp_dropdown_roles( $user->role_after_activation() ); ?>
 					</select>
 					<p class="description"><?php esc_html_e( 'The role assigned when the user activates the account.' ); ?></p>
 				</td>

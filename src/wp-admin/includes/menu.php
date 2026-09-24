@@ -6,6 +6,14 @@
  * @subpackage Administration
  */
 
+/**
+ * Menu definitions are populated by the administration context that includes this file.
+ *
+ * @global array $menu    Top-level administration menu items.
+ * @global array $submenu Administration submenu items grouped by parent slug.
+ */
+global $menu, $submenu;
+
 if ( is_network_admin() ) {
 
 	/**
@@ -97,6 +105,7 @@ unset( $sub, $parent );
  * Menus for which the original parent is not accessible due to lack of privileges
  * will have the next submenu in line be assigned as the new menu parent.
  */
+$stable_parent_slugs = [ 'edited-user', 'my-profile', 'network-edited-user' ];
 foreach ( $menu as $id => $data ) {
 	if ( empty( $submenu[ $data[2] ] ) ) {
 		continue;
@@ -109,9 +118,10 @@ foreach ( $menu as $id => $data ) {
 
 	/*
 	 * If the first submenu is not the same as the assigned parent,
-	 * make the first submenu the new parent.
+	 * make the first submenu the new parent. Contextual user menus retain stable
+	 * internal parents instead of using their first child's URL.
 	 */
-	if ( $new_parent !== $old_parent ) {
+	if ( $new_parent !== $old_parent && ! in_array( $old_parent, $stable_parent_slugs, true ) ) {
 		$_wp_real_parent_file[ $old_parent ] = $new_parent;
 
 		$menu[ $id ][2] = $new_parent;
@@ -127,7 +137,7 @@ foreach ( $menu as $id => $data ) {
 		}
 	}
 }
-unset( $id, $data, $subs, $first_sub, $old_parent, $new_parent );
+unset( $id, $data, $subs, $first_sub, $old_parent, $new_parent, $stable_parent_slugs );
 
 if ( is_network_admin() ) {
 

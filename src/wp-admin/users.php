@@ -115,16 +115,18 @@ switch ( $wp_list_table->current_action() ) {
 		$editable_roles = get_editable_roles();
 		$role           = $_REQUEST['new_role'];
 
-		// Mock `none` as editable role.
-		$editable_roles['none'] = array(
-			'name' => __( '&mdash; No role for this site &mdash;' ),
-		);
+		if ( is_multisite() ) {
+			// A network user may be removed from this site without deleting their account.
+			$editable_roles['none'] = array(
+				'name' => __( '&mdash; No role for this site &mdash;' ),
+			);
+		}
 
 		if ( ! $role || empty( $editable_roles[ $role ] ) ) {
 			wp_die( __( 'Sorry, you are not allowed to give users that role.' ), 403 );
 		}
 
-		if ( 'none' === $role ) {
+		if ( is_multisite() && 'none' === $role ) {
 			$role = '';
 		}
 
@@ -158,7 +160,7 @@ switch ( $wp_list_table->current_action() ) {
 
 			if ( in_array( 'pending_activation', $user->roles, true ) ) {
 				// Keep the user pending and change the role assigned after activation.
-				update_user_meta( $id, 'activate_to_role', $role );
+				$user->set_role_after_activation( $role );
 			} else {
 				// If $role is empty, none will be set.
 				$user->set_role( $role );

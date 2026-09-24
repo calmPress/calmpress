@@ -127,7 +127,7 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 	// On a standalone site, first authentication replaces the pending role with
 	// the intended role. Network site invitations remain pending until accepted.
 	if ( ! is_multisite() && in_array( 'pending_activation', $user->roles, true ) ) {
-		$role = get_user_meta( $user->ID, 'activate_to_role', true );
+		$role = $user->role_after_activation();
 		if ( $role ) {
 			$user->set_role( $role );
 		} else {
@@ -145,7 +145,7 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 			$user->set_role( 'subscriber' );
 		}
 
-		delete_user_meta( $user->ID, 'activate_to_role' );
+		$user->remove_role_after_activation();
 
 		$site         = calmpress\site\Site::current();
 		$recipient    = $site->system_notification_recipient();

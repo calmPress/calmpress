@@ -932,6 +932,59 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * The role to assign when the user's account is activated.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string The intended role, or an empty string when none is configured.
+	 *
+	 * @throws LogicException If the user is not pending activation.
+	 */
+	public function role_after_activation(): string {
+		if ( ! in_array( 'pending_activation', $this->roles, true ) ) {
+			throw new LogicException( 'A role after activation can be read only for a user pending activation.' );
+		}
+
+		$role = get_user_meta( $this->ID, 'activate_to_role', true );
+
+		return is_string( $role ) ? $role : '';
+	}
+
+	/**
+	 * Set the role to assign when the user's account is activated.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param string $role Intended role.
+	 *
+	 * @throws LogicException If the user is not pending activation.
+	 * @throws InvalidArgumentException If the role does not exist.
+	 * @throws RuntimeException If the intended role cannot be stored.
+	 */
+	public function set_role_after_activation( string $role ): void {
+		if ( ! in_array( 'pending_activation', $this->roles, true ) ) {
+			throw new LogicException( 'A role after activation can be set only for a user pending activation.' );
+		}
+
+		if ( ! wp_roles()->is_role( $role ) ) {
+			throw new InvalidArgumentException( sprintf( 'The role "%s" does not exist.', $role ) );
+		}
+
+		if ( $role !== $this->role_after_activation() && ! update_user_meta( $this->ID, 'activate_to_role', $role ) ) {
+			throw new RuntimeException( 'The role to assign after activation could not be stored.' );
+		}
+	}
+
+	/**
+	 * Remove the role configured for assignment after activation.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function remove_role_after_activation(): void {
+		delete_user_meta( $this->ID, 'activate_to_role' );
+	}
+
+	/**
 	 * Retrieves the sites on which the user has been assigned capabilities.
 	 *
 	 * @since calmPress 1.0.0

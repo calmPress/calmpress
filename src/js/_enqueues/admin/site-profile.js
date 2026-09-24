@@ -14,11 +14,11 @@ function control_site_profile_page() {
 	const can_upload_avatar_images = site_profile_settings.can_upload_avatar_images;
 	const display_name_override = document.getElementById( 'override_display_name' );
 	const display_name = document.getElementById( 'display_name' );
-	const avatar_source = can_upload_avatar_images ? document.getElementById( 'avatar_source' ) : null;
-	const account_avatar_option = can_upload_avatar_images ? avatar_source.querySelector( 'option[value="account"]' ) : null;
-	const account_avatar = can_upload_avatar_images ? document.getElementById( 'account_avatar_preview' ) : null;
-	const generated_avatar = can_upload_avatar_images ? document.getElementById( 'generated_avatar_preview' ) : null;
-	const site_avatar = can_upload_avatar_images ? document.getElementById( 'site_avatar_preview' ) : null;
+	const avatar_source = document.getElementById( 'avatar_source' );
+	const account_avatar_option = avatar_source.querySelector( 'option[value="account"]' );
+	const account_avatar = document.getElementById( 'account_avatar_preview' );
+	const generated_avatar = document.getElementById( 'generated_avatar_preview' );
+	const site_avatar = document.getElementById( 'site_avatar_preview' );
 	const select_avatar = can_upload_avatar_images ? document.getElementById( 'select_avatar_image' ) : null;
 	const form = display_name.closest( 'form' );
 	const submit_button = document.getElementById( 'submit' );
@@ -26,9 +26,7 @@ function control_site_profile_page() {
 	// Connect the page controls and apply their initial state.
 	display_name_override.addEventListener( 'change', update_display_name_field );
 	display_name.addEventListener( 'input', update_display_name_validity );
-	if ( can_upload_avatar_images ) {
-		avatar_source.addEventListener( 'change', update_avatar_fields );
-	}
+	avatar_source.addEventListener( 'change', update_avatar_fields );
 	form.addEventListener( 'submit', validate_form );
 	update_display_name_validity();
 	update_avatar_source_availability();
@@ -65,10 +63,6 @@ function control_site_profile_page() {
 	 * @since 1.0.0
 	 */
 	function update_avatar_source_availability() {
-		if ( ! can_upload_avatar_images ) {
-			return;
-		}
-
 		account_avatar_option.disabled = display_name_override.checked;
 		if ( display_name_override.checked && 'account' === avatar_source.value ) {
 			avatar_source.value = 'generated';
@@ -121,7 +115,9 @@ function control_site_profile_page() {
 		generated_avatar.style.display = 'generated' === avatar_source.value ? '' : 'none';
 		site_avatar.hidden = 'image' !== avatar_source.value;
 		site_avatar.style.display = 'image' === avatar_source.value ? '' : 'none';
-		select_avatar.disabled = 'image' !== avatar_source.value;
+		if ( select_avatar ) {
+			select_avatar.disabled = 'image' !== avatar_source.value;
+		}
 	}
 
 }

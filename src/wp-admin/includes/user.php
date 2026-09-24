@@ -34,6 +34,7 @@ function edit_user( $user_id = 0 ) {
 	$user          = new stdClass();
 	$user_id       = (int) $user_id;
 	$intended_role = '';
+	$userdata      = null;
 	if ( $user_id ) {
 		$update           = true;
 		$user->ID         = $user_id;
@@ -60,7 +61,13 @@ function edit_user( $user_id = 0 ) {
 		$pass2 = trim( $_POST['pass2'] );
 	}
 
-	if ( isset( $_POST['role'] ) && current_user_can( 'promote_users' ) && ( ! $user_id || current_user_can( 'promote_user', $user_id ) ) ) {
+	if (
+		isset( $_POST['role'] )
+		&& current_user_can( 'promote_users' )
+		&& ( ! $update || get_current_user_id() !== $user_id )
+		&& ( ! $user_id || current_user_can( 'promote_user', $user_id ) )
+		&& ( ! $update || ! $userdata->is_system_notification_recipient( calmpress\site\Site::current() ) )
+	) {
 		$new_role = sanitize_text_field( $_POST['role'] );
 
 		// If the new role isn't editable by the logged-in user die with error.
@@ -147,20 +154,31 @@ function edit_user( $user_id = 0 ) {
 		$avatar_attachment_id = wp_unslash( $_POST['calm_avatar_image_attachement_id'] );
 		$avatar_attachment_id = filter_var( $avatar_attachment_id, FILTER_VALIDATE_INT );
 		if ( false !== $avatar_attachment_id ) {
-			$wp_user = new \WP_User( $user_id );
-			if ( 0 === $avatar_attachment_id ) {
-				$wp_user->remove_avatar();
-			} elseif ( current_user_can( 'upload_files') ) {
-				$wp_user->set_avatar( get_post( $avatar_attachment_id ) );
-			} else {
-				$errors->add( 'can_not_set_avatar', __( '<strong>Error</strong>: You do not have the permission to set avatars.' ) );
+			$wp_user                      = new \WP_User( $user_id );
+			$current_avatar_attachment    = $wp_user->avatar()->attachment();
+			$current_avatar_attachment_id = $current_avatar_attachment ? $current_avatar_attachment->ID : 0;
+
+			// Keeping the currently assigned image does not require permission to select a new image.
+			if ( $avatar_attachment_id !== $current_avatar_attachment_id ) {
+				if ( 0 === $avatar_attachment_id ) {
+					$wp_user->remove_avatar();
+				} elseif ( current_user_can( 'upload_files' ) ) {
+					$wp_user->set_avatar( get_post( $avatar_attachment_id ) );
+				} else {
+					$errors->add( 'can_not_set_avatar', __( 'You do not have permission to set avatars.' ) );
+				}
 			}
 		} else {
-			$errors->add( 'can_not_set_avatar', __( '<strong>Error</strong>: Failed setting the avatar.' ) );
+			$errors->add( 'can_not_set_avatar', __( 'The avatar could not be updated.' ) );
 		}
 	}
 
-	if ( $update && ! is_multisite() && isset( $_POST['mock_role'] ) ) {
+	if (
+		$update
+		&& ! is_multisite()
+		&& get_current_user_id() === $user_id
+		&& isset( $_POST['mock_role'] )
+	) {
 		$mock_role = wp_unslash( $_POST['mock_role'] );
 		if ( ! in_array( $mock_role, [ 'editor', 'author' ], true ) ) {
 			$mock_role = '';

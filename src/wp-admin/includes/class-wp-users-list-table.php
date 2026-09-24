@@ -272,7 +272,9 @@ class WP_Users_List_Table extends WP_List_Table {
 		<select name="<?php echo $id; ?>" id="<?php echo $id; ?>">
 			<option value=""><?php _e( 'Change role to&hellip;' ); ?></option>
 			<?php wp_dropdown_roles(); ?>
+			<?php if ( is_multisite() ) { ?>
 			<option value="none"><?php _e( '&mdash; No role for this site &mdash;' ); ?></option>
+			<?php } ?>
 		</select>
 			<?php
 			submit_button( __( 'Change' ), '', $button_id, false );
@@ -427,6 +429,10 @@ class WP_Users_List_Table extends WP_List_Table {
 			? $user_object->display_name_for_site( calmpress\site\Site::current() )
 			: $user_object->display_name;
 
+		$can_edit_user = is_multisite() && ! is_network_admin()
+			? current_user_can( 'promote_user', $user_object->ID )
+			: current_user_can( 'edit_user', $user_object->ID );
+
 		// Check if the user for this row is editable.
 		if ( current_user_can( 'list_users' ) ) {
 			// Set up the user editing link.
@@ -438,7 +444,7 @@ class WP_Users_List_Table extends WP_List_Table {
 				)
 			);
 
-			if ( current_user_can( 'edit_user',  $user_object->ID ) ) {
+			if ( $can_edit_user ) {
 				$edit = "<strong><a href=\"{$edit_link}\">" . esc_html( $display_name ) . '</a>' . $extended_string . '</strong><br />';
 				$actions['edit'] = '<a href="' . $edit_link . '">' . __( 'Edit' ) . '</a>';
 			} else {
@@ -447,7 +453,7 @@ class WP_Users_List_Table extends WP_List_Table {
 
 			$is_pending_activation = in_array( 'pending_activation', $user_object->roles, true );
 			if ( $is_pending_activation ) {
-				if ( current_user_can( 'edit_user', $user_object->ID ) ) {
+				if ( $can_edit_user ) {
 					$resend_url = wp_nonce_url(
 						"users.php?action=resend-invitation&amp;user=$user_object->ID",
 						'resend-user-invitation-' . $user_object->ID

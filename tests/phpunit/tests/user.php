@@ -2154,6 +2154,103 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that WP_User::role_after_activation() returns an empty string when no role is configured.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_role_after_activation_returns_empty_string_when_not_configured() {
+		$user_id = self::factory()->user->create( [ 'role' => 'pending_activation' ] );
+		$user    = get_userdata( $user_id );
+
+		$this->assertSame( '', $user->role_after_activation() );
+	}
+
+	/**
+	 * Tests that WP_User::role_after_activation() rejects an active user.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_role_after_activation_throws_for_active_user() {
+		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		$user    = get_userdata( $user_id );
+
+		$this->expectException( LogicException::class );
+
+		$user->role_after_activation();
+	}
+
+	/**
+	 * Tests that WP_User::set_role_after_activation() stores the intended role.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_set_role_after_activation_stores_role_for_pending_user() {
+		$user_id = self::factory()->user->create( [ 'role' => 'pending_activation' ] );
+		$user    = get_userdata( $user_id );
+
+		$user->set_role_after_activation( 'editor' );
+
+		$this->assertSame( 'editor', $user->role_after_activation() );
+	}
+
+	/**
+	 * Tests that WP_User::set_role_after_activation() rejects an active user.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_set_role_after_activation_throws_for_active_user() {
+		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		$user    = get_userdata( $user_id );
+
+		$this->expectException( LogicException::class );
+
+		$user->set_role_after_activation( 'editor' );
+	}
+
+	/**
+	 * Tests that WP_User::set_role_after_activation() rejects a role which does not exist.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_set_role_after_activation_throws_for_invalid_role() {
+		$user_id = self::factory()->user->create( [ 'role' => 'pending_activation' ] );
+		$user    = get_userdata( $user_id );
+
+		$this->expectException( InvalidArgumentException::class );
+
+		$user->set_role_after_activation( 'invalid_role' );
+	}
+
+	/**
+	 * Tests that WP_User::remove_role_after_activation() tolerantly clears the intended role.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_remove_role_after_activation_clears_role() {
+		$user_id = self::factory()->user->create( [ 'role' => 'pending_activation' ] );
+		$user    = get_userdata( $user_id );
+
+		$user->set_role_after_activation( 'editor' );
+		$user->remove_role_after_activation();
+
+		$this->assertSame( '', $user->role_after_activation() );
+	}
+
+	/**
+	 * Tests that WP_User::remove_role_after_activation() tolerates an active user.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_remove_role_after_activation_tolerates_active_user() {
+		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		$user    = get_userdata( $user_id );
+
+		$user->remove_role_after_activation();
+
+		$this->assertSame( [ 'subscriber' ], $user->roles );
+	}
+
+	/**
 	 * Testing the `wp_user_personal_data_exporter()` function
 	 * with Session Tokens data.
 	 *
