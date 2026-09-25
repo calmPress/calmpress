@@ -220,6 +220,49 @@ class Tests_User_Account_Activated_Email_Mutator implements calmpress\email\User
 }
 
 /**
+ * Captures a user-left-site email before delivery.
+ *
+ * @since calmPress 1.0.0
+ */
+class Tests_User_Left_Site_Email_Mutator implements calmpress\email\User_Left_Site_Email_Mutator {
+
+	/**
+	 * The captured email.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public ?calmpress\email\User_Left_Site_Email $email = null;
+
+	/**
+	 * Indicates that this mutator has no ordering dependency.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\observer\Observer $observer Another registered observer.
+	 *
+	 * @return calmpress\observer\Observer_Priority No ordering dependency.
+	 */
+	public function notification_dependency_with( calmpress\observer\Observer $observer ): calmpress\observer\Observer_Priority {
+		return calmpress\observer\Observer_Priority::NONE;
+	}
+
+	/**
+	 * Captures the email and prevents delivery.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\email\User_Left_Site_Email $email The user-left-site email.
+	 *
+	 * @throws calmpress\email\Abort_Send_Exception Always prevents delivery.
+	 */
+	public function mutate_by_ref( calmpress\email\User_Left_Site_Email &$email ): void {
+		$this->email = $email;
+
+		throw new calmpress\email\Abort_Send_Exception();
+	}
+}
+
+/**
  * Test functions in wp-includes/user.php
  *
  * @group user
@@ -2279,6 +2322,86 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that WP_User::leave_site() notifies the site's system notification recipient.
+	 *
+	 * @group ms-required
+	 * @since calmPress 1.0.0
+	 */
+	public function test_leave_site_notifies_system_notification_recipient() {
+		$site_id      = self::factory()->blog->create();
+		$user_id      = self::factory()->user->create();
+		$recipient_id = self::factory()->user->create();
+		add_user_to_blog( $site_id, $recipient_id, 'administrator' );
+		add_user_to_blog( $site_id, $user_id, 'subscriber' );
+		update_blog_option( $site_id, 'admin_user_id', $recipient_id );
+		$user    = get_userdata( $user_id );
+		$site    = get_site( $site_id );
+		$mutator = new Tests_User_Left_Site_Email_Mutator();
+
+		calmpress\email\User_Left_Site_Email::register_mutator( $mutator );
+		try {
+			$user->leave_site( $site );
+		} finally {
+			calmpress\email\User_Left_Site_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertInstanceOf( calmpress\email\User_Left_Site_Email::class, $mutator->email );
+		$this->assertSame( $recipient_id, $mutator->email->user->ID );
+		$this->assertSame( $user, $mutator->email->departed_user );
+		$this->assertSame( $site, $mutator->email->site );
+	}
+
+	/**
+	 * Tests that WP_User::leave_site() preserves an account used on another site.
+	 *
+	 * @group ms-required
+	 * @since calmPress 1.0.0
+	 */
+	public function test_leave_site_preserves_account_with_another_site_membership() {
+		$site_id      = self::factory()->blog->create();
+		$user_id      = self::factory()->user->create();
+		$recipient_id = self::factory()->user->create();
+		add_user_to_blog( $site_id, $recipient_id, 'administrator' );
+		add_user_to_blog( $site_id, $user_id, 'subscriber' );
+		update_blog_option( $site_id, 'admin_user_id', $recipient_id );
+		$user    = get_userdata( $user_id );
+		$mutator = new Tests_User_Left_Site_Email_Mutator();
+
+		calmpress\email\User_Left_Site_Email::register_mutator( $mutator );
+		try {
+			$user->leave_site( get_site( $site_id ) );
+		} finally {
+			calmpress\email\User_Left_Site_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertTrue( get_userdata( $user_id )->can_login() );
+		$this->assertContains( get_current_blog_id(), $user->site_ids() );
+	}
+
+	/**
+	 * Tests that WP_User::leave_site() anonymizes an account after its final site membership is removed.
+	 *
+	 * @group ms-required
+	 * @since calmPress 1.0.0
+	 */
+	public function test_leave_site_anonymizes_account_after_final_site_membership() {
+		$recipient_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$user_id      = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		update_option( 'admin_user_id', $recipient_id );
+		$user    = get_userdata( $user_id );
+		$mutator = new Tests_User_Left_Site_Email_Mutator();
+
+		calmpress\email\User_Left_Site_Email::register_mutator( $mutator );
+		try {
+			$user->leave_site( calmpress\site\Site::current() );
+		} finally {
+			calmpress\email\User_Left_Site_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertFalse( get_userdata( $user_id )->can_login() );
+	}
+
+	/**
 	 * Tests that WP_User::leave_site() protects the site's system notification recipient.
 	 *
 	 * @group ms-required
@@ -2294,6 +2417,34 @@ class Tests_User extends WP_UnitTestCase {
 
 		$this->expectException( LogicException::class );
 		$user->leave_site( get_site( $site_id ) );
+	}
+
+	/**
+	 * Tests that WP_User::leave_site() does not send a notification when leaving is refused.
+	 *
+	 * @group ms-required
+	 * @since calmPress 1.0.0
+	 */
+	public function test_leave_site_does_not_notify_when_user_is_system_notification_recipient() {
+		$site_id = self::factory()->blog->create();
+		$user_id = self::factory()->user->create();
+		add_user_to_blog( $site_id, $user_id, 'administrator' );
+		update_blog_option( $site_id, 'admin_user_id', $user_id );
+		$user      = get_userdata( $user_id );
+		$mutator   = new Tests_User_Left_Site_Email_Mutator();
+		$exception = null;
+
+		calmpress\email\User_Left_Site_Email::register_mutator( $mutator );
+		try {
+			$user->leave_site( get_site( $site_id ) );
+		} catch ( LogicException $caught_exception ) {
+			$exception = $caught_exception;
+		} finally {
+			calmpress\email\User_Left_Site_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertInstanceOf( LogicException::class, $exception );
+		$this->assertNull( $mutator->email );
 	}
 
 	/**
@@ -2313,6 +2464,33 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertFalse( $anonymized_user->can_login() );
 		$this->assertNotSame( $user->display_name, $anonymized_user->display_name );
 		$this->assertSame( $user_id, (int) get_post( $post_id )->post_author );
+	}
+
+	/**
+	 * Tests that standalone WP_User::leave_site() sends its notification after anonymization succeeds.
+	 *
+	 * @group ms-excluded
+	 * @since calmPress 1.0.0
+	 */
+	public function test_leave_site_notifies_system_notification_recipient_on_standalone_site() {
+		$recipient_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$user_id      = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		update_option( 'admin_user_id', $recipient_id );
+		$user    = get_userdata( $user_id );
+		$site    = calmpress\site\Site::current();
+		$mutator = new Tests_User_Left_Site_Email_Mutator();
+
+		calmpress\email\User_Left_Site_Email::register_mutator( $mutator );
+		try {
+			$user->leave_site( $site );
+		} finally {
+			calmpress\email\User_Left_Site_Email::remove_mutation_observer( $mutator );
+		}
+
+		$this->assertInstanceOf( calmpress\email\User_Left_Site_Email::class, $mutator->email );
+		$this->assertSame( $recipient_id, $mutator->email->user->ID );
+		$this->assertSame( $user, $mutator->email->departed_user );
+		$this->assertSame( $site, $mutator->email->site );
 	}
 
 	/**

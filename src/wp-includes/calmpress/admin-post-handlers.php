@@ -167,36 +167,7 @@ function handle_leave_site(): void {
 		exit;
 	}
 
-	$notification = new \calmpress\email\User_Left_Site_Email(
-		$site->system_notification_recipient(),
-		$user,
-		$site
-	);
-
 	$user->leave_site( $site );
-
-	if ( is_multisite() ) {
-		$user               = get_userdata( $user->ID );
-		$is_any_super_admin = false;
-		foreach ( get_networks( [ 'number' => 0 ] ) as $network ) {
-			if ( in_array( $user->user_login, get_super_admins( (int) $network->id ), true ) ) {
-				$is_any_super_admin = true;
-				break;
-			}
-		}
-
-		$account_is_needed = [] !== $user->sites()
-			|| $user->has_any_network_invites()
-			|| $user->has_any_site_invites()
-			|| $is_any_super_admin;
-
-		if ( ! $account_is_needed ) {
-			require_once ABSPATH . 'wp-admin/includes/ms.php';
-			wpmu_delete_user( $user->ID );
-		}
-	}
-
-	$notification->send();
 
 	wp_logout();
 	wp_safe_redirect( $redirect_url );

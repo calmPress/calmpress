@@ -1018,8 +1018,9 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 *
 	 * On a standalone installation, leaving anonymizes the account through the
 	 * normal user-deletion lifecycle. On a network, it anonymizes the identity
-	 * displayed on the site and removes only that site's membership; the caller
-	 * can then decide whether the shared account is still needed.
+	 * displayed on the site and removes that site's membership. The shared
+	 * account is also anonymized when no other membership, invitation, or Super
+	 * Admin responsibility requires it.
 	 *
 	 * @since calmPress 1.0.0
 	 *
@@ -1039,11 +1040,19 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 			throw new LogicException( sprintf( 'User %d receives system notifications for site %d.', $this->ID, $site_id ) );
 		}
 
+		$notification = new calmpress\email\User_Left_Site_Email(
+			$site->system_notification_recipient(),
+			$this,
+			$site
+		);
+
 		if ( ! is_multisite() ) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 			if ( ! wp_delete_user( $this->ID ) ) {
 				throw new RuntimeException( sprintf( 'User %d could not leave the standalone site.', $this->ID ) );
 			}
+
+			$notification->send();
 
 			return;
 		}
@@ -1060,6 +1069,26 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 		$result = remove_user_from_blog( $this->ID, $site_id );
 		if ( is_wp_error( $result ) ) {
 			throw new RuntimeException( $result->get_error_message() );
+		}
+
+		$notification->send();
+
+		$is_any_super_admin = false;
+		foreach ( get_networks( [ 'number' => 0 ] ) as $network ) {
+			if ( in_array( $this->user_login, get_super_admins( (int) $network->id ), true ) ) {
+				$is_any_super_admin = true;
+				break;
+			}
+		}
+
+		$account_is_needed = [] !== $this->sites()
+			|| $this->has_any_network_invites()
+			|| $this->has_any_site_invites()
+			|| $is_any_super_admin;
+
+		if ( ! $account_is_needed ) {
+			require_once ABSPATH . 'wp-admin/includes/ms.php';
+			wpmu_delete_user( $this->ID );
 		}
 	}
 
