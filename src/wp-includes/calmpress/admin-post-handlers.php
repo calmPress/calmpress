@@ -167,6 +167,12 @@ function handle_leave_site(): void {
 		exit;
 	}
 
+	$notification = new \calmpress\email\User_Left_Site_Email(
+		$site->system_notification_recipient(),
+		$user,
+		$site
+	);
+
 	$user->leave_site( $site );
 
 	if ( is_multisite() ) {
@@ -189,6 +195,8 @@ function handle_leave_site(): void {
 			wpmu_delete_user( $user->ID );
 		}
 	}
+
+	$notification->send();
 
 	wp_logout();
 	wp_safe_redirect( $redirect_url );
