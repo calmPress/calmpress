@@ -480,18 +480,15 @@ class WP_User_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * test that generate_and_email_one_time_password sends mail and create passwords
-	 * which is_matching_one_time_password match against.
+	 * Tests that WP_User::generate_and_email_one_time_password() sends and stores a usable password.
+	 *
+	 * @since calmPress 1.0.0
 	 */
-	function test_generate_and_match_one_time_password() {
+	public function test_generate_and_match_one_time_password(): void {
 		$user_id = $this->factory->user->create();
 		$user    = get_user_by( 'id', $user_id );
 
-        $get_method = new ReflectionMethod( '\WP_User', 'the_one_time_password' );
-        $set_method = new ReflectionMethod( '\WP_User', 'set_one_time_password' );
-
 		// No one time password on new user.
-        $this->assertNull( $get_method->invoke( $user ) );
 		$this->assertFalse( $user->is_matching_one_time_password( 'junk' ) );
 
 		// Test email was sent and one time password set.
@@ -504,20 +501,38 @@ class WP_User_Test extends WP_UnitTestCase {
 		$this->assertSame( 1, count( $tos ) );
 		$this->assertSame( 'new@example.com', $tos[0]->address );
 
-		$p = $get_method->invoke( $user );
-        $this->assertNotNull( $p );
+		$password        = $mutator->email->password;
+		$stored_password = json_decode( get_user_meta( $user->ID, WP_User::OTP_META_ID, true ), true );
+		$this->assertMatchesRegularExpression( '/^\d{12}$/', $password );
+		$this->assertTrue( wp_check_password( $password, $stored_password['hash'] ) );
+		$this->assertStringNotContainsString( $password, get_user_meta( $user->ID, WP_User::OTP_META_ID, true ) );
 		$this->assertFalse( $user->is_matching_one_time_password( 'junk' ) );
 
-		// match the generated random value of the one time password
-		$this->assertTrue( $user->is_matching_one_time_password( $p->password ) );
+		// Match the generated random value of the one-time password.
+		$this->assertTrue( $user->is_matching_one_time_password( $password ) );
 
-		// Test mathing with expired one time passwords.
-		$otp = calmpress\utils\One_Time_Password::new( -60 );
-		
-		$get_method->invoke( $user, $otp );
-		$this->assertFalse( $user->is_matching_one_time_password( $otp->password ) );
+		// Test matching with an expired one-time password.
+		$set_method = new ReflectionMethod( '\WP_User', 'set_one_time_password' );
+		$set_method->invoke( $user, '123456789012', time() - MINUTE_IN_SECONDS );
+		$this->assertFalse( $user->is_matching_one_time_password( '123456789012' ) );
 
 		// Cleanup of global state.
 		calmpress\email\User_One_Time_Password_Email::remove_all_mutation_observers();
+	}
+
+	/**
+	 * Tests that WP_User::is_matching_one_time_password() consumes a matching password.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_is_matching_one_time_password_consumes_matching_password(): void {
+		$user              = self::factory()->user->create_and_get();
+		$one_time_password = '123456789012';
+		$set_method        = new ReflectionMethod( '\WP_User', 'set_one_time_password' );
+		$set_method->invoke( $user, $one_time_password, time() + HOUR_IN_SECONDS );
+
+		$this->assertTrue( $user->is_matching_one_time_password( $one_time_password ) );
+		$this->assertFalse( $user->is_matching_one_time_password( $one_time_password ) );
+		$this->assertSame( '', get_user_meta( $user->ID, WP_User::OTP_META_ID, true ) );
 	}
 }

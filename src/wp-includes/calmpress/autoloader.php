@@ -126,7 +126,6 @@ const MAP = [
 	'calmpress\email\Email_To_User'                     => __DIR__ . '/email/trait-email-to-user.php',
 	'calmpress\email\Email_Settings'                    => __DIR__ . '/email/class-email-settings.php',
 	'calmpress\utils\Decryption_Result'                 => __DIR__ . '/utils/class-decryption-result.php',
-	'calmpress\utils\One_Time_Password'                 => __DIR__ . '/utils/class-one-time-password.php',
 	'calmpress\webauthn\User_Of_Device'                 => __DIR__ . '/webauthn/class-user-of-device.php',
 	'calmpress\webauthn\Devices_Of_User'                => __DIR__ . '/webauthn/class-devices-of-user.php',
 	'calmpress\QR\Utils'                                => __DIR__ . '/qr/class-utils.php',

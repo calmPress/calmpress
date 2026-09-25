@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace calmpress\email;
 
-use calmpress\utils\One_Time_Password;
-
 /**
  * A representation of email sent to a the user which requested a one time password.
  * 
@@ -25,9 +23,9 @@ class User_One_Time_Password_Email {
 	/**
 	 * The password.
 	 *
-	 * since 1.0.0
+	 * @since 1.0.0
 	 */
-	public readonly One_Time_Password $password;
+	public readonly string $password;
 
 	/**
 	 * Create an User_One_Time_Password_Email object based on the $user to
@@ -35,10 +33,10 @@ class User_One_Time_Password_Email {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \WP_User          $user     The user to which the email is sent.
-	 * @param One_Time_Password $password The password to be sent.
+	 * @param \WP_User $user     The user to which the email is sent.
+	 * @param string   $password The password to be sent.
 	 */
-	public function __construct( \WP_User $user, One_Time_Password $password ) {
+	public function __construct( \WP_User $user, string $password ) {
 		/* translators: %s: Site's name. */
 		$initial_subject_format = __( '[%s] one-time password' );
 
@@ -67,7 +65,7 @@ If you did not expect this notice you are welcome to ignore this email.
 			sprintf( 
 				$initial_content_format,
 				$user->display_name,
-				$password->password,
+				$password,
 			),
 			false,
 			$user->email_address()

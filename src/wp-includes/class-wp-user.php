@@ -8,7 +8,6 @@
  */
 
 use calmpress\email\Email_Address;
-use calmpress\utils\One_Time_Password;
 use calmpress\webauthn\Devices_Of_User;
 
 /**
@@ -167,6 +166,13 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @since calmPress 1.0.0
 	 */
 	const OTP_META_ID = 'otp';
+
+	/**
+	 * Number of digits in a generated one-time password.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	private const ONE_TIME_PASSWORD_LENGTH = 12;
 
 	/**
 	 * The user meta key identifying a network invitation awaiting authentication.
@@ -2104,10 +2110,11 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * The one time password generated has an expiry time of one hour.
 	 * 
 	 * @since calmpress 1.0.0
+	 *
+	 * @throws RuntimeException If the password cannot be stored.
 	 */
 	public function generate_and_email_one_time_password(): void {
-		$password = One_Time_Password::new( 1 * HOUR_IN_SECONDS );
-		$this->set_one_time_password( $password );
+		$password = $this->generate_one_time_password( HOUR_IN_SECONDS );
 		$email = new calmpress\email\User_One_Time_Password_Email( $this, $password );
 		$email->send();
 	}
@@ -2120,68 +2127,99 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	 * @since calmpress 1.0.0
 	 * 
 	 * @return string The password string.
+	 *
+	 * @throws RuntimeException If the password cannot be stored.
 	 */
 	public function generate_QR_one_time_password(): string {
-		$password = One_Time_Password::new( 2 * MINUTE_IN_SECONDS );
-		$this->set_one_time_password( $password );
-		return $password->password;
+		return $this->generate_one_time_password( 2 * MINUTE_IN_SECONDS );
 	}
 
 	/**
-	 * Set the one time password associated with the user.
-	 * 
-	 * An helper to faciliate better testing.
+	 * Generate and store a one-time password for the user.
 	 * 
 	 * @since calmpress 1.0.0
+	 *
+	 * @param int $expiry_interval Number of seconds for which the password is valid.
+	 *
+	 * @return string The generated password.
+	 *
+	 * @throws RuntimeException If the password cannot be stored.
 	 */
-	private function set_one_time_password( One_Time_Password $otp ): void {
-		update_user_meta( $this->ID, self::OTP_META_ID , $otp->serialize() );
+	private function generate_one_time_password( int $expiry_interval ): string {
+		$password = '';
+
+		for ( $index = 0; $index < self::ONE_TIME_PASSWORD_LENGTH; $index++ ) {
+			$password .= (string) random_int( 0, 9 );
+		}
+
+		$this->set_one_time_password( $password, time() + $expiry_interval );
+
+		return $password;
 	}
 
 	/**
-	 * Gets the one time password associated with the user, if any.
-	 * 
-	 * An helper to faciliate better testing.
+	 * Store a hashed one-time password and its expiry time for the user.
 	 * 
 	 * @since calmpress 1.0.0
-	 * 
-	 * @return ?One_Time_Password The the one time password if exists and
-	 *                            didn't expire yet, otherwisse null.
+	 *
+	 * @param string $password The password to store.
+	 * @param int    $expiry   Unix timestamp after which the password is invalid.
+	 *
+	 * @throws RuntimeException If the password cannot be stored.
 	 */
-	private function the_one_time_password(): ?One_Time_Password {
-		$p = get_user_meta( $this->ID, self::OTP_META_ID, true );
+	private function set_one_time_password( string $password, int $expiry ): void {
+		$stored_value = json_encode(
+			[
+				'hash'   => wp_hash_password( $password ),
+				'expiry' => $expiry,
+			]
+		);
 
-		if ( empty( $p) ) {
-			return null;
-		}
-
-		try {
-			$o = One_Time_Password::unserialize( (string) $p );
-			return $o;
-		} catch ( \RuntimeException $e ) {
-			delete_user_meta( $this->ID, self::OTP_META_ID );
-			return null;
+		if ( false === update_user_meta( $this->ID, self::OTP_META_ID, $stored_value ) ) {
+			throw new RuntimeException( 'The one-time password could not be stored.' );
 		}
 	}
 
 	/**
-	 * Check if a value is a one-time password of the user which has not expired yet.
+	 * Check and consume a matching, unexpired one-time password of the user.
 	 * 
 	 * @since calmPress 1.0.0
 	 * 
 	 * @param string $value The value to test.
 	 * 
-	 * @return bool true If $value is the one-time password and it has not expired,
+	 * @return bool True if the value matched and the stored password was consumed,
 	 *              false otherwise.
 	 */
 	public function is_matching_one_time_password( string $value ): bool {
-		$p = $this->the_one_time_password();
+		$stored_value = get_user_meta( $this->ID, self::OTP_META_ID, true );
 
-		if ( empty( $this->the_one_time_password() ) ) {
+		if ( ! is_string( $stored_value ) || '' === $stored_value ) {
 			return false;
 		}
 
-		return $p->is_matching( $value );
+		$stored_password = json_decode( $stored_value, true );
+
+		if (
+			! is_array( $stored_password ) ||
+			! isset( $stored_password['hash'], $stored_password['expiry'] ) ||
+			! is_string( $stored_password['hash'] ) ||
+			! is_int( $stored_password['expiry'] )
+		) {
+			delete_user_meta( $this->ID, self::OTP_META_ID, $stored_value );
+			return false;
+		}
+
+		if ( $stored_password['expiry'] <= time() ) {
+			delete_user_meta( $this->ID, self::OTP_META_ID, $stored_value );
+			return false;
+		}
+
+		if ( ! wp_check_password( $value, $stored_password['hash'] ) ) {
+			return false;
+		}
+
+		// Delete the exact stored value so only one simultaneous request can consume it.
+		return delete_user_meta( $this->ID, self::OTP_META_ID, $stored_value );
 	}
 
 	/**

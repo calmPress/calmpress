@@ -12,7 +12,6 @@ use calmpress\email\User_One_Time_Password_Email_Mutator;
 use calmpress\email\User_One_Time_Password_Email;
 use calmpress\observer\Observer;
 use calmpress\observer\Observer_Priority;
-use calmpress\utils\One_Time_Password;
 
 require_once __DIR__ . '/../../../includes/dummy-phpmailer.php';
 
@@ -47,7 +46,7 @@ class User_One_Time_Password_Email_Test extends WP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 		$user = get_user_by( 'id', $user_id );
 
-		$password = One_Time_Password::new( 60 );
+		$password = '123456789012';
 		$email = new User_One_Time_Password_Email( $user, $password );
 		$this->assertSame( $user, $email->user );
 		$this->assertSame( $password, $email->password );
@@ -66,7 +65,7 @@ class User_One_Time_Password_Email_Test extends WP_UnitTestCase {
 		$user = get_user_by( 'id', $user_id );
 		$user->user_email = 'test@example.com';
 
-		$password = One_Time_Password::new( 60 );
+		$password = '123456789012';
 		$email = new User_One_Time_Password_Email( $user, $password );
 
 		$email->send();
@@ -89,7 +88,7 @@ class User_One_Time_Password_Email_Test extends WP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 		$user = get_user_by( 'id', $user_id );
 	
-		$password = One_Time_Password::new( 60 );
+		$password = '123456789012';
 		$email = new User_One_Time_Password_Email( $user, $password );
 
 		// Test the specific notification mutators.

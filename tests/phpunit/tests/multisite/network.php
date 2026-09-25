@@ -2,7 +2,6 @@
 
 use calmpress\email\Email_Address;
 use calmpress\site\Site as CalmPress_Site;
-use calmpress\utils\One_Time_Password;
 
 /**
  * Tests specific to networks in multisite.
@@ -836,12 +835,13 @@ class Tests_Multisite_Network extends WP_UnitTestCase {
 		$this->assertContains( $user->ID, wp_list_pluck( $other_network->users_pending_activation(), 'ID' ) );
 
 		// Authenticate through the current network using a one-time password.
-		$one_time_password = One_Time_Password::new( HOUR_IN_SECONDS );
-		update_user_meta( $user->ID, WP_User::OTP_META_ID, $one_time_password->serialize() );
+		$one_time_password = '123456789012';
+		$set_method        = new ReflectionMethod( '\WP_User', 'set_one_time_password' );
+		$set_method->invoke( $user, $one_time_password, time() + HOUR_IN_SECONDS );
 		$authenticated_user = wp_signon(
 			array(
 				'user_login'    => $email,
-				'user_password' => $one_time_password->password,
+				'user_password' => $one_time_password,
 			)
 		);
 
