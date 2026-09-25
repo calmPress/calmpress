@@ -344,21 +344,24 @@ $_wp_last_utility_menu = 90; // The index of the last top-level menu in the util
 
 // Try to keep the profile menu as the last admin menu.
 $menu[900] = array( __( 'My Profile' ), 'read', 'my-profile', '', 'menu-top menu-icon-users', 'menu-my-profile', 'dashicons-admin-users' );
+	$user = wp_get_current_user();
 	if ( is_multisite() ) {
 		$submenu['my-profile'][5]  = array( __( 'Account' ), 'read', 'profile.php' );
 		$submenu['my-profile'][10] = array( __( 'This Site' ), 'read', 'site-profile.php' );
 
 		// The Sites screen is useful when there are other sites to visit or invitations to answer.
-		$user = wp_get_current_user();
 		if ( count( $user->sites() ) > 1 || [] !== $user->sites_pending_activation( get_network() ) ) {
-			$submenu['my-profile'][15] = array( __( 'Sites' ), 'read', user_admin_url( 'sites.php' ) );
+			$submenu['my-profile'][20] = array( __( 'Sites' ), 'read', user_admin_url( 'sites.php' ) );
 		}
 	} else {
 		$submenu['my-profile'][5] = array( __( 'Account' ), 'read', 'profile.php' );
 	}
-	$submenu['my-profile'][20] = array( __( 'Device Login' ), 'read', 'webauthn.php' );
+	$submenu['my-profile'][30] = array( __( 'Device Login' ), 'read', 'webauthn.php' );
 	if ( wp_is_application_passwords_available_for_user( get_current_user_id() ) ) {
 		$submenu['my-profile'][50] = array( __( 'Application Passwords' ), 'read', 'application-passwords.php' );
+	}
+	if ( ! is_multisite() || in_array( get_current_blog_id(), $user->site_ids(), true ) ) {
+		$submenu['my-profile'][90] = array( __( 'Leave This Site' ), 'read', 'leave-site.php' );
 	}
 
 

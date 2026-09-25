@@ -1014,6 +1014,73 @@ class WP_User implements \calmpress\avatar\Has_Avatar {
 	}
 
 	/**
+	 * Removes the user from a site without changing its content.
+	 *
+	 * On a standalone installation, leaving anonymizes the account through the
+	 * normal user-deletion lifecycle. On a network, it anonymizes the identity
+	 * displayed on the site and removes only that site's membership; the caller
+	 * can then decide whether the shared account is still needed.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param calmpress\site\Site $site Site the user wants to leave.
+	 *
+	 * @throws LogicException If the user is not a member or receives the site's
+	 *                        system notifications.
+	 * @throws RuntimeException If the membership cannot be removed.
+	 */
+	public function leave_site( calmpress\site\Site $site ): void {
+		$site_id = (int) $site->blog_id;
+		if ( ! in_array( $site_id, $this->site_ids(), true ) ) {
+			throw new LogicException( sprintf( 'User %d is not a member of site %d.', $this->ID, $site_id ) );
+		}
+
+		if ( $this->is_system_notification_recipient( $site ) ) {
+			throw new LogicException( sprintf( 'User %d receives system notifications for site %d.', $this->ID, $site_id ) );
+		}
+
+		if ( ! is_multisite() ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+			if ( ! wp_delete_user( $this->ID ) ) {
+				throw new RuntimeException( sprintf( 'User %d could not leave the standalone site.', $this->ID ) );
+			}
+
+			return;
+		}
+
+		/*
+		 * Preserve content relationships while replacing the identity displayed on
+		 * the departed site. The account identity remains available on other sites.
+		 */
+		$deleted_user_disambiguator = (string) wp_rand( 10000000, 99999999 );
+		/* translators: %s: Random disambiguation identifier for an anonymized user. */
+		$this->set_display_name_for_site( $site, sprintf( __( 'deleted %s' ), $deleted_user_disambiguator ) );
+		$this->set_generated_avatar_for_site( $site );
+
+		$result = remove_user_from_blog( $this->ID, $site_id );
+		if ( is_wp_error( $result ) ) {
+			throw new RuntimeException( $result->get_error_message() );
+		}
+	}
+
+	/**
+	 * Indicates whether the user has a pending invitation to any site.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return bool Whether at least one site invitation is pending.
+	 */
+	public function has_any_site_invites(): bool {
+		foreach ( get_networks( [ 'number' => 0 ] ) as $network ) {
+			if ( [] !== $this->sites_pending_activation( $network ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Indicates whether the user has been assigned capabilities on a site in a network.
 	 *
 	 * @since calmPress 1.0.0

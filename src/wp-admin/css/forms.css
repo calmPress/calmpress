@@ -132,6 +132,10 @@ input[type="radio"] {
 	transition: .05s border-color ease-in-out;
 }
 
+.wp-admin input[type="checkbox"] + label {
+	cursor: pointer;
+}
+
 input[type="radio"]:checked + label:before {
 	color: #8c8f94;
 }
@@ -246,7 +250,6 @@ input.validation-warning ~ .validate-failure-message {
 
 #site-profile-page input[type="checkbox"] + label {
 	margin-inline-start: 4px;
-	cursor: pointer;
 }
 
 #site-profile-page .site-profile-field {

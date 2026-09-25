@@ -2251,6 +2251,87 @@ class Tests_User extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that WP_User::leave_site() removes membership without changing content authorship.
+	 *
+	 * @group ms-required
+	 * @since calmPress 1.0.0
+	 */
+	public function test_leave_site_removes_membership_without_changing_content_authorship() {
+		$site_id  = self::factory()->blog->create();
+		$user_id  = self::factory()->user->create();
+		$admin_id = self::factory()->user->create();
+		add_user_to_blog( $site_id, $admin_id, 'administrator' );
+		add_user_to_blog( $site_id, $user_id, 'subscriber' );
+		update_blog_option( $site_id, 'admin_user_id', $admin_id );
+		$user = get_userdata( $user_id );
+		$user->set_display_name_for_site( get_site( $site_id ), 'Site Identity' );
+
+		switch_to_blog( $site_id );
+		$post_id = self::factory()->post->create( [ 'post_author' => $user_id ] );
+		restore_current_blog();
+
+		$user->leave_site( get_site( $site_id ) );
+
+		$this->assertNotContains( $site_id, $user->site_ids() );
+		$this->assertSame( $user_id, (int) get_blog_post( $site_id, $post_id )->post_author );
+		$this->assertNotSame( 'Site Identity', $user->display_name_for_site( get_site( $site_id ) ) );
+		$this->assertInstanceOf( calmpress\avatar\Text_Based_Avatar::class, $user->avatar_for_site( get_site( $site_id ) ) );
+	}
+
+	/**
+	 * Tests that WP_User::leave_site() protects the site's system notification recipient.
+	 *
+	 * @group ms-required
+	 * @since calmPress 1.0.0
+	 */
+	public function test_leave_site_rejects_system_notification_recipient() {
+		$site_id = self::factory()->blog->create();
+		$user_id = self::factory()->user->create();
+		add_user_to_blog( $site_id, $user_id, 'administrator' );
+		update_blog_option( $site_id, 'admin_user_id', $user_id );
+
+		$user = get_userdata( $user_id );
+
+		$this->expectException( LogicException::class );
+		$user->leave_site( get_site( $site_id ) );
+	}
+
+	/**
+	 * Tests that WP_User::leave_site() anonymizes a standalone account without changing content authorship.
+	 *
+	 * @group ms-excluded
+	 * @since calmPress 1.0.0
+	 */
+	public function test_leave_site_anonymizes_standalone_account_without_changing_content_authorship() {
+		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		$post_id = self::factory()->post->create( [ 'post_author' => $user_id ] );
+		$user    = get_userdata( $user_id );
+
+		$user->leave_site( calmpress\site\Site::current() );
+
+		$anonymized_user = get_userdata( $user_id );
+		$this->assertFalse( $anonymized_user->can_login() );
+		$this->assertNotSame( $user->display_name, $anonymized_user->display_name );
+		$this->assertSame( $user_id, (int) get_post( $post_id )->post_author );
+	}
+
+	/**
+	 * Tests that WP_User::has_any_site_invites() recognizes an invitation on any network site.
+	 *
+	 * @group ms-required
+	 * @since calmPress 1.0.0
+	 */
+	public function test_has_any_site_invites_returns_true_for_pending_site_invitation() {
+		$site_id = self::factory()->blog->create();
+		$user_id = self::factory()->user->create();
+		$user    = get_userdata( $user_id );
+
+		$user->mark_as_invited_to_network_site( get_site( $site_id ), 'subscriber' );
+
+		$this->assertTrue( $user->has_any_site_invites() );
+	}
+
+	/**
 	 * Testing the `wp_user_personal_data_exporter()` function
 	 * with Session Tokens data.
 	 *

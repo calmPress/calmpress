@@ -42,6 +42,9 @@ function add_handlers(): void {
 	add_action( 'admin_post_accept_site_invitation', __NAMESPACE__ . '\handle_site_invitation_response' );
 	add_action( 'admin_post_decline_site_invitation', __NAMESPACE__ . '\handle_site_invitation_response' );
 
+	// Site departure form submission.
+	add_action( 'admin_post_leave_site', __NAMESPACE__ . '\handle_leave_site' );
+
 	/**
 	 * Get the user from an email approval style URL requests which include the user
 	 * id and an expiry as nonce.
@@ -128,6 +131,68 @@ function add_handlers(): void {
 	// Verify installer email "GET" (link) action.
 	add_action( 'admin_post_nopriv_installeremail', __NAMESPACE__ . '\handle_verify_installer_email' );
 	add_action( 'admin_post_installeremail', __NAMESPACE__ . '\handle_verify_installer_email' );
+}
+
+/**
+ * Handles a user's confirmed request to leave the current site.
+ *
+ * Leaving a standalone site anonymizes the account immediately. On a network,
+ * a user without another active membership, pending invitation, or Super Admin
+ * responsibility is anonymized through the network deletion lifecycle.
+ *
+ * @since 1.0.0
+ */
+function handle_leave_site(): void {
+	if (
+		! isset( $_POST['_wpnonce'] )
+		|| ! is_string( $_POST['_wpnonce'] )
+		|| ! wp_verify_nonce( wp_unslash( $_POST['_wpnonce'] ), 'leave-site' )
+	) {
+		status_header( 403 );
+		die( 'Invalid request.' );
+	}
+
+	if ( ! isset( $_POST['confirm_leave_site'] ) ) {
+		wp_safe_redirect( add_query_arg( 'leave-site-error', 'confirmation-required', admin_url( 'leave-site.php' ) ) );
+		exit;
+	}
+
+	$user = wp_get_current_user();
+	$site = \calmpress\site\Site::current();
+	$redirect_url = $site->home_url();
+
+	// Return to the confirmation screen so it can explain why the notification recipient cannot leave.
+	if ( $user->is_system_notification_recipient( $site ) ) {
+		wp_safe_redirect( admin_url( 'leave-site.php' ) );
+		exit;
+	}
+
+	$user->leave_site( $site );
+
+	if ( is_multisite() ) {
+		$user               = get_userdata( $user->ID );
+		$is_any_super_admin = false;
+		foreach ( get_networks( [ 'number' => 0 ] ) as $network ) {
+			if ( in_array( $user->user_login, get_super_admins( (int) $network->id ), true ) ) {
+				$is_any_super_admin = true;
+				break;
+			}
+		}
+
+		$account_is_needed = [] !== $user->sites()
+			|| $user->has_any_network_invites()
+			|| $user->has_any_site_invites()
+			|| $is_any_super_admin;
+
+		if ( ! $account_is_needed ) {
+			require_once ABSPATH . 'wp-admin/includes/ms.php';
+			wpmu_delete_user( $user->ID );
+		}
+	}
+
+	wp_logout();
+	wp_safe_redirect( $redirect_url );
+	exit;
 }
 
 /**
