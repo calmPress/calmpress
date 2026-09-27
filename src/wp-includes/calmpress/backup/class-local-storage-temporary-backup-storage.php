@@ -37,7 +37,9 @@ class Local_Storage_Temporary_Backup_Storage extends Temporary_Backup_Storage {
 	protected string $dest_root_path;
 
 	public function __construct( string $dest_root_path ) {
-		$this->root = get_temp_dir() . uniqid( 'backup-', true );
+		// Keep staging on the destination filesystem so directory rename is atomic.
+		$parent = dirname( rtrim( $dest_root_path, '/\\' ) );
+		$this->root = $parent . '/.backup-' . wp_generate_uuid4();
 		\calmpress\utils\ensure_dir_exists( $this->root );
 
 		$this->dest_root_path = trailingslashit( $dest_root_path );
@@ -51,7 +53,7 @@ class Local_Storage_Temporary_Backup_Storage extends Temporary_Backup_Storage {
 	 * @param string $source   The absolute path (or URI) to the file to copy.
 	 * @param string $dest_uri The copied file's path relative to temporary storage root.
 	 *
-	 * @throws \Exception If the copy fails.
+	 * @throws \RuntimeException If the copy fails.
 	 */
 	protected function copy_file_implementation( string $source, string $dest_uri ) {
 		$dest_path = $this->root . '/' . $dest_uri;
@@ -61,7 +63,7 @@ class Local_Storage_Temporary_Backup_Storage extends Temporary_Backup_Storage {
 
 		$res = @copy( $source, $dest_path );
 		if ( ! $res ) {
-			throw new \Exception( 'Failed to copy file, reason: ' . \calmpress\utils\last_error_message() );
+			throw new \RuntimeException( 'Failed to copy file, reason: ' . \calmpress\utils\last_error_message() );
 		}
 	}
 
@@ -73,7 +75,7 @@ class Local_Storage_Temporary_Backup_Storage extends Temporary_Backup_Storage {
 	 * @param string $dest_uri The created file's path relative to temporary storage root.
 	 * @param string $content  The content to write to the file.
 	 *
-	 * @throws \Exception If the file creation fails.
+	 * @throws \RuntimeException If the file creation or write fails.
 	 */
 	protected function file_put_contents_implementation( string $dest_uri, string $content ) {
 		$dest_path = $this->root . '/' . $dest_uri;
@@ -82,8 +84,8 @@ class Local_Storage_Temporary_Backup_Storage extends Temporary_Backup_Storage {
 		\calmpress\utils\ensure_dir_exists( $dest_dir );
 
 		$res = @file_put_contents( $dest_path, $content );
-		if ( ! $res ) {
-			throw new \Exception( 'Failed to copy file, reason: ' . \calmpress\utils\last_error_message() );
+		if ( strlen( $content ) !== $res ) {
+			throw new \RuntimeException( 'Failed to write file, reason: ' . \calmpress\utils\last_error_message() );
 		}
 	}
 
@@ -93,7 +95,7 @@ class Local_Storage_Temporary_Backup_Storage extends Temporary_Backup_Storage {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @throws \Exception If rename fails.
+	 * @throws \RuntimeException If rename fails.
 	 */
 	protected function store_to_storage() {
 
@@ -101,7 +103,7 @@ class Local_Storage_Temporary_Backup_Storage extends Temporary_Backup_Storage {
 		\calmpress\utils\ensure_dir_exists( dirname( $dest_path ) );
 		$res = rename( $this->root, $dest_path );
 		if ( ! $res ) {
-			throw new \Exception( 'Failed to rename directory, reason: ' . \calmpress\utils\last_error_message() );
+			throw new \RuntimeException( 'Failed to rename directory, reason: ' . \calmpress\utils\last_error_message() );
 		}
 	}
 

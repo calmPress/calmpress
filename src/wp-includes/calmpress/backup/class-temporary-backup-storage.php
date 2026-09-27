@@ -104,6 +104,7 @@ abstract class Temporary_Backup_Storage {
 		}
 
 		$this->store_to_storage();
+		$this->stored = true;
 
 		$this->cleanup();
 	}

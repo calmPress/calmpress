@@ -183,7 +183,7 @@ class Backup {
 		$o = new \stdClass();
 		$o->description = $description;
 		$o->time        = time(); // Note: the timezone is set to UTC bootstrap time. 
-		$o->unique_id   = uniqid();
+		$o->unique_id   = wp_generate_uuid4();
 		$o->engines     = $engines_data;
 
 		return json_encode( $o );

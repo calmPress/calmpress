@@ -71,7 +71,7 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @param string $id   The identifier to be used when internally identifying the storage.
 	 */
 	public function __construct( string $root = WP_CONTENT_DIR . '/.private/backup/', $id = 'default_local_storage' ) {
-		$this->root = $root;
+		$this->root = trailingslashit( $root );
 		$this->id   = $id;
 	}
 
@@ -112,7 +112,7 @@ class Local_Backup_Storage implements Backup_Storage {
 				$meta = @file_get_contents( $file );
 				if ( $meta === false ) {
 					// could not read the file, log the even and continue to next file. 
-					trigger_error( calmpress\utils\last_error_message() );
+					trigger_error( \calmpress\utils\last_error_message() );
 					continue;
 				} 
 				$backup = new Backup( $meta, $this, $file );
@@ -137,7 +137,7 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @return bool true if the directory exists, otherwise false.
 	 */
 	public function section_exists( string $uri ): bool {
-		$dir = $this->root . '/' . ltrim( $uri, '/' );
+		$dir = $this->root . ltrim( $uri, '/' );
 
 		if ( ! file_exists( $dir ) ) {
 			return false;
@@ -151,24 +151,24 @@ class Local_Backup_Storage implements Backup_Storage {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $source   The absolute path to the file to copy.
-	 * @param string $dest_uri The copied file's path relative to storage root.
+	 * @param string $source    The absolute path to the file to copy.
+	 * @param string $dest_path The copied file's path relative to storage root.
 	 *
-	 * @throws \Exception If source file do not exist or dest could not be created.
+	 * @throws \RuntimeException If the source file does not exist or the copy fails.
 	 */
 	public function copy_file( string $source, string $dest_path ) {
 		$dest = $this->root . $dest_path;
 
-		$dir = dirname( $dest_uri );
+		$dir = dirname( $dest );
 		\calmpress\utils\ensure_dir_exists( $dir );
 
 		if ( ! is_file( $source ) ) {
-			throw new \Exception( sprintf( __( '%s is not a file or do not exist', $source ) ) );
+			throw new \RuntimeException( sprintf( __( '%s is not a file or does not exist' ), $source ) );
 		}
 
-		$res = @copy( $source, $dest_uri );
+		$res = @copy( $source, $dest );
 		if ( ! $res) {
-			throw new \Exception( sprintf( __( 'copy of %1s to %2s reason is %3s', $source, $dest_uri, \calmpress\utils\last_error_message() ) ) );
+			throw new \RuntimeException( 'Failed to copy file: ' . \calmpress\utils\last_error_message() );
 		}
 	}
 
@@ -195,7 +195,21 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @param string $meta The meta information of a backup to be stored.
 	 */
 	public function store_backup_meta( string $meta ) {
-		file_put_contents( $this->root . 'meta-' . current_time( 'U', true ) . '.json', $meta );
+		\calmpress\utils\ensure_dir_exists( $this->root );
+		$path = $this->root . 'meta-' . wp_generate_uuid4() . '.json';
+		$temp = $path . '.tmp';
+		try {
+			if ( strlen( $meta ) !== @file_put_contents( $temp, $meta ) ) {
+				throw new \RuntimeException( 'Failed writing backup metadata.' );
+			}
+			if ( ! @rename( $temp, $path ) ) {
+				throw new \RuntimeException( 'Failed publishing backup metadata.' );
+			}
+		} finally {
+			if ( file_exists( $temp ) ) {
+				@unlink( $temp );
+			}
+		}
 	}
 
 	/**
@@ -223,6 +237,6 @@ class Local_Backup_Storage implements Backup_Storage {
 	 * @return Temporary_Backup_Storage A temporary storage instance.
 	 */
 	public function section_working_area_storage( string $dest_uri ): Temporary_Backup_Storage {
-		return new Local_Storage_Temporary_Backup_Storage( $this->root . '/' . $dest_uri );
+		return new Local_Storage_Temporary_Backup_Storage( $this->root . ltrim( $dest_uri, '/' ) );
 	}
 }

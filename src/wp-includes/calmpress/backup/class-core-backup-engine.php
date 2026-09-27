@@ -66,6 +66,26 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	const RELATIVE_OPTIONS_BACKUP_PATH = 'db/options/';
 
 	/**
+	 * Generate a backup version from a file's modification time.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $file Path to the theme stylesheet or plugin header file.
+	 *
+	 * @return string Timestamp-based version for software without a version header.
+	 *
+	 * @throws \RuntimeException If the modification time cannot be read.
+	 */
+	protected static function version_from_file_timestamp( string $file ): string {
+		clearstatcache( true, $file );
+		$modified = filemtime( $file );
+		if ( false === $modified ) {
+			throw new \RuntimeException( 'Failed reading file modification time for backup: ' . $file );
+		}
+		return 'unversioned-' . $modified;
+	}
+
+	/**
 	 * Throw a timeout exception if the current time is later than the parameter.
 	 *
 	 * @param int $time_to_check The unix time to compare against.
@@ -201,13 +221,13 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 */
 	protected static function Backup_Languages(  Backup_Storage $storage, string $source, string $backup_dir ) {
 
+		$staging = $storage->section_working_area_storage( $backup_dir );
 		// If the languages directory does not exist there is nothing to backup and
 		// Backup_Directory requires an existing directory.
 		if ( is_dir( $source ) ) {
-			$staging = $storage->section_working_area_storage( $backup_dir );
 			static::Backup_Directory( $source, $staging, '' );
-			$staging->store();
 		}
+		$staging->store();
 	}
 
 	/**
@@ -281,6 +301,13 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			$ret[] = $file->getFilename();
 		}
 
+		// CalmPress also supports configuration one directory above the installation.
+		$parent_config = dirname( rtrim( $source_dir, '/\\' ) ) . '/wp-config.php';
+		if ( ! file_exists( $source_dir . '/wp-config.php' ) && is_file( $parent_config ) && ! is_link( $parent_config ) ) {
+			$staging->copy_file( $parent_config, 'wp-config.php' );
+			$ret[] = 'wp-config.php';
+		}
+
 		$staging->store();
 
 		return $ret;
@@ -305,8 +332,8 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
 	protected static function Backup_Theme( Backup_Storage $storage, string $themes_backup_dir, \WP_Theme $theme ) : string {
-		$version      = $theme->get( 'Version' );
 		$source       = $theme->get_stylesheet_directory();
+		$version      = $theme->get( 'Version' ) ?: static::version_from_file_timestamp( $source . '/style.css' );
 		$theme_dir    = $themes_backup_dir . '/' . basename( $source ) . '/' . $version;
 
 		/*
@@ -363,29 +390,27 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			$directory_change = true;
 		}
 
-		$themes = wp_get_themes();
-		$meta   = []; 
-		foreach ( $themes as $theme ) {
+		try {
+			$themes = wp_get_themes();
+			$meta   = [];
+			foreach ( $themes as $theme ) {
+				static::throw_if_out_of_time( $max_end_time );
 
-			static::throw_if_out_of_time( $max_end_time );
-					
-			// skip themes without a version.
-			if ( $theme->get( 'Version' ) ) {
-				$theme_dir = static::Backup_Theme( $storage, static::RELATIVE_THEMES_BACKUP_PATH, $theme );
-				$meta[ $theme->get_stylesheet() ] = [
-					'version'        => $theme->get( 'Version' ),
-					'directory'      => static::RELATIVE_THEMES_BACKUP_PATH . $theme_dir . '/',
-					'name'           => $theme->get( 'Name' ),
-					'directory_name' => basename( $theme->get_stylesheet_directory() ),
-				];
+				if ( ! $theme->errors() ) {
+					$theme_dir = static::Backup_Theme( $storage, static::RELATIVE_THEMES_BACKUP_PATH, $theme );
+					$meta[ $theme->get_stylesheet() ] = [
+						'version'        => $theme->get( 'Version' ),
+						'directory'      => static::RELATIVE_THEMES_BACKUP_PATH . $theme_dir . '/',
+						'name'           => $theme->get( 'Name' ),
+						'directory_name' => basename( $theme->get_stylesheet_directory() ),
+					];
+				}
 			}
-		}
-
-		// Return the theme directories global to its original state.
-		$wp_theme_directories = $old_theme_directories;
-		// Need to clear the theme cache if directories actually changed.
-		if ( $directory_change ) {
-			wp_clean_themes_cache();
+		} finally {
+			$wp_theme_directories = $old_theme_directories;
+			if ( $directory_change ) {
+				wp_clean_themes_cache();
+			}
 		}
 		
 
@@ -451,6 +476,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
 	protected static function Backup_Root_Single_File_Plugin( Backup_Storage $storage, string $plugins_backup_dir, string $source, string $version ) : string {
+		$version = '' !== $version ? $version : static::version_from_file_timestamp( $source );
 		$relative_dir = $plugins_backup_dir . '/' . basename( $source ) . '/' . $version;
 
 		/*
@@ -503,10 +529,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		foreach ( \get_plugins() as $filename => $plugin_data ) {
 			$plugin_data['filename']              = $filename; // we need this later.
 
-			// Skip plugins without versions.
-			if ( ! empty( $plugin_data['Version'] ) ) {
-				$plugindirs[ dirname( $filename ) ][] = $plugin_data;
-			}
+			$plugindirs[ dirname( $filename ) ][] = $plugin_data;
 		}
 
 		$meta = [];
@@ -546,7 +569,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			$versions = [];
 			$data     = [];
 			foreach ( $dir_data as $plugin_data ) {
-				$versions[] = $plugin_data['Version'];
+				$versions[] = $plugin_data['Version'] ?: static::version_from_file_timestamp( WP_PLUGIN_DIR . '/' . $plugin_data['filename'] );
 				$data[]     = [
 					'name'      => $plugin_data['Name'],
 					'version'   => $plugin_data['Version'],
@@ -583,6 +606,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @param Temporary_Backup_Storage $staging The staging storage for the files.
 	 * @param int                      $site_id The id of the specific site being backed up.
 	 *
+	 * @throws \RuntimeException If the options table cannot be read.
 	 * @throws \Exception When file creation error occurs.
 	 */
 	protected static function Backup_Site_Options( Temporary_Backup_Storage $staging, int $site_id ) {
@@ -591,9 +615,21 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		if ( is_multisite() ) {
 			\switch_to_blog( $site_id );
 		}
-		$options = $wpdb->get_results( "SELECT option_name, option_value, autoload FROM $wpdb->options WHERE option_name NOT LIKE '_%transient_%'" );
-		if ( is_multisite() ) {
-			\restore_current_blog();
+		try {
+			$options = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT option_name, option_value, autoload FROM $wpdb->options WHERE option_name NOT LIKE %s AND option_name NOT LIKE %s",
+					$wpdb->esc_like( '_transient_' ) . '%',
+					$wpdb->esc_like( '_site_transient_' ) . '%'
+				)
+			);
+			if ( $wpdb->last_error ) {
+				throw new \RuntimeException( 'Failed reading options for backup.' );
+			}
+		} finally {
+			if ( is_multisite() ) {
+				\restore_current_blog();
+			}
 		}
 
 		// Remove widgets, sidebar and role capabilities.
@@ -628,9 +664,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 
 		$json = json_encode( $options );
 		$file = $site_id . '-options.json';
-		if ( false === $staging->file_put_contents( $file, $json ) ) {
-			throw new \Exception( 'Failed writing to ' . $file );
-		}
+		$staging->file_put_contents( $file, $json );
 	}
 
 	/**
@@ -699,9 +733,10 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 */
 	public static function backup( Backup_Storage $storage, int $max_time ): array {
 		$max_end_time = time() + $max_time; // After this time backup process should end, completed or not.
+		$backup_id    = wp_generate_uuid4();
 
 		$meta['version'] = calmpress_version();
-		static::Backup_Core( $storage, static::RELATIVE_CORE_BACKUP_PATH );
+		static::Backup_Core( $storage );
 		static::throw_if_out_of_time( $max_end_time );
 
 		// Backup all themes that are in standard theme location, which can be activated (no errors).
@@ -712,7 +747,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		$meta['plugins'] = static::Backup_Plugins( $storage, $max_end_time );
 		static::throw_if_out_of_time( $max_end_time );
 		
-		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . time() . '/';
+		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . $backup_id . '/';
 		$dir = static::Backup_MU_Plugins( $storage, static::installation_paths()->mu_plugins_directory(), $mu_rel_dir );
 		if ( '' !== $dir ) {
 			$meta['mu_plugins']['directory'] = $dir;
@@ -720,21 +755,22 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 
 		static::throw_if_out_of_time( $max_end_time );
 		
-		$lang_rel_dir = static::RELATIVE_LANGUAGES_BACKUP_PATH . time() . '/';
-		$meta['languages'] = static::Backup_Languages( $storage, static::installation_paths()->languages_directory(), $lang_rel_dir );
+		$lang_rel_dir = static::RELATIVE_LANGUAGES_BACKUP_PATH . $backup_id . '/';
+		static::Backup_Languages( $storage, static::installation_paths()->languages_directory(), $lang_rel_dir );
 		$meta['languages']['directory'] = $lang_rel_dir;
 
-		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . time();
+		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . $backup_id;
 		$files           = static::Backup_Dropins( $storage, static::installation_paths()->wp_content_directory(), $dropins_rel_dir );
 		$meta['dropins']['directory'] = $dropins_rel_dir;
 		$meta['dropins']['files']     = $files;
 
-		$root_dir_rel_dir = static::RELATIVE_ROOTDIR_BACKUP_PATH . time();
+		$root_dir_rel_dir = static::RELATIVE_ROOTDIR_BACKUP_PATH . $backup_id;
 		$files            = static::Backup_Root( $storage, static::installation_paths()->root_directory(), $root_dir_rel_dir );
 		$meta['root_directory']['directory'] = $root_dir_rel_dir;
 		$meta['root_directory']['files']     = $files;
+		$meta['root_directory']['config_file'] = static::installation_paths()->wp_config_file();
 
-		$options_rel_dir = static::RELATIVE_OPTIONS_BACKUP_PATH . time();
+		$options_rel_dir = static::RELATIVE_OPTIONS_BACKUP_PATH . $backup_id;
 		static::Backup_Options( $storage, $options_rel_dir );
 		$meta['options']['directory'] = $options_rel_dir ;
 

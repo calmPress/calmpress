@@ -61,7 +61,6 @@ class mock_backup_options extends \calmpress\backup\Core_Backup_Engine {
      */
     protected static function Backup_Site_Options( \calmpress\backup\Temporary_Backup_Storage $storage, $site_id ) {
         $property = new ReflectionProperty( $storage, 'dest_root_path' );
-        $property->setAccessible(true);
 
         self::$paths[ $site_id ] = $property->getValue( $storage );
     }
@@ -270,7 +269,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_directory() {
 
         $method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Directory' );
-        $method->setAccessible(true);
 
         // copy a file (this test file).
         $test_dir = get_temp_dir() . uniqid();
@@ -309,7 +307,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_root() {
 
         $method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Root' );
-        $method->setAccessible(true);
 
         $test_dir = get_temp_dir() . uniqid() . '/';
 
@@ -444,7 +441,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_theme() {
 
         $method = new ReflectionMethod( 'mock_backup_theme', 'Backup_Theme' );
-        $method->setAccessible(true);
 
         $theme_dir = $this->storage_root . '/theme';
 
@@ -473,10 +469,8 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_themes() {
 
         $method = new ReflectionMethod( 'mock_backup_themes', 'Backup_Themes' );
-        $method->setAccessible(true);
 
         $paths_method = new ReflectionMethod( 'mock_backup_themes', 'installation_paths' );
-        $paths_method->setAccessible(true);
 
         $upload_dir = wp_upload_dir();
         $test_dir   = $upload_dir['basedir'];
@@ -529,9 +523,9 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 
         $meta = $method->invoke( null, $this->storage, time() + 10 );
 
-        // there should be only two themes.
-        $this->AssertSame( 2, count( $meta ) );
-        foreach ( [ 'parent', 'child' ] as $theme_dir ) {
+        // Valid themes are backed up even without a version header.
+        $this->AssertSame( 3, count( $meta ) );
+        foreach ( [ 'parent', 'child', 'noversion' ] as $theme_dir ) {
             $this->AssertTrue( array_key_exists( $theme_dir, $meta ) );
             $this->AssertSame( 4, count( $meta[ $theme_dir ] ) );
             $this->AssertTrue( array_key_exists( 'version', $meta[ $theme_dir ] ) );
@@ -556,7 +550,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_plugin_directory() {
 
         $method = new ReflectionMethod( 'mock_backup_theme', 'Backup_Plugin_Directory' );
-        $method->setAccessible(true);
 
         $test_dir = get_temp_dir() . uniqid();
 
@@ -588,7 +581,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_root_single_file_plugin() {
 
         $method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Root_Single_File_Plugin' );
-        $method->setAccessible( true );
 
         $dest_dir = $this->storage_root . 'dest/';
         $ret = $method->invoke( null, $this->storage, 'dest', WP_PLUGIN_DIR . '/hello.php', '2.3' );
@@ -607,7 +599,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_plugins() {
 
         $method = new ReflectionMethod( 'mock_backup_theme', 'Backup_Plugins' );
-        $method->setAccessible(true);
 
         $upload_dir = wp_upload_dir();
         $test_dir   = $upload_dir['basedir'];
@@ -646,7 +637,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_mu_plugins() {
 
         $method = new ReflectionMethod( 'mock_backup_theme', 'Backup_MU_Plugins' );
-        $method->setAccessible(true);
 
         $test_dir = get_temp_dir() . uniqid();
         mkdir( $test_dir . '/source/', 0777, true );
@@ -667,7 +657,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_languages() {
 
         $method = new ReflectionMethod( 'mock_backup_theme', 'Backup_Languages' );
-        $method->setAccessible(true);
 
         $test_dir = get_temp_dir() . uniqid();
         mkdir( $test_dir . '/source/', 0777, true );
@@ -685,7 +674,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     function test_backup_dropins() {
 
         $method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Dropins' );
-        $method->setAccessible(true);
 
         $test_dir = get_temp_dir() . uniqid();
         mkdir( $test_dir . '/source', 0777, true );
@@ -726,7 +714,6 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
     public function test_throw_if_out_of_time() {
 
         $method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'throw_if_out_of_time' );
-        $method->setAccessible(true);
 
         // Test exception when time passed is in the past.
         $exception = false;
@@ -747,4 +734,144 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
         $this->AssertFalse( $exception );
 
     }
+
+	/**
+	 * Invoke a protected backup engine method for testing.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $method Engine method to invoke.
+	 * @param mixed  ...$args Arguments passed to the engine method.
+	 *
+	 * @return mixed The engine method result.
+	 */
+	private function invoke_engine( string $method, ...$args ) {
+		$reflection = new ReflectionMethod( \calmpress\backup\Core_Backup_Engine::class, $method );
+		return $reflection->invoke( null, ...$args );
+	}
+
+	/**
+	 * Verify transient options are excluded while similarly named ordinary options are preserved.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_transient_filter_preserves_similarly_named_options() {
+		\calmpress\utils\ensure_dir_exists( $this->storage_root );
+		add_option( 'plugin_transient_settings', 'keep' );
+		add_option( '_transient_real', 'exclude' );
+		add_option( '_site_transient_real', 'exclude' );
+		$staging = $this->storage->section_working_area_storage( 'options' );
+		$site_id = get_current_blog_id();
+		$this->invoke_engine( 'Backup_Site_Options', $staging, $site_id );
+		$staging->store();
+		$data = json_decode( file_get_contents( $this->storage_root . '/options/' . $site_id . '-options.json' ), true );
+		$names = array_column( $data, 'n' );
+		$this->assertContains( 'plugin_transient_settings', $names );
+		$this->assertNotContains( '_transient_real', $names );
+		$this->assertNotContains( '_site_transient_real', $names );
+	}
+
+	/**
+	 * Verify parent configuration is backed up unless an installation-local configuration exists.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_parent_configuration_is_backed_up_and_local_configuration_takes_precedence() {
+		\calmpress\utils\ensure_dir_exists( $this->storage_root );
+		mkdir( $this->storage_root . '/site' );
+		file_put_contents( $this->storage_root . '/wp-config.php', 'parent configuration' );
+		$this->invoke_engine( 'Backup_Root', $this->storage, $this->storage_root . '/site/', 'parent' );
+		$this->assertSame( 'parent configuration', file_get_contents( $this->storage_root . '/parent/wp-config.php' ) );
+		file_put_contents( $this->storage_root . '/site/wp-config.php', 'local configuration' );
+		$this->invoke_engine( 'Backup_Root', $this->storage, $this->storage_root . '/site/', 'local' );
+		$this->assertSame( 'local configuration', file_get_contents( $this->storage_root . '/local/wp-config.php' ) );
+	}
+
+	/**
+	 * Verify unversioned plugin backups are reused until the file timestamp changes, preserving both copies.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_unversioned_plugin_is_copied_again_after_editing() {
+		\calmpress\utils\ensure_dir_exists( $this->storage_root );
+		$source = $this->storage_root . '/plugin.php';
+		file_put_contents( $source, 'first' );
+		touch( $source, 1700000000 );
+		$first = $this->invoke_engine( 'Backup_Root_Single_File_Plugin', $this->storage, 'plugins/', $source, '' );
+		$repeat = $this->invoke_engine( 'Backup_Root_Single_File_Plugin', $this->storage, 'plugins/', $source, '' );
+		$this->assertSame( 'plugin.php/unversioned-1700000000', $first );
+		$this->assertSame( $first, $repeat );
+		file_put_contents( $source, 'second' );
+		touch( $source, 1700000010 );
+		$second = $this->invoke_engine( 'Backup_Root_Single_File_Plugin', $this->storage, 'plugins/', $source, '' );
+		$this->assertNotSame( $first, $second );
+		$this->assertSame( 'first', file_get_contents( $this->storage_root . '/plugins/' . $first . '/plugin.php' ) );
+		$this->assertSame( 'second', file_get_contents( $this->storage_root . '/plugins/' . $second . '/plugin.php' ) );
+	}
+
+	/**
+	 * Verify unversioned themes reuse a backup until the stylesheet timestamp changes.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_unversioned_theme_reuses_stylesheet_timestamp() {
+		\calmpress\utils\ensure_dir_exists( $this->storage_root );
+		$source = $this->storage_root . '/theme';
+		mkdir( $source );
+		file_put_contents( $source . '/style.css', '/* Theme Name: Unversioned */' );
+		file_put_contents( $source . '/index.php', '<?php' );
+		touch( $source . '/style.css', 1700000000 );
+		$theme = new WP_Theme( 'theme', $this->storage_root );
+		$first = $this->invoke_engine( 'Backup_Theme', $this->storage, 'themes/', $theme );
+		$second = $this->invoke_engine( 'Backup_Theme', $this->storage, 'themes/', $theme );
+		$this->assertSame( 'theme/unversioned-1700000000', $first );
+		$this->assertSame( $first, $second );
+		$this->assertCount( 1, glob( $this->storage_root . '/themes/theme/*', GLOB_ONLYDIR ) );
+
+		file_put_contents( $source . '/style.css', '/* Theme Name: Unversioned */ body {}' );
+		touch( $source . '/style.css', 1700000010 );
+		$third = $this->invoke_engine( 'Backup_Theme', $this->storage, 'themes/', $theme );
+		$this->assertSame( 'theme/unversioned-1700000010', $third );
+		$this->assertSame( '/* Theme Name: Unversioned */ body {}', file_get_contents( $this->storage_root . '/themes/' . $third . '/style.css' ) );
+	}
+
+	/**
+	 * Verify a missing languages directory produces an empty backup section.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_missing_languages_directory_still_creates_backup_section() {
+		\calmpress\utils\ensure_dir_exists( $this->storage_root );
+		$this->invoke_engine( 'Backup_Languages', $this->storage, $this->storage_root . '/missing', 'languages' );
+		$this->assertTrue( $this->storage->section_exists( 'languages' ) );
+	}
+
+	/**
+	 * Verify an options query failure raises an exception without publishing an options backup.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_options_query_failure_does_not_create_backup() {
+		\calmpress\utils\ensure_dir_exists( $this->storage_root );
+		global $wpdb;
+		$filter = static function ( $query ) {
+			if ( false !== strpos( $query, 'SELECT option_name, option_value, autoload FROM' ) ) {
+				return 'SELECT * FROM calmpress_backup_missing_table';
+			}
+			return $query;
+		};
+		$previous = $wpdb->suppress_errors();
+		add_filter( 'query', $filter );
+		try {
+			$staging = $this->storage->section_working_area_storage( 'options' );
+			$this->invoke_engine( 'Backup_Site_Options', $staging, get_current_blog_id() );
+			$this->fail( 'A failed query must not produce a successful backup.' );
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'Failed reading options for backup.', $exception->getMessage() );
+			$this->assertFalse( $this->storage->section_exists( 'options' ) );
+		} finally {
+			remove_filter( 'query', $filter );
+			$wpdb->suppress_errors( $previous );
+		}
+	}
 }
