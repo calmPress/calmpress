@@ -44,11 +44,11 @@ References to WordPress are appropriate when discussing:
 - the WordPress plugin or theme repositories; or
 - behavior intentionally inherited from WordPress.
 
-Documentation for code or behavior changed or introduced by the fork should use “CalmPress” unless it is explicitly referring to one of those WordPress contexts.
+Documentation for code or behavior changed or introduced by the fork should use â€œCalmPressâ€ unless it is explicitly referring to one of those WordPress contexts.
 
 ## Coding standards and conformance
 
-New and modified code should conform to WordPress coding practices and match the conventions of the surrounding code. Use the repository’s WordPress Coding Standards configuration as guidance for PHP formatting, naming, documentation, escaping, translations, and database access.
+New and modified code should conform to WordPress coding practices and match the conventions of the surrounding code. Use the repositoryâ€™s WordPress Coding Standards configuration as guidance for PHP formatting, naming, documentation, escaping, translations, and database access.
 
 In particular:
 
@@ -60,6 +60,9 @@ In particular:
 - Do not edit bundled third-party code unless the task explicitly requires it.
 - Do not hand-edit generated or minified files when a source file and build process exist.
 - Use `.editorconfig` as the baseline for whitespace and line endings.
+- Include `@since` in PHP docblocks for new or modified declarations, including test classes, test methods, and test helpers.
+- Separate `@param`, `@return`, and `@throws` groups with blank docblock lines.
+- Every test method must have a docblock describing the behavior being tested and an `@since` tag; a descriptive method name does not replace the docblock.
 
 Automated coding-standard, compatibility, and formatting tools are run only on demand. Do not run repository-wide PHP_CodeSniffer, compatibility analysis, or automated formatting unless explicitly requested.
 
@@ -95,6 +98,8 @@ Testing priorities are:
 Direct tests of frequently changing UX markup or decoration are generally not required. QUnit, Playwright, performance, and visual-regression infrastructure is inherited from WordPress and is not actively maintained as part of the primary CalmPress testing strategy. Do not treat the presence of those tools as a requirement to add JavaScript or browser tests for ordinary CalmPress changes.
 
 Add or update PHP tests when changing stable server behavior or fixing a server-side regression.
+
+Organize tests by the class and API they exercise, with file and class names identifying the subject. Test public behavior and nontrivial protected or private methods when direct coverage is useful; visibility alone is not a reason to omit a test. Avoid tests that merely mirror trivial implementation details. Keep each class’s tests together rather than grouping unrelated APIs by the change that introduced them.
 
 ## Rules for most changes
 
