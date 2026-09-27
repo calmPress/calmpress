@@ -2,7 +2,7 @@
 
 ## Project overview
 
-CalmPress is a content management system forked from WordPress 6.9. It aims to remain compatible with the WordPress database schema and with the public APIs used by WordPress plugins and themes.
+calmPress is a content management system forked from WordPress 6.9. It aims to remain compatible with the WordPress database schema and with the public APIs used by WordPress plugins and themes.
 
 The repository retains the WordPress development layout and much of its tooling:
 
@@ -22,7 +22,7 @@ Business rules, authorization, validation, persistence, state transitions, and s
 
 For interactive features, prefer a stable, tested PHP or REST API contract that supplies the UX. Avoid moving authoritative behavior into client-side code.
 
-CalmPress adds first-party functionality beyond standard WordPress, including components under `src/wp-includes/calmpress/`. These components use namespaces and typed PHP where appropriate while continuing to integrate with WordPress hooks and APIs.
+calmPress adds first-party functionality beyond standard WordPress, including components under `src/wp-includes/calmpress/`. These components use namespaces and typed PHP where appropriate while continuing to integrate with WordPress hooks and APIs.
 
 ## WordPress compatibility
 
@@ -34,7 +34,7 @@ When changing inherited WordPress behavior:
 - Preserve public WordPress APIs and established data formats whenever practical.
 - Do not introduce unnecessary database incompatibilities.
 - Keep compatibility behavior on the server side rather than relying on a particular admin UI.
-- Distinguish intentional CalmPress behavior from accidental divergence from WordPress.
+- Distinguish intentional calmPress behavior from accidental divergence from WordPress.
 
 References to WordPress are appropriate when discussing:
 
@@ -44,7 +44,9 @@ References to WordPress are appropriate when discussing:
 - the WordPress plugin or theme repositories; or
 - behavior intentionally inherited from WordPress.
 
-Documentation for code or behavior changed or introduced by the fork should use â€œCalmPressâ€ unless it is explicitly referring to one of those WordPress contexts.
+Documentation for code or behavior changed or introduced by the fork should use â€œcalmPressâ€ unless it is explicitly referring to one of those WordPress contexts.
+
+The product name is deliberately styled `calmPress`. Preserve this capitalization in documentation and use `@package calmPress` in PHP docblocks.
 
 ## Coding standards and conformance
 
@@ -53,7 +55,7 @@ New and modified code should conform to WordPress coding practices and match the
 In particular:
 
 - Use tabs for indentation except where repository configuration specifies otherwise.
-- In CalmPress-specific PHP, use the existing `calmpress` namespaces, class-file naming scheme, and autoloading structure.
+- In calmPress-specific PHP, use the existing `calmpress` namespaces, class-file naming scheme, and autoloading structure.
 - Use scalar parameter types and return types where they fit the surrounding API and do not break compatibility.
 - Sanitize input, validate it on the server, escape output for its context, and enforce capabilities and nonces for privileged actions.
 - Use prepared database queries and existing WordPress database APIs.
@@ -95,7 +97,7 @@ Testing priorities are:
 - compatibility-sensitive behavior; and
 - stable REST API contracts used by the UX.
 
-Direct tests of frequently changing UX markup or decoration are generally not required. QUnit, Playwright, performance, and visual-regression infrastructure is inherited from WordPress and is not actively maintained as part of the primary CalmPress testing strategy. Do not treat the presence of those tools as a requirement to add JavaScript or browser tests for ordinary CalmPress changes.
+Direct tests of frequently changing UX markup or decoration are generally not required. QUnit, Playwright, performance, and visual-regression infrastructure is inherited from WordPress and is not actively maintained as part of the primary calmPress testing strategy. Do not treat the presence of those tools as a requirement to add JavaScript or browser tests for ordinary calmPress changes.
 
 Add or update PHP tests when changing stable server behavior or fixing a server-side regression.
 
@@ -106,7 +108,7 @@ Organize tests by the class and API they exercise, with file and class names ide
 - Inspect existing behavior, nearby code, and relevant tests before editing.
 - Preserve unrelated work already present in the worktree.
 - Keep changes focused on the requested behavior.
-- Prefer existing CalmPress and WordPress APIs over parallel abstractions.
+- Prefer existing calmPress and WordPress APIs over parallel abstractions.
 - Keep essential behavior in PHP and expose stable server contracts to the UX.
 - Maintain database, plugin, and theme compatibility unless divergence is explicit.
 - Preserve existing hooks and filters; add extensibility through established WordPress patterns when needed.

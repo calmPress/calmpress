@@ -301,7 +301,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			$ret[] = $file->getFilename();
 		}
 
-		// CalmPress also supports configuration one directory above the installation.
+		// calmPress also supports configuration one directory above the installation.
 		$parent_config = dirname( rtrim( $source_dir, '/\\' ) ) . '/wp-config.php';
 		if ( ! file_exists( $source_dir . '/wp-config.php' ) && is_file( $parent_config ) && ! is_link( $parent_config ) ) {
 			$staging->copy_file( $parent_config, 'wp-config.php' );
@@ -791,22 +791,27 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	public static function data_description( array $data ): string {
 		$ret = '<p>' . esc_html__( 'Core version: ' ) . esc_html( $data['version'] ) . '</p>';
 		$ret .= '<h3>' . esc_html__( 'Plugins' ) . '</h3>';
+		if ( empty( $data['plugins'] ) ) {
+			$ret .= '<p>' . esc_html__( 'None' ) . '</p>';
+		}
 		foreach ( $data['plugins'] as $plugin_data ) {
 			switch ( $plugin_data['type'] ) {
 				case 'root_file':
 					$ret .= '<p>' . esc_html(
-						sprintf( __( '%1s version %2s at plugins root directory' ),
+						/* translators: 1: Plugin name, 2: Plugin version. */
+						sprintf( __( '%1$s — version %2$s (plugins root directory)' ),
 							$plugin_data['data']['name'],
-							$plugin_data['data']['version']
+							$plugin_data['data']['version'] ?: __( 'Not specified' )
 						)
 					) . '</p>';
 					break;
 				case 'directory':
 					foreach ( $plugin_data['data'] as $pdata ) {
 						$ret .= '<p>' . esc_html(
-							sprintf( __( '%1s version %2s at the %3s directory' ),
+							/* translators: 1: Plugin name, 2: Plugin version, 3: Plugin directory. */
+							sprintf( __( '%1$s — version %2$s (%3$s)' ),
 								$pdata['name'],
-								$pdata['version'],
+								$pdata['version'] ?: __( 'Not specified' ),
 								$pdata['directory']
 							)
 						) . '</p>';
@@ -822,36 +827,40 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		$ret .= '<h3>' . esc_html__( 'MU Plugins' ) . '</h3>';
 		$ret .= '<p>';
 		if ( isset( $data['mu_plugins'] ) ) {
-			$ret .= __( 'Exists' );
+			$ret .= esc_html__( 'Included' );
 		} else {
-			$ret .= __( 'Do not exists' );
+			$ret .= esc_html__( 'None' );
 		}
 		$ret .= '</p>';
 
-		$ret .= '<h3>' . esc_html__( 'Drop in Plugins' ) . '</h3>';
+		$ret .= '<h3>' . esc_html__( 'Drop-in plugins' ) . '</h3>';
 		if ( empty( $data['dropins']['files'] ) ) {
 			$ret .= __( 'None' );
 		} else {
 			foreach ( $data['dropins']['files'] as $filename ) {
-				$ret .= '<p>' . $filename . '</p>';
+				$ret .= '<p>' . esc_html( $filename ) . '</p>';
 			}
 		}
 
-		$ret .= '<h3>' . esc_html__( 'Files at root directory' ) . '</h3>';
+		$ret .= '<h3>' . esc_html__( 'Root files' ) . '</h3>';
 		if ( empty( $data['root_directory']['files'] ) ) {
 			$ret .= __( 'None' );
 		} else {
 			foreach ( $data['root_directory']['files'] as $filename ) {
-				$ret .= '<p>' . $filename . '</p>';
+				$ret .= '<p>' . esc_html( $filename ) . '</p>';
 			}
 		}
 
 		$ret .= '<h3>' . esc_html__( 'Themes' ) . '</h3>';
+		if ( empty( $data['themes'] ) ) {
+			$ret .= '<p>' . esc_html__( 'None' ) . '</p>';
+		}
 		foreach ( $data['themes'] as $theme_data ) {
 			$ret .= '<p>' . esc_html(
-				sprintf( __( '%1s version %2s at the %3s directory' ),
+				/* translators: 1: Theme name, 2: Theme version, 3: Theme directory. */
+				sprintf( __( '%1$s — version %2$s (%3$s)' ),
 					$theme_data['name'],
-					$theme_data['version'],
+					$theme_data['version'] ?: __( 'Not specified' ),
 					$theme_data['directory_name']
 				)
 			) . '</p>';

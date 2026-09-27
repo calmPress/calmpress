@@ -2,7 +2,7 @@
 /**
  * Test the local backup storage API.
  *
- * @package CalmPress
+ * @package calmPress
  * @since 1.0.0
  */
 
