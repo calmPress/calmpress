@@ -32,12 +32,6 @@ function add_handlers(): void {
 	// Object cache restart form submittion.
 	add_action( 'admin_post_object_cache_reset', '\calmpress\object_cache\Utils::handle_object_cache_reset' );
 
-	// Backup delete "GET" (link) action.
-	add_action( 'admin_post_delete_backup', '\calmpress\backup\Utils::handle_delete_backup' );
-
-	// Backup delete "GET" (link) action.
-	add_action( 'admin_post_bulk_backup', '\calmpress\backup\Utils::handle_bulk_backup' );
-
 	// Site invitation response form submissions.
 	add_action( 'admin_post_accept_site_invitation', __NAMESPACE__ . '\handle_site_invitation_response' );
 	add_action( 'admin_post_decline_site_invitation', __NAMESPACE__ . '\handle_site_invitation_response' );

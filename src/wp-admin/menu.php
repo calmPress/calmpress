@@ -337,7 +337,7 @@ $menu[80]                               = array( __( 'Settings' ), 'manage_optio
 if ( ! is_multisite() ) {
 $menu[85]                       = array( __( 'Backups' ), 'backup', 'backups.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-database' );
 	$submenu['backups.php'][10] = array( __( 'Backups' ), 'backup', 'backups.php' );
-	$submenu['backups.php'][15] = array( __( 'Create New' ), 'backup', 'backup-new.php' );
+	$submenu['backups.php'][15] = array( __( 'Create Backup' ), 'backup', 'backup-new.php' );
 }
 
 $_wp_last_utility_menu = 90; // The index of the last top-level menu in the utility menu group.

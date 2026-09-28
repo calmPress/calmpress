@@ -43,7 +43,7 @@ interface Engine_Specific_Backup {
 	 * @param array $data The data related to the engine which was generated at the time of backup.
 	 *
 	 * @return string An HTML containing the description. It is possible to assume it will be contained
-	 *                in a div or other block element. Use h3+ for subsections titles if needed.
+	 *                in a div or other block element below an h3 heading. Use h4+ for subsection titles if needed.
 	 */
 	public static function data_description( array $data ): string;
 

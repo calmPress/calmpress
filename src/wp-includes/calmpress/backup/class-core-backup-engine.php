@@ -790,7 +790,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 */
 	public static function data_description( array $data ): string {
 		$ret = '<p>' . esc_html__( 'Core version: ' ) . esc_html( $data['version'] ) . '</p>';
-		$ret .= '<h3>' . esc_html__( 'Plugins' ) . '</h3>';
+		$ret .= '<h4>' . esc_html__( 'Plugins' ) . '</h4>';
 		if ( empty( $data['plugins'] ) ) {
 			$ret .= '<p>' . esc_html__( 'None' ) . '</p>';
 		}
@@ -824,7 +824,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		}
 
 		
-		$ret .= '<h3>' . esc_html__( 'MU Plugins' ) . '</h3>';
+		$ret .= '<h4>' . esc_html__( 'MU Plugins' ) . '</h4>';
 		$ret .= '<p>';
 		if ( isset( $data['mu_plugins'] ) ) {
 			$ret .= esc_html__( 'Included' );
@@ -833,7 +833,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		}
 		$ret .= '</p>';
 
-		$ret .= '<h3>' . esc_html__( 'Drop-in plugins' ) . '</h3>';
+		$ret .= '<h4>' . esc_html__( 'Drop-in plugins' ) . '</h4>';
 		if ( empty( $data['dropins']['files'] ) ) {
 			$ret .= __( 'None' );
 		} else {
@@ -842,7 +842,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			}
 		}
 
-		$ret .= '<h3>' . esc_html__( 'Root files' ) . '</h3>';
+		$ret .= '<h4>' . esc_html__( 'Root files' ) . '</h4>';
 		if ( empty( $data['root_directory']['files'] ) ) {
 			$ret .= __( 'None' );
 		} else {
@@ -851,7 +851,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			}
 		}
 
-		$ret .= '<h3>' . esc_html__( 'Themes' ) . '</h3>';
+		$ret .= '<h4>' . esc_html__( 'Themes' ) . '</h4>';
 		if ( empty( $data['themes'] ) ) {
 			$ret .= '<p>' . esc_html__( 'None' ) . '</p>';
 		}
@@ -864,7 +864,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 					$theme_data['directory_name']
 				)
 			) . '</p>';
-}
+		}
 
 		return $ret;
 	}

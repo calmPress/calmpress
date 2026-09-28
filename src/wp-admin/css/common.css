@@ -2226,6 +2226,24 @@ html.wp-toolbar {
 	box-shadow: none;
 }
 
+/* Backup information and confirmation summaries. */
+.backup-summary {
+	margin: 1em 0;
+	border-collapse: collapse;
+}
+
+.backup-summary th,
+.backup-summary td {
+	padding: 4px 0;
+	text-align: start;
+	vertical-align: top;
+	overflow-wrap: anywhere;
+}
+
+.backup-summary th {
+	padding-inline-end: 24px;
+}
+
 .postbox table.form-table {
 	margin-bottom: 0;
 }
