@@ -56,6 +56,7 @@ In particular:
 
 - Use tabs for indentation except where repository configuration specifies otherwise.
 - Always use braces for new PHP control-flow code, including templates. Do not use alternative syntax such as `if (...): ... endif;`, `foreach (...): ... endforeach;`, or `switch (...): ... endswitch;`.
+- Do not declare classes or methods `final` unless a concrete design requirement justifies preventing extension.
 - In calmPress-specific PHP, use the existing `calmpress` namespaces, class-file naming scheme, and autoloading structure.
 - Use scalar parameter types and return types where they fit the surrounding API and do not break compatibility.
 - Sanitize input, validate it on the server, escape output for its context, and enforce capabilities and nonces for privileged actions.
