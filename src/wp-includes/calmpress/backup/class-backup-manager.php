@@ -11,11 +11,26 @@ declare(strict_types=1);
 namespace calmpress\backup;
 
 /**
- * A local backup class representing the backups stored at the default core backup folder.
+ * Coordinates backup engines, section storages, and the shared backup catalog.
  *
  * @since 1.0.0
  */
 class Backup_Manager {
+	/**
+	 * Directory containing the shared backup metadata catalog.
+	 *
+	 * @since 1.0.0
+	 */
+	private string $metadata_directory;
+
+	/**
+	 * Catalog files indexed by backup identifier after reading the catalog.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var array<string, string>
+	 */
+	private array $backup_files = array();
 
 	/**
 	 * Holds the registered storages.
@@ -39,8 +54,14 @@ class Backup_Manager {
 	 * Initialize the manager, mainly give a backup storages and engine chance to register.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param ?string $metadata_directory Shared backup metadata directory; defaults to the calmPress private backup catalog.
+	 *
+	 * @throws \RuntimeException If the metadata directory cannot be created.
 	 */
-	public function __construct() {
+	public function __construct( ?string $metadata_directory = null ) {
+		$this->metadata_directory = trailingslashit( $metadata_directory ?? WP_CONTENT_DIR . '/.private/backup/backups-meta' );
+		\calmpress\utils\ensure_dir_exists( $this->metadata_directory );
 
 		$this->register_storage( new Local_Backup_Storage() );
 
@@ -183,26 +204,57 @@ class Backup_Manager {
 	}
 
 	/**
-	 * Get all the available backs in all of the registered storages.
-	 * The returned array of backups is sorted with the latest backup as first element
-	 * an latest as last.
+	 * List backups in the shared catalog, newest first.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return \calmpress\backup\Backup[] A sorted array containing all the backups.
 	 */
 	public function existing_backups() : array {
-		$backups = [];
+		return $this->read_backups( false );
+	}
 
-		foreach ( $this->storages as $storage ) {
-			$bks = $storage->backups()->as_array();
-			foreach ( $bks as $backup ) {
+	/**
+	 * Read the shared backup catalog, optionally removing malformed records.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool $remove_malformed Whether to remove malformed metadata files.
+	 *
+	 * @return Backup[] Valid backups whose section storage is registered.
+	 */
+	private function read_backups( bool $remove_malformed ): array {
+		$backups = [];
+		$this->backup_files = array();
+		foreach ( glob( $this->metadata_directory . '*.json' ) ?: array() as $file ) {
+			$metadata = @file_get_contents( $file );
+			if ( false === $metadata ) {
+				continue;
+			}
+			$data = json_decode( $metadata, true );
+			$storage_id = is_array( $data ) ? ( $data['storage_id'] ?? null ) : null;
+			if ( ! is_string( $storage_id ) ) {
+				$this->handle_malformed_metadata( $file, $remove_malformed );
+				continue;
+			}
+			$storage = $this->registered_storage_by_id( $storage_id );
+			if ( null === $storage ) {
+				$this->handle_malformed_metadata( $file, $remove_malformed );
+				continue;
+			}
+			try {
+				$backup = new Backup( $metadata, $storage );
 				$backups[] = $backup;
+				$this->backup_files[ $backup->unique_id ] = $file;
+			} catch ( \Exception $exception ) {
+				$this->handle_malformed_metadata( $file, $remove_malformed );
 			}
 		}
 
 		usort(
 			$backups,
 			static function ( $a, $b ) {
-				return $b->time_created() <=> $a->time_created();
+				return $b->time <=> $a->time;
 			}
 		);
 
@@ -210,7 +262,29 @@ class Backup_Manager {
 	}
 
 	/**
-	 * Get a specific backup base on its identifier.
+	 * Report a malformed catalog file and remove it during cleanup.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $file             Metadata file path.
+	 * @param bool   $remove_malformed Whether cleanup is removing malformed files.
+	 *
+	 * @throws \RuntimeException If a malformed metadata file cannot be deleted.
+	 */
+	private function handle_malformed_metadata( string $file, bool $remove_malformed ): void {
+		if ( $remove_malformed ) {
+			if ( ! @unlink( $file ) ) {
+				throw new \RuntimeException( 'Failed deleting malformed backup metadata: ' . $file );
+			}
+		} else {
+			trigger_error( 'Failed parsing the backup metadata file ' . $file );
+		}
+	}
+
+	/**
+	 * Find a backup in the shared catalog by its identifier.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param string $id The identifier.
 	 *
@@ -220,12 +294,9 @@ class Backup_Manager {
 	 */
 	public function backup_by_id( string $id ) : \calmpress\backup\Backup {
 
-		foreach ( $this->storages as $storage ) {
-			$bks = $storage->backups()->as_array();
-			foreach ( $bks as $backup ) {
-				if ( $id === $backup->identifier() ) {
-					return $backup;
-				}
+		foreach ( $this->existing_backups() as $backup ) {
+			if ( $id === $backup->unique_id ) {
+				return $backup;
 			}
 		}
 
@@ -244,8 +315,8 @@ class Backup_Manager {
 	 *
 	 * @throws \Exception When a storage or engine identified by the parameters do not exists, or some
 	 *                    error happening during backup.
- 	 * @throws Timeout_Exception If backup ran out of allocated time interval
-	 *                           and requires more "time slices" to complete.
+	 * @throws \calmpress\calmpress\Timeout_Exception If backup ran out of allocated time interval
+	 *                                                and requires more "time slices" to complete.
 	 */
 	public function create_backup(
 		string $description,
@@ -267,16 +338,86 @@ class Backup_Manager {
 			$engines[ $engine_id ] = $engine;
 		}
 
-		$engines_data = [];
+		$sections_by_engine = [];
 		foreach ( $engines as $id => $engine ) {
-			$engines_data[ $id ] = $engine::backup( $storage, $timeout );
+			$sections = $engine::backup( $storage, $timeout );
+
+			// Keep the engine's name in the backup so it remains identifiable if the engine is later removed.
+			$sections_by_engine[ $id ] = array(
+				'description' => $engine::description(),
+				'sections'    => $sections,
+			);
 		}
 
-		$storage->store_backup_meta( Backup::new_backup_meta( $description, $engines_data ) );
+		$this->store_backup_meta(
+			wp_json_encode(
+				array(
+					'description' => $description,
+					'time'        => time(),
+					'unique_id'   => wp_generate_uuid4(),
+					'storage_id'  => $storage_id,
+					'engines'     => $sections_by_engine,
+				)
+			)
+		);
 	}
 
 	/**
-	 * Delete a backup from whatever storage it is on.
+	 * Write backup metadata to the shared catalog.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $metadata Encoded backup metadata.
+	 *
+	 * @throws \RuntimeException If the metadata cannot be written or moved into place.
+	 */
+	private function store_backup_meta( string $metadata ): void {
+		$path = $this->metadata_directory . wp_generate_uuid4() . '.json';
+		$temp = $path . '.tmp';
+		try {
+			if ( strlen( $metadata ) !== @file_put_contents( $temp, $metadata ) ) {
+				throw new \RuntimeException( 'Failed writing backup metadata.' );
+			}
+			if ( ! @rename( $temp, $path ) ) {
+				throw new \RuntimeException( 'Failed moving backup metadata into place.' );
+			}
+		} finally {
+			if ( file_exists( $temp ) ) {
+				@unlink( $temp );
+			}
+		}
+	}
+
+	/**
+	 * Clean registered backup storages which support automatic cleanup.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function cleanup_registered_storages(): void {
+		( new Backup_Manager() )->cleanup();
+	}
+
+	/**
+	 * Remove malformed catalog records and expired unreferenced sections.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws \RuntimeException If a catalog file or section selected for cleanup cannot be deleted.
+	 */
+	public function cleanup(): void {
+		$references = array();
+		foreach ( $this->read_backups( true ) as $backup ) {
+			foreach ( $backup->section_identities() as $identity ) {
+				$references[ $backup->storage->identifier() ][] = $identity;
+			}
+		}
+		foreach ( $this->storages as $id => $storage ) {
+			$storage->cleanup( time() - WEEK_IN_SECONDS, $references[ $id ] ?? array() );
+		}
+	}
+
+	/**
+	 * Delete a backup record from the shared catalog.
 	 * 
 	 * No failure if the backup did not exist.
 	 *
@@ -294,6 +435,9 @@ class Backup_Manager {
 			return;
 		}
 
-		$backup->delete();
+		$file = $this->backup_files[ $backup->unique_id ];
+		if ( ! @unlink( $file ) ) {
+			throw new \RuntimeException( 'Failed deleting backup metadata: ' . $file );
+		}
 	}
 }

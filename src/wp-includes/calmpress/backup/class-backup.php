@@ -22,16 +22,7 @@ class Backup {
 	 *
 	 * @since 1.0.0
 	 */
-	protected Backup_Storage $storage;
-
-	/**
-	 * A unique identifier of the backup in the storage.
-	 *
-	 * @var string
-	 *
-	 * @since 1.0.0
-	 */
-	protected string $in_storage_id;
+	public readonly Backup_Storage $storage;
 
 	/**
 	 * The unix time in which the backup was created.
@@ -40,7 +31,7 @@ class Backup {
 	 *
 	 * @since 1.0.0
 	 */
-	protected int $time;
+	public readonly int $time;
 
 	/**
 	 * A unique identifier for the backup.
@@ -49,7 +40,7 @@ class Backup {
 	 *
 	 * @since 1.0.0
 	 */
-	protected string $unique_id;
+	public readonly string $unique_id;
 
 	/**
 	 * The backup's description.
@@ -58,16 +49,25 @@ class Backup {
 	 *
 	 * @since 1.0.0
 	 */
-	protected string $description;
+	public readonly string $description;
 
 	/**
-	 * The engines which were used when creating the backup the data associate with them.
+	 * The engines which were used when creating the backup and their section identities.
 	 * 
-	 * @var string[]
+	 * @var array<string, Backup_Section_Identity[]>
 	 *
 	 * @since 1.0.0
 	 */
-	protected array $engines;
+	public readonly array $engines;
+
+	/**
+	 * Descriptions captured when each backup engine ran.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var array<string, string>
+	 */
+	public readonly array $engine_descriptions;
 
 	/**
 	 * Constructor of a backup object.
@@ -76,20 +76,21 @@ class Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string         $json_data     The "meta" data about the backup in a json format.
-	 * @param Backup_Storage $storage       The storage on which the backup resides.
-	 * @param string         $in_storage_id The unique id of the backup in the storage.
+	 * @param string         $json_data The "meta" data about the backup in a json format.
+	 * @param Backup_Storage $storage   The storage containing the backup's sections.
 	 *
-	 * @throws \Exception If the $json_data is malformed json or do not contain all the info
-	 *                    in the expected format.
+	 * @throws \Exception If the metadata is malformed or does not contain the expected information.
 	 */
-	public function __construct( string $json_data, Backup_Storage $storage, string $in_storage_id ) {
-		$this->storage       = $storage;
-		$this->in_storage_id = $in_storage_id;
+	public function __construct( string $json_data, Backup_Storage $storage ) {
+		$this->storage = $storage;
 
 		$data = json_decode( $json_data, true );
 		if ( null === $data ) {
 			throw new \Exception( 'Not a valid json format ' );
+		}
+		$storage_id = $data['storage_id'] ?? null;
+		if ( ! is_string( $storage_id ) || $storage_id !== $storage->identifier() ) {
+			throw new \Exception( 'The "storage_id" field does not identify the section storage.' );
 		}
 
 		if ( ! isset( $data[ 'description' ] ) ) {
@@ -129,64 +130,26 @@ class Backup {
 			throw new \Exception( 'The "engines" field is not an array' );
 		}
 
-		$this->engines = $data[ 'engines' ];
-	}
+		$engines             = array();
+		$engine_descriptions = array();
+		foreach ( $data['engines'] as $engine_id => $engine_data ) {
+			if ( ! is_string( $engine_id ) || ! is_array( $engine_data ) || ! is_string( $engine_data['description'] ?? null ) || ! is_array( $engine_data['sections'] ?? null ) ) {
+				throw new \Exception( 'The "engines" field contains invalid engine data.' );
+			}
+			$engine_sections = $engine_data['sections'];
+			$sections = array();
+			foreach ( $engine_sections as $identity ) {
+				if ( ! is_array( $identity ) || ! is_string( $identity['type'] ?? null ) || ! is_string( $identity['location'] ?? null ) || ! is_string( $identity['version'] ?? null ) ) {
+					throw new \Exception( 'Engine backup data contains an invalid section identity' );
+				}
+				$sections[] = new Backup_Section_Identity( $identity['type'], $identity['location'], $identity['version'] );
+			}
+			$engines[ $engine_id ] = $sections;
+			$engine_descriptions[ $engine_id ] = $engine_data['description'];
+		}
+		$this->engines             = $engines;
+		$this->engine_descriptions = $engine_descriptions;
 
-	/**
-	 * A unique identifier for the backup.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The id.
-	 */
-	public function identifier() : string {
-		return $this->unique_id;
-	}
-
-	/**
-	 * The server unix time in which the backup was created.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return int The unix time.
-	 */
-	public function time_created() : int {
-		return $this->time;
-	}
-
-	/**
-	 * The human readable description of the backup.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The description.
-	 */
-	public function description() : string {
-		return $this->description;
-	}
-
-	/**
-	 * Create a new backup meta json string based on the description and engines data.
-	 *
-	 * The backup creation time and unique id are automattically generated.
-	 *
-	 * @param string $description  The backup's description.
-	 * @param array  $engines_data An array containing data of the engines used in the creation
-	 *                             of the backup and relevant associated data. The array keys are
-	 *                             the identifiers of the engines.
-	 *
-	 * @return string json string that can be used to reconstruct the backup's information.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function new_backup_meta( string $description, array $engines_data ): string {
-		$o = new \stdClass();
-		$o->description = $description;
-		$o->time        = time(); // Note: the timezone is set to UTC bootstrap time. 
-		$o->unique_id   = wp_generate_uuid4();
-		$o->engines     = $engines_data;
-
-		return json_encode( $o );
 	}
 
 	/**
@@ -238,36 +201,69 @@ class Backup {
 	}
 
 	/**
-	 * Delete the backup's meta in the storage.
-	 * 
+	 * Section identities referenced by the backup.
+	 *
 	 * @since 1.0.0
+	 *
+	 * @return Backup_Section_Identity[] Referenced section identities.
 	 */
-	public function delete() {
+	public function section_identities(): array {
+		$identities = array();
+		foreach ( $this->engines as $engine_sections ) {
+			foreach ( $engine_sections as $identity ) {
+				$identities[] = $identity;
+			}
+		}
 
-		$this->storage->delete_backup_meta( $this->in_storage_id );
+		return $identities;
 	}
 
 	/**
-	 * The data about the engines and their data which were used to create the backup.
-	 * 
-	 * The array index is the engine identifier, and the value is the actual data.
+	 * Sections referenced by the backup.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array
+	 * @return iterable<Backup_Section> Referenced sections.
+	 *
+	 * @throws \RuntimeException If a referenced section does not exist in the storage.
 	 */
-	public function engines_data(): array {
-		return $this->engines;
+	public function sections(): iterable {
+		foreach ( $this->engines as $engine_sections ) {
+			foreach ( $engine_sections as $identity ) {
+				$section = $this->storage->section( $identity );
+				if ( null === $section ) {
+					throw new \RuntimeException( 'A section referenced by the backup does not exist in the storage.' );
+				}
+				yield $section;
+			}
+		}
 	}
 
 	/**
-	 * The engines which were used in creating the backup.
-	 * 
+	 * Sections referenced by one backup engine.
+	 *
 	 * @since 1.0.0
 	 *
-	 * @return string[]
+	 * @param string $engine_id The backup engine identifier.
+	 *
+	 * @return Backup_Section[] Referenced sections.
+	 *
+	 * @throws \RuntimeException If the engine or a referenced section does not exist.
 	 */
-	public function engines(): array {
-		return array_keys( $this->engines );
+	public function engine_sections( string $engine_id ): array {
+		if ( ! isset( $this->engines[ $engine_id ] ) ) {
+			throw new \RuntimeException( 'The backup engine does not exist in this backup.' );
+		}
+		$sections = array();
+		foreach ( $this->engines[ $engine_id ] as $identity ) {
+			$section = $this->storage->section( $identity );
+			if ( null === $section ) {
+				throw new \RuntimeException( 'A section referenced by the backup does not exist in the storage.' );
+			}
+			$sections[] = $section;
+		}
+
+		return $sections;
 	}
+
 }

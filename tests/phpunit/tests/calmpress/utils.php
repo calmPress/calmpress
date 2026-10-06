@@ -15,6 +15,85 @@ use function calmpress\utils\insert_style_into_html_head;
 class WP_Test_Utils extends WP_UnitTestCase {
 
 	/**
+	 * Verify empty_directory removes nested contents while preserving the root directory.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_empty_directory_preserves_root() {
+		$directory = get_temp_dir() . 'empty-directory-' . wp_generate_uuid4();
+		mkdir( $directory . '/nested', 0777, true );
+		file_put_contents( $directory . '/file', 'contents' );
+		file_put_contents( $directory . '/nested/file', 'contents' );
+
+		utils\empty_directory( $directory );
+
+		$this->assertDirectoryExists( $directory );
+		$this->assertSame( array(), glob( $directory . '/*' ) );
+		rmdir( $directory );
+	}
+
+	/**
+	 * Verify delete_directory removes a complete nested directory tree.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_delete_directory_removes_root() {
+		$directory = get_temp_dir() . 'delete-directory-' . wp_generate_uuid4();
+		mkdir( $directory . '/nested', 0777, true );
+		file_put_contents( $directory . '/nested/file', 'contents' );
+
+		utils\delete_directory( $directory );
+
+		$this->assertDirectoryDoesNotExist( $directory );
+	}
+
+	/**
+	 * Verify directory deletion utilities reject paths which are not directories.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_empty_directory_rejects_non_directory() {
+		$file = get_temp_dir() . 'empty-directory-file-' . wp_generate_uuid4();
+		file_put_contents( $file, 'contents' );
+
+		try {
+			utils\empty_directory( $file );
+			$this->fail( 'Emptying a file path must fail.' );
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'The path is not a directory: ' . $file, $exception->getMessage() );
+		} finally {
+			unlink( $file );
+		}
+	}
+
+	/**
+	 * Verify empty_directory removes a symbolic link without touching its target.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_empty_directory_does_not_follow_symbolic_links() {
+		$directory = get_temp_dir() . 'empty-directory-links-' . wp_generate_uuid4();
+		$target    = get_temp_dir() . 'empty-directory-target-' . wp_generate_uuid4();
+		mkdir( $directory );
+		mkdir( $target );
+		file_put_contents( $target . '/file', 'contents' );
+		if ( ! @symlink( $target, $directory . '/link' ) ) {
+			rmdir( $directory );
+			unlink( $target . '/file' );
+			rmdir( $target );
+			$this->markTestIncomplete( 'Symbolic links are unavailable on this system.' );
+		}
+
+		utils\empty_directory( $directory );
+
+		$this->assertFileExists( $target . '/file' );
+		$this->assertFileDoesNotExist( $directory . '/link' );
+		rmdir( $directory );
+		unlink( $target . '/file' );
+		rmdir( $target );
+	}
+
+	/**
 	 * Test the enqueue_inline_style_once function.
 	 *
 	 * @since 1.0.0

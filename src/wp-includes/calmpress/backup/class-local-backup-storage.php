@@ -20,23 +20,17 @@ namespace calmpress\backup;
  * Can be used to RAM based disk volume and other non persistant storage,
  * but that is obviously not recommended.
  *
- * The files in the directory should be only the zipped files and meta files named *.meta
- * which contains information about the backup.
- * The meta files contain json information about the backup which must include at least
- * the following fields:
- *  - 'backup_file'    - A string, the file name of the actual backup file relative to
- *                       the backup directory.
- *  - 'description'    - A string, the human readable description of the backup.
- *  - 'backup_engines' - An array of strings used to identify which engines created parts
- *                       or all of the backup. a value of 'core' indicates the minimal core
- *                       backup.
- *  - 'time_created'   - An integer, the unix time in which the backup was created.
- * Meta files can include any other information as well, as long as the json is valid and
- * contains the mandatory fields.
+ * Stores committed sections and their metadata.
  *
  * @since 1.0.0
  */
-class Local_Backup_Storage implements Backup_Storage {
+class Local_Backup_Storage extends Backup_Storage {
+	/**
+	 * Directory containing committed section metadata files.
+	 *
+	 * @since 1.0.0
+	 */
+	const SECTION_META_DIRECTORY = 'sections-meta';
 
 	/**
 	 * The root directory at which backups are stored.
@@ -69,10 +63,13 @@ class Local_Backup_Storage implements Backup_Storage {
 	 *
 	 * @param string $root The absolute path of the backups root directory.
 	 * @param string $id   The identifier to be used when internally identifying the storage.
+	 *
+	 * @throws \RuntimeException If the storage root directory cannot be created.
 	 */
 	public function __construct( string $root = WP_CONTENT_DIR . '/.private/backup/', $id = 'default_local_storage' ) {
 		$this->root = trailingslashit( $root );
 		$this->id   = $id;
+		\calmpress\utils\ensure_dir_exists( $this->root );
 	}
 
 	/**
@@ -98,145 +95,73 @@ class Local_Backup_Storage implements Backup_Storage {
 	}
 
 	/**
-	 * The backups stored at this storage.
+	 * The committed sections stored in this storage.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return Backup_Container A container which contains the backups.
+	 * @return Backup_Section[] Committed sections with valid manifests.
 	 */
-	public function backups() : Backup_Container {
-		$container = new Backup_Container();
-
-		foreach ( glob( $this->root . 'meta-*.json' ) as $file ) {
-			try {
-				$meta = @file_get_contents( $file );
-				if ( $meta === false ) {
-					// could not read the file, log the even and continue to next file. 
-					trigger_error( \calmpress\utils\last_error_message() );
-					continue;
-				} 
-				$backup = new Backup( $meta, $this, $file );
-			} catch ( \Exception $e ) {
-				// Failed to create an object for the backup, log it and move on to the next.
-				trigger_error( 'Failed parsing the backup meta file ' . $file . ' because: ' . $e->getMessage() );
+	public function sections(): array {
+		$sections       = array();
+		$expected_fields = array(
+			'type'          => 'string',
+			'location'      => 'string',
+			'version'       => 'string',
+			'display_name'  => 'string',
+			'creation_time' => 'integer',
+			'directory'     => 'string',
+		);
+		$files = glob( $this->root . self::SECTION_META_DIRECTORY . '/*.json' ) ?: array();
+		foreach ( $files as $file ) {
+			// Fetch and verify the contents of the section metadata file.
+			$data = json_decode( (string) @file_get_contents( $file ), true );
+			if ( ! is_array( $data ) ) {
+				trigger_error( 'Failed parsing the backup section metadata file ' . $file . ' because it does not contain a JSON object.' );
 				continue;
 			}
-			$container->Add( $backup );
-		}
-
-		return $container;
-	}
-
-	/**
-	 * Check if a specific backup section. A section in the context of this storage is a directory.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $uri The path to check relative to the storage's root.
-	 *
-	 * @return bool true if the directory exists, otherwise false.
-	 */
-	public function section_exists( string $uri ): bool {
-		$dir = $this->root . ltrim( $uri, '/' );
-
-		if ( ! file_exists( $dir ) ) {
-			return false;
-		}
-
-		return is_dir( $dir );
-	}
-
-	/**
-	 * Copy a file to storage.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $source    The absolute path to the file to copy.
-	 * @param string $dest_path The copied file's path relative to storage root.
-	 *
-	 * @throws \RuntimeException If the source file does not exist or the copy fails.
-	 */
-	public function copy_file( string $source, string $dest_path ) {
-		$dest = $this->root . $dest_path;
-
-		$dir = dirname( $dest );
-		\calmpress\utils\ensure_dir_exists( $dir );
-
-		if ( ! is_file( $source ) ) {
-			throw new \RuntimeException( sprintf( __( '%s is not a file or does not exist' ), $source ) );
-		}
-
-		$res = @copy( $source, $dest );
-		if ( ! $res) {
-			throw new \RuntimeException( 'Failed to copy file: ' . \calmpress\utils\last_error_message() );
-		}
-	}
-
-	/**
-	 * Gets a "Read Only" file handler that provides access to reading a file.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $relative_path The file's path relative to storage root.
-	 * 
-	 * @return \calmpress\filesystem\Read_Only_File An read only file representation that enables read
-	 *                                              access to the file.
-	 */
-	public function read_handler_for( string $relative_path ): \calmpress\filesystem\Read_Only_File {
-		return new \calmpress\filesystem\Read_Only_File( $this->root . $relative_path );
-	}
-
-	/**
-	 * Store a backup meta information at the location where such information is stored on the
-	 * specific storage.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $meta The meta information of a backup to be stored.
-	 */
-	public function store_backup_meta( string $meta ) {
-		\calmpress\utils\ensure_dir_exists( $this->root );
-		$path = $this->root . 'meta-' . wp_generate_uuid4() . '.json';
-		$temp = $path . '.tmp';
-		try {
-			if ( strlen( $meta ) !== @file_put_contents( $temp, $meta ) ) {
-				throw new \RuntimeException( 'Failed writing backup metadata.' );
+			$valid = true;
+			foreach ( $expected_fields as $field => $type ) {
+				if ( ! array_key_exists( $field, $data ) ) {
+					trigger_error( 'Failed parsing the backup section metadata file ' . $file . ' because the "' . $field . '" field is missing.' );
+					$valid = false;
+					break;
+				}
+				if ( $type !== gettype( $data[ $field ] ) ) {
+					trigger_error( 'Failed parsing the backup section metadata file ' . $file . ' because the "' . $field . '" field must have type ' . $type . '.' );
+					$valid = false;
+					break;
+				}
 			}
-			if ( ! @rename( $temp, $path ) ) {
-				throw new \RuntimeException( 'Failed publishing backup metadata.' );
+			if ( ! $valid ) {
+				continue;
 			}
-		} finally {
-			if ( file_exists( $temp ) ) {
-				@unlink( $temp );
+			// Construction verifies the stored section files. Report and skip an invalid section.
+			try {
+				$identity   = new Backup_Section_Identity( $data['type'], $data['location'], $data['version'] );
+				$sections[] = new Local_Backup_Section( $identity, $data['creation_time'], $data['display_name'], $this->root . $data['directory'], $file );
+			} catch ( \RuntimeException $e ) {
+				trigger_error( 'Failed loading the backup section described by ' . $file . ' because: ' . $e->getMessage() );
+				continue;
 			}
 		}
+
+		return $sections;
 	}
 
 	/**
-	 * Delete the backup meta information of a specific backup
+	 * Create a temporary local working area for a section.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $id In this storage it is expected to be the full path to the meta file.
+	 * @param Backup_Section_Identity $identity     Section identity.
+	 * @param string                  $display_name Human-readable section name.
+	 *
+	 * @return Temporary_Backup_Section Temporary section.
+	 *
+	 * @throws \RuntimeException If the temporary directory cannot be created.
 	 */
-	public function delete_backup_meta( string $id ) {
-		unlink( $id );
+	protected function create_temporary_section( Backup_Section_Identity $identity, string $display_name ): Temporary_Backup_Section {
+		return new Local_Temporary_Backup_Section( $this->root, $identity, $display_name );
 	}
 
-	/**
-	 * Get a temporary storage intended to be used to create working area for backed files
-	 * under a specific section. Once the backup reaches some atomic integrety
-	 * (have all the relevant files assembeled) at which it can be "committed" as proper 
-	 * part of the backup.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $dest_uri The relative directory to which the files should be committed once
-	 *                         all files are assembled. Relative path to the storeage root.
-	 *
-	 * @return Temporary_Backup_Storage A temporary storage instance.
-	 */
-	public function section_working_area_storage( string $dest_uri ): Temporary_Backup_Storage {
-		return new Local_Storage_Temporary_Backup_Storage( $this->root . ltrim( $dest_uri, '/' ) );
-	}
 }

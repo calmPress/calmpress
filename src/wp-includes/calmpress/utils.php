@@ -52,6 +52,54 @@ function ensure_dir_exists( string $path ) {
 }
 
 /**
+ * Delete all contents of a directory without following symbolic links.
+ *
+ * The directory itself is preserved.
+ *
+ * @since 1.0.0
+ *
+ * @param string $directory Absolute path of the directory to empty.
+ *
+ * @throws \RuntimeException If the path is not a directory or any content cannot be deleted.
+ */
+function empty_directory( string $directory ): void {
+	if ( ! is_dir( $directory ) || is_link( $directory ) ) {
+		throw new \RuntimeException( 'The path is not a directory: ' . $directory );
+	}
+	foreach ( new \DirectoryIterator( $directory ) as $item ) {
+		if ( $item->isDot() ) {
+			continue;
+		}
+		$path = $item->getPathname();
+		if ( $item->isDir() && ! $item->isLink() ) {
+			delete_directory( $path );
+		} elseif ( $item->isLink() && $item->isDir() && 'Windows' === PHP_OS_FAMILY ) {
+			if ( ! @rmdir( $path ) ) {
+				throw new \RuntimeException( 'Failed deleting symbolic link: ' . $path );
+			}
+		} elseif ( ! @unlink( $path ) ) {
+			throw new \RuntimeException( 'Failed deleting file: ' . $path );
+		}
+	}
+}
+
+/**
+ * Recursively delete a directory without following symbolic links.
+ *
+ * @since 1.0.0
+ *
+ * @param string $directory Absolute path of the directory to delete.
+ *
+ * @throws \RuntimeException If the path is not a directory or it cannot be deleted completely.
+ */
+function delete_directory( string $directory ): void {
+	empty_directory( $directory );
+	if ( ! @rmdir( $directory ) ) {
+		throw new \RuntimeException( 'Failed deleting directory: ' . $directory );
+	}
+}
+
+/**
  * Redirect to an admin page while indicating there is an available status
  * of the last operation by adding a cp-action-result parameter to the URL.
  *

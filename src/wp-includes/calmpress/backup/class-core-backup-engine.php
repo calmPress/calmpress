@@ -21,51 +21,6 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 class Core_Backup_Engine implements Engine_Specific_Backup {
 
 	/**
-	 * The directory in which core backup files are located relative to the
-	 * backup root directory.
-	 */
-	const RELATIVE_CORE_BACKUP_PATH = 'core/';
-
-	/**
-	 * The directory in which themes' backup directories are located relative to the
-	 * backup root directory.
-	 */
-	const RELATIVE_THEMES_BACKUP_PATH = 'themes/';
-
-	/**
-	 * The directory in which plugins' backup directories are located relative to the
-	 * backup root directory.
-	 */
-	const RELATIVE_PLUGINS_BACKUP_PATH = 'plugins/';
-
-	/**
-	 * The directory in which mu-plugin backup directory is located relative to the
-	 * backup root directory.
-	 */
-	const RELATIVE_MU_PLUGINS_BACKUP_PATH = 'mu-plugins/';
-
-	/**
-	 * The directory in which languages backup directory is located relative to the
-	 * backup root directory.
-	 */
-	const RELATIVE_LANGUAGES_BACKUP_PATH = 'languages/';
-
-	/**
-	 * The directory in which dropins backup files are located relative to backup root.
-	 */
-	const RELATIVE_DROPINS_BACKUP_PATH = 'dropins/';
-
-	/**
-	 * The directory in which root directory backup files are located relative to backup root.
-	 */
-	const RELATIVE_ROOTDIR_BACKUP_PATH = 'root_directory/';
-
-	/**
-	 * The directory in which the backup file with option table data is located.
-	 */
-	const RELATIVE_OPTIONS_BACKUP_PATH = 'db/options/';
-
-	/**
 	 * Generate a backup version from a file's modification time.
 	 *
 	 * @since 1.0.0
@@ -77,12 +32,44 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @throws \RuntimeException If the modification time cannot be read.
 	 */
 	protected static function version_from_file_timestamp( string $file ): string {
-		clearstatcache( true, $file );
 		$modified = filemtime( $file );
 		if ( false === $modified ) {
 			throw new \RuntimeException( 'Failed reading file modification time for backup: ' . $file );
 		}
 		return 'unversioned-' . $modified;
+	}
+
+	/**
+	 * Generate a backup version from the latest modification time in a directory tree.
+	 *
+	 * Symbolic links are ignored because they are not included in directory backups.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $directory Directory whose contents are being backed up.
+	 *
+	 * @return string Timestamp-based version for the directory contents.
+	 *
+	 * @throws \RuntimeException If a modification time cannot be read.
+	 */
+	protected static function version_from_directory_timestamp( string $directory ): string {
+		$latest_modified = filemtime( $directory );
+		if ( false === $latest_modified ) {
+			throw new \RuntimeException( 'Failed reading directory modification time for backup: ' . $directory );
+		}
+
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $directory, \RecursiveDirectoryIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::SELF_FIRST
+		);
+		foreach ( $iterator as $item ) {
+			if ( $item->isLink() ) {
+				continue;
+			}
+			$latest_modified = max( $latest_modified, $item->getMTime() );
+		}
+
+		return 'unversioned-' . $latest_modified;
 	}
 
 	/**
@@ -109,12 +96,12 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @since 1.0.0
 	 * 
 	 * @param string                   $source      Full path of the source directory, the directory should exist.
-	 * @param Temporary_Backup_Storage $staging     The staging storage for the files.
+	 * @param Temporary_Backup_Section $staging     The temporary section for the files.
 	 * @param string                   $destination A path relative to the staging root in which files will be stored.
 	 * 
-	 * @throws Exception When directory could not be created or file could not be copied.
+	 * @throws \Exception When directory could not be created or file could not be copied.
 	 */
-	protected static function Backup_Directory( string $source, Temporary_Backup_Storage $staging, string $destination ) {
+	protected static function Backup_Directory( string $source, Temporary_Backup_Section $staging, string $destination ) {
 
 		$iterator = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator( $source, \RecursiveDirectoryIterator::SKIP_DOTS ),
@@ -136,49 +123,45 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	}
 
 	/**
-	 * Backup the core files (wp-admin, wp-include and some core file or root directory).
+	 * Backup the core files in wp-admin, wp-includes, and the root directory.
 	 *
-	 * If a backup for the current version already exists, just return the directory in which it located,
-	 * otherwise create a new directory under the core backups root, and copy into it all files from
-	 * wp-include, wp-admin and core files on root, while preserving the relative directory structure.
+	 * If a backup for the current version already exists, do nothing. Otherwise create a new section
+	 * and copy into it all files from wp-includes, wp-admin, and the root directory, while preserving
+	 * their relative directory structure.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $storage The storage to backup to.
-	 *
-	 * @return string The directory at which the core backup resides in the storage.
+	 * @param Backup_Storage          $storage  The storage to backup to.
+	 * @param Backup_Section_Identity $identity The identity of the core section.
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Core( Backup_Storage $storage ) : string {
-		$core_dir   = static::RELATIVE_CORE_BACKUP_PATH;
-		$version    = calmpress_version();
-		$backup_dir = $core_dir . $version;
-
+	protected static function Backup_Core( Backup_Storage $storage, Backup_Section_Identity $identity ): void {
 		/*
 		 * If the backup directory exists it means we already have a backup of the version,
 		 * If not we need to create a directory and copy into it the core files.
 		 */
-		if ( ! $storage->section_exists( $backup_dir ) ) {
+		if ( null === $storage->section( $identity ) ) {
+			try {
+				$staging = $storage->create_section( $identity, '' );
 
-			$staging = $storage->section_working_area_storage( $backup_dir );
+				// Copy wp-includes
+				static::Backup_Directory( static::installation_paths()->wp_includes_directory(), $staging, 'wp-includes' );
 
-			// Copy wp-includes
-			static::Backup_Directory( static::installation_paths()->wp_includes_directory(), $staging, 'wp-includes' );
+				// Copy wp-admin.
+				static::Backup_Directory( static::installation_paths()->wp_admin_directory(), $staging, 'wp-admin' );
 
+				// Copy core code files located at root directory.
+				foreach ( static::installation_paths()->core_root_file_names() as $file ) {
+					$staging->copy_file( static::installation_paths()->root_directory() . $file, $file );
+				}
 
-			// Copy wp-admin.
-			static::Backup_Directory( static::installation_paths()->wp_admin_directory(), $staging, 'wp-admin' );
-
-			// Copy core code files located at root directory.
-			foreach ( static::installation_paths()->core_root_file_names() as $file ) {
-				$staging->copy_file( static::installation_paths()->root_directory() . $file, $file );
+				$staging->commit();
+			} catch ( Backup_Section_Already_Exists_Exception ) {
+				// Another backup committed this version after the existence check.
 			}
-
-			$staging->store();
 		}
 
-		return $backup_dir;
 	}
 
 	/**
@@ -186,26 +169,23 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $storage The storage to use for the mu plugins files.
-	 * @param string $source          The full path to mu-plugins directory which might not exist.
-	 * @param string $backup_dir The directory to backup to.
-	 *
-	 * @return string $backup_dir If backup happend into it, otherwise ''.
+	 * @param Backup_Storage          $storage  The storage to use for the MU-plugin files.
+	 * @param string                  $source   Full path to the existing MU-plugins directory.
+	 * @param Backup_Section_Identity $identity Identity of the MU-plugins section.
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_MU_Plugins( Backup_Storage $storage, string $source, string $backup_dir ): string {
-
-		// If the mu-plugins directory does not exist there is nothing to backup and
-		// Backup_Directory requires an existing directory.
-		if ( is_dir( $source ) ) {
-			$staging = $storage->section_working_area_storage( $backup_dir );
-			static::Backup_Directory( $source, $staging, '' );
-			$staging->store();
-			return $backup_dir;
+	protected static function Backup_MU_Plugins( Backup_Storage $storage, string $source, Backup_Section_Identity $identity ): void {
+		if ( null === $storage->section( $identity ) ) {
+			try {
+				$staging = $storage->create_section( $identity, '' );
+				static::Backup_Directory( $source, $staging, '' );
+				$staging->commit();
+			} catch ( Backup_Section_Already_Exists_Exception ) {
+				// Another backup committed this version after the existence check.
+			}
 		}
 
-		return '';
 	}
 
 	/**
@@ -213,79 +193,123 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $storage The storage to use for the root directory files.
-	 * @param string $source          The full path to languages directory which might not exist.
-	 * @param string $backup_dir      The directory to backup to.
+	 * @param Backup_Storage $storage The backup storage.
+	 * @param string         $source  Full path to the existing languages directory.
+	 *
+	 * @return Backup_Section_Identity The identity of the languages section.
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Languages(  Backup_Storage $storage, string $source, string $backup_dir ) {
-
-		$staging = $storage->section_working_area_storage( $backup_dir );
-		// If the languages directory does not exist there is nothing to backup and
-		// Backup_Directory requires an existing directory.
-		if ( is_dir( $source ) ) {
-			static::Backup_Directory( $source, $staging, '' );
+	protected static function Backup_Languages( Backup_Storage $storage, string $source ): Backup_Section_Identity {
+		$version  = static::version_from_directory_timestamp( $source );
+		$identity = new Backup_Section_Identity( 'languages', 'languages', $version );
+		if ( null !== $storage->section( $identity ) ) {
+			return $identity;
 		}
-		$staging->store();
+
+		try {
+			$staging = $storage->create_section( $identity, '' );
+
+			static::Backup_Directory( $source, $staging, '' );
+			$staging->commit();
+		} catch ( Backup_Section_Already_Exists_Exception ) {
+			// Another backup committed this version after the existence check.
+		}
+
+		return $identity;
 	}
 
 	/**
-	 * Backup the dropins plugins files.
-	 *
-	 * Dropins are located at the root of the wp_content directory. as they don't contain
-	 * version information just backup all of them together.
+	 * Back up each drop-in file in the content directory as a separate section.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $storage The storage to use for the root directory files.
-	 * @param string $source_dir      The directory of the dropins files.
-	 * @param string $backup_dir      The root directory for the dropins backup files.
+	 * @param Backup_Storage $storage    The backup storage.
+	 * @param string         $source_dir The directory containing the drop-in files.
 	 *
-	 * @return string[] The names of the backed plugins.
+	 * @return Backup_Section_Identity[] The identities of the backed up drop-ins.
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Dropins( Backup_Storage $storage, string $source_dir, string $backup_dir ): array {
-
-		$ret = [];
-
-		$staging    = $storage->section_working_area_storage( $backup_dir );
+	protected static function Backup_Dropins( Backup_Storage $storage, string $source_dir ): array {
+		$sections = array();
 		foreach ( static::installation_paths()->dropin_files_name() as $filename ) {
 			$file = $source_dir . $filename;
-			if ( file_exists( $file ) ) {
-				if ( ! is_link( $file ) ) {
+			if ( ! is_file( $file ) || is_link( $file ) ) {
+				continue;
+			}
+
+			$identity = new Backup_Section_Identity( 'dropin', $filename, static::version_from_file_timestamp( $file ) );
+			if ( null === $storage->section( $identity ) ) {
+				try {
+					$staging = $storage->create_section( $identity, '' );
 					$staging->copy_file( $file, $filename );
-					$ret[] = $filename;
+					$staging->commit();
+				} catch ( Backup_Section_Already_Exists_Exception ) {
+					// Another backup committed this version after the existence check.
 				}
+			}
+			$sections[] = $identity;
+		}
+
+		return $sections;
+	}
+
+	/**
+	 * Back up files in the installation root directory that are not part of core code.
+	 *
+	 * Core root files and wp-config.php have their own sections; this section contains the remaining
+	 * regular root-level files, which may also be needed for site operation.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param Backup_Storage       $storage The backup storage.
+	 * @param array<string, string> $files  Root filenames mapped to their source paths.
+	 *
+	 * @return Backup_Section_Identity The section identity.
+	 *
+	 * @throws \RuntimeException If a file modification time cannot be read.
+	 * @throws \Exception When directory creation or copy error occurs.
+	 */
+	protected static function Backup_Root( Backup_Storage $storage, array $files ): Backup_Section_Identity {
+		// Include filenames so adding or removing a file changes the version.
+		ksort( $files, SORT_STRING );
+		$version_hash = hash_init( 'sha256' );
+		foreach ( $files as $filename => $source ) {
+			$modified = filemtime( $source );
+			if ( false === $modified ) {
+				throw new \RuntimeException( 'Failed reading file modification time for backup: ' . $source );
+			}
+			hash_update( $version_hash, $filename . "\0" . $modified . "\0" );
+		}
+
+		$identity = new Backup_Section_Identity( 'root-files', 'root', 'filenames-timestamps-' . hash_final( $version_hash ) );
+		if ( null === $storage->section( $identity ) ) {
+			try {
+				$staging = $storage->create_section( $identity, implode( ', ', array_keys( $files ) ) );
+				foreach ( $files as $filename => $source ) {
+					$staging->copy_file( $source, $filename );
+				}
+				$staging->commit();
+			} catch ( Backup_Section_Already_Exists_Exception ) {
+				// Another backup committed this version after the existence check.
 			}
 		}
 
-		$staging->store();
-
-		return $ret;
+		return $identity;
 	}
 
 	/**
-	 * Backup the files on the root dir.
-	 *
-	 * The root directory can contain all kind of files that might not be code but are needed
-	 * for the proper functioning of the site.
+	 * Find root-level files that are not part of core code or the configuration section.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $storage    The storage to use for the root directory files.
-	 * @param string         $backup_dir The root directory for the root backup files.
+	 * @param string $source_dir The installation root directory.
 	 *
-	 * @return string[] The names of the backed files.
-	 *
-	 * @throws \Exception When directory creation or copy error occurs.
+	 * @return array<string, string> Root filenames mapped to their source paths.
 	 */
-	protected static function Backup_Root( Backup_Storage $storage, string $source_dir, string $backup_dir ): array {
-
-		$ret = [];
-
-		$staging    = $storage->section_working_area_storage( $backup_dir );
+	protected static function root_files( string $source_dir ): array {
+		$files      = array();
 		$core_files = static::installation_paths()->core_root_file_names();
 
 		foreach ( new \DirectoryIterator( $source_dir ) as $file ) {
@@ -294,23 +318,54 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			}
 
 			// No need to backup core files.
-			if ( in_array( $file->getFilename(), $core_files, true ) ) {
+			if ( 'wp-config.php' === $file->getFilename() || in_array( $file->getFilename(), $core_files, true ) ) {
 				continue;
 			}
-			$staging->copy_file( $file->getPathname(), $file->getFilename() );
-			$ret[] = $file->getFilename();
+			$files[ $file->getFilename() ] = $file->getPathname();
 		}
 
-		// calmPress also supports configuration one directory above the installation.
+		ksort( $files, SORT_STRING );
+		return $files;
+	}
+
+	/**
+	 * Back up wp-config.php and record its location relative to the installation root.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param Backup_Storage $storage    The backup storage.
+	 * @param string         $source_dir The installation root directory.
+	 *
+	 * @return Backup_Section_Identity The configuration file section identity.
+	 *
+	 * @throws \RuntimeException If the configuration file cannot be found as a regular file.
+	 * @throws \Exception When copying or committing the file fails.
+	 */
+	protected static function Backup_Config_File( Backup_Storage $storage, string $source_dir ): Backup_Section_Identity {
+		$root_config   = trailingslashit( $source_dir ) . 'wp-config.php';
 		$parent_config = dirname( rtrim( $source_dir, '/\\' ) ) . '/wp-config.php';
-		if ( ! file_exists( $source_dir . '/wp-config.php' ) && is_file( $parent_config ) && ! is_link( $parent_config ) ) {
-			$staging->copy_file( $parent_config, 'wp-config.php' );
-			$ret[] = 'wp-config.php';
+		if ( is_file( $root_config ) && ! is_link( $root_config ) ) {
+			$source   = $root_config;
+			$location = 'wp-config.php';
+		} elseif ( ! file_exists( $root_config ) && is_file( $parent_config ) && ! is_link( $parent_config ) ) {
+			$source   = $parent_config;
+			$location = '../wp-config.php';
+		} else {
+			throw new \RuntimeException( 'Cannot find a regular wp-config.php file for backup.' );
 		}
 
-		$staging->store();
+		$identity = new Backup_Section_Identity( 'config-file', $location, static::version_from_file_timestamp( $source ) );
+		if ( null === $storage->section( $identity ) ) {
+			try {
+				$staging = $storage->create_section( $identity, '' );
+				$staging->copy_file( $source, 'wp-config.php' );
+				$staging->commit();
+			} catch ( Backup_Section_Already_Exists_Exception ) {
+				// Another backup committed this version after the existence check.
+			}
+		}
 
-		return $ret;
+		return $identity;
 	}
 
 	/**
@@ -331,45 +386,38 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Theme( Backup_Storage $storage, string $themes_backup_dir, \WP_Theme $theme ) : string {
-		$source       = $theme->get_stylesheet_directory();
-		$version      = $theme->get( 'Version' ) ?: static::version_from_file_timestamp( $source . '/style.css' );
-		$theme_dir    = $themes_backup_dir . '/' . basename( $source ) . '/' . $version;
+	protected static function Backup_Theme( Backup_Storage $storage, \WP_Theme $theme, Backup_Section_Identity $identity ): void {
+		$source  = $theme->get_stylesheet_directory();
 
 		/*
 		 * If the backup directory exists it means we already have a backup of the version,
 		 * If not we need to create a directory and copy into it the theme files.
 		 */
-		if ( ! $storage->section_exists( $theme_dir ) ) {
+		if ( null === $storage->section( $identity ) ) {
+			try {
+				$staging = $storage->create_section( $identity, $theme->get( 'Name' ) );
 
-			$staging = $storage->section_working_area_storage( $theme_dir );
-
-			// Copy the theme files to the root of the staging area.
-			static::Backup_Directory( $source, $staging, '' );
-			$staging->store();
+				// Copy the theme files to the root of the staging area.
+				static::Backup_Directory( $source, $staging, '' );
+				$staging->commit();
+			} catch ( Backup_Section_Already_Exists_Exception ) {
+				// Another backup committed this version after the existence check.
+			}
 		}
 
-		return basename( $source ) . '/' . $version;
 	}
 
 	/**
 	 * Backup the theme files.
 	 *
-	 * If a backup for the current version already exists, just return the directory in which it located,
-	 * otherwise create a new directory under the theme backups root / theme directory, and copy into it all
-	 * files from the theme's directory, while preserving the relative directory structure.
+	 * Each returned identity identifies the section containing one valid theme.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $themes_backup_dir The storage to use.
-	 * @param int            $max_end_time      The last second in which a theme backup can start.
+	 * @param Backup_Storage $storage      The storage to use.
+	 * @param int            $max_end_time The last second in which a theme backup can start.
 	 *
-	 * @return array Array of arrays containing meta information about the themes' backups
-	 *               Each sub array is indexed by the relevant theme's directory and has the
-	 *               following values:
-	 *               'version'   The version of the backuped theme.
-	 *               'directory' The directory in which the backup is located relative to the root
-	 *                           of the backup directory.
+	 * @return Backup_Section_Identity[] The identities of the backed up themes.
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
@@ -392,18 +440,16 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 
 		try {
 			$themes = wp_get_themes();
-			$meta   = [];
+			$sections = [];
 			foreach ( $themes as $theme ) {
 				static::throw_if_out_of_time( $max_end_time );
 
 				if ( ! $theme->errors() ) {
-					$theme_dir = static::Backup_Theme( $storage, static::RELATIVE_THEMES_BACKUP_PATH, $theme );
-					$meta[ $theme->get_stylesheet() ] = [
-						'version'        => $theme->get( 'Version' ),
-						'directory'      => static::RELATIVE_THEMES_BACKUP_PATH . $theme_dir . '/',
-						'name'           => $theme->get( 'Name' ),
-						'directory_name' => basename( $theme->get_stylesheet_directory() ),
-					];
+					$source   = $theme->get_stylesheet_directory();
+					$version  = $theme->get( 'Version' ) ?: static::version_from_file_timestamp( $source . '/style.css' );
+					$identity = new Backup_Section_Identity( 'theme', basename( $source ), $version );
+					static::Backup_Theme( $storage, $theme, $identity );
+					$sections[] = $identity;
 				}
 			}
 		} finally {
@@ -414,86 +460,98 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		}
 		
 
-		return $meta;
+		return $sections;
 	}
 
 	 /**
-	 * Backup the plugin files.
+	 * Backup a plugin directory.
 	 *
-	 * If a backup for the current version already exists, just return the directory in which it located,
-	 * otherwise create a new directory under the plugin backups root / plugin directory, and copy into it all
-	 * files from the plugin's directory, while preserving the relative directory structure.
+	 * Store the complete directory as one section. Calculate its version from every plugin main file
+	 * in the directory and its display name from their plugin names.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $storage            The backup storage.
-	 * @param string         $plugins_backup_dir The root directory for the plugins backup files.
-	 * @param string         $source             The directory in which the plugin is located.
-	 * @param string         $version            The version to associate with the directory.
+	 * @param Backup_Storage $storage The backup storage.
+	 * @param string         $source  The directory in which the plugin is located.
+	 * @param array          $plugins Plugin header data for the directory.
 	 *
-	 * @return string The path to the backup directory relative to the backup
-	 *                root directory.
+	 * @return Backup_Section_Identity The identity of the plugin directory section.
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Plugin_Directory( Backup_Storage $storage, string $plugins_backup_dir, string $source, string $version ) : string {
-		$relative_dir = basename( $source ) . '/' . $version;
-		$backup_dir   = $plugins_backup_dir . $relative_dir;
+	protected static function Backup_Plugin_Directory( Backup_Storage $storage, string $source, array $plugins ): Backup_Section_Identity {
+
+		/*
+		 * A plugin directory may contain more than one plugin main file. Combine their versions
+		 * with underscores for the section version and their names with commas for the display name.
+		 */
+		$versions     = array();
+		$plugin_names = array();
+		foreach ( $plugins as $plugin ) {
+			$versions[] = $plugin['Version'] ?: static::version_from_file_timestamp( WP_PLUGIN_DIR . '/' . $plugin['filename'] );
+			$plugin_names[] = $plugin['Name'];
+		}
+		$version      = implode( '_', $versions );
+		$display_name = implode( ', ', $plugin_names );
 
 		/*
 		 * If the backup directory exists it means we already have a backup of the version,
 		 * If not we need to create a directory and copy into it the plugin files.
 		 */
-		if ( ! $storage->section_exists( $backup_dir ) ) {
+		$identity = new Backup_Section_Identity( 'plugin', basename( $source ), $version );
+		if ( null === $storage->section( $identity ) ) {
+			try {
+				$staging = $storage->create_section( $identity, $display_name );
 
-			$staging = $storage->section_working_area_storage( $backup_dir );
-
-			// Copy the directory files.
-			static::Backup_Directory( $source, $staging, '' );
-			$staging->store();
+				// Copy the directory files.
+				static::Backup_Directory( $source, $staging, '' );
+				$staging->commit();
+			} catch ( Backup_Section_Already_Exists_Exception ) {
+				// Another backup committed this version after the existence check.
+			}
 		}
 
-		return $relative_dir;
+		return $identity;
 	}
 
 	 /**
-	 * Backup a plugin which is a single file plugin on plugins root directory.
+	 * Back up a single-file plugin directly inside the plugins directory.
 	 *
-	 * If a backup for the current version already exists, just return the directory in which it located,
-	 * otherwise create a new directory under the plugin backups root / plugin directory, and copy into it all
-	 * files from the plugin's directory, while preserving the relative directory structure.
+	 * Store the plugin file as one section.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $storage            The backup storage.
-	 * @param string         $plugins_backup_dir The root directory for the plugins backup files.
-	 * @param string         $source             The file to backup.
-	 * @param string         $version            The version of the plugin.
+	 * @param Backup_Storage $storage      The backup storage.
+	 * @param string         $source       The file to backup.
+	 * @param string         $version      The version of the plugin.
+	 * @param string         $display_name Human-readable plugin name.
 	 *
-	 * @return string The path to the backup directory relative to the backup
-	 *                root directory.
+	 * @return Backup_Section_Identity The identity of the plugin file section.
 	 *
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
-	protected static function Backup_Root_Single_File_Plugin( Backup_Storage $storage, string $plugins_backup_dir, string $source, string $version ) : string {
+	protected static function Backup_Single_File_Plugin( Backup_Storage $storage, string $source, string $version, string $display_name ): Backup_Section_Identity {
 		$version = '' !== $version ? $version : static::version_from_file_timestamp( $source );
-		$relative_dir = $plugins_backup_dir . '/' . basename( $source ) . '/' . $version;
 
 		/*
 		 * If the backup section exists it means we already have a backup of the version,
 		 * If not we need to create it and copy into it the plugin files.
 		 */
-		if ( ! $storage->section_exists( $relative_dir ) ) {
+		$identity = new Backup_Section_Identity( 'plugin-file', basename( $source ), $version );
+		if ( null === $storage->section( $identity ) ) {
+			try {
+				$staging = $storage->create_section( $identity, $display_name );
 
-			$staging = $storage->section_working_area_storage( $relative_dir );
+				// Copy the file to the staging area.
+				$staging->copy_file( $source, basename( $source ) );
 
-			// Copy the file to the staging area.
-			$staging->copy_file( $source, basename( $source ) );
-
-			$staging->store();
+				$staging->commit();
+			} catch ( Backup_Section_Already_Exists_Exception ) {
+				// Another backup committed this version after the existence check.
+			}
 		}
 
-		return basename( $source ) . '/' . $version;
+		return $identity;
 	}
 
 	 /**
@@ -504,15 +562,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 * @param Backup_Storage $storage      The storage of the backup.
 	 * @param int            $max_end_time The last second in which a plugin backup can start.
 	 *
-	 * @return array Array of arrays containing meta information about the plugins' backups
-	 *               Each sub array is indexed by the relevant plugin's directory and has the
-	 *               following values:
-	 *               'version'   The version of the backuped theme.
-	 *               'directory' The directory in which the backup is located relative to the root
-	 *                           of the backup directory.
-	 *               'type'      The type of the plugin backedup, 'root_file' for plugins
-	 *                           located as single files on the plugin root directory or 'directory'
-	 *                           for plugins located in a directory.
+	 * @return Backup_Section_Identity[] The identities of the backed up plugin sections.
 	 * 
 	 * @throws \Exception When directory creation or copy error occurs.
 	 */
@@ -532,28 +582,18 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			$plugindirs[ dirname( $filename ) ][] = $plugin_data;
 		}
 
-		$meta = [];
+		$sections = array();
 
-		// Special case are plugins locate at the plugins root directory.
+		// Handle plugins stored directly in the plugins directory.
 		if ( isset( $plugindirs['.'] ) ) {
 			foreach ( $plugindirs['.'] as $plugin_data ) {
-				$plugin_dir = static::Backup_Root_Single_File_Plugin(
+				$sections[] = static::Backup_Single_File_Plugin(
 					$storage,
-					static::RELATIVE_PLUGINS_BACKUP_PATH,
 					WP_PLUGIN_DIR . '/' . $plugin_data['filename'],
-					$plugin_data['Version']
+					$plugin_data['Version'],
+					$plugin_data['Name']
 				);
 
-				$meta[ $plugin_data['filename'] ] = [
-					'version'     => $plugin_data['Version'],
-					'directory'   => static::RELATIVE_PLUGINS_BACKUP_PATH . $plugin_dir,
-					'type'        => 'root_file',
-					'data'        => [
-						'name'      => $plugin_data['Name'],
-						'version'   => $plugin_data['Version'],
-						'directory' => '',
-					]
-				];
 			}
 			unset( $plugindirs['.'] );
 		}
@@ -566,34 +606,14 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			// The version generation code relies on get_plugins and the code processing the data
 			// to generate the plugin data in consistant order otherwise there might be more than
 			// one backup for the same identical versions for multiple plugins in a directory.
-			$versions = [];
-			$data     = [];
-			foreach ( $dir_data as $plugin_data ) {
-				$versions[] = $plugin_data['Version'] ?: static::version_from_file_timestamp( WP_PLUGIN_DIR . '/' . $plugin_data['filename'] );
-				$data[]     = [
-					'name'      => $plugin_data['Name'],
-					'version'   => $plugin_data['Version'],
-					'directory' => $dirname,
-				];
-			}
-			$version = join( '-', $versions );
-			
-			$plugin_dir = static::Backup_Plugin_Directory(
+			$sections[] = static::Backup_Plugin_Directory(
 				$storage,
-				static::RELATIVE_PLUGINS_BACKUP_PATH,
 				WP_PLUGIN_DIR . '/' . $dirname,
-				$version
+				$dir_data
 			);
-
-			$meta[ $dirname ] = [
-				'version'   => $version,
-				'directory' => static::RELATIVE_PLUGINS_BACKUP_PATH . $plugin_dir .'/',
-				'type'      => 'directory',
-				'data'      => $data,
-			];
 		}
 
-		return $meta;
+		return $sections;
 	}
 
 	/**
@@ -603,13 +623,15 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Temporary_Backup_Storage $staging The staging storage for the files.
-	 * @param int                      $site_id The id of the specific site being backed up.
+	 * @param Backup_Storage $storage The backup storage.
+	 * @param int            $site_id The ID of the site being backed up.
+	 *
+	 * @return Backup_Section_Identity The identity of the site options section.
 	 *
 	 * @throws \RuntimeException If the options table cannot be read.
 	 * @throws \Exception When file creation error occurs.
 	 */
-	protected static function Backup_Site_Options( Temporary_Backup_Storage $staging, int $site_id ) {
+	protected static function Backup_Site_Options( Backup_Storage $storage, int $site_id ): Backup_Section_Identity {
 		global $wpdb;
 
 		if ( is_multisite() ) {
@@ -618,7 +640,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		try {
 			$options = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT option_name, option_value, autoload FROM $wpdb->options WHERE option_name NOT LIKE %s AND option_name NOT LIKE %s",
+					"SELECT option_name, option_value, autoload FROM $wpdb->options WHERE option_name NOT LIKE %s AND option_name NOT LIKE %s ORDER BY option_name",
 					$wpdb->esc_like( '_transient_' ) . '%',
 					$wpdb->esc_like( '_site_transient_' ) . '%'
 				)
@@ -663,8 +685,71 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 		);
 
 		$json = json_encode( $options );
-		$file = $site_id . '-options.json';
-		$staging->file_put_contents( $file, $json );
+		$identity = new Backup_Section_Identity( 'options', (string) $site_id, 'sha256-' . hash( 'sha256', $json ) );
+		if ( null === $storage->section( $identity ) ) {
+			try {
+				$staging = $storage->create_section( $identity, '' );
+				$staging->file_put_contents( 'options.json', $json );
+				$staging->commit();
+			} catch ( Backup_Section_Already_Exists_Exception ) {
+				// Another backup committed this version after the existence check.
+			}
+		}
+
+		return $identity;
+	}
+
+	/**
+	 * Backup the options for a multisite network.
+	 *
+	 * Network transients are excluded from the backup.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param Backup_Storage $storage    The backup storage.
+	 * @param int            $network_id The ID of the network being backed up.
+	 *
+	 * @return Backup_Section_Identity The identity of the network options section.
+	 *
+	 * @throws \RuntimeException If the network options table cannot be read.
+	 * @throws \Exception When file creation fails.
+	 */
+	protected static function Backup_Network_Options( Backup_Storage $storage, int $network_id ): Backup_Section_Identity {
+		global $wpdb;
+
+		$options = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT meta_key, meta_value FROM $wpdb->sitemeta WHERE site_id = %d AND meta_key NOT LIKE %s ORDER BY meta_key",
+				$network_id,
+				$wpdb->esc_like( '_site_transient_' ) . '%'
+			)
+		);
+		if ( $wpdb->last_error ) {
+			throw new \RuntimeException( 'Failed reading network options for backup.' );
+		}
+
+		$options = array_map(
+			function ( $option ) {
+				return array(
+					'n' => $option->meta_key,
+					'v' => $option->meta_value,
+				);
+			},
+			$options
+		);
+		$json     = json_encode( $options );
+		$identity = new Backup_Section_Identity( 'network-options', (string) $network_id, 'sha256-' . hash( 'sha256', $json ) );
+		if ( null === $storage->section( $identity ) ) {
+			try {
+				$staging = $storage->create_section( $identity, '' );
+				$staging->file_put_contents( 'options.json', $json );
+				$staging->commit();
+			} catch ( Backup_Section_Already_Exists_Exception ) {
+				// Another backup committed this version after the existence check.
+			}
+		}
+
+		return $identity;
 	}
 
 	/**
@@ -675,26 +760,28 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $storage    The storage of the backup.
-	 * @param string         $backup_dir The directory for the options backup files.
+	 * @param Backup_Storage $storage The storage of the backup.
+	 *
+	 * @return Backup_Section_Identity[] The identities of the site options sections.
 	 *
 	 * @throws \Exception When directory creation or file creation error occurs.
 	 */
-	protected static function Backup_Options( Backup_Storage $storage, string $backup_dir ) {
-		global $wpdb;
-
-		$staging = $storage->section_working_area_storage( $backup_dir );
+	protected static function Backup_Options( Backup_Storage $storage ): array {
+		$sections = array();
 
 		// loop over all sites, store options for each site in different file.
 		if ( is_multisite() ) {
 			foreach ( \get_sites() as $site ) {
-				static::Backup_Site_Options( $staging, $site->blog_id );
+				$sections[] = static::Backup_Site_Options( $storage, (int) $site->blog_id );
+			}
+			foreach ( \get_networks() as $network ) {
+				$sections[] = static::Backup_Network_Options( $storage, (int) $network->id );
 			}
 		} else {
-			static::Backup_Site_Options( $staging, \get_current_blog_id() );
+			$sections[] = static::Backup_Site_Options( $storage, 1 );
 		}
 
-		$staging->store();
+		return $sections;
 	}
 
 	/**
@@ -720,150 +807,126 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $backup_root The storage to which to write files.
-	 * @param int            $max_time    The maximum amount of time in seconds the backup
-	 *                                    should run before terminating.
-	 *                                    In practice the amount of time after which no new atomic
-	 *                                    type of backup should start.
+	 * @param Backup_Storage $storage  The storage to which to write files.
+	 * @param int            $max_time The maximum amount of time in seconds the backup
+	 *                                 should run before terminating.
+	 *                                 In practice the amount of time after which no new atomic
+	 *                                 type of backup should start.
 	 *
-	 * @return array An unstructured data that the engine need for restoring the backup.
+	 * @return Backup_Section_Identity[] The backed-up section identities.
 	 *
 	 * @throws \Exception if the backup creation fails.
-	 * @throws Timeout_Exception If the backup timeed out and need more "time slices" to complete.
+	 * @throws \calmpress\calmpress\Timeout_Exception If the backup timeed out and need more "time slices" to complete.
 	 */
 	public static function backup( Backup_Storage $storage, int $max_time ): array {
 		$max_end_time = time() + $max_time; // After this time backup process should end, completed or not.
-		$backup_id    = wp_generate_uuid4();
+		$sections     = array();
 
-		$meta['version'] = calmpress_version();
-		static::Backup_Core( $storage );
+		$core_section    = new Backup_Section_Identity( 'core', 'calmPress', calmpress_version() );
+		static::Backup_Core( $storage, $core_section );
+		$sections[] = $core_section;
 		static::throw_if_out_of_time( $max_end_time );
 
 		// Backup all themes that are in standard theme location, which can be activated (no errors).
 		// Ignore everything else in the themes directories.
-		$meta['themes'] = static::Backup_Themes( $storage, $max_end_time );
+		$sections = array_merge( $sections, static::Backup_Themes( $storage, $max_end_time ) );
 		static::throw_if_out_of_time( $max_end_time );
 		
-		$meta['plugins'] = static::Backup_Plugins( $storage, $max_end_time );
+		$sections = array_merge( $sections, static::Backup_Plugins( $storage, $max_end_time ) );
 		static::throw_if_out_of_time( $max_end_time );
 		
-		$mu_rel_dir = static::RELATIVE_MU_PLUGINS_BACKUP_PATH . $backup_id . '/';
-		$dir = static::Backup_MU_Plugins( $storage, static::installation_paths()->mu_plugins_directory(), $mu_rel_dir );
-		if ( '' !== $dir ) {
-			$meta['mu_plugins']['directory'] = $dir;
+		$mu_plugins_directory = static::installation_paths()->mu_plugins_directory();
+		if ( is_dir( $mu_plugins_directory ) ) {
+			$mu_plugins_section = new Backup_Section_Identity( 'mu-plugins', 'mu-plugins', static::version_from_directory_timestamp( $mu_plugins_directory ) );
+			static::Backup_MU_Plugins( $storage, $mu_plugins_directory, $mu_plugins_section );
+			$sections[]         = $mu_plugins_section;
 		}
 
 		static::throw_if_out_of_time( $max_end_time );
 		
-		$lang_rel_dir = static::RELATIVE_LANGUAGES_BACKUP_PATH . $backup_id . '/';
-		static::Backup_Languages( $storage, static::installation_paths()->languages_directory(), $lang_rel_dir );
-		$meta['languages']['directory'] = $lang_rel_dir;
+		$languages_directory = static::installation_paths()->languages_directory();
+		if ( is_dir( $languages_directory ) ) {
+			$sections[] = static::Backup_Languages( $storage, $languages_directory );
+		}
 
-		$dropins_rel_dir = static::RELATIVE_DROPINS_BACKUP_PATH . $backup_id;
-		$files           = static::Backup_Dropins( $storage, static::installation_paths()->wp_content_directory(), $dropins_rel_dir );
-		$meta['dropins']['directory'] = $dropins_rel_dir;
-		$meta['dropins']['files']     = $files;
+		$dropin_sections = static::Backup_Dropins( $storage, static::installation_paths()->wp_content_directory() );
+		$sections = array_merge( $sections, $dropin_sections );
 
-		$root_dir_rel_dir = static::RELATIVE_ROOTDIR_BACKUP_PATH . $backup_id;
-		$files            = static::Backup_Root( $storage, static::installation_paths()->root_directory(), $root_dir_rel_dir );
-		$meta['root_directory']['directory'] = $root_dir_rel_dir;
-		$meta['root_directory']['files']     = $files;
-		$meta['root_directory']['config_file'] = static::installation_paths()->wp_config_file();
+		$root_directory = static::installation_paths()->root_directory();
+		$root_files = static::root_files( $root_directory );
+		if ( ! empty( $root_files ) ) {
+			$sections[] = static::Backup_Root( $storage, $root_files );
+		}
+		$config_section = static::Backup_Config_File( $storage, $root_directory );
+		$sections[] = $config_section;
 
-		$options_rel_dir = static::RELATIVE_OPTIONS_BACKUP_PATH . $backup_id;
-		static::Backup_Options( $storage, $options_rel_dir );
-		$meta['options']['directory'] = $options_rel_dir ;
+		$sections = array_merge( $sections, static::Backup_Options( $storage ) );
 
-		return $meta;
+		return $sections;
 	}
 
 	/**
-	 * Generate a human freindly description of a backup data relating to the engine.
-	 * 
-	 * @see Engine_Specific_Backup:data_description 
+	 * Describe the sections created by the core backup engine.
+	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $data The data related to the engine which was generated at the time of backup.
+	 * @param iterable<Backup_Section> $sections Sections created by this engine.
 	 *
-	 * @return string An HTML contaning details about the core version, plugins and themes, dropins
-	 *                and root files included in the backup.
+	 * @return string HTML describing the backed-up sections.
 	 */
-	public static function data_description( array $data ): string {
-		$ret = '<p>' . esc_html__( 'Core version: ' ) . esc_html( $data['version'] ) . '</p>';
-		$ret .= '<h4>' . esc_html__( 'Plugins' ) . '</h4>';
-		if ( empty( $data['plugins'] ) ) {
-			$ret .= '<p>' . esc_html__( 'None' ) . '</p>';
+	public static function data_description( iterable $sections ): string {
+		$grouped = array();
+		foreach ( $sections as $section ) {
+			$grouped[ $section->identity->type ][] = $section;
 		}
-		foreach ( $data['plugins'] as $plugin_data ) {
-			switch ( $plugin_data['type'] ) {
-				case 'root_file':
-					$ret .= '<p>' . esc_html(
-						/* translators: 1: Plugin name, 2: Plugin version. */
-						sprintf( __( '%1$s — version %2$s (plugins root directory)' ),
-							$plugin_data['data']['name'],
-							$plugin_data['data']['version'] ?: __( 'Not specified' )
-						)
-					) . '</p>';
-					break;
-				case 'directory':
-					foreach ( $plugin_data['data'] as $pdata ) {
-						$ret .= '<p>' . esc_html(
-							/* translators: 1: Plugin name, 2: Plugin version, 3: Plugin directory. */
-							sprintf( __( '%1$s — version %2$s (%3$s)' ),
-								$pdata['name'],
-								$pdata['version'] ?: __( 'Not specified' ),
-								$pdata['directory']
-							)
-						) . '</p>';
+
+		$labels = array(
+			'core'       => __( 'Core version' ),
+			'plugin'     => __( 'Plugins' ),
+			'theme'      => __( 'Themes' ),
+			'mu-plugins' => __( 'MU plugins' ),
+			'dropin'     => __( 'Drop-in plugins' ),
+			'root-files' => __( 'Root files' ),
+		);
+		$ret = '';
+		foreach ( $labels as $type => $label ) {
+			$display_sections = $grouped[ $type ] ?? array();
+			if ( 'plugin' === $type ) {
+				$display_sections = array_merge( $display_sections, $grouped['plugin-file'] ?? array() );
+			}
+			if ( empty( $display_sections ) && 'plugin' !== $type ) {
+				continue;
+			}
+
+			$ret .= '<h4>' . esc_html( $label ) . '</h4>';
+			if ( empty( $display_sections ) ) {
+				$ret .= '<p>' . esc_html__( 'None' ) . '</p>';
+				continue;
+			}
+			foreach ( $display_sections as $section ) {
+				$identity = $section->identity;
+				$name = $section->display_name() ?: $identity->location;
+
+				// A plugin directory joins its main-file names and versions separately.
+				if ( 'plugin' === $type && 'plugin' === $identity->type ) {
+					$plugin_names = explode( ', ', $name );
+					$versions = explode( '_', $identity->version );
+					if ( count( $plugin_names ) > 1 && count( $plugin_names ) === count( $versions ) ) {
+						foreach ( $plugin_names as $index => $plugin_name ) {
+
+							/* translators: 1: Plugin name, 2: Plugin version. */
+							$ret .= '<p>' . esc_html( sprintf( __( '%1$s - version %2$s' ), $plugin_name, $versions[ $index ] ) ) . '</p>';
+						}
+						continue;
 					}
-					break;
-				default:
-					trigger_error( 'Unknown plugin type ' . $plugin_data['type'] );
-					break;
+				}
+				$description = $name;
+				if ( in_array( $type, array( 'core', 'plugin', 'plugin-file', 'theme' ), true ) ) {
+					/* translators: 1: Section name, 2: Section version. */
+					$description = sprintf( __( '%1$s - version %2$s' ), $name, $identity->version );
+				}
+				$ret .= '<p>' . esc_html( $description ) . '</p>';
 			}
-		}
-
-		
-		$ret .= '<h4>' . esc_html__( 'MU Plugins' ) . '</h4>';
-		$ret .= '<p>';
-		if ( isset( $data['mu_plugins'] ) ) {
-			$ret .= esc_html__( 'Included' );
-		} else {
-			$ret .= esc_html__( 'None' );
-		}
-		$ret .= '</p>';
-
-		$ret .= '<h4>' . esc_html__( 'Drop-in plugins' ) . '</h4>';
-		if ( empty( $data['dropins']['files'] ) ) {
-			$ret .= __( 'None' );
-		} else {
-			foreach ( $data['dropins']['files'] as $filename ) {
-				$ret .= '<p>' . esc_html( $filename ) . '</p>';
-			}
-		}
-
-		$ret .= '<h4>' . esc_html__( 'Root files' ) . '</h4>';
-		if ( empty( $data['root_directory']['files'] ) ) {
-			$ret .= __( 'None' );
-		} else {
-			foreach ( $data['root_directory']['files'] as $filename ) {
-				$ret .= '<p>' . esc_html( $filename ) . '</p>';
-			}
-		}
-
-		$ret .= '<h4>' . esc_html__( 'Themes' ) . '</h4>';
-		if ( empty( $data['themes'] ) ) {
-			$ret .= '<p>' . esc_html__( 'None' ) . '</p>';
-		}
-		foreach ( $data['themes'] as $theme_data ) {
-			$ret .= '<p>' . esc_html(
-				/* translators: 1: Theme name, 2: Theme version, 3: Theme directory. */
-				sprintf( __( '%1$s — version %2$s (%3$s)' ),
-					$theme_data['name'],
-					$theme_data['version'] ?: __( 'Not specified' ),
-					$theme_data['directory_name']
-				)
-			) . '</p>';
 		}
 
 		return $ret;
@@ -998,7 +1061,7 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 	 *                                    type of preperations should start.
 	 * 
 	 * @throws Restore_Exception If restore process fails.
-	 * @throws Timeout_Exception If the backup timeed out and need more "time slices" to complete.
+	 * @throws \calmpress\calmpress\Timeout_Exception If the backup timeed out and need more "time slices" to complete.
 	 */
 	public static function prepare_restore( \calmpress\credentials\Credentials $write_credentials,
 	                                        Backup_Storage $storage,

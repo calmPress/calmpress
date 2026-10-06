@@ -22,16 +22,16 @@ interface Engine_Specific_Backup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Backup_Storage $backup_root The storage to which to write files.
-	 * @param int            $max_time    The maximum amount of time in seconds the backup
-	 *                                    should run before terminating.
-	 *                                    In practice the amount of time after which no new atomic
-	 *                                    type of backup should start.
+	 * @param Backup_Storage $storage  The storage to which to write files.
+	 * @param int            $max_time The maximum amount of time in seconds the backup
+	 *                                 should run before terminating.
+	 *                                 In practice the amount of time after which no new atomic
+	 *                                 type of backup should start.
 	 *
-	 * @return array An unstructured data that the engine need for restoring the backup.
+	 * @return Backup_Section_Identity[] Identities of sections used by the backup.
 	 *
 	 * @throws \Exception if the backup creation fails.
-	 * @throws Timeout_Exception If the backup timeed out and need more "time slices" to complete.
+	 * @throws \calmpress\calmpress\Timeout_Exception If the backup timeed out and need more "time slices" to complete.
 	 */
 	public static function backup( Backup_Storage $storage, int $max_time ): array;
 
@@ -40,12 +40,12 @@ interface Engine_Specific_Backup {
 	 * 
 	 * @since 1.0.0
 	 *
-	 * @param array $data The data related to the engine which was generated at the time of backup.
+	 * @param iterable<Backup_Section> $sections Sections created by the engine.
 	 *
 	 * @return string An HTML containing the description. It is possible to assume it will be contained
 	 *                in a div or other block element below an h3 heading. Use h4+ for subsection titles if needed.
 	 */
-	public static function data_description( array $data ): string;
+	public static function data_description( iterable $sections ): string;
 
 	/**
 	 * Prepare to restore data by doing data validation, permission checks, and whatever
@@ -64,7 +64,7 @@ interface Engine_Specific_Backup {
 	 *                                    type of preperations should start.
 	 * 
 	 * @throws Restore_Exception If restore process fails.
-	 * @throws Timeout_Exception If the backup timeed out and need more "time slices" to complete.
+	 * @throws \calmpress\calmpress\Timeout_Exception If the backup timeed out and need more "time slices" to complete.
 	 */
 	public static function prepare_restore( \calmpress\credentials\Credentials $write_credentials,
 	                                        Backup_Storage $storage,

@@ -28,13 +28,13 @@ $backup_action = isset( $_GET['action'] ) && is_string( $_GET['action'] ) ? wp_u
 if ( ! in_array( $backup_action, [ '', 'restore', 'delete' ], true ) ) {
 	wp_die( 'Unknown backup action.', '', [ 'response' => 400 ] );
 }
-$info_url = add_query_arg( 'backup', $backup->identifier(), admin_url( 'backup-details.php' ) );
+$info_url = add_query_arg( 'backup', $backup->unique_id, admin_url( 'backup-details.php' ) );
 
 if ( 'delete' === $backup_action && 'POST' === ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
-	check_admin_referer( 'delete_backup_' . $backup->identifier() );
+	check_admin_referer( 'delete_backup_' . $backup->unique_id );
 	$notices = new \calmpress\admin\Admin_Notices_Handler();
 	try {
-		$manager->delete_backup( $backup->identifier() );
+		$manager->delete_backup( $backup->unique_id );
 		$notices->add_success_message( esc_html__( 'Delete completed' ) );
 	} catch ( \Exception $exception ) {
 		$notices->add_error_message(
@@ -47,7 +47,7 @@ if ( 'delete' === $backup_action && 'POST' === ( $_SERVER['REQUEST_METHOD'] ?? '
 
 $parent_file = 'backups.php';
 $submenu_file = 'backups.php';
-$description = trim( $backup->description() );
+$description = trim( $backup->description );
 
 $title = match ( $backup_action ) {
 	/* translators: %s: Backup description. */
@@ -57,13 +57,13 @@ $title = match ( $backup_action ) {
 	/* translators: %s: Backup description. */
 	default => '' === $description ? __( 'Backup information' ) : sprintf( __( 'Backup information for backup %s' ), $description ),
 };
-$created = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $backup->time_created() );
+$created = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $backup->time );
 $backup_types = [];
-foreach ( $backup->engines() as $engine_id ) {
+foreach ( array_keys( $backup->engines ) as $engine_id ) {
 	$engine_class = $manager->registered_engine_by_id( $engine_id );
 	if ( '' === $engine_class ) {
-		/* translators: %s: Backup engine identifier. */
-		$backup_types[] = sprintf( __( 'Unregistered backup type: %s' ), $engine_id );
+		/* translators: 1: Saved backup engine description, 2: backup engine identifier. */
+		$backup_types[] = sprintf( __( '%1$s (engine %2$s unavailable)' ), $backup->engine_descriptions[ $engine_id ], $engine_id );
 	} else {
 		$backup_types[] = $engine_class::description();
 	}
@@ -100,7 +100,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 			?>
 			<p><?php esc_html_e( 'Delete this backup? It will no longer be available for restore. This cannot be undone and does not change the current site.' ); ?></p>
 			<form action="<?php echo esc_url( add_query_arg( 'action', 'delete', $info_url ) ); ?>" method="post">
-				<?php wp_nonce_field( 'delete_backup_' . $backup->identifier() ); ?>
+				<?php wp_nonce_field( 'delete_backup_' . $backup->unique_id ); ?>
 				<p>
 					<button type="submit" class="button button-primary"><?php esc_html_e( 'Delete this backup' ); ?></button>
 					<a class="button" href="<?php echo esc_url( $info_url ); ?>"><?php esc_html_e( 'Show backup information' ); ?></a>
@@ -117,14 +117,15 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 			<h2><?php esc_html_e( 'Backup contents' ); ?></h2>
 			<p><?php esc_html_e( 'The plugin and theme lists include the installed versions captured by this backup, whether active or inactive.' ); ?></p>
 			<?php
-			foreach ( $backup->engines_data() as $engine_id => $data ) {
+			foreach ( array_keys( $backup->engines ) as $engine_id ) {
 				$engine_class = $manager->registered_engine_by_id( $engine_id );
 				if ( '' === $engine_class ) {
+					echo '<h3>' . esc_html( $backup->engine_descriptions[ $engine_id ] ) . '</h3>';
 					/* translators: %s: Backup engine identifier. */
 					echo '<p>' . esc_html( sprintf( __( 'Information is unavailable because backup engine %s is not installed.' ), $engine_id ) ) . '</p>';
 				} else {
 					echo '<h3>' . esc_html( $engine_class::description() ) . '</h3>';
-					echo $engine_class::data_description( $data );
+					echo $engine_class::data_description( $backup->engine_sections( $engine_id ) );
 				}
 			}
 			break;

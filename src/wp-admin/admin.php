@@ -110,6 +110,11 @@ if ( ! wp_next_scheduled( 'logs_cleanup' ) && ! wp_installing() ) {
 	wp_schedule_event( time(), 'daily', 'logs_cleanup' );
 }
 
+// Schedule backup storage cleanup.
+if ( ! wp_next_scheduled( 'calmpress_backup_storage_cleanup' ) && ! wp_installing() ) {
+	wp_schedule_event( time(), 'daily', 'calmpress_backup_storage_cleanup' );
+}
+
 // Die if in maintenance mode and user do not have the capability to use the site in such a situation.
 if ( \calmpress\calmpress\Maintenance_Mode::current_user_blocked() ) {
 	wp_die(

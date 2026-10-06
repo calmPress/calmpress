@@ -13,7 +13,7 @@ require_once ABSPATH . 'wp-admin/includes/file.php';
  */
 class mock_paths extends \calmpress\calmpress\Paths {
 
-    var $root_dir;
+    var string $root_dir;
 
     public function __construct() {
         $upload_dir = wp_upload_dir();
@@ -54,16 +54,61 @@ class mock_paths extends \calmpress\calmpress\Paths {
  */
 class mock_backup_options extends \calmpress\backup\Core_Backup_Engine {
     public static $paths;
+	public static $network_paths;
 
     /**
      * Overide the Backup_Site_Options method to collect information on the site ids
      * it is called with.
+	 *
+	 * @since 1.0.0
      */
-    protected static function Backup_Site_Options( \calmpress\backup\Temporary_Backup_Storage $storage, $site_id ) {
-        $property = new ReflectionProperty( $storage, 'dest_root_path' );
+	protected static function Backup_Site_Options( \calmpress\backup\Backup_Storage $storage, int $site_id ): \calmpress\backup\Backup_Section_Identity {
+		self::$paths[ $site_id ] = $storage;
 
-        self::$paths[ $site_id ] = $property->getValue( $storage );
+		return new \calmpress\backup\Backup_Section_Identity( 'options', (string) $site_id, 'test' );
     }
+
+	/**
+	 * Record the network IDs passed to the network options backup operation.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \calmpress\backup\Backup_Storage $storage    Backup storage.
+	 * @param int                                $network_id Network ID.
+	 *
+	 * @return \calmpress\backup\Backup_Section_Identity Test section identity.
+	 */
+	protected static function Backup_Network_Options( \calmpress\backup\Backup_Storage $storage, int $network_id ): \calmpress\backup\Backup_Section_Identity {
+		self::$network_paths[ $network_id ] = $storage;
+
+		return new \calmpress\backup\Backup_Section_Identity( 'network-options', (string) $network_id, 'test' );
+	}
+}
+
+/**
+ * A section used to test the core backup information display.
+ *
+ * @since 1.0.0
+ */
+class mock_display_backup_section extends \calmpress\backup\Backup_Section {
+
+	/**
+	 * Fetching is not needed by display tests.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $destination Destination directory.
+	 */
+	protected function fetch_files( string $destination ): void {
+	}
+
+	/**
+	 * Removal is not needed by display tests.
+	 *
+	 * @since 1.0.0
+	 */
+	public function remove(): void {
+	}
 }
 
 /**
@@ -90,7 +135,7 @@ class mock_theme extends WP_Theme {
 
     /**
      * override the get method to return the version with which the object was
-     * instantiated. If anything but 'Version' is being passed raise an error.
+     * instantiated. The mock also provides a display name for the section.
      *
      * @since 1.0.0
      * 
@@ -101,9 +146,11 @@ class mock_theme extends WP_Theme {
     public function get( $type ) {
         if ( 'Version' === $type ) {
             return $this->version;
-        } else {
-            trigger_error( 'Unknown type passed: ' . $type, E_USER_ERROR );
         }
+        if ( 'Name' === $type ) {
+            return 'Mock theme';
+        }
+        trigger_error( 'Unknown type passed: ' . $type, E_USER_ERROR );
     }
 
     /**
@@ -138,7 +185,7 @@ class mock_backup_theme extends \calmpress\backup\Core_Backup_Engine {
      *
      * @since 1.0.0
      */
-    protected static function Backup_Directory( string $source, calmpress\backup\Temporary_Backup_Storage $staging, string $destination ) {
+    protected static function Backup_Directory( string $source, calmpress\backup\Temporary_Backup_Section $staging, string $destination ) {
 
         static::$called = true;
         static::$called_source = $source;
@@ -172,7 +219,7 @@ class mock_backup_themes extends \calmpress\backup\Core_Backup_Engine {
      *
      * @since 1.0.0
      */
-    protected static function Backup_Directory( string $source, calmpress\backup\Temporary_Backup_Storage $staging, string $destination ) {
+    protected static function Backup_Directory( string $source, calmpress\backup\Temporary_Backup_Section $staging, string $destination ) {
     }
 }
 
@@ -231,6 +278,23 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
         $this->storage = new \calmpress\backup\Local_Backup_Storage( $this->storage_root, 'test_storage' );
     }
 
+	/**
+	 * Fetch a section into an isolated directory owned by the current test.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \calmpress\backup\Backup_Section $section Section to fetch.
+	 *
+	 * @return string Absolute path to the fetched contents.
+	 */
+	private function fetch_section( \calmpress\backup\Backup_Section $section ): string {
+		$destination = $this->storage_root . '/fetched-' . wp_generate_uuid4();
+		mkdir( $destination, 0777, true );
+		$section->fetch( $destination );
+
+		return $destination;
+	}
+
     /**
      * Remove directory and its file "recuresively".
      * 
@@ -282,17 +346,19 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
             $this->markTestIncomplete(' failed creating the symlink. On windows you will need to run the tests as administrator');
         }
 
-        $staging = $this->storage->section_working_area_storage( 'dest' );
+		$identity = new \calmpress\backup\Backup_Section_Identity( 'test', 'directory', 'dest' );
+		$staging  = $this->storage->create_section( $identity, 'Options' );
         $method->invoke( null, $test_dir . '/source', $staging, '' );
-        $staging->store();
+		$staging->commit();
+		$section_root = $this->fetch_section( $this->storage->section( $identity ) );
 
-        $this->AssertTrue( is_file( $this->storage_root . '/dest/file1' ) );
-        $this->AssertEquals( filesize( __FILE__ ), filesize( $this->storage_root . '/dest/file1' ) );
-        $this->AssertTrue( is_file( $this->storage_root . '/dest/file2' ) );
-        $this->AssertTrue( is_dir( $this->storage_root . '/dest/subdir' ) );
-        $this->AssertTrue( is_file( $this->storage_root . '/dest/subdir/file1' ) );
-        $this->AssertTrue( is_file( $this->storage_root . '/dest/subdir/file2' ) );
-        $this->AssertFalse( file_exists( $this->storage_root . '/dest/subdir/sym' ) );
+		$this->AssertTrue( is_file( $section_root . '/file1' ) );
+		$this->AssertEquals( filesize( __FILE__ ), filesize( $section_root . '/file1' ) );
+		$this->AssertTrue( is_file( $section_root . '/file2' ) );
+		$this->AssertTrue( is_dir( $section_root . '/subdir' ) );
+		$this->AssertTrue( is_file( $section_root . '/subdir/file1' ) );
+		$this->AssertTrue( is_file( $section_root . '/subdir/file2' ) );
+		$this->AssertFalse( file_exists( $section_root . '/subdir/sym' ) );
 
         $this->rm_dir( $test_dir );
     }
@@ -317,16 +383,23 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
         copy( __FILE__, $test_dir . '.htaccess' );
         copy( __FILE__, $test_dir . 'none.php' );
 
-        $method->invoke( null, $this->storage, $test_dir, '/dest' );
+		$files = $this->invoke_engine( 'root_files', $test_dir );
+		$identity = $method->invoke( null, $this->storage, $files );
+		$section = $this->storage->section( $identity );
+		$this->assertStringStartsWith( 'filenames-timestamps-', $identity->version );
+		$this->assertSame( '.htaccess, none.php', $section->display_name() );
+		$section_root = $this->fetch_section( $section );
+		$this->assertSame( array( '.htaccess', 'none.php' ), array_keys( $files ) );
 
         // Check that files that are non core files were copied
-        $this->AssertTrue( is_file( $this->storage_root . '/dest/.htaccess' ) );
-        $this->AssertEquals( filesize( __FILE__ ), filesize( $this->storage_root . '/dest/.htaccess' ) );
-        $this->AssertTrue( is_file( $this->storage_root . '/dest/none.php' ) );
+		$this->AssertTrue( is_file( $section_root . '/.htaccess' ) );
+		$this->AssertEquals( filesize( __FILE__ ), filesize( $section_root . '/.htaccess' ) );
+		$this->AssertTrue( is_file( $section_root . '/none.php' ) );
 
         // ... but no other file.
-        $files = new FilesystemIterator( $this->storage_root . '/dest', FilesystemIterator::SKIP_DOTS );
-        $this->AssertEquals( 2, iterator_count( $files ) );
+		$files = new FilesystemIterator( $section_root, FilesystemIterator::SKIP_DOTS );
+		$this->AssertEquals( 2, iterator_count( $files ) );
+		$this->AssertFalse( is_file( $section_root . '/.section.json' ) );
 
         self::rm_dir( $test_dir );
     }
@@ -362,13 +435,11 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
             restore_current_blog();
         }
         
-        $staging = $this->storage->section_working_area_storage( 'dest' );
-
-        $method->invoke( null, $staging, $blog_id );
-        $staging->store();
+		$identity = $method->invoke( null, $this->storage, $blog_id );
+		$section_root = $this->fetch_section( $this->storage->section( $identity ) );
 
         // Check file was created.
-        $file = $this->storage_root . '/dest/' . $blog_id . '-options.json';
+		$file = $section_root . '/options.json';
         $this->AssertTrue( file_exists( $file ) );
 
         // Test content
@@ -404,10 +475,12 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 
         $method = new ReflectionMethod( 'mock_backup_options', 'Backup_Options' );
 
-        $expected_blogs[] = get_current_blog_id();
+		$expected_blogs[] = get_current_blog_id();
+		$expected_networks = array();
         // for multisite testing we want to test that all sites are used in the call
         // to backup_site_options.
-        if ( is_multisite() ) {
+		if ( is_multisite() ) {
+			$expected_networks = array_map( 'intval', wp_list_pluck( get_networks(), 'id' ) );
             $expected_blogs[] = self::factory()->blog->create(
                 array(
                     'public'  => 1,
@@ -420,18 +493,80 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
             );
         }
 
-        $method->invoke( null, $this->storage, 'options' );
-
-        // test that the directory was created.
-        $this->AssertTrue( is_dir( $this->storage_root . '/options' ) );
+		$sections = $method->invoke( null, $this->storage );
+		$this->AssertCount( count( $expected_blogs ) + count( $expected_networks ), $sections );
 
         // test correct calls to backup_site_options for all sites.
-        foreach ( $expected_blogs as $blog_id ) {
+		foreach ( $expected_blogs as $blog_id ) {
             $this->AssertTrue( array_key_exists( $blog_id, mock_backup_options::$paths ) );
-            $this->AssertSame( $this->storage_root . '/options/', mock_backup_options::$paths[ $blog_id ] );
+			$this->AssertSame( $this->storage, mock_backup_options::$paths[ $blog_id ] );
         }
-        self::rm_dir( $this->storage_root . '/options' );
+		foreach ( $expected_networks as $network_id ) {
+			$this->AssertTrue( array_key_exists( $network_id, mock_backup_options::$network_paths ) );
+			$this->AssertSame( $this->storage, mock_backup_options::$network_paths[ $network_id ] );
+		}
     }
+
+	/**
+	 * Verify each site's options section contains that site's values.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_backup_site_options_keeps_sites_separate() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'This test requires multisite.' );
+		}
+
+		$site_ids = array( self::factory()->blog->create(), self::factory()->blog->create() );
+		foreach ( $site_ids as $index => $site_id ) {
+			switch_to_blog( $site_id );
+			try {
+				add_option( 'backup_site_marker', 'site-' . $index );
+			} finally {
+				restore_current_blog();
+			}
+		}
+
+		foreach ( $site_ids as $index => $site_id ) {
+			$identity = $this->invoke_engine( 'Backup_Site_Options', $this->storage, $site_id );
+			$directory = $this->fetch_section( $this->storage->section( $identity ) );
+			$rows = json_decode( file_get_contents( $directory . '/options.json' ), true );
+			$options = array_column( $rows, 'v', 'n' );
+
+			$this->assertSame( 'options', $identity->type );
+			$this->assertSame( (string) $site_id, $identity->location );
+			$this->assertSame( 'site-' . $index, $options['backup_site_marker'] );
+		}
+	}
+
+	/**
+	 * Verify network options are backed up per network without network transients.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_backup_network_options_keeps_networks_separate() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'This test requires multisite.' );
+		}
+
+		$network_ids = array( get_current_network_id(), self::factory()->network->create() );
+		foreach ( $network_ids as $index => $network_id ) {
+			add_network_option( $network_id, 'backup_network_marker', 'network-' . $index );
+			add_network_option( $network_id, '_site_transient_backup_network_marker', 'excluded' );
+		}
+
+		foreach ( $network_ids as $index => $network_id ) {
+			$identity = $this->invoke_engine( 'Backup_Network_Options', $this->storage, $network_id );
+			$directory = $this->fetch_section( $this->storage->section( $identity ) );
+			$rows = json_decode( file_get_contents( $directory . '/options.json' ), true );
+			$options = array_column( $rows, 'v', 'n' );
+
+			$this->assertSame( 'network-options', $identity->type );
+			$this->assertSame( (string) $network_id, $identity->location );
+			$this->assertSame( 'network-' . $index, $options['backup_network_marker'] );
+			$this->assertArrayNotHasKey( '_site_transient_backup_network_marker', $options );
+		}
+	}
 
     /**
      * Test the Backup_Theme method.
@@ -444,20 +579,20 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 
         $theme_dir = $this->storage_root . '/theme';
 
-        $dest_dir = $this->storage_root . '/themes/';
         $theme = new mock_theme( $theme_dir, '1.0' );
+		$identity = new \calmpress\backup\Backup_Section_Identity( 'theme', 'theme', '1.0' );
 
-        $ret = $method->invoke( null, $this->storage, 'themes', $theme );
+        $ret = $method->invoke( null, $this->storage, $theme, $identity );
         $this->AssertTrue( mock_backup_theme::$called );
 
         // The expected call has the root directory of the theme, mapped to the staging root.
         $this->AssertSame( $theme_dir, mock_backup_theme::$called_source );
         $this->AssertSame( '', mock_backup_theme::$called_dest );
-        $this->AssertSame( 'theme/1.0', $ret );
+		$this->AssertNull( $ret );
 
         // Test directory backup is not done if directory already exists.
         mock_backup_theme::$called = false;
-        $ret = $method->invoke( null, $this->storage, 'themes', $theme );
+        $ret = $method->invoke( null, $this->storage, $theme, $identity );
         $this->AssertFalse( mock_backup_theme::$called );
     }
 
@@ -521,22 +656,18 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
             '
         );
 
-        $meta = $method->invoke( null, $this->storage, time() + 10 );
+        $sections = $method->invoke( null, $this->storage, time() + 10 );
 
         // Valid themes are backed up even without a version header.
-        $this->AssertSame( 3, count( $meta ) );
-        foreach ( [ 'parent', 'child', 'noversion' ] as $theme_dir ) {
-            $this->AssertTrue( array_key_exists( $theme_dir, $meta ) );
-            $this->AssertSame( 4, count( $meta[ $theme_dir ] ) );
-            $this->AssertTrue( array_key_exists( 'version', $meta[ $theme_dir ] ) );
-            $this->AssertTrue( array_key_exists( 'directory', $meta[ $theme_dir ] ) );
-            $this->AssertTrue( array_key_exists( 'name', $meta[ $theme_dir ] ) );
-            $this->AssertTrue( array_key_exists( 'directory_name', $meta[ $theme_dir ] ) );
+        $this->AssertCount( 3, $sections );
+        $identities = [];
+        foreach ( $sections as $section ) {
+            $this->AssertInstanceOf( \calmpress\backup\Backup_Section_Identity::class, $section );
+            $identities[ $section->location ] = $section->version;
         }
-        $this->AssertSame( '1.1', $meta['parent']['version'] );
-        $this->AssertSame( 'themes/parent/1.1/', $meta['parent']['directory'] );
-        $this->AssertSame( '1.0', $meta['child']['version'] );
-        $this->AssertSame( 'themes/child/1.0/', $meta['child']['directory'] );
+        $this->AssertSame( '1.0', $identities['child'] );
+        $this->AssertSame( '1.1', $identities['parent'] );
+        $this->AssertStringStartsWith( 'unversioned-', $identities['noversion'] );
 
         self::rm_dir( $paths->root_directory() );
         self::rm_dir( $test_dir . '/themes/' );
@@ -556,39 +687,46 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
         $plugin_dir = $test_dir . '/test_plugin';
         mkdir( $plugin_dir, 0777, true );
         
-        $dest_dir = $this->storage_root . '/dest/';
-        $ret = $method->invoke( null, $this->storage, 'dest', $plugin_dir, '52-3.45' );
+		$plugins = array(
+			array( 'Name' => 'First Plugin', 'Version' => '52', 'filename' => 'test_plugin/first.php' ),
+			array( 'Name' => 'Second Plugin', 'Version' => '3.45', 'filename' => 'test_plugin/second.php' ),
+		);
+		$identity = $method->invoke( null, $this->storage, $plugin_dir, $plugins );
 
         $this->AssertTrue( mock_backup_theme::$called );
         $this->AssertSame( $plugin_dir, mock_backup_theme::$called_source );
         $this->AssertSame( '', mock_backup_theme::$called_dest );
-        $this->AssertSame( 'test_plugin/52-3.45', $ret );
+		$this->AssertSame( 'test_plugin', $identity->location );
+		$this->AssertSame( '52_3.45', $identity->version );
+		$this->AssertSame( 'First Plugin, Second Plugin', $this->storage->section( $identity )->display_name() );
 
         // Test directory backup is not done if directory already exists.
         mock_backup_theme::$called = false;
-        $ret = $method->invoke( null, $this->storage, 'dest', $plugin_dir, '52-3.45' );
-        $this->AssertFalse( mock_backup_theme::$called );
-        $this->AssertSame( 'test_plugin/52-3.45', $ret );
+		$repeat_identity = $method->invoke( null, $this->storage, $plugin_dir, $plugins );
+		$this->AssertFalse( mock_backup_theme::$called );
+		$this->AssertEquals( $identity, $repeat_identity );
     }
 
     /**
-     * Test the Backup_Root_Single_File_Plugin method.
+     * Test the Backup_Single_File_Plugin method.
      * 
      * Use the hello,php plugin for the test
      * 
      * @since 1.0.0
      */
-    function test_backup_root_single_file_plugin() {
+    function test_backup_single_file_plugin() {
 
-        $method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Root_Single_File_Plugin' );
+        $method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Single_File_Plugin' );
 
-        $dest_dir = $this->storage_root . 'dest/';
-        $ret = $method->invoke( null, $this->storage, 'dest', WP_PLUGIN_DIR . '/hello.php', '2.3' );
+		$identity = $method->invoke( null, $this->storage, WP_PLUGIN_DIR . '/hello.php', '2.3', 'Hello Dolly' );
+		$section_root = $this->fetch_section( $this->storage->section( new \calmpress\backup\Backup_Section_Identity( 'plugin-file', 'hello.php', '2.3' ) ) );
 
-        $this->AssertTrue( is_dir( $this->storage_root . '/dest/hello.php/2.3' ) );
-        $this->AssertTrue( is_file( $this->storage_root . '/dest/hello.php/2.3/hello.php' ) );
-        $this->AssertSame( filesize( WP_PLUGIN_DIR . '/hello.php' ), filesize( $this->storage_root . '/dest/hello.php/2.3/hello.php' ) );
-        $this->AssertSame( 'hello.php/2.3', $ret );
+		$this->AssertTrue( is_dir( $section_root ) );
+		$this->AssertTrue( is_file( $section_root . '/hello.php' ) );
+		$this->AssertSame( filesize( WP_PLUGIN_DIR . '/hello.php' ), filesize( $section_root . '/hello.php' ) );
+		$this->AssertSame( 'hello.php', $identity->location );
+		$this->AssertSame( '2.3', $identity->version );
+		$this->AssertSame( 'plugin-file', $identity->type );
     }
 
     /**
@@ -606,27 +744,15 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
         $plugin_dir = $test_dir . '/plugin';
 
         $dest_dir = $this->storage_root . '/dest/';
-        $meta = $method->invoke( null, $this->storage, time() + 10 );
-
-        foreach ( [ 'hello.php', 'single_plugin_directory', 'double_plugin_directory' ] as $plugin ) {
-            $this->AssertTrue( array_key_exists( $plugin, $meta ) );
-            $this->AssertSame( 4, count( $meta[ $plugin ] ) );
-        }
-
-        $this->AssertSame( '1.7.2', $meta['hello.php']['version'] );
-        $this->AssertSame( 'plugins/hello.php/1.7.2', $meta['hello.php']['directory'] );
-        $this->AssertSame( 'root_file', $meta['hello.php']['type'] );
-        $this->AssertIsArray( $meta['hello.php']['data'] );
-    
-        $this->AssertSame( '1.0a', $meta['single_plugin_directory']['version'] );
-        $this->AssertSame( 'plugins/single_plugin_directory/1.0a/', $meta['single_plugin_directory']['directory'] );
-        $this->AssertSame( 'directory', $meta['single_plugin_directory']['type'] );
-        $this->AssertIsArray( $meta['single_plugin_directory']['data'] );
-
-        $this->AssertSame( '1.1b-1.2c', $meta['double_plugin_directory']['version'] );
-        $this->AssertSame( 'plugins/double_plugin_directory/1.1b-1.2c/', $meta['double_plugin_directory']['directory'] );
-        $this->AssertSame( 'directory', $meta['double_plugin_directory']['type'] );
-        $this->AssertIsArray( $meta['double_plugin_directory']['data'] );
+		$sections = $method->invoke( null, $this->storage, time() + 10 );
+		$versions = array();
+		foreach ( $sections as $section ) {
+			$this->AssertInstanceOf( \calmpress\backup\Backup_Section_Identity::class, $section );
+			$versions[ $section->location ] = $section->version;
+		}
+		$this->AssertSame( '1.7.2', $versions['hello.php'] );
+		$this->AssertSame( '1.0a', $versions['single_plugin_directory'] );
+		$this->AssertSame( '1.1b_1.2c', $versions['double_plugin_directory'] );
     }
 
     /**
@@ -640,11 +766,17 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 
         $test_dir = get_temp_dir() . uniqid();
         mkdir( $test_dir . '/source/', 0777, true );
+		$latest_modified = time() + 10;
+		file_put_contents( $test_dir . '/source/plugin.php', '<?php' );
+		touch( $test_dir . '/source/plugin.php', $latest_modified );
+		$version_method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'version_from_directory_timestamp' );
+		$this->AssertSame( 'unversioned-' . $latest_modified, $version_method->invoke( null, $test_dir . '/source/' ) );
 
         // Test Backup_Directory is invoked when directory exists.
         mock_backup_theme::$called = false;
-        $method->invoke( null, $this->storage, $test_dir . '/source/', 'dest' );
-        $this->AssertTrue( mock_backup_theme::$called );
+		$identity = new \calmpress\backup\Backup_Section_Identity( 'mu-plugins', 'mu-plugins', 'unversioned-' . $latest_modified );
+		$method->invoke( null, $this->storage, $test_dir . '/source/', $identity );
+		$this->AssertTrue( mock_backup_theme::$called );
 
         self::rm_dir( $test_dir );
     }
@@ -662,12 +794,13 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
         mkdir( $test_dir . '/source/', 0777, true );
 
         mock_backup_theme::$called = false;
-        $method->invoke( null, $this->storage, $test_dir . '/source/', 'dest' );
-        $this->AssertTrue( mock_backup_theme::$called );
+		$identity = $method->invoke( null, $this->storage, $test_dir . '/source/' );
+		$this->AssertTrue( mock_backup_theme::$called );
+		$this->AssertSame( 'languages', $identity->location );
     }
 
     /**
-     * Test the Backup_Dropins method.
+     * Verify each present drop-in has its own reusable, timestamp-versioned section.
      * 
      * @since 1.0.0
      */
@@ -680,33 +813,62 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 
         $paths = new \calmpress\calmpress\Paths();
 
-        // test all dropins are backuped, but not other files.
+        // Only recognized drop-in files should be backed up.
         foreach ( $paths->dropin_files_name() as $filename ) {
             copy( __FILE__, $test_dir . '/source/' . $filename );
         }
         touch( $test_dir . '/source/test.test' );
 
-        $method->invoke( null, $this->storage, $test_dir . '/source/', 'dest' );
-        foreach ( $paths->dropin_files_name() as $filename ) {
-            $this->AssertTrue( is_file( $this->storage_root . '/dest/' . $filename ) );
-            $this->AssertSame( filesize( __FILE__ ), filesize( $this->storage_root . '/dest/' . $filename ) );
-        }
-        $this->AssertFalse( file_exists( $this->storage_root . '/dest/test.test' ) );
+		$sections = $method->invoke( null, $this->storage, $test_dir . '/source/' );
+		$this->assertCount( count( $paths->dropin_files_name() ), $sections );
+		foreach ( $sections as $identity ) {
+			$this->assertSame( 'dropin', $identity->type );
+			$this->assertSame( 'unversioned-' . filemtime( $test_dir . '/source/' . $identity->location ), $identity->version );
+			$section_root = $this->fetch_section( $this->storage->section( $identity ) );
+			$this->assertSame( filesize( __FILE__ ), filesize( $section_root . '/' . $identity->location ) );
+			$this->assertCount( 1, glob( $section_root . '/*' ) );
+		}
+		$this->assertEquals( $sections, $method->invoke( null, $this->storage, $test_dir . '/source/' ) );
+		$this->assertCount( count( $sections ), $this->storage->sections() );
 
-        // Test symlink not copied even when their name is valid dropin name.
+        // A symlink with a recognized name must not become a section.
         $this->rm_dir( $test_dir . '/source' );
-        $this->rm_dir( $this->storage_root . '/dest' );
         mkdir( $test_dir . '/source', 0777, true );
         touch( $test_dir . '/source/test.test' );
         if ( ! @symlink( $test_dir . '/source/test.test', $test_dir . '/source/db.php' ) ) {
             $this->markTestIncomplete(' failed creating the symlink. On windows you will need to run the tests as administrator');
         }
-        $method->invoke( null, $this->storage, $test_dir . '/source/', 'dest' );
-        $files = new FilesystemIterator( $this->storage_root . '/dest', FilesystemIterator::SKIP_DOTS );
-        $this->AssertEquals( 0, iterator_count( $files ) );
+		$this->assertSame( array(), $method->invoke( null, $this->storage, $test_dir . '/source/' ) );
 
         $this->rm_dir( $test_dir );
     }
+
+	/**
+	 * Verify changing a drop-in timestamp creates a new section version while retaining the old copy.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_dropin_timestamp_changes_section_version() {
+		$method = new ReflectionMethod( '\calmpress\backup\Core_Backup_Engine', 'Backup_Dropins' );
+		$source_dir = $this->storage_root . '/dropins-source/';
+		\calmpress\utils\ensure_dir_exists( $source_dir );
+		$file = $source_dir . 'db.php';
+		file_put_contents( $file, 'first' );
+		touch( $file, 1700000000 );
+
+		$first = $method->invoke( null, $this->storage, $source_dir );
+		$this->assertCount( 1, $first );
+		$this->assertSame( 'db.php', $first[0]->location );
+		$this->assertSame( 'unversioned-1700000000', $first[0]->version );
+
+		file_put_contents( $file, 'second' );
+		touch( $file, 1700000010 );
+		$second = $method->invoke( null, $this->storage, $source_dir );
+		$this->assertSame( 'unversioned-1700000010', $second[0]->version );
+		$this->assertCount( 2, $this->storage->sections() );
+		$this->assertSame( 'first', file_get_contents( $this->fetch_section( $this->storage->section( $first[0] ) ) . '/db.php' ) );
+		$this->assertSame( 'second', file_get_contents( $this->fetch_section( $this->storage->section( $second[0] ) ) . '/db.php' ) );
+	}
 
     /**
      * test throw_if_out_of_time method.
@@ -760,11 +922,10 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 		add_option( 'plugin_transient_settings', 'keep' );
 		add_option( '_transient_real', 'exclude' );
 		add_option( '_site_transient_real', 'exclude' );
-		$staging = $this->storage->section_working_area_storage( 'options' );
 		$site_id = get_current_blog_id();
-		$this->invoke_engine( 'Backup_Site_Options', $staging, $site_id );
-		$staging->store();
-		$data = json_decode( file_get_contents( $this->storage_root . '/options/' . $site_id . '-options.json' ), true );
+		$identity = $this->invoke_engine( 'Backup_Site_Options', $this->storage, $site_id );
+		$section_root = $this->fetch_section( $this->storage->section( $identity ) );
+		$data = json_decode( file_get_contents( $section_root . '/options.json' ), true );
 		$names = array_column( $data, 'n' );
 		$this->assertContains( 'plugin_transient_settings', $names );
 		$this->assertNotContains( '_transient_real', $names );
@@ -772,7 +933,7 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify parent configuration is backed up unless an installation-local configuration exists.
+	 * Verify configuration is stored in its own section with the original relative location.
 	 *
 	 * @since 1.0.0
 	 */
@@ -780,11 +941,51 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 		\calmpress\utils\ensure_dir_exists( $this->storage_root );
 		mkdir( $this->storage_root . '/site' );
 		file_put_contents( $this->storage_root . '/wp-config.php', 'parent configuration' );
-		$this->invoke_engine( 'Backup_Root', $this->storage, $this->storage_root . '/site/', 'parent' );
-		$this->assertSame( 'parent configuration', file_get_contents( $this->storage_root . '/parent/wp-config.php' ) );
+		touch( $this->storage_root . '/wp-config.php', 1700000000 );
+		$parent_identity = $this->invoke_engine( 'Backup_Config_File', $this->storage, $this->storage_root . '/site/' );
+		$this->assertSame( '../wp-config.php', $parent_identity->location );
+		$parent = $this->fetch_section( $this->storage->section( $parent_identity ) );
+		$this->assertSame( 'parent configuration', file_get_contents( $parent . '/wp-config.php' ) );
+		$this->assertSame( array(), $this->invoke_engine( 'root_files', $this->storage_root . '/site/' ) );
 		file_put_contents( $this->storage_root . '/site/wp-config.php', 'local configuration' );
-		$this->invoke_engine( 'Backup_Root', $this->storage, $this->storage_root . '/site/', 'local' );
-		$this->assertSame( 'local configuration', file_get_contents( $this->storage_root . '/local/wp-config.php' ) );
+		touch( $this->storage_root . '/site/wp-config.php', 1700000010 );
+		$local_identity = $this->invoke_engine( 'Backup_Config_File', $this->storage, $this->storage_root . '/site/' );
+		$this->assertSame( 'wp-config.php', $local_identity->location );
+		$local = $this->fetch_section( $this->storage->section( $local_identity ) );
+		$this->assertSame( 'local configuration', file_get_contents( $local . '/wp-config.php' ) );
+		$this->assertNotEquals( $parent_identity, $local_identity );
+	}
+
+	/**
+	 * Verify root-file sections change when files are added, changed, or removed.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_root_file_versions_follow_file_names_and_timestamps() {
+		$source_dir = $this->storage_root . '/site/';
+		\calmpress\utils\ensure_dir_exists( $source_dir );
+		$this->assertSame( array(), $this->invoke_engine( 'root_files', $source_dir ) );
+		$this->assertCount( 0, $this->storage->sections() );
+
+		$file = $source_dir . 'custom.php';
+		file_put_contents( $file, 'first' );
+		touch( $file, 1700000000 );
+		$files = $this->invoke_engine( 'root_files', $source_dir );
+		$first = $this->invoke_engine( 'Backup_Root', $this->storage, $files );
+		$this->assertSame( array( 'custom.php' ), array_keys( $files ) );
+		$this->assertNotNull( $first );
+		$this->assertEquals( $first, $this->invoke_engine( 'Backup_Root', $this->storage, $files ) );
+
+		file_put_contents( $file, 'second' );
+		touch( $file, 1700000010 );
+		$second = $this->invoke_engine( 'Backup_Root', $this->storage, $files );
+		$this->assertNotEquals( $first, $second );
+		$this->assertSame( 'first', file_get_contents( $this->fetch_section( $this->storage->section( $first ) ) . '/custom.php' ) );
+		$this->assertSame( 'second', file_get_contents( $this->fetch_section( $this->storage->section( $second ) ) . '/custom.php' ) );
+
+		unlink( $file );
+		$this->assertSame( array(), $this->invoke_engine( 'root_files', $source_dir ) );
+		$this->assertCount( 2, $this->storage->sections() );
 	}
 
 	/**
@@ -797,16 +998,18 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 		$source = $this->storage_root . '/plugin.php';
 		file_put_contents( $source, 'first' );
 		touch( $source, 1700000000 );
-		$first = $this->invoke_engine( 'Backup_Root_Single_File_Plugin', $this->storage, 'plugins/', $source, '' );
-		$repeat = $this->invoke_engine( 'Backup_Root_Single_File_Plugin', $this->storage, 'plugins/', $source, '' );
-		$this->assertSame( 'plugin.php/unversioned-1700000000', $first );
-		$this->assertSame( $first, $repeat );
+		$first = $this->invoke_engine( 'Backup_Single_File_Plugin', $this->storage, $source, '', 'Test Plugin' );
+		$repeat = $this->invoke_engine( 'Backup_Single_File_Plugin', $this->storage, $source, '', 'Test Plugin' );
+		$this->assertSame( 'unversioned-1700000000', $first->version );
+		$this->assertEquals( $first, $repeat );
 		file_put_contents( $source, 'second' );
 		touch( $source, 1700000010 );
-		$second = $this->invoke_engine( 'Backup_Root_Single_File_Plugin', $this->storage, 'plugins/', $source, '' );
-		$this->assertNotSame( $first, $second );
-		$this->assertSame( 'first', file_get_contents( $this->storage_root . '/plugins/' . $first . '/plugin.php' ) );
-		$this->assertSame( 'second', file_get_contents( $this->storage_root . '/plugins/' . $second . '/plugin.php' ) );
+		$second = $this->invoke_engine( 'Backup_Single_File_Plugin', $this->storage, $source, '', 'Test Plugin' );
+		$this->assertNotEquals( $first, $second );
+		$first_root = $this->fetch_section( $this->storage->section( $first ) );
+		$second_root = $this->fetch_section( $this->storage->section( $second ) );
+		$this->assertSame( 'first', file_get_contents( $first_root . '/plugin.php' ) );
+		$this->assertSame( 'second', file_get_contents( $second_root . '/plugin.php' ) );
 	}
 
 	/**
@@ -822,28 +1025,17 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 		file_put_contents( $source . '/index.php', '<?php' );
 		touch( $source . '/style.css', 1700000000 );
 		$theme = new WP_Theme( 'theme', $this->storage_root );
-		$first = $this->invoke_engine( 'Backup_Theme', $this->storage, 'themes/', $theme );
-		$second = $this->invoke_engine( 'Backup_Theme', $this->storage, 'themes/', $theme );
-		$this->assertSame( 'theme/unversioned-1700000000', $first );
-		$this->assertSame( $first, $second );
-		$this->assertCount( 1, glob( $this->storage_root . '/themes/theme/*', GLOB_ONLYDIR ) );
+		$first = new \calmpress\backup\Backup_Section_Identity( 'theme', 'theme', 'unversioned-1700000000' );
+		$this->invoke_engine( 'Backup_Theme', $this->storage, $theme, $first );
+		$this->invoke_engine( 'Backup_Theme', $this->storage, $theme, $first );
+		$this->assertSame( 'Unversioned', $this->storage->section( $first )->display_name() );
 
 		file_put_contents( $source . '/style.css', '/* Theme Name: Unversioned */ body {}' );
 		touch( $source . '/style.css', 1700000010 );
-		$third = $this->invoke_engine( 'Backup_Theme', $this->storage, 'themes/', $theme );
-		$this->assertSame( 'theme/unversioned-1700000010', $third );
-		$this->assertSame( '/* Theme Name: Unversioned */ body {}', file_get_contents( $this->storage_root . '/themes/' . $third . '/style.css' ) );
-	}
-
-	/**
-	 * Verify a missing languages directory produces an empty backup section.
-	 *
-	 * @since 1.0.0
-	 */
-	public function test_missing_languages_directory_still_creates_backup_section() {
-		\calmpress\utils\ensure_dir_exists( $this->storage_root );
-		$this->invoke_engine( 'Backup_Languages', $this->storage, $this->storage_root . '/missing', 'languages' );
-		$this->assertTrue( $this->storage->section_exists( 'languages' ) );
+		$third = new \calmpress\backup\Backup_Section_Identity( 'theme', 'theme', 'unversioned-1700000010' );
+		$this->invoke_engine( 'Backup_Theme', $this->storage, $theme, $third );
+		$section = $this->storage->section( $third );
+		$this->assertSame( '/* Theme Name: Unversioned */ body {}', file_get_contents( trailingslashit( $this->fetch_section( $section ) ) . 'style.css' ) );
 	}
 
 	/**
@@ -862,16 +1054,86 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
 		};
 		$previous = $wpdb->suppress_errors();
 		add_filter( 'query', $filter );
+		$sections_before = $this->storage->sections();
 		try {
-			$staging = $this->storage->section_working_area_storage( 'options' );
-			$this->invoke_engine( 'Backup_Site_Options', $staging, get_current_blog_id() );
+			$this->invoke_engine( 'Backup_Site_Options', $this->storage, get_current_blog_id() );
 			$this->fail( 'A failed query must not produce a successful backup.' );
 		} catch ( RuntimeException $exception ) {
 			$this->assertSame( 'Failed reading options for backup.', $exception->getMessage() );
-			$this->assertFalse( $this->storage->section_exists( 'options' ) );
+			$this->assertCount( count( $sections_before ), $this->storage->sections() );
 		} finally {
 			remove_filter( 'query', $filter );
 			$wpdb->suppress_errors( $previous );
 		}
+	}
+
+	/**
+	 * Verify backup information shows useful section names and omits internal sections.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_data_description_uses_sections() {
+		$plugin = new mock_display_backup_section(
+			new \calmpress\backup\Backup_Section_Identity( 'plugin', 'sample', '2.0' ),
+			time(),
+			'Sample Plugin'
+		);
+		$config = new mock_display_backup_section(
+			new \calmpress\backup\Backup_Section_Identity( 'config-file', '../wp-config.php', 'timestamp-1' ),
+			time(),
+			''
+		);
+		$root_files = new mock_display_backup_section(
+			new \calmpress\backup\Backup_Section_Identity( 'root-files', 'root', 'timestamps-1' ),
+			time(),
+			'.htaccess, robots.txt'
+		);
+		$html = \calmpress\backup\Core_Backup_Engine::data_description( array( $plugin, $config, $root_files ) );
+
+		$this->assertStringContainsString( 'Sample Plugin - version 2.0', $html );
+		$this->assertStringNotContainsString( '../wp-config.php', $html );
+		$this->assertStringContainsString( '.htaccess, robots.txt', $html );
+		$this->assertStringNotContainsString( 'Themes', $html );
+		$this->assertStringNotContainsString( 'MU plugins', $html );
+		$this->assertStringNotContainsString( 'None', $html );
+	}
+
+	/**
+	 * Verify an empty plugin list is explicit while other absent categories stay hidden.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_data_description_shows_none_only_for_plugins() {
+		$html = \calmpress\backup\Core_Backup_Engine::data_description( array() );
+
+		$this->assertStringContainsString( 'Plugins', $html );
+		$this->assertStringContainsString( 'None', $html );
+		$this->assertStringNotContainsString( 'MU plugins', $html );
+		$this->assertStringNotContainsString( 'Themes', $html );
+	}
+
+	/**
+	 * Verify plugin directories with two entry files show each saved name with its version.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_data_description_splits_plugin_directory_names_and_versions() {
+		$directory = new mock_display_backup_section(
+			new \calmpress\backup\Backup_Section_Identity( 'plugin', 'shared-directory', '1.2-beta_3.4' ),
+			time(),
+			'First Plugin, Second Plugin'
+		);
+		$single_file = new mock_display_backup_section(
+			new \calmpress\backup\Backup_Section_Identity( 'plugin-file', 'standalone.php', '5.0' ),
+			time(),
+			'Standalone Plugin'
+		);
+
+		$html = \calmpress\backup\Core_Backup_Engine::data_description( array( $directory, $single_file ) );
+
+		$this->assertStringContainsString( 'First Plugin - version 1.2-beta', $html );
+		$this->assertStringContainsString( 'Second Plugin - version 3.4', $html );
+		$this->assertStringContainsString( 'Standalone Plugin - version 5.0', $html );
+		$this->assertSame( 1, substr_count( $html, '<h4>Plugins</h4>' ) );
 	}
 }

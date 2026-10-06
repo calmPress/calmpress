@@ -65,6 +65,7 @@ class Backup_List extends WP_List_Table {
 				'date'        => __( 'Date' ),
 				'description' => __( 'Description' ),
 				'type'        => __( 'Type' ),
+				'storage'     => __( 'Storage' ),
 			],
 			array(),
 			array(),
@@ -93,6 +94,7 @@ class Backup_List extends WP_List_Table {
 			'date'        => esc_html__( 'Date' ),
 			'description' => esc_html__( 'Description' ),
 			'type'        => esc_html__( 'Type' ),
+			'storage'     => esc_html__( 'Storage' ),
 		];
 	}
 
@@ -124,7 +126,7 @@ class Backup_List extends WP_List_Table {
 
 		$actions = [];
 
-		$details_url = add_query_arg( 'backup', $item->identifier(), admin_url( 'backup-details.php' ) );
+		$details_url = add_query_arg( 'backup', $item->unique_id, admin_url( 'backup-details.php' ) );
 		$actions['fullinfo'] = '<a href="' . esc_url( $details_url ) . '">' . esc_html__( 'Info' ) . '</a>';
 		$restore_url = add_query_arg( 'action', 'restore', $details_url );
 		$actions['restore'] = '<a href="' . esc_url( $restore_url ) . '">' . esc_html__( 'Restore' ) . '</a>';
@@ -135,7 +137,7 @@ class Backup_List extends WP_List_Table {
 			'<a href="%s" aria-label="%s">%s</a>',
 			esc_url( $delete_url ),
 			/* translators: %s: Buckup's description. */
-			esc_attr( sprintf( __( 'Delete &#8220;%s&#8221;' ), $item->description() ) ),
+			esc_attr( sprintf( __( 'Delete &#8220;%s&#8221;' ), $item->description ) ),
 			esc_html__( 'Delete' )
 		);
 
@@ -155,11 +157,11 @@ class Backup_List extends WP_List_Table {
 			/* translators: 1: Backup date, 2: Backup time. */
 			__( '%1$s at %2$s' ),
 			/* translators: Backup date format. See https://www.php.net/manual/datetime.format.php */
-			wp_date( __( 'Y/m/d' ), $item->time_created() ),
+			wp_date( __( 'Y/m/d' ), $item->time ),
 			/* translators: Backup time format. See https://www.php.net/manual/datetime.format.php */
-			wp_date( __( 'g:i a' ), $item->time_created() )
+			wp_date( __( 'g:i a' ), $item->time )
 		);
-		$details_url = add_query_arg( 'backup', $item->identifier(), admin_url( 'backup-details.php' ) );
+		$details_url = add_query_arg( 'backup', $item->unique_id, admin_url( 'backup-details.php' ) );
 		echo '<a class="row-title" href="' . esc_url( $details_url ) . '">' . esc_html( $text ) . '</a>';
 	}
 
@@ -171,12 +173,12 @@ class Backup_List extends WP_List_Table {
 	 * @param \calmpress\backup\Backup $item The current backup item.
 	 */
 	public function column_description( \calmpress\backup\Backup $item ) {
-		$details_url = add_query_arg( 'backup', $item->identifier(), admin_url( 'backup-details.php' ) );
-		if ( '' === trim( $item->description() ) ) {
+		$details_url = add_query_arg( 'backup', $item->unique_id, admin_url( 'backup-details.php' ) );
+		if ( '' === trim( $item->description ) ) {
 			echo '<a class="row-title" href="' . esc_url( $details_url ) . '"><span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . esc_html__( 'No description' ) . '</span></a>';
 			return;
 		}
-		echo '<a class="row-title" href="' . esc_url( $details_url ) . '">' . esc_html( $item->description() ) . '</a>';
+		echo '<a class="row-title" href="' . esc_url( $details_url ) . '">' . esc_html( $item->description ) . '</a>';
 	}
 
 	/**
@@ -190,15 +192,15 @@ class Backup_List extends WP_List_Table {
 	 * @param array $item The current backup item.
 	 */
 	public function column_type( \calmpress\backup\Backup $item ) {
-		$engines = $item->engines();
+		$engines = array_keys( $item->engines );
 		$manager = new \calmpress\backup\Backup_Manager();
 		
 		$backup_engines = [];
 		foreach ( $engines as $engine ) {
 			$engine_class  = $manager->registered_engine_by_id( $engine );
 			if ( '' === $engine_class ) {
-				/* translators: 1: The backup engine identifier. */
-				$backup_engines[] = esc_html( sprintf( __( 'Unregistered backup type of: %s', $engine ) ) );
+				/* translators: 1: Saved backup engine description, 2: backup engine identifier. */
+				$backup_engines[] = esc_html( sprintf( __( '%1$s (engine %2$s unavailable)' ), $item->engine_descriptions[ $engine ], $engine ) );
 			} else {
 				$backup_engines[] = esc_html( $engine_class::description() );
 			}
@@ -214,9 +216,8 @@ class Backup_List extends WP_List_Table {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $item The current backup item.
 	 */
-	public function column_storage( array $item ) {
+	public function column_storage( \calmpress\backup\Backup $item ) {
 		echo esc_html( $item->storage->description() );
 	}
 

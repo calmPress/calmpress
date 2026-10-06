@@ -16,7 +16,7 @@ namespace calmpress\backup;
  *
  * @since 1.0.0
  */
-interface Backup_Storage {
+abstract class Backup_Storage {
 
 	/**
 	 * Human readable description of the storage. Shoiuld not contain HTML (it will be escaped),
@@ -26,7 +26,7 @@ interface Backup_Storage {
 	 *
 	 * @return string The description text.
 	 */
-	public function description() : string;
+	abstract public function description() : string;
 
 	/**
 	 * A unique identifier of the storage. Anything may be used
@@ -36,93 +36,89 @@ interface Backup_Storage {
 	 *
 	 * @return string The identifier.
 	 */
-	public function identifier() : string;
+	abstract public function identifier() : string;
 
 	/**
-	 * The backups stored at this storage.
+	 * The committed sections stored in this storage.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return Backup_Container A container which contains the backups.
+	 * @return iterable<Backup_Section> Committed sections.
 	 */
-	public function backups() : Backup_Container;
+	abstract public function sections(): iterable;
 
 	/**
-	 * Copy a local file to the storage at a specific location (URI).
-	 *
-	 * Should raise an exception on failure of any type. The exception's message should be translatable
-	 * wherever possible as it will most likely be presented to the user.
-	 *
-	 * It is the responsability of the implementation to create "directories" or any other meta
-	 * information whenever needed.
+	 * Locate a committed section by its structured identity.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $source   The absolute path (or URI) to the file to copy.
-	 * @param string $dest_uri The copied file's path relative to storage root.
+	 * @param Backup_Section_Identity $identity Section identity.
+	 *
+	 * @return ?Backup_Section Matching section, or null when it does not exist.
 	 */
-	public function copy_file( string $source, string $dest_uri );
+	public function section( Backup_Section_Identity $identity ): ?Backup_Section {
+		foreach ( $this->sections() as $section ) {
+			if ( $identity->type === $section->identity->type && $identity->location === $section->identity->location && $identity->version === $section->identity->version ) {
+				return $section;
+			}
+		}
+
+		return null;
+	}
 
 	/**
-	 * Check if a specific backup section exists. A section is a target to an incremental
-	 * backup.
+	 * Create a temporary working area for a new section.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $uri The path to check relative to the storage's root.
+	 * @param Backup_Section_Identity $identity     Section identity.
+	 * @param string                  $display_name Human-readable section name.
 	 *
-	 * @return bool true if the directory exists, otherwise false.
+	 * @return Temporary_Backup_Section Temporary section.
+	 *
+	 * @throws Backup_Section_Already_Exists_Exception If the section already exists.
 	 */
-	public function section_exists( string $uri ): bool;
+	public function create_section( Backup_Section_Identity $identity, string $display_name ): Temporary_Backup_Section {
+		if ( null !== $this->section( $identity ) ) {
+			throw new Backup_Section_Already_Exists_Exception( 'The backup section already exists.' );
+		}
+
+		return $this->create_temporary_section( $identity, $display_name );
+	}
 
 	/**
-	 * Get a temporary storage intended to be used to create working area for backed files
-	 * under a specific section. Once the backup reaches some atomic integrety
-	 * (have all the relevant files assembeled) at which it can be "committed" as proper 
-	 * part of the backup.
+	 * Create a temporary working area for an identity not stored by this storage.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $dest_uri The directory to which the files should be commited once
-	 *                         all files are assembled. Relative path to the storeage root.
+	 * @param Backup_Section_Identity $identity     Section identity.
+	 * @param string                  $display_name Human-readable section name.
 	 *
-	 * @return Temporary_Backup_Storage A temporary storage instance.
+	 * @return Temporary_Backup_Section Temporary section.
 	 */
-	public function section_working_area_storage( string $dest_uri ): Temporary_Backup_Storage;
+	abstract protected function create_temporary_section( Backup_Section_Identity $identity, string $display_name ): Temporary_Backup_Section;
 
 	/**
-	 * Gets a "Read Only" file handler that provides access to reading the file at the specific
-	 * URI.
-	 *
-	 * Should raise an exception on failure of any type. The exception's message should be translatable
-	 * wherever possible as it will most likely be presented to the user.
+	 * Delete expired sections that no backup references.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $relative_path The file's path relative to storage root.
-	 * 
-	 * @return \calmpress\filesystem\Read_Only_File An read only file representation that enables read
-	 *                                              access to the file.
+	 * @param int                       $expiration_time    Unix timestamp before which unreferenced sections may be deleted.
+	 * @param Backup_Section_Identity[] $referenced_sections Sections that backups in this storage reference.
+	 *
+	 * @throws \RuntimeException If a section selected for cleanup cannot be deleted.
 	 */
-	public function read_handler_for( string $relative_path ): \calmpress\filesystem\Read_Only_File;
+	public function cleanup( int $expiration_time, array $referenced_sections ): void {
+		$references = array();
+		foreach ( $referenced_sections as $identity ) {
+			$references[ $identity->type . "\0" . $identity->location . "\0" . $identity->version ] = true;
+		}
 
-	/**
-	 * Store a backup meta information at the location where such information is stored on the
-	 * specific storage.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $meta The meta information of a backup to be stored.
-	 */
-	public function store_backup_meta( string $meta );
-
-	/**
-	 * Delete the backup meta information of a specific backup
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $id The storage internal id of the backup's meta. Usually will be the
-	 *                   file name or URI.
-	 */
-	public function delete_backup_meta( string $id );
+		foreach ( $this->sections() as $section ) {
+			$identity = $section->identity->type . "\0" . $section->identity->location . "\0" . $section->identity->version;
+			if ( $section->creation_time < $expiration_time && ! isset( $references[ $identity ] ) ) {
+				$section->remove();
+			}
+		}
+	}
 }
