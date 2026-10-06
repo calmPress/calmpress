@@ -382,6 +382,8 @@ class Core_Backup_Engine_Test extends WP_UnitTestCase {
         copy( __FILE__, $test_dir . 'wp-login.php' );
         copy( __FILE__, $test_dir . '.htaccess' );
         copy( __FILE__, $test_dir . 'none.php' );
+		copy( __FILE__, $test_dir . 'license.txt' );
+		copy( __FILE__, $test_dir . 'readme.html' );
 
 		$files = $this->invoke_engine( 'root_files', $test_dir );
 		$identity = $method->invoke( null, $this->storage, $files );

@@ -318,7 +318,10 @@ class Core_Backup_Engine implements Engine_Specific_Backup {
 			}
 
 			// No need to backup core files.
-			if ( 'wp-config.php' === $file->getFilename() || in_array( $file->getFilename(), $core_files, true ) ) {
+			if (
+				'wp-config.php' === $file->getFilename()
+				|| in_array( $file->getFilename(), $core_files, true )
+			) {
 				continue;
 			}
 			$files[ $file->getFilename() ] = $file->getPathname();
