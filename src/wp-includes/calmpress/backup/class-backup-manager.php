@@ -16,6 +16,24 @@ namespace calmpress\backup;
  * @since 1.0.0
  */
 class Backup_Manager {
+	use \calmpress\observer\Static_Observer_Collection {
+		remove_observer as remove_initialization_observer;
+		remove_all_observers as remove_all_initialization_observers;
+	}
+
+	/**
+	 * Register an observer called when a backup manager is constructed.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param Backup_Manager_Initialization_Observer $observer Observer to register.
+	 *
+	 * @return void
+	 */
+	public static function add_initialization_observer( Backup_Manager_Initialization_Observer $observer ): void {
+		self::add_observer( $observer );
+	}
+
 	/**
 	 * Directory containing the shared backup metadata catalog.
 	 *
@@ -67,8 +85,11 @@ class Backup_Manager {
 
 		$this->register_engine( '\calmpress\backup\Core_Backup_Engine' );
 
-		// Trigger for additional storages and engines to register.
-		do_action( 'calm_backup_manager_init', $this );
+		if ( null !== self::$collection ) {
+			foreach ( self::$collection->observers() as $observer ) {
+				$observer->register_with( $this );
+			}
+		}
 	}
 
 	/**

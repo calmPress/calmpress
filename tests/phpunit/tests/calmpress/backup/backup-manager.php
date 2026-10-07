@@ -56,22 +56,53 @@ class Backup_Manager_Test_Engine extends \calmpress\backup\Core_Backup_Engine {
  */
 class Backup_Manager_Test extends WP_UnitTestCase {
 	/**
-	 * Verify the initialization hook lets a plugin register an engine on the new manager.
+	 * Verify a registered initialization observer receives the new manager.
 	 *
 	 * @since 1.0.0
 	 */
-	public function test_init_hook_receives_manager_for_engine_registration() {
+	public function test_initialization_observer_receives_manager() {
 		$root = get_temp_dir() . 'backup-manager-' . wp_generate_uuid4();
-		$register_engine = static function ( \calmpress\backup\Backup_Manager $manager ): void {
-			$manager->register_engine( Backup_Manager_Test_Engine::class );
+		$observer = new class implements \calmpress\backup\Backup_Manager_Initialization_Observer {
+			/**
+			 * Manager received by the observer.
+			 *
+			 * @since 1.0.0
+			 */
+			public ?\calmpress\backup\Backup_Manager $called_with = null;
+
+			/**
+			 * Record the manager passed to the observer.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param \calmpress\backup\Backup_Manager $manager New manager.
+			 *
+			 * @return void
+			 */
+			public function register_with( \calmpress\backup\Backup_Manager $manager ): void {
+				$this->called_with = $manager;
+			}
+
+			/**
+			 * Give this observer no ordering dependency.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param \calmpress\observer\Observer $observer Another observer.
+			 *
+			 * @return \calmpress\observer\Observer_Priority No dependency.
+			 */
+			public function notification_dependency_with( \calmpress\observer\Observer $observer ): \calmpress\observer\Observer_Priority {
+				return \calmpress\observer\Observer_Priority::NONE;
+			}
 		};
-		add_action( 'calm_backup_manager_init', $register_engine );
+		\calmpress\backup\Backup_Manager::add_initialization_observer( $observer );
 		try {
 			$manager = new \calmpress\backup\Backup_Manager( $root . '/backups-meta' );
 
-			$this->assertSame( Backup_Manager_Test_Engine::class, $manager->registered_engine_by_id( 'example_engine' ) );
+			$this->assertSame( $manager, $observer->called_with );
 		} finally {
-			remove_action( 'calm_backup_manager_init', $register_engine );
+			\calmpress\backup\Backup_Manager::remove_initialization_observer( $observer );
 			\calmpress\utils\delete_directory( $root );
 		}
 	}

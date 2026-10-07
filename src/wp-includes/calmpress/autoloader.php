@@ -56,6 +56,7 @@ const MAP = [
 	'calmpress\plugin\Trivial_Version'                  => __DIR__ . '/plugin/class-trivial-version.php',
 	'calmpress\plugin\Version'                          => __DIR__ . '/plugin/class-version.php',
 	'calmpress\backup\Backup_Manager'                   => __DIR__ . '/backup/class-backup-manager.php',
+	'calmpress\backup\Backup_Manager_Initialization_Observer' => __DIR__ . '/backup/class-backup-manager-initialization-observer.php',
 	'calmpress\backup\Backup'                           => __DIR__ . '/backup/class-backup.php',
 	'calmpress\backup\Backup_Storage'                   => __DIR__ . '/backup/class-backup-storage.php',
 	'calmpress\backup\Backup_Section'                   => __DIR__ . '/backup/class-backup-section.php',
