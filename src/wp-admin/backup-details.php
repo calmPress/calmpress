@@ -69,6 +69,7 @@ foreach ( array_keys( $backup->engines ) as $engine_id ) {
 		$backup_types[] = $engine_class::description();
 	}
 }
+\calmpress\utils\display_previous_action_results();
 require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 <div class="wrap">

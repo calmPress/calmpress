@@ -7,7 +7,7 @@ jQuery( document ).ready( function( $ ) {
 	function update_engine_selection() {
 		const has_engines = !! document.querySelector( 'input[name="engines[]"]:checked' );
 		document.getElementById( 'backup-engines' ).classList.toggle( 'validation-warning', ! has_engines );
-		document.getElementById( 'submit' ).disabled = ! has_engines || 'in_progress' === backup_status || 'success' === backup_status;
+		document.getElementById( 'submit' ).disabled = ! has_engines || 'in_progress' === backup_status;
 	}
 
 	/**
@@ -16,7 +16,6 @@ jQuery( document ).ready( function( $ ) {
 	 * @param string status Can be either 
 	 *                      'failure' Indicating bad network or response before backup even started.
 	 *                      'backup_failed' Indicating a failure during backup.
-	 *                      'success' Indicating backup was finished
 	 *                      'in_progress' Indication backup still being done.
 	 *
 	 * @param string message Provides additional information text for the failures
@@ -39,10 +38,6 @@ jQuery( document ).ready( function( $ ) {
 			case 'backup_failed' :
 				notification_el.classList.add( 'notice-error' );
 				notification_p_el.innerText = calmBackupData.backup_fail_message + message;
-				break;
-			case 'success' :
-				notification_el.classList.add( 'notice-success' );
-				notification_p_el.innerText = calmBackupData.success_message;
 				break;
 			default:
 				console.log( 'bad status was passed: ' + status );
@@ -84,7 +79,10 @@ jQuery( document ).ready( function( $ ) {
 			{
 				switch ( data.status ) {
 					case 'complete':
-						update_status_notification( 'success', '' );
+						let details_url = new URL( calmBackupData.details_url );
+						details_url.searchParams.set( 'backup', data.backup_id );
+						details_url.searchParams.set( 'cp-action-result', 'true' );
+						window.location.assign( details_url.toString() );
 						break;
 					case 'incomplete':
 						// Not finished, send another rfequest.

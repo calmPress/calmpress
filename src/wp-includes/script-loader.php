@@ -1507,7 +1507,7 @@ function wp_default_scripts( $scripts ) {
 				wp_json_encode(
 					[
 						'rest_end_point'       => rest_url( 'calmpress/create_backup' ),
-						'success_message'      => esc_html__( 'Backup successful' ),
+						'details_url'          => admin_url( 'backup-details.php' ),
 						'in_progress_message'  => esc_html__( 'Backup in progress, do not navigate away.' ),
 						'backup_fail_message'  => esc_html__( 'Backup failed. Reported reason is: ' ),
 						'generic_fail_message' => esc_html__( 'Communication failure, refresh and try again. Reported reason is: ' ),

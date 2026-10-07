@@ -334,6 +334,8 @@ class Backup_Manager {
 	 * @param int      $timeout     The maximal time a backup partial operation should try to not exceed.
 	 * @param string[] $engines_ids The list of identifiers of the engines to use in the backup.
 	 *
+	 * @return string Identifier of the created backup.
+	 *
 	 * @throws \Exception When a storage or engine identified by the parameters do not exists, or some
 	 *                    error happening during backup.
 	 * @throws \InvalidArgumentException If no backup engine is selected.
@@ -344,7 +346,7 @@ class Backup_Manager {
 		string $description,
 		string $storage_id,
 		int $timeout, 
-		string ...$engine_ids ) {
+		string ...$engine_ids ): string {
 		if ( empty( $engine_ids ) || in_array( '', $engine_ids, true ) ) {
 			throw new \InvalidArgumentException( 'Select at least one backup engine.' );
 		}
@@ -374,17 +376,19 @@ class Backup_Manager {
 			);
 		}
 
+		$backup_id = wp_generate_uuid4();
 		$this->store_backup_meta(
 			wp_json_encode(
 				array(
 					'description' => $description,
 					'time'        => time(),
-					'unique_id'   => wp_generate_uuid4(),
+					'unique_id'   => $backup_id,
 					'storage_id'  => $storage_id,
 					'engines'     => $sections_by_engine,
 				)
 			)
 		);
+		return $backup_id;
 	}
 
 	/**

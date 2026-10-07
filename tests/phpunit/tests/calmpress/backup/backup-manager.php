@@ -120,7 +120,7 @@ class Backup_Manager_Test extends WP_UnitTestCase {
 			$manager->register_storage( $storage );
 			$manager->register_engine( Backup_Manager_Test_Engine::class );
 			$before = time();
-			$manager->create_backup( 'Test backup', 'test_storage', 10, 'example_engine' );
+			$backup_id = $manager->create_backup( 'Test backup', 'test_storage', 10, 'example_engine' );
 			$after = time();
 			$files = glob( $root . '/backups-meta/*.json' );
 
@@ -130,7 +130,7 @@ class Backup_Manager_Test extends WP_UnitTestCase {
 			$this->assertSame( 'Test backup', $data['description'] );
 			$this->assertGreaterThanOrEqual( $before, $data['time'] );
 			$this->assertLessThanOrEqual( $after, $data['time'] );
-			$this->assertNotEmpty( $data['unique_id'] );
+			$this->assertSame( $backup_id, $data['unique_id'] );
 			$this->assertSame( 'test_storage', $data['storage_id'] );
 			$this->assertSame( array( 'example_engine' => array( 'description' => 'Example engine', 'sections' => array() ) ), $data['engines'] );
 			$this->assertCount( 1, $manager->existing_backups() );

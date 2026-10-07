@@ -33,16 +33,15 @@ class Utils {
      * - 'failed' which indicates that there was a problem with performing the backup. In that case
      * the field 'message' will include an unescaped textual description of the problem.
      * 
-     * - 'complete' which indicates that the backup was fully completed.
+     * - 'complete' which indicates that the backup was fully completed. The response includes
+     * the new backup's identifier in 'backup_id'.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param WP_REST_Request $request The request. It is assumed it was sanitized and validated
 	 *                                 That it includes a description field.
 	 *
-	 * @return string[] An array which includes a status field and a message where status field values
-	 *                  are described above, and message field is untranslated and unescaped
-	 *                  addition information to enhance the meaning of the status field.
+	 * @return array The backup status and message, plus backup_id on completion.
 	 */
 	public static function handle_backup_request( \WP_REST_Request $request ): array {
 
@@ -56,7 +55,18 @@ class Utils {
 			$storage     = $request['storage'];
 			$engines     = $request['engines'];
 			$manager     = new \calmpress\backup\Backup_Manager();
-			$manager->create_backup( $description, $storage, 15, ...explode( ',', $engines ) );
+			$backup_id = $manager->create_backup( $description, $storage, 15, ...explode( ',', $engines ) );
+			$notices = new \calmpress\admin\Admin_Notices_Handler();
+			$notices->add_success_message( esc_html__( 'Backup created.' ) );
+			set_transient(
+				'cp_action_result_' . get_current_user_id(),
+				[
+					'class' => get_class( $notices ),
+					'data'  => $notices->json(),
+				],
+				30
+			);
+			$ret['backup_id'] = $backup_id;
 			return $ret;
 		} catch ( \calmpress\calmpress\Timeout_Exception $e ) {
 			$ret['status'] = 'incomplete';
