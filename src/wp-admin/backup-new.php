@@ -85,17 +85,17 @@ if ( ! empty( $messages ) ) {
 				$available_storage = $backup_manager->available_storages();
 				if ( count( $available_storage ) === 1 ) {
 					$storage = reset( $available_storage );
-					echo '<input type="hidden" id="storage" value="' . esc_attr( $storage->identifier() ) . '" />';
+					echo '<input type="hidden" id="storage" name="storage" value="' . esc_attr( $storage->identifier() ) . '" />';
 					echo esc_html( $storage->description() );
 				} else {
-					echo '<select id="storage">';
+					echo '<select id="storage" name="storage">';
 					foreach ( $available_storage as $storage ) {
 						echo '<option value="' . esc_attr( $storage->identifier() ) . '">' . esc_html( $storage->description() ) . '</option>'; 
 					}
 					echo '</select>';
 				}
 				?>
-				<p class="description"><?php esc_html_e( 'The storage meduim on which the backup will be stored.' ); ?></p>
+				<p class="description"><?php esc_html_e( 'The storage location for this backup.' ); ?></p>
 			</td>
 		</tr>
 		<tr class="form-field">

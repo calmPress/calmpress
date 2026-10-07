@@ -83,6 +83,10 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 				<th scope="row"><?php esc_html_e( 'Backup type:' ); ?></th>
 				<td><?php echo esc_html( implode( ', ', $backup_types ) ); ?></td>
 			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Storage:' ); ?></th>
+				<td><?php echo esc_html( $backup->storage->description() ); ?></td>
+			</tr>
 		</tbody>
 	</table>
 	<?php
