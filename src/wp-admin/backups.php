@@ -23,6 +23,12 @@ require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
  * @since 1.0.0
  */
 class Backup_List extends WP_List_Table {
+	/**
+	 * Manager used to list backups and resolve their engines.
+	 *
+	 * @since 1.0.0
+	 */
+	private \calmpress\backup\Backup_Manager $manager;
 
 	/**
 	 * Construct the table object.
@@ -39,6 +45,7 @@ class Backup_List extends WP_List_Table {
 				'ajax'     => false,
 			]
 		);
+		$this->manager = new \calmpress\backup\Backup_Manager();
 	}
 
 	/**
@@ -104,8 +111,7 @@ class Backup_List extends WP_List_Table {
 	 * @since 1.0.0
 	 */
 	public function prepare_items() {
-		$manager = new \calmpress\backup\Backup_Manager();
-		$this->items = $manager->existing_backups();
+		$this->items = $this->manager->existing_backups();
 	}
 
 	/**
@@ -128,8 +134,10 @@ class Backup_List extends WP_List_Table {
 
 		$details_url = add_query_arg( 'backup', $item->unique_id, admin_url( 'backup-details.php' ) );
 		$actions['fullinfo'] = '<a href="' . esc_url( $details_url ) . '">' . esc_html__( 'Info' ) . '</a>';
-		$restore_url = add_query_arg( 'action', 'restore', $details_url );
-		$actions['restore'] = '<a href="' . esc_url( $restore_url ) . '">' . esc_html__( 'Restore' ) . '</a>';
+		if ( array() === $item->missing_engines( ...array_keys( $this->manager->available_engines() ) ) ) {
+			$restore_url = add_query_arg( 'action', 'restore', $details_url );
+			$actions['restore'] = '<a href="' . esc_url( $restore_url ) . '">' . esc_html__( 'Restore' ) . '</a>';
+		}
 
 		$delete_url = add_query_arg( 'action', 'delete', $details_url );
 
@@ -189,18 +197,16 @@ class Backup_List extends WP_List_Table {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $item The current backup item.
 	 */
 	public function column_type( \calmpress\backup\Backup $item ) {
 		$engines = array_keys( $item->engines );
-		$manager = new \calmpress\backup\Backup_Manager();
-		
+
 		$backup_engines = [];
 		foreach ( $engines as $engine ) {
-			$engine_class  = $manager->registered_engine_by_id( $engine );
+			$engine_class  = $this->manager->registered_engine_by_id( $engine );
 			if ( '' === $engine_class ) {
-				/* translators: 1: Saved backup engine description, 2: backup engine identifier. */
-				$backup_engines[] = esc_html( sprintf( __( '%1$s (engine %2$s unavailable)' ), $item->engine_descriptions[ $engine ], $engine ) );
+				/* translators: %s: Saved backup engine description. */
+				$backup_engines[] = esc_html( sprintf( __( '%s (engine not available)' ), $item->engine_descriptions[ $engine ] ) );
 			} else {
 				$backup_engines[] = esc_html( $engine_class::description() );
 			}

@@ -58,12 +58,13 @@ $title = match ( $backup_action ) {
 	default => '' === $description ? __( 'Backup information' ) : sprintf( __( 'Backup information for backup %s' ), $description ),
 };
 $created = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $backup->time );
+$missing_engine_ids = $backup->missing_engines( ...array_keys( $manager->available_engines() ) );
 $backup_types = [];
 foreach ( array_keys( $backup->engines ) as $engine_id ) {
 	$engine_class = $manager->registered_engine_by_id( $engine_id );
 	if ( '' === $engine_class ) {
-		/* translators: 1: Saved backup engine description, 2: backup engine identifier. */
-		$backup_types[] = sprintf( __( '%1$s (engine %2$s unavailable)' ), $backup->engine_descriptions[ $engine_id ], $engine_id );
+		/* translators: %s: Saved backup engine description. */
+		$backup_types[] = sprintf( __( '%s (engine not available)' ), $backup->engine_descriptions[ $engine_id ] );
 	} else {
 		$backup_types[] = $engine_class::description();
 	}
@@ -88,10 +89,16 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 	switch ( $backup_action ) {
 		case 'restore':
 			?>
-			<p><?php esc_html_e( 'Restoring this backup will return the software and configuration covered by the backup to their saved state. Later changes within that scope will be removed. Content tables and uploaded media are outside this restore.' ); ?></p>
-			<div class="notice notice-info inline"><p><?php esc_html_e( 'Restore is not available yet.' ); ?></p></div>
+			<?php if ( $missing_engine_ids ) { ?>
+				<div class="notice notice-error inline"><p><?php esc_html_e( 'Restore requires all backup engines to be available.' ); ?></p></div>
+			<?php } else { ?>
+				<p><?php esc_html_e( 'Restoring this backup will return the software and configuration covered by the backup to their saved state. Later changes within that scope will be removed. Content tables and uploaded media are outside this restore.' ); ?></p>
+				<div class="notice notice-info inline"><p><?php esc_html_e( 'Restore is not available yet.' ); ?></p></div>
+			<?php } ?>
 			<p>
-				<button type="button" class="button button-primary" disabled><?php esc_html_e( 'Restore this backup' ); ?></button>
+				<?php if ( ! $missing_engine_ids ) { ?>
+					<button type="button" class="button button-primary" disabled><?php esc_html_e( 'Restore this backup' ); ?></button>
+				<?php } ?>
 				<a class="button" href="<?php echo esc_url( $info_url ); ?>"><?php esc_html_e( 'Show backup information' ); ?></a>
 			</p>
 			<?php
@@ -111,7 +118,11 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 		default:
 			?>
 			<p>
-				<a class="button button-primary" href="<?php echo esc_url( add_query_arg( 'action', 'restore', $info_url ) ); ?>"><?php esc_html_e( 'Restore' ); ?></a>
+				<?php if ( $missing_engine_ids ) { ?>
+					<button type="button" class="button button-primary" disabled><?php esc_html_e( 'Restore' ); ?></button>
+				<?php } else { ?>
+					<a class="button button-primary" href="<?php echo esc_url( add_query_arg( 'action', 'restore', $info_url ) ); ?>"><?php esc_html_e( 'Restore' ); ?></a>
+				<?php } ?>
 				<a class="button" href="<?php echo esc_url( add_query_arg( 'action', 'delete', $info_url ) ); ?>"><?php esc_html_e( 'Delete' ); ?></a>
 			</p>
 			<h2><?php esc_html_e( 'Backup contents' ); ?></h2>
@@ -121,8 +132,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 				$engine_class = $manager->registered_engine_by_id( $engine_id );
 				if ( '' === $engine_class ) {
 					echo '<h3>' . esc_html( $backup->engine_descriptions[ $engine_id ] ) . '</h3>';
-					/* translators: %s: Backup engine identifier. */
-					echo '<p>' . esc_html( sprintf( __( 'Information is unavailable because backup engine %s is not installed.' ), $engine_id ) ) . '</p>';
+					echo '<p>' . esc_html__( 'Engine not available.' ) . '</p>';
 				} else {
 					echo '<h3>' . esc_html( $engine_class::description() ) . '</h3>';
 					echo $engine_class::data_description( $backup->engine_sections( $engine_id ) );

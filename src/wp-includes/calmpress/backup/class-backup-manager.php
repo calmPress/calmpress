@@ -67,8 +67,8 @@ class Backup_Manager {
 
 		$this->register_engine( '\calmpress\backup\Core_Backup_Engine' );
 
-		// Trigger for additional storages to register.
-		do_action( 'calm_backup_manager_init' );
+		// Trigger for additional storages and engines to register.
+		do_action( 'calm_backup_manager_init', $this );
 	}
 
 	/**
@@ -315,6 +315,7 @@ class Backup_Manager {
 	 *
 	 * @throws \Exception When a storage or engine identified by the parameters do not exists, or some
 	 *                    error happening during backup.
+	 * @throws \InvalidArgumentException If no backup engine is selected.
 	 * @throws \calmpress\calmpress\Timeout_Exception If backup ran out of allocated time interval
 	 *                                                and requires more "time slices" to complete.
 	 */
@@ -323,6 +324,9 @@ class Backup_Manager {
 		string $storage_id,
 		int $timeout, 
 		string ...$engine_ids ) {
+		if ( empty( $engine_ids ) || in_array( '', $engine_ids, true ) ) {
+			throw new \InvalidArgumentException( 'Select at least one backup engine.' );
+		}
 
 		$storage = $this->registered_storage_by_id( $storage_id );
 		if ( null === $storage ) {

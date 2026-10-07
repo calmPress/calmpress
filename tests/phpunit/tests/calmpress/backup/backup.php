@@ -104,4 +104,34 @@ class Backup_Test extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Verify restore stops before engine work when a required engine is missing.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_restore_rejects_missing_engine() {
+		$root = get_temp_dir() . 'backup-api-' . wp_generate_uuid4();
+		try {
+			$storage = new \calmpress\backup\Local_Backup_Storage( $root );
+			$backup = new \calmpress\backup\Backup(
+				wp_json_encode(
+					array(
+						'description' => 'Test backup',
+						'time'        => time(),
+						'unique_id'   => wp_generate_uuid4(),
+						'storage_id'  => $storage->identifier(),
+						'engines'     => array( 'missing_engine' => array( 'description' => 'Missing engine', 'sections' => array() ) ),
+					)
+				),
+				$storage
+			);
+
+			$this->expectException( \RuntimeException::class );
+			$this->expectExceptionMessage( 'Missing backup engines: missing_engine' );
+			$backup->restore( array() );
+		} finally {
+			\calmpress\utils\delete_directory( $root );
+		}
+	}
+
 }

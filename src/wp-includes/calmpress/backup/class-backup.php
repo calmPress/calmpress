@@ -182,10 +182,9 @@ class Backup {
 	 */
 	public function restore( array $engines ) {
 
-		$missing_engines = $this->missing_engines( array_keys( $engines ) );
+		$missing_engines = $this->missing_engines( ...array_keys( $engines ) );
 		if ( count( $missing_engines ) !== 0 ) {
-			// It is probably better to call missing_engines() instead of relying on this exception.
-			throw new \Exception( 'Some engine are missings: ', join( ', ', $missing_engines ) );
+			throw new \RuntimeException( 'Missing backup engines: ' . implode( ', ', $missing_engines ) );
 		}
 
 		// A hack to make sure all engine class are loaded into memory to avoid
