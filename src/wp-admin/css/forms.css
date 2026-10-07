@@ -242,10 +242,11 @@ input.validation-warning {
 	box-shadow: 0 0 2px rgba(219, 166, 23, 0.8);
 }
 
-input.validation-warning ~ .validate-failure-message {
-	display:block;
+input.validation-warning ~ .validate-failure-message,
+fieldset.validation-warning > .validate-failure-message {
+	display: block;
 	font-weight: bold;
-	color:rgb(219, 166, 23);
+	color: rgb(219, 166, 23);
 }
 
 #site-profile-page input[type="checkbox"] + label {

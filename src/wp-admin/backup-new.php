@@ -98,23 +98,22 @@ if ( ! empty( $messages ) ) {
 				<p class="description"><?php esc_html_e( 'The storage meduim on which the backup will be stored.' ); ?></p>
 			</td>
 		</tr>
-		<tr  class="form-field">
-			<th scope="row"><label for="storage"><?php esc_html_e( 'What to backup' ); ?></label></th>
+		<tr class="form-field">
+			<th scope="row"><?php esc_html_e( 'What to backup' ); ?></th>
 			<td>
-				<?php
-				$available_engines = $backup_manager->available_engines();
-				if ( count( $available_engines ) === 1 ) {
-					$engine = reset( $available_engines );
-					echo '<input type="hidden" id="engines" value="' . esc_attr( $engine::identifier() ) . '" />';
-					echo esc_html( $engine::description() );
-				} else {
-					echo '<select id="storage" multiple="multiple">';
+				<fieldset id="backup-engines">
+					<legend class="screen-reader-text"><?php esc_html_e( 'What to backup' ); ?></legend>
+					<?php
+					$available_engines = $backup_manager->available_engines();
 					foreach ( $available_engines as $engine ) {
-						echo '<option value="' . esc_attr( $engine::identifier() ) . '">' . esc_html( $engine::description() ) . '</option>'; 
+						$engine_id = $engine::identifier();
+						?>
+						<label><input type="checkbox" name="engines[]" value="<?php echo esc_attr( $engine_id ); ?>" checked="checked" /> <?php echo esc_html( $engine::description() ); ?></label><br />
+						<?php
 					}
-					echo '</select>';
-				}
-				?>
+					?>
+					<p class="validate-failure-message" aria-live="polite"><?php esc_html_e( 'Select at least one thing to back up.' ); ?></p>
+				</fieldset>
 			</td>
 		</tr>
 	</table>

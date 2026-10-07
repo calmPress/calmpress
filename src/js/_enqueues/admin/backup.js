@@ -2,6 +2,13 @@
 
 jQuery( document ).ready( function( $ ) {
     'use strict';
+	let backup_status = 'ready';
+
+	function update_engine_selection() {
+		const has_engines = !! document.querySelector( 'input[name="engines[]"]:checked' );
+		document.getElementById( 'backup-engines' ).classList.toggle( 'validation-warning', ! has_engines );
+		document.getElementById( 'submit' ).disabled = ! has_engines || 'in_progress' === backup_status || 'success' === backup_status;
+	}
 
 	/**
 	 * Update the notification area with a specific type of message.
@@ -41,6 +48,8 @@ jQuery( document ).ready( function( $ ) {
 				console.log( 'bad status was passed: ' + status );
 				break;
 		}
+		backup_status = status;
+		update_engine_selection();
 	}
 
 	async function send_new_backup_request( nonce, description, storage, engines ) {
@@ -108,10 +117,18 @@ jQuery( document ).ready( function( $ ) {
 		let nonce = document.getElementById( '_wpnonce' ).value;
 		let description = document.getElementById( 'description' ).value;
 		let storage = document.getElementById( 'storage' ).value;
-		let engines = document.getElementById( 'engines' ).value;
+		let engines = Array.from( document.querySelectorAll( 'input[name="engines[]"]:checked' ), engine => engine.value ).join( ',' );
+		if ( ! engines ) {
+			return;
+		}
 		update_status_notification( 'in_progress' );
 		send_new_backup_request( nonce, description, storage, engines );
-		description = document.getElementById( 'submit' ).setAttribute( 'disabled', 'disabled' );
 	} )
+
+	.on( 'change', 'input[name="engines[]"]', function () {
+		update_engine_selection();
+	} );
+
+	update_engine_selection();
 
 } );

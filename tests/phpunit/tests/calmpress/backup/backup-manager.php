@@ -55,6 +55,26 @@ class Backup_Manager_Test_Engine extends \calmpress\backup\Core_Backup_Engine {
  * @since 1.0.0
  */
 class Backup_Manager_Test extends WP_UnitTestCase {
+	/**
+	 * Verify the initialization hook lets a plugin register an engine on the new manager.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_init_hook_receives_manager_for_engine_registration() {
+		$root = get_temp_dir() . 'backup-manager-' . wp_generate_uuid4();
+		$register_engine = static function ( \calmpress\backup\Backup_Manager $manager ): void {
+			$manager->register_engine( Backup_Manager_Test_Engine::class );
+		};
+		add_action( 'calm_backup_manager_init', $register_engine );
+		try {
+			$manager = new \calmpress\backup\Backup_Manager( $root . '/backups-meta' );
+
+			$this->assertSame( Backup_Manager_Test_Engine::class, $manager->registered_engine_by_id( 'example_engine' ) );
+		} finally {
+			remove_action( 'calm_backup_manager_init', $register_engine );
+			\calmpress\utils\delete_directory( $root );
+		}
+	}
 
 	/**
 	 * Verify backup creation writes the identity, time, description, and engine map.
@@ -104,13 +124,31 @@ class Backup_Manager_Test extends WP_UnitTestCase {
 			$second = new \calmpress\backup\Local_Backup_Storage( $root . '/second', 'second' );
 			$manager->register_storage( $first );
 			$manager->register_storage( $second );
-			$manager->create_backup( 'First', 'first', 10 );
-			$manager->create_backup( 'Second', 'second', 10 );
+			$manager->register_engine( Backup_Manager_Test_Engine::class );
+			$manager->create_backup( 'First', 'first', 10, 'example_engine' );
+			$manager->create_backup( 'Second', 'second', 10, 'example_engine' );
 
 			$this->assertCount( 2, $manager->existing_backups() );
 			$this->assertCount( 2, glob( $root . '/backups-meta/*.json' ) );
 			$this->assertSame( array(), glob( $root . '/first/backups-meta/*.json' ) ?: array() );
 			$this->assertSame( array(), glob( $root . '/second/backups-meta/*.json' ) ?: array() );
+		} finally {
+			\calmpress\utils\delete_directory( $root );
+		}
+	}
+
+	/**
+	 * Verify a backup cannot be created without selecting an engine.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_create_backup_requires_an_engine() {
+		$root = get_temp_dir() . 'backup-manager-' . wp_generate_uuid4();
+		try {
+			$manager = new \calmpress\backup\Backup_Manager( $root . '/backups-meta' );
+
+			$this->expectException( \InvalidArgumentException::class );
+			$manager->create_backup( 'No engine', 'default_local_storage', 10 );
 		} finally {
 			\calmpress\utils\delete_directory( $root );
 		}
