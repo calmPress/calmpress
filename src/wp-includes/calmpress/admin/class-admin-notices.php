@@ -113,6 +113,9 @@ class Admin_Notices {
 	 * @since 1.0.0
 	 */
 	public static function maintenance_mode_active_nag() {
+		if ( ! current_user_can( 'maintenance_mode' ) ) {
+			return;
+		}
 
 		$nag = false;
 
