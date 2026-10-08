@@ -22,7 +22,6 @@ class Mock_Maintenance_Mode extends Maintenance_Mode {
 }
 
 class WP_Test_Maintenance_Mode extends WP_UnitTestCase {
-
 	/**
 	 * Test activation and status reporting
 	 *
@@ -63,43 +62,46 @@ class WP_Test_Maintenance_Mode extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if a current user is getting a maintenance page (blocked) which may happen if
-	 * - Maintenance mode is on and the user do not have maintenance_mode capabilioty
-	 *   and do not use the bypass code in the URL or coockie
-	 * - maintenance mode is off, but a preview url is used
+	 * Verify the current-user decision for anonymous, bypassed, authorized, and preview requests.
 	 *
 	 * @since 1.0.0
 	 */
 	function test_current_user_blocked() {
 		Mock_Maintenance_Mode::activate();
-		// by default testing uses anonymous user which should be blocked.
-		$this->assertTrue( Mock_Maintenance_Mode::current_user_blocked() );
+		Mock_Maintenance_Mode::$cookie_sent = false;
+		$user_id = 0;
 
-		// unless it has a bypass in the URL
-		$_GET[ Mock_Maintenance_Mode::BYPASS_NAME ] = Mock_Maintenance_Mode::bypass_code();
-		$this->assertFalse( Mock_Maintenance_Mode::current_user_blocked() );
-		$this->assertTrue( Mock_Maintenance_Mode::$cookie_sent );
-		unset( $_GET[ Mock_Maintenance_Mode::BYPASS_NAME ] );
+		try {
+			$this->assertTrue( Mock_Maintenance_Mode::current_user_blocked() );
 
-		// or cookie 
-		$_COOKIE[ Mock_Maintenance_Mode::BYPASS_NAME ] = Mock_Maintenance_Mode::bypass_code();
+			$_GET[ Mock_Maintenance_Mode::BYPASS_NAME ] = Mock_Maintenance_Mode::bypass_code();
+			$this->assertFalse( Mock_Maintenance_Mode::current_user_blocked() );
+			$this->assertTrue( Mock_Maintenance_Mode::$cookie_sent );
+			unset( $_GET[ Mock_Maintenance_Mode::BYPASS_NAME ] );
 
-		$this->assertFalse( Mock_Maintenance_Mode::current_user_blocked() );
-		unset( $_COOKIE[ Mock_Maintenance_Mode::BYPASS_NAME ] );
+			$_COOKIE[ Mock_Maintenance_Mode::BYPASS_NAME ] = Mock_Maintenance_Mode::bypass_code();
+			$this->assertFalse( Mock_Maintenance_Mode::current_user_blocked() );
+			unset( $_COOKIE[ Mock_Maintenance_Mode::BYPASS_NAME ] );
 
-		// Add maintenance mode capability to non admin user.
-		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
-		$user = get_user_by( 'id', $user_id );
-		$user->add_cap( 'maintenance_mode' );
-		wp_set_current_user( $user_id );
+			$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+			if ( is_multisite() ) {
+				grant_super_admin( $user_id );
+			}
+			wp_set_current_user( $user_id );
+			$this->assertFalse( Mock_Maintenance_Mode::current_user_blocked() );
 
-		// Has the capability, not blocked.
-		$this->assertFalse( Mock_Maintenance_Mode::current_user_blocked() );
-
-		// but is blocked on the preview url which uses none on a parameter
-		$_GET[ Mock_Maintenance_Mode::PREVIEW_PARAM ] = wp_create_nonce( Mock_Maintenance_Mode::PREVIEW_PARAM );
-		$this->assertTrue( Mock_Maintenance_Mode::current_user_blocked() );
-		unset( $_GET[ Mock_Maintenance_Mode::PREVIEW_PARAM ] );
+			$_GET[ Mock_Maintenance_Mode::PREVIEW_PARAM ] = wp_create_nonce( Mock_Maintenance_Mode::PREVIEW_PARAM );
+			$this->assertTrue( Mock_Maintenance_Mode::current_user_blocked() );
+			Mock_Maintenance_Mode::deactivate();
+			$this->assertTrue( Mock_Maintenance_Mode::current_user_blocked() );
+		} finally {
+			unset( $_GET[ Mock_Maintenance_Mode::BYPASS_NAME ], $_GET[ Mock_Maintenance_Mode::PREVIEW_PARAM ], $_COOKIE[ Mock_Maintenance_Mode::BYPASS_NAME ] );
+			wp_set_current_user( 0 );
+			if ( is_multisite() && $user_id ) {
+				revoke_super_admin( $user_id );
+			}
+			Mock_Maintenance_Mode::deactivate();
+		}
 	}
 
 	/**

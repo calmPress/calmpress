@@ -175,14 +175,13 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 			'manage_server'           => array(),
 
 			'edit_theme_options'      => array( 'administrator' ),
+			'maintenance_mode'        => array( 'administrator' ),
 			'list_users'              => array( 'administrator' ),
 			'manage_options'          => array( 'administrator' ),
 			'promote_users'           => array( 'administrator' ),
 			'remove_users'            => array( 'administrator' ),
 			'switch_themes'           => array( 'administrator' ),
 			'edit_dashboard'          => array( 'administrator' ),
-			'maintenance_mode'        => array( 'administrator' ),
-
 			'manage_categories'       => array( 'administrator', 'editor' ),
 			'edit_others_posts'       => array( 'administrator', 'editor' ),
 			'edit_pages'              => array( 'administrator', 'editor' ),
@@ -2351,6 +2350,36 @@ class Tests_User_Capabilities extends WP_UnitTestCase {
 		$this->assertFalse( $user->has_cap( 'maintenance_mode' ) );
 
 		$admin->set_mocked_role( '' );
+	}
+
+	/**
+	 * Verify maintenance mode follows the current site's capability on multisite.
+	 *
+	 * @since calmPress 1.0.0
+	 * @group ms-required
+	 */
+	public function test_maintenance_mode_capability_is_site_scoped(): void {
+		$site_admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$this->assertTrue( user_can( $site_admin_id, 'maintenance_mode' ) );
+
+		$editor_id = self::factory()->user->create( [ 'role' => 'editor' ] );
+		$this->assertFalse( user_can( $editor_id, 'maintenance_mode' ) );
+
+		$other_site_id = self::factory()->blog->create();
+		switch_to_blog( $other_site_id );
+		try {
+			$this->assertFalse( user_can( $site_admin_id, 'maintenance_mode' ) );
+		} finally {
+			restore_current_blog();
+		}
+
+		$super_admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		grant_super_admin( $super_admin_id );
+		try {
+			$this->assertTrue( user_can( $super_admin_id, 'maintenance_mode' ) );
+		} finally {
+			revoke_super_admin( $super_admin_id );
+		}
 	}
 
 	/**

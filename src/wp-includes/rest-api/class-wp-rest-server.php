@@ -1041,6 +1041,12 @@ class WP_REST_Server {
 	public function dispatch( $request ) {
 		$this->dispatching_requests[] = $request;
 
+		$maintenance_response = \calmpress\calmpress\Maintenance_Mode::rest_response();
+		if ( null !== $maintenance_response ) {
+			array_pop( $this->dispatching_requests );
+			return $maintenance_response;
+		}
+
 		/**
 		 * Filters the pre-calculated result of a REST API dispatch request.
 		 *

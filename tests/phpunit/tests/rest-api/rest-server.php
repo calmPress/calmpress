@@ -13,6 +13,42 @@ class Tests_REST_Server extends WP_Test_REST_TestCase {
 	protected static $post_id;
 
 	/**
+	 * Verify REST dispatch returns a retryable response during maintenance.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_dispatch_blocks_requests_during_maintenance(): void {
+		\calmpress\calmpress\Maintenance_Mode::activate();
+
+		try {
+			$response = rest_do_request( new WP_REST_Request( 'GET', '/' ) );
+			$this->assertSame( 503, $response->get_status() );
+			$this->assertSame( 'maintenance_mode', $response->get_data()['code'] );
+			$this->assertArrayHasKey( 'Retry-After', $response->get_headers() );
+		} finally {
+			\calmpress\calmpress\Maintenance_Mode::deactivate();
+		}
+	}
+
+	/**
+	 * Verify REST dispatch accepts a request with a maintenance bypass cookie.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_dispatch_accepts_maintenance_bypass_cookie(): void {
+		\calmpress\calmpress\Maintenance_Mode::activate();
+		$_COOKIE[ \calmpress\calmpress\Maintenance_Mode::BYPASS_NAME ] = \calmpress\calmpress\Maintenance_Mode::bypass_code();
+
+		try {
+			$response = rest_do_request( new WP_REST_Request( 'GET', '/' ) );
+			$this->assertSame( 200, $response->get_status() );
+		} finally {
+			unset( $_COOKIE[ \calmpress\calmpress\Maintenance_Mode::BYPASS_NAME ] );
+			\calmpress\calmpress\Maintenance_Mode::deactivate();
+		}
+	}
+
+	/**
 	 * Called before setting up all tests.
 	 */
 	public static function set_up_before_class() {

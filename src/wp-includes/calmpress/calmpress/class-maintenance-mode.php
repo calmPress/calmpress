@@ -260,21 +260,45 @@ class Maintenance_Mode {
 			return false;
 		}
 
+		$code = self::bypass_code();
+
 		// Users with the cookie set with the correct bypass code are not blocked.
-		if ( isset( $_COOKIE[ self::BYPASS_NAME ] ) &&
-			( $_COOKIE[ self::BYPASS_NAME ] === self::bypass_code() ) ) {
+		if ( '' !== $code && isset( $_COOKIE[ self::BYPASS_NAME ] ) && $_COOKIE[ self::BYPASS_NAME ] === $code ) {
 			return false;
 		}
 
 		// Users with the url parameter set with the correct bypass code are not blocked.
-		if ( isset( $_GET[ self::BYPASS_NAME ] ) &&
-			( $_GET[ self::BYPASS_NAME ] === self::bypass_code() ) ) {
+		if ( '' !== $code && isset( $_GET[ self::BYPASS_NAME ] ) && $_GET[ self::BYPASS_NAME ] === $code ) {
 			// Set the cookie only for the session.
 			static::set_bypass_cookie();
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Return a REST response when maintenance mode blocks the current user.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return \WP_REST_Response|null The maintenance response, or null when access is allowed.
+	 */
+	public static function rest_response(): ?\WP_REST_Response {
+		if ( ! self::current_user_blocked() ) {
+			return null;
+		}
+
+		$response = new \WP_REST_Response(
+			[
+				'code'    => 'maintenance_mode',
+				'message' => __( 'The site is in maintenance mode.' ),
+				'data'    => [ 'status' => 503 ],
+			],
+			503
+		);
+		$response->header( 'Retry-After', (string) self::projected_time_till_end() );
+		return $response;
 	}
 
 	/**
