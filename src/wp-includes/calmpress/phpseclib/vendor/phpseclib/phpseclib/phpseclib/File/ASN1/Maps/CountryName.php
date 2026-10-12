@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * CountryName
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2016-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\File\ASN1\Maps;
+
+use phpseclib4\File\ASN1;
+
+/**
+ * CountryName
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+abstract class CountryName
+{
+    public const MAP = [
+        'type' => ASN1::TYPE_CHOICE,
+        // if class isn't present it's assumed to be \phpseclib4\File\ASN1::CLASS_UNIVERSAL or
+        // (if constant is present) \phpseclib4\File\ASN1::CLASS_CONTEXT_SPECIFIC
+        'class' => ASN1::CLASS_APPLICATION,
+        'cast' => 1,
+        'children' => [
+            'x121-dcc-code' => ['type' => ASN1::TYPE_NUMERIC_STRING],
+            'iso-3166-alpha2-code' => ['type' => ASN1::TYPE_PRINTABLE_STRING],
+        ],
+    ];
+}

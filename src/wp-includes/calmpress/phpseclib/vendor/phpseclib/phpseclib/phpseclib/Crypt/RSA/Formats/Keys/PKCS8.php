@@ -1,0 +1,122 @@
+<?php
+
+/**
+ * PKCS#8 Formatted RSA Key Handler
+ *
+ * PHP version 8.1+
+ *
+ * Used by PHP's openssl_public_encrypt() and openssl's rsautl (when -pubin is set)
+ *
+ * Processes keys with the following headers:
+ *
+ * -----BEGIN ENCRYPTED PRIVATE KEY-----
+ * -----BEGIN PRIVATE KEY-----
+ * -----BEGIN PUBLIC KEY-----
+ *
+ * Analogous to ssh-keygen's pkcs8 format (as specified by -m). Although PKCS8
+ * is specific to private keys it's basically creating a DER-encoded wrapper
+ * for keys. This just extends that same concept to public keys (much like ssh-keygen)
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2015-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\RSA\Formats\Keys;
+
+use phpseclib4\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
+use phpseclib4\File\ASN1;
+use phpseclib4\Math\BigInteger;
+
+/**
+ * PKCS#8 Formatted RSA Key Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+abstract class PKCS8 extends Progenitor
+{
+    /**
+     * OID Name
+     *
+     * @var string
+     */
+    public const OID_NAME = 'rsaEncryption';
+
+    /**
+     * OID Value
+     *
+     * @var string
+     */
+    public const OID_VALUE = '1.2.840.113549.1.1.1';
+
+    /**
+     * Break a public or private key down into its constituent components
+     */
+    public static function load(
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): array {
+        $components = match (true) {
+            str_contains($key, 'PUBLIC') => ['isPublicKey' => true],
+            str_contains($key, 'PRIVATE') => ['isPrivateKey' => false],
+            default => null
+        };
+
+        $key = parent::load($key, $password);
+
+        if (isset($key['privateKey'])) {
+            $components['isPublicKey'] ??= false;
+            $type = 'private';
+        } else {
+            $components['isPublicKey'] ??= true;
+            $type = 'public';
+        }
+
+        $result = $components + PKCS1::load((string) $key[$type . 'Key']);
+
+        if (isset($key['meta'])) {
+            $result['meta'] = $key['meta'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Convert a private key to the appropriate format.
+     */
+    public static function savePrivateKey(
+        BigInteger $n,
+        BigInteger $e,
+        #[\SensitiveParameter] BigInteger $d,
+        #[\SensitiveParameter] array $primes,
+        #[\SensitiveParameter] array $exponents,
+        #[\SensitiveParameter] array $coefficients,
+        #[\SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
+        $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
+        $key = ASN1::extractBER($key);
+        return self::wrapPrivateKey(
+            key: $key,
+            password: $password,
+            options: $options
+        );
+    }
+
+    /**
+     * Convert a public key to the appropriate format
+     */
+    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
+    {
+        $key = PKCS1::savePublicKey($n, $e);
+        $key = ASN1::extractBER($key);
+        return self::wrapPublicKey(
+            key: $key,
+            options: $options
+        );
+    }
+}

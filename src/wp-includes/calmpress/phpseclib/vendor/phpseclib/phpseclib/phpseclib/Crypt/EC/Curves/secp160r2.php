@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * secp160r2
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2018-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\EC\Curves;
+
+use phpseclib4\Crypt\EC\BaseCurves\Prime;
+use phpseclib4\Math\BigInteger;
+
+/** @psalm-api */
+class secp160r2 extends Prime
+{
+    public function __construct()
+    {
+        // same as secp160k1
+        $this->setModulo(new BigInteger('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFAC73', 16));
+        $this->setCoefficients(
+            new BigInteger('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFAC70', 16),
+            new BigInteger('B4E134D3FB59EB8BAB57274904664D5AF50388BA', 16)
+        );
+        $this->setBasePoint(
+            new BigInteger('52DCB034293A117E1F4FF11B30F7199D3144CE6D', 16),
+            new BigInteger('FEAFFEF2E331F296E071FA0DF9982CFEA7D43F2E', 16)
+        );
+        $this->setOrder(new BigInteger('0100000000000000000000351EE786A818F3A1A16B', 16));
+    }
+}

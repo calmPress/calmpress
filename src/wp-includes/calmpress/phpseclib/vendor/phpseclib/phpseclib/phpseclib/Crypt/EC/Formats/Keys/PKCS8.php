@@ -1,0 +1,298 @@
+<?php
+
+/**
+ * PKCS#8 Formatted EC Key Handler
+ *
+ * PHP version 8.1+
+ *
+ * Processes keys with the following headers:
+ *
+ * -----BEGIN ENCRYPTED PRIVATE KEY-----
+ * -----BEGIN PRIVATE KEY-----
+ * -----BEGIN PUBLIC KEY-----
+ *
+ * Analogous to ssh-keygen's pkcs8 format (as specified by -m). Although PKCS8
+ * is specific to private keys it's basically creating a DER-encoded wrapper
+ * for keys. This just extends that same concept to public keys (much like ssh-keygen)
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2018-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\EC\Formats\Keys;
+
+use phpseclib4\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
+use phpseclib4\Crypt\EC\BaseCurves\{
+    Base as BaseCurve,
+    Montgomery as MontgomeryCurve,
+    TwistedEdwards as TwistedEdwardsCurve
+};
+use phpseclib4\Crypt\EC\Curves\{Curve25519, Curve448, Ed25519, Ed448};
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Maps;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField\Integer;
+
+/**
+ * PKCS#8 Formatted EC Key Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+abstract class PKCS8 extends Progenitor
+{
+    use Common;
+
+    /**
+     * OID Name
+     *
+     * @var array
+     */
+    public const OID_NAME = ['id-ecPublicKey', 'id-Ed25519', 'id-Ed448', 'id-X25519', 'id-X448'];
+
+    /**
+     * OID Value
+     *
+     * @var array
+     */
+    public const OID_VALUE = ['1.2.840.10045.2.1', '1.3.101.112', '1.3.101.113', '1.3.101.110', '1.3.101.111'];
+
+    /**
+     * Break a public or private key down into its constituent components
+     */
+    public static function load(
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): array {
+        // initialize_static_variables() is defined in both the trait and the parent class
+        // when it's defined in two places it's the traits one that's called
+        // the parent one is needed, as well, but the parent one is called by other methods
+        // in the parent class as needed and in the context of the parent it's the parent
+        // one that's called
+        self::initialize_static_variables();
+
+        $isPublic = match (true) {
+            str_contains($key, 'PUBLIC') => true,
+            str_contains($key, 'PRIVATE') => false,
+            default => null
+        };
+
+        $key = parent::load($key, $password);
+
+        $type = isset($key['privateKey']) ? 'privateKey' : 'publicKey';
+
+        if (isset($isPublic)) {
+            switch (true) {
+                case !$isPublic && $type == 'publicKey':
+                    throw new UnexpectedValueException('Human readable string claims non-public key but DER encoded string claims public key');
+                case $isPublic && $type == 'privateKey':
+                    throw new UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
+            }
+        } else {
+            $isPublic = $type == 'publicKey';
+        }
+
+        switch ($key[$type . 'Algorithm']['algorithm']) {
+            case 'id-Ed25519':
+            case 'id-Ed448':
+                return self::loadEdDSA($key);
+            case 'id-X25519':
+            case 'id-X448':
+                return self::loadECDH($key);
+        }
+
+        $decoded = ASN1::decodeBER((string) $key[$type . 'Algorithm']['parameters']);
+        $params = ASN1::map($decoded, Maps\ECParameters::MAP)->toArray();
+
+        $components = [];
+        $components['curve'] = self::loadCurveByParam($params);
+
+        if ($isPublic) {
+            $components['QA'] = self::extractPoint("\0" . $key['publicKey'], $components['curve']);
+
+            return $components;
+        }
+
+        $decoded = ASN1::decodeBER((string) $key['privateKey']);
+        $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
+
+        if (isset($key['parameters']) && $params != $key['parameters']) {
+            throw new UnexpectedValueException('The PKCS8 parameter field does not match the private key parameter field');
+        }
+
+        $components['dA'] = new BigInteger((string) $key['privateKey'], 256);
+        $components['curve']->rangeCheck($components['dA']);
+        $components['QA'] = isset($key['publicKey']) ?
+            self::extractPoint((string) $key['publicKey'], $components['curve']) :
+            $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
+
+        return $components;
+    }
+
+    /**
+     * Break a public or private EdDSA key down into its constituent components
+     */
+    private static function loadEdDSA(array $key): array
+    {
+        $components = [];
+
+        if (isset($key['privateKey'])) {
+            $key['privateKey'] = (string) $key['privateKey'];
+            $components['curve'] = $key['privateKeyAlgorithm']['algorithm'] == 'id-Ed25519' ? new Ed25519() : new Ed448();
+            $expected = chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($components['curve']::SIZE);
+            if (substr($key['privateKey'], 0, 2) != $expected) {
+                throw new UnexpectedValueException(
+                    'The first two bytes of the ' .
+                    $key['privateKeyAlgorithm']['algorithm'] .
+                    ' private key field should be 0x' . bin2hex($expected)
+                );
+            }
+            $arr = $components['curve']->extractSecret(substr($key['privateKey'], 2));
+            $components['dA'] = $arr['dA'];
+            $components['secret'] = $arr['secret'];
+        }
+
+        if (isset($key['publicKey'])) {
+            if (!isset($components['curve'])) {
+                $components['curve'] = $key['publicKeyAlgorithm']['algorithm'] == 'id-Ed25519' ? new Ed25519() : new Ed448();
+            }
+
+            $components['QA'] = self::extractPoint($key['publicKey'], $components['curve']);
+        }
+
+        if (isset($key['privateKey']) && !isset($components['QA'])) {
+            $components['QA'] = $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
+        }
+
+        return $components;
+    }
+
+    private static function loadECDH(#[\SensitiveParameter] array $key): array
+    {
+        $components = [];
+
+        if (isset($key['privateKey'])) {
+            $components['curve'] = $key['privateKeyAlgorithm']['algorithm'] == 'id-X25519' ? new Curve25519() : new Curve448();
+            $expected = chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($components['curve']::SIZE);
+            $privateKey = (string) $key['privateKey'];
+            if (substr($privateKey, 0, 2) != $expected) {
+                throw new UnexpectedValueException(
+                    'The first two bytes of the ' .
+                    $key['privateKeyAlgorithm']['algorithm'] .
+                    ' private key field should be 0x' . bin2hex($expected)
+                );
+            }
+            $components['dA'] = new BigInteger(substr($privateKey, 2), 256);
+        }
+
+        if (isset($key['publicKey'])) {
+            if (!isset($components['curve'])) {
+                $components['curve'] = $key['publicKeyAlgorithm']['algorithm'] == 'id-X25519' ? new Curve25519() : new Curve448();
+            }
+
+            $components['QA'] = [$components['curve']->convertInteger(new BigInteger(strrev($key['publicKey']), 256))];
+        }
+
+        if (isset($key['privateKey']) && !isset($components['QA'])) {
+            /** @psalm-suppress InvalidArgument */
+            $components['QA'] = self::deriveMontgomeryPublicKey($components);
+        }
+
+        return $components;
+    }
+
+    /**
+     * Convert an EC public key to the appropriate format
+     *
+     * @param Integer[] $publicKey
+     */
+    public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string
+    {
+        self::initialize_static_variables();
+        if ($curve instanceof MontgomeryCurve) {
+            return self::wrapPublicKey(
+                key: str_pad(strrev($publicKey[0]->toBytes()), $curve::SIZE, "\0", STR_PAD_RIGHT),
+                oid: $curve instanceof Curve25519 ? 'id-X25519' : 'id-X448',
+                options: $options
+            );
+        }
+
+        if ($curve instanceof TwistedEdwardsCurve) {
+            return self::wrapPublicKey(
+                key: $curve->encodePoint($publicKey),
+                oid: $curve instanceof Ed25519 ? 'id-Ed25519' : 'id-Ed448',
+                options: $options
+            );
+        }
+
+        $params = new ASN1\Element(self::encodeParameters($curve, false, $options));
+
+        $key = "\4" . $publicKey[0]->toBytes() . $publicKey[1]->toBytes();
+
+        return self::wrapPublicKey(
+            key: $key,
+            params: $params,
+            oid: 'id-ecPublicKey',
+            options: $options
+        );
+    }
+
+    /**
+     * Convert a private key to the appropriate format.
+     *
+     * @param Integer[] $publicKey
+     */
+    public static function savePrivateKey(
+        #[\SensitiveParameter] BigInteger $privateKey,
+        BaseCurve $curve,
+        array $publicKey,
+        #[\SensitiveParameter] ?string $secret = null,
+        #[\SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
+        self::initialize_static_variables();
+
+        if ($curve instanceof MontgomeryCurve) {
+            return self::wrapPrivateKey(
+                key: chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($curve::SIZE) . str_pad($privateKey->toBytes(), $curve::SIZE, "\0", STR_PAD_LEFT),
+                password: $password,
+                oid: $curve instanceof Curve25519 ? 'id-X25519' : 'id-X448'
+            );
+        }
+
+        if ($curve instanceof TwistedEdwardsCurve) {
+            return self::wrapPrivateKey(
+                key: "\x04" . chr(strlen($secret)) . $secret,
+                password: $password,
+                oid: $curve instanceof Ed25519 ? 'id-Ed25519' : 'id-Ed448',
+                options: $options
+            );
+        }
+
+        $publicKey = "\4" . $publicKey[0]->toBytes() . $publicKey[1]->toBytes();
+
+        $params = new ASN1\Element(self::encodeParameters($curve, false, $options));
+
+        $key = [
+            'version' => 'ecPrivkeyVer1',
+            'privateKey' => $privateKey->toBytes(),
+            //'parameters' => $params,
+            'publicKey' => "\0" . $publicKey,
+        ];
+
+        $key = ASN1::encodeDER($key, Maps\ECPrivateKey::MAP);
+
+        return self::wrapPrivateKey(
+            key: $key,
+            params: $params,
+            password: $password,
+            oid: 'id-ecPublicKey',
+            options: $options
+        );
+    }
+}

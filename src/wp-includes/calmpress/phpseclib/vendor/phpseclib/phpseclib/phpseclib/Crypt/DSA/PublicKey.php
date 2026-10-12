@@ -1,0 +1,112 @@
+<?php
+
+/**
+ * DSA Public Key
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2019-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\DSA;
+
+use phpseclib4\Crypt\{Common, DSA};
+use phpseclib4\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
+use phpseclib4\Exception\{BadConfigurationException, UnexpectedValueException};
+
+/**
+ * DSA Public Key
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+final class PublicKey extends DSA implements Common\PublicKey
+{
+    use Common\Traits\Fingerprint;
+
+    /**
+     * Verify a signature
+     *
+     * @see self::verify()
+     */
+    public function verify(string $message, string|array $signature): bool
+    {
+        if (self::$forcedEngine === 'libsodium') {
+            throw new BadConfigurationException('Engine libsodium is forced but unsupported for DSA');
+        }
+
+        if (self::$forcedEngine === 'OpenSSL' && !function_exists('openssl_get_md_methods')) {
+            throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for DSA');
+        }
+
+        $shortFormat = $this->shortFormat;
+        $format = $this->sigFormat;
+
+        if ($shortFormat == 'Raw') {
+            if (is_string($signature)) {
+                throw new UnexpectedValueException('Raw signatures must be arrays');
+            }
+        } elseif (is_array($signature)) {
+            throw new UnexpectedValueException('The only signature format that takes in arrays is the Raw format');
+        }
+
+        try {
+            ['r' => $r, 's' => $s] = $format::load($signature);
+        } catch (\Exception) {
+            return false;
+        }
+
+        if (function_exists('openssl_get_md_methods') && self::$forcedEngine !== 'PHP') {
+            if (in_array($this->hash->getHash(), openssl_get_md_methods())) {
+                $sig = $format != 'ASN1' ? ASN1Signature::save($r, $s) : $signature;
+
+                $result = openssl_verify($message, $sig, $this->toString('PKCS8'), $this->hash->getHash());
+
+                if ($result != -1) {
+                    return (bool) $result;
+                }
+            } elseif (self::$forcedEngine === 'OpenSSL') {
+                throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for DSA / ' . $this->hash->getHash());
+            }
+        }
+
+        $q_1 = $this->q->subtract(self::$one);
+        if (!$r->between(self::$one, $q_1) || !$s->between(self::$one, $q_1)) {
+            return false;
+        }
+
+        $w = $s->modInverse($this->q);
+        $h = $this->hash->hash($message);
+        $h = $this->bits2int($h);
+        [, $u1] = $h->multiply($w)->divide($this->q);
+        [, $u2] = $r->multiply($w)->divide($this->q);
+        $v1 = $this->g->powMod($u1, $this->p);
+        $v2 = $this->y->powMod($u2, $this->p);
+        [, $v] = $v1->multiply($v2)->divide($this->p);
+        [, $v] = $v->divide($this->q);
+
+        return $v->equals($r);
+    }
+
+    /**
+     * Returns the public key
+     */
+    public function toString(string $type, array $options = []): string
+    {
+        $type = self::validatePlugin('Keys', $type, 'savePublicKey');
+
+        return $type::savePublicKey($this->p, $this->q, $this->g, $this->y, $options);
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'p' => clone $this->p,
+            'q' => clone $this->q,
+            'g' => clone $this->g,
+            'y' => clone $this->y,
+        ];
+    }
+}

@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * Prime Finite Fields
+ *
+ * Utilizes the factory design pattern
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2018-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Math;
+
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Math\Common\FiniteField;
+use phpseclib4\Math\PrimeField\Integer;
+
+/**
+ * Prime Finite Fields
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+class PrimeField extends FiniteField
+{
+    /**
+     * Instance Counter
+     */
+    private static int $instanceCounter = 0;
+
+    /**
+     * Keeps track of current instance
+     */
+    protected int $instanceID;
+
+    /**
+     * Default constructor
+     */
+    public function __construct(BigInteger $modulo)
+    {
+        if (!$modulo->isPrime()) {
+            throw new InvalidArgumentException('PrimeField requires a prime number be passed to the constructor');
+        }
+
+        $this->instanceID = self::$instanceCounter++;
+        Integer::setModulo($this->instanceID, $modulo);
+        Integer::setRecurringModuloFunction($this->instanceID, $modulo->createRecurringModuloFunction());
+    }
+
+    /**
+     * Use a custom defined modular reduction function
+     */
+    public function setReduction(\Closure $func): void
+    {
+        Integer::setRecurringModuloFunction($this->instanceID, $func->bindTo($this, $this));
+    }
+
+    /**
+     * Returns an instance of a dynamically generated PrimeFieldInteger class
+     */
+    public function newInteger(BigInteger $num): Integer
+    {
+        return new Integer($this->instanceID, $num);
+    }
+
+    /**
+     * Returns an integer on the finite field between one and the prime modulo
+     */
+    public function randomInteger(): Integer
+    {
+        static $one;
+        if (!isset($one)) {
+            $one = new BigInteger(1);
+        }
+
+        return new Integer($this->instanceID, BigInteger::randomRange($one, Integer::getModulo($this->instanceID)));
+    }
+
+    /**
+     * Returns the length of the modulo in bytes
+     */
+    public function getLengthInBytes(): int
+    {
+        return Integer::getModulo($this->instanceID)->getLengthInBytes();
+    }
+
+    /**
+     * Returns the length of the modulo in bits
+     */
+    public function getLength(): int
+    {
+        return Integer::getModulo($this->instanceID)->getLength();
+    }
+
+    /**
+     *  Destructor
+     */
+    public function __destruct()
+    {
+        Integer::cleanupCache($this->instanceID);
+    }
+}

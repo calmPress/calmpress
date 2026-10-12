@@ -1,0 +1,344 @@
+<?php
+
+/**
+ * Curves over y^2 + x*y = x^3 + a*x^2 + b
+ *
+ * These are curves used in SEC 2 over prime fields: http://www.secg.org/SEC2-Ver-1.0.pdf
+ * The curve is a weierstrass curve with a[3] and a[2] set to 0.
+ *
+ * Uses Jacobian Coordinates for speed if able:
+ *
+ * https://en.wikipedia.org/wiki/Jacobian_curve
+ * https://en.wikibooks.org/wiki/Cryptography/Prime_Curve/Jacobian_Coordinates
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2018-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\EC\BaseCurves;
+
+use phpseclib4\Exception\{BadMethodCallException, InvalidStateException, UnsupportedValueException};
+use phpseclib4\Math\BinaryField;
+use phpseclib4\Math\BinaryField\Integer as BinaryInteger;
+
+/**
+ * Curves over y^2 + x*y = x^3 + a*x^2 + b
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+class Binary extends Base
+{
+    /**
+     * Binary Field Integer factory
+     */
+    protected BinaryField $factory;
+
+    /**
+     * Cofficient for x^1
+     */
+    protected BinaryInteger $a;
+
+    /**
+     * Cofficient for x^0
+     */
+    protected BinaryInteger $b;
+
+    /**
+     * Base Point
+     *
+     * @var BinaryInteger[]
+     */
+    protected array $p;
+
+    /**
+     * The number one over the specified finite field
+     */
+    protected BinaryInteger $one;
+
+    /**
+     * The modulo
+     *
+     * @var int[]
+     */
+    protected array $modulo;
+
+    /**
+     * Sets the modulo
+     */
+    public function setModulo(int ...$modulo): void
+    {
+        $this->modulo = $modulo;
+        $this->factory = new BinaryField(...$modulo);
+
+        $this->one = $this->factory->newInteger("\1");
+    }
+
+    /**
+     * Set coefficients a and b
+     */
+    public function setCoefficients(string $a, string $b): void
+    {
+        if (!isset($this->factory)) {
+            throw new InvalidStateException('setModulo needs to be called before this method');
+        }
+        $this->a = $this->factory->newInteger(pack('H*', $a));
+        $this->b = $this->factory->newInteger(pack('H*', $b));
+    }
+
+    /**
+     * Set x and y coordinates for the base point
+     */
+    public function setBasePoint(string|BinaryInteger $x, string|BinaryInteger $y): void
+    {
+        if (!isset($this->factory)) {
+            throw new InvalidStateException('setModulo needs to be called before this method');
+        }
+        $this->p = [
+            is_string($x) ? $this->factory->newInteger(pack('H*', $x)) : $x,
+            is_string($y) ? $this->factory->newInteger(pack('H*', $y)) : $y,
+        ];
+    }
+
+    /**
+     * Retrieve the base point as an array
+     *
+     * @return BinaryInteger[]
+     */
+    public function getBasePoint(): array
+    {
+        if (!isset($this->factory)) {
+            throw new InvalidStateException('setModulo needs to be called before this method');
+        }
+        /*
+        if (!isset($this->p)) {
+            throw new InvalidStateException('setBasePoint needs to be called before this method');
+        }
+        */
+        return $this->p;
+    }
+
+    /**
+     * Adds two points on the curve
+     *
+     * @return BinaryInteger[]
+     * @psalm-suppress PossiblyUnusedMethod
+     */
+    public function addPoint(array $p, array $q): array
+    {
+        if (!isset($this->factory)) {
+            throw new InvalidStateException('setModulo needs to be called before this method');
+        }
+
+        if (!count($p) || !count($q)) {
+            if (count($q)) {
+                return $q;
+            }
+            if (count($p)) {
+                return $p;
+            }
+            return [];
+        }
+
+        if (!isset($p[2]) || !isset($q[2])) {
+            throw new UnsupportedValueException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
+        }
+
+        if ($p[0]->equals($q[0])) {
+            return !$p[1]->equals($q[1]) ? [] : $this->doublePoint($p);
+        }
+
+        // formulas from http://hyperelliptic.org/EFD/g12o/auto-shortw-jacobian.html
+
+        [$x1, $y1, $z1] = $p;
+        [$x2, $y2, $z2] = $q;
+
+        $o1 = $z1->multiply($z1);
+        $b = $x2->multiply($o1);
+
+        if ($z2->equals($this->one)) {
+            $d = $y2->multiply($o1)->multiply($z1);
+            $e = $x1->add($b);
+            $f = $y1->add($d);
+            $z3 = $e->multiply($z1);
+            $h = $f->multiply($x2)->add($z3->multiply($y2));
+            $i = $f->add($z3);
+            $g = $z3->multiply($z3);
+            $p1 = $this->a->multiply($g);
+            $p2 = $f->multiply($i);
+            $p3 = $e->multiply($e)->multiply($e);
+            $x3 = $p1->add($p2)->add($p3);
+            $y3 = $i->multiply($x3)->add($g->multiply($h));
+
+            return [$x3, $y3, $z3];
+        }
+
+        $o2 = $z2->multiply($z2);
+        $a = $x1->multiply($o2);
+        $c = $y1->multiply($o2)->multiply($z2);
+        $d = $y2->multiply($o1)->multiply($z1);
+        $e = $a->add($b);
+        $f = $c->add($d);
+        $g = $e->multiply($z1);
+        $h = $f->multiply($x2)->add($g->multiply($y2));
+        $z3 = $g->multiply($z2);
+        $i = $f->add($z3);
+        $p1 = $this->a->multiply($z3->multiply($z3));
+        $p2 = $f->multiply($i);
+        $p3 = $e->multiply($e)->multiply($e);
+        $x3 = $p1->add($p2)->add($p3);
+        $y3 = $i->multiply($x3)->add($g->multiply($g)->multiply($h));
+
+        return [$x3, $y3, $z3];
+    }
+
+    /**
+     * Doubles a point on a curve
+     *
+     * @return BinaryInteger[]
+     */
+    public function doublePoint(array $p): array
+    {
+        if (!isset($this->factory)) {
+            throw new InvalidStateException('setModulo needs to be called before this method');
+        }
+
+        if (!count($p)) {
+            return [];
+        }
+
+        if (!isset($p[2])) {
+            throw new UnsupportedValueException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
+        }
+
+        // formulas from http://hyperelliptic.org/EFD/g12o/auto-shortw-jacobian.html
+
+        [$x1, $y1, $z1] = $p;
+
+        $a = $x1->multiply($x1);
+        $b = $a->multiply($a);
+
+        if ($z1->equals($this->one)) {
+            $x3 = $b->add($this->b);
+            $z3 = clone $x1;
+            $p1 = $a->add($y1)->add($z3)->multiply($this->b);
+            $p2 = $a->add($y1)->multiply($b);
+            $y3 = $p1->add($p2);
+
+            return [$x3, $y3, $z3];
+        }
+
+        $c = $z1->multiply($z1);
+        $d = $c->multiply($c);
+        $x3 = $b->add($this->b->multiply($d->multiply($d)));
+        $z3 = $x1->multiply($c);
+        $p1 = $b->multiply($z3);
+        $p2 = $a->add($y1->multiply($z1))->add($z3)->multiply($x3);
+        $y3 = $p1->add($p2);
+
+        return [$x3, $y3, $z3];
+    }
+
+    /**
+     * Returns the X coordinate and the derived Y coordinate
+     *
+     * Not supported because it is covered by patents.
+     * Quoting https://www.openssl.org/docs/man1.1.0/apps/ecparam.html ,
+     *
+     * "Due to patent issues the compressed option is disabled by default for binary curves
+     *  and can be enabled by defining the preprocessor macro OPENSSL_EC_BIN_PT_COMP at
+     *  compile time."
+     *
+     * @psalm-suppress PossiblyUnusedParam
+     * @psalm-suppress PossiblyUnusedMethod
+     */
+    public function derivePoint(string $m): array
+    {
+        throw new BadMethodCallException('Point compression on binary finite field elliptic curves is not supported');
+    }
+
+    /**
+     * Tests whether or not the x / y values satisfy the equation
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     */
+    public function verifyPoint(array $p): bool
+    {
+        [$x, $y] = $p;
+        $lhs = $y->multiply($y);
+        $lhs = $lhs->add($x->multiply($y));
+        $x2 = $x->multiply($x);
+        $x3 = $x2->multiply($x);
+        $rhs = $x3->add($this->a->multiply($x2))->add($this->b);
+
+        return $lhs->equals($rhs);
+    }
+
+    /**
+     * Returns the modulo
+     */
+    public function getModulo(): array
+    {
+        return $this->modulo;
+    }
+
+    /**
+     * Returns the a coefficient
+     */
+    public function getA(): BinaryInteger
+    {
+        return $this->a;
+    }
+
+    /**
+     * Returns the a coefficient
+     */
+    public function getB(): BinaryInteger
+    {
+        return $this->b;
+    }
+
+    /**
+     * Returns the affine point
+     *
+     * A Jacobian Coordinate is of the form (x, y, z).
+     * To convert a Jacobian Coordinate to an Affine Point
+     * you do (x / z^2, y / z^3)
+     *
+     * @return BinaryInteger[]
+     */
+    public function convertToAffine(array $p): array
+    {
+        if (!isset($p[2])) {
+            return $p;
+        }
+        [$x, $y, $z] = $p;
+        $z = $this->one->divide($z);
+        $z2 = $z->multiply($z);
+        return [
+            $x->multiply($z2),
+            $y->multiply($z2)->multiply($z),
+        ];
+    }
+
+    /**
+     * Converts an affine point to a jacobian coordinate
+     *
+     * @return BinaryInteger[]
+     */
+    public function convertToInternal(array $p): array
+    {
+        if (isset($p[2])) {
+            return $p;
+        }
+
+        $p[2] = clone $this->one;
+        $p['fresh'] = true;
+        return $p;
+    }
+}

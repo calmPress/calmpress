@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * DH Public Key
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2019-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\DH;
+
+use phpseclib4\Crypt\{Common, DH};
+use phpseclib4\Math\BigInteger;
+
+/**
+ * DH Public Key
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+final class PublicKey extends DH
+{
+    use Common\Traits\Fingerprint;
+
+    /**
+     * Returns the public key
+     */
+    public function toString(string $type, array $options = []): string
+    {
+        $type = self::validatePlugin('Keys', $type, 'savePublicKey');
+
+        return $type::savePublicKey($this->prime, $this->base, $this->publicKey, $options);
+    }
+
+    /**
+     * Returns the public key as a BigInteger
+     */
+    public function toBigInteger(): BigInteger
+    {
+        return $this->publicKey;
+    }
+}

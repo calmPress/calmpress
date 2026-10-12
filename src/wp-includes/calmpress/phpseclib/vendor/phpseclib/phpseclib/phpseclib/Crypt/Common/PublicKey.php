@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * PublicKey interface
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2019-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\Common;
+
+/**
+ * PublicKey interface
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+interface PublicKey
+{
+    public function verify(string $message, string|array $signature): bool;
+    //public function encrypt(string $plaintext): string;
+    public function toString(string $type, array $options = []): string;
+    public function getFingerprint(string $algorithm): string;
+}

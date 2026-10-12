@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * Raw Signature Handler
+ *
+ * PHP version 8.1+
+ *
+ * Handles signatures as arrays
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2016-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\Common\Formats\Signature;
+
+use phpseclib4\Math\BigInteger;
+
+/**
+ * Raw Signature Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+abstract class Raw
+{
+    /**
+     * Loads a signature
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     */
+    public static function load(array $sig): array
+    {
+        switch (true) {
+            case !isset($sig['r']) || !isset($sig['s']):
+            case !$sig['r'] instanceof BigInteger:
+            case !$sig['s'] instanceof BigInteger:
+                return [];
+        }
+
+        return [
+            'r' => $sig['r'],
+            's' => $sig['s'],
+        ];
+    }
+
+    /**
+     * Returns a signature in the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     */
+    public static function save(BigInteger $r, BigInteger $s): array
+    {
+        return compact('r', 's');
+    }
+}

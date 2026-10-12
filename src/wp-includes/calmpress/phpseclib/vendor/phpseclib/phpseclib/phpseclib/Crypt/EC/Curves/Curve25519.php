@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * Curve25519
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2019-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\EC\Curves;
+
+use phpseclib4\Crypt\EC\BaseCurves\Montgomery;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Math\BigInteger;
+
+/** @psalm-api */
+class Curve25519 extends Montgomery
+{
+    public const SIZE = 32;
+
+    public function __construct()
+    {
+        // 2^255 - 19
+        $this->setModulo(new BigInteger('7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED', 16));
+        $this->a24 = $this->factory->newInteger(new BigInteger('121666'));
+        $this->p = [$this->factory->newInteger(new BigInteger(9))];
+        // 2^252 + 0x14def9dea2f79cd65812631a5cf5d3ed
+        $this->setOrder(new BigInteger('1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED', 16));
+
+        /*
+        $this->setCoefficients(
+            new BigInteger('486662'), // a
+        );
+        $this->setBasePoint(
+            new BigInteger(9),
+            new BigInteger('14781619447589544791020593568409986887264606134616475288964881837755586237401')
+        );
+        */
+    }
+
+    /**
+     * Multiply a point on the curve by a scalar
+     *
+     * Modifies the scalar as described at https://tools.ietf.org/html/rfc7748#page-8
+     */
+    public function multiplyPoint(array $p, BigInteger $d): array
+    {
+        $d = $d->toBytes();
+        $d = str_pad($d, 32, "\0", STR_PAD_LEFT);
+
+        //$r = strrev(sodium_crypto_scalarmult($d, strrev($p[0]->toBytes())));
+        //return [$this->factory->newInteger(new BigInteger($r, 256))];
+
+        $d &= "\xF8" . str_repeat("\xFF", 30) . "\x7F";
+        $d = strrev($d);
+        $d |= "\x40";
+        $d = new BigInteger($d, -256);
+
+        return parent::multiplyPoint($p, $d);
+    }
+
+    /**
+     * Creates a random scalar multiplier
+     */
+    public function createRandomMultiplier(): BigInteger
+    {
+        return BigInteger::random(256);
+    }
+
+    /**
+     * Performs range check
+     */
+    public function rangeCheck(BigInteger $x): void
+    {
+        if ($x->getLength() > 256 || $x->isNegative()) {
+            throw new UnexpectedValueException('x must be a positive integer less than 256 bytes in length');
+        }
+    }
+}

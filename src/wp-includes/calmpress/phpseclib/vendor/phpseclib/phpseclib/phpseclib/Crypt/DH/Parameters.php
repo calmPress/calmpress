@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * DH Parameters
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2019-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\DH;
+
+use phpseclib4\Crypt\DH;
+
+/**
+ * DH Parameters
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+final class Parameters extends DH
+{
+    /**
+     * Returns the parameters
+     */
+    public function toString(string $type = 'PKCS1', array $options = []): string
+    {
+        $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
+
+        return $type::saveParameters($this->prime, $this->base, $options);
+    }
+}

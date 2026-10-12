@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * Montgomery Private Key Handler
+ *
+ * "Naked" Curve25519 private keys can pretty much be any sequence of random 32x bytes so unless
+ * we have a "hidden" key handler pretty much every 32 byte string will be loaded as a curve25519
+ * private key even if it probably isn't one by PublicKeyLoader.
+ *
+ * "Naked" Curve25519 public keys also a string of 32 bytes so distinguishing between a "naked"
+ * curve25519 private key and a public key is nigh impossible, hence separate plugins for each
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2019-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\EC\Formats\Keys;
+
+use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
+use phpseclib4\Crypt\EC\Curves\{Curve25519, Curve448};
+use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField\Integer;
+
+/**
+ * Montgomery Curve Private Key Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+abstract class MontgomeryPrivate
+{
+    use Common;
+
+    /**
+     * Is invisible flag
+     */
+    public const IS_INVISIBLE = true;
+
+    /**
+     * Break a public or private key down into its constituent components
+     *
+     * @psalm-suppress PossiblyUnusedParam
+     */
+    public static function load(
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): array {
+        $curve = match (strlen($key)) {
+            32 => new Curve25519(),
+            56 => new Curve448(),
+            default => throw new UnexpectedValueException('The only supported lengths are 32 and 56')
+        };
+
+        $components = [
+            'curve' => $curve,
+            'dA' => new BigInteger($key, 256)
+        ];
+        $components['QA'] = self::deriveMontgomeryPublicKey($components);
+
+        return $components;
+    }
+
+    /**
+     * Convert an EC public key to the appropriate format
+     *
+     * @param Integer[] $publicKey
+     * @psalm-suppress PossiblyUnusedParam
+     */
+    public static function savePublicKey(MontgomeryCurve $curve, array $publicKey, array $options = []): string
+    {
+        return strrev($publicKey[0]->toBytes());
+    }
+
+    /**
+     * Convert a private key to the appropriate format.
+     *
+     * @param Integer[] $publicKey
+     * @psalm-suppress PossiblyUnusedParam
+     */
+    public static function savePrivateKey(
+        #[\SensitiveParameter] BigInteger $privateKey,
+        MontgomeryCurve $curve,
+        array $publicKey,
+        #[\SensitiveParameter] ?string $secret = null,
+        #[\SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
+        if (isset($password)) {
+            throw new InvalidArgumentException('MontgomeryPrivate private keys do not support encryption');
+        }
+
+        return str_pad($privateKey->toBytes(), $curve::SIZE, "\0", STR_PAD_RIGHT);
+    }
+}

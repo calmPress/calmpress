@@ -1,0 +1,223 @@
+<?php
+
+/**
+ * OpenSSH Key Handler
+ *
+ * PHP version 8.1+
+ *
+ * Place in $HOME/.ssh/authorized_keys
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2016-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\Common\Formats\Keys;
+
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\AES;
+use phpseclib4\Exception\{
+    BadDecryptionException,
+    PasswordNeededException,
+    UnexpectedValueException,
+    UnsupportedAlgorithmException,
+    UnsupportedValueException
+};
+
+/**
+ * OpenSSH Formatted RSA Key Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+abstract class OpenSSH
+{
+    /**
+     * Default comment
+     */
+    protected static string $comment = 'phpseclib-generated-key';
+
+    /**
+     * Binary key flag
+     */
+    protected static bool $binary = false;
+
+    protected static array $types = [];
+
+    /**
+     * Sets the default comment
+     */
+    public static function setComment(string $comment): void
+    {
+        self::$comment = str_replace(["\r", "\n"], '', $comment);
+    }
+
+    /**
+     * Break a public or private key down into its constituent components
+     *
+     * $type can be either ssh-dss or ssh-rsa
+     */
+    public static function load(
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): array {
+        // key format is described here:
+        // https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/PROTOCOL.key?annotate=HEAD
+
+        if (str_contains($key, 'BEGIN OPENSSH PRIVATE KEY')) {
+            $key = preg_replace('#(?:^-.*?-[\r\n]*$)|\s#ms', '', $key);
+            $key = Strings::base64_decode($key);
+            $magic = Strings::shift($key, 15);
+            if ($magic != "openssh-key-v1\0") {
+                throw new UnexpectedValueException('Expected openssh-key-v1');
+            }
+            [$ciphername, $kdfname, $kdfoptions, $numKeys] = Strings::unpackSSH2('sssN', $key);
+            if ($numKeys != 1) {
+                // if we wanted to support multiple keys we could update PublicKeyLoader to preview what the # of keys
+                // would be; it'd then call Common\Keys\OpenSSH.php::load() and get the paddedKey. it'd then pass
+                // that to the appropriate key loading parser $numKey times or something
+                throw new UnsupportedValueException('Although the OpenSSH private key format supports multiple keys phpseclib does not');
+            }
+
+            switch ($ciphername) {
+                case 'none':
+                    break;
+                case 'aes256-ctr':
+                    if ($kdfname != 'bcrypt') {
+                        throw new UnsupportedAlgorithmException('Only the bcrypt kdf is supported (' . $kdfname . ' encountered)');
+                    }
+                    if (!isset($password)) {
+                        throw new PasswordNeededException('Key is encrypted but no password has been provided');
+                    }
+                    [$salt, $rounds] = Strings::unpackSSH2('sN', $kdfoptions);
+                    $crypto = new AES('ctr');
+                    //$crypto->setKeyLength(256);
+                    //$crypto->disablePadding();
+                    $crypto->setPassword($password, 'bcrypt', $salt, $rounds, 32);
+                    break;
+                default:
+                    throw new UnsupportedAlgorithmException('The only supported ciphers are: none, aes256-ctr (' . $ciphername . ' is being used)');
+            }
+
+            [$publicKey, $paddedKey] = Strings::unpackSSH2('ss', $key);
+            [$type] = Strings::unpackSSH2('s', $publicKey);
+            if (isset($crypto)) {
+                $paddedKey = $crypto->decrypt($paddedKey);
+            }
+            [$checkint1, $checkint2] = Strings::unpackSSH2('NN', $paddedKey);
+            // any leftover bytes in $paddedKey are for padding? but they should be sequential bytes. eg. 1, 2, 3, etc.
+            if ($checkint1 != $checkint2) {
+                if (isset($crypto)) {
+                    throw new BadDecryptionException('Unable to decrypt key - please verify the password you are using');
+                }
+                throw new UnexpectedValueException("The two checkints do not match ($checkint1 vs. $checkint2)");
+            }
+            self::checkType($type);
+
+            return compact('type', 'publicKey', 'paddedKey');
+        }
+
+        $parts = preg_split("#[\t ]+#", $key, 3);
+
+        if (!isset($parts[1])) {
+            $key = Strings::base64_decode($parts[0]);
+            $comment = null;
+        } else {
+            $asciiType = $parts[0];
+            self::checkType($parts[0]);
+            $key = Strings::base64_decode($parts[1]);
+            $comment = $parts[2] ?? null;
+        }
+
+        [$type] = Strings::unpackSSH2('s', $key);
+        self::checkType($type);
+        if (isset($asciiType) && $asciiType != $type) {
+            throw new UnexpectedValueException('Two different types of keys are claimed: ' . $asciiType . ' and ' . $type);
+        }
+        if (strlen($key) <= 4) {
+            throw new UnexpectedValueException('Key appears to be malformed');
+        }
+
+        $publicKey = $key;
+
+        return compact('type', 'publicKey', 'comment');
+    }
+
+    /**
+     * Enable binary output
+     */
+    public static function enableBinaryOutput(): void
+    {
+        self::$binary = true;
+    }
+
+    /**
+     * Disable binary output (ie. enable printable output)
+     *
+     * Printable output is what goes into $HOME/.ssh/authorized_key.
+     */
+    public static function disableBinaryOutput(): void
+    {
+        self::$binary = false;
+    }
+
+    /**
+     * Checks to see if the type is valid
+     */
+    private static function checkType(string $candidate): void
+    {
+        if (!in_array($candidate, static::$types)) {
+            throw new UnexpectedValueException("The key type ($candidate) is not equal to: " . implode(',', static::$types));
+        }
+    }
+
+    /**
+     * Wrap a private key appropriately
+     */
+    protected static function wrapPrivateKey(
+        string $publicKey,
+        #[\SensitiveParameter] string $privateKey,
+        #[\SensitiveParameter] ?string $password,
+        array $options
+    ): string {
+        [, $checkint] = unpack('N', random_bytes(4));
+
+        $comment = $options['comment'] ?? self::$comment;
+        $paddedKey = Strings::packSSH2('NN', $checkint, $checkint) .
+                     $privateKey .
+                     Strings::packSSH2('s', $comment);
+
+        $usesEncryption = isset($password);
+
+        /*
+           from http://tools.ietf.org/html/rfc4253#section-6 :
+
+           Note that the length of the concatenation of 'packet_length',
+           'padding_length', 'payload', and 'random padding' MUST be a multiple
+           of the cipher block size or 8, whichever is larger.
+         */
+        $blockSize = $usesEncryption ? 16 : 8;
+        $paddingLength = (($blockSize - 1) * strlen($paddedKey)) % $blockSize;
+        for ($i = 1; $i <= $paddingLength; $i++) {
+            $paddedKey .= chr($i);
+        }
+        if (!$usesEncryption) {
+            $key = Strings::packSSH2('sssNss', 'none', 'none', '', 1, $publicKey, $paddedKey);
+        } else {
+            $rounds = $options['rounds'] ?? 16;
+            $salt = random_bytes(16);
+            $kdfoptions = Strings::packSSH2('sN', $salt, $rounds);
+            $crypto = new AES('ctr');
+            $crypto->setPassword($password, 'bcrypt', $salt, $rounds, 32);
+            $paddedKey = $crypto->encrypt($paddedKey);
+            $key = Strings::packSSH2('sssNss', 'aes256-ctr', 'bcrypt', $kdfoptions, 1, $publicKey, $paddedKey);
+        }
+        $key = "openssh-key-v1\0$key";
+
+        return "-----BEGIN OPENSSH PRIVATE KEY-----\n" .
+               chunk_split(Strings::base64_encode($key), 70, "\n") .
+               "-----END OPENSSH PRIVATE KEY-----\n";
+    }
+}

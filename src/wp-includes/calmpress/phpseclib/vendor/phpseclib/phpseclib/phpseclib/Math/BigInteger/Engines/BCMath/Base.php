@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * Modular Exponentiation Engine
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2017-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Math\BigInteger\Engines\BCMath;
+
+use phpseclib4\Math\BigInteger\Engines\BCMath;
+
+/**
+ * Sliding Window Exponentiation Engine
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+abstract class Base extends BCMath
+{
+    /**
+     * Cache constants
+     *
+     * $cache[self::VARIABLE] tells us whether or not the cached data is still valid.
+     */
+    public const VARIABLE = 0;
+    /**
+     * $cache[self::DATA] contains the cached data.
+     */
+    public const DATA = 1;
+
+    /**
+     * Test for engine validity
+     */
+    public static function isValidEngine(): bool
+    {
+        return static::class != __CLASS__;
+    }
+
+    /**
+     * Performs modular exponentiation.
+     */
+    protected static function powModHelper(BCMath $x, BCMath $e, BCMath $n, string $class): BCMath
+    {
+        if (empty($e->value)) {
+            $temp = new $class();
+            $temp->value = '1';
+            return $x->normalize($temp);
+        }
+
+        return $x->normalize(static::slidingWindow($x, $e, $n, $class));
+    }
+
+    /**
+     * Modular reduction preparation
+     *
+     * @see self::slidingWindow()
+     */
+    protected static function prepareReduce(string $x, string $n, string $class): string
+    {
+        return static::reduce($x, $n);
+    }
+
+    /**
+     * Modular multiply
+     *
+     * @see self::slidingWindow()
+     */
+    protected static function multiplyReduce(string $x, string $y, string $n, string $class): string
+    {
+        return static::reduce(bcmul($x, $y, 0), $n);
+    }
+
+    /**
+     * Modular square
+     *
+     * @see self::slidingWindow()
+     */
+    protected static function squareReduce(string $x, string $n, string $class): string
+    {
+        return static::reduce(bcmul($x, $x, 0), $n);
+    }
+}

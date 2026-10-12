@@ -1,0 +1,202 @@
+<?php
+
+/**
+ * Curve methods common to all curves
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2018-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\EC\BaseCurves;
+
+use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException};
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField;
+use phpseclib4\Math\Common\FiniteField\Integer;
+
+/**
+ * Base
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+abstract class Base
+{
+    /**
+     * The Order
+     */
+    protected BigInteger $order;
+
+    /**
+     * Returns a random integer
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
+     */
+    public function randomInteger(): Integer
+    {
+        return $this->factory->randomInteger();
+    }
+
+    /**
+     * Converts a BigInteger to a \phpseclib4\Math\FiniteField\Integer integer
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
+     */
+    public function convertInteger(BigInteger $x): Integer
+    {
+        return $this->factory->newInteger($x);
+    }
+
+    /**
+     * Returns the length, in bytes, of the modulo
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
+     */
+    public function getLengthInBytes(): int
+    {
+        return $this->factory->getLengthInBytes();
+    }
+
+    /**
+     * Returns the length, in bits, of the modulo
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress UndefinedThisPropertyFetch
+     */
+    public function getLength(): int
+    {
+        return $this->factory->getLength();
+    }
+
+    /**
+     * Multiply a point on the curve by a scalar
+     *
+     * Uses the montgomery ladder technique as described here:
+     *
+     * https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Montgomery_ladder
+     * https://github.com/phpecc/phpecc/issues/16#issuecomment-59176772
+     */
+    public function multiplyPoint(array $p, BigInteger $d): array
+    {
+        $alreadyInternal = isset($p[2]);
+        $r = $alreadyInternal ?
+            [[], $p] :
+            [[], $this->convertToInternal($p)];
+
+        $d = $d->toBits();
+        for ($i = 0; $i < strlen($d); $i++) {
+            $d_i = (int) $d[$i];
+            $r[1 - $d_i] = $this->addPoint($r[0], $r[1]);
+            $r[$d_i] = $this->doublePoint($r[$d_i]);
+        }
+
+        return $alreadyInternal ? $r[0] : $this->convertToAffine($r[0]);
+    }
+
+    /**
+     * Creates a random scalar multiplier
+     */
+    public function createRandomMultiplier(): BigInteger
+    {
+        static $one;
+        if (!isset($one)) {
+            $one = new BigInteger(1);
+        }
+
+        return BigInteger::randomRange($one, $this->order->subtract($one));
+    }
+
+    /**
+     * Performs range check
+     */
+    public function rangeCheck(BigInteger $x): void
+    {
+        static $zero;
+        if (!isset($zero)) {
+            $zero = new BigInteger();
+        }
+
+        if (!isset($this->order)) {
+            throw new InvalidStateException('setOrder needs to be called before this method');
+        }
+        if ($x->compare($this->order) > 0 || $x->compare($zero) <= 0) {
+            throw new UnexpectedValueException('x must be between 1 and the order of the curve');
+        }
+    }
+
+    /**
+     * Sets the Order
+     */
+    public function setOrder(BigInteger $order): void
+    {
+        $this->order = $order;
+    }
+
+    /**
+     * Returns the Order
+     */
+    public function getOrder(): BigInteger
+    {
+        return $this->order;
+    }
+
+    /**
+     * Use a custom defined modular reduction function
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress UndefinedThisPropertyFetch
+     */
+    public function setReduction(\Closure $func): void
+    {
+        $this->factory->setReduction($func);
+    }
+
+    /**
+     * Returns the affine point
+     */
+    public function convertToAffine(array $p): array
+    {
+        return $p;
+    }
+
+    /**
+     * Converts an affine point to a jacobian coordinate
+     */
+    public function convertToInternal(array $p): array
+    {
+        return $p;
+    }
+
+    /**
+     * Negates a point
+     */
+    public function negatePoint(array $p): array
+    {
+        $temp = [
+            $p[0],
+            $p[1]->negate(),
+        ];
+        if (isset($p[2])) {
+            $temp[] = $p[2];
+        }
+        return $temp;
+    }
+
+    /**
+     * Multiply and Add Points
+     */
+    public function multiplyAddPoints(array $points, array $scalars): array
+    {
+        $p1 = $this->convertToInternal($points[0]);
+        $p2 = $this->convertToInternal($points[1]);
+        $p1 = $this->multiplyPoint($p1, $scalars[0]);
+        $p2 = $this->multiplyPoint($p2, $scalars[1]);
+        $r = $this->addPoint($p1, $p2);
+        return $this->convertToAffine($r);
+    }
+}

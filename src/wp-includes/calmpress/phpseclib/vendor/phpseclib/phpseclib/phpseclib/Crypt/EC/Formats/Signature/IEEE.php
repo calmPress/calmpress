@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * IEEE P1363 Signature Handler
+ *
+ * PHP version 8.1+
+ *
+ * Handles signatures in the format described in
+ * https://standards.ieee.org/ieee/1363/2049/ and
+ * https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/sign#ecdsa
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2016-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\EC\Formats\Signature;
+
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Math\BigInteger;
+
+/**
+ * ASN1 Signature Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+abstract class IEEE
+{
+    /**
+     * Loads a signature
+     */
+    public static function load(string $sig): array
+    {
+        $len = strlen($sig);
+        if ($len & 1) {
+            throw new UnexpectedValueException('String length should be an even number');
+        }
+
+        $r = new BigInteger(substr($sig, 0, $len >> 1), 256);
+        $s = new BigInteger(substr($sig, $len >> 1), 256);
+
+        return compact('r', 's');
+    }
+
+    /**
+     * Returns a signature in the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedParam
+     */
+    public static function save(BigInteger $r, BigInteger $s, string $curve, int $length): string
+    {
+        $r = $r->toBytes();
+        $s = $s->toBytes();
+        $length = (int) ceil($length / 8);
+        return str_pad($r, $length, "\0", STR_PAD_LEFT) . str_pad($s, $length, "\0", STR_PAD_LEFT);
+    }
+}

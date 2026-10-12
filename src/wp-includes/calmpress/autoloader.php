@@ -16,6 +16,9 @@ require_once __DIR__ . '/webauthn/vendor/autoload.php';
 // Add QR autoloader to handle the relevant classes.
 require_once __DIR__ . '/qr/vendor/autoload.php';
 
+// Add phpseclib autoloader for SFTP access.
+require_once __DIR__ . '/phpseclib/vendor/autoload.php';
+
 /*
  * A map of classes to files to be used when determining which file to load
  * when a class needs to be loaded.

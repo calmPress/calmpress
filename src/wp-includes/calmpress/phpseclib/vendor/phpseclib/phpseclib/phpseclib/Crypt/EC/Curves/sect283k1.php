@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * sect283k1
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wiggint  on <terrafrost@php.net>
+ * @copyright 2018-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\EC\Curves;
+
+use phpseclib4\Crypt\EC\BaseCurves\Binary;
+use phpseclib4\Math\BigInteger;
+
+/** @psalm-api */
+class sect283k1 extends Binary
+{
+    public function __construct()
+    {
+        $this->setModulo(283, 12, 7, 5, 0);
+        $this->setCoefficients(
+            '000000000000000000000000000000000000000000000000000000000000000000000000',
+            '000000000000000000000000000000000000000000000000000000000000000000000001'
+        );
+        $this->setBasePoint(
+            '0503213F78CA44883F1A3B8162F188E553CD265F23C1567A16876913B0C2AC2458492836',
+            '01CCDA380F1C9E318D90F95D07E5426FE87E45C0E8184698E45962364E34116177DD2259'
+        );
+        $this->setOrder(new BigInteger('01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9AE2ED07577265DFF7F94451E061E163C61', 16));
+    }
+}

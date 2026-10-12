@@ -1,0 +1,115 @@
+<?php
+
+/**
+ * PuTTY Formatted RSA Key Handler
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2016-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\RSA\Formats\Keys;
+
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Math\BigInteger;
+
+/**
+ * PuTTY Formatted RSA Key Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+abstract class PuTTY extends Progenitor
+{
+    /**
+     * Public Handler
+     *
+     * @var string
+     */
+    public const PUBLIC_HANDLER = OpenSSH::class;
+
+    /**
+     * Algorithm Identifier
+     */
+    protected static array $types = ['ssh-rsa'];
+
+    /**
+     * Break a public or private key down into its constituent components
+     */
+    public static function load(
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password
+    ): array {
+        static $one;
+        if (!isset($one)) {
+            $one = new BigInteger(1);
+        }
+
+        $components = parent::load($key, $password);
+        if (!isset($components['private'])) {
+            return $components;
+        }
+        [
+            //'type' => $type,
+            'comment' => $comment,
+            'public' => $public,
+            'private' => $private
+        ] = $components;
+        unset($components['public'], $components['private']);
+
+        $isPublicKey = false;
+
+        $primes = $coefficients = [];
+        [$publicExponent, $modulus] = Strings::unpackSSH2('ii', $public);
+        [$privateExponent, $primes[1], $primes[2], $coefficients[2]] = Strings::unpackSSH2('iiii', $private);
+
+        $temp = $primes[1]->subtract($one);
+        $exponents = [1 => $publicExponent->modInverse($temp)];
+        $temp = $primes[2]->subtract($one);
+        $exponents[] = $publicExponent->modInverse($temp);
+
+        return compact('publicExponent', 'modulus', 'privateExponent', 'primes', 'coefficients', 'exponents', 'comment', 'isPublicKey');
+    }
+
+    /**
+     * Convert a private key to the appropriate format.
+     *
+     * @psalm-suppress PossiblyUnusedParam
+     */
+    public static function savePrivateKey(
+        BigInteger $n,
+        BigInteger $e,
+        #[\SensitiveParameter] BigInteger $d,
+        #[\SensitiveParameter] array $primes,
+        #[\SensitiveParameter] array $exponents,
+        #[\SensitiveParameter] array $coefficients,
+        #[\SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
+        if (count($primes) != 2) {
+            throw new InvalidArgumentException('PuTTY does not support multi-prime RSA keys');
+        }
+
+        $public =  Strings::packSSH2('ii', $e, $n);
+        $private = Strings::packSSH2('iiii', $d, $primes[1], $primes[2], $coefficients[2]);
+
+        return self::wrapPrivateKey($public, $private, 'ssh-rsa', $password, $options);
+    }
+
+    /**
+     * Convert a public key to the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedParam
+     */
+    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
+    {
+        return self::wrapPublicKey(Strings::packSSH2('ii', $e, $n), 'ssh-rsa');
+    }
+}

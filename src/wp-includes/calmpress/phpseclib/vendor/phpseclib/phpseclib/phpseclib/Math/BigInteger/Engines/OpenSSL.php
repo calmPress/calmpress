@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * OpenSSL Modular Exponentiation Engine
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2017-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Math\BigInteger\Engines;
+
+use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
+use phpseclib4\Exception\{ResourceLimitException, UnexpectedValueException};
+use phpseclib4\Math\BigInteger;
+
+/**
+ * OpenSSL Modular Exponentiation Engine
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+abstract class OpenSSL
+{
+    /**
+     * Test for engine validity
+     */
+    public static function isValidEngine(): bool
+    {
+        return extension_loaded('openssl') && static::class != __CLASS__;
+    }
+
+    /**
+     * Performs modular exponentiation.
+     */
+    public static function powModHelper(Engine $x, Engine $e, Engine $n): Engine
+    {
+        if ($n->getLengthInBytes() < 31 || $n->getLengthInBytes() > 16384) {
+            throw new ResourceLimitException('Only modulo between 31 and 16384 bits are accepted');
+        }
+
+        $key = PKCS8::savePublicKey(
+            new BigInteger($n),
+            new BigInteger($e)
+        );
+
+        $plaintext = str_pad($x->toBytes(), $n->getLengthInBytes(), "\0", STR_PAD_LEFT);
+
+        // this is easily prone to failure. if the modulo is a multiple of 2 or 3 or whatever it
+        // won't work and you'll get a "failure: error:0906D06C:PEM routines:PEM_read_bio:no start line"
+        // error. i suppose, for even numbers, we could do what PHP\Montgomery.php does, but then what
+        // about odd numbers divisible by 3, by 5, etc?
+        if (!openssl_public_encrypt($plaintext, $result, $key, OPENSSL_NO_PADDING)) {
+            throw new UnexpectedValueException(openssl_error_string());
+        }
+
+        $class = $x::class;
+        return new $class($result, 256);
+    }
+}

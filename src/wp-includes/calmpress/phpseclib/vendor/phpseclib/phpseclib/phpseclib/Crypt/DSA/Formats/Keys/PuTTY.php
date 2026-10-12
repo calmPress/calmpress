@@ -1,0 +1,110 @@
+<?php
+
+/**
+ * PuTTY Formatted DSA Key Handler
+ *
+ * puttygen does not generate DSA keys with an N of anything other than 160, however,
+ * it can still load them and convert them. PuTTY will load them, too, but SSH servers
+ * won't accept them. Since PuTTY formatted keys are primarily used with SSH this makes
+ * keys with N > 160 kinda useless, hence this handlers not supporting such keys.
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2016-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\DSA\Formats\Keys;
+
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
+use phpseclib4\Exception\{LengthException, UnexpectedValueException};
+use phpseclib4\Math\BigInteger;
+
+/**
+ * PuTTY Formatted DSA Key Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+abstract class PuTTY extends Progenitor
+{
+    /**
+     * Public Handler
+     *
+     * @var string
+     */
+    public const PUBLIC_HANDLER = OpenSSH::class;
+
+    /**
+     * Algorithm Identifier
+     */
+    protected static array $types = ['ssh-dss'];
+
+    /**
+     * Break a public or private key down into its constituent components
+     */
+    public static function load(
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password
+    ): array {
+        $components = parent::load($key, $password);
+        if (!isset($components['private'])) {
+            return $components;
+        }
+        [
+            //'type' => $type,
+            'comment' => $comment,
+            'public' => $public,
+            'private' => $private
+        ] = $components;
+        unset($components['public'], $components['private']);
+
+        [$p, $q, $g, $y] = Strings::unpackSSH2('iiii', $public);
+        [$x] = Strings::unpackSSH2('i', $private);
+
+        return compact('p', 'q', 'g', 'y', 'x', 'comment');
+    }
+
+    /**
+     * Convert a private key to the appropriate format.
+     */
+    public static function savePrivateKey(
+        BigInteger $p,
+        BigInteger $q,
+        BigInteger $g,
+        BigInteger $y,
+        #[\SensitiveParameter] BigInteger $x,
+        #[\SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
+        if ($q->getLength() != 160) {
+            throw new LengthException('SSH only supports keys with an N (length of Group Order q) of 160');
+        }
+
+        $public = Strings::packSSH2('iiii', $p, $q, $g, $y);
+        $private = Strings::packSSH2('i', $x);
+
+        return self::wrapPrivateKey($public, $private, 'ssh-dss', $password, $options);
+    }
+
+    /**
+     * Convert a public key to the appropriate format
+     */
+    public static function savePublicKey(
+        BigInteger $p,
+        BigInteger $q,
+        BigInteger $g,
+        BigInteger $y
+    ): string {
+        if ($q->getLength() != 160) {
+            throw new LengthException('SSH only supports keys with an N (length of Group Order q) of 160');
+        }
+
+        return self::wrapPublicKey(Strings::packSSH2('iiii', $p, $q, $g, $y), 'ssh-dss');
+    }
+}

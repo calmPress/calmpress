@@ -1,0 +1,560 @@
+<?php
+
+/**
+ * Base Class for all asymmetric key ciphers
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2016-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\Common;
+
+use phpseclib4\Crypt\Hash;
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    InvalidStateException,
+    NoKeyLoadedException,
+    PasswordNeededException ,
+    UnsupportedValueException
+};
+use phpseclib4\Math\BigInteger;
+
+/**
+ * Base Class for all asymmetric cipher classes
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+abstract class AsymmetricKey
+{
+    /**
+     * Precomputed Zero
+     */
+    protected static BigInteger $zero;
+
+    /**
+     * Precomputed One
+     */
+    protected static BigInteger $one;
+
+    /**
+     * Format of the loaded key
+     */
+    protected string $format;
+
+    /**
+     * Hash function
+     */
+    protected Hash $hash;
+
+    /**
+     * HMAC function
+     */
+    private Hash $hmac;
+
+    /**
+     * Supported plugins (lower case)
+     *
+     * @see self::initialize_static_variables()
+     */
+    private static array $plugins = [];
+
+    /**
+     * Invisible plugins
+     *
+     * @see self::initialize_static_variables()
+     */
+    private static array $invisiblePlugins = [];
+
+    /**
+     * Key Comment
+     */
+    private ?string $comment;
+
+    /**
+     * OpenSSL configuration file name.
+     *
+     * @see self::createKey()
+     */
+    protected static ?string $configFile;
+
+    /**
+     * Algorithm Name
+     *
+     * This really shouldn't be needed. The child classes that extend AsymmetricKey define it so
+     * there's no need for this class to do so, however, if this class doesn't define it then psalm
+     * will complain
+     *
+     * @see self::load()
+     */
+    public const ALGORITHM = '';
+    protected static ?string $forcedEngine = null;
+
+    abstract public function toString(string $type, array $options = []): string;
+    abstract protected static function onLoad(array $components): mixed;
+
+    /**
+     * The constructor
+     */
+    protected function __construct()
+    {
+        self::initialize_static_variables();
+
+        $this->hash = new Hash('sha256');
+        $this->hmac = new Hash('sha256');
+    }
+
+    /**
+     * Initialize static variables
+     */
+    protected static function initialize_static_variables(): void
+    {
+        if (!isset(self::$zero)) {
+            self::$zero = new BigInteger(0);
+            self::$one = new BigInteger(1);
+        }
+
+        if (!isset(self::$configFile)) {
+            self::$configFile = dirname(__FILE__) . '/../../openssl.cnf';
+        }
+
+        self::loadPlugins('Keys');
+        if (static::ALGORITHM != 'RSA' && static::ALGORITHM != 'DH') {
+            self::loadPlugins('Signature');
+        }
+    }
+
+    /**
+     * Load the key
+     */
+    public static function load(
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): static {
+        self::initialize_static_variables();
+
+        $class = new \ReflectionClass(static::class);
+        if ($class->isFinal()) {
+            throw new InvalidStateException('load() should not be called from final classes (' . static::class . ')');
+        }
+
+        foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
+            if (isset(self::$invisiblePlugins[static::ALGORITHM]) && in_array($format, self::$invisiblePlugins[static::ALGORITHM])) {
+                continue;
+            }
+            try {
+                $components = $format::load($key, $password);
+                break;
+            } catch (PasswordNeededException $e) {
+                throw $e;
+            } catch (\Throwable) {
+            }
+        }
+
+        if (!isset($components)) {
+            throw new NoKeyLoadedException('Unable to read key');
+        }
+
+        $components['format'] = $format;
+        $components['secret'] ??= '';
+        $comment = $components['comment'] ?? null;
+        $new = static::onLoad($components);
+        $new->format = $format;
+        $new->comment = $comment;
+        return $new instanceof PrivateKey ?
+            $new->withPassword($password) :
+            $new;
+    }
+
+    /**
+     * Loads a private key
+     */
+    public static function loadPrivateKey(
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): PrivateKey {
+        $key = self::load($key, $password);
+        if (!$key instanceof PrivateKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a private key');
+        }
+        return $key;
+    }
+
+    /**
+     * Loads a public key
+     */
+    public static function loadPublicKey(string|array $key): PublicKey
+    {
+        try {
+            $key = self::load($key);
+        } catch (PasswordNeededException) {
+            $key = null;
+        }
+        if (!$key instanceof PublicKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a public key');
+        }
+        return $key;
+    }
+
+    /**
+     * Loads parameters
+     */
+    public static function loadParameters(string $key): static
+    {
+        try {
+            $key = self::load($key);
+        } catch (PasswordNeededException) {
+            $key = null;
+        }
+        if (!isset($key) || $key instanceof PublicKey || $key instanceof PrivateKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a parameter');
+        }
+        return $key;
+    }
+
+    /**
+     * Load the key, assuming a specific format
+     */
+    public static function loadFormat(
+        string $type,
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): static {
+        self::initialize_static_variables();
+
+        $components = false;
+        $format = strtolower($type);
+        if (isset(self::$plugins[static::ALGORITHM]['Keys'][$format])) {
+            $format = self::$plugins[static::ALGORITHM]['Keys'][$format];
+            $components = $format::load($key, $password);
+        }
+
+        $components['format'] = $format;
+        $components['secret'] ??= '';
+
+        $new = static::onLoad($components);
+        $new->format = $format;
+        return $new instanceof PrivateKey ?
+            $new->withPassword($password) :
+            $new;
+    }
+
+    /**
+     * Loads a private key
+     */
+    public static function loadPrivateKeyFormat(
+        string $type,
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): PrivateKey {
+        $key = self::loadFormat($type, $key, $password);
+        if (!$key instanceof PrivateKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a private key');
+        }
+        return $key;
+    }
+
+    /**
+     * Loads a public key
+     */
+    public static function loadPublicKeyFormat(string|array $type, string $key): PublicKey
+    {
+        $key = self::loadFormat($type, $key);
+        if (!$key instanceof PublicKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a public key');
+        }
+        return $key;
+    }
+
+    /**
+     * Loads parameters
+     */
+    public static function loadParametersFormat(string $type, string $key): static
+    {
+        $key = self::loadFormat($type, $key);
+        if ($key instanceof PrivateKey || $key instanceof PublicKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a parameter');
+        }
+        return $key;
+    }
+
+    /**
+     * Validate Plugin
+     */
+    protected static function validatePlugin(string $format, string $type, ?string $method = null): string
+    {
+        $type = strtolower($type);
+        if (!isset(self::$plugins[static::ALGORITHM][$format][$type])) {
+            throw new UnsupportedValueException("$type is not a supported format");
+        }
+        $type = self::$plugins[static::ALGORITHM][$format][$type];
+        if (isset($method) && !method_exists($type, $method)) {
+            throw new UnsupportedValueException("$type does not implement $method");
+        }
+
+        return $type;
+    }
+
+    /**
+     * Load Plugins
+     */
+    private static function loadPlugins(string $format): void
+    {
+        if (!isset(self::$plugins[static::ALGORITHM][$format])) {
+            self::$plugins[static::ALGORITHM][$format] = [];
+            foreach (new \DirectoryIterator(__DIR__ . '/../' . static::ALGORITHM . '/Formats/' . $format . '/') as $file) {
+                if ($file->getExtension() != 'php') {
+                    continue;
+                }
+                $name = $file->getBasename('.php');
+                if ($name[0] == '.') {
+                    continue;
+                }
+                $type = 'phpseclib4\Crypt\\' . static::ALGORITHM . '\\Formats\\' . $format . '\\' . $name;
+                $reflect = new \ReflectionClass($type);
+                if ($reflect->isTrait()) {
+                    continue;
+                }
+                self::$plugins[static::ALGORITHM][$format][strtolower($name)] = $type;
+                if ($reflect->hasConstant('IS_INVISIBLE')) {
+                    self::$invisiblePlugins[static::ALGORITHM][] = $type;
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns a list of supported formats.
+     */
+    public static function getSupportedKeyFormats(): array
+    {
+        self::initialize_static_variables();
+
+        return self::$plugins[static::ALGORITHM]['Keys'];
+    }
+
+    /**
+     * Sets the OpenSSL config file path
+     *
+     * Set to the empty string to use the default config file
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     */
+    public static function setOpenSSLConfigPath(string $path): void
+    {
+        self::$configFile = $path;
+    }
+
+    /**
+     * Add a fileformat plugin
+     *
+     * The plugin needs to either already be loaded or be auto-loadable.
+     * Loading a plugin whose shortname overwrite an existing shortname will overwrite the old plugin.
+     *
+     * @see self::load()
+     */
+    public static function addFileFormat(string $fullname): void
+    {
+        self::initialize_static_variables();
+
+        if (class_exists($fullname)) {
+            $meta = new \ReflectionClass($fullname);
+            $shortname = $meta->getShortName();
+            self::$plugins[static::ALGORITHM]['Keys'][strtolower($shortname)] = $fullname;
+            if ($meta->hasConstant('IS_INVISIBLE')) {
+                self::$invisiblePlugins[static::ALGORITHM][] = strtolower($shortname);
+            }
+        }
+    }
+
+    /**
+     * Returns the format of the loaded key.
+     *
+     * If the key that was loaded wasn't in a valid or if the key was auto-generated
+     * with RSA::createKey() then this will throw an exception.
+     *
+     * @see self::load()
+     */
+    public function getLoadedFormat(): string
+    {
+        if (empty($this->format)) {
+            throw new NoKeyLoadedException('This key was created with createKey - it was not loaded with load. Therefore there is no "loaded format"');
+        }
+
+        $meta = new \ReflectionClass($this->format);
+        return $meta->getShortName();
+    }
+
+    /**
+     * Returns the key's comment
+     *
+     * Not all key formats support comments. If you want to set a comment use toString()
+     */
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    /**
+     * Force engine (useful for unit testing)
+     */
+    public static function forceEngine(?string $engine = null): void
+    {
+        if (!isset($engine)) {
+            static::$forcedEngine = null;
+            return;
+        }
+        switch ($engine) {
+            case 'PHP':
+            case 'OpenSSL':
+            case 'libsodium':
+                static::$forcedEngine = $engine;
+                break;
+            default:
+                throw new BadConfigurationException('Valid engines are null, PHP, OpenSSL or libsodium');
+        }
+    }
+
+    public static function getForcedEngine(): ?string
+    {
+        return static::$forcedEngine;
+    }
+
+    /**
+     * __toString() magic method
+     */
+    public function __toString(): string
+    {
+        return $this->toString('PKCS8');
+    }
+
+    /**
+     * __debugInfo() magic method
+     */
+    public function __debugInfo(): array
+    {
+        return ['value' => "$this"];
+    }
+
+    /**
+     * Determines which hashing function should be used
+     */
+    public function withHash(string $hash): static
+    {
+        $new = clone $this;
+
+        $new->hash = new Hash($hash);
+        $new->hmac = new Hash($hash);
+
+        return $new;
+    }
+
+    /**
+     * Returns the hash algorithm currently being used
+     */
+    public function getHash(): Hash
+    {
+        return clone $this->hash;
+    }
+
+    /**
+     * Compute the pseudorandom k for signature generation,
+     * using the process specified for deterministic DSA.
+     *
+     * Not currently used but the method exists in case we do
+     * want to use it at some point
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress UndefinedThisPropertyFetch
+     */
+    protected function computek(string $h1): string
+    {
+        $v = str_repeat("\1", strlen($h1));
+
+        $k = str_repeat("\0", strlen($h1));
+
+        $x = $this->int2octets($this->x);
+        $h1 = $this->bits2octets($h1);
+
+        $this->hmac->setKey($k);
+        $k = $this->hmac->hash($v . "\0" . $x . $h1);
+        $this->hmac->setKey($k);
+        $v = $this->hmac->hash($v);
+        $k = $this->hmac->hash($v . "\1" . $x . $h1);
+        $this->hmac->setKey($k);
+        $v = $this->hmac->hash($v);
+
+        $qlen = $this->q->getLengthInBytes();
+
+        while (true) {
+            $t = '';
+            while (strlen($t) < $qlen) {
+                $v = $this->hmac->hash($v);
+                $t = $t . $v;
+            }
+            $k = $this->bits2int($t);
+
+            if (!$k->equals(self::$zero) && $k->compare($this->q) < 0) {
+                break;
+            }
+            $k = $this->hmac->hash($v . "\0");
+            $this->hmac->setKey($k);
+            $v = $this->hmac->hash($v);
+        }
+
+        return $k;
+    }
+
+    /**
+     * Integer to Octet String
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
+     */
+    private function int2octets(BigInteger $v): string
+    {
+        $out = $v->toBytes();
+        $rolen = $this->q->getLengthInBytes();
+        if (strlen($out) < $rolen) {
+            return str_pad($out, $rolen, "\0", STR_PAD_LEFT);
+        } elseif (strlen($out) > $rolen) {
+            return substr($out, -$rolen);
+        } else {
+            return $out;
+        }
+    }
+
+    /**
+     * Bit String to Integer
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
+     */
+    protected function bits2int(string $in): BigInteger
+    {
+        $v = new BigInteger($in, 256);
+        $vlen = strlen($in) << 3;
+        $qlen = $this->q->getLength();
+        if ($vlen > $qlen) {
+            return $v->bitwise_rightShift($vlen - $qlen);
+        }
+        return $v;
+    }
+
+    /**
+     * Bit String to Octet String
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
+     */
+    private function bits2octets(string $in): string
+    {
+        $z1 = $this->bits2int($in);
+        $z2 = $z1->subtract($this->q);
+        return $z2->compare(self::$zero) < 0 ?
+            $this->int2octets($z1) :
+            $this->int2octets($z2);
+    }
+}

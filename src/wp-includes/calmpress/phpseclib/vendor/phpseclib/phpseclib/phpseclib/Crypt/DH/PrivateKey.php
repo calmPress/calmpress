@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * DH Private Key
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2019-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\DH;
+
+use phpseclib4\Crypt\{Common, DH};
+use phpseclib4\Math\BigInteger;
+
+/**
+ * DH Private Key
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+final class PrivateKey extends DH
+{
+    use Common\Traits\PasswordProtected;
+
+    /**
+     * Private Key
+     */
+    protected BigInteger $privateKey;
+
+    /**
+     * Returns the public key
+     */
+    public function getPublicKey(): PublicKey
+    {
+        $type = self::validatePlugin('Keys', 'PKCS8', 'savePublicKey');
+
+        $this->publicKey ??= $this->base->powMod($this->privateKey, $this->prime);
+
+        $key = $type::savePublicKey($this->prime, $this->base, $this->publicKey);
+
+        return DH::loadFormat('PKCS8', $key);
+    }
+
+    /**
+     * Returns the private key as a string
+     */
+    public function toString(string $type, array $options = []): string
+    {
+        $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
+
+        $this->publicKey ??= $this->base->powMod($this->privateKey, $this->prime);
+
+        return $type::savePrivateKey($this->prime, $this->base, $this->privateKey, $this->publicKey, $this->password, $options);
+    }
+}

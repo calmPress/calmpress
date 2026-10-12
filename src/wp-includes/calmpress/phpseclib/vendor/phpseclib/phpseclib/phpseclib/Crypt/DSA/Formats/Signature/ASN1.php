@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * ASN1 Signature Handler
+ *
+ * PHP version 8.1+
+ *
+ * Handles signatures in the format described in
+ * https://tools.ietf.org/html/rfc3279#section-2.2.2
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2016-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\DSA\Formats\Signature;
+
+use phpseclib4\File\ASN1 as Encoder;
+use phpseclib4\File\ASN1\Maps;
+use phpseclib4\Math\BigInteger;
+
+/**
+ * ASN1 Signature Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+abstract class ASN1
+{
+    /**
+     * Loads a signature
+     */
+    public static function load(string $sig): array
+    {
+        $decoded = Encoder::decodeBER($sig);
+        $components = Encoder::map($decoded, Maps\DssSigValue::MAP);
+
+        return $components->toArray();
+    }
+
+    /**
+     * Returns a signature in the appropriate format
+     */
+    public static function save(BigInteger $r, BigInteger $s): string
+    {
+        return Encoder::encodeDER(compact('r', 's'), Maps\DssSigValue::MAP);
+    }
+}

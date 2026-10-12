@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * TBSCertList
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2016-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\File\ASN1\Maps;
+
+use phpseclib4\File\ASN1;
+
+/**
+ * TBSCertList
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+abstract class TBSCertList
+{
+    public const MAP = [
+        'type' => ASN1::TYPE_SEQUENCE,
+        'children' => [
+            'version' => [
+                'type' => ASN1::TYPE_INTEGER,
+                'mapping' => ['v1', 'v2'],
+                'optional' => true,
+                'implicit' => true,
+                'default' => 'v1',
+            ],
+            'signature' => AlgorithmIdentifier::MAP,
+            'issuer' => Name::MAP,
+            'thisUpdate' => Time::MAP,
+            'nextUpdate' => [
+                'optional' => true,
+                'implicit' => true,
+            ] + Time::MAP,
+            'revokedCertificates' => [
+                'type' => ASN1::TYPE_SEQUENCE,
+                'optional' => true,
+                'implicit' => true,
+                'min' => 0,
+                'max' => -1,
+                'children' => RevokedCertificate::MAP,
+            ],
+            'crlExtensions' => [
+                'constant' => 0,
+                'optional' => true,
+                'explicit' => true,
+            ] + Extensions::MAP,
+        ],
+    ];
+}

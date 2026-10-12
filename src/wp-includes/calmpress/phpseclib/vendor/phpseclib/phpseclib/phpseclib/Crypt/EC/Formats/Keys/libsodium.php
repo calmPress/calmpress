@@ -1,0 +1,125 @@
+<?php
+
+/**
+ * libsodium Key Handler
+ *
+ * Different NaCl implementations store the key differently.
+ * https://blog.mozilla.org/warner/2011/11/29/ed25519-keys/ elaborates.
+ * libsodium appears to use the same format as SUPERCOP.
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2018-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\EC\Formats\Keys;
+
+use phpseclib4\Crypt\EC\Curves\Ed25519;
+use phpseclib4\Exception\{
+    InvalidArgumentException,
+    LengthException,
+    UnexpectedValueException,
+    UnsupportedValueException
+};
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField\Integer;
+
+/**
+ * libsodium Key Handler
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
+ */
+abstract class libsodium
+{
+    use Common;
+
+    /**
+     * Is invisible flag
+     */
+    public const IS_INVISIBLE = true;
+
+    /**
+     * Break a public or private key down into its constituent components
+     *
+     * @psalm-suppress PossiblyUnusedParam
+     */
+    public static function load(
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): array {
+        switch (strlen($key)) {
+            case 32:
+                $public = $key;
+                break;
+            case 64:
+                $private = substr($key, 0, 32);
+                $public = substr($key, -32);
+                break;
+            case 96:
+                $public = substr($key, -32);
+                if (substr($key, 32, 32) != $public) {
+                    throw new UnexpectedValueException('Keys with 96 bytes should have the 2nd and 3rd set of 32 bytes match');
+                }
+                $private = substr($key, 0, 32);
+                break;
+            default:
+                throw new UnexpectedValueException('libsodium keys need to either be 32 bytes long, 64 bytes long or 96 bytes long');
+        }
+
+        $curve = new Ed25519();
+        $components = ['curve' => $curve];
+        if (isset($private)) {
+            $arr = $curve->extractSecret($private);
+            $components['dA'] = $arr['dA'];
+            $components['secret'] = $arr['secret'];
+        }
+        $components['QA'] = isset($public) ?
+            self::extractPoint($public, $curve) :
+            $curve->multiplyPoint($curve->getBasePoint(), $components['dA']);
+
+        return $components;
+    }
+
+    /**
+     * Convert an EC public key to the appropriate format
+     *
+     * @param Integer[] $publicKey
+     * @psalm-suppress PossiblyUnusedParam
+     */
+    public static function savePublicKey(Ed25519 $curve, array $publicKey, array $options = []): string
+    {
+        return $curve->encodePoint($publicKey);
+    }
+
+    /**
+     * Convert a private key to the appropriate format.
+     *
+     * @param Integer[] $publicKey
+     * @psalm-suppress PossiblyUnusedParam
+     */
+    public static function savePrivateKey(
+        #[\SensitiveParameter] BigInteger $privateKey,
+        Ed25519 $curve,
+        array $publicKey,
+        #[\SensitiveParameter] ?string $secret = null,
+        #[\SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
+        if (!isset($secret)) {
+            throw new UnsupportedValueException('Private Key does not have a secret set');
+        }
+        if (strlen($secret) != 32) {
+            throw new LengthException('Private Key secret is not of the correct length');
+        }
+        if (isset($password)) {
+            throw new InvalidArgumentException('libsodium private keys do not support encryption');
+        }
+        return $secret . $curve->encodePoint($publicKey);
+    }
+}

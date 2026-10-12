@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * Fingerprint Trait for Public Keys
+ *
+ * PHP version 8.1+
+ *
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2019-2026 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      https://phpseclib.com/
+ */
+
+declare(strict_types=1);
+
+namespace phpseclib4\Crypt\Common\Traits;
+
+use phpseclib4\Crypt\Hash;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+
+/**
+ * Fingerprint Trait for Private Keys
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ */
+trait Fingerprint
+{
+    /**
+     * Returns the public key's fingerprint
+     *
+     * The public key's fingerprint is returned, which is equivalent to running `ssh-keygen -lf rsa.pub`. If there is
+     * no public key currently loaded, false is returned.
+     * Example output (md5): "c1:b1:30:29:d7:b8:de:6c:97:77:10:d7:46:41:63:87" (as specified by RFC 4716)
+     *
+     * @param string $algorithm The hashing algorithm to be used. Valid options are 'md5' and 'sha256'. False is returned
+     * for invalid values.
+     */
+    public function getFingerprint(string $algorithm = 'md5'): string
+    {
+        self::validatePlugin('Keys', 'OpenSSH', 'savePublicKey');
+        $key = $this->toString('OpenSSH', ['binary' => true]);
+        switch ($algorithm) {
+            case 'sha256':
+                $hash = new Hash('sha256');
+                $base = base64_encode($hash->hash($key));
+                return substr($base, 0, strlen($base) - 1);
+            case 'md5':
+                return substr(chunk_split(md5($key), 2, ':'), 0, -1);
+            default:
+                throw new UnsupportedAlgorithmException('The only two supported fingerprinting algorithms are sha256 and md5');
+        }
+    }
+}
