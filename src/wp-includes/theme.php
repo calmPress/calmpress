@@ -403,34 +403,39 @@ function get_theme_roots() {
 /**
  * Registers a directory that contains themes.
  *
+ * The WordPress API is retained for compatibility, but calmPress does not support
+ * registering additional theme directories.
+ *
  * @since 2.9.0
+ * @since calmPress 1.0.0 Only the default theme directory can be registered.
  *
  * @global string[] $wp_theme_directories
  *
- * @param string $directory Either the full filesystem path to a theme folder
- *                          or a folder within WP_CONTENT_DIR.
- * @return bool True if successfully registered a directory that contains themes,
- *              false if the directory does not exist.
+ * @param string $directory Directory to register.
+ *
+ * @return bool True if the theme directory was registered.
+ *
+ * @throws LogicException If the directory is not the default theme directory.
+ * @throws RuntimeException If the path is not an existing directory.
  */
 function register_theme_directory( $directory ) {
 	global $wp_theme_directories;
 
-	if ( ! file_exists( $directory ) ) {
-		// Try prepending as the theme directory could be relative to the content directory.
-		$directory = WP_CONTENT_DIR . '/' . $directory;
-		// If this directory does not exist, return and do not register.
-		if ( ! file_exists( $directory ) ) {
-			return false;
-		}
+	$directory = untrailingslashit( $directory );
+	if ( wp_normalize_path( $directory ) !== wp_normalize_path( untrailingslashit( get_theme_root() ) ) ) {
+		throw new LogicException( 'Registering additional theme directories is not supported by calmPress.' );
+	}
+
+	if ( ! is_dir( $directory ) ) {
+		throw new RuntimeException( 'Theme directory does not exist or is not a directory: ' . $directory );
 	}
 
 	if ( ! is_array( $wp_theme_directories ) ) {
-		$wp_theme_directories = array();
+		$wp_theme_directories = [];
 	}
 
-	$untrailed = untrailingslashit( $directory );
-	if ( ! empty( $untrailed ) && ! in_array( $untrailed, $wp_theme_directories, true ) ) {
-		$wp_theme_directories[] = $untrailed;
+	if ( ! in_array( $directory, $wp_theme_directories, true ) ) {
+		$wp_theme_directories[] = $directory;
 	}
 
 	return true;

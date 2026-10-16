@@ -55,46 +55,51 @@ class Tests_Theme_ThemeDir extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 28662
+	 * Tests that registering the default theme directory again succeeds without duplicating it.
+	 *
+	 * @since calmPress 1.0.0
 	 */
-	public function test_theme_dir_slashes() {
-		$size = count( $GLOBALS['wp_theme_directories'] );
+	public function test_register_default_theme_directory() {
+		$registered_directories = $GLOBALS['wp_theme_directories'];
 
-		@mkdir( WP_CONTENT_DIR . '/themes/foo' );
-		@mkdir( WP_CONTENT_DIR . '/themes/foo-themes' );
+		$this->assertTrue( register_theme_directory( get_theme_root() ) );
+		$this->assertSame( $registered_directories, $GLOBALS['wp_theme_directories'] );
+	}
 
-		$this->assertFileExists( WP_CONTENT_DIR . '/themes/foo' );
-		$this->assertFileExists( WP_CONTENT_DIR . '/themes/foo-themes' );
+	/**
+	 * Tests that registering another theme directory is rejected.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_register_additional_theme_directory_is_rejected() {
+		$this->expectException( LogicException::class );
 
-		register_theme_directory( '/' );
+		register_theme_directory( WP_CONTENT_DIR . '/other-themes' );
+	}
 
-		$this->assertCount( $size, $GLOBALS['wp_theme_directories'] );
+	/**
+	 * Supplies a nonexistent theme root for the missing-directory test.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @return string A nonexistent theme root path.
+	 */
+	public function filter_missing_theme_root() {
+		return WP_CONTENT_DIR . '/missing-theme-directory';
+	}
 
-		register_theme_directory( 'themes/' );
+	/**
+	 * Tests that registering a missing default theme directory throws.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	public function test_register_missing_default_theme_directory_throws() {
+		$this->assertDirectoryDoesNotExist( WP_CONTENT_DIR . '/missing-theme-directory' );
 
-		$this->assertCount( $size, $GLOBALS['wp_theme_directories'] );
+		add_filter( 'theme_root', [ $this, 'filter_missing_theme_root' ], 20 );
 
-		register_theme_directory( '/foo/' );
+		$this->expectException( RuntimeException::class );
 
-		$this->assertCount( $size, $GLOBALS['wp_theme_directories'] );
-
-		register_theme_directory( 'foo/' );
-
-		$this->assertCount( $size, $GLOBALS['wp_theme_directories'] );
-
-		register_theme_directory( 'themes/foo/' );
-
-		$this->assertCount( $size + 1, $GLOBALS['wp_theme_directories'] );
-
-		register_theme_directory( WP_CONTENT_DIR . '/foo-themes/' );
-
-		$this->assertCount( $size + 1, $GLOBALS['wp_theme_directories'] );
-
-		foreach ( $GLOBALS['wp_theme_directories'] as $dir ) {
-			$this->assertNotEquals( '/', substr( $dir, -1 ) );
-		}
-
-		rmdir( WP_CONTENT_DIR . '/themes/foo' );
-		rmdir( WP_CONTENT_DIR . '/themes/foo-themes' );
+		register_theme_directory( get_theme_root() );
 	}
 }
