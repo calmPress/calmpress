@@ -67,6 +67,7 @@ In particular:
 - Do not hand-edit generated or minified files when a source file and build process exist.
 - Use `.editorconfig` as the baseline for whitespace and line endings.
 - Include `@since` in PHP docblocks for new or modified declarations, including test classes, test methods, and test helpers.
+- In inherited WordPress core code, mark calmPress changes with `@since calmPress 1.0.0` so the fork-specific change is clear.
 - Separate `@param`, `@return`, and `@throws` groups with blank docblock lines.
 - Every test method must have a docblock describing the behavior being tested and an `@since` tag; a descriptive method name does not replace the docblock.
 
