@@ -15,6 +15,64 @@ use function calmpress\utils\insert_style_into_html_head;
 class WP_Test_Utils extends WP_UnitTestCase {
 
 	/**
+	 * Verify the current process can modify a writable path.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_current_process_can_modify_writable_path() {
+		$file = get_temp_dir() . 'modifiable-path-' . wp_generate_uuid4();
+		file_put_contents( $file, 'contents' );
+
+		try {
+			$this->assertTrue( utils\current_process_can_modify_path( $file ) );
+		} finally {
+			unlink( $file );
+		}
+	}
+
+	/**
+	 * Verify a writable installation root allows the current process to modify installed code.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_can_modify_installed_code_detects_writable_root() {
+		$root = get_temp_dir() . 'core-writable-' . wp_generate_uuid4();
+		mkdir( $root );
+
+		try {
+			$this->assertTrue( utils\can_modify_installed_code( $root ) );
+		} finally {
+			rmdir( $root );
+		}
+	}
+
+	/**
+	 * Verify an owner can make a read-only installation root writable on Unix.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_can_modify_installed_code_detects_owned_read_only_root() {
+		if ( 'Windows' === PHP_OS_FAMILY ) {
+			$this->markTestSkipped( 'Unix ownership is not available on Windows.' );
+		}
+
+		$root = get_temp_dir() . 'core-owned-' . wp_generate_uuid4();
+		mkdir( $root, 0700 );
+		chmod( $root, 0500 );
+
+		try {
+			if ( wp_is_writable( $root ) ) {
+				$this->markTestSkipped( 'The test process can write to a read-only directory.' );
+			}
+
+			$this->assertTrue( utils\can_modify_installed_code( $root ) );
+		} finally {
+			chmod( $root, 0700 );
+			rmdir( $root );
+		}
+	}
+
+	/**
 	 * Verify empty_directory removes nested contents while preserving the root directory.
 	 *
 	 * @since 1.0.0

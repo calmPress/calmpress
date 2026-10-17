@@ -11,6 +11,152 @@ declare(strict_types=1);
 namespace calmpress\utils;
 
 /**
+ * Check whether the current PHP process can modify a file or directory.
+ *
+ * A Unix process can change permissions on a path it owns, even when that path
+ * is not currently writable.
+ *
+ * @since 1.0.0
+ *
+ * @param string $path Path to check.
+ *
+ * @return bool Whether the path is modifiable or its protection cannot be verified.
+ *
+ * @throws \RuntimeException If the first ownership probe fails, including temporary-file cleanup.
+ *                           Later calls do not retry the probe.
+ */
+function current_process_can_modify_path( string $path ): bool {
+	if ( wp_is_writable( $path ) ) {
+		return true;
+	}
+
+	if ( 'Windows' === PHP_OS_FAMILY ) {
+		return false;
+	}
+
+	// Cache the process owner or a failed lookup so a caught exception does not cause another probe.
+	static $process_uid = null;
+
+	if ( false === $process_uid ) {
+		return true;
+	}
+
+	if ( null === $process_uid ) {
+		$process_uid = false;
+		$temp_file = @tempnam( get_temp_dir(), 'calmpress-owner-' );
+		if ( false === $temp_file ) {
+			throw new \RuntimeException( 'Could not create a temporary file to determine the current process owner.' );
+		}
+
+		$stat = @stat( $temp_file );
+		$removed = @unlink( $temp_file );
+		if ( false === $stat ) {
+			throw new \RuntimeException( 'Could not read the owner of the temporary file.' );
+		}
+		if ( ! $removed ) {
+			throw new \RuntimeException( 'Could not remove the temporary file: ' . $temp_file );
+		}
+
+		$process_uid = $stat['uid'];
+	}
+
+	$owner_uid = @fileowner( $path );
+
+	// The path may have disappeared since it was listed; do not assume it is protected.
+	if ( false === $owner_uid ) {
+		return true;
+	}
+
+	return $owner_uid === $process_uid;
+}
+
+/**
+ * Check whether the current PHP process can modify installed code.
+ *
+ * Checks the installation root and its files, then every directory and file
+ * under wp-admin, wp-includes, plugins, mu-plugins, and the themes directory.
+ * Also checks PHP files directly under wp-content, including drop-ins.
+ * A writable parent directory can also allow a code directory to be replaced.
+ * Symbolic links are checked but their targets are not traversed.
+ *
+ * @since 1.0.0
+ *
+ * @param string $root_directory Absolute path to the installation root.
+ *
+ * @return bool Whether an installed code path is modifiable or its protection cannot be verified.
+ *
+ * @throws \RuntimeException If the first ownership probe fails, including temporary-file cleanup.
+ *                           Later calls do not retry the probe.
+ * @throws \UnexpectedValueException If a code directory cannot be read.
+ */
+function can_modify_installed_code( string $root_directory ): bool {
+	$root_directory = rtrim( $root_directory, '/\\' );
+
+	if ( current_process_can_modify_path( $root_directory ) ) {
+		return true;
+	}
+
+	foreach ( new \DirectoryIterator( $root_directory ) as $entry ) {
+		if ( $entry->isFile() && current_process_can_modify_path( $entry->getPathname() ) ) {
+			return true;
+		}
+	}
+
+	if ( is_dir( WP_CONTENT_DIR ) ) {
+		if ( current_process_can_modify_path( WP_CONTENT_DIR ) ) {
+			return true;
+		}
+
+		foreach ( new \DirectoryIterator( WP_CONTENT_DIR ) as $entry ) {
+			if (
+				$entry->isFile()
+				&& str_ends_with( strtolower( $entry->getFilename() ), '.php' )
+				&& current_process_can_modify_path( $entry->getPathname() )
+			) {
+				return true;
+			}
+		}
+	}
+
+	$code_directories = [
+		$root_directory . DIRECTORY_SEPARATOR . 'wp-admin',
+		$root_directory . DIRECTORY_SEPARATOR . 'wp-includes',
+	];
+	$other_directories = [ WP_PLUGIN_DIR, WPMU_PLUGIN_DIR, WP_CONTENT_DIR . '/themes' ];
+
+	foreach ( $other_directories as $path ) {
+		if ( ! is_dir( $path ) ) {
+			continue;
+		}
+
+		if ( current_process_can_modify_path( dirname( $path ) ) ) {
+			return true;
+		}
+
+		$code_directories[] = $path;
+	}
+
+	foreach ( array_unique( $code_directories ) as $path ) {
+		if ( current_process_can_modify_path( $path ) ) {
+			return true;
+		}
+
+		$items = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $path, \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::SELF_FIRST
+		);
+
+		foreach ( $items as $item ) {
+			if ( current_process_can_modify_path( $item->getPathname() ) ) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
  * The message text of the last error reported.
  *
  * A sweetener over error_get_last.
