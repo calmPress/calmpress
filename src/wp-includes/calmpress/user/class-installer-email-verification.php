@@ -67,7 +67,7 @@ class Installer_Email_Verification {
 				add_settings_error(
 					'switch_user',
 					'switch_user',
-					esc_html__( 'Sorry, can not find the user you asked to switch to' ),
+					esc_html__( 'Sorry, cannot find the user you asked to switch to' ),
 					'error'
 				);
 			}

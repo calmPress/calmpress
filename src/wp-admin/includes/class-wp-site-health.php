@@ -915,7 +915,7 @@ class WP_Site_Health {
 		} else {
 			$additional_messages[] = sprintf(
 				/* translators: 1: directory path */
-				esc_html__(	'File based object caching can not be done because the %s directory is not writable.' ),
+				esc_html__(	'File based object caching cannot be done because the %s directory is not writable.' ),
 				'<code>' . \calmpress\object_cache\File::CACHE_ROOT_DIR . '</code>'
 			);
 		}

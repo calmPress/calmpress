@@ -76,7 +76,7 @@ function create_challenge(): \WP_REST_Response {
 		return new \WP_REST_Response( $options, 200 );
 	} catch ( \RuntimeException $e ) {
 		return new \WP_REST_Response(
-			[ 'message' => __( 'Can not add more devices.' ) ],
+			[ 'message' => __( 'Cannot add more devices.' ) ],
 			400
 		);
 	}
@@ -362,7 +362,7 @@ function login( \WP_REST_Request $request ): \WP_REST_Response {
 		// If a user is already logged in very its the same user being authentiated.
 		if ( $current_user_id !== $user_id ) {
 			return new \WP_REST_Response(
-				[ 'message' => __( 'You can not verify in with this device for another user. Please use your own account.' ) ],
+				[ 'message' => __( 'You cannot verify in with this device for another user. Please use your own account.' ) ],
 				400
 			);
 		}

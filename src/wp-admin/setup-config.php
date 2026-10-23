@@ -407,7 +407,7 @@ switch ( $step ) {
 
 		// Validate $prefix: its length can be at most 25 characters.
 		if ( strlen( $prefix ) > 25 ) {
-			wp_die( __( '<strong>Error</strong>: "Table Prefix" can not be longer than 25 characters.' ) . $tryagain_link );
+			wp_die( __( '<strong>Error</strong>: "Table Prefix" cannot be longer than 25 characters.' ) . $tryagain_link );
 		}
 
 		// Test the DB connection.
