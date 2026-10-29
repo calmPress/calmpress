@@ -245,9 +245,8 @@ function host() : void {
 		name="calm_email_delivery[host]"
 		value="<?php esc_attr_e( $host );?>"
 		validate="pattern"
-		validate-on="input"
 		validation-pattern="^\s*[\w-]+([.:][-\w]+)*\s*$"
-		validation-failue-class="validation-warning"
+		validation-failure-class="validation-warning"
 		aria-describedby="host_description"
 	>
 	<p class="validate-failure-message" aria-live="polite">
@@ -370,8 +369,7 @@ function email_address() : void {
 		name="calm_email_delivery[from_email]"
 		validate="pattern"
 		validation-pattern="^\s*$|\s*[\w.]*@[\w-]+([.][-\w]+)*\s*$"
-		validate-on="focusout"
-		validation-failue-class="validation-warning"
+		validation-failure-class="validation-warning"
 	    value="<?php esc_attr_e( $from_email );?>"
 	>
 	<p class="validate-failure-message" aria-live="polite">
