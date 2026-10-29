@@ -70,6 +70,10 @@ In particular:
 - In inherited WordPress core code, mark calmPress changes with `@since calmPress 1.0.0` so the fork-specific change is clear.
 - Separate `@param`, `@return`, and `@throws` groups with blank docblock lines.
 - Every test method must have a docblock describing the behavior being tested and an `@since` tag; a descriptive method name does not replace the docblock.
+- Leave a blank line before and after new control-flow blocks when the surrounding code allows it. Keep `else` and `elseif` attached to their `if` block.
+- Use ternary expressions only when the condition and both outcomes are short and easy to read; use `if` for longer cases.
+- Use `snake_case` for function names in new or modified JavaScript, matching PHP function naming.
+- In calmPress-specific modules, use `@since 1.0.0` without the product name. In inherited WordPress core files, retain `@since calmPress 1.0.0` to identify fork-specific changes.
 
 Automated coding-standard, compatibility, and formatting tools are run only on demand. Do not run repository-wide PHP_CodeSniffer, compatibility analysis, or automated formatting unless explicitly requested.
 
