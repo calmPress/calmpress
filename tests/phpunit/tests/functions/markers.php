@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
+use calmpress\filesystem\Marker_File_Exception;
+
 require_once ABSPATH . 'wp-admin/includes/misc.php';
 require_once ABSPATH . 'wp-admin/includes/file.php';
 
@@ -39,6 +41,64 @@ class Tests_Functions_Markers extends WP_UnitTestCase {
 		$this->assertTrue( $ret );
 		$this->assertSame( "\n# BEGIN test\ntest string\n# END test", file_get_contents( $filename ) );
 		unlink( $filename );
+	}
+
+	/**
+	 * Test that insert_with_markers writes marked content through a file stream URL.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_insert_with_markers_stream_url() {
+		$filename = wp_tempnam();
+
+		try {
+			$this->assertTrue( insert_with_markers( 'file://' . wp_normalize_path( $filename ), 'test', 'test string' ) );
+			$this->assertSame( "\n# BEGIN test\ntest string\n# END test", file_get_contents( $filename ) );
+		} finally {
+			unlink( $filename );
+		}
+	}
+
+	/**
+	 * Test that insert_with_markers reports a failed stream read.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_insert_with_markers_reports_stream_read_failure() {
+		$filename = wp_tempnam();
+		unlink( $filename );
+
+		$this->expectException( Marker_File_Exception::class );
+		$this->expectExceptionCode( Marker_File_Exception::READ_FAILED );
+
+		insert_with_markers( 'file://' . wp_normalize_path( $filename ), 'test', 'test string' );
+	}
+
+	/**
+	 * Test that insert_with_markers reports a failed local file read.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_insert_with_markers_reports_local_read_failure() {
+		$filename = wp_tempnam();
+		unlink( $filename );
+
+		$this->expectException( Marker_File_Exception::class );
+		$this->expectExceptionCode( Marker_File_Exception::READ_FAILED );
+
+		insert_with_markers( $filename, 'test', 'test string' );
+	}
+
+	/**
+	 * Test that insert_with_markers reports a failed stream write.
+	 *
+	 * @since 1.0.0
+	 */
+	function test_insert_with_markers_reports_stream_write_failure() {
+		$this->expectException( Marker_File_Exception::class );
+		$this->expectExceptionCode( Marker_File_Exception::WRITE_FAILED );
+
+		insert_with_markers( 'data://text/plain,original', 'test', 'test string' );
 	}
 
 	/**

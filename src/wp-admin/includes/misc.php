@@ -149,8 +149,9 @@ function insert_with_markers_into_array( array $lines, string $marker, array $in
  * @param ?resource     $context   If $file is a url, the context parameters to use to access it.
  *                                 The context should allow writting to the url.
  * 
- * @return bool True on write success, false on failure. error_get_last() can be used to understand
- *              the reason for the failure.
+ * @return bool True on success.
+ *
+ * @throws \calmpress\filesystem\Marker_File_Exception If reading or writing the file fails.
  */
 function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#', $context = null ) {
 
@@ -160,13 +161,15 @@ function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#', $c
 		$insertion = explode( "\n", $insertion );
 	}
 
-	if ( stream_is_local( $file ) ) {
+	// phpseclib registers its SFTP wrapper without STREAM_IS_URL, so stream_is_local()
+	// reports SFTP URLs as local. Only plain filesystem paths can be locked here.
+	if ( ! wp_is_stream( $file ) ) {
 		$lock = new \calmpress\filesystem\Path_Lock( $file );
 	}
 
 	$current = @file_get_contents( $file, false, $context );
 	if ( false === $current ) {
-		return false;
+		throw new \calmpress\filesystem\Marker_File_Exception( 'Failed reading marker file.', \calmpress\filesystem\Marker_File_Exception::READ_FAILED );
 	}
 
 	// Split the content to lines based on all possible line endings.
@@ -180,7 +183,12 @@ function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#', $c
 
 	// Generate the new file data.
 	$new_file_data = implode( "\n", $newlines );
-	return ( false !== @file_put_contents( $file, $new_file_data, 0, $context ) );
+	$written = @file_put_contents( $file, $new_file_data, 0, $context );
+	if ( false === $written ) {
+		throw new \calmpress\filesystem\Marker_File_Exception( 'Failed writing marker file.', \calmpress\filesystem\Marker_File_Exception::WRITE_FAILED );
+	}
+
+	return true;
 }
 
 /**
@@ -191,6 +199,7 @@ function insert_with_markers( $file, $marker, $insertion, $line_prefix = '#', $c
  * blank out old rules.
  *
  * @since 1.5.0
+ * @since calmPress 1.0.0 Locks rule generation and writing, skips writing without mod_rewrite, and handles marker file failures.
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  * 
@@ -203,6 +212,10 @@ function save_mod_rewrite_rules() {
 
 	if ( is_multisite() ) {
 		return null;
+	}
+
+	if ( ! got_mod_rewrite() ) {
+		return false;
 	}
 
 	// Ensure get_home_path() is declared.
@@ -218,16 +231,13 @@ function save_mod_rewrite_rules() {
 	if ( ! file_exists( $htaccess_file ) && is_writable( $home_path )
 		|| is_writable( $htaccess_file )
 	) {
-		if ( got_mod_rewrite() ) {
-			$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
-
-			return insert_with_markers( $htaccess_file, 'WordPress', $rules );
-		}
-
-		// Lock the file by its known location.
-		$lock = new \calmpress\filesystem\Path_Lock( ABSPATH . '.htaccess' );
+		$lock  = new \calmpress\filesystem\Path_Lock( $htaccess_file );
 		$rules = explode( "\n", $wp_rewrite->mod_rewrite_rules() );
-		return insert_with_markers( $htaccess_file, 'WordPress', $rules, '#', \calmpress\credentials\FTP_Credentials::write_stream_context() );
+		try {
+			return insert_with_markers( $htaccess_file, 'WordPress', $rules );
+		} catch ( \calmpress\filesystem\Marker_File_Exception ) {
+			return false;
+		}
 	}
 
 	return false;

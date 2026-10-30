@@ -37,6 +37,7 @@ const MAP = [
 	'calmpress\identity\Logo'                           => __DIR__ . '/identity/class-logo.php',
 	'calmpress\site\Site'                               => __DIR__ . '/site/class-site.php',
 	'calmpress\filesystem\Path_Lock'                    => __DIR__ . '/filesystem/class-path-lock.php',
+	'calmpress\filesystem\Marker_File_Exception'        => __DIR__ . '/filesystem/class-marker-file-exception.php',
 	'calmpress\credentials\FTP_Credentials'             => __DIR__ . '/credentials/class-ftp-credentials.php',
 	'calmpress\credentials\FTP_Connection_Exception'    => __DIR__ . '/credentials/class-ftp-connection-exception.php',
 	'calmpress\credentials\FTP_Credentials_Parameters'  => __DIR__ . '/credentials/class-ftp-credentials-parameters.php',
