@@ -315,7 +315,7 @@ class SFTP_Credentials implements Connection_Credentials {
 	 * calm_sftp_base, calm_sftp_username, calm_sftp_auth_method (password,
 	 * key_file, or key_text), calm_sftp_password, calm_sftp_private_key_text, and
 	 * calm_sftp_passphrase. Absent fields use form defaults. Uploaded files are
-	 * supplied separately when the form is submitted; secrets are not redisplayed.
+	 * supplied separately when the form is submitted.
 	 * Other fields are ignored.
 	 *
 	 * @since 1.0.0
@@ -355,9 +355,9 @@ class SFTP_Credentials implements Connection_Credentials {
 	 *                             - calm_sftp_base: Server path of the account's root directory; defaults to empty.
 	 *                             - calm_sftp_username: SFTP account username; defaults to empty.
 	 *                             - calm_sftp_auth_method: password, key_file, or key_text; defaults to password.
-	 *                             - calm_sftp_password: Account password; defaults to empty and is not redisplayed.
-	 *                             - calm_sftp_private_key_text: Pasted private key; defaults to empty and is not redisplayed.
-	 *                             - calm_sftp_passphrase: Private key passphrase; defaults to empty and is not redisplayed.
+	 *                             - calm_sftp_password: Account password; defaults to empty.
+	 *                             - calm_sftp_private_key_text: Pasted private key; defaults to empty.
+	 *                             - calm_sftp_passphrase: Private key passphrase; defaults to empty.
 	 *                             Other keys are ignored. Pass [] to use all defaults.
 	 *
 	 * @return string HTML table rows.
@@ -394,6 +394,9 @@ class SFTP_Credentials implements Connection_Credentials {
 		$port = esc_attr( $initial_state[ self::PORT_FORM_NAME ] );
 		$base = esc_attr( $initial_state[ self::BASEDIR_FORM_NAME ] );
 		$user = esc_attr( $initial_state[ self::USERNAME_FORM_NAME ] );
+		$password = esc_attr( $initial_state[ self::PASSWORD_FORM_NAME ] );
+		$private_key_text = esc_textarea( $initial_state[ self::PRIVATE_KEY_TEXT_FORM_NAME ] );
+		$passphrase = esc_attr( $initial_state[ self::PASSPHRASE_FORM_NAME ] );
 		$password_selected = selected( $auth_method, 'password', false );
 		$file_selected = selected( $auth_method, 'key_file', false );
 		$text_selected = selected( $auth_method, 'key_text', false );
@@ -457,7 +460,7 @@ class SFTP_Credentials implements Connection_Credentials {
 			<p class="description">{$user_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="password"{$password_hidden}><th><label for="{$password_name}">{$password_label}</label></th><td>
-			<input class="regular-text" type="password" id="{$password_name}" name="{$password_name}" value="" autocomplete="section-calmpresssftp current-password" validate="nonempty" data-sftp-required="true"{$password_required}>
+			<input class="regular-text" type="password" id="{$password_name}" name="{$password_name}" value="{$password}" autocomplete="section-calmpresssftp current-password" validate="nonempty" data-sftp-required="true"{$password_required}>
 			<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
 			<p class="description">{$password_description}</p>
 		</td></tr>
@@ -467,12 +470,12 @@ class SFTP_Credentials implements Connection_Credentials {
 			<p class="description">{$file_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="key_text"{$text_hidden}><th><label for="{$text_name}">{$text_label}</label></th><td>
-			<textarea class="large-text code" rows="8" id="{$text_name}" name="{$text_name}" validate="nonempty" data-sftp-required="true"{$text_required}></textarea>
+			<textarea class="large-text code" rows="8" id="{$text_name}" name="{$text_name}" validate="nonempty" data-sftp-required="true"{$text_required}>{$private_key_text}</textarea>
 			<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
 			<p class="description">{$text_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="key_file key_text"{$passphrase_hidden}><th><label for="{$passphrase_name}">{$passphrase_label}</label></th><td>
-			<input class="regular-text" type="password" id="{$passphrase_name}" name="{$passphrase_name}" value="">
+			<input class="regular-text" type="password" id="{$passphrase_name}" name="{$passphrase_name}" value="{$passphrase}">
 			<p class="description">{$passphrase_description}</p>
 		</td></tr>
 		HTML;
