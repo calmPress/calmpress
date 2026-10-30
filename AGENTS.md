@@ -110,7 +110,7 @@ Direct tests of frequently changing UX markup or decoration are generally not re
 
 Add or update PHP tests when changing stable server behavior or fixing a server-side regression.
 
-Organize tests by the class and API they exercise, with file and class names identifying the subject. Test public behavior and nontrivial protected or private methods when direct coverage is useful; visibility alone is not a reason to omit a test. Avoid tests that merely mirror trivial implementation details. Keep each class’s tests together rather than grouping unrelated APIs by the change that introduced them.
+Organize tests by the class and API they exercise, with file and class names identifying the subject. Name each test method for the API under test and the behavior it verifies, so the tested API is clear without reading the test body. Test public behavior and nontrivial protected or private methods when direct coverage is useful; visibility alone is not a reason to omit a test. Avoid tests that merely mirror trivial implementation details. Keep each class’s tests together rather than grouping unrelated APIs by the change that introduced them.
 
 ## Rules for most changes
 
