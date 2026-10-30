@@ -9,49 +9,82 @@
 declare(strict_types=1);
 
 use calmpress\credentials\FTP_Credentials;
+use calmpress\credentials\FTP_Credentials_Parameters;
 
+/**
+ * Tests the FTP credentials API.
+ *
+ * @since 1.0.0
+ */
 class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 
 	/**
-	 * Test constructor trims values and stores them.
+	 * Tests that constructor normalization is reflected in the stream URL.
 	 *
 	 * @since 1.0.0
 	 */
 	function test_constructor_trims_values() {
 
-		$cred = new FTP_Credentials( ' host', 210, ' user  ', 'password  ', ' ' . ABSPATH . ' ' );
-		$this->AssertSame( 'host', $cred->host() );
-		$this->AssertSame( 210, $cred->port() );
-		$this->AssertSame( 'user', $cred->username() );
-		$this->AssertSame( 'password', $cred->password() );
-		$this->AssertSame( ABSPATH, $cred->base_dir() );
+		$cred = new FTP_Credentials( new FTP_Credentials_Parameters( ' host', 210, ' user  ', 'password  ', ' ' . ABSPATH . ' ' ) );
+		$this->assertSame( 'ftp://user:password@host:210/index.php', $cred->stream_url_from_path( ABSPATH . 'index.php' ) );
 	}
 
 	/**
-	 * Test the write_stream_context method.
+	 * FTP connection failures have distinct user-facing error codes.
 	 *
 	 * @since 1.0.0
 	 */
-	function test_write_stream_context() {
-		$context      = FTP_Credentials::write_stream_context();
-		$context_opts = stream_context_get_options( $context );
-		$this->assertTrue( isset( $context_opts['ftp'] ) );
-		$this->assertTrue( isset( $context_opts['ftp']['overwrite'] ) );
-		$this->assertTrue( $context_opts['ftp']['overwrite'] );
+	public function test_connection_exception_maps_failure_codes(): void {
+		$expected = [
+			\calmpress\credentials\FTP_Connection_Exception::CONNECTION_FAILED => 'ftp_connection_failed',
+			\calmpress\credentials\FTP_Connection_Exception::COMMUNICATION_FAILED => 'ftp_communication_failed',
+			\calmpress\credentials\FTP_Connection_Exception::AUTHENTICATION_FAILED => 'ftp_authentication_failed',
+			\calmpress\credentials\FTP_Connection_Exception::INSTALLATION_INACCESSIBLE => 'ftp_installation_inaccessible',
+		];
+
+		foreach ( $expected as $code => $error_code ) {
+			$error = ( new \calmpress\credentials\FTP_Connection_Exception( 'Technical failure.', $code ) )->to_wp_error();
+			$this->assertSame( $error_code, $error->get_error_code() );
+			$this->assertNotSame( '', $error->get_error_message() );
+		}
 	}
 
 	/**
-	 * Test the stream_context method.
+	 * An unrecognized FTP failure code reports a warning and returns a generic error.
 	 *
 	 * @since 1.0.0
 	 */
-	function test_stream_context() {
-		$cred = new FTP_Credentials( ' host', 210, ' user  ', 'password  ', ' ' . ABSPATH . ' ' );
-		$context      = $cred->stream_context();
-		$context_opts = stream_context_get_options( $context );
-		$this->assertTrue( isset( $context_opts['ftp'] ) );
-		$this->assertTrue( isset( $context_opts['ftp']['overwrite'] ) );
-		$this->assertTrue( $context_opts['ftp']['overwrite'] );
+	public function test_connection_exception_reports_unknown_code(): void {
+		$warning = null;
+		set_error_handler( static function ( int $severity, string $message ) use ( &$warning ): bool {
+			$warning = $message;
+			return true;
+		}, E_USER_WARNING );
+		try {
+			$error = ( new \calmpress\credentials\FTP_Connection_Exception( 'Technical failure.', 99 ) )->to_wp_error();
+		} finally {
+			restore_error_handler();
+		}
+		$this->assertSame( 'ftp_connection_failed', $error->get_error_code() );
+		$this->assertSame( 'Unknown FTP connection failure code: 99', $warning );
+	}
+
+	/**
+	 * An FTP multiline response is read through its terminating status line.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_ftp_reply_reads_multiline_response(): void {
+		$connection = fopen( 'php://memory', 'r+' );
+		fwrite( $connection, "220-Welcome\r\nNotice\r\n220 Ready\r\n" );
+		rewind( $connection );
+
+		try {
+			$reply = new ReflectionMethod( FTP_Credentials::class, 'ftp_reply' );
+			$this->assertSame( 220, $reply->invoke( null, $connection ) );
+		} finally {
+			fclose( $connection );
+		}
 	}
 
 	/**
@@ -65,85 +98,75 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 		$def_base_dir = dirname( ABSPATH );
 
 		return [
-			[ 'localhost', 21, '', '', $def_base_dir, [] ],
-			[ '127.0.0.1', 21, '', '', $def_base_dir, [] ],
-			[ 'good.host', 21, '', '', $def_base_dir, [] ],
-			[ 'bad host', 21, '', '', $def_base_dir, ['host'] ],
+			[ 'localhost', 21, 'user', 'pass', $def_base_dir, [] ],
+			[ '127.0.0.1', 21, 'user', 'pass', $def_base_dir, [] ],
+			[ 'good.host', 21, 'user', 'pass', $def_base_dir, [] ],
+			[ 'my_server', 21, 'user', 'pass', $def_base_dir, [] ],
+			[ '', 21, 'user', 'pass', $def_base_dir, ['host'] ],
 			[ 'good.host', 210, 'user', 'pass', $def_base_dir, [] ],
-			[ 'good.host', 2121, 'user', '', $def_base_dir, [] ],
-			[ 'good.host', 0, '', '', $def_base_dir, ['port'] ],
-			[ 'good.host', 70000, '', '', $def_base_dir, ['port'] ],
+			[ 'good.host', 2121, 'user', '', $def_base_dir, ['password'] ],
+			[ 'good.host', 0, 'user', 'pass', $def_base_dir, ['port'] ],
+			[ 'good.host', 70000, 'user', 'pass', $def_base_dir, ['port'] ],
 			[ 'good.host', 2121, '', 'pass', $def_base_dir, ['username'] ],
 			[ 'good.host', 2121, 'us', 'pass', 'fail', ['base_dir'] ],
 			[ 'localhost', 0, '', 'pass', 'fail', ['base_dir', 'username', 'base_dir'] ],
-			[ 'bad host', 0, '', 'pass', 'fail', ['base_dir', 'host', 'username', 'base_dir'] ],
+			[ '', 0, '', 'pass', 'fail', ['base_dir', 'host', 'username', 'base_dir'] ],
 		];
 	}
 
 	/**
-	 * Test the credentials_from_request_vars method.
+	 * Tests field-specific errors from FTP parameter validation.
 	 *
 	 * @since 1.0.0
 	 */
-	function test_credentials_from_request_vars() {
+	function test_parse_parameters_reports_invalid_fields(): void {
 
-		// Test validation is done, should get the 4 possible errors here
-		$errors = FTP_Credentials::credentials_from_request_vars(
+		$errors = FTP_Credentials::parse_parameters(
 			wp_slash( [
-				FTP_Credentials::HOST_FORM_NAME     => ' hot name',
-				FTP_Credentials::PORT_FORM_NAME     => 0,
+				FTP_Credentials::HOST_FORM_NAME     => '',
+				FTP_Credentials::PORT_FORM_NAME     => '0',
 				FTP_Credentials::USERNAME_FORM_NAME => '',
 				FTP_Credentials::PASSWORD_FORM_NAME => 'pass ',
 				FTP_Credentials::BASEDIR_FORM_NAME  => 'fail',
-			] )
+			] ), []
 		);
 
-		$this->assertSame( 4, count( $errors ) );
+		$this->assertSame( 4, count( $errors->get_error_codes() ) );
 
-		// Test validation is done, should get the 2 possible errors here
-		$errors = FTP_Credentials::credentials_from_request_vars(
+		$errors = FTP_Credentials::parse_parameters(
 			wp_slash( [
-				FTP_Credentials::HOST_FORM_NAME     => ' hot name',
-				FTP_Credentials::PORT_FORM_NAME     => 20,
+				FTP_Credentials::HOST_FORM_NAME     => '',
+				FTP_Credentials::PORT_FORM_NAME     => '20',
 				FTP_Credentials::USERNAME_FORM_NAME => '',
 				FTP_Credentials::PASSWORD_FORM_NAME => '',
 				FTP_Credentials::BASEDIR_FORM_NAME  => 'fail',
-			] )
+			] ), []
 		);
 
-		$this->assertSame( 2, count( $errors ) );
-		$this->assertTrue( isset( $errors['host'] ) );
-		$this->assertTrue( isset( $errors['base_dir'] ) );
+		$this->assertSame( 4, count( $errors->get_error_codes() ) );
+		$this->assertNotEmpty( $errors->get_error_messages( 'host' ) );
+		$this->assertNotEmpty( $errors->get_error_messages( 'base_dir' ) );
+		$this->assertNotEmpty( $errors->get_error_messages( 'username' ) );
+		$this->assertNotEmpty( $errors->get_error_messages( 'password' ) );
 
-		// Test validation passes.
-		$cred = FTP_Credentials::credentials_from_request_vars(
-			wp_slash( [
-				FTP_Credentials::HOST_FORM_NAME     => ' localhost ',
-				FTP_Credentials::PORT_FORM_NAME     => ' 21',
-				FTP_Credentials::USERNAME_FORM_NAME => 'us ',
-				FTP_Credentials::PASSWORD_FORM_NAME => 'pass',
-				FTP_Credentials::BASEDIR_FORM_NAME  => dirname( ABSPATH ),
-			] )
-		);
-
-		$this->assertSame( 'localhost', $cred->host() );
-		$this->assertSame( 21, $cred->port() );
-		$this->assertSame( 'us', $cred->username() );
-		$this->assertSame( 'pass', $cred->password() );
-		$this->assertSame( dirname( ABSPATH ), $cred->base_dir() );
-
-		$this->expectException( \DomainException::class );
-		FTP_Credentials::credentials_from_request_vars( [] );
+		$errors = FTP_Credentials::parse_parameters( wp_slash( [
+			FTP_Credentials::HOST_FORM_NAME => 'localhost',
+			FTP_Credentials::PORT_FORM_NAME => '21abc',
+			FTP_Credentials::USERNAME_FORM_NAME => 'user',
+			FTP_Credentials::PASSWORD_FORM_NAME => 'secret',
+			FTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
+		] ), [] );
+		$this->assertNotEmpty( $errors->get_error_messages( 'port' ) );
 	}
 
 	/**
-	 * Test the validate method.
+	 * Tests that the constructor rejects invalid typed credential values.
 	 *
 	 * @since 1.0.0
 	 * 
 	 * @dataProvider validation_data
 	 */
-	function test_validate(
+	function test_constructor_validation(
 		string $host,
 		int $port,
 		string $username,
@@ -151,14 +174,12 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 		string $basedir,
 		array $epected_errors
 		) {
-		$errors = FTP_Credentials::validate( $host, $port, $username, $password, $basedir );
-
-		// Make sure same number of erros.
-		$this->assertSame( count( $epected_errors ), count( $errors ) );
-
-		// To compare the error types we need to look at the keys of the error array.
-		foreach ( $epected_errors as $key ) {
-			$this->assertTrue( isset( $errors[ $key ] ) );
+		if ( $epected_errors ) {
+			$this->expectException( \DomainException::class );
+		}
+		$credentials = new FTP_Credentials( new FTP_Credentials_Parameters( $host, $port, $username, $password, $basedir ) );
+		if ( ! $epected_errors ) {
+			$this->assertInstanceOf( FTP_Credentials::class, $credentials );
 		}
 	}
 
@@ -170,7 +191,8 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 	function url_path_data() {
 		return [
 			// simple case.
-			[ '127.0.0.1', 230, '', '', ABSPATH, ABSPATH . '.htaccess', 'ftp://127.0.0.1:230/.htaccess' ],
+			[ '127.0.0.1', 230, 'user', 'pass', ABSPATH, ABSPATH . '.htaccess', 'ftp://user:pass@127.0.0.1:230/.htaccess' ],
+			[ 'name@other', 21, 'user', 'pass', ABSPATH, ABSPATH . 'index.php', 'ftp://user:pass@name%40other:21/index.php' ],
 			// username and password that needs to be encoded + directory.
 			[ 
 				'127.0.0.1', 
@@ -185,12 +207,14 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 			[ 
 				'127.0.0.1', 
 				21,
-				'',
-				'',
+				'user',
+				'pass',
 				ABSPATH,
 				ABSPATH . 'wp-content\themes\index.php',
-				'ftp://127.0.0.1:21/wp-content/themes/index.php',
+				'ftp://user:pass@127.0.0.1:21/wp-content/themes/index.php',
 			],
+			// The account can also cover wp-config.php above the installation.
+			[ '127.0.0.1', 21, 'user', 'pass', dirname( rtrim( ABSPATH, '/\\' ) ), dirname( rtrim( ABSPATH, '/\\' ) ) . '/wp-config.php', 'ftp://user:pass@127.0.0.1:21/wp-config.php' ],
 		];
 	}
 
@@ -211,7 +235,7 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 		string $epected_url
 		) {
 
-		$creds = new FTP_Credentials( $host, $port, $username, $password, $basedir );
+		$creds = new FTP_Credentials( new FTP_Credentials_Parameters( $host, $port, $username, $password, $basedir ) );
 		$this->assertSame( $epected_url, $creds->stream_url_from_path( $path) );
 	}
 
@@ -224,6 +248,7 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 		return [ 
 			[ 'notunderrrot' ],
 			[ ABSPATH . '../' ],
+			[ dirname( rtrim( ABSPATH, '/\\' ) ) . '-other/file' ],
 		];
 	}
 
@@ -236,9 +261,23 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 	 */
 	function test_stream_url_from_path_exceptions( $path ) {
 
-		$creds = new FTP_Credentials( 'local', 21, '', '', dirname( ABSPATH ) );
+		$creds = new FTP_Credentials( new FTP_Credentials_Parameters( 'local', 21, 'user', 'pass', dirname( ABSPATH ) ) );
 		$this->expectException( \DomainException::class );
 		$creds->stream_url_from_path( $path );
 	}
 
+	/**
+	 * Valid FTP form fields produce parsed constructor values.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_parse_parameters_returns_values_when_valid(): void {
+		$this->assertEquals( new FTP_Credentials_Parameters( 'localhost', 21, 'user', 'secret', ABSPATH ), FTP_Credentials::parse_parameters( wp_slash( [
+			FTP_Credentials::HOST_FORM_NAME => 'localhost',
+			FTP_Credentials::PORT_FORM_NAME => '21',
+			FTP_Credentials::USERNAME_FORM_NAME => 'user',
+			FTP_Credentials::PASSWORD_FORM_NAME => 'secret',
+			FTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
+		] ), [] ) );
+	}
 }

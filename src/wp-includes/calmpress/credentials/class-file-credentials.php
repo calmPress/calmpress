@@ -23,11 +23,19 @@ class File_Credentials implements Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $path The file path.
+	 * @param string $path Absolute local file path.
 	 *
 	 * @return string The same path given as parameter.
+	 *
+	 * @throws \DomainException If the path is not an absolute local path.
 	 */
 	public function stream_url_from_path( string $path ) {
+
+		// path_is_absolute() also accepts existing paths provided by registered stream wrappers.
+		if ( wp_is_stream( $path ) || ! path_is_absolute( $path ) ) {
+			throw new \DomainException( 'Path must be an absolute local file path.' );
+		}
+
 		return $path;
 	}
 

@@ -11,23 +11,26 @@ declare(strict_types=1);
 namespace calmpress\credentials;
 
 /**
- * An credentials holder, meant to be used as a translator between file paths and stream based url
- * to be able to access paths as streams.
+ * Credentials for accessing files in a calmPress installation as streams.
  *
  * @since 1.0.0
  */
 interface Credentials {
 
 	/**
-	 * Generate a stream URL to a file. 
+	 * Generate a stream URL for a file or directory in the installation.
+	 *
+	 * wp-config.php may be located in the directory above ABSPATH. Credentials used to access
+	 * that file must also cover its parent directory.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $path The file path. Must be an absolute path.
+	 * @param string $path Absolute path to a file or directory.
 	 *
-	 * @return string The stream url representation of the file specified by $path.
+	 * @return string Stream URL for the path.
 	 *
-	 * @throws \DomainException When the path is not absolute or not a file under the root directory.
+	 * @throws \DomainException When the path is not absolute or its directory is outside the area
+	 *                          mapped by these credentials.
 	 */
 	public function stream_url_from_path( string $path );
 

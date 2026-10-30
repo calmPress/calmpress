@@ -423,7 +423,9 @@ module.exports = function(grunt) {
 					[ WORKING_DIR + 'wp-includes/js/cp-reauth.js' ]: [ './src/js/_enqueues/cp/reauth.js' ],
 					[ WORKING_DIR + 'wp-includes/js/cp-login.js' ]: [ './src/js/_enqueues/cp/login.js' ],
 					[ WORKING_DIR + 'wp-includes/js/cp-utils.js' ]: [ './src/js/_enqueues/cp/utils.js' ],
-					[ WORKING_DIR + 'wp-includes/js/cp-notice.js' ]: [ './src/js/_enqueues/cp/notice.js' ]
+					[ WORKING_DIR + 'wp-includes/js/cp-notice.js' ]: [ './src/js/_enqueues/cp/notice.js' ],
+					[ WORKING_DIR + 'wp-includes/js/cp-sftp-credentials-form.js' ]: [ './src/js/_enqueues/cp/sftp-credentials-form.js' ],
+					[ WORKING_DIR + 'wp-includes/js/cp-ftp-sftp-credentials-form.js' ]: [ './src/js/_enqueues/cp/ftp-sftp-credentials-form.js' ]
 				}
 			},
 			'wp-admin-css-compat-rtl': {
@@ -1066,6 +1068,8 @@ module.exports = function(grunt) {
 					'src/wp-includes/js/cp-login.js': 'src/js/_enqueues/cp/login.js',
 					'src/wp-includes/js/cp-utils.js': 'src/js/_enqueues/cp/utils.js',
 					'src/wp-includes/js/cp-notice.js': 'src/js/_enqueues/cp/notice.js',
+					'src/wp-includes/js/cp-sftp-credentials-form.js': 'src/js/_enqueues/cp/sftp-credentials-form.js',
+					'src/wp-includes/js/cp-ftp-sftp-credentials-form.js': 'src/js/_enqueues/cp/ftp-sftp-credentials-form.js',
 					'src/wp-admin/js/cp-webauthn.js': 'src/js/_enqueues/cp/webauthn.js',
 					'src/wp-admin/js/cp-application-passwords.js': 'src/js/_enqueues/cp/application-passwords.js',
 					'src/wp-admin/js/cp-logo-selection.js': 'src/js/_enqueues/cp/logo-selection.js',
