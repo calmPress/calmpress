@@ -19,15 +19,20 @@
  * one. It clears warnings for fields that have become hidden or disabled and
  * schedules validation for fields that have become available.
  *
- * Invalid forms are not submitted.
+ * Submit buttons are disabled while a form has invalid fields. Submission is
+ * also checked in case it is triggered without using a button.
  *
  * @since 1.0.0
  */
 
 ( function () {
 	'use strict';
+
+	// Timer IDs for field validation scheduled after a change.
 	const timers = new WeakMap();
-	const validation_state = new WeakMap();
+
+	// Records whether validation was required for each field at the last refresh.
+	const requires_validation_by_field = new WeakMap();
 
 	/**
 	 * Checks a field according to its validation mode.
@@ -98,6 +103,23 @@
 	}
 
 	/**
+	 * Updates submit buttons to reflect whether a form can be submitted.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param {HTMLFormElement} form Form whose submit buttons should be updated.
+	 */
+	function update_submit_buttons( form ) {
+		const invalid = Array.from( form.querySelectorAll( '[validate]' ) ).some( function ( field ) {
+			return ! field.disabled && ! field.closest( '[hidden]' ) && ! field_is_valid( field );
+		} );
+
+		form.querySelectorAll( 'input[type="submit"], button[type="submit"], button:not([type])' ).forEach( function ( button ) {
+			button.disabled = invalid;
+		} );
+	}
+
+	/**
 	 * Schedules validation of a field one second after its latest change.
 	 *
 	 * @since 1.0.0
@@ -108,6 +130,7 @@
 		clearTimeout( timers.get( field ) );
 		timers.set( field, setTimeout( function () {
 			validate_field( field );
+			update_submit_buttons( field.form );
 			timers.delete( field );
 		}, 1000 ) );
 	}
@@ -147,8 +170,8 @@
 
 			form.querySelectorAll( '[validate]' ).forEach( function ( field ) {
 				const requires_validation = ! field.disabled && ! field.closest( '[hidden]' );
-				const previously_required = validation_state.get( field );
-				validation_state.set( field, requires_validation );
+				const previously_required = requires_validation_by_field.get( field );
+				requires_validation_by_field.set( field, requires_validation );
 
 				if ( ! requires_validation ) {
 					clearTimeout( timers.get( field ) );
@@ -158,6 +181,7 @@
 					schedule_field_validation( field );
 				}
 			} );
+			update_submit_buttons( form );
 		}
 	};
 
@@ -175,6 +199,7 @@
 			form.addEventListener( 'submit', function ( event ) {
 				if ( ! validate_form( form ) ) {
 					event.preventDefault();
+					update_submit_buttons( form );
 				}
 			} );
 		} );
