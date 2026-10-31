@@ -11,6 +11,7 @@ declare(strict_types=1);
 use calmpress\credentials\SFTP_Credentials;
 use calmpress\credentials\SFTP_Credentials_Parameters;
 use calmpress\credentials\SFTP_Connection_Exception;
+use phpseclib4\Crypt\EC;
 use phpseclib4\Crypt\RSA;
 
 /**
@@ -167,6 +168,95 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 		$this->assertSame( $key, $parsed->private_key_content );
 		$this->assertSame( 'key-passphrase', $parsed->passphrase );
 		$this->assertSame( '', $parsed->password );
+	}
+
+	/**
+	 * Tests that an encrypted OpenSSH key can be parsed and used to construct credentials.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_parse_parameters_accepts_encrypted_openssh_key() {
+		$key = RSA::createKey( 1024 )->withPassword( 'key-passphrase' )->toString( 'OpenSSH', [ 'rounds' => 1 ] );
+		$parsed = SFTP_Credentials::parse_parameters(
+			wp_slash( [
+				SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'key_text',
+				SFTP_Credentials::HOST_FORM_NAME => 'localhost',
+				SFTP_Credentials::PORT_FORM_NAME => '22',
+				SFTP_Credentials::USERNAME_FORM_NAME => 'user',
+				SFTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
+				SFTP_Credentials::PASSWORD_FORM_NAME => '',
+				SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => $key,
+				SFTP_Credentials::PASSPHRASE_FORM_NAME => 'key-passphrase',
+			] ),
+			[]
+		);
+
+		$this->assertInstanceOf( SFTP_Credentials_Parameters::class, $parsed );
+		$this->assertInstanceOf( SFTP_Credentials::class, new SFTP_Credentials( $parsed ) );
+	}
+
+	/**
+	 * Tests that the constructor rejects an encrypted OpenSSH key with the wrong passphrase.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_constructor_rejects_wrong_openssh_key_passphrase() {
+		$key = RSA::createKey( 1024 )->withPassword( 'correct' )->toString( 'OpenSSH', [ 'rounds' => 1 ] );
+
+		$this->expectException( DomainException::class );
+
+		new SFTP_Credentials( new SFTP_Credentials_Parameters( 'localhost', 22, 'user', '', ABSPATH, $key, 'wrong' ) );
+	}
+
+	/**
+	 * The constructor accepts encrypted OpenSSH Ed25519 and ECDSA keys.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_constructor_accepts_encrypted_openssh_ec_keys() {
+		foreach ( [ 'Ed25519', 'secp256r1' ] as $curve ) {
+			$key = EC::createKey( $curve )->withPassword( 'correct' )->toString( 'OpenSSH', [ 'rounds' => 1 ] );
+			$credentials = new SFTP_Credentials( new SFTP_Credentials_Parameters( 'localhost', 22, 'user', '', ABSPATH, $key, 'correct' ) );
+
+			$this->assertInstanceOf( SFTP_Credentials::class, $credentials );
+		}
+	}
+
+	/**
+	 * The constructor rejects an encrypted OpenSSH Ed25519 key with a wrong passphrase.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_constructor_rejects_wrong_openssh_ed25519_passphrase() {
+		$key = EC::createKey( 'Ed25519' )->withPassword( 'correct' )->toString( 'OpenSSH', [ 'rounds' => 1 ] );
+
+		$this->expectException( DomainException::class );
+
+		new SFTP_Credentials( new SFTP_Credentials_Parameters( 'localhost', 22, 'user', '', ABSPATH, $key, 'wrong' ) );
+	}
+
+	/**
+	 * Parsing key authentication fields leaves private key validation to construction.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_parse_parameters_defers_private_key_validation() {
+		$parsed = SFTP_Credentials::parse_parameters(
+			wp_slash( [
+				SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'key_text',
+				SFTP_Credentials::HOST_FORM_NAME => 'localhost',
+				SFTP_Credentials::PORT_FORM_NAME => '22',
+				SFTP_Credentials::USERNAME_FORM_NAME => 'user',
+				SFTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
+				SFTP_Credentials::PASSWORD_FORM_NAME => '',
+				SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => 'not a private key',
+				SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
+			] ),
+			[]
+		);
+
+		$this->assertInstanceOf( SFTP_Credentials_Parameters::class, $parsed );
+		$this->assertSame( 'not a private key', $parsed->private_key_content );
 	}
 
 	/**

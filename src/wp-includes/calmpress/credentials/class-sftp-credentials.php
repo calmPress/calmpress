@@ -292,14 +292,6 @@ class SFTP_Credentials implements Connection_Credentials {
 			$errors->add( 'base_dir', __( 'calmPress root directory cannot be accessed with this Base directory' ) );
 		}
 
-		if ( ! $errors->has_errors() && '' !== $private_key_content ) {
-			try {
-				PublicKeyLoader::loadPrivateKey( $private_key_content, trim( $passphrase ) );
-			} catch ( \Throwable $error ) {
-				$errors->add( 'private_key', __( 'The combination of the private key and passphrase cannot be used for SFTP.' ) );
-			}
-		}
-
 		if ( $errors->has_errors() ) {
 			return $errors;
 		}
