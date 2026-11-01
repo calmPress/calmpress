@@ -83,24 +83,29 @@ function rules_input() {
  * An handler for when saving the rules in to the .htaccess file fails. Responsible
  * to give the user a proper notification.
  *
- * The raeson for the failure is extracted by using the error_get_last() PHP function.
- *
  * @since 1.0.0
+ *
+ * @param string|null $message Failure reason, or null to use the last PHP error.
  */
-function save_fail_notice() {
+function save_fail_notice( ?string $message = null ) {
+	$message ??= \calmpress\utils\last_error_message();
+	if ( '' === trim( $message ) ) {
+		$message = __( 'The server did not report a reason for the failure.' );
+	}
+
 	// Add admin notice that will report the error to the user.
 	add_action(
 		'admin_notices',
-		static function () {
+		static function () use ( $message ) {
 			?>
 			<div class="notice notice-error">
 				<p>
 				<?php
 				printf(
-					/* translators: 1: Name the .htaccess file 2: The exception error message in blockquote */
-					esc_html__( 'Failed writing to the %1$s file. The text of the system error message is: %2$s' ),
+				/* translators: 1: Name of the .htaccess file, 2: Failure reason. */
+					esc_html__( 'Failed updating the %1$s file. %2$s' ),
 					'<code>.htaccess</code>',
-					'<br><blockquote>' . esc_html( \calmpress\utils\last_error_message() ) . '</blockquote>'
+					'<br><blockquote>' . esc_html( $message ) . '</blockquote>'
 				);
 				?>
 				</p>
@@ -113,13 +118,13 @@ function save_fail_notice() {
 }
 
 /**
- * An handler for when parsing the FTP credentials fails due to validation.
- *
- * @param string[] $errors Array of validation error strings.
+ * Reports validation problems with connection credentials.
  *
  * @since 1.0.0
+ *
+ * @param \WP_Error $errors Credential validation errors.
  */
-function validation_error_notice( array $errors ) {
+function validation_error_notice( \WP_Error $errors ) {
 	// Add admin notice that will report the error to the user.
 	add_action(
 		'admin_notices',
@@ -128,9 +133,9 @@ function validation_error_notice( array $errors ) {
 			<div class="notice notice-error">
 				<p>
 				<?php
-				esc_html_e( 'The FTP credentials has the following problems:' );
-				foreach ( $errors as $error ) {
-					echo '<br />' . $error;
+				esc_html_e( 'The connection credentials have the following problems:' );
+				foreach ( $errors->get_error_messages() as $error ) {
+					echo '<br />' . esc_html( $error );
 				}
 				?>
 				</p>
@@ -153,16 +158,35 @@ if ( $update_required ) {
 	} elseif ( isset( $_POST['calm_htacess_ftp_nonce'] )
 		&& wp_verify_nonce( wp_unslash( $_POST['calm_htacess_ftp_nonce'] ), 'calm_htacess_ftp' )
 		) {
-		$ftp_creds = \calmpress\credentials\FTP_Credentials::credentials_from_request_vars( $_POST );
-		if ( is_array( $ftp_creds ) ) {
-			// Validation had failed.
-			validation_error_notice( $ftp_creds );
-		} else {
-			$url   = $ftp_creds->stream_url_from_path( $file_path );
-			$saved = save_mod_rewrite_rules( $url );
-			if ( ! $saved ) {
-				save_fail_notice();
+		$connection_failure = __( 'The file could not be updated through this connection. Check the connection settings and file permissions.' );
+		$parsed = null;
+		try {
+			$parsed = \calmpress\credentials\FTP_SFTP_Credentials::parse_parameters( $_POST, $_FILES );
+			if ( is_wp_error( $parsed ) ) {
+				validation_error_notice( $parsed );
+			} else {
+				$connection_credentials = $parsed instanceof \calmpress\credentials\FTP_Credentials_Parameters
+					? new \calmpress\credentials\FTP_Credentials( $parsed )
+					: new \calmpress\credentials\SFTP_Credentials( $parsed );
+				$access_errors = \calmpress\utils\validate_connection_directories( $connection_credentials, [ dirname( $file_path ) ] );
+				if ( $access_errors->has_errors() ) {
+					validation_error_notice( $access_errors );
+				} else {
+					$url   = $connection_credentials->stream_url_from_path( $file_path );
+					$lock  = new \calmpress\filesystem\Path_Lock( $file_path );
+					$saved = insert_with_markers( $url, 'WordPress', explode( "\n", $wp_rewrite->mod_rewrite_rules() ), '#', $connection_credentials->stream_context() );
+				}
 			}
+		} catch ( \DomainException $error ) {
+			if ( $parsed instanceof \calmpress\credentials\SFTP_Credentials_Parameters ) {
+				validation_error_notice( new \WP_Error( 'sftp_authentication_failed', __( 'Could not sign in to the SFTP server. Check the username and password or private key.' ) ) );
+			} else {
+				validation_error_notice( new \WP_Error( 'invalid_credentials', $error->getMessage() ) );
+			}
+		} catch ( \calmpress\filesystem\Marker_File_Exception $error ) {
+			save_fail_notice( $error->to_wp_error()->get_error_message() );
+		} catch ( \Throwable ) {
+			save_fail_notice( $connection_failure );
 		}
 	}
 
@@ -213,26 +237,14 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			);
 			?>
 		</p>
-		<p><?php esc_html_e( 'You should either supply FTP credentials which can be used to save the file for you, or update the file with the content below the FTP form.' ); ?></p>
-		<form action="" method="post">
-			<h2><?php esc_html_e( 'FTP credentials' ); ?></h2>
-			<p>
-				<?php
-				printf(
-					/* translators: %s: .htaccess */
-					esc_html__( 'The FTP credentials required to access the server over FTP in order to modify the %s file' ),
-					'<code>.htaccess</code>'
-				);
-				?>
-			</p>
-			<?php wp_nonce_field( 'calm_htacess_ftp', 'calm_htacess_ftp_nonce' ); ?>
-			<table class="form-table">
-				<?php
-				echo \calmpress\credentials\FTP_Credentials::form( $_POST );
-				?>
-			</table>
-			<?php submit_button( __( 'Update .htaccess using FTP' ) ); ?>
-		</form>
+		<p><?php esc_html_e( 'Supply FTP or SFTP credentials to save the file, or update it with the content below.' ); ?></p>
+		<?php
+		try {
+			echo \calmpress\credentials\FTP_SFTP_Credentials::form( wp_unslash( $_POST ), 'calm_htacess_ftp', __( 'Update .htaccess' ) );
+		} catch ( \DomainException $error ) {
+			echo \calmpress\credentials\FTP_SFTP_Credentials::form( [], 'calm_htacess_ftp', __( 'Update .htaccess' ) );
+		}
+		?>
 		<h2><?php esc_html_e( '.htaccess content to save' ); ?></h2>
 		<p><textarea rows="6" class="large-text readonly" onclick="this.focus();this.select()" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>
 		<?php

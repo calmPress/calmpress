@@ -82,6 +82,9 @@ function code_input() {
 function save_fail_notice( \Exception $exception ) {
 	// Add admin notice that will report the error to the user.
 	$message = $exception->getMessage();
+	if ( $exception instanceof \calmpress\filesystem\Marker_File_Exception ) {
+		$message = $exception->to_wp_error()->get_error_message();
+	}
 	add_action(
 		'admin_notices',
 		function () use ( $message ) {
@@ -91,7 +94,7 @@ function save_fail_notice( \Exception $exception ) {
 				<?php
 				printf(
 					/* translators: 1: Name the wp-config.php file 2: The exception error message in blockquote */
-					esc_html__( 'Failed writing to the %1$s file. The text of the system error message is: %2$s' ),
+					esc_html__( 'Failed updating the %1$s file. %2$s' ),
 					'<code>wp-config.php</code>',
 					'<br><blockquote>' . esc_html( $message ) . '</blockquote>'
 				);
@@ -106,13 +109,13 @@ function save_fail_notice( \Exception $exception ) {
 }
 
 /**
- * An handler for when parsing the FTP credentials fails due to validation.
- *
- * @param string[] $errors Array of validation error strings.
+ * Reports validation problems with connection credentials.
  *
  * @since 1.0.0
+ *
+ * @param \WP_Error $errors Credential validation errors.
  */
-function validation_error_notice( array $errors ) {
+function validation_error_notice( \WP_Error $errors ) {
 	// Add admin notice that will report the error to the user.
 	add_action(
 		'admin_notices',
@@ -121,9 +124,9 @@ function validation_error_notice( array $errors ) {
 			<div class="notice notice-error">
 				<p>
 				<?php
-				esc_html_e( 'The FTP credentials has the following problems:' );
-				foreach ( $errors as $error ) {
-					echo '<br />' . $error;
+				esc_html_e( 'The connection credentials have the following problems:' );
+				foreach ( $errors->get_error_messages() as $error ) {
+					echo '<br />' . esc_html( $error );
 				}
 				?>
 				</p>
@@ -192,12 +195,28 @@ if ( $update_required ) {
 	} elseif ( isset( $_POST['calm_wp_config_ftp_nonce'] )
 		&& wp_verify_nonce( wp_unslash( $_POST['calm_wp_config_ftp_nonce'] ), 'calm_wp_config_ftp' )
 		) {
-		$ftp_creds = \calmpress\credentials\FTP_Credentials::credentials_from_request_vars( $_POST );
-		if ( is_array( $ftp_creds ) ) {
-			// Validation had failed.
-			validation_error_notice( $ftp_creds );
-		} else {
-			$creds = $ftp_creds;
+		$parsed = null;
+		try {
+			$parsed = \calmpress\credentials\FTP_SFTP_Credentials::parse_parameters( $_POST, $_FILES );
+			if ( is_wp_error( $parsed ) ) {
+				validation_error_notice( $parsed );
+			} else {
+				$connection_credentials = $parsed instanceof \calmpress\credentials\FTP_Credentials_Parameters
+					? new \calmpress\credentials\FTP_Credentials( $parsed )
+					: new \calmpress\credentials\SFTP_Credentials( $parsed );
+				$access_errors = \calmpress\utils\validate_connection_directories( $connection_credentials, [ dirname( $wp_config->filename() ) ] );
+				if ( $access_errors->has_errors() ) {
+					validation_error_notice( $access_errors );
+				} else {
+					$creds = $connection_credentials;
+				}
+			}
+		} catch ( \DomainException $error ) {
+			if ( $parsed instanceof \calmpress\credentials\SFTP_Credentials_Parameters ) {
+				validation_error_notice( new \WP_Error( 'sftp_authentication_failed', __( 'Could not sign in to the SFTP server. Check the username and password or private key.' ) ) );
+			} else {
+				validation_error_notice( new \WP_Error( 'invalid_credentials', $error->getMessage() ) );
+			}
 		}
 	} else {
 		add_action(
@@ -208,10 +227,10 @@ if ( $update_required ) {
 					<p>
 					<?php
 					printf(
-						/* translators: 1: The wp-config.php file name, 2: Opening <a linking to FTP credentials form, 3: Closing </a */
-						esc_html__( '%1$s is not writable. Please provide %2$sFTP credentials%3$s to perform the file update.' ),
+						/* translators: 1: The wp-config.php file name, 2: Opening link to connection credentials form, 3: Closing link. */
+						esc_html__( '%1$s is not writable. Please provide %2$sFTP or SFTP credentials%3$s to perform the file update.' ),
 						'<code>wp-config.php</code>',
-						'<a href="#ftpcreds">',
+						'<a href="#connection-credentials">',
 						'</a>'
 					);
 					?>
@@ -277,17 +296,14 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			);
 			?>
 		</p>
-		<p><?php esc_html_e( 'You should either supply FTP credentials which can be used to save the file for you, or update the file with the content below the FTP form.' ); ?></p>
-		<form action="" method="post">
-			<h2 id="ftpcreds"><?php esc_html_e( 'FTP credentials' ); ?></h2>
-			<?php wp_nonce_field( 'calm_wp_config_ftp', 'calm_wp_config_ftp_nonce' ); ?>
-			<table class="form-table">
-				<?php
-				echo \calmpress\credentials\FTP_Credentials::form( $_POST );
-				?>
-			</table>
-			<?php submit_button( __( 'Update wp-config.php using FTP' ) ); ?>
-		</form>
+		<p><?php esc_html_e( 'Supply FTP or SFTP credentials to save the file, or update it with the content below.' ); ?></p>
+		<?php
+		try {
+			echo \calmpress\credentials\FTP_SFTP_Credentials::form( wp_unslash( $_POST ), 'calm_wp_config_ftp', __( 'Update wp-config.php' ) );
+		} catch ( \DomainException $error ) {
+			echo \calmpress\credentials\FTP_SFTP_Credentials::form( [], 'calm_wp_config_ftp', __( 'Update wp-config.php' ) );
+		}
+		?>
 		<h2><?php esc_html_e( 'wp-config.php content to save' ); ?></h2>
 		<p>
 			<?php
