@@ -212,7 +212,7 @@ class wp_config {
 	 * @param \calmpress\credentials\credentials $credentials The credential that should be used to extract
 	 *                             the stream and context which should be used for writting.
 	 *
-	 * @throws \Exception If the save had failed. The message contains the last php error.
+	 * @throws \calmpress\filesystem\Marker_File_Exception If reading or writing the file fails.
 	 */
 	public function save_user_section_to_file( string $settings, \calmpress\credentials\credentials $credentials ) {
 		$sanitized = static::sanitize_user_setting( $settings );
@@ -228,10 +228,7 @@ class wp_config {
 
 		$stream = $credentials->stream_url_from_path( $this->filename );
 		$lock   = new \calmpress\filesystem\Path_Lock( $this->filename );
-		if ( ! insert_with_markers( $stream, self::USER_SECTION_MARKER, $sanitized, self::USER_SECTION_PREFIX, $credentials->stream_context() ) ) {
-			// Write failed.
-			throw new \Exception( \calmpress\utils\last_error_message() );
-		}
+		insert_with_markers( $stream, self::USER_SECTION_MARKER, $sanitized, self::USER_SECTION_PREFIX, $credentials->stream_context() );
 	}
 
 	/**
