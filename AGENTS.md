@@ -69,6 +69,7 @@ In particular:
 - Include `@since` in PHP docblocks for new or modified declarations, including test classes, test methods, and test helpers.
 - In inherited WordPress core code, mark calmPress changes with `@since calmPress 1.0.0` so the fork-specific change is clear.
 - Separate `@param`, `@return`, and `@throws` groups with blank docblock lines.
+- Separate distinct sentences in explanatory comments and docblocks with a blank comment line for readability.
 - Every test method must have a docblock describing the behavior being tested and an `@since` tag; a descriptive method name does not replace the docblock.
 - Leave a blank line before and after new control-flow blocks when the surrounding code allows it. Keep `else` and `elseif` attached to their `if` block.
 - Use ternary expressions only when the condition and both outcomes are short and easy to read; use `if` for longer cases.
