@@ -201,6 +201,7 @@ function wp_get_available_translations() {
  * @param array[] $languages Array of available languages (populated via the Translation API).
  */
 function wp_install_language_form( $languages ) {
+	global $wp_local_package;
 
 	$installed_languages = get_available_languages();
 
