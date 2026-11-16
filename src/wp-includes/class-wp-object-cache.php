@@ -68,6 +68,8 @@ class WP_Object_Cache {
 	 * Session memory caching is used as the "front" for the selected cache to reduce the
 	 * amount of locking or other overhead when accessing the other caches.
 	 *
+	 * Installation requests use memory-only storage so earlier sites cannot supply cached state.
+	 *
 	 * @since calmPress 1.0.0
 	 *
 	 * @param string $namespace The namespace to use to identify the cache for the specific group.
@@ -78,8 +80,8 @@ class WP_Object_Cache {
 
 		$session_memory = new \calmpress\object_cache\Session_Memory();
 
-		// Don't bother with persistant cache when unit testing.
-		if ( defined( 'WP_TESTS_DOMAIN' ) ) {
+		// Ignore persisted data from previous sites during installation or unit testing.
+		if ( wp_installing() || defined( 'WP_TESTS_DOMAIN' ) ) {
 			return $session_memory;
 		}
 
@@ -109,6 +111,8 @@ class WP_Object_Cache {
 	 * For persistance only file caching can be used as PHP file caching should be used
 	 * only sparingly.
 	 *
+	 * Installation requests use memory-only storage so earlier sites cannot supply cached state.
+	 *
 	 * @since calmPress 1.0.0
 	 *
 	 * @param string $namespace The namespace to use to identify the cache for the specific group.
@@ -117,11 +121,17 @@ class WP_Object_Cache {
 	 */
 	private static function create_cache_for_transient_groups( string $namespace ): \Psr\SimpleCache\CacheInterface {
 
+		if ( wp_installing() ) {
+			return new \calmpress\object_cache\Session_Memory();
+		}
+
 		return new \calmpress\object_cache\File( $namespace );
 	}
 
 	/**
 	 * Create a chained cache for groups in the default setup.
+	 *
+	 * Installation requests use memory-only storage so earlier sites cannot supply cached state.
 	 *
 	 * @since calmPress 1.0.0
 	 *
@@ -133,8 +143,8 @@ class WP_Object_Cache {
 
 		$session_memory = new \calmpress\object_cache\Session_Memory();
 
-		// Don't bother with persistant cache when unit testing.
-		if ( defined( 'WP_TESTS_DOMAIN' ) ) {
+		// Ignore persisted data from previous sites during installation or unit testing.
+		if ( wp_installing() || defined( 'WP_TESTS_DOMAIN' ) ) {
 			return $session_memory;
 		}
 
