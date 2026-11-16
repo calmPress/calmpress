@@ -68,6 +68,6 @@ interface Connection_Credentials extends Credentials {
 	 *
 	 * @throws \LogicException If required parameters are missing or malformed.
 	 */
-	public static function credentials_from_parameters( array $vars, array $files, string $directory ): Connection_Credentials|\WP_Error;
+	public static function writable_directory_credentials( array $vars, array $files, string $directory ): Connection_Credentials|\WP_Error;
 
 }
