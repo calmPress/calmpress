@@ -147,6 +147,8 @@ function validation_error_notice( \WP_Error $errors ) {
 	);
 }
 
+$credential_initial_state = [];
+
 if ( $update_required ) {
 
 	$saved = false;
@@ -158,30 +160,18 @@ if ( $update_required ) {
 	} elseif ( isset( $_POST['calm_htacess_ftp_nonce'] )
 		&& wp_verify_nonce( wp_unslash( $_POST['calm_htacess_ftp_nonce'] ), 'calm_htacess_ftp' )
 		) {
+		$credential_initial_state = wp_unslash( $_POST );
+
 		$connection_failure = __( 'The file could not be updated through this connection. Check the connection settings and file permissions.' );
-		$parsed = null;
 		try {
-			$parsed = \calmpress\credentials\FTP_SFTP_Credentials::parse_parameters( $_POST, $_FILES );
-			if ( is_wp_error( $parsed ) ) {
-				validation_error_notice( $parsed );
+			$connection_credentials = \calmpress\credentials\FTP_SFTP_Credentials::writable_directory_credentials( $credential_initial_state, $_FILES, dirname( $file_path ) );
+
+			if ( is_wp_error( $connection_credentials ) ) {
+				validation_error_notice( $connection_credentials );
 			} else {
-				$connection_credentials = $parsed instanceof \calmpress\credentials\FTP_Credentials_Parameters
-					? new \calmpress\credentials\FTP_Credentials( $parsed )
-					: new \calmpress\credentials\SFTP_Credentials( $parsed );
-				$access_errors = \calmpress\utils\validate_connection_directories( $connection_credentials, [ dirname( $file_path ) ] );
-				if ( $access_errors->has_errors() ) {
-					validation_error_notice( $access_errors );
-				} else {
-					$url   = $connection_credentials->stream_url_from_path( $file_path );
-					$lock  = new \calmpress\filesystem\Path_Lock( $file_path );
-					$saved = insert_with_markers( $url, 'WordPress', explode( "\n", $wp_rewrite->mod_rewrite_rules() ), '#', $connection_credentials->stream_context() );
-				}
-			}
-		} catch ( \DomainException $error ) {
-			if ( $parsed instanceof \calmpress\credentials\SFTP_Credentials_Parameters ) {
-				validation_error_notice( new \WP_Error( 'sftp_authentication_failed', __( 'Could not sign in to the SFTP server. Check the username and password or private key.' ) ) );
-			} else {
-				validation_error_notice( new \WP_Error( 'invalid_credentials', $error->getMessage() ) );
+				$url = $connection_credentials->stream_url_from_path( $file_path );
+				$lock = new \calmpress\filesystem\Path_Lock( $file_path );
+				$saved = insert_with_markers( $url, 'WordPress', explode( "\n", $wp_rewrite->mod_rewrite_rules() ), '#', $connection_credentials->stream_context() );
 			}
 		} catch ( \calmpress\filesystem\Marker_File_Exception $error ) {
 			save_fail_notice( $error->to_wp_error()->get_error_message() );
@@ -237,13 +227,10 @@ require ABSPATH . 'wp-admin/admin-header.php';
 			);
 			?>
 		</p>
+		<h2 id="connection-credentials"><?php esc_html_e( 'Connection credentials' ); ?></h2>
 		<p><?php esc_html_e( 'Supply FTP or SFTP credentials to save the file, or update it with the content below.' ); ?></p>
 		<?php
-		try {
-			echo \calmpress\credentials\FTP_SFTP_Credentials::form( wp_unslash( $_POST ), 'calm_htacess_ftp', __( 'Update .htaccess' ) );
-		} catch ( \DomainException $error ) {
-			echo \calmpress\credentials\FTP_SFTP_Credentials::form( [], 'calm_htacess_ftp', __( 'Update .htaccess' ) );
-		}
+		echo \calmpress\credentials\FTP_SFTP_Credentials::form( $credential_initial_state, 'calm_htacess_ftp', __( 'Update .htaccess' ), '' );
 		?>
 		<h2><?php esc_html_e( '.htaccess content to save' ); ?></h2>
 		<p><textarea rows="6" class="large-text readonly" onclick="this.focus();this.select()" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>

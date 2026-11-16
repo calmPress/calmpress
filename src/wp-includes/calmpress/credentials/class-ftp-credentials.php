@@ -17,6 +17,8 @@ namespace calmpress\credentials;
  */
 class FTP_Credentials implements Connection_Credentials {
 
+	use Writable_Directory_Credentials;
+
 	/**
 	 * The name used for the host name input in the form.
 	 *
@@ -144,7 +146,7 @@ class FTP_Credentials implements Connection_Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $vars  Slashed form fields. Every key must be present with a string value:
+	 * @param array $vars  Unslashed form fields. Every key must be present with a string value:
 	 *                     - calm_ftp_host: Hostname or IP address of the FTP server.
 	 *                     - calm_ftp_port: Server port as a decimal string from 1 to 65535.
 	 *                     - calm_ftp_username: Username for the FTP account.
@@ -171,11 +173,11 @@ class FTP_Credentials implements Connection_Credentials {
 			}
 		}
 
-		$host     = wp_unslash( $vars[ self::HOST_FORM_NAME ] );
+		$host     = $vars[ self::HOST_FORM_NAME ];
 		$port     = filter_var( $vars[ self::PORT_FORM_NAME ], FILTER_VALIDATE_INT );
-		$username = wp_unslash( $vars[ self::USERNAME_FORM_NAME ] );
-		$password = wp_unslash( $vars[ self::PASSWORD_FORM_NAME ] );
-		$base_dir = wp_unslash( $vars[ self::BASEDIR_FORM_NAME ] );
+		$username = $vars[ self::USERNAME_FORM_NAME ];
+		$password = $vars[ self::PASSWORD_FORM_NAME ];
+		$base_dir = $vars[ self::BASEDIR_FORM_NAME ];
 
 		$errors = new \WP_Error();
 
@@ -219,15 +221,18 @@ class FTP_Credentials implements Connection_Credentials {
 	 * @since 1.0.0
 	 *
 	 * @param array $initial_state Values keyed by the calm_ftp_* input names documented in form_fields(). Pass [] for the defaults.
-	 * @param string $nonce_name   Nonce action and prefix for its field name.
+	 * @param string|null $nonce_name Nonce action and prefix for its field name, or null to omit the nonce field.
 	 * @param string $submit_label Text displayed on the submit button.
+	 * @param string $action_url Form submission URL.
 	 *
 	 * @return string Form HTML.
 	 *
 	 */
-	public static function form( array $initial_state, string $nonce_name, string $submit_label ): string {
-		$html = '<form class="calm-credentials-form calm-validate" action="" method="post" enctype="multipart/form-data" novalidate>';
-		$html .= wp_nonce_field( $nonce_name, $nonce_name . '_nonce', true, false );
+	public static function form( array $initial_state, ?string $nonce_name, string $submit_label, string $action_url ): string {
+		$html = '<form class="calm-credentials-form calm-validate" action="' . esc_url( $action_url ) . '" method="post" enctype="multipart/form-data" novalidate>';
+		if ( null !== $nonce_name ) {
+			$html .= wp_nonce_field( $nonce_name, $nonce_name . '_nonce', true, false );
+		}
 		$html .= '<h2 id="connection-credentials">' . esc_html__( 'Connection credentials' ) . '</h2>';
 		$html .= '<p class="description">' . esc_html__( 'Get the FTP account details from your hosting control panel or server administrator. Use an account that can write to this installation.' ) . '</p>';
 		$html .= '<table class="form-table"><tbody>' . self::form_fields( $initial_state ) . '</tbody></table>';
@@ -254,6 +259,7 @@ class FTP_Credentials implements Connection_Credentials {
 	 * @return string HTML table rows.
 	 */
 	public static function form_fields( array $initial_state ): string {
+		$autocomplete_section = esc_attr( \calmpress\utils\site_specific_autocomplete_section( 'ftp' ) );
 		$initial_state = wp_parse_args( $initial_state, [
 			self::HOST_FORM_NAME => '127.0.0.1',
 			self::PORT_FORM_NAME => 21,
@@ -312,7 +318,7 @@ class FTP_Credentials implements Connection_Credentials {
 		<tr>
 			<th><label for="{$username_name}">{$user_label}</label></th>
 			<td>
-				<input type="text" id="{$username_name}" name="{$username_name}" class="regular-text" value="{$username}" autocomplete="section-calmpressftp username" required validate="nonempty">
+				<input type="text" id="{$username_name}" name="{$username_name}" class="regular-text" value="{$username}" autocomplete="{$autocomplete_section} username" required validate="nonempty">
 				<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
 				<p class="description">{$user_description}</p>
 			</td>
@@ -320,7 +326,7 @@ class FTP_Credentials implements Connection_Credentials {
 		<tr>
 			<th><label for="{$password_name}">{$password_label}</label></th>
 			<td>
-				<input type="password" id="{$password_name}" name="{$password_name}" class="regular-text" value="{$password}" autocomplete="section-calmpressftp current-password" required validate="nonempty">
+				<input type="password" id="{$password_name}" name="{$password_name}" class="regular-text" value="{$password}" autocomplete="{$autocomplete_section} current-password" required validate="nonempty">
 				<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
 				<p class="description">{$password_description}</p>
 			</td>
@@ -512,5 +518,4 @@ class FTP_Credentials implements Connection_Credentials {
 
 		return $code;
 	}
-
 }

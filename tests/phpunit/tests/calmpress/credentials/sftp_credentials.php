@@ -151,7 +151,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 	public function test_parse_parameters_accepts_pasted_private_key() {
 		$key = RSA::createKey( 1024 )->withPassword( 'key-passphrase' )->toString( 'PKCS8' );
 		$parsed = SFTP_Credentials::parse_parameters(
-			wp_slash( [
+			[
 				SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'key_text',
 				SFTP_Credentials::HOST_FORM_NAME => 'localhost',
 				SFTP_Credentials::PORT_FORM_NAME => '22',
@@ -161,7 +161,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 				SFTP_Credentials::PRIVATE_KEY_FORM_NAME => 'inactive-file',
 				SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => $key,
 				SFTP_Credentials::PASSPHRASE_FORM_NAME => ' key-passphrase ',
-			] ), []
+			], []
 		);
 
 		$this->assertInstanceOf( SFTP_Credentials_Parameters::class, $parsed );
@@ -178,7 +178,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 	public function test_parse_parameters_accepts_encrypted_openssh_key() {
 		$key = RSA::createKey( 1024 )->withPassword( 'key-passphrase' )->toString( 'OpenSSH', [ 'rounds' => 1 ] );
 		$parsed = SFTP_Credentials::parse_parameters(
-			wp_slash( [
+			[
 				SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'key_text',
 				SFTP_Credentials::HOST_FORM_NAME => 'localhost',
 				SFTP_Credentials::PORT_FORM_NAME => '22',
@@ -187,7 +187,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 				SFTP_Credentials::PASSWORD_FORM_NAME => '',
 				SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => $key,
 				SFTP_Credentials::PASSPHRASE_FORM_NAME => 'key-passphrase',
-			] ),
+			],
 			[]
 		);
 
@@ -242,7 +242,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 	 */
 	public function test_parse_parameters_defers_private_key_validation() {
 		$parsed = SFTP_Credentials::parse_parameters(
-			wp_slash( [
+			[
 				SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'key_text',
 				SFTP_Credentials::HOST_FORM_NAME => 'localhost',
 				SFTP_Credentials::PORT_FORM_NAME => '22',
@@ -251,7 +251,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 				SFTP_Credentials::PASSWORD_FORM_NAME => '',
 				SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => 'not a private key',
 				SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-			] ),
+			],
 			[]
 		);
 
@@ -289,7 +289,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	public function test_parse_parameters_reports_invalid_fields() {
-		$errors = SFTP_Credentials::parse_parameters( wp_slash( [
+		$errors = SFTP_Credentials::parse_parameters( [
 			SFTP_Credentials::HOST_FORM_NAME => '',
 			SFTP_Credentials::PORT_FORM_NAME => '0',
 			SFTP_Credentials::USERNAME_FORM_NAME => '',
@@ -299,7 +299,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 			SFTP_Credentials::PRIVATE_KEY_FORM_NAME => '',
 			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
 			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-		] ), [] );
+		], [] );
 
 		$this->assertSame( [ 'authentication', 'host', 'port', 'username' ], $errors->get_error_codes() );
 		$this->assertSame( 'User name cannot be empty.', $errors->get_error_message( 'username' ) );
@@ -364,7 +364,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	public function test_parse_parameters_returns_values_when_valid(): void {
-		$this->assertEquals( new SFTP_Credentials_Parameters( 'localhost', 22, 'user', 'secret', ABSPATH, '', '' ), SFTP_Credentials::parse_parameters( wp_slash( [
+		$this->assertEquals( new SFTP_Credentials_Parameters( 'localhost', 22, 'user', 'secret', ABSPATH, '', '' ), SFTP_Credentials::parse_parameters( [
 			SFTP_Credentials::HOST_FORM_NAME => 'localhost',
 			SFTP_Credentials::PORT_FORM_NAME => '22',
 			SFTP_Credentials::USERNAME_FORM_NAME => 'user',
@@ -374,7 +374,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 			SFTP_Credentials::PRIVATE_KEY_FORM_NAME => '',
 			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
 			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-		] ), [] ) );
+		], [] ) );
 	}
 
 	/**
@@ -383,7 +383,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	public function test_parse_parameters_rejects_whitespace_password(): void {
-		$result = SFTP_Credentials::parse_parameters( wp_slash( [
+		$result = SFTP_Credentials::parse_parameters( [
 			SFTP_Credentials::HOST_FORM_NAME => 'localhost',
 			SFTP_Credentials::PORT_FORM_NAME => '22',
 			SFTP_Credentials::USERNAME_FORM_NAME => 'user',
@@ -393,7 +393,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 			SFTP_Credentials::PRIVATE_KEY_FORM_NAME => '',
 			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
 			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-		] ), [] );
+		], [] );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertNotEmpty( $result->get_error_messages( 'authentication' ) );
@@ -437,4 +437,29 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
 		], [] );
 	}
+
+	/**
+	 * Credentials reject access to a directory outside the account's base directory.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_writable_directory_credentials_checks_directory_without_protocol_selector(): void {
+		$values = [
+			'calm_sftp_host'     => 'localhost',
+			'calm_sftp_port'     => '22',
+			'calm_sftp_base'     => ABSPATH,
+			'calm_sftp_username' => 'owner',
+			'calm_sftp_password' => 'secret',
+			'calm_sftp_auth_method'     => 'password',
+			'calm_sftp_private_key_text' => '',
+			'calm_sftp_passphrase'      => '',
+		];
+		$directory = dirname( rtrim( ABSPATH, '/\\' ) );
+		$result = SFTP_Credentials::writable_directory_credentials( $values, [], $directory );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'connection_path_invalid', $result->get_error_code() );
+		$this->assertSame( [ 'directory' => $directory ], $result->get_error_data() );
+	}
+
 }

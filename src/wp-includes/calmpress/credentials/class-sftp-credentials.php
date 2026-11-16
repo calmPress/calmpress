@@ -22,6 +22,8 @@ use phpseclib4\Net\SFTP\Stream;
  */
 class SFTP_Credentials implements Connection_Credentials {
 
+	use Writable_Directory_Credentials;
+
 	/**
 	 * Form field name for the SFTP server hostname.
 	 *
@@ -185,7 +187,7 @@ class SFTP_Credentials implements Connection_Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $vars  Slashed form fields. Every key must be present with a string value;
+	 * @param array $vars  Unslashed form fields. Every key must be present with a string value;
 	 *                     fields for inactive authentication methods are ignored:
 	 *                     - calm_sftp_host: Hostname or IP address of the SFTP server.
 	 *                     - calm_sftp_port: Server port as a decimal string from 1 to 65535.
@@ -222,11 +224,11 @@ class SFTP_Credentials implements Connection_Credentials {
 			}
 		}
 
-		$host        = wp_unslash( $vars[ self::HOST_FORM_NAME ] );
+		$host        = $vars[ self::HOST_FORM_NAME ];
 		$port        = filter_var( $vars[ self::PORT_FORM_NAME ], FILTER_VALIDATE_INT );
-		$username    = wp_unslash( $vars[ self::USERNAME_FORM_NAME ] );
-		$base_dir    = wp_unslash( $vars[ self::BASEDIR_FORM_NAME ] );
-		$auth_method = wp_unslash( $vars[ self::AUTH_METHOD_FORM_NAME ] );
+		$username    = $vars[ self::USERNAME_FORM_NAME ];
+		$base_dir    = $vars[ self::BASEDIR_FORM_NAME ];
+		$auth_method = $vars[ self::AUTH_METHOD_FORM_NAME ];
 		$password    = '';
 		$private_key_content = '';
 		$passphrase  = '';
@@ -234,7 +236,7 @@ class SFTP_Credentials implements Connection_Credentials {
 
 		switch ( $auth_method ) {
 			case 'password':
-				$password = wp_unslash( $vars[ self::PASSWORD_FORM_NAME ] );
+				$password = $vars[ self::PASSWORD_FORM_NAME ];
 
 				if ( '' === trim( $password ) ) {
 					$errors->add( 'authentication', __( 'Password cannot be empty.' ) );
@@ -242,7 +244,7 @@ class SFTP_Credentials implements Connection_Credentials {
 				break;
 
 			case 'key_file':
-				$passphrase = wp_unslash( $vars[ self::PASSPHRASE_FORM_NAME ] );
+				$passphrase = $vars[ self::PASSPHRASE_FORM_NAME ];
 				$upload = $files[ self::PRIVATE_KEY_FORM_NAME ] ?? null;
 				$upload_error_message = __( 'No private key file was selected, or the upload failed. Select a file or paste the private key instead.' );
 
@@ -259,8 +261,8 @@ class SFTP_Credentials implements Connection_Credentials {
 				break;
 
 			case 'key_text':
-				$passphrase = wp_unslash( $vars[ self::PASSPHRASE_FORM_NAME ] );
-				$private_key_content = wp_unslash( $vars[ self::PRIVATE_KEY_TEXT_FORM_NAME ] );
+				$passphrase = $vars[ self::PASSPHRASE_FORM_NAME ];
+				$private_key_content = $vars[ self::PRIVATE_KEY_TEXT_FORM_NAME ];
 
 				if ( '' === trim( $private_key_content ) ) {
 					$errors->add( 'private_key', __( 'Private key cannot be empty.' ) );
@@ -313,17 +315,20 @@ class SFTP_Credentials implements Connection_Credentials {
 	 * @since 1.0.0
 	 *
 	 * @param array $initial_state Values keyed by the calm_sftp_* input names listed above. Pass [] for the defaults.
-	 * @param string $nonce_name   Nonce action and prefix for its field name.
+	 * @param string|null $nonce_name Nonce action and prefix for its field name, or null to omit the nonce field.
 	 * @param string $submit_label Text displayed on the submit button.
+	 * @param string $action_url Form submission URL.
 	 *
 	 * @return string Form HTML.
 	 *
 	 * @throws \DomainException If the authentication method is invalid.
 	 */
-	public static function form( array $initial_state, string $nonce_name, string $submit_label ): string {
+	public static function form( array $initial_state, ?string $nonce_name, string $submit_label, string $action_url ): string {
 		$id   = wp_unique_id( 'calm-sftp-credentials-' );
-		$html = '<form class="calm-credentials-form calm-validate" action="" method="post" enctype="multipart/form-data" novalidate>';
-		$html .= wp_nonce_field( $nonce_name, $nonce_name . '_nonce', true, false );
+		$html = '<form class="calm-credentials-form calm-validate" action="' . esc_url( $action_url ) . '" method="post" enctype="multipart/form-data" novalidate>';
+		if ( null !== $nonce_name ) {
+			$html .= wp_nonce_field( $nonce_name, $nonce_name . '_nonce', true, false );
+		}
 		$html .= '<div id="' . esc_attr( $id ) . '" class="calm-sftp-credentials">';
 		$html .= '<h2 id="connection-credentials">' . esc_html__( 'Connection credentials' ) . '</h2>';
 		$html .= '<p class="description">' . esc_html__( 'Get the SFTP account details from your hosting control panel or server administrator. Use an account that can write to this installation.' ) . '</p>';
@@ -357,6 +362,7 @@ class SFTP_Credentials implements Connection_Credentials {
 	 * @throws \DomainException If the authentication method is invalid.
 	 */
 	public static function form_fields( array $initial_state ): string {
+		$autocomplete_section = esc_attr( \calmpress\utils\site_specific_autocomplete_section( 'sftp' ) );
 		$initial_state = wp_parse_args( $initial_state, [
 			self::HOST_FORM_NAME => '127.0.0.1',
 			self::PORT_FORM_NAME => '22',
@@ -447,12 +453,12 @@ class SFTP_Credentials implements Connection_Credentials {
 			</select>
 		</td></tr>
 		<tr><th><label for="{$user_name}">{$user_label}</label></th><td>
-			<input class="regular-text" type="text" id="{$user_name}" name="{$user_name}" value="{$user}" autocomplete="section-calmpresssftp username" required validate="nonempty">
+			<input class="regular-text" type="text" id="{$user_name}" name="{$user_name}" value="{$user}" autocomplete="{$autocomplete_section} username" required validate="nonempty">
 			<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
 			<p class="description">{$user_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="password"{$password_hidden}><th><label for="{$password_name}">{$password_label}</label></th><td>
-			<input class="regular-text" type="password" id="{$password_name}" name="{$password_name}" value="{$password}" autocomplete="section-calmpresssftp current-password" validate="nonempty" data-sftp-required="true"{$password_required}>
+			<input class="regular-text" type="password" id="{$password_name}" name="{$password_name}" value="{$password}" autocomplete="{$autocomplete_section} current-password" validate="nonempty" data-sftp-required="true"{$password_required}>
 			<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
 			<p class="description">{$password_description}</p>
 		</td></tr>

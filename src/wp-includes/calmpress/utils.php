@@ -11,152 +11,6 @@ declare(strict_types=1);
 namespace calmpress\utils;
 
 /**
- * Check whether the current PHP process can modify a file or directory.
- *
- * A Unix process can change permissions on a path it owns, even when that path
- * is not currently writable.
- *
- * @since 1.0.0
- *
- * @param string $path Path to check.
- *
- * @return bool Whether the path is modifiable or its protection cannot be verified.
- *
- * @throws \RuntimeException If the first ownership probe fails, including temporary-file cleanup.
- *                           Later calls do not retry the probe.
- */
-function current_process_can_modify_path( string $path ): bool {
-	if ( wp_is_writable( $path ) ) {
-		return true;
-	}
-
-	if ( 'Windows' === PHP_OS_FAMILY ) {
-		return false;
-	}
-
-	// Cache the process owner or a failed lookup so a caught exception does not cause another probe.
-	static $process_uid = null;
-
-	if ( false === $process_uid ) {
-		return true;
-	}
-
-	if ( null === $process_uid ) {
-		$process_uid = false;
-		$temp_file = @tempnam( get_temp_dir(), 'calmpress-owner-' );
-		if ( false === $temp_file ) {
-			throw new \RuntimeException( 'Could not create a temporary file to determine the current process owner.' );
-		}
-
-		$stat = @stat( $temp_file );
-		$removed = @unlink( $temp_file );
-		if ( false === $stat ) {
-			throw new \RuntimeException( 'Could not read the owner of the temporary file.' );
-		}
-		if ( ! $removed ) {
-			throw new \RuntimeException( 'Could not remove the temporary file: ' . $temp_file );
-		}
-
-		$process_uid = $stat['uid'];
-	}
-
-	$owner_uid = @fileowner( $path );
-
-	// The path may have disappeared since it was listed; do not assume it is protected.
-	if ( false === $owner_uid ) {
-		return true;
-	}
-
-	return $owner_uid === $process_uid;
-}
-
-/**
- * Check whether the current PHP process can modify installed code.
- *
- * Checks the installation root and its files, then every directory and file
- * under wp-admin, wp-includes, plugins, mu-plugins, and the themes directory.
- * Also checks PHP files directly under wp-content, including drop-ins.
- * A writable parent directory can also allow a code directory to be replaced.
- * Symbolic links are checked but their targets are not traversed.
- *
- * @since 1.0.0
- *
- * @param string $root_directory Absolute path to the installation root.
- *
- * @return bool Whether an installed code path is modifiable or its protection cannot be verified.
- *
- * @throws \RuntimeException If the first ownership probe fails, including temporary-file cleanup.
- *                           Later calls do not retry the probe.
- * @throws \UnexpectedValueException If a code directory cannot be read.
- */
-function can_modify_installed_code( string $root_directory ): bool {
-	$root_directory = rtrim( $root_directory, '/\\' );
-
-	if ( current_process_can_modify_path( $root_directory ) ) {
-		return true;
-	}
-
-	foreach ( new \DirectoryIterator( $root_directory ) as $entry ) {
-		if ( $entry->isFile() && current_process_can_modify_path( $entry->getPathname() ) ) {
-			return true;
-		}
-	}
-
-	if ( is_dir( WP_CONTENT_DIR ) ) {
-		if ( current_process_can_modify_path( WP_CONTENT_DIR ) ) {
-			return true;
-		}
-
-		foreach ( new \DirectoryIterator( WP_CONTENT_DIR ) as $entry ) {
-			if (
-				$entry->isFile()
-				&& str_ends_with( strtolower( $entry->getFilename() ), '.php' )
-				&& current_process_can_modify_path( $entry->getPathname() )
-			) {
-				return true;
-			}
-		}
-	}
-
-	$code_directories = [
-		$root_directory . DIRECTORY_SEPARATOR . 'wp-admin',
-		$root_directory . DIRECTORY_SEPARATOR . 'wp-includes',
-	];
-	$other_directories = [ WP_PLUGIN_DIR, WPMU_PLUGIN_DIR, WP_CONTENT_DIR . '/themes' ];
-
-	foreach ( $other_directories as $path ) {
-		if ( ! is_dir( $path ) ) {
-			continue;
-		}
-
-		if ( current_process_can_modify_path( dirname( $path ) ) ) {
-			return true;
-		}
-
-		$code_directories[] = $path;
-	}
-
-	foreach ( array_unique( $code_directories ) as $path ) {
-		if ( current_process_can_modify_path( $path ) ) {
-			return true;
-		}
-
-		$items = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $path, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::SELF_FIRST
-		);
-
-		foreach ( $items as $item ) {
-			if ( current_process_can_modify_path( $item->getPathname() ) ) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-/**
  * The message text of the last error reported.
  *
  * A sweetener over error_get_last.
@@ -919,4 +773,80 @@ function add_current_user_post_endpoint(
  */
 function unknown_error_text():string {
 	return __( 'The operation could not be completed due to an unknown error.' );
+}
+
+/**
+ * Check write access to a directory using the supplied credentials.
+ *
+ * @since 1.0.0
+ *
+ * @param \calmpress\credentials\Credentials $credentials Credentials used for the connection.
+ * @param string $directory Absolute directory path to check.
+ *
+ * @return true|\WP_Error True when the directory is writable, or a connection or write-access error.
+ */
+function validate_directory_write_access( \calmpress\credentials\Credentials $credentials, string $directory ): true|\WP_Error {
+	$probe = rtrim( $directory, '/\\' ) . '/.calmpress-access-' . wp_generate_uuid4();
+
+	try {
+		$url = $credentials->stream_url_from_path( $probe );
+		$context = $credentials->stream_context();
+	} catch ( \DomainException $error ) {
+		return new \WP_Error( 'connection_path_invalid', sprintf( __( 'Failed to access directory: %s' ), $directory ), [ 'directory' => $directory ] );
+	} catch ( \calmpress\credentials\Connection_Exception $error ) {
+		return $error->to_wp_error();
+	} catch ( \RuntimeException $error ) {
+		return new \WP_Error( 'connection_failed', $error->getMessage() );
+	}
+
+	$stream = @fopen( $url, 'wb', false, $context );
+
+	if ( false === $stream ) {
+		return new \WP_Error( 'connection_directory_not_writable', sprintf( __( 'Failed to write to directory: %s. Check its path and permissions.' ), $directory ), [ 'directory' => $directory ] );
+	}
+
+	fclose( $stream );
+	$removed = @unlink( $url, $context );
+
+	if ( ! $removed ) {
+		return new \WP_Error(
+			'connection_file_delete_failed',
+
+			/* translators: 1: Directory path, 2: Temporary file name. */
+			sprintf( __( 'Failed to delete files from directory: %1$s. Temporary file %2$s may have been left in it.' ), $directory, basename( $probe ) ),
+			[ 'directory' => $directory, 'file' => $probe ]
+		);
+	}
+
+	return true;
+}
+
+/**
+ * Build a site-specific HTML autocomplete section identifier.
+ *
+ * Uses the guessed site URL during installation and the configured site URL otherwise.
+ *
+ * @since 1.0.0
+ *
+ * @param string $section_key Whitespace-free key distinguishing sections on the same site.
+ *
+ * @return string HTML autocomplete section token.
+ *
+ * @throws \InvalidArgumentException If the section key contains whitespace.
+ */
+function site_specific_autocomplete_section( string $section_key ): string {
+	if ( preg_match( '/\s/', $section_key ) ) {
+		throw new \InvalidArgumentException( 'Autocomplete section keys must not contain whitespace.' );
+	}
+
+	if ( wp_installing() ) {
+		$url = wp_guess_url();
+	} else {
+		$url = site_url();
+	}
+
+	// A consistent trailing slash keeps the identifier stable across equivalent base URLs.
+	$site_identifier = trailingslashit( $url );
+
+	return 'section-calm' . substr( hash( 'sha256', $site_identifier ), 0, 16 ) . $section_key;
 }

@@ -122,25 +122,25 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 	function test_parse_parameters_reports_invalid_fields(): void {
 
 		$errors = FTP_Credentials::parse_parameters(
-			wp_slash( [
+			[
 				FTP_Credentials::HOST_FORM_NAME     => '',
 				FTP_Credentials::PORT_FORM_NAME     => '0',
 				FTP_Credentials::USERNAME_FORM_NAME => '',
 				FTP_Credentials::PASSWORD_FORM_NAME => 'pass ',
 				FTP_Credentials::BASEDIR_FORM_NAME  => 'fail',
-			] ), []
+			], []
 		);
 
 		$this->assertSame( 4, count( $errors->get_error_codes() ) );
 
 		$errors = FTP_Credentials::parse_parameters(
-			wp_slash( [
+			[
 				FTP_Credentials::HOST_FORM_NAME     => '',
 				FTP_Credentials::PORT_FORM_NAME     => '20',
 				FTP_Credentials::USERNAME_FORM_NAME => '',
 				FTP_Credentials::PASSWORD_FORM_NAME => '',
 				FTP_Credentials::BASEDIR_FORM_NAME  => 'fail',
-			] ), []
+			], []
 		);
 
 		$this->assertSame( 4, count( $errors->get_error_codes() ) );
@@ -149,13 +149,13 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 		$this->assertNotEmpty( $errors->get_error_messages( 'username' ) );
 		$this->assertNotEmpty( $errors->get_error_messages( 'password' ) );
 
-		$errors = FTP_Credentials::parse_parameters( wp_slash( [
+		$errors = FTP_Credentials::parse_parameters( [
 			FTP_Credentials::HOST_FORM_NAME => 'localhost',
 			FTP_Credentials::PORT_FORM_NAME => '21abc',
 			FTP_Credentials::USERNAME_FORM_NAME => 'user',
 			FTP_Credentials::PASSWORD_FORM_NAME => 'secret',
 			FTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
-		] ), [] );
+		], [] );
 		$this->assertNotEmpty( $errors->get_error_messages( 'port' ) );
 	}
 
@@ -267,17 +267,39 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Valid FTP form fields produce parsed constructor values.
+	 * Valid FTP parameters produce a credentials parameters object.
 	 *
 	 * @since 1.0.0
 	 */
 	public function test_parse_parameters_returns_values_when_valid(): void {
-		$this->assertEquals( new FTP_Credentials_Parameters( 'localhost', 21, 'user', 'secret', ABSPATH ), FTP_Credentials::parse_parameters( wp_slash( [
+		$this->assertEquals( new FTP_Credentials_Parameters( 'localhost', 21, 'user', 'secret', ABSPATH ), FTP_Credentials::parse_parameters( [
 			FTP_Credentials::HOST_FORM_NAME => 'localhost',
 			FTP_Credentials::PORT_FORM_NAME => '21',
 			FTP_Credentials::USERNAME_FORM_NAME => 'user',
 			FTP_Credentials::PASSWORD_FORM_NAME => 'secret',
 			FTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
-		] ), [] ) );
+		], [] ) );
 	}
+
+	/**
+	 * Credentials reject access to a directory outside the account's base directory.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_writable_directory_credentials_checks_directory_without_protocol_selector(): void {
+		$values = [
+			'calm_ftp_host'     => 'localhost',
+			'calm_ftp_port'     => '22',
+			'calm_ftp_base'     => ABSPATH,
+			'calm_ftp_username' => 'owner',
+			'calm_ftp_password' => 'secret',
+		];
+		$directory = dirname( rtrim( ABSPATH, '/\\' ) );
+		$result = FTP_Credentials::writable_directory_credentials( $values, [], $directory );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'connection_path_invalid', $result->get_error_code() );
+		$this->assertSame( [ 'directory' => $directory ], $result->get_error_data() );
+	}
+
 }
