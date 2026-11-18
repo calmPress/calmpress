@@ -164,9 +164,9 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 *                     - calm_sftp_port: Server port as a decimal string from 1 to 65535.
 	 *                     - calm_sftp_username: SFTP account username.
 	 *                     - calm_sftp_base: Absolute server path corresponding to the account's root directory.
-	 *                     - calm_sftp_auth_method: Either password or key_text.
+	 *                     - calm_sftp_auth_method: One of password, key_file, or key_text.
 	 *                     - calm_sftp_password: Password for password authentication.
-	 *                     - calm_sftp_private_key_text: Private key for key_text authentication.
+	 *                     - calm_sftp_private_key_text: Private key contents for either key authentication method.
 	 *                     - calm_sftp_passphrase: Private key passphrase, if needed.
 	 *                     SFTP fields for inactive authentication methods are ignored but must still be present.
 	 *

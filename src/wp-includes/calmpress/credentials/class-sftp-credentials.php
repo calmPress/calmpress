@@ -193,9 +193,9 @@ class SFTP_Credentials implements Connection_Credentials {
 	 *                     - calm_sftp_port: Server port as a decimal string from 1 to 65535.
 	 *                     - calm_sftp_username: Username for the SFTP account.
 	 *                     - calm_sftp_base: Absolute server path corresponding to the account's root directory.
-	 *                     - calm_sftp_auth_method: Either password or key_text.
+	 *                     - calm_sftp_auth_method: One of password, key_file, or key_text.
 	 *                     - calm_sftp_password: Account password when using password authentication.
-	 *                     - calm_sftp_private_key_text: Private key contents when using key_text.
+	 *                     - calm_sftp_private_key_text: Private key contents for either key authentication method.
 	 *                     - calm_sftp_passphrase: Passphrase for an encrypted private key, if needed.
 	 *
 	 * @return SFTP_Credentials_Parameters|\WP_Error Connection values, or validation problems.
@@ -239,6 +239,7 @@ class SFTP_Credentials implements Connection_Credentials {
 				}
 				break;
 
+			case 'key_file':
 			case 'key_text':
 				$passphrase = $vars[ self::PASSPHRASE_FORM_NAME ];
 				$private_key_content = $vars[ self::PRIVATE_KEY_TEXT_FORM_NAME ];
