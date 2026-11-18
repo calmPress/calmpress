@@ -8,7 +8,7 @@
  *   optional min and max attributes (inclusive).
  * - "file": Exactly one file must be selected.
  *
- * Fields are checked one second after page load, their latest change, or after
+ * Fields are checked 500 milliseconds after page load, their latest change, or after
  * they become available for validation, and on submission.
  * The validation-failure-class attribute selects the CSS class added to an invalid
  * field; the default is validation-warning. Disabled fields and fields inside
@@ -120,7 +120,7 @@
 	}
 
 	/**
-	 * Schedules validation of a field one second after its latest change.
+	 * Schedules validation of a field 500 milliseconds after its latest change.
 	 *
 	 * @since 1.0.0
 	 *
@@ -132,7 +132,7 @@
 			validate_field( field );
 			update_submit_buttons( field.form );
 			timers.delete( field );
-		}, 1000 ) );
+		}, 500 ) );
 	}
 
 	/**
