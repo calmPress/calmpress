@@ -88,7 +88,7 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 *                             - calm_sftp_password: SFTP account password; not redisplayed.
 	 *                             - calm_sftp_private_key_text: Pasted private key; not redisplayed.
 	 *                             - calm_sftp_passphrase: Private key passphrase; not redisplayed.
-	 *                             Other keys are ignored. Pass [] to use all defaults.
+	 *                             Other keys are ignored. Pass [] for defaults and browser-stored prefilling.
 	 * @param string|null $nonce_name Nonce action and prefix for its field name, or null to omit the nonce field.
 	 * @param string $submit_label Text displayed on the submit button.
 	 * @param string $action_url Form submission URL.
@@ -98,6 +98,9 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 * @throws \DomainException If a supplied initial value is invalid.
 	 */
 	public static function form( array $initial_state, ?string $nonce_name, string $submit_label, string $action_url ): string {
+		$prefill = [] === $initial_state ? 'true' : 'false';
+		$storage_site = esc_attr( \calmpress\utils\current_site_url() );
+
 		$initial_state = wp_parse_args( $initial_state, [ self::PROTOCOL_FORM_NAME => 'sftp' ] );
 		$protocol      = $initial_state[ self::PROTOCOL_FORM_NAME ];
 		if ( ! is_string( $protocol ) ) {
@@ -108,7 +111,7 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 		}
 
 		$id   = wp_unique_id( 'calm-credentials-' );
-		$html = '<form class="calm-credentials-form calm-validate" action="' . esc_url( $action_url ) . '" method="post" enctype="multipart/form-data" novalidate>';
+		$html = '<form data-credentials-type="ftp-sftp" data-credentials-site="' . $storage_site . '" data-credentials-prefill="' . $prefill . '" class="calm-credentials-form calm-validate" action="' . esc_url( $action_url ) . '" method="post" novalidate>';
 		if ( null !== $nonce_name ) {
 			$html .= wp_nonce_field( $nonce_name, $nonce_name . '_nonce', true, false );
 		}
@@ -124,7 +127,7 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 
 		foreach ( [ 'sftp', 'ftp' ] as $type ) {
 			$active = $protocol === $type;
-			$html .= '<div data-credentials-protocol="' . esc_attr( $type ) . '"' . ( $active ? '' : ' hidden' ) . '>';
+			$html .= '<div data-credentials-type="' . esc_attr( $type ) . '" data-credentials-site="' . $storage_site . '" data-credentials-prefill="' . $prefill . '" data-credentials-protocol="' . esc_attr( $type ) . '"' . ( $active ? '' : ' hidden' ) . '>';
 			$html .= '<table class="form-table"><tbody>';
 			$html .= 'sftp' === $type ? SFTP_Credentials::form_fields( $initial_state ) : FTP_Credentials::form_fields( $initial_state );
 			$html .= '</tbody></table></div>';
@@ -142,7 +145,7 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 *
 	 * The calm_credentials_protocol field selects ftp or sftp.
 	 *
-	 * The remaining fields and uploads follow the selected protocol's parser.
+	 * The remaining fields follow the selected protocol's parser.
 	 *
 	 * @since 1.0.0
 	 *
@@ -161,28 +164,24 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 *                     - calm_sftp_port: Server port as a decimal string from 1 to 65535.
 	 *                     - calm_sftp_username: SFTP account username.
 	 *                     - calm_sftp_base: Absolute server path corresponding to the account's root directory.
-	 *                     - calm_sftp_auth_method: One of password, key_file, or key_text.
+	 *                     - calm_sftp_auth_method: Either password or key_text.
 	 *                     - calm_sftp_password: Password for password authentication.
 	 *                     - calm_sftp_private_key_text: Private key for key_text authentication.
 	 *                     - calm_sftp_passphrase: Private key passphrase, if needed.
 	 *                     SFTP fields for inactive authentication methods are ignored but must still be present.
-	 * @param array $files Uploaded files keyed by input name. For SFTP key_file authentication,
-	 *                     calm_sftp_private_key contains a $_FILES entry with an integer error code
-	 *                     and a tmp_name path when the upload succeeds. It may be absent when
-	 *                     no file was selected. Unused for FTP and other SFTP authentication methods.
 	 *
 	 * @return Connection_Credentials_Parameters|\WP_Error Values for the selected protocol or validation problems.
 	 *
 	 * @throws \LogicException If the submitted protocol is missing or unsupported.
 	 */
-	public static function parse_parameters( array $vars, array $files ): Connection_Credentials_Parameters|\WP_Error {
+	public static function parse_parameters( array $vars ): Connection_Credentials_Parameters|\WP_Error {
 		if ( ! isset( $vars[ self::PROTOCOL_FORM_NAME ] ) || ! is_string( $vars[ self::PROTOCOL_FORM_NAME ] ) ) {
 			throw new \LogicException( 'Missing or invalid connection protocol.' );
 		}
 
 		return match ( $vars[ self::PROTOCOL_FORM_NAME ] ) {
-			'ftp' => FTP_Credentials::parse_parameters( $vars, $files ),
-			'sftp' => SFTP_Credentials::parse_parameters( $vars, $files ),
+			'ftp' => FTP_Credentials::parse_parameters( $vars ),
+			'sftp' => SFTP_Credentials::parse_parameters( $vars ),
 			default => throw new \LogicException( 'Unsupported connection protocol.' ),
 		};
 	}
@@ -196,14 +195,13 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 * @see self::parse_parameters() For the required protocol field and protocol-specific parameters.
 	 *
 	 * @param array $vars Unslashed form values accepted by parse_parameters().
-	 * @param array $files Uploaded files accepted by parse_parameters(), in the format of $_FILES.
 	 * @param string $directory Absolute directory requiring write access.
 	 *
 	 * @return Connection_Credentials|\WP_Error Usable credentials on success, or validation and connection errors on failure.
 	 *
 	 * @throws \LogicException If required parameters are missing or malformed.
 	 */
-	public static function writable_directory_credentials( array $vars, array $files, string $directory ): Connection_Credentials|\WP_Error {
+	public static function writable_directory_credentials( array $vars, string $directory ): Connection_Credentials|\WP_Error {
 		if ( ! isset( $vars[ self::PROTOCOL_FORM_NAME ] ) || ! is_string( $vars[ self::PROTOCOL_FORM_NAME ] ) ) {
 			throw new \LogicException( 'Missing or invalid connection protocol.' );
 		}
@@ -211,8 +209,8 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 		$protocol = $vars[ self::PROTOCOL_FORM_NAME ];
 
 		return match ( $protocol ) {
-			'ftp' => FTP_Credentials::writable_directory_credentials( $vars, $files, $directory ),
-			'sftp' => SFTP_Credentials::writable_directory_credentials( $vars, $files, $directory ),
+			'ftp' => FTP_Credentials::writable_directory_credentials( $vars, $directory ),
+			'sftp' => SFTP_Credentials::writable_directory_credentials( $vars, $directory ),
 			default => throw new \LogicException( 'Unsupported connection protocol.' ),
 		};
 	}

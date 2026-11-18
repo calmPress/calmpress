@@ -164,7 +164,7 @@ if ( $update_required ) {
 
 		$connection_failure = __( 'The file could not be updated through this connection. Check the connection settings and file permissions.' );
 		try {
-			$connection_credentials = \calmpress\credentials\FTP_SFTP_Credentials::writable_directory_credentials( $credential_initial_state, $_FILES, dirname( $file_path ) );
+			$connection_credentials = \calmpress\credentials\FTP_SFTP_Credentials::writable_directory_credentials( $credential_initial_state, dirname( $file_path ) );
 
 			if ( is_wp_error( $connection_credentials ) ) {
 				validation_error_notice( $connection_credentials );

@@ -822,31 +822,16 @@ function validate_directory_write_access( \calmpress\credentials\Credentials $cr
 }
 
 /**
- * Build a site-specific HTML autocomplete section identifier.
- *
- * Uses the guessed site URL during installation and the configured site URL otherwise.
+ * Get the current site URL, guessed during installation and configured otherwise.
  *
  * @since 1.0.0
  *
- * @param string $section_key Whitespace-free key distinguishing sections on the same site.
- *
- * @return string HTML autocomplete section token.
- *
- * @throws \InvalidArgumentException If the section key contains whitespace.
+ * @return string Site URL with a trailing slash.
  */
-function site_specific_autocomplete_section( string $section_key ): string {
-	if ( preg_match( '/\s/', $section_key ) ) {
-		throw new \InvalidArgumentException( 'Autocomplete section keys must not contain whitespace.' );
-	}
-
+function current_site_url(): string {
 	if ( wp_installing() ) {
-		$url = wp_guess_url();
-	} else {
-		$url = site_url();
+		return trailingslashit( wp_guess_url() );
 	}
 
-	// A consistent trailing slash keeps the identifier stable across equivalent base URLs.
-	$site_identifier = trailingslashit( $url );
-
-	return 'section-calm' . substr( hash( 'sha256', $site_identifier ), 0, 16 ) . $section_key;
+	return trailingslashit( site_url() );
 }

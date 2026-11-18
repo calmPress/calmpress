@@ -60,7 +60,7 @@ class SFTP_Credentials implements Connection_Credentials {
 	public const BASEDIR_FORM_NAME    = 'calm_sftp_base';
 
 	/**
-	 * Form field name for an uploaded private-key file.
+	 * Identifier for the private-key file picker.
 	 *
 	 * @since 1.0.0
 	 */
@@ -193,20 +193,16 @@ class SFTP_Credentials implements Connection_Credentials {
 	 *                     - calm_sftp_port: Server port as a decimal string from 1 to 65535.
 	 *                     - calm_sftp_username: Username for the SFTP account.
 	 *                     - calm_sftp_base: Absolute server path corresponding to the account's root directory.
-	 *                     - calm_sftp_auth_method: One of password, key_file, or key_text.
+	 *                     - calm_sftp_auth_method: Either password or key_text.
 	 *                     - calm_sftp_password: Account password when using password authentication.
-	 *                     - calm_sftp_private_key_text: Pasted private key when using key_text.
+	 *                     - calm_sftp_private_key_text: Private key contents when using key_text.
 	 *                     - calm_sftp_passphrase: Passphrase for an encrypted private key, if needed.
-	 * @param array $files Uploaded files keyed by input name. For key_file authentication,
-	 *                     calm_sftp_private_key contains a $_FILES entry with an integer
-	 *                     error code and a tmp_name path when the upload succeeds. It may
-	 *                     be absent when no file was selected.
 	 *
 	 * @return SFTP_Credentials_Parameters|\WP_Error Connection values, or validation problems.
 	 *
 	 * @throws \LogicException If a required form field is missing, has an unexpected type, or specifies an unsupported authentication method.
 	 */
-	public static function parse_parameters( array $vars, array $files ): SFTP_Credentials_Parameters|\WP_Error {
+	public static function parse_parameters( array $vars ): SFTP_Credentials_Parameters|\WP_Error {
 		$fields = [
 			self::HOST_FORM_NAME,
 			self::PORT_FORM_NAME,
@@ -240,23 +236,6 @@ class SFTP_Credentials implements Connection_Credentials {
 
 				if ( '' === trim( $password ) ) {
 					$errors->add( 'authentication', __( 'Password cannot be empty.' ) );
-				}
-				break;
-
-			case 'key_file':
-				$passphrase = $vars[ self::PASSPHRASE_FORM_NAME ];
-				$upload = $files[ self::PRIVATE_KEY_FORM_NAME ] ?? null;
-				$upload_error_message = __( 'No private key file was selected, or the upload failed. Select a file or paste the private key instead.' );
-
-				if ( ! is_array( $upload ) || UPLOAD_ERR_OK !== ( $upload['error'] ?? null ) || ! isset( $upload['tmp_name'] ) || ! is_string( $upload['tmp_name'] ) || ! is_uploaded_file( $upload['tmp_name'] ) ) {
-					$errors->add( 'private_key', $upload_error_message );
-				} else {
-					$private_key_content = @file_get_contents( $upload['tmp_name'] );
-
-					if ( false === $private_key_content ) {
-						trigger_error( 'Could not read the uploaded SFTP private key file.', E_USER_WARNING );
-						$errors->add( 'private_key', $upload_error_message );
-					}
 				}
 				break;
 
@@ -308,13 +287,17 @@ class SFTP_Credentials implements Connection_Credentials {
 	 * input names: calm_sftp_host, calm_sftp_port,
 	 * calm_sftp_base, calm_sftp_username, calm_sftp_auth_method (password,
 	 * key_file, or key_text), calm_sftp_password, calm_sftp_private_key_text, and
-	 * calm_sftp_passphrase. Absent fields use form defaults. Uploaded files are
-	 * supplied separately when the form is submitted.
+	 * calm_sftp_passphrase.
+	 *
+	 * Absent fields use form defaults.
+	 *
+	 * Selected files are read into the private-key text field before submission.
+	 *
 	 * Other fields are ignored.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $initial_state Values keyed by the calm_sftp_* input names listed above. Pass [] for the defaults.
+	 * @param array $initial_state Values keyed by the calm_sftp_* input names listed above. Pass [] for defaults and browser-stored prefilling.
 	 * @param string|null $nonce_name Nonce action and prefix for its field name, or null to omit the nonce field.
 	 * @param string $submit_label Text displayed on the submit button.
 	 * @param string $action_url Form submission URL.
@@ -324,12 +307,15 @@ class SFTP_Credentials implements Connection_Credentials {
 	 * @throws \DomainException If the authentication method is invalid.
 	 */
 	public static function form( array $initial_state, ?string $nonce_name, string $submit_label, string $action_url ): string {
+		$prefill = [] === $initial_state ? 'true' : 'false';
+		$storage_site = esc_attr( \calmpress\utils\current_site_url() );
+
 		$id   = wp_unique_id( 'calm-sftp-credentials-' );
-		$html = '<form class="calm-credentials-form calm-validate" action="' . esc_url( $action_url ) . '" method="post" enctype="multipart/form-data" novalidate>';
+		$html = '<form data-credentials-site="' . $storage_site . '" data-credentials-prefill="' . $prefill . '" class="calm-credentials-form calm-validate" action="' . esc_url( $action_url ) . '" method="post" novalidate>';
 		if ( null !== $nonce_name ) {
 			$html .= wp_nonce_field( $nonce_name, $nonce_name . '_nonce', true, false );
 		}
-		$html .= '<div id="' . esc_attr( $id ) . '" class="calm-sftp-credentials">';
+		$html .= '<div id="' . esc_attr( $id ) . '" class="calm-sftp-credentials" data-credentials-type="sftp" data-credentials-site="' . $storage_site . '" data-credentials-prefill="' . $prefill . '">';
 		$html .= '<h2 id="connection-credentials">' . esc_html__( 'Connection credentials' ) . '</h2>';
 		$html .= '<p class="description">' . esc_html__( 'Get the SFTP account details from your hosting control panel or server administrator. Use an account that can write to this installation.' ) . '</p>';
 		$html .= '<table class="form-table"><tbody>' . self::form_fields( $initial_state ) . '</tbody></table>';
@@ -362,7 +348,6 @@ class SFTP_Credentials implements Connection_Credentials {
 	 * @throws \DomainException If the authentication method is invalid.
 	 */
 	public static function form_fields( array $initial_state ): string {
-		$autocomplete_section = esc_attr( \calmpress\utils\site_specific_autocomplete_section( 'sftp' ) );
 		$initial_state = wp_parse_args( $initial_state, [
 			self::HOST_FORM_NAME => '127.0.0.1',
 			self::PORT_FORM_NAME => '22',
@@ -420,12 +405,13 @@ class SFTP_Credentials implements Connection_Credentials {
 		$empty_warning = esc_html__( 'Cannot be empty.' );
 		$port_warning = esc_html__( 'Should be between 1 and 65535 (inclusive).' );
 		$file_warning = esc_html__( 'A file must be selected.' );
+		$file_read_error = esc_attr__( 'Failed to read the private key file. Select it again or paste the key.' );
 		$host_description = esc_html__( 'The SFTP server address as seen by this web server. If SFTP runs on the same machine, use localhost or 127.0.0.1.' );
 		$port_description = esc_html__( 'The SFTP server port, usually 22.' );
 		$base_description = esc_html__( 'The path on the server\'s filesystem to the directory this SFTP account sees as its root (/). The calmPress installation directory must be this directory or one of its subdirectories.' );
 		$user_description = esc_html__( 'The account used to access the SFTP server.' );
 		$password_description = esc_html__( 'The password for the SFTP account.' );
-		$file_description = esc_html__( 'Choose a private key file to upload.' );
+		$file_description = esc_html__( 'Choose a private key file.' );
 		$text_description = esc_html__( 'Paste the private key.' );
 		$passphrase_description = esc_html__( 'The passphrase needed to unlock the private key, if it is protected.' );
 
@@ -453,17 +439,17 @@ class SFTP_Credentials implements Connection_Credentials {
 			</select>
 		</td></tr>
 		<tr><th><label for="{$user_name}">{$user_label}</label></th><td>
-			<input class="regular-text" type="text" id="{$user_name}" name="{$user_name}" value="{$user}" autocomplete="{$autocomplete_section} username" required validate="nonempty">
+			<input class="regular-text" type="text" id="{$user_name}" name="{$user_name}" value="{$user}" required validate="nonempty">
 			<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
 			<p class="description">{$user_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="password"{$password_hidden}><th><label for="{$password_name}">{$password_label}</label></th><td>
-			<input class="regular-text" type="password" id="{$password_name}" name="{$password_name}" value="{$password}" autocomplete="{$autocomplete_section} current-password" validate="nonempty" data-sftp-required="true"{$password_required}>
+			<input class="regular-text" type="password" id="{$password_name}" name="{$password_name}" value="{$password}" validate="nonempty" data-sftp-required="true"{$password_required}>
 			<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
 			<p class="description">{$password_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="key_file"{$file_hidden}><th><label for="{$file_name}">{$file_label}</label></th><td>
-			<input class="regular-text" type="file" id="{$file_name}" name="{$file_name}" validate="file" data-sftp-required="true"{$file_required}>
+			<input class="regular-text" type="file" id="{$file_name}" data-sftp-private-key-file data-read-error="{$file_read_error}" validate="file" data-sftp-required="true"{$file_required}>
 			<p class="validate-failure-message" aria-live="polite">{$file_warning}</p>
 			<p class="description">{$file_description}</p>
 		</td></tr>

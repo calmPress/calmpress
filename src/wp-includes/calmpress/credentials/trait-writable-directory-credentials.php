@@ -26,16 +26,15 @@ trait Writable_Directory_Credentials {
 	 * @since 1.0.0
 	 *
 	 * @param array $vars Unslashed form values.
-	 * @param array $files Uploaded files in the format of $_FILES.
 	 * @param string $directory Absolute directory requiring write access.
 	 *
 	 * @return Connection_Credentials|\WP_Error Usable credentials or validation and connection errors.
 	 *
 	 * @throws \LogicException If required parameters are missing or malformed.
 	 */
-	public static function writable_directory_credentials( array $vars, array $files, string $directory ): Connection_Credentials|\WP_Error {
+	public static function writable_directory_credentials( array $vars, string $directory ): Connection_Credentials|\WP_Error {
 		try {
-			$parameters = static::parse_parameters( $vars, $files );
+			$parameters = static::parse_parameters( $vars );
 
 			if ( is_wp_error( $parameters ) ) {
 				return $parameters;

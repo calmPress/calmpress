@@ -128,8 +128,7 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 				FTP_Credentials::USERNAME_FORM_NAME => '',
 				FTP_Credentials::PASSWORD_FORM_NAME => 'pass ',
 				FTP_Credentials::BASEDIR_FORM_NAME  => 'fail',
-			], []
-		);
+			] );
 
 		$this->assertSame( 4, count( $errors->get_error_codes() ) );
 
@@ -140,8 +139,7 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 				FTP_Credentials::USERNAME_FORM_NAME => '',
 				FTP_Credentials::PASSWORD_FORM_NAME => '',
 				FTP_Credentials::BASEDIR_FORM_NAME  => 'fail',
-			], []
-		);
+			] );
 
 		$this->assertSame( 4, count( $errors->get_error_codes() ) );
 		$this->assertNotEmpty( $errors->get_error_messages( 'host' ) );
@@ -155,7 +153,7 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 			FTP_Credentials::USERNAME_FORM_NAME => 'user',
 			FTP_Credentials::PASSWORD_FORM_NAME => 'secret',
 			FTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
-		], [] );
+		] );
 		$this->assertNotEmpty( $errors->get_error_messages( 'port' ) );
 	}
 
@@ -278,7 +276,7 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 			FTP_Credentials::USERNAME_FORM_NAME => 'user',
 			FTP_Credentials::PASSWORD_FORM_NAME => 'secret',
 			FTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
-		], [] ) );
+		] ) );
 	}
 
 	/**
@@ -295,7 +293,7 @@ class WP_Test_FTP_Credentials extends WP_UnitTestCase {
 			'calm_ftp_password' => 'secret',
 		];
 		$directory = dirname( rtrim( ABSPATH, '/\\' ) );
-		$result = FTP_Credentials::writable_directory_credentials( $values, [], $directory );
+		$result = FTP_Credentials::writable_directory_credentials( $values, $directory );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'connection_path_invalid', $result->get_error_code() );

@@ -33,7 +33,7 @@ interface Connection_Credentials extends Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $initial_state Values keyed by form input name that override the form defaults. Pass [] for the defaults.
+	 * @param array $initial_state Values keyed by form input name that override the form defaults. Pass [] for defaults and browser-stored prefilling.
 	 * @param string|null $nonce_name Nonce action and prefix for its field name, or null to omit the nonce field.
 	 * @param string $submit_label Text displayed on the submit button.
 	 * @param string $action_url Form submission URL.
@@ -48,11 +48,10 @@ interface Connection_Credentials extends Credentials {
 	 * @since 1.0.0
 	 *
 	 * @param array $vars  Unslashed values from the form's submitted fields.
-	 * @param array $files Uploaded files keyed by form input name, in the format of $_FILES.
 	 *
 	 * @return Connection_Credentials_Parameters|\WP_Error Parsed connection values or validation problems.
 	 */
-	public static function parse_parameters( array $vars, array $files ): Connection_Credentials_Parameters|\WP_Error;
+	public static function parse_parameters( array $vars ): Connection_Credentials_Parameters|\WP_Error;
 
 	/**
 	 * Parse submitted credentials, connect using the selected protocol, and verify write
@@ -61,13 +60,12 @@ interface Connection_Credentials extends Credentials {
 	 * @since 1.0.0
 	 *
 	 * @param array $vars Unslashed form values.
-	 * @param array $files Uploaded files in the format of $_FILES.
 	 * @param string $directory Absolute directory requiring write access.
 	 *
 	 * @return Connection_Credentials|\WP_Error Usable credentials on success, or validation and connection errors on failure.
 	 *
 	 * @throws \LogicException If required parameters are missing or malformed.
 	 */
-	public static function writable_directory_credentials( array $vars, array $files, string $directory ): Connection_Credentials|\WP_Error;
+	public static function writable_directory_credentials( array $vars, string $directory ): Connection_Credentials|\WP_Error;
 
 }

@@ -199,7 +199,7 @@ if ( $update_required ) {
 		) {
 		$credential_initial_state = wp_unslash( $_POST );
 
-		$connection_credentials = \calmpress\credentials\FTP_SFTP_Credentials::writable_directory_credentials( $credential_initial_state, $_FILES, dirname( $wp_config->filename() ) );
+		$connection_credentials = \calmpress\credentials\FTP_SFTP_Credentials::writable_directory_credentials( $credential_initial_state, dirname( $wp_config->filename() ) );
 
 		if ( is_wp_error( $connection_credentials ) ) {
 			validation_error_notice( $connection_credentials );

@@ -28,7 +28,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 */
 	public function test_unknown_protocol_is_rejected() {
 		$this->expectException( LogicException::class );
-		FTP_SFTP_Credentials::parse_parameters( [ FTP_SFTP_Credentials::PROTOCOL_FORM_NAME => 'unknown' ], [] );
+		FTP_SFTP_Credentials::parse_parameters( [ FTP_SFTP_Credentials::PROTOCOL_FORM_NAME => 'unknown' ] );
 	}
 
 	/**
@@ -38,7 +38,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 */
 	public function test_missing_protocol_is_rejected() {
 		$this->expectException( LogicException::class );
-		FTP_SFTP_Credentials::parse_parameters( [], [] );
+		FTP_SFTP_Credentials::parse_parameters( [] );
 	}
 
 	/**
@@ -54,7 +54,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 			FTP_Credentials::USERNAME_FORM_NAME => 'user',
 			FTP_Credentials::PASSWORD_FORM_NAME => "p'ass\\word",
 			FTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
-		], [] ) );
+		] ) );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 			SFTP_Credentials::PRIVATE_KEY_FORM_NAME => '',
 			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
 			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-		], [] ) );
+		] ) );
 	}
 
 	/**
@@ -89,7 +89,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	public function test_writable_directory_credentials_throws_for_malformed_parameters( array $parameters ): void {
 		$this->expectException( LogicException::class );
 
-		FTP_SFTP_Credentials::writable_directory_credentials( $parameters, [], ABSPATH );
+		FTP_SFTP_Credentials::writable_directory_credentials( $parameters, ABSPATH );
 	}
 
 	/**
@@ -117,7 +117,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	public function test_writable_directory_credentials_preserves_field_errors(): void {
 		$vars = $this->validation_form_values( 'ftp' );
 		$vars['calm_ftp_host'] = '';
-		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, [], ABSPATH );
+		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, ABSPATH );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertContains( 'host', $result->get_error_codes() );
@@ -132,7 +132,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 		$vars = $this->validation_form_values( 'sftp' );
 		$vars['calm_sftp_auth_method'] = 'key_text';
 		$vars['calm_sftp_private_key_text'] = 'invalid-sensitive-key';
-		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, [], ABSPATH );
+		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, ABSPATH );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'invalid_credentials', $result->get_error_code() );
@@ -140,14 +140,14 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Missing private-key uploads retain the upload-validation error.
+	 * Missing private-key text retains the private-key validation error.
 	 *
 	 * @since 1.0.0
 	 */
-	public function test_writable_directory_credentials_rejects_missing_key_upload(): void {
+	public function test_writable_directory_credentials_rejects_missing_key_text(): void {
 		$vars = $this->validation_form_values( 'sftp' );
-		$vars['calm_sftp_auth_method'] = 'key_file';
-		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, [ 'calm_sftp_private_key' => [ 'error' => UPLOAD_ERR_NO_FILE ] ], ABSPATH );
+		$vars['calm_sftp_auth_method'] = 'key_text';
+		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, ABSPATH );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertContains( 'private_key', $result->get_error_codes() );
