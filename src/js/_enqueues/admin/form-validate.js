@@ -9,18 +9,16 @@
  * - "file": Exactly one file must be selected.
  *
  * Fields are checked 500 milliseconds after page load, their latest change, or after
- * they become available for validation, and on submission.
+ * they become available for validation.
  * The validation-failure-class attribute selects the CSS class added to an invalid
  * field; the default is validation-warning. Disabled fields and fields inside
  * hidden elements are ignored.
  *
- * Call calmpress_form_validation.refresh(form) after changing field visibility
- * or availability. The argument may be a form element or a CSS selector for
- * one. It clears warnings for fields that have become hidden or disabled and
- * schedules validation for fields that have become available.
+ * Get the shared validated form with Generic_Validated_Form.for_form(form), then call
+ * validated_form.refresh() after changing field visibility or availability. This clears
+ * warnings for hidden or disabled fields and schedules checks for available fields.
  *
- * Submit buttons are disabled while a form has invalid fields. Submission is
- * also checked in case it is triggered without using a button.
+ * Submit buttons are disabled while a form has invalid fields.
  *
  * @since 1.0.0
  */
@@ -28,180 +26,211 @@
 ( function () {
 	'use strict';
 
-	// Timer IDs for field validation scheduled after a change.
-	const timers = new WeakMap();
+	// Reuse one instance per form so callers share timers and event handlers.
+	const validated_forms = new WeakMap();
 
-	// Records whether validation was required for each field at the last refresh.
-	const requires_validation_by_field = new WeakMap();
-
-	/**
-	 * Checks a field according to its validation mode.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param {HTMLElement} field Field to check.
-	 * @return {boolean} Whether the field is valid.
-	 */
-	function field_is_valid( field ) {
-		switch ( field.getAttribute( 'validate' ) ) {
-			case 'pattern':
-				return new RegExp( field.getAttribute( 'validation-pattern' ) ).test( field.value );
-			case 'nonempty':
-				return field.value.trim() !== '';
-			case 'integer-range':
-				return /^\d+$/.test( field.value ) &&
-					( ! field.hasAttribute( 'min' ) || Number( field.value ) >= Number( field.min ) ) &&
-					( ! field.hasAttribute( 'max' ) || Number( field.value ) <= Number( field.max ) );
-			case 'file':
-				return field.files.length === 1;
-			default:
-				return true;
-		}
-	}
+	// Only for_form() can supply this module-private construction token.
+	const constructor_token = Symbol();
 
 	/**
-	 * Updates a field's warning state.
+	 * A form with generic field validation and validation feedback.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @param {HTMLElement} field Field to check.
-	 * @return {boolean} Whether the field is currently valid.
 	 */
-	function validate_field( field ) {
-		const warningClass = field.getAttribute( 'validation-failure-class' ) || 'validation-warning';
-		const requires_validation = ! field.disabled && ! field.closest( '[hidden]' );
-		const valid = ! requires_validation || field_is_valid( field );
-
-		field.classList.toggle( warningClass, ! valid );
-		if ( valid ) {
-			field.removeAttribute( 'aria-invalid' );
-		} else {
-			field.setAttribute( 'aria-invalid', 'true' );
-		}
-
-		return valid;
-	}
-
-	/**
-	 * Checks fields requiring validation in one form.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param {HTMLFormElement} form Form to check.
-	 * @return {boolean} Whether the fields requiring validation are valid.
-	 */
-	function validate_form( form ) {
-		let valid = true;
-
-		form.querySelectorAll( '[validate]' ).forEach( function ( field ) {
-			if ( ! validate_field( field ) ) {
-				valid = false;
-			}
-		} );
-
-		return valid;
-	}
-
-	/**
-	 * Updates submit buttons to reflect whether a form can be submitted.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param {HTMLFormElement} form Form whose submit buttons should be updated.
-	 */
-	function update_submit_buttons( form ) {
-		const invalid = Array.from( form.querySelectorAll( '[validate]' ) ).some( function ( field ) {
-			return ! field.disabled && ! field.closest( '[hidden]' ) && ! field_is_valid( field );
-		} );
-
-		form.querySelectorAll( 'input[type="submit"], button[type="submit"], button:not([type])' ).forEach( function ( button ) {
-			button.disabled = invalid;
-		} );
-	}
-
-	/**
-	 * Schedules validation of a field 500 milliseconds after its latest change.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param {HTMLElement} field Field to validate.
-	 */
-	function schedule_field_validation( field ) {
-		clearTimeout( timers.get( field ) );
-		timers.set( field, setTimeout( function () {
-			validate_field( field );
-			update_submit_buttons( field.form );
-			timers.delete( field );
-		}, 500 ) );
-	}
-
-	/**
-	 * Schedules validation of the event's target field.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param {Event} event Field input, change, or composition event.
-	 */
-	function schedule_validation( event ) {
-		const field = event.target;
-		if ( ! field.hasAttribute( 'validate' ) || event.isComposing ) {
-			return;
-		}
-
-		schedule_field_validation( field );
-	}
-
-	window.calmpress_form_validation = {
+	class Generic_Validated_Form {
 		/**
-		 * Updates validation after fields become available, hidden, or disabled.
+		 * Get the shared validated form instance.
+		 *
+		 * Different scripts and automatic initialization can request validation for the same form.
+		 *
+		 * Use this method instead of constructing an instance directly so they share one
+		 * instance, with one set of event handlers and validation timers.
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param {HTMLFormElement|string} form Form whose fields have changed, or a CSS selector for it.
+		 * @param {HTMLFormElement} form Form to validate.
+		 *
+		 * @return {Generic_Validated_Form} Form with generic validation.
 		 */
-		refresh( form ) {
-			if ( typeof form === 'string' ) {
-				form = document.querySelector( form );
-			}
-
+		static for_form( form ) {
 			if ( ! ( form instanceof HTMLFormElement ) ) {
-				throw new TypeError( 'Expected a form element or a selector matching one.' );
+				throw new TypeError( 'Expected a form element.' );
 			}
 
-			form.querySelectorAll( '[validate]' ).forEach( function ( field ) {
+			if ( ! validated_forms.has( form ) ) {
+				validated_forms.set( form, new Generic_Validated_Form( form, constructor_token ) );
+			}
+
+			return validated_forms.get( form );
+		}
+
+		/**
+		 * Bind validation state and event handlers to the form.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param {HTMLFormElement} form Form to validate.
+		 * @param {symbol} token Module-private token supplied by for_form().
+		 *
+		 * @throws {TypeError} If construction is attempted outside for_form().
+		 */
+		constructor( form, token ) {
+			if ( token !== constructor_token ) {
+				throw new TypeError( 'Use Generic_Validated_Form.for_form().' );
+			}
+
+			this.form = form;
+			this.timers = new WeakMap();
+			this.requires_validation_by_field = new WeakMap();
+			this.refresh();
+
+			form.querySelectorAll( '[validate]' ).forEach( ( field ) => {
+				if ( ! field.disabled && ! field.closest( '[hidden]' ) ) {
+					this.schedule_field_validation( field );
+				}
+			} );
+
+			form.addEventListener( 'input', this.schedule_validation.bind( this ) );
+			form.addEventListener( 'change', this.schedule_validation.bind( this ) );
+			form.addEventListener( 'compositionend', this.schedule_validation.bind( this ) );
+		}
+
+		/**
+		 * Checks a field according to its validation mode.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param {HTMLElement} field Field to check.
+		 *
+		 * @return {boolean} Whether the field is valid.
+		 */
+		field_is_valid( field ) {
+			switch ( field.getAttribute( 'validate' ) ) {
+				case 'pattern':
+					return new RegExp( field.getAttribute( 'validation-pattern' ) ).test( field.value );
+				case 'nonempty':
+					return field.value.trim() !== '';
+				case 'integer-range':
+					return /^\d+$/.test( field.value ) &&
+						( ! field.hasAttribute( 'min' ) || Number( field.value ) >= Number( field.min ) ) &&
+						( ! field.hasAttribute( 'max' ) || Number( field.value ) <= Number( field.max ) );
+				case 'file':
+					return field.files.length === 1;
+				default:
+					return true;
+			}
+		}
+
+		/**
+		 * Updates a field's warning state.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param {HTMLElement} field Field to check.
+		 *
+		 * @return {boolean} Whether the field is currently valid.
+		 */
+		validate_field( field ) {
+			const warningClass = field.getAttribute( 'validation-failure-class' ) || 'validation-warning';
+			const requires_validation = ! field.disabled && ! field.closest( '[hidden]' );
+			const valid = ! requires_validation || this.field_is_valid( field );
+
+			field.classList.toggle( warningClass, ! valid );
+			if ( valid ) {
+				field.removeAttribute( 'aria-invalid' );
+			} else {
+				field.setAttribute( 'aria-invalid', 'true' );
+			}
+
+			return valid;
+		}
+
+		/**
+		 * Update submit-button state to reflect whether all fields requiring validation pass their checks.
+		 *
+		 * @since 1.0.0
+		 */
+		update_submit_buttons() {
+			const invalid = Array.from( this.form.querySelectorAll( '[validate]' ) ).some( ( field ) => {
+				return ! field.disabled && ! field.closest( '[hidden]' ) && ! this.field_is_valid( field );
+			} );
+
+			this.form.querySelectorAll( 'input[type="submit"], button[type="submit"], button:not([type])' ).forEach( function ( button ) {
+				button.disabled = invalid;
+			} );
+		}
+
+		/**
+		 * Schedules validation of a field 500 milliseconds after its latest change.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param {HTMLElement} field Field to validate.
+		 */
+		schedule_field_validation( field ) {
+			clearTimeout( this.timers.get( field ) );
+			this.timers.set( field, setTimeout( () => {
+				this.validate_field( field );
+				this.update_submit_buttons();
+				this.timers.delete( field );
+			}, 500 ) );
+		}
+
+		/**
+		 * Event handler that schedules validation for the target element.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param {Event} event Field input, change, or composition event.
+		 */
+		schedule_validation( event ) {
+			const field = event.target;
+			if ( ! field.hasAttribute( 'validate' ) || event.isComposing ) {
+				return;
+			}
+
+			this.schedule_field_validation( field );
+		}
+
+		/**
+		 * Refresh field validation and submit-button state.
+		 *
+		 * @since 1.0.0
+		 */
+		refresh() {
+			this.form.querySelectorAll( '[validate]' ).forEach( ( field ) => {
 				const requires_validation = ! field.disabled && ! field.closest( '[hidden]' );
-				const previously_required = requires_validation_by_field.get( field );
-				requires_validation_by_field.set( field, requires_validation );
+				const previously_required = this.requires_validation_by_field.get( field );
+				this.requires_validation_by_field.set( field, requires_validation );
 
 				if ( ! requires_validation ) {
-					clearTimeout( timers.get( field ) );
-					timers.delete( field );
-					validate_field( field );
+					clearTimeout( this.timers.get( field ) );
+					this.timers.delete( field );
+					this.validate_field( field );
 				} else if ( previously_required === false ) {
-					schedule_field_validation( field );
+					this.schedule_field_validation( field );
 				}
 			} );
-			update_submit_buttons( form );
+			this.update_submit_buttons();
 		}
-	};
 
-	document.addEventListener( 'DOMContentLoaded', function () {
-		document.querySelectorAll( 'form.calm-validate' ).forEach( function ( form ) {
-			window.calmpress_form_validation.refresh( form );
-			form.querySelectorAll( '[validate]' ).forEach( function ( field ) {
-				if ( ! field.disabled && ! field.closest( '[hidden]' ) ) {
-					schedule_field_validation( field );
-				}
-			} );
-			form.addEventListener( 'input', schedule_validation );
-			form.addEventListener( 'change', schedule_validation );
-			form.addEventListener( 'compositionend', schedule_validation );
-			form.addEventListener( 'submit', function ( event ) {
-				if ( ! validate_form( form ) ) {
-					event.preventDefault();
-					update_submit_buttons( form );
-				}
-			} );
-		} );
-	} );
+	}
+
+	window.Generic_Validated_Form = Generic_Validated_Form;
+
+	/**
+	 * Initialize generic validation for forms marked with calm-validate.
+	 *
+	 * @since 1.0.0
+	 */
+	function initialize_forms_validation() {
+		// Give each marked form one shared instance that checks its fields and updates validation feedback.
+		document.querySelectorAll( 'form.calm-validate' ).forEach( Generic_Validated_Form.for_form );
+	}
+
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', initialize_forms_validation );
+	} else {
+		initialize_forms_validation();
+	}
 } )();
