@@ -25,6 +25,14 @@ class SFTP_Credentials implements Connection_Credentials {
 	use Writable_Directory_Credentials;
 
 	/**
+	 * Maximum private-key content size in bytes.
+	 *
+	 * @since 1.0.0
+	 */
+	public const MAX_PRIVATE_KEY_BYTES = 65536;
+
+
+	/**
 	 * Form field name for the SFTP server hostname.
 	 *
 	 * @since 1.0.0
@@ -244,8 +252,10 @@ class SFTP_Credentials implements Connection_Credentials {
 				$passphrase = $vars[ self::PASSPHRASE_FORM_NAME ];
 				$private_key_content = $vars[ self::PRIVATE_KEY_TEXT_FORM_NAME ];
 
-				if ( '' === trim( $private_key_content ) ) {
-					$errors->add( 'private_key', __( 'Private key cannot be empty.' ) );
+				if ( strlen( $private_key_content ) > self::MAX_PRIVATE_KEY_BYTES ) {
+					$errors->add( 'private_key_too_large', __( 'The private key must be 64 KB or smaller.' ) );
+				} elseif ( '' === trim( $private_key_content ) ) {
+					$errors->add( 'private_key_empty', __( 'Private key cannot be empty.' ) );
 				}
 				break;
 
@@ -269,9 +279,11 @@ class SFTP_Credentials implements Connection_Credentials {
 		$base = wp_normalize_path( trim( $base_dir ) );
 
 		if ( '' === trim( $base_dir ) ) {
-			$errors->add( 'base_dir', __( 'Base directory cannot be empty.' ) );
-		} elseif ( ! is_dir( trim( $base_dir ) ) || ( $root !== $base && ! str_starts_with( $root, rtrim( $base, '/' ) . '/' ) ) ) {
-			$errors->add( 'base_dir', __( 'calmPress root directory cannot be accessed with this Base directory' ) );
+			$errors->add( 'base_dir_empty', __( 'Base directory cannot be empty.' ) );
+		} elseif ( ! is_dir( trim( $base_dir ) ) ) {
+			$errors->add( 'base_dir_not_directory', __( 'calmPress root directory cannot be accessed with this Base directory' ) );
+		} elseif ( $root !== $base && ! str_starts_with( $root, rtrim( $base, '/' ) . '/' ) ) {
+			$errors->add( 'base_dir_excludes_installation', __( 'calmPress root directory cannot be accessed with this Base directory' ) );
 		}
 
 		if ( $errors->has_errors() ) {
@@ -405,15 +417,19 @@ class SFTP_Credentials implements Connection_Credentials {
 		$text_option = esc_html__( 'Username and pasted private key' );
 		$empty_warning = esc_html__( 'Cannot be empty.' );
 		$port_warning = esc_html__( 'Should be between 1 and 65535 (inclusive).' );
-		$file_warning = esc_html__( 'A file must be selected.' );
+		$file_selection_warning = esc_html__( 'A file must be selected.' );
 		$file_read_error = esc_attr__( 'Failed to read the private key file. Select it again or paste the key.' );
+		$file_size_error = esc_attr__( 'The private key must be 64 KB or smaller.' );
+		$file_content_error = esc_attr__( 'The selected file does not look like a text private key. Select a private key file or paste the key.' );
+		$max_key_bytes = self::MAX_PRIVATE_KEY_BYTES;
 		$host_description = esc_html__( 'The SFTP server address as seen by this web server. If SFTP runs on the same machine, use localhost or 127.0.0.1.' );
 		$port_description = esc_html__( 'The SFTP server port, usually 22.' );
 		$base_description = esc_html__( 'The path on the server\'s filesystem to the directory this SFTP account sees as its root (/). The calmPress installation directory must be this directory or one of its subdirectories.' );
 		$user_description = esc_html__( 'The account used to access the SFTP server.' );
 		$password_description = esc_html__( 'The password for the SFTP account.' );
-		$file_description = esc_html__( 'Choose a private key file.' );
+		$file_description = esc_html__( 'Selecting a file is a shortcut for entering a private key. Once loaded, the private key settings will be displayed.' );
 		$text_description = esc_html__( 'Paste the private key.' );
+		$file_loaded_message = esc_html__( 'Private key loaded from file.' );
 		$passphrase_description = esc_html__( 'The passphrase needed to unlock the private key, if it is protected.' );
 
 		return <<<HTML
@@ -450,12 +466,14 @@ class SFTP_Credentials implements Connection_Credentials {
 			<p class="description">{$password_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="key_file"{$file_hidden}><th><label for="{$file_name}">{$file_label}</label></th><td>
-			<input class="regular-text" type="file" id="{$file_name}" data-sftp-private-key-file data-read-error="{$file_read_error}" validate="file" data-sftp-required="true"{$file_required}>
-			<p class="validate-failure-message" aria-live="polite">{$file_warning}</p>
+			<input class="regular-text" type="file" id="{$file_name}" data-sftp-private-key-file data-read-error="{$file_read_error}" data-max-bytes="{$max_key_bytes}" data-size-error="{$file_size_error}" data-content-error="{$file_content_error}" validate="file" data-sftp-required="true"{$file_required}>
+			<p class="description" data-private-key-error role="alert" hidden></p>
+			<p class="validate-failure-message" aria-live="polite">{$file_selection_warning}</p>
 			<p class="description">{$file_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="key_text"{$text_hidden}><th><label for="{$text_name}">{$text_label}</label></th><td>
 			<textarea class="large-text code" rows="8" id="{$text_name}" name="{$text_name}" validate="nonempty" data-sftp-required="true"{$text_required}>{$private_key_text}</textarea>
+			<p class="description" data-private-key-loaded role="status" hidden>{$file_loaded_message}</p>
 			<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
 			<p class="description">{$text_description}</p>
 		</td></tr>

@@ -1,5 +1,5 @@
 /**
- * Switches between FTP and SFTP fields in the combined credentials form.
+ * Code that handles the combined FTP and SFTP connection-settings form.
  *
  * @since 1.0.0
  */
@@ -8,13 +8,13 @@
 	'use strict';
 
 	/**
-	 * Shows the fields for the selected protocol.
+	 * Display the selected protocol's fields and hide the other protocol's fields.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param {HTMLFormElement} form Combined credentials form.
 	 */
-	function update_protocol( form ) {
+	function display_selected_protocol_form( form ) {
 		const select = form.elements.calm_credentials_protocol;
 		form.querySelectorAll( '[data-credentials-protocol]' ).forEach( function ( section ) {
 			const active = select.value === section.dataset.credentialsProtocol;
@@ -22,12 +22,18 @@
 		} );
 	}
 
-	document.querySelectorAll( 'form.calm-credentials-form' ).forEach( function ( form ) {
+	// For each combined credentials form, remember the protocol selection and
+	// display its fields initially and whenever the selection changes.
+	document.querySelectorAll( 'form[data-credentials-type="ftp-sftp"]' ).forEach( function ( form ) {
+		// Name attribute of the protocol selector whose value is saved to localStorage and used for prefilling.
+		new Credentials_Storage( form, 'selection', [ 'calm_credentials_protocol' ] );
+		const validated_form = Generic_Validated_Form.for_form( form );
+
 		form.elements.calm_credentials_protocol.addEventListener( 'change', function () {
-			update_protocol( form );
-			window.calmpress_form_validation.refresh( form );
+			display_selected_protocol_form( form );
+			validated_form.refresh();
 		} );
-		update_protocol( form );
-		window.calmpress_form_validation.refresh( form );
+		display_selected_protocol_form( form );
+		validated_form.refresh();
 	} );
 } )();

@@ -150,7 +150,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, ABSPATH );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertContains( 'private_key', $result->get_error_codes() );
+		$this->assertContains( 'private_key_empty', $result->get_error_codes() );
 	}
 
 	/**

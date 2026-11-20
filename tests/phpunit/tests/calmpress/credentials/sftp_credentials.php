@@ -121,26 +121,132 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests reporting a failed private key upload.
+	 * An empty private key produces a validation error.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @dataProvider private_key_methods
+	 *
+	 * @param string $method Selected private-key authentication method.
 	 */
-	public function test_parse_parameters_reports_upload_failure() {
+	public function test_parse_parameters_reports_empty_private_key( string $method ) {
 		$result = SFTP_Credentials::parse_parameters(
 			[
 				SFTP_Credentials::HOST_FORM_NAME => 'localhost',
 				SFTP_Credentials::PORT_FORM_NAME => '22',
 				SFTP_Credentials::USERNAME_FORM_NAME => 'user',
-				SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'key_file',
+				SFTP_Credentials::AUTH_METHOD_FORM_NAME => $method,
 				SFTP_Credentials::PASSWORD_FORM_NAME => '',
 				SFTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
 				SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
 				SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
-			],
-			[ SFTP_Credentials::PRIVATE_KEY_FORM_NAME => [ 'error' => UPLOAD_ERR_OK, 'tmp_name' => 'not-an-uploaded-file' ] ]
-		);
+			] );
 
-		$this->assertNotEmpty( $result->get_error_messages( 'private_key' ) );
+		$this->assertNotEmpty( $result->get_error_messages( 'private_key_empty' ) );
+	}
+
+	/**
+	 * Enforce the private-key byte limit for both private-key authentication choices.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @dataProvider private_key_size_cases
+	 *
+	 * @param string $method Selected authentication method.
+	 * @param int $bytes Private-key content length.
+	 * @param bool $accepted Whether the content fits within the size limit.
+	 */
+	public function test_parse_parameters_enforces_private_key_size( string $method, int $bytes, bool $accepted ): void {
+		$result = SFTP_Credentials::parse_parameters( [
+			SFTP_Credentials::HOST_FORM_NAME => 'localhost',
+			SFTP_Credentials::PORT_FORM_NAME => '22',
+			SFTP_Credentials::USERNAME_FORM_NAME => 'user',
+			SFTP_Credentials::AUTH_METHOD_FORM_NAME => $method,
+			SFTP_Credentials::PASSWORD_FORM_NAME => '',
+			SFTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
+			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
+			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => str_repeat( 'a', $bytes ),
+		] );
+
+		if ( $accepted ) {
+			$this->assertInstanceOf( SFTP_Credentials_Parameters::class, $result );
+			$this->assertSame( $bytes, strlen( $result->private_key_content ) );
+		} else {
+			$this->assertInstanceOf( WP_Error::class, $result );
+			$this->assertContains( 'private_key_too_large', $result->get_error_codes() );
+			$this->assertStringContainsString( '64 KB', $result->get_error_message( 'private_key_too_large' ) );
+		}
+	}
+
+	/**
+	 * Supply private-key sizes at and above the maximum accepted byte length.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array Authentication methods and size-boundary cases.
+	 */
+	public static function private_key_size_cases(): array {
+		return [
+			'file at limit' => [ 'key_file', 65536, true ],
+			'file over limit' => [ 'key_file', 65537, false ],
+			'text at limit' => [ 'key_text', 65536, true ],
+			'text over limit' => [ 'key_text', 65537, false ],
+		];
+	}
+
+	/**
+	 * Base-directory failures identify the specific reason the directory is unusable.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @dataProvider invalid_base_directories
+	 *
+	 * @param string $directory Submitted base directory.
+	 * @param string $error_code Expected failure code.
+	 */
+	public function test_parse_parameters_identifies_base_directory_failure( string $directory, string $error_code ): void {
+		$result = SFTP_Credentials::parse_parameters( [
+			SFTP_Credentials::HOST_FORM_NAME => 'localhost',
+			SFTP_Credentials::PORT_FORM_NAME => '22',
+			SFTP_Credentials::USERNAME_FORM_NAME => 'user',
+			SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'password',
+			SFTP_Credentials::PASSWORD_FORM_NAME => 'secret',
+			SFTP_Credentials::BASEDIR_FORM_NAME => $directory,
+			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
+			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
+		] );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( [ $error_code ], $result->get_error_codes() );
+	}
+
+	/**
+	 * Supply empty, nonexistent, and installation-excluding base directories.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array Base directories and their specific error codes.
+	 */
+	public static function invalid_base_directories(): array {
+		return [
+			'empty' => [ '', 'base_dir_empty' ],
+			'not a directory' => [ ABSPATH . 'nonexistent-sftp-base', 'base_dir_not_directory' ],
+			'excludes installation' => [ ABSPATH . 'wp-includes', 'base_dir_excludes_installation' ],
+		];
+	}
+
+	/**
+	 * Supply the private-key authentication choices.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array Private-key authentication methods.
+	 */
+	public static function private_key_methods(): array {
+		return [
+			[ 'key_file' ],
+			[ 'key_text' ],
+		];
 	}
 
 	/**
@@ -161,8 +267,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 				SFTP_Credentials::PRIVATE_KEY_FORM_NAME => 'inactive-file',
 				SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => $key,
 				SFTP_Credentials::PASSPHRASE_FORM_NAME => ' key-passphrase ',
-			], []
-		);
+			] );
 
 		$this->assertInstanceOf( SFTP_Credentials_Parameters::class, $parsed );
 		$this->assertSame( $key, $parsed->private_key_content );
@@ -187,9 +292,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 				SFTP_Credentials::PASSWORD_FORM_NAME => '',
 				SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => $key,
 				SFTP_Credentials::PASSPHRASE_FORM_NAME => 'key-passphrase',
-			],
-			[]
-		);
+			] );
 
 		$this->assertInstanceOf( SFTP_Credentials_Parameters::class, $parsed );
 		$this->assertInstanceOf( SFTP_Credentials::class, new SFTP_Credentials( $parsed ) );
@@ -251,9 +354,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 				SFTP_Credentials::PASSWORD_FORM_NAME => '',
 				SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => 'not a private key',
 				SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-			],
-			[]
-		);
+			] );
 
 		$this->assertInstanceOf( SFTP_Credentials_Parameters::class, $parsed );
 		$this->assertSame( 'not a private key', $parsed->private_key_content );
@@ -299,7 +400,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 			SFTP_Credentials::PRIVATE_KEY_FORM_NAME => '',
 			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
 			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-		], [] );
+		] );
 
 		$this->assertSame( [ 'authentication', 'host', 'port', 'username' ], $errors->get_error_codes() );
 		$this->assertSame( 'User name cannot be empty.', $errors->get_error_message( 'username' ) );
@@ -374,7 +475,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 			SFTP_Credentials::PRIVATE_KEY_FORM_NAME => '',
 			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
 			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-		], [] ) );
+		] ) );
 	}
 
 	/**
@@ -393,7 +494,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 			SFTP_Credentials::PRIVATE_KEY_FORM_NAME => '',
 			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
 			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-		], [] );
+		] );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertNotEmpty( $result->get_error_messages( 'authentication' ) );
@@ -414,28 +515,45 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 			SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'password',
 			SFTP_Credentials::PASSWORD_FORM_NAME => 'secret',
 			SFTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
-		], [] );
+		] );
 	}
 
 	/**
 	 * An unsupported SFTP authentication method indicates an invalid parser call.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @dataProvider unsupported_authentication_methods
+	 *
+	 * @param string $method Unsupported submitted authentication method.
 	 */
-	public function test_parse_parameters_throws_for_unknown_authentication_method(): void {
+	public function test_parse_parameters_throws_for_unknown_authentication_method( string $method ): void {
 		$this->expectException( LogicException::class );
 
 		SFTP_Credentials::parse_parameters( [
 			SFTP_Credentials::HOST_FORM_NAME => 'localhost',
 			SFTP_Credentials::PORT_FORM_NAME => '22',
 			SFTP_Credentials::USERNAME_FORM_NAME => 'user',
-			SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'unknown',
+			SFTP_Credentials::AUTH_METHOD_FORM_NAME => $method,
 			SFTP_Credentials::PASSWORD_FORM_NAME => '',
 			SFTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
 			SFTP_Credentials::PRIVATE_KEY_FORM_NAME => '',
 			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
 			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
-		], [] );
+		] );
+	}
+
+	/**
+	 * Supply unsupported authentication methods.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array Unsupported submitted authentication methods.
+	 */
+	public static function unsupported_authentication_methods(): array {
+		return [
+			'unknown method' => [ 'unknown' ],
+		];
 	}
 
 	/**
@@ -455,7 +573,7 @@ class WP_Test_SFTP_Credentials extends WP_UnitTestCase {
 			'calm_sftp_passphrase'      => '',
 		];
 		$directory = dirname( rtrim( ABSPATH, '/\\' ) );
-		$result = SFTP_Credentials::writable_directory_credentials( $values, [], $directory );
+		$result = SFTP_Credentials::writable_directory_credentials( $values, $directory );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'connection_path_invalid', $result->get_error_code() );
