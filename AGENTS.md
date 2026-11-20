@@ -62,6 +62,7 @@ In particular:
 - In calmPress-specific PHP, use the existing `calmpress` namespaces, class-file naming scheme, and autoloading structure.
 - Use scalar parameter types and return types where they fit the surrounding API and do not break compatibility.
 - Sanitize input, validate it on the server, escape output for its context, and enforce capabilities and nonces for privileged actions.
+- When creating or adding errors to `WP_Error`, give each distinct failure its own error code. Do not group different failures under a field name or shared category code, even when their messages are similar.
 - Use prepared database queries and existing WordPress database APIs.
 - Do not edit bundled third-party code unless the task explicitly requires it.
 - Do not hand-edit generated or minified files when a source file and build process exist.
@@ -70,6 +71,8 @@ In particular:
 - In inherited WordPress core code, mark calmPress changes with `@since calmPress 1.0.0` so the fork-specific change is clear.
 - Separate `@param`, `@return`, and `@throws` groups with blank docblock lines.
 - Separate distinct sentences in explanatory comments and docblocks with a blank comment line for readability.
+- Describe classes and modules by what they represent, using a noun phrase as the opening description. Describe functions and methods by the actions they perform. Do not use a list of possible actions as the primary description of a class or module.
+- Describe what functions and methods do. Mention what they do not do only when that distinction explains their implemented behavior or functionality.
 - Leave a blank line between preceding code and a docblock or block comment.
 - Every test method must have a docblock describing the behavior being tested and an `@since` tag; a descriptive method name does not replace the docblock.
 - Leave a blank line before and after new control-flow blocks when the surrounding code allows it. Keep `else` and `elseif` attached to their `if` block.
