@@ -71,6 +71,7 @@ In particular:
 - In inherited WordPress core code, mark calmPress changes with `@since calmPress 1.0.0` so the fork-specific change is clear.
 - Separate `@param`, `@return`, and `@throws` groups with blank docblock lines.
 - Separate distinct sentences in explanatory comments and docblocks with a blank comment line for readability.
+- Use block comments (`/* ... */`) for explanatory comments containing more than one sentence.
 - Describe classes and modules by what they represent, using a noun phrase as the opening description. Describe functions and methods by the actions they perform. Do not use a list of possible actions as the primary description of a class or module.
 - Describe what functions and methods do. Mention what they do not do only when that distinction explains their implemented behavior or functionality.
 - Leave a blank line between preceding code and a docblock or block comment.
