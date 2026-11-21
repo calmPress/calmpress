@@ -184,9 +184,13 @@ require_once ABSPATH . WPINC . '/class-wp-locale-switcher.php';
 // Run the installer if WordPress is not installed.
 wp_not_installed();
 
-// Initialize loggers.
-calmpress\logger\Controller::init();
-if ( ! wp_installing() ) { // Avoid pointless errors during install.
+/*
+ * During installation, runtime directories may not yet exist or be writable by PHP.
+ *
+ * Leave error handling to PHP until installation has prepared those directories.
+ */
+if ( ! wp_installing() ) {
+	calmpress\logger\Controller::init();
 	calmpress\logger\Log_Emails::init();
 }
 
