@@ -15,11 +15,15 @@ module.exports = function( env = { environment: "production", watch: false, buil
 
 	const config = [
 		...developmentConfig( env ),
-		mediaConfig( env ),
 		packagesConfig( env ),
 		scriptModulesConfig( env ),
 		...vendorsConfig( env ),
 	];
+
+	// The media configuration emits both formats, so a full build needs only one pass.
+	if ( ! env.skipMedia ) {
+		config.push( mediaConfig( env ) );
+	}
 
 	return config;
 };

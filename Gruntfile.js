@@ -1,6 +1,6 @@
 /* jshint node:true */
 /* jshint esversion: 6 */
-/* globals Set */
+/* globals Set, Map */
 var webpackConfig = require( './webpack.config' );
 var installChanged = require( 'install-changed' );
 var json2php = require( 'json2php' );
@@ -865,6 +865,7 @@ module.exports = function(grunt) {
 		webpack: {
 			prod: webpackConfig( { environment: 'production', buildTarget: WORKING_DIR } ),
 			dev: webpackConfig( { environment: 'development', buildTarget: WORKING_DIR } ),
+			'dev-without-media': webpackConfig( { environment: 'development', buildTarget: WORKING_DIR, skipMedia: true } ),
 			watch: webpackConfig( { environment: 'development', watch: true } )
 		},
 		concat: {
@@ -1405,7 +1406,7 @@ module.exports = function(grunt) {
 	grunt.registerTask( 'build:webpack', [
 		'clean:webpack-assets',
 		'webpack:prod',
-		'webpack:dev',
+		'webpack:dev-without-media',
 	] );
 
 	grunt.registerTask( 'build:js', [
@@ -1506,6 +1507,46 @@ module.exports = function(grunt) {
 				done( true );
 			}
 		} );
+	} );
+
+	/**
+	 * Update PHP files in an existing distribution build.
+	 *
+	 * @since calmPress 1.0.0
+	 */
+	grunt.registerTask( 'build:php', 'Updates PHP files in an existing build without rebuilding assets.', function() {
+		if ( ! fs.existsSync( BUILD_DIR + 'wp-includes/assets/script-loader-packages.min.php' ) ) {
+			grunt.fail.fatal( 'Run grunt build before using grunt build:php.' );
+		}
+
+		const php_patterns = buildFiles.concat( [ '!wp-config.php', '!wp-includes/assets/**' ] );
+		const source_files = grunt.file.expand( { cwd: SOURCE_DIR, dot: true, filter: 'isFile' }, php_patterns )
+			.filter( function( file ) {
+				return file.endsWith( '.php' );
+			} );
+		const php_files = new Map( source_files.map( function( file ) {
+			return [ file, SOURCE_DIR + file ];
+		} ) );
+
+		// Distribution entry points and the configuration template have different source paths.
+		php_files.delete( '_index.php' );
+		php_files.delete( 'wp-admin/_index.php' );
+		php_files.set( 'index.php', SOURCE_DIR + '_index.php' );
+		php_files.set( 'wp-admin/index.php', SOURCE_DIR + 'wp-admin/_index.php' );
+		php_files.set( 'wp-admin/wp-config.sample', 'wp-config-sample.php' );
+
+		// Remove renamed or deleted PHP files while retaining generated asset metadata and site configuration.
+		grunt.file.expand( { cwd: BUILD_DIR, dot: true, filter: 'isFile' }, php_patterns ).forEach( function( file ) {
+			if ( file.endsWith( '.php' ) && ! php_files.has( file ) ) {
+				grunt.file.delete( BUILD_DIR + file );
+			}
+		} );
+
+		php_files.forEach( function( source, destination ) {
+			grunt.file.copy( source, BUILD_DIR + destination );
+		} );
+
+		grunt.log.ok( 'Updated ' + php_files.size + ' PHP files and configuration templates.' );
 	} );
 
 	grunt.registerTask( 'build:files', [

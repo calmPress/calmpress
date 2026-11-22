@@ -41,6 +41,8 @@ You will need to install NPM's grunt to run a build.
 
 All source code is located under the /src directory, and the grunt/build process builds a "distribution" into the /build directory.
 
+Run `grunt build` for a complete distribution. After a complete build, use `grunt build:php` when only PHP files have changed. This updates PHP files and removes obsolete PHP files while preserving compiled JavaScript, CSS, asset metadata, and `build/wp-config.php`. Run a complete build again after changing JavaScript, CSS, dependencies, or build configuration.
+
 ### Branches and tags
 
 Since we inherit WordPress's GIT structure with all its branches and tags, we use a `cp/` pefix to identify tags and branches which are unique to the calmPress code.
