@@ -209,12 +209,12 @@ class wp_config {
 	 * @since 1.0.0
 	 *
 	 * @param string                             $settings The settings to store in the user section.
-	 * @param \calmpress\credentials\credentials $credentials The credential that should be used to extract
+	 * @param \calmpress\filesystem\Filesystem_Access $credentials The credential that should be used to extract
 	 *                             the stream and context which should be used for writting.
 	 *
 	 * @throws \calmpress\filesystem\Marker_File_Exception If reading or writing the file fails.
 	 */
-	public function save_user_section_to_file( string $settings, \calmpress\credentials\credentials $credentials ) {
+	public function save_user_section_to_file( string $settings, \calmpress\filesystem\Filesystem_Access $credentials ) {
 		$sanitized = static::sanitize_user_setting( $settings );
 
 		/*

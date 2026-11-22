@@ -193,13 +193,13 @@ if ( $update_required ) {
 
 	$creds = null;
 	if ( $writable ) {
-		$creds = new \calmpress\credentials\File_Credentials();
+		$creds = new \calmpress\filesystem\Local_Filesystem_Access();
 	} elseif ( isset( $_POST['calm_wp_config_ftp_nonce'] )
 		&& wp_verify_nonce( wp_unslash( $_POST['calm_wp_config_ftp_nonce'] ), 'calm_wp_config_ftp' )
 		) {
 		$credential_initial_state = wp_unslash( $_POST );
 
-		$connection_credentials = \calmpress\credentials\FTP_SFTP_Credentials::writable_directory_credentials( $credential_initial_state, dirname( $wp_config->filename() ) );
+		$connection_credentials = \calmpress\filesystem\Filesystem_Access_Over_FTP_Or_SFTP::writable_directory_access( $credential_initial_state, dirname( $wp_config->filename() ) );
 
 		if ( is_wp_error( $connection_credentials ) ) {
 			validation_error_notice( $connection_credentials );
@@ -287,7 +287,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 		<h2 id="connection-credentials"><?php esc_html_e( 'Connection credentials' ); ?></h2>
 		<p><?php esc_html_e( 'Supply FTP or SFTP credentials to save the file, or update it with the content below.' ); ?></p>
 		<?php
-		echo \calmpress\credentials\FTP_SFTP_Credentials::form( $credential_initial_state, 'calm_wp_config_ftp', __( 'Update wp-config.php' ), '' );
+		echo \calmpress\filesystem\Filesystem_Access_Over_FTP_Or_SFTP::form( $credential_initial_state, 'calm_wp_config_ftp', __( 'Update wp-config.php' ), '' );
 		?>
 		<h2><?php esc_html_e( 'wp-config.php content to save' ); ?></h2>
 		<p>

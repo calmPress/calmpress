@@ -1,6 +1,6 @@
 <?php
 /**
- * Implementation of FTP credentials holder.
+ * Filesystem access over FTP.
  *
  * @package calmPress
  * @since 1.0.0
@@ -8,16 +8,18 @@
 
 declare(strict_types=1);
 
-namespace calmpress\credentials;
+namespace calmpress\filesystem;
 
 /**
- * FTP credentials holder and UI oriented helper.
+ * Filesystem access over FTP with a connection settings form.
  *
  * @since 1.0.0
  */
-class FTP_Credentials implements Connection_Credentials {
+class Filesystem_Access_Over_FTP implements Remote_Filesystem_Access {
 
-	use Writable_Directory_Credentials;
+	use Local_Path_Validation;
+
+	use Writable_Directory_Access;
 
 	/**
 	 * The name used for the host name input in the form.
@@ -90,21 +92,13 @@ class FTP_Credentials implements Connection_Credentials {
 	protected string $base_dir;
 
 	/**
-	 * Whether this instance has successfully checked its FTP connection.
-	 *
-	 * @since 1.0.0
-	 */
-	private bool $connection_checked = false;
-
-	/**
-	 * Construct an object based on given credentials information.
+	 * Create filesystem access from the supplied connection settings.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param FTP_Credentials_Parameters $parameters FTP connection values.
 	 *
-	 * @throws \DomainException If any of the parameters did not validate. The message incates which
-	 *                          parameters had failed validation.
+	 * @throws \DomainException If the supplied connection settings are invalid.
 	 */
 	public function __construct( FTP_Credentials_Parameters $parameters ) {
 		$this->host     = $parameters->host;
@@ -127,10 +121,6 @@ class FTP_Credentials implements Connection_Credentials {
 
 		if ( '' === $this->password ) {
 			throw new \DomainException( 'FTP password cannot be empty.' );
-		}
-
-		if ( false !== strpbrk( $this->username . $this->password, "\r\n" ) ) {
-			throw new \DomainException( 'FTP credentials cannot contain line breaks.' );
 		}
 
 		$base = wp_normalize_path( $this->base_dir );
@@ -199,8 +189,16 @@ class FTP_Credentials implements Connection_Credentials {
 		$base = wp_normalize_path( trim( $base_dir ) );
 		$root = wp_normalize_path( ABSPATH );
 
-		if ( '' === trim( $base_dir ) || ! is_dir( trim( $base_dir ) ) || ( $root !== $base && ! str_starts_with( $root, rtrim( $base, '/' ) . '/' ) ) ) {
-			$errors->add( 'base_dir', __( 'calmPress root directory cannot be accessed with this Base directory' ) );
+		if ( '' === trim( $base_dir ) ) {
+			$errors->add( 'base_dir_empty', __( 'Base directory cannot be empty.' ) );
+		} elseif ( ! is_dir( trim( $base_dir ) ) ) {
+
+			/* translators: %s: Base directory path. */
+			$errors->add( 'base_dir_not_directory', sprintf( __( 'Base directory %s does not exist or cannot be accessed as a directory. Check its path and permissions.' ), trim( $base_dir ) ) );
+		} elseif ( $root !== $base && ! str_starts_with( $root, rtrim( $base, '/' ) . '/' ) ) {
+
+			/* translators: %s: Base directory path. */
+			$errors->add( 'base_dir_excludes_installation', sprintf( __( 'Base directory %s does not contain the calmPress installation. Check the path of your FTP account root directory.' ), trim( $base_dir ) ) );
 		}
 
 		if ( $errors->has_errors() ) {
@@ -348,21 +346,10 @@ class FTP_Credentials implements Connection_Credentials {
 	 * @return string The ftp:// url representation of the file adjusted to the root of the
 	 *                FTP server as indicated by the base directory.
 	 *
-	 * @throws \DomainException When the path is not absolute or is outside the account base directory.
+	 * @throws \DomainException If the path is invalid, outside the installation scope, or outside the FTP base directory.
 	 */
 	public function stream_url_from_path( string $path ) {
-		$path = wp_normalize_path( $path );
-		$base = rtrim( wp_normalize_path( $this->base_dir ), '/' );
-
-		if ( '' === $base ) {
-			$base = '/';
-		}
-
-		if ( ! path_is_absolute( $path )
-			|| in_array( '..', explode( '/', $path ), true )
-			|| ( $path !== $base && ! str_starts_with( $path, rtrim( $base, '/' ) . '/' ) ) ) {
-			throw new \DomainException( 'Path must be absolute and within the FTP base directory.' );
-		}
+		$remote_path = $this->remote_path_from_path( $path );
 
 		$url = 'ftp://' . rawurlencode( $this->username ) . ':' . rawurlencode( $this->password ) . '@';
 
@@ -373,67 +360,235 @@ class FTP_Credentials implements Connection_Credentials {
 		$url .= ':';
 		$url .= $this->port;
 
-		// Remove the base dir part of the file's path.
-		$adjusted_path = substr( $path, strlen( $base ) );
-
-		// Make sure the path is absolute.
-		$adjusted_path = '/' . ltrim( $adjusted_path, '/' );
-
-		return $url . $adjusted_path;
+		return $url . $remote_path;
 	}
 
 	/**
-	 * Verify FTP connectivity and generate the context for file access.
+	 * Map an absolute local path to an absolute path within the FTP account root.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return resource stream context allowing file overwrite when accessed over FTP.
+	 * @param string $path Absolute local path within the account's base directory.
 	 *
-	 * @throws FTP_Connection_Exception If the FTP server cannot be reached, authentication fails, or the installation directory cannot be accessed.
+	 * @return string Absolute path in the FTP server's filesystem.
+	 *
+	 * @throws \DomainException If the path is invalid, outside the installation scope, or outside the FTP base directory.
+	 */
+	private function remote_path_from_path( string $path ): string {
+		$path = wp_normalize_path( $path );
+		$this->throw_if_not_absolute_local_path( $path );
+		$base = rtrim( wp_normalize_path( $this->base_dir ), '/' );
+
+		if ( '' === $base ) {
+			$base = '/';
+		}
+
+		if ( $path !== $base && ! str_starts_with( $path, rtrim( $base, '/' ) . '/' ) ) {
+			throw new \DomainException( 'Path must be within the FTP base directory.' );
+		}
+
+		return '/' . ltrim( substr( $path, strlen( $base ) ), '/' );
+	}
+
+	/**
+	 * Generate the stream context for FTP file access.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return resource Stream context allowing file overwrite when accessed over FTP.
 	 */
 	public function stream_context() {
-		if ( $this->connection_checked ) {
-			return stream_context_create( [ 'ftp' => [ 'overwrite' => true ] ] );
+		return stream_context_create( [ 'ftp' => [ 'overwrite' => true ] ] );
+	}
+
+	/**
+	 * Change permissions on a path using these credentials.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $path Absolute local path mapped by these credentials.
+	 * @param int    $permissions Unix permission bits.
+	 *
+	 * @return bool Whether the permission change succeeded.
+	 *
+	 * @throws \DomainException If the local path or an FTP command is invalid.
+	 * @throws FTP_Connection_Exception If connection, authentication, or command communication fails.
+	 */
+	public function change_permissions( string $path, int $permissions ): bool {
+		$remote_path = $this->remote_path_from_path( $path );
+
+		// Use the FTP extension when available, retaining socket access without that dependency.
+		if ( function_exists( 'ftp_connect' ) ) {
+			return $this->change_permissions_with_extension( $remote_path, $permissions );
 		}
 
-		$host = filter_var( $this->host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 )
-			? '[' . $this->host . ']'
-			: $this->host;
-		$connection = false;
+		return $this->change_permissions_with_socket( $remote_path, $permissions );
+	}
 
-		// Connect to the FTP port first so an unreachable host or closed port can be reported separately from a failed login.
+	/**
+	 * Throw if the remote calmPress root directory cannot be reached through FTP.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws FTP_Connection_Exception If connecting, authenticating, or accessing the installation fails.
+	 * @throws \DomainException If the installation path or an FTP command is invalid.
+	 */
+	protected function throw_if_remote_root_directory_is_unreachable(): void {
+		$remote_root = $this->remote_path_from_path( ABSPATH );
+
+		if ( function_exists( 'ftp_connect' ) ) {
+			$connection = $this->authenticated_extension_connection();
+
+			try {
+
+				if ( ! @ftp_chdir( $connection, $remote_root ) ) {
+					throw new FTP_Connection_Exception( 'FTP installation directory inaccessible.', FTP_Connection_Exception::INSTALLATION_INACCESSIBLE );
+				}
+
+			} finally {
+				@ftp_close( $connection );
+			}
+
+			return;
+		}
+
+		$connection = $this->authenticated_socket_connection();
+
 		try {
-			$connection = @stream_socket_client( 'tcp://' . $host . ':' . $this->port, $error_code, $error_message, 3 );
-		} catch ( \Throwable ) {
-			// Use the same failure path as a false return from stream_socket_client().
+			self::ftp_command( $connection, 'CWD ' . $remote_root, FTP_Connection_Exception::INSTALLATION_INACCESSIBLE );
+			$reply = self::ftp_reply( $connection, FTP_Connection_Exception::INSTALLATION_INACCESSIBLE );
+
+			if ( 250 !== $reply ) {
+				throw new FTP_Connection_Exception( 'FTP installation directory inaccessible.', FTP_Connection_Exception::INSTALLATION_INACCESSIBLE );
+			}
+
+		} finally {
+			@fwrite( $connection, "QUIT\r\n" );
+			fclose( $connection );
 		}
+	}
+
+	/**
+	 * Change permissions through an FTP extension connection and close it afterward.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $remote_path Validated absolute path in the FTP server's filesystem.
+	 * @param int    $permissions Unix permission bits.
+	 *
+	 * @return bool Whether the permission change succeeded.
+	 *
+	 * @throws FTP_Connection_Exception If connecting or authenticating fails.
+	 */
+	private function change_permissions_with_extension( string $remote_path, int $permissions ): bool {
+		$connection = $this->authenticated_extension_connection();
+
+		try {
+			return false !== @ftp_chmod( $connection, $permissions, $remote_path );
+		} finally {
+			@ftp_close( $connection );
+		}
+	}
+
+	/**
+	 * Change permissions through an FTP socket connection and close it afterward.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $remote_path Validated absolute path in the FTP server's filesystem.
+	 * @param int    $permissions Unix permission bits.
+	 *
+	 * @return bool Whether the permission change succeeded.
+	 *
+	 * @throws \DomainException If an FTP command contains line breaks.
+	 * @throws FTP_Connection_Exception If connection, authentication, or command communication fails.
+	 */
+	private function change_permissions_with_socket( string $remote_path, int $permissions ): bool {
+		$connection = $this->authenticated_socket_connection();
+
+		try {
+			self::ftp_command( $connection, 'SITE CHMOD ' . decoct( $permissions ) . ' ' . $remote_path, FTP_Connection_Exception::PERMISSIONS_CHANGE_FAILED );
+
+			return 200 === self::ftp_reply( $connection, FTP_Connection_Exception::PERMISSIONS_CHANGE_FAILED );
+		} finally {
+			@fwrite( $connection, "QUIT\r\n" );
+			fclose( $connection );
+		}
+	}
+
+	/**
+	 * Connect and authenticate through the FTP extension.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return \FTP\Connection Authenticated connection for the caller to close.
+	 *
+	 * @throws FTP_Connection_Exception If connecting or authenticating fails.
+	 */
+	private function authenticated_extension_connection(): \FTP\Connection {
+		$connection = @ftp_connect( $this->host, $this->port, 3 );
 
 		if ( false === $connection ) {
 			throw new FTP_Connection_Exception( 'FTP connection failed.', FTP_Connection_Exception::CONNECTION_FAILED );
 		}
 
-		// Check the FTP greeting and login so connection failures can be reported separately from file access failures.
+		try {
+
+			if ( ! @ftp_login( $connection, $this->username, $this->password ) ) {
+				throw new FTP_Connection_Exception( 'FTP login failed.', FTP_Connection_Exception::AUTHENTICATION_FAILED );
+			}
+
+			return $connection;
+		} catch ( \Throwable $error ) {
+			@ftp_close( $connection );
+			throw $error;
+		}
+	}
+
+	/**
+	 * Connect and authenticate through an FTP control socket.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return resource Authenticated connection for the caller to close.
+	 *
+	 * @throws \DomainException If an FTP command contains line breaks.
+	 * @throws FTP_Connection_Exception If connecting or authenticating fails.
+	 */
+	private function authenticated_socket_connection() {
+		$host = $this->host;
+
+		if ( filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			$host = '[' . $host . ']';
+		}
+
+		$connection = @stream_socket_client( 'tcp://' . $host . ':' . $this->port, $error_code, $error_message, 3 );
+
+		if ( false === $connection ) {
+			throw new FTP_Connection_Exception( 'FTP connection failed.', FTP_Connection_Exception::CONNECTION_FAILED );
+		}
+
 		try {
 			stream_set_timeout( $connection, 3 );
-			$reply = self::ftp_reply( $connection );
+			$reply = self::ftp_reply( $connection, FTP_Connection_Exception::CONNECTION_FAILED );
 
 			// A 120 greeting means the server is starting; wait for its 220 ready response.
 			if ( 120 === $reply ) {
-				$reply = self::ftp_reply( $connection );
+				$reply = self::ftp_reply( $connection, FTP_Connection_Exception::CONNECTION_FAILED );
 			}
 
 			// Any other greeting means the endpoint is not ready to accept FTP commands.
 			if ( 220 !== $reply ) {
-				throw new FTP_Connection_Exception( 'FTP greeting failed.', FTP_Connection_Exception::COMMUNICATION_FAILED );
+				throw new FTP_Connection_Exception( 'FTP connection failed.', FTP_Connection_Exception::CONNECTION_FAILED );
 			}
 
-			self::ftp_command( $connection, 'USER ' . $this->username );
-			$reply = self::ftp_reply( $connection );
+			self::ftp_command( $connection, 'USER ' . $this->username, FTP_Connection_Exception::AUTHENTICATION_FAILED );
+			$reply = self::ftp_reply( $connection, FTP_Connection_Exception::AUTHENTICATION_FAILED );
 
 			// The server may accept USER immediately (230) or ask for PASS (331).
 			if ( 331 === $reply ) {
-				self::ftp_command( $connection, 'PASS ' . $this->password );
-				$reply = self::ftp_reply( $connection );
+				self::ftp_command( $connection, 'PASS ' . $this->password, FTP_Connection_Exception::AUTHENTICATION_FAILED );
+				$reply = self::ftp_reply( $connection, FTP_Connection_Exception::AUTHENTICATION_FAILED );
 			}
 
 			// Successful login returns 230; any other reply means login did not complete.
@@ -441,28 +596,11 @@ class FTP_Credentials implements Connection_Credentials {
 				throw new FTP_Connection_Exception( 'FTP login failed.', FTP_Connection_Exception::AUTHENTICATION_FAILED );
 			}
 
-			// Verify that the configured base directory maps the calmPress root to a directory this account can access.
-			$base = rtrim( wp_normalize_path( $this->base_dir ), '/' );
-			$root = wp_normalize_path( ABSPATH );
-			$remote_root = '/' . ltrim( substr( $root, strlen( $base ) ), '/' );
-
-			try {
-				self::ftp_command( $connection, 'CWD ' . $remote_root );
-				$reply = self::ftp_reply( $connection );
-			} catch ( FTP_Connection_Exception $error ) {
-				throw new FTP_Connection_Exception( 'FTP installation directory check failed.', FTP_Connection_Exception::INSTALLATION_INACCESSIBLE, $error );
-			}
-
-			if ( 250 !== $reply ) {
-				throw new FTP_Connection_Exception( 'FTP installation directory inaccessible.', FTP_Connection_Exception::INSTALLATION_INACCESSIBLE );
-			}
-		} finally {
-			@fwrite( $connection, "QUIT\r\n" );
+			return $connection;
+		} catch ( \Throwable $error ) {
 			fclose( $connection );
+			throw $error;
 		}
-
-		$this->connection_checked = true;
-		return stream_context_create( [ 'ftp' => [ 'overwrite' => true ] ] );
 	}
 
 	/**
@@ -472,14 +610,20 @@ class FTP_Credentials implements Connection_Credentials {
 	 *
 	 * @param resource $connection Open FTP control connection.
 	 * @param string   $command    Command without a line ending.
+	 * @param int      $failure_code Exception code identifying the operation being performed.
 	 *
+	 * @throws \DomainException If the command contains line breaks.
 	 * @throws FTP_Connection_Exception If the command cannot be sent.
 	 */
-	private static function ftp_command( $connection, string $command ): void {
+	private static function ftp_command( $connection, string $command, int $failure_code ): void {
+		if ( false !== strpbrk( $command, "\r\n" ) ) {
+			throw new \DomainException( 'FTP commands cannot contain line breaks.' );
+		}
+
 		$bytes = $command . "\r\n";
 
 		if ( strlen( $bytes ) !== @fwrite( $connection, $bytes ) ) {
-			throw new FTP_Connection_Exception( 'Failed transmitting FTP command.', FTP_Connection_Exception::COMMUNICATION_FAILED );
+			throw new FTP_Connection_Exception( 'Failed transmitting FTP command.', $failure_code );
 		}
 	}
 
@@ -489,16 +633,17 @@ class FTP_Credentials implements Connection_Credentials {
 	 * @since 1.0.0
 	 *
 	 * @param resource $connection Open FTP control connection.
+	 * @param int      $failure_code Exception code identifying the operation being performed.
 	 *
 	 * @return int Three-digit FTP response code.
 	 *
 	 * @throws FTP_Connection_Exception If the response is missing or malformed.
 	 */
-	private static function ftp_reply( $connection ): int {
+	private static function ftp_reply( $connection, int $failure_code ): int {
 		$line = @fgets( $connection, 512 );
 
 		if ( false === $line || ! preg_match( '/^([1-5][0-9]{2})([ -])/', $line, $matches ) ) {
-			throw new FTP_Connection_Exception( 'Invalid FTP response.', FTP_Connection_Exception::COMMUNICATION_FAILED );
+			throw new FTP_Connection_Exception( 'Invalid FTP response.', $failure_code );
 		}
 
 		$code = (int) $matches[1];
@@ -516,7 +661,7 @@ class FTP_Credentials implements Connection_Credentials {
 				}
 			}
 
-			throw new FTP_Connection_Exception( 'Incomplete FTP response.', FTP_Connection_Exception::COMMUNICATION_FAILED );
+			throw new FTP_Connection_Exception( 'Incomplete FTP response.', $failure_code );
 		}
 
 		return $code;

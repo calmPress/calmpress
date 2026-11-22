@@ -164,7 +164,7 @@ if ( $update_required ) {
 
 		$connection_failure = __( 'The file could not be updated through this connection. Check the connection settings and file permissions.' );
 		try {
-			$connection_credentials = \calmpress\credentials\FTP_SFTP_Credentials::writable_directory_credentials( $credential_initial_state, dirname( $file_path ) );
+			$connection_credentials = \calmpress\filesystem\Filesystem_Access_Over_FTP_Or_SFTP::writable_directory_access( $credential_initial_state, dirname( $file_path ) );
 
 			if ( is_wp_error( $connection_credentials ) ) {
 				validation_error_notice( $connection_credentials );
@@ -230,7 +230,7 @@ require ABSPATH . 'wp-admin/admin-header.php';
 		<h2 id="connection-credentials"><?php esc_html_e( 'Connection credentials' ); ?></h2>
 		<p><?php esc_html_e( 'Supply FTP or SFTP credentials to save the file, or update it with the content below.' ); ?></p>
 		<?php
-		echo \calmpress\credentials\FTP_SFTP_Credentials::form( $credential_initial_state, 'calm_htacess_ftp', __( 'Update .htaccess' ), '' );
+		echo \calmpress\filesystem\Filesystem_Access_Over_FTP_Or_SFTP::form( $credential_initial_state, 'calm_htacess_ftp', __( 'Update .htaccess' ), '' );
 		?>
 		<h2><?php esc_html_e( '.htaccess content to save' ); ?></h2>
 		<p><textarea rows="6" class="large-text readonly" onclick="this.focus();this.select()" name="rules" id="rules" readonly="readonly"><?php echo esc_textarea( "# BEGIN WordPress\n" . $wp_rewrite->mod_rewrite_rules() . "# END WordPress\n" ); ?></textarea></p>

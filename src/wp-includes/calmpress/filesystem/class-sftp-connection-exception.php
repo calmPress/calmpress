@@ -1,6 +1,6 @@
 <?php
 /**
- * SFTP connection failure.
+ * SFTP filesystem access failure.
  *
  * @package calmPress
  * @since 1.0.0
@@ -8,42 +8,35 @@
 
 declare(strict_types=1);
 
-namespace calmpress\credentials;
+namespace calmpress\filesystem;
 
 /**
- * Reports which stage of establishing an SFTP connection failed.
+ * An SFTP filesystem access failure with a user-facing error description.
  *
  * @since 1.0.0
  */
-class SFTP_Connection_Exception extends \RuntimeException implements Connection_Exception {
+class SFTP_Connection_Exception extends Filesystem_Access_Exception {
 
 	/**
 	 * The host and port did not establish an SSH connection.
 	 *
 	 * @since 1.0.0
 	 */
-	public const SSH_CONNECTION_FAILED = 1;
+	public const SSH_CONNECTION_FAILED = self::CONNECTION_FAILED;
 
 	/**
 	 * The SSH server signature could not be verified.
 	 *
 	 * @since 1.0.0
 	 */
-	public const SSH_SIGNATURE_INVALID = 2;
+	public const SSH_SIGNATURE_INVALID = 4;
 
 	/**
-	 * The supplied account could not authenticate.
+	 * Failed to parse the private key or decrypt it with the supplied passphrase.
 	 *
 	 * @since 1.0.0
 	 */
-	public const AUTHENTICATION_FAILED = 3;
-
-	/**
-	 * The account could not access the installation directory over SFTP.
-	 *
-	 * @since 1.0.0
-	 */
-	public const INSTALLATION_INACCESSIBLE = 4;
+	public const PRIVATE_KEY_INVALID = 5;
 
 	/**
 	 * Convert this SFTP failure to an error suitable for display.
@@ -59,19 +52,9 @@ class SFTP_Connection_Exception extends \RuntimeException implements Connection_
 			self::SSH_SIGNATURE_INVALID => new \WP_Error( 'sftp_ssh_signature_invalid', __( 'Could not establish a secure connection to this server.' ) ),
 			self::AUTHENTICATION_FAILED => new \WP_Error( 'sftp_authentication_failed', __( 'Could not sign in to the SFTP server. Check the username and password or private key.' ) ),
 			self::INSTALLATION_INACCESSIBLE => new \WP_Error( 'sftp_installation_inaccessible', __( 'Could not access the calmPress root directory. Check the Base directory setting and SFTP server configuration.' ) ),
-			default => $this->unknown_code_error(),
+			self::PRIVATE_KEY_INVALID => new \WP_Error( 'private_key_invalid', __( 'The private key is invalid or the passphrase is incorrect. Check both and try again.' ) ),
+			default => $this->unknown_code_error( 'SFTP', __( 'Could not establish an SFTP connection.' ) ),
 		};
 	}
 
-	/**
-	 * Report an unknown failure code and provide a generic error.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return \WP_Error A generic SFTP connection error.
-	 */
-	private function unknown_code_error(): \WP_Error {
-		trigger_error( 'Unknown SFTP connection failure code: ' . $this->getCode(), E_USER_WARNING );
-		return new \WP_Error( 'sftp_connection_failed', __( 'Could not establish an SFTP connection.' ) );
-	}
 }

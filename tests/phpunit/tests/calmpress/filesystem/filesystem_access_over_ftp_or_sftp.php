@@ -8,18 +8,18 @@
 
 declare(strict_types=1);
 
-use calmpress\credentials\FTP_SFTP_Credentials;
-use calmpress\credentials\FTP_Credentials;
-use calmpress\credentials\FTP_Credentials_Parameters;
-use calmpress\credentials\SFTP_Credentials;
-use calmpress\credentials\SFTP_Credentials_Parameters;
+use calmpress\filesystem\Filesystem_Access_Over_FTP_Or_SFTP;
+use calmpress\filesystem\Filesystem_Access_Over_FTP;
+use calmpress\filesystem\FTP_Credentials_Parameters;
+use calmpress\filesystem\Filesystem_Access_Over_SFTP;
+use calmpress\filesystem\SFTP_Credentials_Parameters;
 
 /**
  * Tests protocol selection and credential parsing.
  *
  * @since 1.0.0
  */
-class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
+class WP_Test_Filesystem_Access_Over_FTP_Or_SFTP extends WP_UnitTestCase {
 
 	/**
 	 * Tests rejection of a protocol that has no credentials form.
@@ -28,7 +28,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 */
 	public function test_unknown_protocol_is_rejected() {
 		$this->expectException( LogicException::class );
-		FTP_SFTP_Credentials::parse_parameters( [ FTP_SFTP_Credentials::PROTOCOL_FORM_NAME => 'unknown' ] );
+		Filesystem_Access_Over_FTP_Or_SFTP::parse_parameters( [ Filesystem_Access_Over_FTP_Or_SFTP::PROTOCOL_FORM_NAME => 'unknown' ] );
 	}
 
 	/**
@@ -38,7 +38,7 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 */
 	public function test_missing_protocol_is_rejected() {
 		$this->expectException( LogicException::class );
-		FTP_SFTP_Credentials::parse_parameters( [] );
+		Filesystem_Access_Over_FTP_Or_SFTP::parse_parameters( [] );
 	}
 
 	/**
@@ -47,13 +47,13 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	public function test_parse_parameters_returns_ftp_values(): void {
-		$this->assertEquals( new FTP_Credentials_Parameters( 'localhost', 21, 'user', "p'ass\\word", ABSPATH ), FTP_SFTP_Credentials::parse_parameters( [
-			FTP_SFTP_Credentials::PROTOCOL_FORM_NAME => 'ftp',
-			FTP_Credentials::HOST_FORM_NAME => 'localhost',
-			FTP_Credentials::PORT_FORM_NAME => '21',
-			FTP_Credentials::USERNAME_FORM_NAME => 'user',
-			FTP_Credentials::PASSWORD_FORM_NAME => "p'ass\\word",
-			FTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
+		$this->assertEquals( new FTP_Credentials_Parameters( 'localhost', 21, 'user', "p'ass\\word", ABSPATH ), Filesystem_Access_Over_FTP_Or_SFTP::parse_parameters( [
+			Filesystem_Access_Over_FTP_Or_SFTP::PROTOCOL_FORM_NAME => 'ftp',
+			Filesystem_Access_Over_FTP::HOST_FORM_NAME => 'localhost',
+			Filesystem_Access_Over_FTP::PORT_FORM_NAME => '21',
+			Filesystem_Access_Over_FTP::USERNAME_FORM_NAME => 'user',
+			Filesystem_Access_Over_FTP::PASSWORD_FORM_NAME => "p'ass\\word",
+			Filesystem_Access_Over_FTP::BASEDIR_FORM_NAME => ABSPATH,
 		] ) );
 	}
 
@@ -63,17 +63,17 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	public function test_parse_parameters_returns_sftp_values(): void {
-		$this->assertEquals( new SFTP_Credentials_Parameters( 'localhost', 22, 'user', "p'ass\\word", ABSPATH, '', '' ), FTP_SFTP_Credentials::parse_parameters( [
-			FTP_SFTP_Credentials::PROTOCOL_FORM_NAME => 'sftp',
-			SFTP_Credentials::HOST_FORM_NAME => 'localhost',
-			SFTP_Credentials::PORT_FORM_NAME => '22',
-			SFTP_Credentials::USERNAME_FORM_NAME => 'user',
-			SFTP_Credentials::AUTH_METHOD_FORM_NAME => 'password',
-			SFTP_Credentials::PASSWORD_FORM_NAME => "p'ass\\word",
-			SFTP_Credentials::BASEDIR_FORM_NAME => ABSPATH,
-			SFTP_Credentials::PRIVATE_KEY_FORM_NAME => '',
-			SFTP_Credentials::PRIVATE_KEY_TEXT_FORM_NAME => '',
-			SFTP_Credentials::PASSPHRASE_FORM_NAME => '',
+		$this->assertEquals( new SFTP_Credentials_Parameters( 'localhost', 22, 'user', "p'ass\\word", ABSPATH, '', '' ), Filesystem_Access_Over_FTP_Or_SFTP::parse_parameters( [
+			Filesystem_Access_Over_FTP_Or_SFTP::PROTOCOL_FORM_NAME => 'sftp',
+			Filesystem_Access_Over_SFTP::HOST_FORM_NAME => 'localhost',
+			Filesystem_Access_Over_SFTP::PORT_FORM_NAME => '22',
+			Filesystem_Access_Over_SFTP::USERNAME_FORM_NAME => 'user',
+			Filesystem_Access_Over_SFTP::AUTH_METHOD_FORM_NAME => 'password',
+			Filesystem_Access_Over_SFTP::PASSWORD_FORM_NAME => "p'ass\\word",
+			Filesystem_Access_Over_SFTP::BASEDIR_FORM_NAME => ABSPATH,
+			Filesystem_Access_Over_SFTP::PRIVATE_KEY_FORM_NAME => '',
+			Filesystem_Access_Over_SFTP::PRIVATE_KEY_TEXT_FORM_NAME => '',
+			Filesystem_Access_Over_SFTP::PASSPHRASE_FORM_NAME => '',
 		] ) );
 	}
 
@@ -86,10 +86,10 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 *
 	 * @param array $parameters Missing or malformed credential parameters.
 	 */
-	public function test_writable_directory_credentials_throws_for_malformed_parameters( array $parameters ): void {
+	public function test_writable_directory_access_throws_for_malformed_parameters( array $parameters ): void {
 		$this->expectException( LogicException::class );
 
-		FTP_SFTP_Credentials::writable_directory_credentials( $parameters, ABSPATH );
+		Filesystem_Access_Over_FTP_Or_SFTP::writable_directory_access( $parameters, ABSPATH );
 	}
 
 	/**
@@ -114,10 +114,10 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 *
 	 * @since 1.0.0
 	 */
-	public function test_writable_directory_credentials_preserves_field_errors(): void {
+	public function test_writable_directory_access_preserves_field_errors(): void {
 		$vars = $this->validation_form_values( 'ftp' );
 		$vars['calm_ftp_host'] = '';
-		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, ABSPATH );
+		$result = Filesystem_Access_Over_FTP_Or_SFTP::writable_directory_access( $vars, ABSPATH );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertContains( 'host', $result->get_error_codes() );
@@ -128,14 +128,15 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 *
 	 * @since 1.0.0
 	 */
-	public function test_writable_directory_credentials_rejects_invalid_private_key(): void {
+	public function test_writable_directory_access_rejects_invalid_private_key(): void {
 		$vars = $this->validation_form_values( 'sftp' );
 		$vars['calm_sftp_auth_method'] = 'key_text';
 		$vars['calm_sftp_private_key_text'] = 'invalid-sensitive-key';
-		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, ABSPATH );
+		$result = Filesystem_Access_Over_FTP_Or_SFTP::writable_directory_access( $vars, ABSPATH );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'invalid_credentials', $result->get_error_code() );
+		$this->assertSame( 'private_key_invalid', $result->get_error_code() );
+		$this->assertSame( 'The private key is invalid or the passphrase is incorrect. Check both and try again.', $result->get_error_message() );
 		$this->assertStringNotContainsString( 'invalid-sensitive-key', $result->get_error_message() );
 	}
 
@@ -144,10 +145,10 @@ class WP_Test_FTP_SFTP_Credentials extends WP_UnitTestCase {
 	 *
 	 * @since 1.0.0
 	 */
-	public function test_writable_directory_credentials_rejects_missing_key_text(): void {
+	public function test_writable_directory_access_rejects_missing_key_text(): void {
 		$vars = $this->validation_form_values( 'sftp' );
 		$vars['calm_sftp_auth_method'] = 'key_text';
-		$result = FTP_SFTP_Credentials::writable_directory_credentials( $vars, ABSPATH );
+		$result = Filesystem_Access_Over_FTP_Or_SFTP::writable_directory_access( $vars, ABSPATH );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertContains( 'private_key_empty', $result->get_error_codes() );

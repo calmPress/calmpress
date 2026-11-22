@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests covering File_Credentials functionality
+ * Unit tests covering Local_Filesystem_Access functionality
  *
  * @package calmPress
  * @since 1.0.0
@@ -8,9 +8,9 @@
 
 declare(strict_types=1);
 
-use calmpress\credentials\File_Credentials;
+use calmpress\filesystem\Local_Filesystem_Access;
 
-class WP_Test_File_Credentials extends WP_UnitTestCase {
+class WP_Test_Local_Filesystem_Access extends WP_UnitTestCase {
 
 	/**
 	 * Test the stream_context method. Always return null
@@ -18,8 +18,8 @@ class WP_Test_File_Credentials extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_stream_context() {
-		$cred = new File_Credentials();
-		$context      = $cred->stream_context();
+		$cred    = new Local_Filesystem_Access();
+		$context = $cred->stream_context();
 		$this->assertSame( null, $context );
 	}
 
@@ -30,8 +30,9 @@ class WP_Test_File_Credentials extends WP_UnitTestCase {
 	 */
 	function test_stream_url_from_path() {
 
-		$creds = new File_Credentials();
-		$this->assertSame( '/some/test/path.txt', $creds->stream_url_from_path( '/some/test/path.txt') );
+		$creds = new Local_Filesystem_Access();
+		$path  = ABSPATH . 'wp-content/test/path.txt';
+		$this->assertSame( $path, $creds->stream_url_from_path( $path ) );
 	}
 
 	/**
@@ -40,7 +41,7 @@ class WP_Test_File_Credentials extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_stream_url_from_path_rejects_relative_path() {
-		$creds = new File_Credentials();
+		$creds = new Local_Filesystem_Access();
 		$this->expectException( \DomainException::class );
 
 		$creds->stream_url_from_path( 'wp-config.php' );
@@ -52,9 +53,21 @@ class WP_Test_File_Credentials extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_stream_url_from_path_rejects_stream_url() {
-		$creds = new File_Credentials();
+		$creds = new Local_Filesystem_Access();
 		$this->expectException( \DomainException::class );
 
 		$creds->stream_url_from_path( 'ftp://example.test/wp-config.php' );
+	}
+
+	/**
+	 * Permission changes reject relative paths before calling the local filesystem.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_change_permissions_rejects_relative_path(): void {
+		$access = new Local_Filesystem_Access();
+		$this->expectException( \DomainException::class );
+
+		$access->change_permissions( 'wp-config.php', 0644 );
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Selection between FTP and SFTP credentials.
+ * Filesystem access over FTP or SFTP.
  *
  * @package calmPress
  * @since 1.0.0
@@ -8,21 +8,21 @@
 
 declare(strict_types=1);
 
-namespace calmpress\credentials;
+namespace calmpress\filesystem;
 
 /**
- * FTP or SFTP credentials selected by the user.
+ * Filesystem access over FTP or SFTP with a protocol selection form.
  *
  * @since 1.0.0
  */
-class FTP_SFTP_Credentials implements Connection_Credentials {
+class Filesystem_Access_Over_FTP_Or_SFTP implements Remote_Filesystem_Access {
 
 	/**
-	 * The selected connection credentials.
+	 * The selected filesystem access implementation.
 	 *
 	 * @since 1.0.0
 	 */
-	private readonly Credentials $credentials;
+	private readonly Filesystem_Access $credentials;
 
 	/**
 	 * Name of the protocol field in the form.
@@ -32,14 +32,31 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	public const PROTOCOL_FORM_NAME = 'calm_credentials_protocol';
 
 	/**
-	 * Creates credentials for the selected protocol.
+	 * Use the selected filesystem access implementation.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Credentials $credentials Selected credentials.
+	 * @param Filesystem_Access $credentials Selected filesystem access implementation.
 	 */
-	public function __construct( Credentials $credentials ) {
+	public function __construct( Filesystem_Access $credentials ) {
 		$this->credentials = $credentials;
+	}
+
+	/**
+	 * Change permissions on a path using these credentials.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $path Absolute local path mapped by these credentials.
+	 * @param int    $permissions Unix permission bits.
+	 *
+	 * @return bool Whether the permission change succeeded.
+	 *
+	 * @throws \DomainException If the selected filesystem implementation rejects the path or command.
+	 * @throws Filesystem_Access_Exception If remote filesystem access fails.
+	 */
+	public function change_permissions( string $path, int $permissions ): bool {
+		return $this->credentials->change_permissions( $path, $permissions );
 	}
 
 	/**
@@ -50,6 +67,8 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 * @param string $path Absolute file path.
 	 *
 	 * @return string Stream URL.
+	 *
+	 * @throws \DomainException If the path is not a valid absolute local path mapped by the selected implementation.
 	 */
 	public function stream_url_from_path( string $path ): string {
 		return $this->credentials->stream_url_from_path( $path );
@@ -60,9 +79,9 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return resource Stream context.
+	 * @return resource|null Stream context for the selected implementation.
 	 *
-	 * @throws Connection_Exception If the selected connection fails.
+	 * @throws Filesystem_Access_Exception If the selected connection fails.
 	 */
 	public function stream_context() {
 		return $this->credentials->stream_context();
@@ -129,7 +148,7 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 			$active = $protocol === $type;
 			$html .= '<div data-credentials-type="' . esc_attr( $type ) . '" data-credentials-site="' . $storage_site . '" data-credentials-prefill="' . $prefill . '" data-credentials-protocol="' . esc_attr( $type ) . '"' . ( $active ? '' : ' hidden' ) . '>';
 			$html .= '<table class="form-table"><tbody>';
-			$html .= 'sftp' === $type ? SFTP_Credentials::form_fields( $initial_state ) : FTP_Credentials::form_fields( $initial_state );
+			$html .= 'sftp' === $type ? Filesystem_Access_Over_SFTP::form_fields( $initial_state ) : Filesystem_Access_Over_FTP::form_fields( $initial_state );
 			$html .= '</tbody></table></div>';
 		}
 		$html .= '</div>';
@@ -149,8 +168,8 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @see FTP_Credentials::parse_parameters()
-	 * @see SFTP_Credentials::parse_parameters()
+	 * @see Filesystem_Access_Over_FTP::parse_parameters()
+	 * @see Filesystem_Access_Over_SFTP::parse_parameters()
 	 *
 	 * @param array $vars  Unslashed form fields. calm_credentials_protocol must be ftp or sftp.
 	 *                     All fields for the selected protocol must be present as strings;
@@ -180,14 +199,14 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 		}
 
 		return match ( $vars[ self::PROTOCOL_FORM_NAME ] ) {
-			'ftp' => FTP_Credentials::parse_parameters( $vars ),
-			'sftp' => SFTP_Credentials::parse_parameters( $vars ),
+			'ftp' => Filesystem_Access_Over_FTP::parse_parameters( $vars ),
+			'sftp' => Filesystem_Access_Over_SFTP::parse_parameters( $vars ),
 			default => throw new \LogicException( 'Unsupported connection protocol.' ),
 		};
 	}
 
 	/**
-	 * Parse submitted credentials, connect using the selected protocol, and verify write
+	 * Parse submitted credentials, verify remote installation access, and test write
 	 * access to the supplied directory.
 	 *
 	 * @since 1.0.0
@@ -197,11 +216,11 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 	 * @param array $vars Unslashed form values accepted by parse_parameters().
 	 * @param string $directory Absolute directory requiring write access.
 	 *
-	 * @return Connection_Credentials|\WP_Error Usable credentials on success, or validation and connection errors on failure.
+	 * @return Remote_Filesystem_Access|\WP_Error Filesystem access on success, or validation and connection errors on failure.
 	 *
 	 * @throws \LogicException If required parameters are missing or malformed.
 	 */
-	public static function writable_directory_credentials( array $vars, string $directory ): Connection_Credentials|\WP_Error {
+	public static function writable_directory_access( array $vars, string $directory ): Remote_Filesystem_Access|\WP_Error {
 		if ( ! isset( $vars[ self::PROTOCOL_FORM_NAME ] ) || ! is_string( $vars[ self::PROTOCOL_FORM_NAME ] ) ) {
 			throw new \LogicException( 'Missing or invalid connection protocol.' );
 		}
@@ -209,8 +228,8 @@ class FTP_SFTP_Credentials implements Connection_Credentials {
 		$protocol = $vars[ self::PROTOCOL_FORM_NAME ];
 
 		return match ( $protocol ) {
-			'ftp' => FTP_Credentials::writable_directory_credentials( $vars, $directory ),
-			'sftp' => SFTP_Credentials::writable_directory_credentials( $vars, $directory ),
+			'ftp' => Filesystem_Access_Over_FTP::writable_directory_access( $vars, $directory ),
+			'sftp' => Filesystem_Access_Over_SFTP::writable_directory_access( $vars, $directory ),
 			default => throw new \LogicException( 'Unsupported connection protocol.' ),
 		};
 	}

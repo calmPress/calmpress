@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace calmpress\credentials;
+namespace calmpress\filesystem;
 
 /**
  * Values needed to create FTP credentials.

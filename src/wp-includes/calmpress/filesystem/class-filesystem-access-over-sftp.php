@@ -1,6 +1,6 @@
 <?php
 /**
- * SFTP credentials and their form.
+ * Filesystem access over SFTP.
  *
  * @package calmPress
  * @since 1.0.0
@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace calmpress\credentials;
+namespace calmpress\filesystem;
 
 use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Crypt\PublicKeyLoader;
@@ -16,13 +16,15 @@ use phpseclib4\Net\SFTP;
 use phpseclib4\Net\SFTP\Stream;
 
 /**
- * Provides password or private-key authentication for SFTP file streams.
+ * Filesystem access over SFTP with password or private key authentication.
  *
  * @since 1.0.0
  */
-class SFTP_Credentials implements Connection_Credentials {
+class Filesystem_Access_Over_SFTP implements Remote_Filesystem_Access {
 
-	use Writable_Directory_Credentials;
+	use Local_Path_Validation;
+
+	use Writable_Directory_Access;
 
 	/**
 	 * Maximum private-key content size in bytes.
@@ -30,7 +32,6 @@ class SFTP_Credentials implements Connection_Credentials {
 	 * @since 1.0.0
 	 */
 	public const MAX_PRIVATE_KEY_BYTES = 65536;
-
 
 	/**
 	 * Form field name for the SFTP server hostname.
@@ -138,14 +139,16 @@ class SFTP_Credentials implements Connection_Credentials {
 	protected ?PrivateKey $private_key = null;
 
 	/**
-	 * Creates credentials without opening a network connection.
+	 * Create filesystem access from the supplied connection settings.
+	 *
 	 * If both a password and a private key are provided, the private key takes precedence.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param SFTP_Credentials_Parameters $parameters SFTP connection values.
 	 *
-	 * @throws \DomainException If the credentials or private key are invalid.
+	 * @throws \DomainException If the connection values are invalid.
+	 * @throws SFTP_Connection_Exception If the private key cannot be parsed or decrypted.
 	 */
 	public function __construct( SFTP_Credentials_Parameters $parameters ) {
 		$this->host     = $parameters->host;
@@ -181,7 +184,7 @@ class SFTP_Credentials implements Connection_Credentials {
 			try {
 				$key = PublicKeyLoader::loadPrivateKey( $parameters->private_key_content, $parameters->passphrase );
 			} catch ( \Throwable $error ) {
-				throw new \DomainException( 'The private key content and passphrase do not produce a usable private key.', 0, $error );
+				throw new SFTP_Connection_Exception( 'The private key content and passphrase do not produce a usable private key.', SFTP_Connection_Exception::PRIVATE_KEY_INVALID, $error );
 			}
 
 			$this->private_key = $key;
@@ -414,7 +417,7 @@ class SFTP_Credentials implements Connection_Credentials {
 		$passphrase_label = esc_html__( 'Private key passphrase' );
 		$password_option = esc_html__( 'Username and password' );
 		$file_option = esc_html__( 'Username and private key file' );
-		$text_option = esc_html__( 'Username and pasted private key' );
+		$text_option = esc_html__( 'Username and private key' );
 		$empty_warning = esc_html__( 'Cannot be empty.' );
 		$port_warning = esc_html__( 'Should be between 1 and 65535 (inclusive).' );
 		$file_selection_warning = esc_html__( 'A file must be selected.' );
@@ -428,7 +431,7 @@ class SFTP_Credentials implements Connection_Credentials {
 		$user_description = esc_html__( 'The account used to access the SFTP server.' );
 		$password_description = esc_html__( 'The password for the SFTP account.' );
 		$file_description = esc_html__( 'Selecting a file is a shortcut for entering a private key. Once loaded, the private key settings will be displayed.' );
-		$text_description = esc_html__( 'Paste the private key.' );
+		$text_description = esc_html__( 'The private key used to authenticate the SFTP account.' );
 		$file_loaded_message = esc_html__( 'Private key loaded from file.' );
 		$passphrase_description = esc_html__( 'The passphrase needed to unlock the private key, if it is protected.' );
 
@@ -473,15 +476,39 @@ class SFTP_Credentials implements Connection_Credentials {
 		</td></tr>
 		<tr data-sftp-auth-method="key_text"{$text_hidden}><th><label for="{$text_name}">{$text_label}</label></th><td>
 			<textarea class="large-text code" rows="8" id="{$text_name}" name="{$text_name}" validate="nonempty" data-sftp-required="true"{$text_required}>{$private_key_text}</textarea>
-			<p class="description" data-private-key-loaded role="status" hidden>{$file_loaded_message}</p>
 			<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
-			<p class="description">{$text_description}</p>
+			<p class="calm-private-key-loaded" data-private-key-loaded role="status" hidden>{$file_loaded_message}</p>
+			<p class="description" data-private-key-description>{$text_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="key_file key_text"{$passphrase_hidden}><th><label for="{$passphrase_name}">{$passphrase_label}</label></th><td>
 			<input class="regular-text" type="password" id="{$passphrase_name}" name="{$passphrase_name}" value="{$passphrase}">
 			<p class="description">{$passphrase_description}</p>
 		</td></tr>
 		HTML;
+	}
+
+	/**
+	 * Change permissions on a path using these credentials.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $path Absolute local path mapped by these credentials.
+	 * @param int    $permissions Unix permission bits.
+	 *
+	 * @return bool Whether the permission change succeeded.
+	 *
+	 * @throws \DomainException If the path is invalid, outside the installation scope, or outside the SFTP base directory.
+	 * @throws \RuntimeException If establishing SFTP access or changing permissions fails.
+	 */
+	public function change_permissions( string $path, int $permissions ): bool {
+		$url = $this->stream_url_from_path( $path );
+
+		// Keep the path literal, including characters such as # that URL parsing treats as delimiters.
+		$remote_path = substr( $url, strpos( $url, '/', strpos( $url, '://' ) + 3 ) );
+
+		$this->session()->chmod( $remote_path, $permissions );
+
+		return true;
 	}
 
 	/**
@@ -493,20 +520,19 @@ class SFTP_Credentials implements Connection_Credentials {
 	 *
 	 * @return string SFTP stream URL.
 	 *
-	 * @throws \DomainException If the path is not absolute or is outside the account base directory.
+	 * @throws \DomainException If the path is invalid, outside the installation scope, or outside the SFTP base directory.
 	 */
 	public function stream_url_from_path( string $path ) {
 		$path = wp_normalize_path( $path );
+		$this->throw_if_not_absolute_local_path( $path );
 		$base = rtrim( wp_normalize_path( $this->base_dir ), '/' );
 
 		if ( '' === $base ) {
 			$base = '/';
 		}
 
-		if ( ! path_is_absolute( $path )
-			|| ( $path !== $base && ! str_starts_with( $path, rtrim( $base, '/' ) . '/' ) )
-			|| in_array( '..', explode( '/', $path ), true ) ) {
-			throw new \DomainException( 'Path must be absolute and within the SFTP base directory.' );
+		if ( $path !== $base && ! str_starts_with( $path, rtrim( $base, '/' ) . '/' ) ) {
+			throw new \DomainException( 'Path must be within the SFTP base directory.' );
 		}
 
 		$relative_path = substr( $path, strlen( $base ) );
@@ -532,6 +558,32 @@ class SFTP_Credentials implements Connection_Credentials {
 	}
 
 	/**
+	 * Throw if the remote calmPress root directory cannot be reached through SFTP.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws SFTP_Connection_Exception If connecting, authenticating, or accessing the installation fails.
+	 */
+	protected function throw_if_remote_root_directory_is_unreachable(): void {
+		$session = $this->session();
+
+		// Verify that the configured base directory maps the calmPress root to a directory this account can access.
+		$base = rtrim( wp_normalize_path( $this->base_dir ), '/' );
+		$root = wp_normalize_path( ABSPATH );
+		$remote_root = '/' . ltrim( substr( $root, strlen( $base ) ), '/' );
+
+		try {
+			$root_accessible = $session->is_dir( $remote_root );
+		} catch ( \Throwable $error ) {
+			throw new SFTP_Connection_Exception( 'SFTP installation directory check failed.', SFTP_Connection_Exception::INSTALLATION_INACCESSIBLE, $error );
+		}
+
+		if ( ! $root_accessible ) {
+			throw new SFTP_Connection_Exception( 'SFTP installation directory inaccessible.', SFTP_Connection_Exception::INSTALLATION_INACCESSIBLE );
+		}
+	}
+
+	/**
 	 * Connects and authenticates an SFTP session.
 	 *
 	 * @since 1.0.0
@@ -540,7 +592,7 @@ class SFTP_Credentials implements Connection_Credentials {
 	 *
 	 * @throws SFTP_Connection_Exception If the SSH connection, authentication, or SFTP service fails.
 	 */
-	private function session(): SFTP {
+	protected function session(): SFTP {
 		try {
 			$session = new SFTP( $this->host, $this->port );
 			$host_key = $session->getServerPublicHostKey();
@@ -561,21 +613,6 @@ class SFTP_Credentials implements Connection_Credentials {
 
 		if ( ! $authenticated ) {
 			throw new SFTP_Connection_Exception( 'SFTP authentication failed.', SFTP_Connection_Exception::AUTHENTICATION_FAILED );
-		}
-
-		// Verify that the configured base directory maps the calmPress root to a directory this account can access.
-		$base = rtrim( wp_normalize_path( $this->base_dir ), '/' );
-		$root = wp_normalize_path( ABSPATH );
-		$remote_root = '/' . ltrim( substr( $root, strlen( $base ) ), '/' );
-
-		try {
-			$root_accessible = $session->is_dir( $remote_root );
-		} catch ( \Throwable $error ) {
-			throw new SFTP_Connection_Exception( 'SFTP installation directory check failed.', SFTP_Connection_Exception::INSTALLATION_INACCESSIBLE, $error );
-		}
-
-		if ( ! $root_accessible ) {
-			throw new SFTP_Connection_Exception( 'SFTP installation directory inaccessible.', SFTP_Connection_Exception::INSTALLATION_INACCESSIBLE );
 		}
 
 		return $session;

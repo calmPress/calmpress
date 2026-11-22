@@ -125,21 +125,34 @@ class WP_Test_Wp_Config extends WP_UnitTestCase {
 	 * @since 1.0.0
 	 */
 	function test_save_user_section_to_file() {
-		$creds = new \calmpress\credentials\File_Credentials();
-		$filename = wp_tempnam();
-		$config = new \calmpress\wp_config\wp_config( $filename );
-		file_put_contents( $filename, "test\n// BEGIN User\n// END User\nsomething else");
+		$creds = new \calmpress\filesystem\Local_Filesystem_Access();
+		$created_content_directory = ! is_dir( WP_CONTENT_DIR );
 
-		// Test with valid content.
-		$config->save_user_section_to_file('//test', $creds);
-		$s = file_get_contents( $filename );
-		$this->AssertSame( "test\n// BEGIN User\n//test\n// END User\nsomething else", $s );
+		if ( $created_content_directory ) {
+			mkdir( WP_CONTENT_DIR, 0755, true );
+		}
 
-		// Test with partially invalid content.
-		$config->save_user_section_to_file("def\n//test 2", $creds);
-		$s = file_get_contents( $filename );
-		$this->AssertSame( "test\n// BEGIN User\n//test 2\n// END User\nsomething else", $s );
-		unlink( $filename );
+		$filename = tempnam( WP_CONTENT_DIR, 'wp-config-test-' );
+
+		try {
+			$config = new \calmpress\wp_config\wp_config( $filename );
+			file_put_contents( $filename, "test\n// BEGIN User\n// END User\nsomething else" );
+
+			// Test with valid content.
+			$config->save_user_section_to_file( '//test', $creds );
+			$this->assertSame( "test\n// BEGIN User\n//test\n// END User\nsomething else", file_get_contents( $filename ) );
+
+			// Test with partially invalid content.
+			$config->save_user_section_to_file( "def\n//test 2", $creds );
+			$this->assertSame( "test\n// BEGIN User\n//test 2\n// END User\nsomething else", file_get_contents( $filename ) );
+		} finally {
+			unlink( $filename );
+
+			if ( $created_content_directory ) {
+				rmdir( WP_CONTENT_DIR );
+			}
+
+		}
 	}
 
 	/**

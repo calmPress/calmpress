@@ -1,6 +1,6 @@
 <?php
 /**
- * Interface for connection credentials with form generation and parameter parsing.
+ * Remote filesystem access interface with a connection settings form.
  *
  * @package calmPress
  * @since 1.0.0
@@ -8,14 +8,14 @@
 
 declare(strict_types=1);
 
-namespace calmpress\credentials;
+namespace calmpress\filesystem;
 
 /**
- * Connection credentials that can be entered through a form.
+ * Remote filesystem access configured through a connection settings form.
  *
  * @since 1.0.0
  */
-interface Connection_Credentials extends Credentials {
+interface Remote_Filesystem_Access extends Filesystem_Access {
 
 	/**
 	 * Returns a stream context for accessing files through the connection.
@@ -24,7 +24,7 @@ interface Connection_Credentials extends Credentials {
 	 *
 	 * @return resource Stream context allowing file overwrite.
 	 *
-	 * @throws Connection_Exception If there is a connectivity failure with the target server.
+	 * @throws Filesystem_Access_Exception If preparing remote filesystem access fails.
 	 */
 	public function stream_context();
 
@@ -50,11 +50,13 @@ interface Connection_Credentials extends Credentials {
 	 * @param array $vars  Unslashed values from the form's submitted fields.
 	 *
 	 * @return Connection_Credentials_Parameters|\WP_Error Parsed connection values or validation problems.
+	 *
+	 * @throws \LogicException If required fields are missing, have unexpected types, or specify an unsupported selection.
 	 */
 	public static function parse_parameters( array $vars ): Connection_Credentials_Parameters|\WP_Error;
 
 	/**
-	 * Parse submitted credentials, connect using the selected protocol, and verify write
+	 * Parse submitted credentials, verify remote installation access, and test write
 	 * access to the supplied directory.
 	 *
 	 * @since 1.0.0
@@ -62,10 +64,10 @@ interface Connection_Credentials extends Credentials {
 	 * @param array $vars Unslashed form values.
 	 * @param string $directory Absolute directory requiring write access.
 	 *
-	 * @return Connection_Credentials|\WP_Error Usable credentials on success, or validation and connection errors on failure.
+	 * @return Remote_Filesystem_Access|\WP_Error Filesystem access on success, or validation and connection errors on failure.
 	 *
 	 * @throws \LogicException If required parameters are missing or malformed.
 	 */
-	public static function writable_directory_credentials( array $vars, string $directory ): Connection_Credentials|\WP_Error;
+	public static function writable_directory_access( array $vars, string $directory ): Remote_Filesystem_Access|\WP_Error;
 
 }
