@@ -1518,8 +1518,10 @@ function wp_default_scripts( $scripts ) {
 		);
 
 		$scripts->add( 'calm-form-validate', "/wp-admin/js/form-validate$suffix.js", [] );
-		$scripts->add( 'calm-sftp-credentials', "/wp-includes/js/cp-sftp-credentials-form$suffix.js", [ 'calm-form-validate' ], false, 1 );
-		$scripts->add( 'calm-ftp-sftp-credentials', "/wp-includes/js/cp-ftp-sftp-credentials-form$suffix.js", [ 'calm-sftp-credentials' ], false, 1 );
+		$scripts->add( 'calm-credentials-storage', "/wp-includes/js/cp-credentials-storage$suffix.js", [ 'calm-form-validate' ], false, 1 );
+		$scripts->add( 'calm-ftp-credentials', "/wp-includes/js/cp-ftp-credentials-form$suffix.js", [ 'calm-credentials-storage' ], false, 1 );
+		$scripts->add( 'calm-sftp-credentials', "/wp-includes/js/cp-sftp-credentials-form$suffix.js", [ 'calm-credentials-storage' ], false, 1 );
+		$scripts->add( 'calm-ftp-sftp-credentials', "/wp-includes/js/cp-ftp-sftp-credentials-form$suffix.js", [ 'calm-ftp-credentials', 'calm-sftp-credentials' ], false, 1 );
 
 		$scripts->add( 'calm-options-email', "/wp-admin/js/options-email$suffix.js", ['calm-form-validate', 'calm-utils'] );
 
