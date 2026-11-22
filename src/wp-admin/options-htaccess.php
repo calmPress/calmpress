@@ -176,6 +176,33 @@ if ( $update_required ) {
 		} catch ( \Throwable ) {
 			save_fail_notice( $connection_failure );
 		}
+	} else {
+		add_action(
+			'admin_notices',
+
+			/**
+			 * Display a link to the credentials required for updating .htaccess.
+			 *
+			 * @since calmPress 1.0.0
+			 */
+			static function () {
+				?>
+				<div class="notice notice-error is-dismissible">
+					<p>
+					<?php
+					printf(
+						/* translators: 1: File name, 2: Opening link to connection credentials form, 3: Closing link. */
+						esc_html__( '%1$s is not writable. Please provide %2$sFTP or SFTP credentials%3$s to perform the file update.' ),
+						'<code>.htaccess</code>',
+						'<a href="#connection-credentials">',
+						'</a>'
+					);
+					?>
+					</p>
+				</div>
+				<?php
+			}
+		);
 	}
 
 	if ( $saved ) {
