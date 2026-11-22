@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace calmpress\markdown;
 
-require_once __DIR__ . '\parsedown.php';
+require_once __DIR__ . '/Parsedown.php';
 
 /**
  * Class with utility functions to process markdown.
