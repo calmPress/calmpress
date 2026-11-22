@@ -50,11 +50,12 @@ The product name is deliberately styled `calmPress`. Preserve this capitalizatio
 
 ## Coding standards and conformance
 
-New and modified code should conform to WordPress coding practices and match the conventions of the surrounding code. Use the repositoryâ€™s WordPress Coding Standards configuration as guidance for PHP formatting, naming, documentation, escaping, translations, and database access.
+Follow the latest official [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/) by default for new and modified code. Explicit project rules in this file and user instructions override those standards where they differ. Use the repository’s WordPress Coding Standards configuration as additional guidance, and match surrounding conventions where consistent with these rules.
 
 In particular:
 
 - Use tabs for indentation except where repository configuration specifies otherwise.
+- Align assignment operators in consecutive related PHP assignments, following WordPress spacing conventions.
 - Use `[]` notation for arrays in new PHP code, rather than `array()`.
 - For new calmPress extension points, use the observer and mutator classes instead of WordPress actions and filters, unless WordPress compatibility requires the hook API.
 - Always use braces for new PHP control-flow code, including templates. Do not use alternative syntax such as `if (...): ... endif;`, `foreach (...): ... endforeach;`, or `switch (...): ... endswitch;`.
