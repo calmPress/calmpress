@@ -233,6 +233,11 @@ textarea[readonly] {
 	color: #646970;
 }
 
+.input-success-message {
+	font-weight: bold;
+	color: #008a20;
+}
+
 .validate-failure-message {
 	display:none;
 }

@@ -477,7 +477,7 @@ class Filesystem_Access_Over_SFTP implements Remote_Filesystem_Access {
 		<tr data-sftp-auth-method="key_text"{$text_hidden}><th><label for="{$text_name}">{$text_label}</label></th><td>
 			<textarea class="large-text code" rows="8" id="{$text_name}" name="{$text_name}" validate="nonempty" data-sftp-required="true"{$text_required}>{$private_key_text}</textarea>
 			<p class="validate-failure-message" aria-live="polite">{$empty_warning}</p>
-			<p class="calm-private-key-loaded" data-private-key-loaded role="status" hidden>{$file_loaded_message}</p>
+			<p class="input-success-message" data-private-key-loaded role="status" hidden>{$file_loaded_message}</p>
 			<p class="description" data-private-key-description>{$text_description}</p>
 		</td></tr>
 		<tr data-sftp-auth-method="key_file key_text"{$passphrase_hidden}><th><label for="{$passphrase_name}">{$passphrase_label}</label></th><td>
