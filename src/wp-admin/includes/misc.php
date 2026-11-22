@@ -22,6 +22,8 @@ function got_mod_rewrite() {
 /**
  * Extracts strings from between the BEGIN and END markers in a file.
  *
+ * Lines starting with the marker comment prefix are filtered out.
+ *
  * @since 1.5.0
  * @since calmPress 1.0.0 Can specify the marker prefix.
  *
@@ -30,38 +32,87 @@ function got_mod_rewrite() {
  * @param string $line_prefix The prefix string that should come before the marker. Default is '#'
  *                            for easier backward compatibility with the single use of this function
  *                            in .htaccess files.
+ *
  * @return string[] An array of strings from a file (.htaccess) from between BEGIN and END markers.
  */
 function extract_from_markers( $filename, $marker, $line_prefix = '#' ) {
-	$result = array();
+	$lines = extract_marked_section( $filename, $marker, $line_prefix );
 
+	// Preserve this API's filtering of lines beginning with the marker comment prefix.
+	return array_values( array_filter( $lines, static function ( $line ) use ( $line_prefix ) {
+		return ! str_starts_with( $line, $line_prefix );
+	} ) );
+}
+
+/**
+ * Extract section lines between named comment markers, preserving comments and whitespace.
+ *
+ * The opening delimiter is $line_prefix . ' BEGIN ' . $marker; the closing
+ * delimiter is $line_prefix . ' END ' . $marker.
+ *
+ * Line endings are normalized to LF before splitting the file into lines.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @param string $filename    File path.
+ * @param string $marker      Section marker name.
+ * @param string $line_prefix Comment prefix used for the marker lines. Default '#'.
+ *
+ * @return string[] Section lines, or an empty array for an unreadable file or missing file or section.
+ */
+function extract_marked_section( string $filename, string $marker, string $line_prefix = '#' ): array {
 	if ( ! file_exists( $filename ) ) {
-		return $result;
+		return [];
 	}
 
-	$markerdata = explode( "\n", implode( '', file( $filename ) ) );
+	$content = @file_get_contents( $filename );
 
-	$state = false;
-
-	foreach ( $markerdata as $markerline ) {
-		if ( str_contains( $markerline, $line_prefix . ' END ' . $marker ) ) {
-			$state = false;
-		}
-
-		if ( $state ) {
-			if ( str_starts_with( $markerline, $line_prefix ) ) {
-				continue;
-			}
-
-			$result[] = rtrim( $markerline, "\r" );
-		}
-
-		if ( str_contains( $markerline, $line_prefix . ' BEGIN ' . $marker ) ) {
-			$state = true;
-		}
+	if ( false === $content ) {
+		return [];
 	}
 
-	return $result;
+	$content    = str_replace( [ "\r\n", "\r" ], "\n", $content );
+	$lines      = [];
+	$in_section = false;
+
+	// Keep all content lines, including comments and nested markers for other sections.
+	foreach ( explode( "\n", $content ) as $line ) {
+
+		if ( str_contains( $line, $line_prefix . ' END ' . $marker ) ) {
+			$in_section = false;
+		}
+
+		if ( $in_section ) {
+			$lines[] = $line;
+		}
+
+		if ( str_contains( $line, $line_prefix . ' BEGIN ' . $marker ) ) {
+			$in_section = true;
+		}
+
+	}
+
+	return $lines;
+}
+
+/**
+ * Compare supplied content with a BEGIN/END section after normalizing line endings.
+ *
+ * Whitespace, blank lines, and comments remain significant.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @param string $filename    File path.
+ * @param string $marker      Section marker name.
+ * @param string $content     Content to compare with the file section.
+ * @param string $line_prefix Comment prefix used for the marker lines. Default '#'.
+ *
+ * @return bool Whether the supplied content matches the file section.
+ */
+function marker_section_matches( string $filename, string $marker, string $content, string $line_prefix = '#' ): bool {
+	$lines = extract_marked_section( $filename, $marker, $line_prefix );
+
+	return str_replace( [ "\r\n", "\r" ], "\n", $content ) === implode( "\n", $lines );
 }
 
 /**

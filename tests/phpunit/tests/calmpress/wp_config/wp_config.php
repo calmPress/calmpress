@@ -120,6 +120,91 @@ class WP_Test_Wp_Config extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Reading the User section preserves comments, blank lines, and indentation.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @dataProvider user_section_line_endings
+	 *
+	 * @param string $line_ending File line ending.
+	 */
+	public function test_user_section_in_file_preserves_content( string $line_ending ): void {
+		$filename = wp_tempnam();
+		$config   = new \calmpress\wp_config\wp_config( $filename );
+		$section  = "// First comment\n\n  define( 'EXAMPLE', true ); // Inline comment\n// Last comment\n";
+		$content  = "<?php\n// Outside section\n// BEGIN User\n" . $section . "\n// END User\n// Outside section\n";
+
+		try {
+			file_put_contents( $filename, str_replace( "\n", $line_ending, $content ) );
+			$this->assertSame( $section, $config->user_section_in_file() );
+		} finally {
+			unlink( $filename );
+		}
+	}
+
+	/**
+	 * Supply supported file line endings.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array[] File line endings.
+	 */
+	public static function user_section_line_endings(): array {
+		return [
+			'LF'   => [ "\n" ],
+			'CRLF' => [ "\r\n" ],
+			'CR'   => [ "\r" ],
+		];
+	}
+
+	/**
+	 * User-section comparisons ignore line endings and retain content differences.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @dataProvider user_section_comparisons
+	 *
+	 * @param string $section Content in the file's User section.
+	 * @param string $settings Settings supplied for comparison.
+	 * @param bool   $expected Whether the settings should match.
+	 */
+	public function test_user_section_matches_compares_content( string $section, string $settings, bool $expected ): void {
+		$filename = wp_tempnam();
+		$config   = new \calmpress\wp_config\wp_config( $filename );
+
+		try {
+			file_put_contents( $filename, "<?php\n// BEGIN User\n" . $section . "\n// END User\n" );
+			$this->assertSame( $expected, $config->user_section_matches( $settings ) );
+		} finally {
+			unlink( $filename );
+		}
+	}
+
+	/**
+	 * Supply equivalent settings and meaningful differences.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array[] File content, supplied settings, and expected comparison result.
+	 */
+	public static function user_section_comparisons(): array {
+		return [
+			'empty section'       => [ '', '', true ],
+			'comment only'        => [ '// Comment', '// Comment', true ],
+			'CRLF settings'       => [ "// Comment\ndefine( 'EXAMPLE', true );", "// Comment\r\ndefine( 'EXAMPLE', true );", true ],
+			'CR settings'         => [ "// Comment\ndefine( 'EXAMPLE', true );", "// Comment\rdefine( 'EXAMPLE', true );", true ],
+			'CRLF file'           => [ "// Comment\r\ndefine( 'EXAMPLE', true );", "// Comment\ndefine( 'EXAMPLE', true );", true ],
+			'CR file'             => [ "// Comment\rdefine( 'EXAMPLE', true );", "// Comment\ndefine( 'EXAMPLE', true );", true ],
+			'changed comment'     => [ '// Comment', '// Another comment', false ],
+			'changed setting'     => [ "define( 'EXAMPLE', true );", "define( 'EXAMPLE', false );", false ],
+			'indentation'         => [ " define( 'EXAMPLE', true );", "define( 'EXAMPLE', true );", false ],
+			'trailing whitespace' => [ '// Comment ', '// Comment', false ],
+			'blank line'          => [ "// Comment\n", '// Comment', false ],
+			'empty line'          => [ "\n", '', false ],
+		];
+	}
+
+	/**
 	 * Test save_user_section_to_file.
 	 *
 	 * @since 1.0.0

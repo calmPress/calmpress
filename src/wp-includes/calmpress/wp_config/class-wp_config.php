@@ -182,23 +182,42 @@ class wp_config {
 	}
 
 	/**
-	 * Get the user section from the file.
+	 * Read the User section, preserving comments and whitespace with LF line endings.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return string Content between the User markers, excluding the marker lines.
 	 */
-	public function user_section_in_file() : string {
-		/*
-		 * WordPress associate this function only with admin.
-		 * As we want to avoid making structural changes to file
-		 * in order to keep merging easy we need to use this hack.
-		 */
-		if ( ! function_exists( 'extract_from_markers' ) ) {
+	public function user_section_in_file(): string {
+		if ( ! function_exists( 'extract_marked_section' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/misc.php';
 		}
 
 		$lock  = new \calmpress\filesystem\Path_Lock( $this->filename );
-		$lines = extract_from_markers( $this->filename, self::USER_SECTION_MARKER, self::USER_SECTION_PREFIX );
-		return join( "\n", $lines );
+		$lines = extract_marked_section( $this->filename, self::USER_SECTION_MARKER, self::USER_SECTION_PREFIX );
+
+		return implode( "\n", $lines );
+	}
+
+	/**
+	 * Compare settings with the file's User section after normalizing line endings.
+	 *
+	 * Whitespace, blank lines, and comments remain significant.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $settings User settings to compare with the file.
+	 *
+	 * @return bool Whether the settings match the file's User section.
+	 */
+	public function user_section_matches( string $settings ): bool {
+		if ( ! function_exists( 'extract_marked_section' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/misc.php';
+		}
+
+		$lock = new \calmpress\filesystem\Path_Lock( $this->filename );
+
+		return marker_section_matches( $this->filename, self::USER_SECTION_MARKER, $settings, self::USER_SECTION_PREFIX );
 	}
 
 	/**

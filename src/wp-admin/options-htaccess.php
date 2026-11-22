@@ -38,9 +38,7 @@ if ( ( ! file_exists( $file_path ) && is_writable( $home_path ) ) || is_writable
 	$writable = false;
 }
 
-$existing_rules  = array_filter( extract_from_markers( $file_path, 'WordPress' ) );
-$new_rules       = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );
-$update_required = ( $new_rules !== $existing_rules );
+$update_required = ! marker_section_matches( $file_path, 'WordPress', $wp_rewrite->mod_rewrite_rules() );
 
 add_settings_section(
 	'calm-htaccess-user-section',

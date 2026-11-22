@@ -178,9 +178,7 @@ if ( ( 1 === count( $error_messages ) ) && ( 'success' === $error_messages[0]['t
 }
 
 if ( empty( $errors ) ) {
-	$existing_rules = $wp_config->user_section_in_file();
-	$new_rules      = get_option( 'wp_config_user_section' );
-	if ( $new_rules !== $existing_rules ) {
+	if ( ! $wp_config->user_section_matches( get_option( 'wp_config_user_section', '' ) ) ) {
 		$update_required = true;
 	}
 }
