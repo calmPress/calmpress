@@ -776,52 +776,6 @@ function unknown_error_text():string {
 }
 
 /**
- * Check write access to a directory using the supplied credentials.
- *
- * @since 1.0.0
- *
- * @param \calmpress\credentials\Credentials $credentials Credentials used for the connection.
- * @param string $directory Absolute directory path to check.
- *
- * @return true|\WP_Error True when the directory is writable, or a connection or write-access error.
- */
-function validate_directory_write_access( \calmpress\credentials\Credentials $credentials, string $directory ): true|\WP_Error {
-	$probe = rtrim( $directory, '/\\' ) . '/.calmpress-access-' . wp_generate_uuid4();
-
-	try {
-		$url = $credentials->stream_url_from_path( $probe );
-		$context = $credentials->stream_context();
-	} catch ( \DomainException $error ) {
-		return new \WP_Error( 'connection_path_invalid', sprintf( __( 'Failed to access directory: %s' ), $directory ), [ 'directory' => $directory ] );
-	} catch ( \calmpress\credentials\Connection_Exception $error ) {
-		return $error->to_wp_error();
-	} catch ( \RuntimeException $error ) {
-		return new \WP_Error( 'connection_failed', $error->getMessage() );
-	}
-
-	$stream = @fopen( $url, 'wb', false, $context );
-
-	if ( false === $stream ) {
-		return new \WP_Error( 'connection_directory_not_writable', sprintf( __( 'Failed to write to directory: %s. Check its path and permissions.' ), $directory ), [ 'directory' => $directory ] );
-	}
-
-	fclose( $stream );
-	$removed = @unlink( $url, $context );
-
-	if ( ! $removed ) {
-		return new \WP_Error(
-			'connection_file_delete_failed',
-
-			/* translators: 1: Directory path, 2: Temporary file name. */
-			sprintf( __( 'Failed to delete files from directory: %1$s. Temporary file %2$s may have been left in it.' ), $directory, basename( $probe ) ),
-			[ 'directory' => $directory, 'file' => $probe ]
-		);
-	}
-
-	return true;
-}
-
-/**
  * Get the current site URL, guessed during installation and configured otherwise.
  *
  * @since 1.0.0
