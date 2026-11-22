@@ -89,7 +89,8 @@
 				return;
 			}
 
-			// Clear the previous key and hide earlier success or error messages before reading the new file.
+			// Clear the previous key and error message, and hide the previous confirmation before reading the new file.
+			clearTimeout( this.loaded_message_timeout );
 			this.loaded_message_element.hidden = true;
 			this.key_element.value = '';
 			this.error_element.textContent = '';
@@ -135,6 +136,12 @@
 				// Fill the key-text field, show the loaded message, and display the private-key settings.
 				this.key_element.value = contents;
 				this.loaded_message_element.hidden = false;
+
+				// Hide the confirmation after eight seconds.
+				this.loaded_message_timeout = setTimeout( () => {
+					this.loaded_message_element.hidden = true;
+				}, 8000 );
+
 				this.method_element.value = 'key_text';
 				this.update_sftp_authentication();
 			} finally {
