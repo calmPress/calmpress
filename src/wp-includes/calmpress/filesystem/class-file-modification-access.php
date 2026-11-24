@@ -115,13 +115,13 @@ class File_Modification_Access {
 	 *
 	 * Symbolic links are checked but their targets are not traversed.
 	 *
+	 * Unreadable directories are skipped after checking their own modification access.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $root_directory Absolute path to the installation root.
 	 *
 	 * @return bool Whether an installed code path is writable or owned by PHP.
-	 *
-	 * @throws \UnexpectedValueException If a code directory cannot be read.
 	 */
 	public static function can_modify_installed_code( string $root_directory ): bool {
 		$root_directory = rtrim( $root_directory, '/\\' );
@@ -136,10 +136,14 @@ class File_Modification_Access {
 		}
 
 		// Check files directly in the installation root.
-		foreach ( new \DirectoryIterator( $root_directory ) as $entry ) {
-			if ( self::is_checked_file( $entry ) && self::can_modify_path( $entry->getPathname() ) ) {
-				return true;
+		try {
+			foreach ( new \DirectoryIterator( $root_directory ) as $entry ) {
+				if ( self::is_checked_file( $entry ) && self::can_modify_path( $entry->getPathname() ) ) {
+					return true;
+				}
 			}
+		} catch ( \UnexpectedValueException $error ) {
+			// The directory cannot be read; continue checking the remaining code paths.
 		}
 
 		// Check wp-content and files directly inside it.
@@ -148,10 +152,14 @@ class File_Modification_Access {
 				return true;
 			}
 
-			foreach ( new \DirectoryIterator( WP_CONTENT_DIR ) as $entry ) {
-				if ( self::is_checked_file( $entry ) && self::can_modify_path( $entry->getPathname() ) ) {
-					return true;
+			try {
+				foreach ( new \DirectoryIterator( WP_CONTENT_DIR ) as $entry ) {
+					if ( self::is_checked_file( $entry ) && self::can_modify_path( $entry->getPathname() ) ) {
+						return true;
+					}
 				}
+			} catch ( \UnexpectedValueException $error ) {
+				// The directory cannot be read; continue checking the remaining code paths.
 			}
 		}
 
@@ -180,10 +188,16 @@ class File_Modification_Access {
 				return true;
 			}
 
-			$items = new \RecursiveIteratorIterator(
-				new \RecursiveDirectoryIterator( $path, \FilesystemIterator::SKIP_DOTS ),
-				\RecursiveIteratorIterator::SELF_FIRST
-			);
+			// Check each child before descending, and skip children whose contents cannot be read.
+			try {
+				$items = new \RecursiveIteratorIterator(
+					new \RecursiveDirectoryIterator( $path, \FilesystemIterator::SKIP_DOTS ),
+					\RecursiveIteratorIterator::SELF_FIRST,
+					\RecursiveIteratorIterator::CATCH_GET_CHILD
+				);
+			} catch ( \UnexpectedValueException $error ) {
+				continue;
+			}
 
 			foreach ( $items as $item ) {
 				if ( ( $item->isDir() || self::is_checked_file( $item ) ) && self::can_modify_path( $item->getPathname() ) ) {

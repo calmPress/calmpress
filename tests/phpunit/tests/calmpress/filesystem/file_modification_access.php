@@ -73,4 +73,26 @@ class WP_Test_File_Modification_Access extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * A root that cannot be opened does not abort the remaining modification checks.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_can_modify_installed_code_skips_root_that_cannot_be_opened(): void {
+		if ( 'Windows' === PHP_OS_FAMILY || File_Modification_Access::can_modify_path( '/' ) ) {
+			$this->markTestSkipped( 'The process must not be able to modify the filesystem root.' );
+		}
+
+		if ( ! defined( 'WP_PLUGIN_DIR' ) ) {
+			define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+		}
+
+		if ( ! defined( 'WPMU_PLUGIN_DIR' ) ) {
+			define( 'WPMU_PLUGIN_DIR', WP_CONTENT_DIR . '/mu-plugins' );
+		}
+
+		$root = '/calmpress-missing-' . wp_generate_uuid4();
+		$this->assertIsBool( File_Modification_Access::can_modify_installed_code( $root ) );
+	}
+
 }
