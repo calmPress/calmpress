@@ -77,7 +77,7 @@ In particular:
 - Describe what functions and methods do. Mention what they do not do only when that distinction explains their implemented behavior or functionality.
 - Leave a blank line between preceding code and a docblock or block comment.
 - Every test method must have a docblock describing the behavior being tested and an `@since` tag; a descriptive method name does not replace the docblock.
-- Leave a blank line before and after new control-flow blocks when the surrounding code allows it. Keep `else` and `elseif` attached to their `if` block.
+- Leave a blank line before the start of a control-flow block when it follows other statements. Do not add blank lines solely to separate closing braces. Keep `else`, `elseif`, `catch`, and `finally` attached to the preceding closing brace.
 - Use ternary expressions only when the condition and both outcomes are short and easy to read; use `if` for longer cases.
 - Use `snake_case` for function names in new or modified JavaScript, matching PHP function naming.
 - In JavaScript, keep loops and iteration callbacks such as `forEach` focused on what is done to each item. Define utility functions outside the loop.
