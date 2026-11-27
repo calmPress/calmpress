@@ -365,3 +365,14 @@ function _unhook_core_abilities_registration() {
 	remove_action( 'wp_abilities_api_init', 'wp_register_core_abilities' );
 }
 tests_add_filter( 'wp_abilities_api_init', '_unhook_core_abilities_registration', 1 );
+
+/**
+ * Use the fixture themes as the single theme root for PHPUnit.
+ *
+ * @since calmPress 1.0.0
+ *
+ * @return string Absolute path to the fixture themes.
+ */
+function tests_fixture_theme_root(): string {
+	return dirname( __DIR__ ) . '/data/themedir1';
+}
