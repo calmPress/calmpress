@@ -250,10 +250,6 @@ if ( ! defined( 'WP_DEFAULT_THEME' ) ) {
 }
 $wp_theme_directories = array();
 
-if ( file_exists( DIR_TESTDATA . '/themedir1' ) ) {
-	$wp_theme_directories[] = DIR_TESTDATA . '/themedir1';
-}
-
 // define( 'WP_PLUGIN_DIR', DIR_TESTDATA . '/plugins' );
 
 if ( '1' !== getenv( 'WP_TESTS_SKIP_INSTALL' ) ) {
@@ -298,6 +294,9 @@ if ( isset( $GLOBALS['wp_tests_options'] ) ) {
 		tests_add_filter( 'pre_option_' . $key, 'wp_tests_options' );
 	}
 }
+
+// Use the directory containing the default and other test themes as the single theme root.
+tests_add_filter( 'theme_root', 'tests_fixture_theme_root' );
 
 // Load WordPress.
 require_once ABSPATH . 'wp-settings.php';
