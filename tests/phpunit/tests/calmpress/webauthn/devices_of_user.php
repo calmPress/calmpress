@@ -319,7 +319,6 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
     public function test_packed_number( int $int_value, string $packed ): void {
 
 		$refMethod = new ReflectionMethod( Devices_Of_User::class, 'packed_number' );
-		$refMethod->setAccessible( true );
 
         $this->assertSame(
             $packed,
@@ -337,7 +336,6 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
     public function test_unpacked_string( int $int_value, string $packed ): void {
 
 		$refMethod = new ReflectionMethod( Devices_Of_User::class, 'unpacked_string' );
-		$refMethod->setAccessible( true );
 
         $this->assertSame(
             $int_value,
@@ -393,7 +391,6 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		$collection = new Devices_Of_User( $user );
 
 		$refMethod = new ReflectionMethod( Devices_Of_User::class, 'devices_as_webautn_array' );
-		$refMethod->setAccessible( true );
 
 		// Empty when no devices.
 		$devices_as_webauthn = $refMethod->invoke( $collection );
@@ -435,7 +432,6 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		$collection = new Devices_Of_User( $user );
 
 		$refMethod = new ReflectionMethod( Devices_Of_User::class, 'rp_info' );
-		$refMethod->setAccessible( true );
 
 		$rp_info = $refMethod->invoke( $collection );
 		if ( is_multisite() ) {
@@ -505,7 +501,6 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		$collection2 = new Devices_Of_User( $user2 );
 
 		$refMethod = new ReflectionMethod( Devices_Of_User::class, 'credential_is_used' );
-		$refMethod->setAccessible( true );
 
 		// No devices were registered
 		$this->assertFalse( $refMethod->invoke( null, 'cred' ) );
@@ -544,7 +539,6 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 		$collection = new Devices_Of_User( $user );
 
 		$refMethod = new ReflectionMethod( Devices_Of_User::class, 'packed_number' );
-		$refMethod->setAccessible( true );
 
 		// Exception thrown when there are no available slots for ne device.
 		for ( $i=1; $i<6; $i++ ) {
@@ -576,7 +570,6 @@ class Devices_Of_User_Test extends WP_UnitTestCase {
 
 
 		$packed_method = new ReflectionMethod( Devices_Of_User::class, 'packed_number' );
-		$packed_method->setAccessible( true );
 
 		$challenge = $mock->new_device_challenge();
 		

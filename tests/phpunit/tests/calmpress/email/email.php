@@ -533,7 +533,6 @@ class Email_Test extends WP_UnitTestCase {
 	 */
 	public function test_iterate_objects_method_into_array() {
 		$method = new ReflectionMethod( 'calmpress\email\Email', 'iterate_objects_method_into_array' );
-        $method->setAccessible(true);
 		// Could have been any kind of object but since we in email context...
 
 		$ad1  = new Email_Address( 'a@b.com' );
@@ -550,7 +549,6 @@ class Email_Test extends WP_UnitTestCase {
 	 */
 	public function test_iterate_objects_method_into_list() {
 		$method = new ReflectionMethod( 'calmpress\email\Email', 'iterate_objects_method_into_list' );
-        $method->setAccessible(true);
 		// Could have been any kind of object but since we in email context...
 
 		$ad1  = new Email_Address( 'a@b.com', 'a' );

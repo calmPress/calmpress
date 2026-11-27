@@ -132,7 +132,6 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	public function test_compare_observers() {
 
 		$compare_observers = new ReflectionMethod( 'Mock_Observer_Collection', 'compare_observers' );
-        $compare_observers->setAccessible(true);
 
 		$mock  = new Mock_Collection_Observer();
 		$mock2 = new Mock_Collection_Observer2();
@@ -166,7 +165,6 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	public function test_observers() {
 
 		$observers = new ReflectionMethod( 'Mock_Observer_Collection', 'observers' );
-        $observers->setAccessible(true);
 
 		$first        = new Mock_Observer_First();
 		$unspecified  = new Mock_Collection_Observer(); 
@@ -207,7 +205,6 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_observer_while_notifying() { 
 		$observers = new ReflectionMethod( 'Mock_Observer_Collection', 'observers' );
-        $observers->setAccessible(true);
 
 		$first        = new Mock_Observer_First();
 		$unspecified  = new Mock_Collection_Observer(); 
@@ -250,7 +247,6 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	 */
 	public function test_remove_observer_while_notifying() { 
 		$observers = new ReflectionMethod( 'Mock_Observer_Collection', 'observers' );
-        $observers->setAccessible(true);
 
 		$first        = new Mock_Observer_First();
 		$unspecified  = new Mock_Collection_Observer(); 
@@ -288,7 +284,6 @@ class Observer_Collection_Test extends WP_UnitTestCase {
 	 */
 	public function test_remove_observer_of_class_while_notifying() { 
 		$observers = new ReflectionMethod( 'Mock_Observer_Collection', 'observers' );
-        $observers->setAccessible(true);
 
 		$first        = new Mock_Observer_First();
 		$unspecified  = new Mock_Collection_Observer(); 

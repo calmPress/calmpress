@@ -26,7 +26,6 @@ class WP_Test_Wp_Config extends WP_UnitTestCase {
 	 */
 	function test_valid_user_setting_line( string $line, bool $expected ) {
 		$method = new ReflectionMethod( '\calmpress\wp_config\wp_config', 'valid_user_setting_line' );
-        $method->setAccessible(true);
 
 	    $this->AssertSame( $expected, $method->invoke( null, $line ) );
     }

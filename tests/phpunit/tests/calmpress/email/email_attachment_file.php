@@ -19,10 +19,8 @@ class Email_Attachment_File_Test extends WP_UnitTestCase {
 	 */
 	public function test_constructor() {
 		$path_property = new ReflectionProperty( 'calmpress\email\Email_Attachment_File', 'path' );
-        $path_property->setAccessible(true);
 
 		$title_property = new ReflectionProperty( 'calmpress\email\Email_Attachment_File', 'title' );
-        $title_property->setAccessible(true);
 
 		// common use.
 		$t = new Email_Attachment_File( __FILE__ );

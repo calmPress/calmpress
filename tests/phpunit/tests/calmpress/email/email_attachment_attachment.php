@@ -23,7 +23,6 @@ class Email_Attachment_Attachment_Test extends WP_UnitTestCase {
 	 */
 	public function test_constructor() {
 		$title_property = new ReflectionProperty( 'calmpress\email\Email_Attachment_Attachment', 'title' );
-        $title_property->setAccessible(true);
 
 		$file = DIR_TESTDATA . '/images/canola.jpg';
 		$attachment_id = $this->factory->attachment->create_upload_object( $file, 0 );
