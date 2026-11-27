@@ -42,7 +42,7 @@ class WP_Markdown_Utils extends WP_UnitTestCase {
             ['> quote', "<blockquote>\n<p>quote</p>\n</blockquote>"],
 
             // HTML inside text
-            ['<script>alert("x")</script>', "<p>&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;</p>"],
+            ['<script>alert("x")</script>', "<p>&lt;script&gt;alert(\"x\")&lt;/script&gt;</p>"],
 
             // Markdown with literal HTML inside
             ['*<*', "<p><em>&lt;</em></p>"],
@@ -125,6 +125,15 @@ class WP_Markdown_Utils extends WP_UnitTestCase {
 
 			// Escaping
 			["f \\~d \\* \\\\ \\a", '<p>f ~d * \\ \\a</p>'],
+
+			'bullet with plus'              => [ '+ item', '<p>+ item</p>' ],
+			'bullet with asterisk'          => [ '* item', '<p>* item</p>' ],
+			'ordered list with period'     => [ '1. item', '<p>1. item</p>' ],
+			'ordered list with parentheses' => [ '1) item', '<p>1) item</p>' ],
+			'underline heading'            => [ "Title\n=====", "<p>Title\n=====</p>" ],
+			'horizontal rule'              => [ '---', '<p>---</p>' ],
+			'URL autolink'                  => [ '<https://example.test>', '<p>&lt;https://example.test&gt;</p>' ],
+			'email autolink'                => [ '<user@example.test>', '<p>&lt;user@example.test&gt;</p>' ],
 		];
     }
 }

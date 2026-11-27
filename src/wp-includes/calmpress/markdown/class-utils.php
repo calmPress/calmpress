@@ -25,7 +25,7 @@ class Utils {
 	 * Supported Markdown elements:
 	 *   - Bold (**text**)
 	 *   - Italic (*text*)
-	 *   - Strikethrough (~text~)
+	 *   - Strikethrough (~~text~~)
 	 *   - Blockquotes (> text)
 	 *   - Lists (- item)
 	 *
@@ -57,8 +57,9 @@ class Utils {
 				'\\', '~', '*'
 			);
 
-			// no H support
+			// Treat headings written with leading # markers or underlines as literal text.
 			protected function blockHeader( $Line ) { return null; }
+			protected function blockSetextHeader( $Line, ?array $Block = null ) { return null; }
 
 			// No code blocks
 			protected function blockFencedCode( $Line ) { return null; }
@@ -70,71 +71,51 @@ class Utils {
 
 			// No links
 			protected function inlineLink( $Excerpt ) { return null; }
+			protected function inlineEmailTag( $Excerpt ) { return null; }
+			protected function inlineUrlTag( $Excerpt ) { return null; }
+			protected function blockReference( $Line ) { return null; }
 
-			// No <hr>.
-			protected function blockHorizontalRule( $Line ) { return null; }
+			// Keep horizontal rules and tables as literal text.
+			protected function blockRule( $Line ) { return null; }
+			protected function blockTable( $Line, ?array $Block = null ) { return null; }
 
 			/**
-			 * Prevent * and + fron starting list iten, and ordered lists.
-			 * 
+			 * Parse unordered list items that use a hyphen marker.
+			 *
 			 * @since 1.0.0
-			 * 
-			 * @param string $Line The line being parsed.
-			 * 
-			 * @return mixed null if Line starts with +,* or number followed by . (dot)
-			 *              otherwise call parsedown to continue and return whatever
-			 *              it will return.
+			 *
+			 * @param array      $Line         Line being parsed.
+			 * @param array|null $CurrentBlock Block preceding the line.
+			 *
+			 * @return array|null List block, or null when the line does not start a supported list.
 			 */
-			protected function blockList( $Line ) {
-				// Reject * and +
-				if ( isset( $Line['text'][0] ) && ( $Line['text'][0] === '*' || $Line['text'][0] === '+' ) ) {
+			protected function blockList( $Line, ?array $CurrentBlock = null ) {
+				if ( '-' !== ( $Line['text'][0] ?? '' ) ) {
 					return null;
 				}
 
-				// Reject numeric list markers.
-				if ( preg_match( '/^\d+\./', $Line['text'] ) ) {
-					return null;
-				}
-
-				return parent::blockList( $Line );
+				return parent::blockList( $Line, $CurrentBlock );
 			}
 
 			/**
-			 * Only allow * for italics, ignore _
+			 * Allow asterisks for italic and bold text.
 			 * 
 			 * @since 1.0.0
 			 * 
 			 * @param string $Excerpt Text up to the end of line
 			 * 
-			 * @return mixed null if italics is triggered by having _, otherwise whtever
+			 * @return mixed null if italics is triggered by having _, otherwise whatever
 			 *               parsedown returns in such a case.
 			 */
 			protected function inlineEmphasis( $Excerpt ) {
 				
-				if ( isset( $Excerpt['text'][0]) && $Excerpt['text'][0] === '*' ) {
+				if ( isset( $Excerpt['text'][0] ) && $Excerpt['text'][0] === '*' ) {
 					return parent::inlineEmphasis( $Excerpt );
 				}
 
 				return null;
 			}
 
-			/**
-			 * Only allow ** for bold, ignore __
-			 * 
-			 * @since 1.0.0
-			 * 
-			 * @param string $Excerpt Text up to the end of line
-			 * 
-			 * @return mixed null if bold is triggered by having __, otherwise whtever
-			 *               parsedown returns in such a case.
-			 */
-			protected function inlineStrong( $Excerpt ) {
-				if ( isset($Excerpt['text'][0] ) && $Excerpt['text'][0] === '_' ) {
-					return null;
-				}
-
-				return parent::inlineStrong( $Excerpt );
-			}
 		};
 
 		// Disable automatic URL linking
