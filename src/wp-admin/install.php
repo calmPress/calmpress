@@ -28,7 +28,7 @@ require_once ABSPATH . WPINC . '/class-wpdb.php';
 
 nocache_headers();
 
-$step = isset( $_GET['step'] ) ? (int) $_GET['step'] : 1;
+$step = isset( $_GET['step'] ) ? sanitize_key( wp_unslash( $_GET['step'] ) ) : 'site-details';
 
 /**
  * Display installation header.
@@ -73,17 +73,15 @@ function display_header( $body_classes = '' ) {
 function display_setup_form( $error = null ) {
 	global $wpdb;
 
-	$user_table = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->users ) ) ) !== null );
-
 	$weblog_title = isset( $_POST['weblog_title'] ) ? trim( wp_unslash( $_POST['weblog_title'] ) ) : '';
 	$admin_email  = isset( $_POST['admin_email']  ) ? trim( wp_unslash( $_POST['admin_email'] ) ) : '';
 
 	if ( ! is_null( $error ) ) {
 		?>
 <h1><?php _ex( 'Welcome', 'Howdy' ); ?></h1>
-<p class="message"><?php echo $error; ?></p>
+<p class="message"><?php echo esc_html( $error ); ?></p>
 <?php } ?>
-<form id="setup" method="post" action="install.php?step=2" novalidate="novalidate">
+<form id="setup" method="post" action="install.php?step=install" novalidate="novalidate">
 	<table class="form-table" role="presentation">
 		<tr>
 			<th scope="row"><label for="weblog_title"><?php _e( 'Site Title' ); ?></label></th>
@@ -137,46 +135,7 @@ function display_setup_form( $error = null ) {
 				</label>
 			</td>
 		</tr>
-		<tr>
-			<?php
-				$parts = wp_parse_url( wp_guess_url() );
 
-				$host = $parts['host'];
-				$path = trim( $parts['path'] ?? '', '/' );
-				
-				$subdirectory_text = sprintf(
-					/* translators: %s: example for url */
-					esc_html__( 'Multiple sites using subdirectories (%s)' ),
-					$host . $path . '/site1/'
-				);
-				$subdomain_text = sprintf(
-					/* translators: %s: example for url */
-					esc_html__( 'Multiple sites using subdomains (%s)' ),
-					'site1.' . $host
-				);
-			?>
-			<th>
-				<label><?php esc_html_e( 'Installed site type' );?>
-			</th>
-			<td>
-				<select name="install_type" id="install_type">
-					<option value="standalone"><?php esc_html_e( 'Standalone' );?></option>
-					<option value="network_subdirectory"><?php echo $subdirectory_text;?></option>
-					<?php if ( empty( $path ) ) { // If path not empty subdomain technically possible but weird. ?>
-					<option value="network_subdomain"><?php echo $subdomain_text;?></option>
-					<?php } ?>
-				</select>
-				<p class="description install_type" id="description-standalone">
-					<?php esc_html_e( 'Create a standard single-site setup.' ); ?>
-				</p>
-				<p class="description install_type" id="description-network_subdirectory">
-					<?php esc_html_e( 'Allow centrally managing semi-independent sites with independent settings and user access. Subdirectories of the main site URL can be managed as separate sites. Useful for related sites that should share a common identity while still being managed separately.' ); ?>
-				</p>
-				<p class="description install_type" id="description-network_subdomain">
-					<?php esc_html_e( 'Allow centrally managing semi-independent sites with independent settings and user access. Each subdomain under the main domain can be managed as a separate site. Useful for related sites that should maintain distinct identities while still being managed together.' ); ?>
-				</p>
-			</td>
-		</tr>
 	</table>
 	<p class="step"><?php submit_button( __( 'Install calmPress' ), 'large', 'Submit', false, array( 'id' => 'submit' ) ); ?></p>
 	<input type="hidden" name="language" value="<?php echo isset( $_REQUEST['language'] ) ? esc_attr( $_REQUEST['language'] ) : ''; ?>" />
@@ -306,7 +265,7 @@ if ( ! file_exists( WP_CONTENT_DIR . '/db.php' ) ) {
 
 // CalmPress requires HTTPS for every installation, including local development sites.
 if ( ! is_ssl() ) {
-	$errors[] = esc_html__( 'This site is not currently being accessed over HTTPS. HTTPS is required to install CalmPress.' );
+	$errors[] = esc_html__( 'This site is not currently being accessed over HTTPS. HTTPS is required to install calmPress.' );
 }
 
 // Check for require php extensions.
@@ -423,7 +382,7 @@ $scripts_to_print = array( 'jquery' );
 
 switch ( $step ) {
 
-	case 1: // Step 1, direct link or from language chooser.
+	case 'site-details': // Direct link or from language chooser.
 		if ( ! empty( $language ) ) {
 			$loaded_language = wp_download_language_pack( $language );
 			if ( $loaded_language ) {
@@ -445,7 +404,7 @@ switch ( $step ) {
 		<?php
 		display_setup_form();
 		break;
-	case 2:
+	case 'install':
 		if ( ! empty( $language ) && load_default_textdomain( $language ) ) {
 			$loaded_language      = $language;
 			$GLOBALS['wp_locale'] = new WP_Locale();
@@ -469,187 +428,52 @@ switch ( $step ) {
 		$public               = 1;
 
 		// Check email address.
-		$error = false;
+		$installation_errors = new WP_Error();
 		if ( $admin_password != $admin_password_check ) {
 			// TODO: poka-yoke.
-			display_setup_form( __( 'Your passwords do not match. Please try again.' ) );
-			$error = true;
+			$installation_errors->add( 'password_mismatch', __( 'Your passwords do not match. Please try again.' ) );
 		} elseif ( empty( $admin_email ) ) {
 			// TODO: Poka-yoke.
-			display_setup_form( __( 'You must provide an email address.' ) );
-			$error = true;
+			$installation_errors->add( 'admin_email_empty', __( 'You must provide an email address.' ) );
 		} elseif ( ! is_email( $admin_email ) ) {
 			// TODO: Poka-yoke.
-			display_setup_form( __( 'Sorry, that is not a valid email address. Email addresses look like <code>username@example.com</code>.' ) );
-			$error = true;
+			$installation_errors->add( 'admin_email_invalid', __( 'Please enter a valid email address.' ) );
 		}
 
-		if ( false === $error ) {
-			$parts = wp_parse_url( wp_guess_url() );
-
+		if ( ! $installation_errors->has_errors() ) {
+			$parts  = wp_parse_url( wp_guess_url() );
 			$domain = $parts['host'];
-			$path = '/' . trim( $parts['path'] ?? '', '/' ) . '/';
+			$path   = '/' . trim( $parts['path'] ?? '', '/' ) . '/';
 
 			if ( '//' === $path ) {
 				$path = '/';
 			}
 
-			$install_type = $_POST[ 'install_type'];
-			if ( ! in_array( $install_type, array( 'network_subdirectory', 'network_subdomain' ), true ) ) {
-				$install_type = 'standalone';
-			}
+			$wpdb->show_errors();
+			wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
 
-			if ( $install_type === 'network_subdomain' && $path !== '/' ) {
-				display_setup_form( __( 'Sorry, Subdomain-based sites can only be used when the installation is located at the root of a domain.' ) );
-				$error = true;
-			} else {
-				// Update wp-config.php with network related settings based on value selected by the user.
-				$config_file = ABSPATH . 'wp-config.php';
-				$config = file_get_contents( $config_file );
-				$multisite_constants = match ( $install_type ) {
-					'network_subdirectory' => sprintf(
-						"define( 'MULTISITE', true );\n" .
-						"define( 'SUBDOMAIN_INSTALL', false );\n" .
-						"define( 'DOMAIN_CURRENT_SITE', '%s' );\n" .
-						"define( 'PATH_CURRENT_SITE', '%s' );\n" .
-						"define( 'SITE_ID_CURRENT_SITE', 1 );\n" .
-						"define( 'BLOG_ID_CURRENT_SITE', 1 );\n",
-						$domain,
-						$path
-					),
-					'network_subdomain'    => sprintf(
-						"define( 'MULTISITE', true );\n" .
-						"define( 'SUBDOMAIN_INSTALL', true );\n" .
-						"define( 'DOMAIN_CURRENT_SITE', '%s' );\n" .
-						"define( 'PATH_CURRENT_SITE', '/' );\n" .
-						"define( 'SITE_ID_CURRENT_SITE', 1 );\n" .
-						"define( 'BLOG_ID_CURRENT_SITE', 1 );\n",
-						$domain
-					),
-					default                => "// None.\n",
-				};
+			global $wp_rewrite;
+			$wp_rewrite->init();
+			flush_rewrite_rules( false );
 
-				$config = str_replace(
-					'// NETWORK_SETTINGS_PLACEHOLDER',
-					$multisite_constants,
-					$config
-				);
-
-				$put_result = file_put_contents( $config_file, $config );
-
-				$wpdb->show_errors();
-				$result = wp_install( $weblog_title, md5( $admin_email ), $admin_email, $public, '', wp_slash( $admin_password ), $loaded_language );
-
-				// Generate the relevant internal rewrite rules.
-				global $wp_rewrite;
-				$wp_rewrite->init(); // on install bootstrap $wp_rewrite is garbage, need to reinitialize.
-				flush_rewrite_rules( false );
-
-				if ( $install_type !== 'standalone' ) {
-					// We need to create references to ms global tables to enable Network.
-					foreach ( $wpdb->tables( 'ms_global' ) as $table => $prefixed_table ) {
-						$wpdb->$table = $prefixed_table;
-					}
-
-					install_network();
-
-					populate_network(
-						1,
-						$domain,
-						$admin_email,
-						$weblog_title,
-						$path,
-						$install_type === 'network_subdomain'
-					);
+			if ( is_multisite() ) {
+				foreach ( $wpdb->tables( 'ms_global' ) as $table => $prefixed_table ) {
+					$wpdb->$table = $prefixed_table;
 				}
 
-				// Update .htaccess base on install type
-				$htaccess_file        = ABSPATH . '.htaccess';
-				$htaccess_sample_file = ABSPATH . 'wp-admin/.htaccess.sample';
-				$htaccess_rewrite     = match ( $install_type ) {
-					'network_subdirectory' => <<<HTACCESS
-RewriteEngine On
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-RewriteBase {$path}
-RewriteRule ^index\.php$ - [L]
-RewriteRule (^|/)\. - [F]
-RewriteRule ^(?:[_0-9a-zA-Z-]+/)?wp-includes/.*\.php$ - [F]
-RewriteRule ^(?:[_0-9a-zA-Z-]+/)?wp-content/.*\.php$ - [F]
-RewriteRule ^([_0-9a-zA-Z-]+/)?wp-admin$ \$1wp-admin/ [R=301,L]
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-RewriteRule ^[_0-9a-zA-Z-]+/(wp-(content|admin|includes).*) {$path}\$1 [L]
-RewriteRule ^[_0-9a-zA-Z-]+/(.*\.php)$ {$path}\$1 [L]
-RewriteRule . {$path}index.php [L]
-HTACCESS,
-					'network_subdomain'    => <<<HTACCESS
-RewriteEngine On
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-RewriteBase /
-RewriteRule ^index\.php$ - [L]
-RewriteRule (^|/)\. - [F]
-RewriteRule ^wp-includes/(.*)\.php$ - [F]
-RewriteRule ^wp-content/(.*)\.php$ - [F]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . index.php [L]
-HTACCESS,
-					default                => <<<HTACCESS
-RewriteEngine On
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-RewriteBase {$path}
-RewriteRule ^index\.php$ - [L]
-RewriteRule (^|/)\. - [F]
-RewriteRule ^wp-includes/(.*)\.php$ - [F]
-RewriteRule ^wp-content/(.*)\.php$ - [F]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . {$path}index.php [L]
-HTACCESS
-				};
-
-				$htaccess = file_get_contents( $htaccess_sample_file );
-
-				$htaccess = str_replace(
-					'# REWRITE_PLACE_HOLDER',
-					$htaccess_rewrite,
-					$htaccess,
-				);
-
-				$put_result = file_put_contents( $htaccess_file, $htaccess );
-
-				if ( $result['password'] === wp_slash( $admin_password ) ) {
-					wp_redirect( wp_login_url() );
-					die();
-				}
+				install_network();
+				populate_network( 1, $domain, $admin_email, $weblog_title, $path, is_subdomain_install() );
 			}
-			?>
 
-<h1><?php _e( 'Success!' ); ?></h1>
-
-<p><?php _e( 'calmPress has been installed. Thank you, and enjoy!' ); ?></p>
-
-<table class="form-table install-success">
-	<tr>
-		<th><?php _e( 'Email' ); ?></th>
-		<td><?php echo esc_html( $admin_email ); ?></td>
-	</tr>
-	<tr>
-		<th><?php _e( 'Password' ); ?></th>
-		<td>
-			<?php if ( ! empty( $result['password'] ) && empty( $admin_password_check ) ) : ?>
-				<code><?php echo esc_html( $result['password'] ); ?></code><br />
-			<?php endif; ?>
-			<p><?php echo $result['password_message']; ?></p>
-		</td>
-	</tr>
-</table>
-
-<p class="step"><a href="<?php echo esc_url( wp_login_url() ); ?>"><?php _e( 'Log In' ); ?></a></p>
-
-			<?php
+			ob_end_clean();
+			wp_safe_redirect( wp_login_url() );
+			exit;
 		}
+
+		if ( $installation_errors->has_errors() ) {
+			display_setup_form( $installation_errors->get_error_message() );
+		}
+
 		ob_end_flush();
 		break;
 }
@@ -661,20 +485,11 @@ if ( ! wp_is_mobile() ) {
 }
 
 wp_print_scripts( $scripts_to_print );
+wp_print_footer_scripts();
 ?>
 <script type="text/javascript">
 jQuery( function( $ ) {
 	$( '.hide-if-no-js' ).removeClass( 'hide-if-no-js' );
-
-	function show_description_for_install_type() {
-		$( '.install_type' ).hide();
-		const v = $( '#install_type' ).val();
-		$( '#description-' + v ).show();
-	}
-
-	show_description_for_install_type();
-
-	$( '#install_type' ).on( 'change', show_description_for_install_type );
 
 } );
 </script>

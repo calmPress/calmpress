@@ -347,6 +347,11 @@ body.language-chooser {
 }
 
 .screen-reader-input,
+#installation-type label,
+#installation-type input[type="radio"] {
+	cursor: pointer;
+}
+
 .screen-reader-text {
 	border: 0;
 	clip-path: inset(50%);

@@ -46,7 +46,6 @@ const MAP = [
 	'calmpress\filesystem\Filesystem_Access_Over_SFTP'            => __DIR__ . '/filesystem/class-filesystem-access-over-sftp.php',
 	'calmpress\filesystem\SFTP_Credentials_Parameters' => __DIR__ . '/filesystem/class-sftp-credentials-parameters.php',
 	'calmpress\filesystem\SFTP_Connection_Exception'   => __DIR__ . '/filesystem/class-sftp-connection-exception.php',
-	'calmpress\filesystem\Installation_Credentials' => __DIR__ . '/filesystem/class-installation-credentials.php',
 	'calmpress\filesystem\Filesystem_Access_Over_FTP_Or_SFTP'        => __DIR__ . '/filesystem/class-filesystem-access-over-ftp-or-sftp.php',
 	'calmpress\filesystem\Remote_Filesystem_Access'      => __DIR__ . '/filesystem/class-remote-filesystem-access.php',
 	'calmpress\filesystem\Filesystem_Access_Exception'        => __DIR__ . '/filesystem/class-filesystem-access-exception.php',

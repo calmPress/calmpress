@@ -16,6 +16,50 @@ use calmpress\filesystem\File_Modification_Access;
 class WP_Test_File_Modification_Access extends WP_UnitTestCase {
 
 	/**
+	 * Ownership is recognized even when the file's permissions are read-only.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_is_owned_by_web_server_detects_owned_read_only_file(): void {
+		if ( 'Windows' === PHP_OS_FAMILY ) {
+			$this->markTestSkipped( 'Unix ownership is not available on Windows.' );
+		}
+
+		$file = tempnam( sys_get_temp_dir(), 'calmpress-owned-' );
+		chmod( $file, 0444 );
+
+		try {
+			$this->assertTrue( File_Modification_Access::is_owned_by_web_server( $file ) );
+		} finally {
+			chmod( $file, 0600 );
+			unlink( $file );
+		}
+	}
+
+	/**
+	 * A directory owned by another account produces a different ownership result.
+	 *
+	 * @since 1.0.0
+	 */
+	public function test_is_owned_by_web_server_recognizes_different_owner(): void {
+		if ( 'Windows' === PHP_OS_FAMILY ) {
+			$this->markTestSkipped( 'Unix ownership is not available on Windows.' );
+		}
+
+		$file = tempnam( sys_get_temp_dir(), 'calmpress-owner-' );
+
+		try {
+			if ( fileowner( '/' ) === fileowner( $file ) ) {
+				$this->markTestSkipped( 'The test process owns the filesystem root.' );
+			}
+
+			$this->assertFalse( File_Modification_Access::is_owned_by_web_server( '/' ) );
+		} finally {
+			unlink( $file );
+		}
+	}
+
+	/**
 	 * Writable files can be modified by the current process.
 	 *
 	 * @since 1.0.0

@@ -46,8 +46,21 @@ class File_Modification_Access {
 			return true;
 		}
 
-		// The write test failed. On Windows, ownership cannot tell us whether PHP
-		// could change the path's ACL to make it writable.
+		return self::is_owned_by_web_server( $path );
+	}
+
+	/**
+	 * Check whether a file or directory belongs to the web-server account running PHP.
+	 *
+	 * Unix ownership is determined by comparing the path's owner with a temporary file created by PHP.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $path File or directory path to check.
+	 *
+	 * @return bool Whether the web-server account owns the path; false when ownership cannot be determined, including on Windows.
+	 */
+	public static function is_owned_by_web_server( string $path ): bool {
 		if ( 'Windows' === PHP_OS_FAMILY ) {
 			return false;
 		}
