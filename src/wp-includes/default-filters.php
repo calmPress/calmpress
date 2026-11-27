@@ -237,7 +237,6 @@ add_filter(
 );
 add_filter( 'comment_text', 'wptexturize' );
 add_filter( 'comment_text', 'convert_chars' );
-add_filter( 'comment_text', 'make_clickable', 9 );
 add_filter( 'comment_text', 'force_balance_tags', 25 );
 add_filter( 'comment_text', 'wpautop',            30 );
 

@@ -492,11 +492,15 @@ class Tests_Formatting_MakeClickable extends WP_UnitTestCase {
 			)
 		);
 
-		ob_start();
-		comment_text( $comment_id );
-		$comment_text = ob_get_clean();
+		// Exercise the public API when a caller explicitly enables it for comments.
+		add_filter( 'comment_text', 'make_clickable', 9 );
 
-		$this->assertStringContainsString( $expected, make_clickable( $comment_text ) );
+		try {
+			$this->expectOutputRegex( '/' . preg_quote( $expected, '/' ) . '/' );
+			comment_text( $comment_id );
+		} finally {
+			remove_filter( 'comment_text', 'make_clickable', 9 );
+		}
 	}
 
 	public function data_add_rel_ugc_in_comments() {

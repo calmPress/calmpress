@@ -20,6 +20,26 @@ class Tests_Comment_Template extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Render URLs and email addresses as text in comment bodies.
+	 *
+	 * @since calmPress 1.0.0
+	 * @covers ::comment_text
+	 */
+	public function test_comment_text_keeps_urls_and_email_addresses_as_text(): void {
+		$comment_id = self::factory()->comment->create(
+			[
+				'comment_post_ID' => self::$post_id,
+				'comment_content' => '**Contact** https://example.test or user@example.test',
+				'comment_type'    => 'comment',
+			]
+		);
+
+		$this->expectOutputString( '<p><strong>Contact</strong> https://example.test or user@example.test</p>' );
+
+		comment_text( $comment_id );
+	}
+
+	/**
 	 * @covers ::get_comments_number
 	 */
 	public function test_get_comments_number() {
