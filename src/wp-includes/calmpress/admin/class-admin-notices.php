@@ -33,10 +33,7 @@ class Admin_Notices {
 		$nag = false;
 
 		if ( ! is_multisite() && is_super_admin() && is_apache() ) {
-			$home_path      = ABSPATH;
-			$existing_rules = array_filter( extract_from_markers( $home_path . '.htaccess', 'WordPress' ) );
-			$new_rules      = array_filter( explode( "\n", $wp_rewrite->mod_rewrite_rules() ) );
-			if ( $new_rules !== $existing_rules ) {
+			if ( ! marker_section_matches( ABSPATH . '.htaccess', 'WordPress', $wp_rewrite->mod_rewrite_rules() ) ) {
 				$nag = true;
 			}
 		}
@@ -76,10 +73,9 @@ class Admin_Notices {
 		$nag = false;
 
 		if ( ! is_multisite() && is_super_admin() ) {
-			$wp_config      = \calmpress\wp_config\wp_config::current_wp_config();
-			$existing_rules = $wp_config->user_section_in_file();
-			$new_rules      = get_option( 'wp_config_user_section' );
-			if ( $new_rules !== $existing_rules ) {
+			$wp_config = \calmpress\wp_config\wp_config::current_wp_config();
+
+			if ( ! $wp_config->user_section_matches( get_option( 'wp_config_user_section', '' ) ) ) {
 				$nag = true;
 			}
 		}
