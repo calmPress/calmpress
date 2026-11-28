@@ -456,8 +456,12 @@ require ABSPATH . WPINC . '/vars.php';
 create_initial_taxonomies();
 create_initial_post_types();
 
-// Register the default theme directory root.
-register_theme_directory( get_theme_root() );
+// Register the default theme root when none has been registered.
+global $wp_theme_directories;
+
+if ( empty( $wp_theme_directories ) ) {
+	register_theme_directory( get_theme_root() );
+}
 
 // To make get_plugin_data() available in a way that's compatible with plugins also loading this file, see #62244.
 require_once ABSPATH . 'wp-admin/includes/plugin.php';

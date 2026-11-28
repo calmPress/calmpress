@@ -68,6 +68,65 @@ class Tests_Theme extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Find a fixture theme when its directory is the single registered theme root.
+	 *
+	 * @since calmPress 1.0.0
+	 * @covers ::wp_get_theme
+	 */
+	public function test_wp_get_theme_uses_single_registered_theme_root(): void {
+		global $wp_theme_directories;
+
+		$fixture_root         = realpath( DIR_TESTDATA . '/themedir1' );
+		$wp_theme_directories = [];
+		register_theme_directory( $fixture_root );
+
+		$theme = wp_get_theme( 'default' );
+
+		$this->assertTrue( $theme->exists() );
+		$this->assertSame( $fixture_root, $theme->get_theme_root() );
+	}
+
+	/**
+	 * Register one theme root, accept repeat registration, and reject a second root.
+	 *
+	 * @since calmPress 1.0.0
+	 * @covers ::register_theme_directory
+	 */
+	public function test_register_theme_directory_accepts_one_root(): void {
+		global $wp_theme_directories;
+
+		$wp_theme_directories = [];
+		$fixture_root         = realpath( DIR_TESTDATA . '/themedir1' );
+
+		$this->assertTrue( register_theme_directory( $fixture_root ) );
+		$this->assertTrue( register_theme_directory( $fixture_root . '/' ) );
+
+		$this->expectException( LogicException::class );
+		register_theme_directory( WP_CONTENT_DIR . '/themes' );
+	}
+
+	/**
+	 * Use the registered root for lookups with or without a theme name.
+	 *
+	 * @since calmPress 1.0.0
+	 * @covers ::get_theme_root
+	 */
+	public function test_get_theme_root_prefers_registered_directory(): void {
+		global $wp_theme_directories;
+
+		$wp_theme_directories = [];
+		remove_filter( 'theme_root', 'tests_fixture_theme_root' );
+
+		$this->assertSame( WP_CONTENT_DIR . '/themes', get_theme_root() );
+
+		$fixture_root = realpath( DIR_TESTDATA . '/themedir1' );
+		register_theme_directory( $fixture_root );
+
+		$this->assertSame( $fixture_root, get_theme_root() );
+		$this->assertSame( $fixture_root, get_theme_root( 'default' ) );
+	}
+
 	public function test_wp_get_theme_contents() {
 		$theme = wp_get_theme( $this->theme_slug );
 

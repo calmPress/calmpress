@@ -401,41 +401,44 @@ function get_theme_roots() {
 }
 
 /**
- * Registers a directory that contains themes.
+ * Registers a directory as the theme root.
  *
- * The WordPress API is retained for compatibility, but calmPress does not support
- * registering additional theme directories.
+ * The first registration takes precedence over the default theme directory.
+ *
+ * Registering the same directory again succeeds.
  *
  * @since 2.9.0
- * @since calmPress 1.0.0 Only the default theme directory can be registered.
+ * @since calmPress 1.0.0 Allows a non-default directory to be registered as the first theme directory root.
  *
  * @global string[] $wp_theme_directories
  *
  * @param string $directory Directory to register.
  *
- * @return bool True if the theme directory was registered.
+ * @return bool True if the directory is registered.
  *
- * @throws LogicException If the directory is not the default theme directory.
+ * @throws LogicException If a different theme directory is already registered.
  * @throws RuntimeException If the path is not an existing directory.
  */
 function register_theme_directory( $directory ) {
 	global $wp_theme_directories;
 
-	$directory = untrailingslashit( $directory );
-	if ( wp_normalize_path( $directory ) !== wp_normalize_path( untrailingslashit( get_theme_root() ) ) ) {
-		throw new LogicException( 'Registering additional theme directories is not supported by calmPress.' );
+	$directory           = untrailingslashit( $directory );
+	$has_registered_root = is_array( $wp_theme_directories ) && ! empty( $wp_theme_directories );
+
+	if ( $has_registered_root ) {
+		$registered_root = reset( $wp_theme_directories );
+
+		if ( wp_normalize_path( $registered_root ) !== wp_normalize_path( $directory ) ) {
+			throw new LogicException( 'Registering additional theme directories is not supported by calmPress.' );
+		}
 	}
 
 	if ( ! is_dir( $directory ) ) {
 		throw new RuntimeException( 'Theme directory does not exist or is not a directory: ' . $directory );
 	}
 
-	if ( ! is_array( $wp_theme_directories ) ) {
-		$wp_theme_directories = [];
-	}
-
-	if ( ! in_array( $directory, $wp_theme_directories, true ) ) {
-		$wp_theme_directories[] = $directory;
+	if ( ! $has_registered_root ) {
+		$wp_theme_directories = [ $directory ];
 	}
 
 	return true;
@@ -595,6 +598,7 @@ function search_theme_directories( $force = false ) {
  * Does not have trailing slash.
  *
  * @since 1.5.0
+ * @since calmPress 1.0.0 Uses the registered directory when there is a single theme root.
  *
  * @global string[] $wp_theme_directories
  *
@@ -604,6 +608,10 @@ function search_theme_directories( $force = false ) {
  */
 function get_theme_root( $stylesheet_or_template = '' ) {
 	global $wp_theme_directories;
+
+	if ( is_array( $wp_theme_directories ) && 1 === count( $wp_theme_directories ) ) {
+		return reset( $wp_theme_directories );
+	}
 
 	$theme_root = '';
 
@@ -691,6 +699,7 @@ function get_theme_root_uri( $stylesheet_or_template = '', $theme_root = '' ) {
  * Gets the raw theme root relative to the content directory with no filters applied.
  *
  * @since 3.1.0
+ * @since calmPress 1.0.0 Honors a single registered theme directory.
  *
  * @global string[] $wp_theme_directories
  *
@@ -703,7 +712,13 @@ function get_raw_theme_root( $stylesheet_or_template, $skip_cache = false ) {
 	global $wp_theme_directories;
 
 	if ( ! is_array( $wp_theme_directories ) || count( $wp_theme_directories ) <= 1 ) {
-		return '/themes';
+		$registered_root = $wp_theme_directories[0] ?? WP_CONTENT_DIR . '/themes';
+
+		if ( WP_CONTENT_DIR . '/themes' === $registered_root ) {
+			return '/themes';
+		}
+
+		return $registered_root;
 	}
 
 	$theme_root = false;

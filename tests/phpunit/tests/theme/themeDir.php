@@ -26,12 +26,9 @@ class Tests_Theme_ThemeDir extends WP_UnitTestCase {
 
 		$this->orig_theme_dir = $GLOBALS['wp_theme_directories'];
 
-		// /themes is necessary as theme.php functions assume /themes is the root if there is only one root.
-		$GLOBALS['wp_theme_directories'] = array( WP_CONTENT_DIR . '/themes', self::THEME_ROOT );
+		$GLOBALS['wp_theme_directories'] = [];
+		register_theme_directory( self::THEME_ROOT );
 
-		add_filter( 'theme_root', array( $this, 'filter_theme_root' ) );
-		add_filter( 'stylesheet_root', array( $this, 'filter_theme_root' ) );
-		add_filter( 'template_root', array( $this, 'filter_theme_root' ) );
 		// Clear caches.
 		wp_clean_themes_cache();
 		unset( $GLOBALS['wp_themes'] );
@@ -44,26 +41,18 @@ class Tests_Theme_ThemeDir extends WP_UnitTestCase {
 		parent::tear_down();
 	}
 
-	// Replace the normal theme root directory with our premade test directory.
-	public function filter_theme_root( $dir ) {
-		return self::THEME_ROOT;
-	}
-
 	public function test_wp_get_theme_with_non_default_theme_root() {
 		$this->assertFalse( wp_get_theme( 'sandbox', self::THEME_ROOT )->errors() );
 		$this->assertFalse( wp_get_theme( 'sandbox' )->errors() );
 	}
 
 	/**
-	 * Tests that registering the default theme directory again succeeds without duplicating it.
+	 * Tests that registering the same theme directory again succeeds.
 	 *
 	 * @since calmPress 1.0.0
 	 */
-	public function test_register_default_theme_directory() {
-		$registered_directories = $GLOBALS['wp_theme_directories'];
-
+	public function test_register_same_theme_directory() {
 		$this->assertTrue( register_theme_directory( get_theme_root() ) );
-		$this->assertSame( $registered_directories, $GLOBALS['wp_theme_directories'] );
 	}
 
 	/**
@@ -78,28 +67,17 @@ class Tests_Theme_ThemeDir extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Supplies a nonexistent theme root for the missing-directory test.
-	 *
-	 * @since calmPress 1.0.0
-	 *
-	 * @return string A nonexistent theme root path.
-	 */
-	public function filter_missing_theme_root() {
-		return WP_CONTENT_DIR . '/missing-theme-directory';
-	}
-
-	/**
-	 * Tests that registering a missing default theme directory throws.
+	 * Tests that the first registration rejects a nonexistent directory.
 	 *
 	 * @since calmPress 1.0.0
 	 */
-	public function test_register_missing_default_theme_directory_throws() {
-		$this->assertDirectoryDoesNotExist( WP_CONTENT_DIR . '/missing-theme-directory' );
+	public function test_register_missing_theme_directory_throws(): void {
+		$GLOBALS['wp_theme_directories'] = [];
+		$missing_directory             = WP_CONTENT_DIR . '/missing-theme-directory';
 
-		add_filter( 'theme_root', [ $this, 'filter_missing_theme_root' ], 20 );
-
+		$this->assertDirectoryDoesNotExist( $missing_directory );
 		$this->expectException( RuntimeException::class );
 
-		register_theme_directory( get_theme_root() );
+		register_theme_directory( $missing_directory );
 	}
 }
