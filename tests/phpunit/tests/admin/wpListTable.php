@@ -24,8 +24,9 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 
-		static::$original_hook_suffix = $GLOBALS['hook_suffix'];
+		static::$original_hook_suffix = $GLOBALS['hook_suffix'] ?? null;
 
+		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 	}
 
@@ -90,7 +91,7 @@ class Tests_Admin_WpListTable extends WP_UnitTestCase {
 		 * untested.
 		 */
 		$list_primary_columns = array(
-			'WP_Comments_List_Table'                      => 'author',
+			'WP_Comments_List_Table'                      => 'comment',
 			'WP_Media_List_Table'                         => 'title',
 			'WP_MS_Sites_List_Table'                      => 'blogname',
 			'WP_MS_Themes_List_Table'                     => 'name',
