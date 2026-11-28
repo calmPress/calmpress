@@ -4,7 +4,30 @@
  */
 class Tests_Link_ThemeFile extends WP_UnitTestCase {
 
+	/**
+	 * Theme directories to restore after the class finishes.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @var string[]
+	 */
+	private static array $original_theme_directories;
+
+	/**
+	 * Install the parent and child fixtures in the test class's theme root.
+	 *
+	 * @since calmPress 1.0.0
+	 *
+	 * @param WP_UnitTest_Factory $factory Test fixture factory.
+	 */
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		global $wp_theme_directories;
+
+		self::$original_theme_directories = $wp_theme_directories;
+		$wp_theme_directories             = [];
+		register_theme_directory( WP_CONTENT_DIR . '/themes' );
+		wp_clean_themes_cache();
+
 		$themes = array(
 			'theme-file-parent',
 			'theme-file-child',
@@ -23,7 +46,17 @@ class Tests_Link_ThemeFile extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Remove the copied fixtures and restore the suite's theme root.
+	 *
+	 * @since calmPress 1.0.0
+	 */
 	public static function wpTearDownAfterClass() {
+		global $wp_theme_directories;
+
+		$wp_theme_directories = self::$original_theme_directories;
+		wp_clean_themes_cache();
+
 		$themes = array(
 			'theme-file-parent',
 			'theme-file-child',
