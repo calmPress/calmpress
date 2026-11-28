@@ -690,8 +690,7 @@ class Tests_Theme extends WP_UnitTestCase {
 				static function () {
 					return 'another-theme';
 				},
-				// Because the theme does not exist, `get_theme_root()` returns the default themes directory.
-				WP_CONTENT_DIR . '/themes/another-theme',
+				tests_fixture_theme_root() . '/another-theme',
 			),
 		);
 	}
@@ -750,8 +749,7 @@ class Tests_Theme extends WP_UnitTestCase {
 				static function () {
 					return 'another-theme';
 				},
-				// Because the theme does not exist, `get_theme_root()` returns the default themes directory.
-				WP_CONTENT_DIR . '/themes/another-theme',
+				tests_fixture_theme_root() . '/another-theme',
 			),
 		);
 	}
